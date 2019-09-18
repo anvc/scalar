@@ -1055,7 +1055,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
                     base.expandedEditorWidth = $(editor.container.$).find('.cke_inner ').outerWidth();
                     base.$editorialToolsPanel.width((base.expandedEditorWidth*.3)-4);
                 }
-                $(window).resize(function(){
+                $(window).on('resize', function(){
                     resize();
                 });
                 resize();

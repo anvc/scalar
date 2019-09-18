@@ -1,4 +1,4 @@
-<?$this->template->add_js('system/application/views/modules/dashboard/jquery.dashboardtable.js')?>
+.on('resize', <?$this->template->add_js('system/application/views/modules/dashboard/jquery.dashboardtable.js')?>
 
 		<style>
 		.admin-nav-wrap {
@@ -13,7 +13,7 @@
 		<script>
 		$(document).ready(function() {
 
-			$('.jump-form').submit(function() {
+			$('.jump-form').on('submit', function() {
 				var x = parseInt($(this).children('.jump-to-page').val());
 				if(!isNaN(x)) {
 					var start = <?=$total?> * (x-1);
@@ -27,7 +27,7 @@
 				$('.book-search').val(search_text);
 			}
 
-			$('.book-search-form').submit(function() {
+			$('.book-search-form').on('submit', function() {
 				var sq = $(this).children('.book-search').val();
  				window.location.href = "<?=confirm_slash(base_url())?>system/dashboard?zone=all-books&sq=" + encodeURIComponent(sq) + "#tabs-all-books";
 				return false;
@@ -73,7 +73,7 @@
 
 			});
 
-   			$(window).resize(function() { resizeList(); });
+   			$(window).on('resize', function() { resizeList(); });
    			resizeList();
 
 		});

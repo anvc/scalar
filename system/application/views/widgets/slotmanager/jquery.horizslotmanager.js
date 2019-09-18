@@ -89,7 +89,7 @@
 				// Manage width
 
 				set_width($this, $tags, options);
-				$(window).resize(function() { set_width($this, $tags, options); });
+				$(window).on('resize', function() { set_width($this, $tags, options); });
 
 				// Move to first element
 

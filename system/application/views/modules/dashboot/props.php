@@ -27,14 +27,14 @@ $(document).ready(function() {
 		$(this).closest('.input-group').find('input[type="text"]').val(label);
     });
  	// Convert checkboxes to hidden inputs (so zero values can be sent through post)
-    $('#url_is_public_el, #display_in_index_el').change(function() {
+    $('#url_is_public_el, #display_in_index_el').on('change', function() {
     	var $el = $(this);
     	var name = $el.attr('id').replace('_el','');
     	var value = ($el.is(':checked')) ? 1 : 0;
     	$el.parent().find('input[name="'+name+'"]').val(value);
     });
     // Thumb upload change
-    $('input[name="upload_publisher_thumb"]').change(function() {
+    $('input[name="upload_publisher_thumb"]').on('change', function() {
         var oFReader = new FileReader();
         oFReader.readAsDataURL(this.files[0]);
         oFReader.onload = function(oFREvent) {
@@ -42,7 +42,7 @@ $(document).ready(function() {
         };
     });
     // Warn user about changing the book slug
-    $('input[name="slug"]').data('orig-value',$('input[name="slug"]').val()).keydown(function() {
+    $('input[name="slug"]').data('orig-value',$('input[name="slug"]').val()).on('keydown', function() {
 		var $this = $(this);
 		if ($this.data('active')) return;
 		$this.data('active',true);
@@ -93,8 +93,8 @@ $(document).ready(function() {
 		$('#email-authors').prop('checked', email_authors);
     };
     title_init_values();
-    $('input[name="title"]').change(title_init_values);
-	$('#duplicatable,#hide-versions,#joinable,#hypothesis,#thoughtmesh,#auto-approve,#email-authors').change(function() {
+    $('input[name="title"]').trigger('change', title_init_values);
+	$('#duplicatable,#hide-versions,#joinable,#hypothesis,#thoughtmesh,#auto-approve,#email-authors').on('change', function() {
 		var $title = $('<div>'+$('input[name="title"]').val()+'</div>');
 		if (!$title.children(':first').is('span')) $title.contents().wrap('<span></span>');
 		var $span = $title.children(':first');
@@ -156,9 +156,9 @@ function set_versions(nodes) {
 		});
 	};
 	set_version_numbers();
-	$versions.find('li').find('.glyphicon:first').mouseover(function() {
+	$versions.find('li').find('.glyphicon:first').on('mouseover', function() {
 		$(this).closest('li').addClass('list-group-item-info');
-	}).mouseout(function() {
+	}).on('mouseout', function() {
 		$(this).closest('li').removeClass('list-group-item-info')
 	});
 	$versions.sortable({

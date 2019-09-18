@@ -182,7 +182,7 @@
 				}
 
 				// Bind events
-				$link.mouseover(function(event) { texteo_tag_over_event($(this), event) });
+				$link.on('mouseover', function(event) { texteo_tag_over_event($(this), event) });
 
 				// Listen for media element and change icon if needed
 				$('body').bind('mediaElementMetadataHandled', function(event, $link) {
@@ -196,8 +196,8 @@
 			// Set 'is on screen' on initial load and during certain browser events
 			if (scrolling_element) {
 				is_on_screen($text, options);
-				$(window).resize(function() { set_positions($text, scrolling_element, options); is_on_screen($text, options); });
-				scrolling_element.scroll(function() { is_on_screen($text, options); });  // TODO: this should be configurable
+				$(window).on('resize', function() { set_positions($text, scrolling_element, options); is_on_screen($text, options); });
+				scrolling_element.on('scroll', function() { is_on_screen($text, options); });  // TODO: this should be configurable
 			}
 
 		});

@@ -2,11 +2,11 @@
 <script>
 $(document).ready(function() {
     // Table row mousovers
-	$('.table-hover-custom').find('tbody tr').mouseover(function() {
+	$('.table-hover-custom').find('tbody tr').on('mouseover', function() {
 		var $row = $(this);
 		$row.css('cursor','pointer').addClass('info');
 		$row.find('.showme').css('visibility','visible');
-	}).mouseout(function() {
+	}).on('mouseout', function() {
 		var $row = $(this);
 		$row.removeClass('info');
 		$row.find('.showme').css('visibility','hidden');

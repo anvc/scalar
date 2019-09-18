@@ -925,7 +925,7 @@ function br2nl(str) {
 	    		// CRAIG TODO: change this so it doesn't lost the value of non-wysiwyg
 	    		// Figure out if we are in text mode, and then don't do the save
 
-                form.submit(function() {
+                form.on('submit', function() {
                 	if (self.viewHTML) return; // editor is in html mode (not WYSIWYG), therefor changes are live to the textarea
                 	self.saveContent();
                 });
@@ -1009,9 +1009,9 @@ function br2nl(str) {
                 /**
                  * @link http://code.google.com/p/jwysiwyg/issues/detail?id=11
                  */
-                $(this.editorDoc).keydown(function() { self.saveContent(); })
-                                 .keyup(function() { self.saveContent(); })
-                                 .mousedown(function() { self.saveContent(); });
+                $(this.editorDoc).on('keydown', function() { self.saveContent(); })
+                                 .on('keyup', function() { self.saveContent(); })
+                                 .on('mousedown', function() { self.saveContent(); });
             }
 
             if ( this.options.css )
@@ -1034,7 +1034,7 @@ function br2nl(str) {
                 }, 0);
             }
 
-            $(this.editorDoc).keydown(function( event )
+            $(this.editorDoc).on('keydown', function( event )
             {
                 if ( $.browser.msie && self.options.brIE && event.keyCode == 13 )
                 {

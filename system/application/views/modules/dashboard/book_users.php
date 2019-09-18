@@ -11,7 +11,7 @@
         		}
    			});
 
-   			$(window).resize(function() { resizeList(); });
+   			$(window).on('resize', function() { resizeList(); });
    			resizeList();
 
 		});
@@ -59,7 +59,7 @@
 				var $div = $('<div class="select_box"><h4 class="dialog_title">Add a user</h4>To connect a user to your book, first search for them by their full name.<br clear="both" /><br /><form><input class="generic_text_input" style="float:left;" type="text" name="fullname" value="Full name" /><input class="generic_button" style="float:left; margin-left:8px;" type="submit" value="Search" /><br clear="both" /></form><div class="results" style="padding-top:16px;padding-bottom:10px;"></div><a class="generic_button large" href="javascript:;" onclick="$(this).parent().remove();" style="float:right;font-size:larger;">Cancel</a></div>');
 				$div.find('input:first').focus(function() {if ($(this).val() == 'Full name') $(this).val('');});
 				$('body').append($div);
-				$div.find('form:first').submit(function() {
+				$div.find('form:first').on('submit', function() {
 					if ($div.find('input:first').val()=='Full name') return false;
 					$div.find('input:submit').attr("disabled", "disabled");
 					var fullname = this.fullname.value;

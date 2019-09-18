@@ -315,7 +315,7 @@
 			// create view/recent menus
 			this.utilityElement = $('<div class="utility"><span class="pulldown viewMenu"><a class="menu" href="javascript:;">View</a><ul class="pulldown-content nodots narrow-pulldown pulldown-content-nudge-right"></ul></span> <span class="pulldown recentMenu"><a class="menu" href="javascript:;">Recent</a><ul class="pulldown-content nodots narrow-pulldown pulldown-content-nudge-right"></ul></span></div>').appendTo(this.model.element);
 			if ($.isFunction($.fn.scalarrecent)) {
-				$(this.utilityElement.find('span:nth-child(2)')).mouseover(function(){
+				$(this.utilityElement.find('span:nth-child(2)')).on('mouseover', function(){
 					$(this).find('.pulldown-content').scalarrecent();
 					$(this).find('.pulldown-content').show();  // Needed because .scalarpulldown()'s mouseover might be overwritten here
 					$(this).css('zIndex', 10);                 // Needed because .scalarpulldown()'s mouseover might be overwritten here

@@ -29,17 +29,17 @@
 
 			$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:rel_type,start:null,results:null,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,expand_column:{name:rel_type.capitalizeFirstLetter()+' of',func:'getParentOf'},pagination_func:pagination,paywall:false,no_content_msg:'There is no content of this type<br />You can select a different relationship type using the pulldown above'});
 
-   			$(window).resize(function() { resizeList(); });
+   			$(window).on('resize', function() { resizeList(); });
    			resizeList();
 
-   			$('#formRelType').submit(function() {
+   			$('#formRelType').on('submit', function() {
    				rel_type = $(this).find('[name="relType"] option:selected').val();
    				$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:rel_type,start:null,results:null,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,expand_column:{name:rel_type.capitalizeFirstLetter()+' of',func:'getParentOf'},pagination_func:pagination,paywall:false,no_content_msg:'There is no content of this type<br />You can select a different relationship type using the pulldown above'});
    				return false;
    			});
-   			$('#formRelType').find('[name="relType"]').change(function() {
+   			$('#formRelType').find('[name="relType"]').on('change', function() {
    	   			var $this = $(this);
-   	   			$this.closest('form').submit();
+   	   			$this.closest('form').trigger('submit');
    	   			$this.blur();
    			});
 

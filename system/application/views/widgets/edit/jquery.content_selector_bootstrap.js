@@ -2262,7 +2262,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						};
 						$cell.find('input, select').on('click', function(event) {
 							event.stopPropagation();
-						}).keypress(function(e) {
+						}).on('keypress', function(e) {
 							if (e.which == 13) {
 								$(this).closest('tr').find('.editLink').trigger('click');
 							}

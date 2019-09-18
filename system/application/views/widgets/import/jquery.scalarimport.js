@@ -72,7 +72,7 @@ if ('undefined'==typeof(escape_html)) {
 
 			options = $.extend(defaults, options);
 			$(options.results_el).hide();
-			$(window).resize(function() { $.fn.scalarimport('resize_results', options); });
+			$(window).on('resize', function() { $.fn.scalarimport('resize_results', options); });
 
 			// Required scalarapi obj
 			if (null===options.scalarapi) {
@@ -498,7 +498,7 @@ if ('undefined'==typeof(escape_html)) {
 			} else {
 				$footer.find('.paginate').html('No additional pages');
 			}
-			$footer.find('#check_all').change(function() {
+			$footer.find('#check_all').on('change', function() {
 				var check_all = ($(this).is(':checked')) ? true : false;
 				$table.find('input[type="checkbox"]').prop('checked', check_all);
 			});
@@ -593,7 +593,7 @@ if ('undefined'==typeof(escape_html)) {
 
 			// Thumbnail changes
 			if ($coreul.find('input[name="'+thumbnail_field+'"]').val().length) $coreul.find('#thumbnail').show();
-			$coreul.find('input[name="'+thumbnail_field+'"]').change(function() {
+			$coreul.find('input[name="'+thumbnail_field+'"]').on('change', function() {
 				var url = $(this).val();
 				$coreul.find('#thumbnail').show().attr('src', url);
 			});

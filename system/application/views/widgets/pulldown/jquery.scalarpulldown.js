@@ -30,8 +30,8 @@
 			var on_click = ($this.hasClass('pulldown_click')) ? true : false;
 
 			if (!on_click) {
-				$this.mouseover(function(){ $content.show(); $this.css('zIndex', 10); $("body").trigger("pulldownIsOpen", this); });
-				$this.mouseout(function(){ $content.hide(); $this.css('zIndex', 1); });
+				$this.on('mouseover', function(){ $content.show(); $this.css('zIndex', 10); $("body").trigger("pulldownIsOpen", this); });
+				$this.on('mouseout', function(){ $content.hide(); $this.css('zIndex', 1); });
 			}
 
 			$this.on('click', function() {  // Add click even regardless of on_click, for gestural (e.g., iPad) support
@@ -62,10 +62,10 @@
 
 			$content_li.each(function() {
 				// Rollover effect
-				$(this).mouseover(function() {
+				$(this).on('mouseover', function() {
 					$(this).addClass('sel');
 				});
-				$(this).mouseout(function() {
+				$(this).on('mouseout', function() {
 					$(this).removeClass('sel');
 				});
 			});

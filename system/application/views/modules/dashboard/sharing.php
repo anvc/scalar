@@ -4,7 +4,7 @@
 $(window).ready(function() {
 
     $('.save_changes').next('a').on('click', function() {
-    	$('#sharing_form').submit();
+    	$('#sharing_form').trigger('submit');
     	return false;
     });
 
@@ -22,7 +22,7 @@ $(window).ready(function() {
 	$('#auto-approve').val(auto_approve);
 	$('#email-authors').val(email_authors);
 
-	$('#duplicatable, #joinable, #hypothesis,#thoughtmesh,#auto-approve,#email-authors').change(function() {
+	$('#duplicatable, #joinable, #hypothesis,#thoughtmesh,#auto-approve,#email-authors').on('change', function() {
 		var $title = $('<div>'+$('input[name="title"]').val()+'</div>');
 		if (!$title.children(':first').is('span')) $title.contents().wrap('<span></span>');
 		var $span = $title.children(':first');

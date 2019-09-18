@@ -115,7 +115,7 @@ function userOptions() {
 	});
 	$userOptionsModal.modal();
 	var last_sent = '';
-	$userOptionsModal.find('#fullname').off('keyup').keyup(function() {
+	$userOptionsModal.find('#fullname').off('keyup').on('keyup', function() {
 		var $this = $(this);
 		var text = $this.val();
 		if (text.length < 3) return;

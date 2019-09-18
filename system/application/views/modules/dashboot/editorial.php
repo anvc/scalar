@@ -534,7 +534,7 @@ STR;
             });
           }
 
-          $(window).resize(calculateFragmentOverflow);
+          $(window).on('resize', calculateFragmentOverflow);
           calculateFragmentOverflow();
           // build the usage rights gauge
           if (content_count > 0 && scope !== 'statesOnly') {
@@ -628,7 +628,7 @@ STR;
       highlightSelectedEdition($('#select_edition').find('a[data-index="'+getCookie(editionCookieName())+'"]'));
   	};
 
-  	$('#confirmEditorialWorkflow').find('form').submit(function(event) {
+  	$('#confirmEditorialWorkflow').find('form').on('submit', function(event) {
   		if (!parseInt($(this).find('[name="enable"]').val())) {
   			selectEditionByIndex(null);
   		};
@@ -640,7 +640,7 @@ STR;
       var $modal = $(this);
       $body = $modal.find('.modal-body:first');
       var $form = $body.parent();
-      $form.submit(function() {
+      $form.on('submit', function() {
         var $form = $(this);
         var title = $form.find('input[type="text"]:first').val();
         if (!title.length) {
@@ -705,11 +705,11 @@ STR;
   				    $row.append('<td style="vertical-align:middle;" align="center"><a href="javascript:void(null);" class="btn btn-default btn-xs showme edit_edition">Edit row</a></td>');
   				    $row.append('<td style="vertical-align:middle;" align="right"><a href="javascript:void(null);" style="border-color:#cccccc;" class="btn btn-danger btn-xs showme delete_edition">Delete</a></td>');
   				};
-  				$table.find('tbody tr').mouseover(function() {
+  				$table.find('tbody tr').on('mouseover', function() {
   					var $row = $(this);
   					$row.addClass('info');
   					$row.find('.showme').css('visibility','visible');
-  				}).mouseout(function() {
+  				}).on('mouseout', function() {
   					var $row = $(this);
   					var $cell = $row.find('td:nth-of-type(1)');
   					if ($cell.data('is_editing')) return;
@@ -757,7 +757,7 @@ STR;
   						$cell.html('<input class="form-control input-xs" type="text" value="' + htmlspecialchars(replace) + '" required />');
   						$cell.find('input').on('click', function(event) {
   							event.stopPropagation();
-  						}).keypress(function(e) {
+  						}).on('keypress', function(e) {
   							if (e.which == 13) $(this).closest('tr').find('.edit_edition').trigger('click');
   						});
   					};

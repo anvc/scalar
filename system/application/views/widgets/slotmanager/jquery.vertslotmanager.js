@@ -55,10 +55,10 @@
 			var $scrollable_element = $(window);
 
 			setTimeout(function () {manage_height($this, $container, $fixer, $controls)},100);
-			$(window).resize(function() {
+			$(window).on('resize', function() {
 				manage_height($this, $container, $fixer, $controls);
 			});
-			$(window).scroll(function() {
+			$(window).on('scroll', function() {
 				manage_height($this, $container, $fixer, $controls);
 				//$slider.data('current_tag').slotmanager_move_to($scrollable_element, $this);
 			});

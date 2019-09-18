@@ -46,7 +46,7 @@
 			$div.find('.maximize_content')
 				.css( 'top', parseInt($(document).scrollTop())+content_top_margin )
 				.css( 'height', parseInt($(window).height())-(content_top_margin*2) );
-			$(document).scroll(function() {
+			$(document).on('scroll', function() {
 				$div.find('.maximize_content').stop(true).animate({
 					top: parseInt($(document).scrollTop())+content_top_margin,
 			  	}, 'fast');

@@ -1,9 +1,9 @@
 <script>
 $(document).ready(function() {
-	$('#do_delete_books_form').submit(function() {
-		if (!$(this).prev().find('input:checked').length) return false; 
-		var msg='Are you sure you wish to delete the selected books'; 
-		if ($(this).find('[name="delete_creators"]').val()==1) msg+=' and their creator user accounts'; 
+	$('#do_delete_books_form').on('submit', function() {
+		if (!$(this).prev().find('input:checked').length) return false;
+		var msg='Are you sure you wish to delete the selected books';
+		if ($(this).find('[name="delete_creators"]').val()==1) msg+=' and their creator user accounts';
 		if (!confirm(msg+'?')) return false;
 		var book_ids=[];
 		$(this).prev().find('input:checked').each(function() {
@@ -12,13 +12,13 @@ $(document).ready(function() {
 		$(this).find('[name="book_ids"]').val(book_ids.join(','));
 		return true;
 	});
-	$('#do_delete_users_form').submit(function() {
-		if (!$(this).prev().find('input:checked').length) return false; 
-		var msg='Are you sure you wish to delete the selected users'; 
-		if ($(this).find('[name="delete_books"]').val()==1) msg+=' and books they author'; 
+	$('#do_delete_users_form').on('submit', function() {
+		if (!$(this).prev().find('input:checked').length) return false;
+		var msg='Are you sure you wish to delete the selected users';
+		if ($(this).find('[name="delete_books"]').val()==1) msg+=' and books they author';
 		msg += '?';
 		if ($(this).find('[name="delete_books"]').val()==1) msg+=' This might include books with multiple authors.';
-		if (!confirm(msg)) return false; 
+		if (!confirm(msg)) return false;
 		var user_ids=[];
 		$(this).prev().find('input:checked').each(function() {
 			user_ids.push($(this).val());
@@ -26,7 +26,7 @@ $(document).ready(function() {
 		$(this).find('[name="user_ids"]').val(user_ids.join(','));
 		return true;
 	});
-	$('.div_list').find('input[type="checkbox"]').change(function() {
+	$('.div_list').find('input[type="checkbox"]').on('change', function() {
 		var checked = $(this).is(':checked') ? true : false;
 		if (checked) {
 			$(this).closest('div').addClass('active');
@@ -42,9 +42,9 @@ $(document).ready(function() {
 <input type="hidden" name="action" value="get_recent_book_list" />
 List all books:&nbsp; <input type="submit" value="Generate" />&nbsp; <a href="?zone=tools#tabs-tools">clear</a>
 <span style="float:right;">Delete books and their creators from this list; links open All Books or All Users tab in new window</span>
-<div class="div_list"><?php 
+<div class="div_list"><?php
 	if (!isset($recent_book_list)) {
-		
+
 	} elseif (empty($recent_book_list)) {
 		echo 'No books could be found!';
 	} else {
@@ -84,9 +84,9 @@ if (isset($recent_book_list) && !empty($recent_book_list)) {
 <input type="hidden" name="action" value="get_recent_users" />
 List all users:&nbsp; <input type="submit" value="Generate" />&nbsp; <a href="?zone=tools#tabs-tools">clear</a>
 <span style="float:right;">Delete users from this list; link opens All Users tab in new window</span>
-<div class="div_list"><?php 
+<div class="div_list"><?php
 	if (!isset($recent_user_list)) {
-		
+
 	} elseif (empty($recent_user_list)) {
 		echo 'No users could be found!';
 	} else {
@@ -118,9 +118,9 @@ if (isset($recent_user_list) && !empty($recent_user_list)) {
 <input type="hidden" name="action" value="get_email_list" />
 Generate email list:&nbsp; <input type="submit" value="Generate" />&nbsp; <a href="?zone=tools#tabs-tools">clear</a>
 <span style="float:right;">Please cut-and-paste into the "Bcc" (rather than "Cc") field to protect anonymity</span>
-<textarea class="textarea_list"><?php 
+<textarea class="textarea_list"><?php
 	if (!isset($email_list)) {
-		
+
 	} elseif (empty($email_list)) {
 		echo 'No email addresses could be found';
 	} else {
@@ -134,9 +134,9 @@ Generate email list:&nbsp; <input type="submit" value="Generate" />&nbsp; <a hre
 <input type="hidden" name="action" value="recreate_book_folders" />
 Recreate book folders:&nbsp; <input type="submit" value="Recreate" />&nbsp; <a href="?zone=tools#tabs-tools">clear</a>
 <span style="float:right;">Will rebuild book folders that may have gone missing from the Scalar root directory</span>
-<textarea class="textarea_list"><?php 
+<textarea class="textarea_list"><?php
 	if (!isset($book_list)) {
-		
+
 	} elseif (empty($book_list)) {
 		echo 'No book folders required recreating';
 	} else {

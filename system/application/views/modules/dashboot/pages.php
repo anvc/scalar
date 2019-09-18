@@ -72,7 +72,7 @@ $(document).ready(function() {
 	?>
 	$selector.node_selection_dialogue(node_options);
 	$('#review-comments').on('click', function() {
-		$('.selector .node_types select:first').val('reply').change();
+		$('.selector .node_types select:first').val('reply').trigger('change');
 	});
 });
 function deleteOptions($content) {

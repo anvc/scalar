@@ -9,7 +9,7 @@ $this->template->add_js('system/application/views/widgets/import/jquery.scalarim
 $js = <<<EOT
 
 $(document).ready(function() {
-	$('#search_archive_form').submit(function() {
+	$('#search_archive_form').on('submit', function() {
 		$('#search_archive_form').scalarimport({pagenum:1});
 		return false;
 	});

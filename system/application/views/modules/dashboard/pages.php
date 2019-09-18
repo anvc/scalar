@@ -28,17 +28,17 @@
 				$('.table_wrapper').find('input[type="checkbox"]').prop('checked', check_all);
 			});
 
-			$('#selectImportPages').change(function() {
+			$('#selectImportPages').on('change', function() {
 				var url = $('#selectImportPages option:selected').val();
 				document.location.href = url;
 			});
 
 			$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'page',start:start,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination,paywall:paywall});
 
-   			$(window).resize(function() { resizeList(); });
+   			$(window).on('resize', function() { resizeList(); });
    			resizeList();
 
-   			$('#formSearch').submit(function() {
+   			$('#formSearch').on('submit', function() {
    				start = 0;
    				$('.table_wrapper').html('<div id="loading">Loading</div>');
    	   			var sq = $(this).find('input[name="sq"]').val().toLowerCase();
@@ -66,12 +66,12 @@
 				for (j = 1; j <= total; j+=results) {
 					$jump_to.append('<option value="'+j+'">'+j+'</option>');
 				}
-				$jump_to.change(function() {
+				$jump_to.on('change', function() {
 					start = parseInt($(this).find('option:selected').val() - 1);
 					if (-1==start) start = 0;
 					$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'page',start:start,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination,paywall:paywall});
 	   			});
-	   			if (invoke) $jump_to.change();
+	   			if (invoke) $jump_to.trigger('change');
    			}
    			handle_jump_to();
 
@@ -79,7 +79,7 @@
 			for (j = results; j <= max_results; j+=results) {
 				$num_results.append('<option value="'+j+'"'+((j==results)?' selected':'')+'>'+j+'</option>');
 			}
-			$num_results.change({handle_jump_to:handle_jump_to}, function(e) {
+			$num_results.on('change', {handle_jump_to:handle_jump_to}, function(e) {
 				results = parseInt($num_results.val());
 				e.data.handle_jump_to(true);
 			});

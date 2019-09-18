@@ -3,6 +3,7 @@
 <?$this->template->add_css('system/application/views/modules/dashboot/css/bootstrap.min.css')?>
 <?$this->template->add_css('system/application/views/modules/dashboot/css/tabs.css')?>
 <?$this->template->add_js('system/application/views/modules/dashboot/js/jquery-3.1.0.min.js')?>
+<script src="https://code.jquery.com/jquery-migrate-3.1.0.js"></script>
 <?$this->template->add_js('system/application/views/modules/dashboot/js/bootstrap.min.js')?>
 <?$this->template->add_js('system/application/views/arbors/admin/admin.js')?>
 <?$this->template->add_link('parent',((!empty($book)&&isset($book->slug))?base_url().$book->slug.'/':''))?>

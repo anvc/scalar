@@ -32,23 +32,23 @@
 
 			$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:rel_type,start:null,results:null,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination,paywall:false,no_content_msg:'There is no content of this type<br />You can select a different category using the pulldown above'});
 
-   			$(window).resize(function() { resizeList(); });
+   			$(window).on('resize', function() { resizeList(); });
    			resizeList();
 
-   			$('#formRelType').submit(function() {
+   			$('#formRelType').on('submit', function() {
    				rel_type = $(this).find('[name="relType"] option:selected').val();
    				$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:rel_type,start:null,results:null,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination,paywall:false,no_content_msg:'There is no content of this type<br />You can select a different category using the pulldown above'});
 				$('#add_term_btn').find('span:first').html(rel_type);
    				return false;
    			});
-   			$('#formRelType').find('[name="relType"]').change(function() {
+   			$('#formRelType').find('[name="relType"]').on('change', function() {
    	   			var $this = $(this);
-   	   			$this.closest('form').submit();
+   	   			$this.closest('form').trigger('submit');
    	   			$this.blur();
    			});
    			$('#formRelTypeReload a').on('click', function() {
    	   			var $this = $(this);
-   	   			$this.closest('form').submit();
+   	   			$this.closest('form').trigger('submit');
    	   			$this.blur();
    			});
 

@@ -43,7 +43,7 @@ $(document).ready(function() {
 			$content.find('#export-content-text').val(data);
 		}, 'text');
 	});
-	$('#do_delete_books_form').submit(function() {
+	$('#do_delete_books_form').on('submit', function() {
 		if (!$(this).prev().find('input:checked').length) return false;
 		var msg='Are you sure you wish to delete the selected books';
 		if ($(this).find('[name="delete_creators"]').val()==1) msg+=' and their creator user accounts';
@@ -55,7 +55,7 @@ $(document).ready(function() {
 		$(this).find('[name="book_ids"]').val(book_ids.join(','));
 		return true;
 	});
-	$('#do_delete_users_form').submit(function() {
+	$('#do_delete_users_form').on('submit', function() {
 		if (!$(this).prev().find('input:checked').length) return false;
 		var msg='Are you sure you wish to delete the selected users';
 		if ($(this).find('[name="delete_books"]').val()==1) msg+=' and books they author';
@@ -69,7 +69,7 @@ $(document).ready(function() {
 		$(this).find('[name="user_ids"]').val(user_ids.join(','));
 		return true;
 	});
-	$('.div_list').find('input[type="checkbox"]').change(function() {
+	$('.div_list').find('input[type="checkbox"]').on('change', function() {
 		var checked = $(this).is(':checked') ? true : false;
 		if (checked) {
 			$(this).closest('div').addClass('active');
@@ -189,7 +189,7 @@ $(document).ready(function() {
 			<script>
 			$(document).ready(function() {
 
-				$('.jump-form').submit(function() {
+				$('.jump-form').on('submit', function() {
 					var x = parseInt($(this).children('.jump-to-page').val());
 					if(!isNaN(x)) {
 						var start = <?=$total?> * (x-1);
@@ -203,13 +203,13 @@ $(document).ready(function() {
 					$('.user-search').val(search_text);
 				}
 
-				$('.user-search-form').submit(function() {
+				$('.user-search-form').on('submit', function() {
 					var sq = $(this).find('.user-search').val();
 	 				window.location.href = "<?=confirm_slash(base_url())?>system/dashboard?book_id=<?=((isset($book->book_id))?$book->book_id:0)?>&zone=all-users&pill=manage-users&sq=" + encodeURIComponent(sq) + "#tabs-utils";
 					return false;
 				});
 
-	   			$(window).resize(function() { resizeList(); });
+	   			$(window).on('resize', function() { resizeList(); });
 	   			resizeList();
 
 	   			$('#register_key').on('click', function() {
@@ -360,7 +360,7 @@ $(document).ready(function() {
 			<script>
 			$(document).ready(function() {
 
-				$('.jump-form').submit(function() {
+				$('.jump-form').on('submit', function() {
 					var x = parseInt($(this).children('.jump-to-page').val());
 					if(!isNaN(x)) {
 						var start = <?=$total?> * (x-1);
@@ -374,13 +374,13 @@ $(document).ready(function() {
 					$('.book-search').val(search_text);
 				}
 
-				$('.book-search-form').submit(function() {
+				$('.book-search-form').on('submit', function() {
 					var sq = $(this).find('.book-search').val();
 	 				window.location.href = "<?=confirm_slash(base_url())?>system/dashboard?book_id=<?=((isset($book->book_id))?$book->book_id:0)?>&pill=manage-books&zone=all-books&sq=" + encodeURIComponent(sq) + "#tabs-utils";
 					return false;
 				});
 
-	   			$(window).resize(function() { resizeList(); });
+	   			$(window).on('resize', function() { resizeList(); });
 	   			resizeList();
 
 			});
@@ -595,7 +595,7 @@ $(document).ready(function() {
 			}
 			?>
 			<br />
-			<input type="button" value="Generate" class="btn btn-primary" onclick="this.disabled=true;$(this).parent().find('form:first').submit();" />
+			<input type="button" value="Generate" class="btn btn-primary" onclick="this.disabled=true;$(this).parent().find('form:first').trigger('submit');" />
     	<?php endif; ?>
     	</div>
     	<div class="section" id="list-all-books">
@@ -642,7 +642,7 @@ $(document).ready(function() {
 			}
 			?>
 			<br />
-			<input type="button" value="Generate" class="btn btn-primary" onclick="this.disabled=true;$(this).parent().find('form:first').submit();" />
+			<input type="button" value="Generate" class="btn btn-primary" onclick="this.disabled=true;$(this).parent().find('form:first').trigger('submit');" />
     	<?php endif; ?>
     	</div>
     </section>

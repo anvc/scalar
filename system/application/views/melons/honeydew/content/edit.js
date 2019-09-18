@@ -270,12 +270,12 @@ $(window).ready(function() {
 	var chosen_thumb = $choose_thumb.find('option:selected').val();
 	if (chosen_thumb.length) $thumbnail.val(chosen_thumb);
 	if ($thumbnail.val().length) $choose_thumb.parent().prepend('<img src="'+$thumbnail.val()+'" class="thumb_preview" />');
-	$choose_thumb.change(function() {
+	$choose_thumb.on('change', function() {
 		$thumbnail.val($(this).find('option:selected').val());
 		$(this).parent().find('.thumb_preview').remove();
 		$(this).parent().prepend('<img src="'+$thumbnail.val()+'" class="thumb_preview" />');
 	});
-	$thumbnail.change(function() {
+	$thumbnail.on('change', function() {
 		$(this).parent().find('.thumb_preview').remove();
 		$(this).parent().prepend('<img src="'+$thumbnail.val()+'" class="thumb_preview" />');
 	});
@@ -507,7 +507,7 @@ function listeditor_add($list, _insert_func, default_type, only_default_type, se
 	// Options
 	$fetch_options = $('<div class="fetch_options">Search for content:&nbsp; <form id="search_for_content" style="display:inline;"><input type="text" name="sq" value="" /> <input type="submit" value="Go" /></form>&nbsp; &nbsp; Or, choose a content type below:</div>');
 	$div.append($fetch_options);
-	$fetch_options.find('#search_for_content').submit(function() {
+	$fetch_options.find('#search_for_content').on('submit', function() {
 		var sq = $fetch_options.find('input[name="sq"]').val();
 		if (!sq.length) {
 			alert('Please enter a search term');

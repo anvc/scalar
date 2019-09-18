@@ -38,7 +38,7 @@ $(document).ready(function() {
 
 	// If changes are made in the form, reveal save button
 
-	$('form input, form textarea').keyup(function() {
+	$('form input, form textarea').on('keyup', function() {
 		$(this).closest('form').find('.save_changes').fadeIn();
 	});
 	$('select').live('change', function() {

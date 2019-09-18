@@ -36,7 +36,7 @@ function select_interface(melon) {
         if (melon==interfaces[j]['meta']['slug']) selected_melon = interfaces[j];
 		$('<option '+((melon==interfaces[j]['meta']['slug'])?'SELECTED ':'')+' '+((!interfaces[j]['meta']['is_selectable'])?'DISABLED ':'')+' value="'+interfaces[j]['meta']['slug']+'">'+interfaces[j]['meta']['name']+'</option>').appendTo($template.find('select:first'));
     }
-    $template.find('select:first').change(function() {
+    $template.find('select:first').on('change', function() {
 		var selected = $(this).find(':selected').val();
 		select_interface(selected);
     });
@@ -50,7 +50,7 @@ function select_interface(melon) {
 			$('<option '+((stylesheet==selected_melon['stylesheets'][j]['slug'])?'SELECTED ':'')+'value="'+selected_melon['stylesheets'][j]['slug']+'">'+selected_melon['stylesheets'][j]['name']+'</option>').appendTo($stylesheets.find('select:first'));
    		}
    		var $style_thumb = $('<span id="style_thumb"><img src="'+$('link#approot').attr('href')+style_thumb+'" align="top" /></span>').appendTo('#interface');
-		$stylesheets.find('select:first').change(function() {
+		$stylesheets.find('select:first').on('change', function() {
 			var selected = $(this).find(':selected').val();
 			for (var j in selected_melon['stylesheets']) {
 				if (selected==selected_melon['stylesheets'][j]['slug']) {
@@ -165,7 +165,7 @@ $(window).ready(function() {
 	});
 
     $('.save_changes').next('a').on('click', function() {
-		$('#style_form').submit();
+		$('#style_form').trigger('submit');
     	return false;
     });
 
@@ -184,7 +184,7 @@ $(window).ready(function() {
     var predefined_css = $("#predefined_css").text();
     $('textarea[name="custom_style"]').predefined({msg:'Insert CSS:',data:((predefined_css.length)?JSON.parse(predefined_css):{})});
 
-	$('input[name="slug"]').keydown(function() {
+	$('input[name="slug"]').on('keydown', function() {
 		var $this = $(this);
 		if (true!==$this.data('confirmed')) {
 			$("#slug-change-confirm").dialog({
@@ -234,7 +234,7 @@ $(window).ready(function() {
 
 	var $title = $('<div>'+$('input[name="title"]').val()+'</div>');
 	var margin_nav = ('undefined'==typeof($title.children(":first").attr('data-margin-nav'))) ? 0 : 1;
-	$('#margin-nav').val(margin_nav).change(function() {
+	$('#margin-nav').val(margin_nav).on('change', function() {
 		var $title = $('<div>'+$('input[name="title"]').val()+'</div>');
 		if (!$title.children(':first').is('span')) $title.contents().wrap('<span></span>');
 		var $span = $title.children(':first');

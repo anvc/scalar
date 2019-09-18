@@ -316,7 +316,7 @@
                         $('body').scrollspy('refresh');
                     });
 
-                    $(window).scroll(function(e) {
+                    $(window).on('scroll', function(e) {
                        if($(window).scrollTop() + $(window).height() >= ($(document).height()-50)) {
                            if(base.$nodeList.find('.loader').length == 0 && typeof base.nextNodeIndexToLoad !== 'undefined' && typeof base.currentNodeList !== 'undefined' && base.nextNodeIndexToLoad < base.currentNodeList.length){
                               var loadedNodes = 0;
@@ -377,7 +377,7 @@
                     }
                     base.node_state_string = base.node_state_classes.join(' ');
 
-                    $('#contentFinder').submit(function(e){
+                    $('#contentFinder').on('submit', function(e){
                         e.stopPropagation();
                         e.preventDefault();
                         $('#editorialPathSearchText').trigger('blur');
@@ -1147,7 +1147,8 @@
 
             var diff = {};
 
-            var deferred = $.Deferred().then(function(){
+            var deferred = $.Deferred();
+            deferred.then(function(){
 
                 $('#editorialQueries .resolvedQueries .queryCount').text('0');
                 var hasContent = typeof node.current.content !== 'undefined' && node.current.content != null;
@@ -1320,7 +1321,7 @@
                         "template": '<div class="tooltip caption_font" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>'
                     });
                 } else if(!!base.node_state_flow[state]){
-                    $node.find('.usageRights').removeAttr("disabled");
+                    $node.find('.usageRights').prop("disabled", false);
                     $node.find('.disabled').removeClass('disabled');
                     $node.find('.descriptionContent,.additionalMetadata .fieldVal')
                         .addClass('editable')
@@ -1466,7 +1467,7 @@
                     }
                 }
 
-                $node.find('.usageRights').change(function(){
+                $node.find('.usageRights').on('change', function(){
                     base.saveNode($node,false);
                 });
 
@@ -1734,7 +1735,6 @@
                 if($(this).hasClass('inline')){
                     $(this).after($placeholder.addClass('inline'));
                 }else{
-                    console.log($(this).find('.tempWrapper').length);
                     if($(this).parents('.bodyContent').find('.tempWrapper').length == 0){
                         $(this).parents('.bodyContent').wrapInner('<p class="tempWrapper">');
                     }

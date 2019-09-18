@@ -75,7 +75,7 @@ if ('cantaloupe' == $book->template) {
 if (@$_GET['commit']):
 	echo '<div class="category_description">';
 	echo 'After a final review, commit these changes by saving again';
-	echo '<a style="float:right;margin-top:-2px;" href="javascript:;" class="generic_button large" onclick="$(this).closest(\'form\').submit();">Save changes</a>';
+	echo '<a style="float:right;margin-top:-2px;" href="javascript:;" class="generic_button large" onclick="$(this).closest(\'form\').trigger('submit');">Save changes</a>';
 	echo '</div>';
 endif;
 ?>
@@ -571,7 +571,3 @@ endif;
 ?>
 
 </form>
-
-
-
-

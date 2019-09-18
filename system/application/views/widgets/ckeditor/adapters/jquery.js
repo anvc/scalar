@@ -214,7 +214,7 @@
 							// Overwrite save button to call jQuery submit instead of javascript submit.
 							// Otherwise jQuery.forms does not work properly
 							editor.on( 'save', function() {
-								$( element.form ).submit();
+								$( element.form ).trigger('submit');
 								return false;
 							}, null, null, 20 );
 
@@ -227,7 +227,7 @@
 								};
 
 								// Bind to submit event.
-								$( element.form ).submit( onSubmit );
+								$( element.form ).on('submit',  onSubmit );
 
 								// Bind to form-pre-serialize from jQuery Forms plugin.
 								$( element.form ).bind( 'form-pre-serialize', onSubmit );

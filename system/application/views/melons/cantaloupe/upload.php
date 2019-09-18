@@ -6,7 +6,7 @@ $js = <<<END
 
 $( document ).ready(function() {
 	// "replace" functionality
-	$('select[name="replace"]').change(function() {
+	$('select[name="replace"]').on('change', function() {
 		$('#loading').show();
 		document.getElementById('submit_button').disabled = true;
 		var title = ($(this).find('option:selected').val().length) ? $(this).find('option:selected').text() : '';

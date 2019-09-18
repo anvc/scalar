@@ -10,7 +10,7 @@
 		<script>
 		$(document).ready(function() {
 
-			$('.jump-form').submit(function() {
+			$('.jump-form').on('submit', function() {
 				var x = parseInt($(this).children('.jump-to-page').val());
 				if(!isNaN(x)) {
 					var start = <?=$total?> * (x-1);
@@ -24,13 +24,13 @@
 				$('.user-search').val(search_text);
 			}
 
-			$('.user-search-form').submit(function() {
+			$('.user-search-form').on('submit', function() {
 				var sq = $(this).children('.user-search').val();
  				window.location.href = "<?=confirm_slash(base_url())?>system/dashboard?zone=all-users&sq=" + encodeURIComponent(sq) + "#tabs-all-users";
 				return false;
 			});
 
-   			$(window).resize(function() { resizeList(); });
+   			$(window).on('resize', function() { resizeList(); });
    			resizeList();
 
    			$('#register_key').on('click', function() {

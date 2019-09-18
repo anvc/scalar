@@ -2,6 +2,7 @@
 <?$this->template->add_meta('viewport','width=device-width');?>
 <?$this->template->add_css('system/application/views/arbors/admin/admin.css')?>
 <?$this->template->add_js('system/application/views/arbors/admin/jquery-3.4.1.min.js')?>
+<script src="https://code.jquery.com/jquery-migrate-3.1.0.js"></script>
 <?$this->template->add_js('system/application/views/arbors/admin/admin.js')?>
 <div class="system_wrapper">
 <div class="content">
@@ -33,10 +34,10 @@ if (isset($_POST['registration_key'])) $registration_key = trim(htmlspecialchars
 			<? if ($register_key): ?>
 			<tr>
 				<td class="field">Registration<br />key <span style="color:red;">*</span></td><td class="value"><input type="text" name="registration_key" value="<?=$registration_key?>" class="input_text" />
-			<? 
+			<?
 			   $reg_msg = $this->config->item('registration_key_msg');
 			   if (!empty($reg_msg)):
-			     echo '<div class="register_msg">'.$reg_msg.'</div>'."\n"; 
+			     echo '<div class="register_msg">'.$reg_msg.'</div>'."\n";
 			   endif;
 			?>
 				</td>

@@ -93,7 +93,7 @@ function curriculumexplorer(node) {
 			set_pages();
 			set_goals();
 		});
-		$('#ce-subjects').find('input[type="checkbox"]').change(function() {
+		$('#ce-subjects').find('input[type="checkbox"]').on('change', function() {
 			set_pages();
 			set_goals();
 		});

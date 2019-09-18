@@ -1207,7 +1207,7 @@
           return $.map(compatibleMs, function (compatibleM) {
             return {
               bindings: $.extend({}, existingM.bindings, compatibleM.bindings),
-              triples: $.unique(existingM.triples.concat(compatibleM.triples))
+              triples: $.uniqueSort(existingM.triples.concat(compatibleM.triples))
             };
           });
         } else {
@@ -1921,7 +1921,7 @@
         databanks = $.map(this.union, function (query) {
           return query.databank;
         });
-        databanks = $.unique(databanks);
+        databanks = $.uniqueSort(databanks);
         if (databanks[1] !== undefined) {
           this.databank = $.rdf.databank(undefined, { union: databanks });
         } else {
@@ -2798,7 +2798,7 @@
         $.each(this.union, function (i, databank) {
           triples = triples.concat(databank.triples().get());
         });
-        triples = $.unique(triples);
+        triples = $.uniqueSort(triples);
       }
       return $(triples);
     },
@@ -2847,7 +2847,7 @@
           rhash[r] = true;
         }
       }
-      return $.unique(triples);
+      return $.uniqueSort(triples);
     },
 
     /**
@@ -4629,7 +4629,7 @@
           return p;
         }
       });
-      lhsWildcards = $.unique(lhsWildcards);
+      lhsWildcards = $.uniqueSort(lhsWildcards);
       if ($.isFunction(rhs)) {
         this.rhs = rhs;
       } else {
