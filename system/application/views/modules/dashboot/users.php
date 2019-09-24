@@ -86,7 +86,7 @@ function deleteOptions($content) {
 		alert('You can\'t remove yourself!');
 		return;
 	};
-	if (!confirm('Are you sure you wish to remove '+user_ids.length+' user'+((user_ids.length>1)?'s':'')+'?')) {
+	if (!confirm('Are you sure you wish to remove '+user_ids.length+' user'+((user_ids.length>1)?'s':'')+'? Any administrative access they have to this book will be revoked.')) {
 		return;
 	};
 	$('.selector .botton_options_box button:nth-child(2)').prop('disabled','disabled');
