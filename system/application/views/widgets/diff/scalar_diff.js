@@ -39,7 +39,7 @@ var scalar_diff = {
 		}
 		return generatedTag;
 	},
-	'_tokenizeHTML' : function($content,htmlTokens,htmlTokenRelationships,debug){
+	'_tokenizeHTML' : function($content,htmlTokens,htmlTokenRelationships,debug=false){
 		//Actually do the tokenization - don't call this directly!
 	    var childNodes = $content.find('*');
 	    if(childNodes.length > 0){
@@ -51,17 +51,25 @@ var scalar_diff = {
 	        return $content.text();
 	    }
       if($content.html() != ''){
-          var tags = $content[0].outerHTML.split($content.html());
+          var tags = $content[0].outerHTML.split('>'+$content.html()+'<');
+					for (var i=0; i<tags.length; i++) {
+						if (i > 0) {
+							tags[i] = tags[i]+'<';
+						}
+						if (i < (tags.length-1)) {
+							tags[i] = '>'+tags[i];
+						}
+					}
       }else{
           var tags = [$content[0].outerHTML];
       }
 	    var newHTML = scalar_diff._decodeEntities($content[0].outerHTML); // prevents html entities from being encoded multiple times inside nested tags
-			if (debug) console.log(newHTML);
+			if (debug) console.log("****** HTML to be tokenized: "+newHTML);
 			//var newHTML = $content[0].outerHTML;
     	var openingTag = null;
 	    for(var i in tags){
 	        var tag = tags[i];
-					if (debug) console.log(tag);
+					if (debug) console.log("Tag "+i+": "+tag);
 	        if(i==0 && tags.length == 2){
 	            openingTag = {
 	                html : tag,
@@ -92,7 +100,7 @@ var scalar_diff = {
 	                tokens = htmlTokens[t].tokens;
 									combinedTag = existing_combinedTag;
 	            }
-							if (debug) console.log(foundMatch);
+							if (debug) console.log("Matched a known tag? "+foundMatch);
 	            if(!foundMatch){
 	                var t = String.fromCharCode(scalar_diff._incrementToken());
 	                tokens.push(t);
@@ -117,17 +125,18 @@ var scalar_diff = {
 	                });
 							}
 
-							if (debug) console.log('------');
+							if (debug) console.log('------ Begin tokenization ------');
+							if (debug) console.log('Tag data [original tag, generated tag, closing tag]:');
 							if (debug) console.log(combinedTag);
-							if (debug) console.log(newHTML);
+							if (debug) console.log("Before tokenization: "+newHTML);
 	            for(var i = 0; i < combinedTag.length; i++){
 	                var regex = new RegExp(combinedTag[i].replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&"), "g");
-									if (debug) console.log(i+' - '+escape(tokens[i]));
-									if (debug) console.log(regex);
-									if (debug) console.log(newHTML.match(regex));
+									if (debug) console.log("Token "+i+': '+escape(tokens[i]));
+									if (debug) console.log("Regex: "+regex);
+									if (debug) console.log("Match: "+newHTML.match(regex));
 									newHTML = newHTML.replace(regex, '\r\n'+tokens[i]+'\r\n');
 	            }
-							if (debug) console.log(newHTML);
+							if (debug) console.log("After tokenization: "+newHTML);
 
 	        }
 	    }
@@ -517,8 +526,7 @@ var scalar_diff = {
 		var oldTokenizedBody = scalar_diff._tokenizeHTML(
 			$body,
 			htmlTokens,
-			htmlTokenRelationships,
-			false
+			htmlTokenRelationships
 		);
 
     $body = $('<div>'+_new.body+'</div>').data('diffContainer',true);
@@ -528,8 +536,7 @@ var scalar_diff = {
 		var newTokenizedBody = scalar_diff._tokenizeHTML(
 			$body,
 			htmlTokens,
-			htmlTokenRelationships,
-			false
+			htmlTokenRelationships
 		);
 
 		if(typeof diff_match_patch !== 'undefined' && !!diff_match_patch){

@@ -240,7 +240,7 @@ CKEDITOR.plugins.add( 'editorialTools', {
             base.removeAdjacentDuplicates(this);
           })
         };
-        base.enableSave = function(newHtml, debug = false){
+        base.enableSave = function(newHtml, debug=false){
 
             newHtml = newHtml.replace(/<span class="p_tag open"><\/span>/g, '<p>').replace(/<span class="p_tag close"><\/span>/g, '</p>');
             newHtml = newHtml.replace(/<span class="blockquote_tag open"><\/span>/g, '<blockquote>').replace(/<span class="blockquote_tag close"><\/span>/g, '</blockquote>');
