@@ -836,16 +836,17 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                       }
                     });
 
+                var fullText = base.$el.find('#desktopTitleWrapper').text();
                 base.$el.find('#desktopTitleWrapper').dotdotdot({
                   ellipsis: '…',
                   wrap: 'letter',
                   height: 50,
-                  callback: function(isTruncated, fullText){
+                  callback: function(isTruncated){
                     //Check if author text is overflowed - if so, add a bootstrap tooltip.
                     var base = $('#scalarheader.navbar').data('scalarheader');
                     var desktopTitle = base.$el.find('#desktopTitleWrapper');
                     if (isTruncated && !desktopTitle.hasClass('withTooltip')) {
-                      var titleHtml = fullText.text().split('by ');
+                      var titleHtml = fullText.split('by ');
                       titleHtml = '<strong>'+titleHtml[0]+'</strong> by '+(titleHtml.slice(1).join(' by '));
 
                       desktopTitle.tooltip({'title':titleHtml,'html':true,'container':'#scalarheader','placement':'bottom','template':'<div class="tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner caption_font text-left"></div></div>'}).addClass('withTooltip');
