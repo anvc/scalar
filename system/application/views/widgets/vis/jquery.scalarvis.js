@@ -536,7 +536,7 @@ function handleViewTypeClick(radioBtn) {
 			// create visualization div
 			this.visualization = $('<div id="scalarvis"></div>').appendTo(this.model.element);
 
-			this.visualization.mousemove(function(e) {
+			this.visualization.on('mousemove', function(e) {
 				me.mouseX = e.pageX;
 				me.mouseY = e.pageY;
 			});
@@ -1679,7 +1679,7 @@ function handleViewTypeClick(radioBtn) {
 
 			// rollover label
 			var rollover = $('<div class="rollover">Test</div>').appendTo('#scalarvis');
-			$('#scalarvis').mousemove(function(e) {
+			$('#scalarvis').on('mousemove', function(e) {
 				rollover.css('left', (e.pageX-$(this).offset().left+parseInt($(this).parent().parent().css('padding-left'))+10)+'px');
 				rollover.css('top', (e.pageY-$(this).parent().parent().offset().top)+15+'px');
 			})

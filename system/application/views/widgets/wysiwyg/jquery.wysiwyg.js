@@ -134,7 +134,7 @@ function br2nl(str) {
 
             if ( self.constructor == Wysiwyg && szURL && szURL.length > 0 )
             {
-                if ($.browser.msie) self.focus();
+                //if ($.browser.msie) self.focus();
                 if ( attributes )
                 {
                     self.editorDoc.execCommand('insertImage', false, '#jwysiwyg#');
@@ -167,7 +167,7 @@ function br2nl(str) {
 
                 if ( selection.length > 0 )
                 {
-                    if ($.browser.msie) self.focus();
+                    //if ($.browser.msie) self.focus();
                     self.editorDoc.execCommand('unlink', false, []);
                     self.editorDoc.execCommand('createLink', false, szURL);
                 }
@@ -182,7 +182,7 @@ function br2nl(str) {
 
             if ( self.constructor == Wysiwyg && szHTML && szHTML.length > 0 )
             {
-                if ($.browser.msie)
+                /*if ($.browser.msie)
                 {
                     self.focus();
                     self.editorDoc.execCommand('insertImage', false, '#jwysiwyg#');
@@ -193,9 +193,9 @@ function br2nl(str) {
                     }
                 }
                 else
-                {
+                {*/
                     self.editorDoc.execCommand('insertHTML', false, szHTML);
-                }
+                //}
             }
         },
 
@@ -242,13 +242,13 @@ function br2nl(str) {
 
             separator06 : { separator : true },
 
-            h1mozilla : { visible : true && $.browser.mozilla, className : 'h1', command : 'heading', arguments : ['h1'], tags : ['h1'], tooltip : "Header 1" },
+            /*h1mozilla : { visible : true && $.browser.mozilla, className : 'h1', command : 'heading', arguments : ['h1'], tags : ['h1'], tooltip : "Header 1" },
             h2mozilla : { visible : true && $.browser.mozilla, className : 'h2', command : 'heading', arguments : ['h2'], tags : ['h2'], tooltip : "Header 2" },
-            h3mozilla : { visible : true && $.browser.mozilla, className : 'h3', command : 'heading', arguments : ['h3'], tags : ['h3'], tooltip : "Header 3" },
+            h3mozilla : { visible : true && $.browser.mozilla, className : 'h3', command : 'heading', arguments : ['h3'], tags : ['h3'], tooltip : "Header 3" },*/
 
-            h1 : { visible : true && !( $.browser.mozilla ), className : 'h1', command : 'formatBlock', arguments : ['<H1>'], tags : ['h1'], tooltip : "Header 1" },
-            h2 : { visible : true && !( $.browser.mozilla ), className : 'h2', command : 'formatBlock', arguments : ['<H2>'], tags : ['h2'], tooltip : "Header 2" },
-            h3 : { visible : true && !( $.browser.mozilla ), className : 'h3', command : 'formatBlock', arguments : ['<H3>'], tags : ['h3'], tooltip : "Header 3" },
+            h1 : { visible : true /*&& !( $.browser.mozilla )*/, className : 'h1', command : 'formatBlock', arguments : ['<H1>'], tags : ['h1'], tooltip : "Header 1" },
+            h2 : { visible : true /*&& !( $.browser.mozilla )*/, className : 'h2', command : 'formatBlock', arguments : ['<H2>'], tags : ['h2'], tooltip : "Header 2" },
+            h3 : { visible : true /*&& !( $.browser.mozilla )*/, className : 'h3', command : 'formatBlock', arguments : ['<H3>'], tags : ['h3'], tooltip : "Header 3" },
 
             separator04 : { visible : true, separator : true },
 
@@ -297,7 +297,7 @@ function br2nl(str) {
                     	}
                     	theHTML += ">"+selection+"</a>";
 
-                        if ($.browser.msie)
+                        /*if ($.browser.msie)
                         {
                             this.focus();
                             this.editorDoc.execCommand('insertImage', false, '#jwysiwyg#');
@@ -308,9 +308,9 @@ function br2nl(str) {
                             }
                         }
                         else
-                        {
+                        {*/
                         	this.editorDoc.execCommand('insertHTML', false, theHTML);
-                        }
+                        //}
                     }
                     else if ( this.options.messages.nonSelection )
                         alert(this.options.messages.nonSelection);
@@ -404,7 +404,7 @@ function br2nl(str) {
                     	}
                     	theHTML += ">"+selection+"</a>";
 
-                        if ($.browser.msie)
+                        /*if ($.browser.msie)
                         {
                             this.focus();
                             this.editorDoc.execCommand('insertImage', false, '#jwysiwyg#');
@@ -415,9 +415,9 @@ function br2nl(str) {
                             }
                         }
                         else
-                        {
+                        {*/
                         	this.editorDoc.execCommand('insertHTML', false, theHTML);
-                        }
+                        //}
                     }
                     else if ( this.options.messages.nonSelection )
                         alert(this.options.messages.nonSelection);
@@ -573,7 +573,7 @@ function br2nl(str) {
                     	}
                     	theHTML += ">"+selection+"</a>";
 
-                        if ($.browser.msie)
+                        /*if ($.browser.msie)
                         {
                             this.focus();
                             this.editorDoc.execCommand('insertImage', false, '#jwysiwyg#');
@@ -584,9 +584,9 @@ function br2nl(str) {
                             }
                         }
                         else
-                        {
+                        {*/
                         	this.editorDoc.execCommand('insertHTML', false, theHTML);
-                        }
+                        //}
 
                     }
                     else if ( this.options.messages.nonSelection )
@@ -605,13 +605,13 @@ function br2nl(str) {
 
                     if ( selection.length > 0 )
                     {
-                        if ( $.browser.msie )
+                        /*if ( $.browser.msie )
                         {
                             this.focus();
                             this.editorDoc.execCommand('createLink', true, null);
                         }
                         else
-                        {
+                        {*/
                             var szURL = prompt('URL', 'http://');
 
                             if ( szURL && szURL.length > 0 )
@@ -619,7 +619,7 @@ function br2nl(str) {
                                 this.editorDoc.execCommand('unlink', false, []);
                                 this.editorDoc.execCommand('createLink', false, szURL);
                             }
-                        }
+                        //}
                     }
                     else if ( this.options.messages.nonSelection )
                         alert(this.options.messages.nonSelection);
@@ -733,7 +733,7 @@ function br2nl(str) {
             insertCode:{
             	visible: false,
             	exec: function(theHTML){
-                        if ($.browser.msie)
+                        /*if ($.browser.msie)
                         {
                             this.focus();
                             this.editorDoc.execCommand('insertImage', false, '#jwysiwyg#');
@@ -744,9 +744,9 @@ function br2nl(str) {
                             }
                         }
                         else
-                        {
+                        {*/
                         	this.editorDoc.execCommand('insertHTML', false, theHTML);
-                        }
+                        //}
                         this.saveContent();
                 },
 
@@ -758,10 +758,10 @@ function br2nl(str) {
             copy  : { visible : false, tooltip : "Copy" },
             paste : { visible : false, tooltip : "Paste" },
 
-            separator08 : { separator : false && !( $.browser.msie ) },
+            separator08 : { separator : false /*&& !( $.browser.msie )*/ },
 
-            increaseFontSize : { visible : false && !( $.browser.msie ), tags : ['big'], tooltip : "Increase font size" },
-            decreaseFontSize : { visible : false && !( $.browser.msie ), tags : ['small'], tooltip : "Decrease font size" },
+            increaseFontSize : { visible : false /*&& !( $.browser.msie )*/, tags : ['big'], tooltip : "Increase font size" },
+            decreaseFontSize : { visible : false /*&& !( $.browser.msie )*/, tags : ['small'], tooltip : "Decrease font size" },
 
             undo : { visible : true, tooltip : "Undo" },
             redo : { visible : true, tooltip : "Redo" },
@@ -770,7 +770,7 @@ function br2nl(str) {
                 visible : true,
                 exec    : function()
                 {
-                    if ($.browser.msie) this.focus();
+                    //if ($.browser.msie) this.focus();
                     this.editorDoc.execCommand('removeFormat', false, []);
                     this.editorDoc.execCommand('unlink', false, []);
                 },
@@ -865,7 +865,7 @@ function br2nl(str) {
                  */
                 this.editor.attr('tabindex', $(element).attr('tabindex'));
 
-                if ( $.browser.msie )
+                /*if ( $.browser.msie )
                 {
                     this.editor
                         .css('height', ( newY ).toString() + 'px');
@@ -877,8 +877,8 @@ function br2nl(str) {
                     }).attr('id', $(element).attr('id') + 'IFrame');
 
                     editor.outerHTML = this.editor.outerHTML;
-                     */
-                }
+                     *
+                }*/
             }
 
             var panel = this.panel = $('<ul role="menu" class="panel"></ul>');
@@ -980,13 +980,13 @@ function br2nl(str) {
 
             this.editorDoc.contentEditable = 'true';
 
-            if ( $.browser.msie )
+            /*if ( $.browser.msie )
             {
                 /**
                  * Remove the horrible border it has on IE.
-                 */
+                 *
                 setTimeout(function() { $(self.editorDoc.body).css('border', 'none'); }, 0);
-            }
+            }*/
 
             $(this.editorDoc).on('click', function( event )
             {
@@ -996,13 +996,13 @@ function br2nl(str) {
             /**
              * @link http://code.google.com/p/jwysiwyg/issues/detail?id=20
              */
-            $(this.original).focus(function()
+            /*$(this.original).focus(function()
             {
                 if (!$.browser.msie)
                 {
                     self.focus();
                 }
-            });
+            });*/
 
             if ( this.options.autoSave )
             {
@@ -1036,14 +1036,14 @@ function br2nl(str) {
 
             $(this.editorDoc).on('keydown', function( event )
             {
-                if ( $.browser.msie && self.options.brIE && event.keyCode == 13 )
+                /*if ( $.browser.msie && self.options.brIE && event.keyCode == 13 )
                 {
                     var rng = self.getRange();
                     rng.pasteHTML('<br />');
                     rng.collapse(false);
                     rng.select();
                     return false;
-                }
+                }*/
                 return true;
             });
         },
@@ -1102,8 +1102,8 @@ function br2nl(str) {
 
         withoutCss: function()
         {
-            if ($.browser.mozilla)
-            {
+            /*if ($.browser.mozilla)
+            {*/
                 try
                 {
                     this.editorDoc.execCommand('styleWithCSS', false, false);
@@ -1118,7 +1118,7 @@ function br2nl(str) {
                     {
                     }
                 }
-            }
+            //}
         },
 
         appendMenu : function( cmd, args, className, fn, tooltip )
@@ -1243,11 +1243,11 @@ function br2nl(str) {
             {
                 var value = elements[i].getAttribute(attributeName);
 
-                if ( $.browser.msie )
+                /*if ( $.browser.msie )
                 {
-                    /** IE add full path, so I check by the last chars. */
+                    /** IE add full path, so I check by the last chars. *
                     value = value.substr(value.length - attributeValue.length);
-                }
+                }*/
 
                 if ( value == attributeValue )
                     return elements[i];

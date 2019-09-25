@@ -101,7 +101,7 @@ if ('undefined'==typeof(escape_html)) {
 						var post = $.fn.scalarimport('rdfxml_to_post', rdfxml, options, true);
 						$.fn.scalarimport('results', $form, post, $.extend({}, user_data, form_data), options);
 					}, $.extend({}, user_data, form_data), options);
-					$('.'+options.import_btn_class).live('click', function() {
+					$('.'+options.import_btn_class).on('click', function() {
 						$.fn.scalarimport('reset', options);
 						$.fn.scalarimport('multi_custom_meta', $(options.results_el), form_data, options);
 					});

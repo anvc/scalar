@@ -86,6 +86,7 @@ echo doctype('html5')."\n"
 <link id="CI_elapsed_time" href="<?php echo $this->benchmark->elapsed_time()?>" />
 <? if (!empty($_styles)) echo $_styles?>
 <?=template_script_tag_relative(__FILE__, 'jquery-3.4.1.min.js')."\n"?>
+<script src="https://code.jquery.com/jquery-migrate-3.1.0.js"></script>
 <?=template_script_tag_relative(__FILE__, 'common.js')."\n"?>
 <?=template_script_tag_relative(__FILE__, 'soundcloudsdk.js')."\n"?>
 <?=template_script_tag_relative(__FILE__, 'soundcloudapi.js')."\n"?>

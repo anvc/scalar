@@ -32,7 +32,7 @@
 			var $link = $(this);
 			var mediaelement = $link.data('mediaelement');
 			var json = $link.data('json');
-			var is_ie = ($.browser.msie) ? true : false;
+			var is_ie = /*($.browser.msie) ? true :*/ false;
 
 			$('.maximize').remove();
 			var $div = $('<div class="maximize"><div class="maximize_fade"></div><div class="maximize_content"></div></div>');

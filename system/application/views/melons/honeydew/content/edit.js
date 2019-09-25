@@ -1,4 +1,4 @@
-.on('click', /**
+/**
  * Scalar
  * Copyright 2013 The Alliance for Networking Visual Culture.
  * http://scalar.usc.edu/scalar
@@ -31,7 +31,7 @@
 $(window).ready(function() {
 
     // Warnings
-    if ($.browser.msie) $('#ie_warning').show();
+    //if ($.browser.msie) $('#ie_warning').show();
 
 	// If the type is passed via GET
 	checkTypeSelect();
@@ -728,7 +728,7 @@ function listeditor_save($list, insert_func, $row, select_single) {
 			$options_div.find('input:last').on('click', {$list:$list,insert_func:insert_func,node_data:node_data}, function() {
 				var data_fields = {};
 				for (var option_name in window['reference_options'][insert_func_name]) {
-					data_fields[option_name] = $options_div.find('select[name="'+option_name+'"] option:selected"').val();
+					data_fields[option_name] = $options_div.find('select[name="'+option_name+'"] option:selected').val();
 				}
 				listeditor_commit_save($list, insert_func, node_data, data_fields);
 				$options_div.remove();

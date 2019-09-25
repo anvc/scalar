@@ -130,7 +130,7 @@
 								console.log('slot manager click');
 								texteo_tag_clicked_event($(this), event);
 							});
-							$link.bind('touchstart', function(event) {  // iOS
+							$link.on('touchstart', function(event) {  // iOS
 								texteo_tag_clicked_event($(this), event);
 								texteo_tag_over_event($(this), event);
 							});
@@ -185,7 +185,7 @@
 				$link.on('mouseover', function(event) { texteo_tag_over_event($(this), event) });
 
 				// Listen for media element and change icon if needed
-				$('body').bind('mediaElementMetadataHandled', function(event, $link) {
+				$('body').on('mediaElementMetadataHandled', function(event, $link) {
 					var hide_icon = ($link.hasClass('hide_icon')) ? true : false;
 					if (!hide_icon && !jQuery.trim($link.html()).length) hide_icon = true
 					$link.texteo_set_media_icon();

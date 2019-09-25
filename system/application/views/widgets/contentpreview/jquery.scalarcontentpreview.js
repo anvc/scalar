@@ -75,7 +75,7 @@
 				$box.css('zIndex', 9);
 
 				// Attach events
-				$('body').mousemove(function(event) {  // Don't use mouseout as it doesn't fire predictably (see notes in the fun below)
+				$('body').on('mousemove', function(event) {  // Don't use mouseout as it doesn't fire predictably (see notes in the fun below)
 					$.fn.scalarcontentpreview('check_mo', $box, $link, event.pageX, event.pageY);
 				});
 				$('#content').on('click', function() {  // Also for touch interfaces
