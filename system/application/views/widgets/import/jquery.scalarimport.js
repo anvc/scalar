@@ -101,10 +101,6 @@ if ('undefined'==typeof(escape_html)) {
 						var post = $.fn.scalarimport('rdfxml_to_post', rdfxml, options, true);
 						$.fn.scalarimport('results', $form, post, $.extend({}, user_data, form_data), options);
 					}, $.extend({}, user_data, form_data), options);
-					$('.'+options.import_btn_class).on('click', function() {
-						$.fn.scalarimport('reset', options);
-						$.fn.scalarimport('multi_custom_meta', $(options.results_el), form_data, options);
-					});
 					$(options.results_el).on(options.multi_custom_meta_complete, function(event, form_data, options) {
 						$(options.results_el).scalarimport('import', function(versions) {
 							$.fn.scalarimport('imported', versions, options);
@@ -512,6 +508,11 @@ if ('undefined'==typeof(escape_html)) {
 				$form.scalarimport( $.extend({}, options, {pagenum:(form_data.pagenum+1)}) );
 			});
 
+      $('.'+options.import_btn_class).on('click', function() {
+        $.fn.scalarimport('reset', options);
+        $.fn.scalarimport('multi_custom_meta', $(options.results_el), form_data, options);
+      });
+
 		},
 
 		custom_meta : function(callback, options) {
@@ -634,7 +635,7 @@ if ('undefined'==typeof(escape_html)) {
 				$('.bootbox-close-button').empty();
 				$('.custom_meta').appendTo($('#bootbox-content'));
 				$('.bootbox .modal-dialog').width('auto').css('margin-left','20px').css('margin-right','20px');
-				$('.custom_meta_content').height(height);
+				setTimeout(function() { $('.custom_meta_content').height(height); }, 1); // waiting a bit allows the height to set
 			} else {
 				alert('Could not find a modal/dialog library');
 			}
