@@ -51,15 +51,7 @@ var scalar_diff = {
 	        return $content.text();
 	    }
       if($content.html() != ''){
-          var tags = $content[0].outerHTML.split('>'+$content.html()+'<');
-					for (var i=0; i<tags.length; i++) {
-						if (i > 0) {
-							tags[i] = tags[i]+'<';
-						}
-						if (i < (tags.length-1)) {
-							tags[i] = '>'+tags[i];
-						}
-					}
+          var tags = $content[0].outerHTML.split($content.html());
       }else{
           var tags = [$content[0].outerHTML];
       }
@@ -153,7 +145,7 @@ var scalar_diff = {
             return html;
         }
 	},
-	'_addMarkup' : function(diff, debug = false){
+	'_addMarkup' : function(diff, debug=false){
 			var titleText = '';
         for(var d = 0; d<diff.title.length; d++){
             var thisDiff = diff.title[d];
@@ -217,7 +209,10 @@ var scalar_diff = {
         //Now onto the body! First, build a tree...
         var html = [];
 
-				if (debug) console.log(diff); // here's what the diff algorithm says needs changing
+				if (debug) {
+					console.log('Results of diff:'); // here's what the diff algorithm says needs changing
+					console.log(diff); // here's what the diff algorithm says needs changing
+				}
 
 				// take care of cases where the diff resulted in chunks that occur between tags
 				var chunk, unclosedTags, char, o, action;
@@ -236,18 +231,18 @@ var scalar_diff = {
 					}
 					if (debug) {
 						debugStr = chunk;
-						console.log('------ ' + action); // what kind of chunk this is: ins/del/leave alone
+						console.log('------ ' + action + '(' + chunk +')'); // what kind of chunk this is: ins/del/leave alone
 					}
 					var n = chunk.length;
 					// loop through each character in the chunk
 					for (var i=0; i<n; i++) {
 						// if we have lefover unclosed tags from the previous chunk, reopen them here
 						if (i == 0 && unclosedTags.length > 0) {
-							if (debug) console.log('loop unclosed tags: '+unclosedTags.length);
+							if (debug) console.log('Leftover unclosed tags: '+unclosedTags.length);
 							o = unclosedTags.length;
 							for (var j=o-1; j>=0; j--) {
 								diff.body[d][1] = diff.tokens.relationships[unclosedTags[j]].generatedTag + diff.body[d][1];
-								if (debug) console.log('reopen a tag: '+diff.tokens.relationships[unclosedTags[j]].htmlGeneratedTag);
+								if (debug) console.log('Reopen a tag: '+diff.tokens.relationships[unclosedTags[j]].htmlGeneratedTag);
 								if (debug) debugStr = diff.tokens.relationships[unclosedTags[j]].htmlGeneratedTag + debugStr;
 							}
 						}
@@ -256,14 +251,14 @@ var scalar_diff = {
 						// found an opening tag; keep track of it
 						if (diff.tokens.relationships[char] != null) {
 							if (diff.tokens.relationships[char].endTag != null) {
-								if (debug) console.log('track an opening tag: '+diff.tokens.relationships[char].htmlTag);
+								if (debug) console.log('Track an opening tag: '+diff.tokens.relationships[char].htmlTag);
 								unclosedTags.push(char);
-								if (debug) console.log('now unclosed tags: '+unclosedTags.length);
+								if (debug) console.log('Total unclosed tags: '+unclosedTags.length);
 							}
 						} else if (unclosedTags.length > 0) {
 							// found the closing tag we're looking for; stop tracking it
 							if (diff.tokens.relationships[unclosedTags[unclosedTags.length-1]].endTag == char) {
-								if (debug) console.log('found a closing tag: '+diff.tokens.relationships[unclosedTags[unclosedTags.length-1]].htmlEndTag);
+								if (debug) console.log('Found a closing tag: '+diff.tokens.relationships[unclosedTags[unclosedTags.length-1]].htmlEndTag);
 								unclosedTags.pop();
 							}
 						} else if (action == 'DEL') {
@@ -285,7 +280,7 @@ var scalar_diff = {
 							}
 						}
 					}
-					if (debug) console.log(debugStr); // the chunk, modified to include any extra needed tag openings and closings to make legit HTML
+					if (debug) console.log('Chunk w/ added tag openings/closings: '+debugStr); // the chunk, modified to include any extra needed tag openings and closings to make legit HTML
 				}
 
         //Clean up some white space
@@ -556,7 +551,7 @@ var scalar_diff = {
 	        };
 
 			if(addMarkup){
-				diff = scalar_diff._addMarkup(diff, false);
+				diff = scalar_diff._addMarkup(diff);
 			}
 
 	        return diff;
