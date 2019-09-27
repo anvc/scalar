@@ -58,7 +58,7 @@ var scalar_diff = {
 					for (var i=0; i<tags.length; i++) {
 						if (i > 0) {
 							if (token[token.length-1] != '>') {
-								token += tags[i];
+								token += ($content.html() + tags[i]);
 							} else {
 								tokens.push(token);
 								token = tags[i];
