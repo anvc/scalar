@@ -10,7 +10,7 @@ var scalar_diff = {
 	},
 	'_areTagStringsEquivalent' : function(stringA, stringB) {
 		var tokensA = stringA.substring(1, stringA.length - 1).split(' ');
-		var tokensB = stringB.substring(1, stringA.length - 1).split(' ');
+		var tokensB = stringB.substring(1, stringB.length - 1).split(' ');
 		for (var i in tokensA) {
 			if (tokensB.indexOf(tokensA[i]) == -1) {
 				return false;
@@ -52,6 +52,24 @@ var scalar_diff = {
 	    }
       if($content.html() != ''){
           var tags = $content[0].outerHTML.split($content.html());
+					var token = '';
+					var lastToken = '';
+					var tokens = [];
+					for (var i=0; i<tags.length; i++) {
+						if (i > 0) {
+							if (token[token.length-1] != '>') {
+								token += tags[i];
+							} else {
+								tokens.push(token);
+								token = tags[i];
+							}
+						} else {
+							token = tags[i];
+						}
+					}
+					tokens.push(token);
+					console.log(tokens);
+					tags = tokens;
       }else{
           var tags = [$content[0].outerHTML];
       }
@@ -81,7 +99,7 @@ var scalar_diff = {
 	            for(var t in htmlTokens){
 	                var existing_combinedTag = htmlTokens[t].combinedTag;
 									tagsAreEquivalent = scalar_diff._areTagStringsEquivalent(existing_combinedTag[0], combinedTag[0]);
-									if (scalar_diff._areTagStringsEquivalent(existing_combinedTag[0], combinedTag[0])) {
+									if (tagsAreEquivalent) {
 											// nothing; foundMatch will be set to true
 									}else if(existing_combinedTag[0] != combinedTag[0] || existing_combinedTag.length != combinedTag.length){
 	                    continue;
