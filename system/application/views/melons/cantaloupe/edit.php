@@ -158,7 +158,7 @@ $(document).ready(function() {
 	checkTypeSelect();
 	if (-1!=document.location.href.indexOf('new.edit') && -1!=document.location.href.indexOf('type=media')) {
 		$("#type_text").prop('checked', false);
-		$("#type_media").attr("checked", "checked");
+		$("#type_media").prop("checked", true);
 		checkTypeSelect();
 	}
 	// Relationships (path, comment, annotation, tag)
