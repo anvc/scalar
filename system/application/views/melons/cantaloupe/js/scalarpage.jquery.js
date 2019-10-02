@@ -719,8 +719,8 @@
             },
 
             addHeaderPathInfo: function() {
-
                 // show containing path in header
+                $('.path-breadcrumb').remove();
                 if (page.containingPaths.length > 0) {
                     if (page.containingPathNodes.length > 1) {
                         $('h1[property="dcterms:title"]').before('<div class="caption_font path-breadcrumb"><a href="' + page.containingPath.url + '">' + page.containingPath.getDisplayTitle() + '</a> (' + (page.containingPathIndex + 1) + '/' + page.containingPathNodes.length + ')</div>');
@@ -728,7 +728,6 @@
                         $('h1[property="dcterms:title"]').before('<div class="caption_font path-breadcrumb"><a href="' + page.containingPath.url + '">' + page.containingPath.getDisplayTitle() + '</a></div>');
                     }
                 }
-
             },
 
             addPathButton: function(direction, destinationNode, pathNode, isEndOfPath) {
@@ -2868,6 +2867,7 @@
                             page.pendingDeferredScripts.GoogleMaps.push(promise);
                             $.when(promise).then($.proxy(function(){
                                 page.setupGoogleMapsLayout();
+                                page.addHeaderPathInfo();
                             },this));
                             break;
 
