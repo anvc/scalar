@@ -1,4 +1,4 @@
-.on('resize', <?$this->template->add_js('system/application/views/modules/dashboard/jquery.dashboardtable.js')?>
+<?$this->template->add_js('system/application/views/modules/dashboard/jquery.dashboardtable.js')?>
 
 		<style>
 		.admin-nav-wrap {

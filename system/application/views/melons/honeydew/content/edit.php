@@ -1,12 +1,12 @@
 <?if (!defined('BASEPATH')) exit('No direct script access allowed')?>
 <?$this->template->add_css('system/application/views/melons/honeydew/content/edit.css')?>
-<?$this->template->add_css('system/application/views/melons/honeydew/jquery-ui-1.8.12.custom.css')?>
+<?$this->template->add_css('system/application/views/melons/honeydew/jquery-ui.min.css')?>
 <?$this->template->add_css('system/application/views/widgets/wysiwyg/jquery.wysiwyg.css')?>
 <?$this->template->add_css('system/application/views/widgets/spectrum/spectrum.css')?>
 <?$this->template->add_css('system/application/views/widgets/edit/content_selector.css')?>
 <?$this->template->add_css('system/application/views/widgets/tablesorter/style.css')?>
 <?$this->template->add_js('system/application/views/melons/honeydew/content/edit.js')?>
-<?$this->template->add_js('system/application/views/melons/honeydew/jquery-ui-1.8.12.custom.min.js')?>
+<?$this->template->add_js('system/application/views/melons/honeydew/jquery-ui.min.js')?>
 <?$this->template->add_js('system/application/views/widgets/wysiwyg/jquery.wysiwyg.js')?>
 <?$this->template->add_js('system/application/views/widgets/edit/jquery.select_view.js')?>
 <?$this->template->add_js('system/application/views/widgets/edit/jquery.add_metadata.js')?>

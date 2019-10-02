@@ -3,21 +3,45 @@ var hash = document.location.hash.replace('#','');
 
 $(document).ready(function() {
 
+	function loadTab(event, ui) {
+
+		console.log('load tab');
+		console.log(event);
+		console.log(ui);
+
+		$('#page_load_time').hide();
+
+		//var str = ui.tab+'';
+		var str = $(ui.newTab).find('a').attr('href');
+		var hash = str.substr((str.indexOf('#')+1));
+		if (hash.indexOf('?')!=-1) hash = hash.substr(0,hash.indexOf('?'));
+		if (hash.indexOf('&')!=-1) hash = hash.substr(0,hash.indexOf('&'));
+		var zone = hash.replace('tabs-','');
+		var book_id = getUrlVars()['book_id'];
+		if (book_id && book_id.indexOf('#')!=-1) book_id = book_id.substr(0, book_id.indexOf('#'));
+
+		str = '?';
+		if ('undefined' != typeof(book_id)) str += 'book_id='+book_id+'&';
+		str += 'zone='+zone+'#'+hash;
+		document.location.href = str;
+
+	}
+
 	// When a book is selected from the HTML form, jump to the Book Style tab
 
 	if ($.isFunction($.fn.tabs)) {
 
 		if (document.location.href.indexOf('zone=style') != -1 && !document.location.hash.length) {
 			document.location.hash = '#tabs-style';
-			$('.tabs').tabs({selected:1});
+			$('.tabs').tabs({active:1, beforeActivate: loadTab});
 		} else {
-			$('.tabs').tabs();
+			$('.tabs').tabs({beforeActivate: loadTab});
 		}
 	}
 
     // Reload the page when a tab is selected so PHP can load its content in the controller
 
-	$('.tabs').on('tabsselect', function(event, ui) {
+	/*$('.tabs').on('tabsselect', function(event, ui) {
 
 		$('#page_load_time').hide();
 
@@ -34,7 +58,7 @@ $(document).ready(function() {
 		str += 'zone='+zone+'#'+hash;
 		document.location.href = str;
 
-	});
+	});*/
 
 	// If changes are made in the form, reveal save button
 

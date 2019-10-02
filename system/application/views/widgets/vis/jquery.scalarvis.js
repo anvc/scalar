@@ -514,7 +514,7 @@ function handleViewTypeClick(radioBtn) {
 			} else {
 				this.visTypeForm = $('<form><div id="radio"><input onClick="handleViewTypeClick(this);" type="radio" id="radio1" name="radio"/><label for="radio1">Radial</label><input onClick="handleViewTypeClick(this);" type="radio" id="radio2" name="radio" checked="checked"/><label for="radio2">Index</label><input onClick="handleViewTypeClick(this);" type="radio" id="radio3" name="radio"/><label for="radio3">Paths</label><input onClick="handleViewTypeClick(this);" type="radio" id="radio4" name="radio"/><label for="radio4">Media</label><input onClick="handleViewTypeClick(this);" type="radio" id="radio5" name="radio"/><label for="radio5">Tags</label></div></form>').appendTo(this.model.element);
 			}
-			$("#radio").buttonset();
+			$("#radio").controlgroup();
 
 			this.visTypeForm.find('input').each(function() {
 				if ($(this).attr('id') == me.selectedRadioBtn) {
@@ -523,7 +523,7 @@ function handleViewTypeClick(radioBtn) {
 					$(this).prop('checked', false);
 				}
 			})
-			$("#radio").buttonset('refresh');
+			$("#radio").controlgroup('refresh');
 
 			// create instructions div
 			this.instructions = $('<div class="instructions"><b>Paths and their contents.</b> Click to select; double-click to view.</div>').appendTo(this.model.element);

@@ -157,7 +157,6 @@
 				var queryType = $.fn.scalardashboardtable('get_type_from_querytype',options.query_type);
 				if (queryType && nodes[j].baseType!=queryType) continue;
 				options.scalarapi.model.numNodes++;
-				console.log(nodes[j]);
 				var id = nodes[j].urn.slice(nodes[j].urn.lastIndexOf(':')+1);
 				var version_id = nodes[j].current.urn.slice(nodes[j].urn.lastIndexOf(':')+1);
 				var d = nodes[j].created.slice(0, nodes[j].created.indexOf('T'));
