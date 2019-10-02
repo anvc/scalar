@@ -2400,7 +2400,7 @@
                     page.generateIconCache[number] = dataURL;
 
                     callback(dataURL);
-                }).on(this, imageWidth, imageHeight);
+                }).bind(this, imageWidth, imageHeight);
 
                 image.src = 'data:image/svg+xml;base64,' + btoa(encodeURIComponent(xmlSource).replace(/%([0-9A-F]{2})/g, function(match, p1) {
                     return String.fromCharCode('0x' + p1);
