@@ -2442,7 +2442,7 @@
             },
 
             setupGoogleMapsLayout: function() {
-                $('header > span:not').eq(0).before('<div id="google-maps" class="maximized-embed"></div>');
+                $('h1[property="dcterms:title"]').before('<div id="google-maps" class="maximized-embed"></div>');
 
                 // create map
                 var mapOptions = {
