@@ -2457,7 +2457,7 @@ function YouTubeGetID(url){
 	} // !image
 
 	/**
-	 * View for 360 images and video, using Google's vrview.
+	 * View for 360 images, using Google's vrview.
 	 * @constructor
 	 *
 	 * @param {Object} model		Instance of the model.
@@ -2515,6 +2515,8 @@ function YouTubeGetID(url){
 		 * @param {Number} height		The new height of the area.
 		 */
 		jQuery.I360ObjectView.prototype.resize = function(width, height) {
+			if (width > 500) height = width * 0.75;  // Artificially restrict the height
+			if (height > 400) height = 400;  // Artificially cap the height
 			$(me.parentView.mediaContainer).width(width+'px');
 			$(me.parentView.mediaContainer).height(height+'px');
 		}
@@ -2937,6 +2939,14 @@ function YouTubeGetID(url){
 
 			var metadataFunc = function() {
 
+				// Standard practice is that 360 video must be exactly 2:1
+				if (2 == me.video[0].videoWidth / me.video[0].videoHeight) {  // Test for 360 video
+					me.parentView.mediaContainer.empty();
+					me.parentView.mediaObjectView = new $.V360ObjectView(model, parentView);
+					me.parentView.mediaObjectView.createObject();
+					return;
+				}
+				
 				me.parentView.intrinsicDim.x = me.video[0].videoWidth;
 				me.parentView.intrinsicDim.y = me.video[0].videoHeight;
 				me.parentView.controllerOffset = 0;
@@ -3053,6 +3063,74 @@ function YouTubeGetID(url){
 		}
 
 	}
+	
+	/**
+	 * View for 360 videos, using Google's vrview.
+	 * @constructor
+	 *
+	 * @param {Object} model		Instance of the model.
+	 * @param {Object} parentView	Primary view for the media element.
+	 */
+	jQuery.V360ObjectView = function(model, parentView) {
+
+		var me = this;
+
+		this.model = model;  					// instance of the model
+		this.parentView = parentView;   		// primary view for the media element
+		this.hasLoaded = false;					// has the image loaded?
+		this.annotations = null;				// vrview hotspots
+		this.annotatedImage = null;				// hotspotted image object
+
+		/**
+		 * Creates the 360 media object.
+		 */
+ 		jQuery.V360ObjectView.prototype.createObject = function() {
+ 			this.hasLoaded = true;
+			//this.parentView.intrinsicDim.x = 6000;
+			//this.parentView.intrinsicDim.y = 3000;
+			this.parentView.layoutMediaObject();
+			this.parentView.removeLoadingMessage();
+
+ 			if ('undefined' == typeof(vrviews)) vrviews = 0;  // Global
+			this.wrapper = $('<div class="mediaObject" id="vrview_'+vrviews+'" style="width:100%;height:100%;"></div>');
+			$(this.wrapper).appendTo(this.parentView.mediaContainer);
+
+			var url = this.model.path;
+			var path = $('link#approot').attr('href')+'views/widgets/vrview/build/';
+			var obj = {
+				video: url,
+				script_path: path
+			};
+		    $.getScript( path+'vrview.js' , function() {
+		    	vrView = new VRView.Player('#vrview_'+vrviews, obj);  // Global
+		    	var $play = $('<div class="vroptions"><small class="d-none d-lg-block">Click and drag video to move 360 perspective</small><div class="pull-left"><button type="button" class="btn btn-xs btn-success toggleplay">Play</button><span class="time">00:00</span></div><div class="pull-right"><button type="button" class="btn btn-xs btn-default togglemute">Mute</button></div></div>');
+		    	$('#vrview_'+vrviews).find('iframe').css('width','100%').css('height', '90%').after($play);
+			    vrviews++;
+		    });
+
+    	}
+
+		// TODO: vrview has an API for these for videos
+		jQuery.V360ObjectView.prototype.play = function() { }
+		jQuery.V360ObjectView.prototype.pause = function() { }
+		jQuery.V360ObjectView.prototype.seek = function(time) { }
+		jQuery.V360ObjectView.prototype.getCurrentTime = function() { return null; }
+		jQuery.V360ObjectView.prototype.isPlaying = function() { return true; }
+
+		/**
+		 * Resizes the vrview wrapper (in this case, ".mediaContainer" since vrview loads asyncronously) to the specified dimensions.
+		 *
+		 * @param {Number} width		The new width of the area.
+		 * @param {Number} height		The new height of the area.
+		 */
+		jQuery.V360ObjectView.prototype.resize = function(width, height) {
+			if (width > 500) height = width * 0.75;  // Artificially restrict the height
+			if (height > 400) height = 400;  // Artificially cap the height
+			$(me.parentView.mediaContainer).width(width+'px');
+			$(me.parentView.mediaContainer).height(height+'px');
+		}
+
+	}  // !360
 
 	/**
 	 * View for the HTML5 audio player.
