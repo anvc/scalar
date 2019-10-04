@@ -4864,7 +4864,7 @@ function YouTubeGetID(url){
 					// All Sound Cloud Event listeners are extremely unreliable when triggered programatically.
 					// This motivates the code below as any attempt to exercise fine tuned control over the order
 					// of events is unadvisable
-					me.widget.on(SC.Widget.Events.READY, function() {
+					me.widget.bind(SC.Widget.Events.READY, function() {
 						me.widget.isPaused(function() {
 							if(!me.initialPauseDone) {
 								if ( !me.model.options.autoplay ) {
@@ -4874,23 +4874,23 @@ function YouTubeGetID(url){
 							}
 						});
 					});
-					me.widget.on(SC.Widget.Events.PLAY, function() {
+					me.widget.bind(SC.Widget.Events.PLAY, function() {
 						if(me.initialPauseDone) {
 		 					me.parentView.startTimer();
 							me.isAudioPlaying = true;
 						}
 					});
-					me.widget.on(SC.Widget.Events.PAUSE, function() {
+					me.widget.bind(SC.Widget.Events.PAUSE, function() {
 						if(me.initialPauseDone) {
 							me.parentView.endTimer();
 							me.isAudioPlaying = false;
 						}
 					});
-					me.widget.on(SC.Widget.Events.FINISH, function() {
+					me.widget.bind(SC.Widget.Events.FINISH, function() {
 						me.parentView.endTimer();
 						me.isAudioPlaying = false;
 					});
-					me.widget.on(SC.Widget.Events.PLAY_PROGRESS, function(e) {
+					me.widget.bind(SC.Widget.Events.PLAY_PROGRESS, function(e) {
 						me.currentTime = e.currentPosition / 1000.0;
 					});
 					me.parentView.removeLoadingMessage();
