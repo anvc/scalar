@@ -3,7 +3,7 @@
  * ARC2 core class (static, not instantiated)
  *
  * @author Benjamin Nowack
- * @homepage <http://arc.semsol.org/>
+ * @homepage <https://github.com/semsol/arc2>
  * @package ARC2
  */
 
@@ -471,6 +471,10 @@ class ARC2 {
 
   static function getRSS10Serializer($a = '') {
     return ARC2::getSer('RSS10', $a);
+  }
+
+  static function getJSONLDSerializer($a = '') {
+    return ARC2::getSer('JSONLD', $a);
   }
 
   /* sparqlscript */
