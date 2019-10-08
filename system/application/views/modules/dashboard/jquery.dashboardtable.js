@@ -177,7 +177,11 @@
 				$tr.append('<td class="editable boolean" property="is_live" style="text-align:center;width:65px;">'+((is_live)?'1':'0')+'</td>');
 				if (-1==options.hide_columns.indexOf('category')) $tr.append('<td class="editable enum {\'review\',\'commentary\',\'term\'}" property="category">'+category+'</td>');
 				var thumb_str = '<td property="thumbnail">';
-				if (nodes[j].thumbnail && nodes[j].thumbnail.length) thumb_str += '<a target="_blank" href="'+nodes[j].current.sourceFile+'"><img src="'+nodes[j].thumbnail+'" /></a>';
+				if (nodes[j].thumbnail && nodes[j].thumbnail.length) {
+					var thumb = nodes[j].thumbnail;
+					if (-1 == thumb.indexOf('//')) thumb = book_uri + thumb;
+					thumb_str += '<a target="_blank" href="'+nodes[j].current.sourceFile+'"><img src="'+thumb+'" /></a>';
+				}
 				thumb_str += '</td>';
 				if (-1==options.hide_columns.indexOf('thumbnail')) $tr.append(thumb_str);
 				$tr.append('<td class="editable has_link uri_link" property="slug" style="max-width:200px;overflow:hidden;"><a href="'+options.book_uri+nodes[j].slug+'">'+nodes[j].slug+(('index'==nodes[j].slug)?'<span class="home_page"> (home page)</span>':'')+'</a></td>');
