@@ -718,6 +718,11 @@ class System extends MY_Controller {
 				if (!class_exists($cvalue)) continue;
 				$this->data['plugins'][$value] = new $cvalue($this->data);
 			}
+			foreach($this->data['plugins'] as $plugin_name => $plugin_instance) {
+				if(method_exists($plugin_instance, 'handle_action')) {
+					$plugin_instance->handle_action($action);
+				}
+			}
 		}
 
 		// Load dashboard
