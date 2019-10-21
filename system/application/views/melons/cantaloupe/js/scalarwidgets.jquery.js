@@ -90,7 +90,8 @@
 										});
 									}
                   //Create a deferred object and add it to a list of promises
-									var promise = $.Deferred().then($.proxy(function(){
+									var promise = $.Deferred();
+                  promise.then($.proxy(function(){
   									base.renderTimeline($(this));
   								},$widget));
 									base.pendingWidgets.timeline.push(promise);
@@ -407,11 +408,13 @@
                     //var height_adjust = (1/.6)*.7;
                     var timelineHeight = (base.options.maxWidgetHeight,maxWidgetHeight) + 100;
                   }
-                  timelineHeight -= $(this).data('container').find('.mediaElementFooter').outerHeight();
+                  var footer = $(this).data('container').find('.mediaElementFooter');
+                  if (footer.outerHeight() != null) {
+                    timelineHeight -= $(this).data('container').find('.mediaElementFooter').outerHeight();
+                  }
                   $timeline.height(timelineHeight - 10);
                   var zoom = $widget.data('zoom')?$widget.data('zoom'):2;
                   var timeline = new TL.Timeline($timeline[0],$(this).data('timeline'),{width:$timeline.width()+200,scale_factor:zoom});
-
                   $(this).off("slotCreated");
                 });
 

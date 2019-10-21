@@ -6,7 +6,7 @@
 <?$this->template->add_css(path_from_file(__FILE__).'css/header.css');?>
 <?$this->template->add_css(path_from_file(__FILE__).'css/widgets.css');?>
 <?$this->template->add_css(path_from_file(__FILE__).'css/responsive.css')?>
-<?$this->template->add_css(path_from_file(__FILE__).'css/timeline.min.css')?>
+<?$this->template->add_css(path_from_file(__FILE__).'css/timeline.css')?>
 <?$this->template->add_css(path_from_file(__FILE__).'css/timeline.theme.scalar.css')?>
 <?$this->template->add_css(path_from_file(__FILE__).'css/screen_print.css', 'link', 'screen,print')?>
 <?$this->template->add_js(path_from_file(__FILE__).'js/bootstrap.min.js');?>
