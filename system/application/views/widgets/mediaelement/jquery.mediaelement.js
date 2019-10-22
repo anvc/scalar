@@ -2274,7 +2274,7 @@ function YouTubeGetID(url){
 			$(this.image).on('load', function() {
 				// Standard practice is that 360 images must be exactly 2:1; alternatively could look for Exif XMP “ProjectionType=equirectangular”
 				// Panoramas that aren't 2:1 (e.g., created on a phone) will require a more nuanced look at the metadata to determine if the 360 view should load
-				if (2 == this.width / this.height) {  // Test for 360 image
+				if (2 == this.width / this.height && 'annotation_editor' != $('link#view').attr('href')) {  // Test for 360 image
 					me.parentView.mediaContainer.empty();
 					me.parentView.mediaObjectView = new $.I360ObjectView(model, parentView);
 					me.parentView.mediaObjectView.createObject();
@@ -2484,7 +2484,9 @@ function YouTubeGetID(url){
 			this.parentView.removeLoadingMessage();
 
  			if ('undefined' == typeof(vrviews)) vrviews = 0;  // Global
-			this.wrapper = $('<div class="mediaObject" id="vrview_'+vrviews+'" style="width:100%;height:100%;"></div>');
+ 			var my_vrview = parseInt(vrviews);
+ 			vrviews++;
+			this.wrapper = $('<div class="mediaObject" id="vrview_'+my_vrview+'" style="width:100%;height:100%;"></div>');
 			$(this.wrapper).appendTo(this.parentView.mediaContainer);
 
 			var url = this.model.path;
@@ -2494,9 +2496,8 @@ function YouTubeGetID(url){
 				script_path: path
 			};
 		    $.getScript( path+'vrview.js' , function() {
-		    	vrView = new VRView.Player('#vrview_'+vrviews, obj);  // Global
-		    	$('#vrview_'+vrviews).find('iframe').css('width','100%').css('height','100%');
-			    vrviews++;
+		    	var vrView = new VRView.Player('#vrview_'+my_vrview, obj);  // Global
+		    	$('#vrview_'+my_vrview).find('iframe').css('width','100%').css('height','100%');
 		    });
 
     	}
@@ -2940,7 +2941,7 @@ function YouTubeGetID(url){
 			var metadataFunc = function() {
 
 				// Standard practice is that 360 video must be exactly 2:1
-				if (2 == me.video[0].videoWidth / me.video[0].videoHeight) {  // Test for 360 video
+				if (2 == me.video[0].videoWidth / me.video[0].videoHeight && 'annotation_editor' != $('link#view').attr('href')) {  // Test for 360 video
 					me.parentView.mediaContainer.empty();
 					me.parentView.mediaObjectView = new $.V360ObjectView(model, parentView);
 					me.parentView.mediaObjectView.createObject();
@@ -3092,7 +3093,9 @@ function YouTubeGetID(url){
 			this.parentView.removeLoadingMessage();
 
  			if ('undefined' == typeof(vrviews)) vrviews = 0;  // Global
-			this.wrapper = $('<div class="mediaObject" id="vrview_'+vrviews+'" style="width:100%;height:100%;"></div>');
+ 			var my_vrview = parseInt(vrviews);
+ 			vrviews++;
+			this.wrapper = $('<div class="mediaObject" id="vrview_'+my_vrview+'" style="width:100%;height:100%;"></div>');
 			$(this.wrapper).appendTo(this.parentView.mediaContainer);
 
 			var url = this.model.path;
@@ -3102,15 +3105,52 @@ function YouTubeGetID(url){
 				script_path: path
 			};
 		    $.getScript( path+'vrview.js' , function() {
-		    	vrView = new VRView.Player('#vrview_'+vrviews, obj);  // Global
-		    	var $play = $('<div class="vroptions"><small class="d-none d-lg-block">Click and drag video to move 360 perspective</small><div class="pull-left"><button type="button" class="btn btn-xs btn-success toggleplay">Play</button><span class="time">00:00</span></div><div class="pull-right"><button type="button" class="btn btn-xs btn-default togglemute">Mute</button></div></div>');
-		    	$('#vrview_'+vrviews).find('iframe').css('width','100%').css('height', '90%').after($play);
-			    vrviews++;
+		    	var vrview_selector = '#vrview_'+my_vrview;
+		    	var vrView = new VRView.Player(vrview_selector, obj);
+		    	var $play = $('<div class="vroptions"><small class="helper_msg"></small><div class="pull-left"><button type="button" class="btn btn-xs btn-success toggleplay"><span class="glyphicon glyphicon-play"></span>Play</button><span class="time">00:00</span></div><!--<div class="pull-right"><button type="button" class="btn btn-xs btn-default togglemute">Mute</button></div>--></div>');
+		    	$(vrview_selector).find('iframe').css('width','100%').css('height', '90%').after($play);
+			    // Center text
+			    var helper_msg = 'Click and drag video to move 360 perspective.';
+			    var width = parseInt($play.width());
+			    if (width < 300) helper_msg = '';
+			    $play.find('.helper_msg').text(helper_msg);
+			    // Play/pause
+				var $play_button = $play.find('.toggleplay');
+				$play_button.on('click', function() {
+					var $this = $(this);
+					if ('play' == $this.text().toLowerCase()) {  // Don't trust vrView.isPlaying
+						vrView.play();
+						$this.removeClass('btn-success').addClass('btn-danger').html('<span class="glyphicon glyphicon-pause"></span>Pause').blur();
+					} else {
+						vrView.pause();
+						$this.removeClass('btn-danger').addClass('btn-success').html('<span class="glyphicon glyphicon-play"></span>Play').blur();
+					}
+				});
+				// Time
+				var $time = $play.find('.time');
+				vrView.on('timeupdate', function(e) {
+				    var current = me.formatTime(e.currentTime);
+				    var duration = me.formatTime(e.duration);
+				    $time.text(current);
+				});
+				vrView.on('ready', function(e) {
+					vrView.pause();
+				});
 		    });
 
     	}
+ 		
+ 		jQuery.V360ObjectView.prototype.formatTime = function(time) {
+ 			  time = !time || typeof time !== 'number' || time < 0 ? 0 : time;
+ 			  var minutes = Math.floor(time / 60) % 60;
+ 			  var seconds = Math.floor(time % 60);
+ 			  minutes = minutes <= 0 ? 0 : minutes;
+ 			  seconds = seconds <= 0 ? 0 : seconds;
+ 			  var result = (minutes < 10 ? '0' + minutes : minutes) + ':';
+ 			  result += seconds < 10 ? '0' + seconds : seconds;
+ 			  return result;
+ 		};
 
-		// TODO: vrview has an API for these for videos
 		jQuery.V360ObjectView.prototype.play = function() { }
 		jQuery.V360ObjectView.prototype.pause = function() { }
 		jQuery.V360ObjectView.prototype.seek = function(time) { }

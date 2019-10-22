@@ -580,9 +580,10 @@ div.jp-jplayer {
 
 /* Google vrview */
 .vroptions {text-align:center; padding-top:4px; position:relative;}
-.vroptions > small {display:block; position:absolute; top:10px; left:0; right:0; text-align:center; z-index:0;}
+.vroptions > small {display:block; position:absolute; top:9px; right:0; text-align:right; z-index:0;}
 .vroptions > div {position:relative; z-index:1;}
 .vroptions button {cursor:pointer;}
+.vroptions button .glyphicon {display:inline-block; top:0px; margin-right:5px; font-size:smaller;}
 .vroptions .toggleplay {width:66px;}
 .vroptions .togglemute {width:78px;}
 .vroptions .time {vertical-align:middle; padding-left:10px;}
