@@ -300,8 +300,10 @@
                       height += 100;
                    }
                  }
-
-                 height -= $(this).data('container').find('.mediaElementFooter').outerHeight();
+                 var footer = $(this).data('container').find('.mediaElementFooter');
+                 if (footer.outerHeight() != null) {
+                   height -= $(this).data('container').find('.mediaElementFooter').outerHeight();
+                 }
 
                  $gmaps.height(height);
 
