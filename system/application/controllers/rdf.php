@@ -63,7 +63,7 @@ class Rdf extends MY_Controller {
 			};
 		}
 		// Format (e.g., 'xml', 'json')
-		$allowable_formats = array('xml'=>'xml', 'json'=>'json','rdfxml'=>'xml','rdfjson'=>'json','turtle'=>'turtle');
+		$allowable_formats = array('xml'=>'xml', 'json'=>'json','rdfxml'=>'xml','rdfjson'=>'json','turtle'=>'turtle','jsonld'=>'jsonld','oac'=>'oac');
 		$this->data['format'] = (isset($_REQUEST['format']) && array_key_exists($_REQUEST['format'],$allowable_formats)) ? $allowable_formats[$_REQUEST['format']] : $allowable_formats[key($allowable_formats)];
 		$ext = get_ext($this->uri->uri_string());
 		$this->data['format'] = (!empty($ext) && array_key_exists($ext,$allowable_formats)) ? $allowable_formats[$ext] : $this->data['format'];
@@ -158,6 +158,14 @@ class Rdf extends MY_Controller {
 			exit;
 		}
 		try {
+			switch ($this->data['format']) {
+				case 'oac':
+					$this->load->library( 'OAC_Object', 'oac_object' );
+					$object = 'oac_object';
+					break;
+				default:
+					$object = 'rdf_object';
+			}
 			$this->set_url_params();
 			$this->data['slug'] = implode('/',array_slice(array_no_edition($this->uri->segments), array_search(__FUNCTION__, array_no_edition($this->uri->segments))));
 			$this->data['slug']= str_replace($this->data['book']->slug.'/', '', $this->data['slug']);
@@ -174,7 +182,7 @@ class Rdf extends MY_Controller {
 			}
 			// Don't throw an error here if $content is empty, let through to return empty RDF
 			if (!empty($content) && !$content->is_live && !$this->login_is_book_admin($this->data['book']->book_id)) $content = null; // Protect
-			$this->rdf_object->index(
+			$this->$object->index(
 			 						   $this->data['content'],
 									   array(
 						                 'book'         => $this->data['book'],
@@ -195,7 +203,7 @@ class Rdf extends MY_Controller {
 									   	 'is_book_admin'=> $this->login_is_book_admin()
 									   )
 			                        );
-			$this->rdf_object->serialize($this->data['content'], $this->data['format']);
+			$this->$object->serialize($this->data['content'], $this->data['format']);
 		} catch (Exception $e) {
 			header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_INTERNAL_SERVER_ERROR));
 			exit;
