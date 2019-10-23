@@ -111,7 +111,7 @@ function ajaxComment() {
 	for (var j = 0; j < the_form.elements.length; j++) {
 		var $el = $(the_form.elements[j]);
 		var field = $el.attr('name');
-		var value = $el.attr('value');
+		var value = $el.val();
 		if ('type'==field) continue;
 		if ('submit'==$el.attr('type')) continue;
 		post[field] = value;
