@@ -75,18 +75,28 @@ class OAC_Object extends RDF_Object {
     	if (!is_array($settings['content'])) $settings['content'] = array($settings['content']);
     	$settings['total'] = count($settings['content']);
     	$settings['rel'] = self::REL_PARENTS_ONLY;
+    	$settings['max_recurses'] = (isset($settings['max_recurses']) && null!==$settings['max_recurses']) ? (int) $settings['max_recurses'] : 0;
     	$return = array();
     	
     	$count = 0;
     	$skips = 0;
-    	foreach ($settings['content'] as $row) {
+    	foreach ($settings['content'] as $row) {  // Content node
     		$temp_return = $this->_content($row, $settings);
     		if (null === $temp_return) continue;
+    		if ($settings['max_recurses'] > 0) {  // Annotations of the content node
+    			$temp_return = $this->_relationships($temp_return, $settings);
+    			if ($settings['max_recurses'] > 1) {  // Tags of the annotations
+    				$rel_types = array('has_annotations');
+    				foreach ($rel_types as $type) {
+    					if (!isset($temp_return->versions[$temp_return->version_index]->$type)) continue;
+    					for ($j = 0; $j < count($temp_return->versions[$temp_return->version_index]->$type); $j++) {
+    						$temp_return->versions[$temp_return->version_index]->$type[$j] = $this->_relationships($temp_return->versions[$temp_return->version_index]->$type[$j], $settings);
+    					}
+    				}
+    			}
+    		}
     		$return[] = $temp_return;
     		$count++;
-    		if (!isset($settings['max_recurses'])) continue;
-    		if (null!==$settings['max_recurses'] && $settings['num_recurses']==$settings['max_recurses']) continue;
-    		$row = $this->_relationships($row, $settings);    		
     	}
     	
     }
@@ -193,6 +203,16 @@ class OAC_Object extends RDF_Object {
     					"purpose" => "describing"
     			)
     	);
+    	if (isset($node->versions[$node->version_index]->has_tags)) {
+    		for ($j = 0; $j < count($node->versions[$node->version_index]->has_tags); $j++) {
+    			$version_index = $node->versions[$node->version_index]->has_tags[$j]->version_index;
+    			$row['body'][] = array(
+    					"type" => "TextualBody",
+    					"purpose" => "tagging",
+    					"value" => $node->versions[$node->version_index]->has_tags[$j]->versions[$version_index]->title
+    			);
+    		}
+    	}
     	$row['target'] = array(
     			array(
     					"id" => $target->versions[$target->version_index]->url,
