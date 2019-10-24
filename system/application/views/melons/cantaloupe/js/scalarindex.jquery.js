@@ -100,16 +100,16 @@
 			me.setDisplayMode( me.DisplayMode[mode] );
 		}
 
-		this.controlBar.find('li>a').click(showTab);
+		this.controlBar.find('li>a').on('click', showTab);
 
 		// tabbing forward from close button brings focus to path tab
 		header.find( '.close' ).onTab(function() {
-			pathBtn.find( 'a' )[ 0 ].focus();
+			pathBtn.find( 'a' )[ 0 ].trigger('focus');
 		});
 
 		// tabbing backwards from path tab brings focus to close button
 		pathBtn.find('a').onTabBack(function() {
-			header.find( '.close' )[ 0 ].focus();
+			header.find( '.close' )[ 0 ].trigger('focus');
 		});
 
 		var resultsDiv = $( '<div class="results_list caption_font"></div>' ).appendTo( this.bodyContent );
@@ -225,7 +225,7 @@
 			}
 			row = $( '<tr><td class="title"><a href="javascript:;" tabindex="'+tabindex+'">'+node.getDisplayTitle()+'</a></td><td class="desc">'+description+'</td><td class="thumb">'+thumb+'</td></tr>' ).appendTo( this.resultsTable );
 			row.data( 'node', node );
-			row.click( function() { document.location = addTemplateToURL($(this).data('node').url, 'cantaloupe'); } );
+			row.on('click',  function() { document.location = addTemplateToURL($(this).data('node').url, 'cantaloupe'); } );
 		}
 
 		if ( nodes.length == 0 ) {
@@ -247,23 +247,23 @@
 			if (me.maxPages > 15) {
 				tabindex++;
 				prevx10 = $('<li class="disabled prevPagex10"><a tabindex="'+tabindex+'" title="Jump back 10 pages" href="javascript:;">&laquo;</a></li>').appendTo( this.pagination );
-				prevx10.find('a').click( function() { if(!$(this).parent().hasClass('disabled')){me.goToPage(Math.max(1,me.currentPage-10));} } );
+				prevx10.find('a').on('click',  function() { if(!$(this).parent().hasClass('disabled')){me.goToPage(Math.max(1,me.currentPage-10));} } );
 			}
 			if(me.maxPages > 1){
 				tabindex++;
 				prev = $('<li class="disabled prevPage"><a tabindex="'+tabindex+'" title="Previous results page" href="javascript:;">&lsaquo;</a></li>').appendTo( this.pagination );
-				prev.find('a').click( function() { if(!$(this).parent().hasClass('disabled')){me.previousPage();} } );
+				prev.find('a').on('click',  function() { if(!$(this).parent().hasClass('disabled')){me.previousPage();} } );
 			}
 			this.pagination.append('<li class="disabled"><a href="#">Page <span class="current-page">' + this.currentPage + '</span> of ' + me.maxPages + '</a></li>');
 			if(me.maxPages > 1){
 				tabindex++;
 				next = $( '<li class="nextPage"><a tabindex="'+tabindex+'" title="Next results page" href="javascript:;">&rsaquo;</a></li>' ).appendTo( this.pagination );
-				next.find('a').click( function() { if(!$(this).parent().hasClass('disabled')){me.nextPage();} } );
+				next.find('a').on('click',  function() { if(!$(this).parent().hasClass('disabled')){me.nextPage();} } );
 			}
 			if(me.maxPages > 15){
 				tabindex++;
 				nextx10 = $( '<li class="nextPagex10"><a tabindex="'+tabindex+'" title="Jump ahead 10 pages" href="javascript:;">&raquo;</a></li>' ).appendTo( this.pagination );
-				nextx10.find('a').click( function() { if(!$(this).parent().hasClass('disabled')){me.goToPage(Math.min(me.maxPages,me.currentPage+10));} } );
+				nextx10.find('a').on('click',  function() { if(!$(this).parent().hasClass('disabled')){me.goToPage(Math.min(me.maxPages,me.currentPage+10));} } );
 			}
 		}
 
@@ -299,7 +299,7 @@
 	}
 
 	ScalarIndex.prototype.focusOnCurrentPage = function() {
-		this.pagination.find('a[data-page="'+this.currentPage+'"]').focus();
+		this.pagination.find('a[data-page="'+this.currentPage+'"]').trigger('focus');
 	}
 
     $.fn[pluginName] = function ( options ) {

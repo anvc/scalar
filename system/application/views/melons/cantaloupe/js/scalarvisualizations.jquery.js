@@ -117,12 +117,12 @@
 				base.visElement = base.$el;
 
 				// redraw non-modal vis whenever a modal vis is closed so coordinates get reset on the nodes
-				$( 'body' ).bind( 'closeModalVis', function() { base.draw(); } );
+				$( 'body' ).on( 'closeModalVis', function() { base.draw(); } );
 
 			}
 
 			// inform all instances that content has finished loading
-			$( 'body' ).bind( 'visLoadedAllContent', function() { base.loadedAllContent = true; } );
+			$( 'body' ).on( 'visLoadedAllContent', function() { base.loadedAllContent = true; } );
 
 			// Add a reverse reference to the DOM object
 			base.visElement.data( "scalarvis", base );
@@ -164,9 +164,9 @@
 									'</select>';
 				base.controls.append( controls_html );
 
-				base.visElement.find( ".vis-content-control" ).change( base.onContentSelect );
-				base.visElement.find( ".vis-relations-control" ).change( base.onRelationSelect );
-				base.visElement.find( ".vis-format-control" ).change( base.onFormatSelect );
+				base.visElement.find( ".vis-content-control" ).on('change',  base.onContentSelect );
+				base.visElement.find( ".vis-relations-control" ).on('change',  base.onRelationSelect );
+				base.visElement.find( ".vis-format-control" ).on('change',  base.onFormatSelect );
 
 				base.updateControls();
 			}
@@ -221,7 +221,7 @@
 				visFooter.append('|');
 				base.fullScreenButton = $( '<button class="btn btn-link btn-xs" data-toggle="popover" data-placement="top" ><img style="margin-top: -1px;" src="' + modules_uri + '/cantaloupe/images/fs_icon@2x.png" width="15" height="12"/> Full screen</button>' );
 				visFooter.append(base.fullScreenButton);
-				base.fullScreenButton.click(base.enterFullScreen);
+				base.fullScreenButton.on('click', base.enterFullScreen);
 			}
 
 			// if we're not in a modal, then start immediately
@@ -230,7 +230,7 @@
 				base.visualize();
 			}
 
-			$( 'body' ).bind( 'delayedResize', function() {
+			$( 'body' ).on( 'delayedResize', function() {
 				if ((( base.options.modal && base.modalIsOpen ) || !base.options.modal ) && (base.options.format != "tagcloud")) {
 					base.visualize();
 				}
@@ -2481,7 +2481,7 @@
 
 			// rollover label
 			rollover = $('<div class="rollover caption_font">Test</div>').appendTo( base.visualization );
-			base.visualization.mousemove(function(e) {
+			base.visualization.on('mousemove', function(e) {
 				rollover.css('left', (e.pageX-$(this).offset().left+parseInt($(this).parent().parent().css('padding-left'))+10)+'px');
 				rollover.css('top', (e.pageY-$(this).parent().parent().offset().top)+15+'px');
 			})

@@ -76,18 +76,18 @@
 		this.searchMetadata = this.modal.find('input[name="s_all"][value="1"]');
 		this.searchForm = this.modal.find('form');
 
-		this.searchForm.submit(function(event) {
+		this.searchForm.on('submit', function(event) {
 			event.preventDefault();
 			me.doSearch(me.searchField.val());
 		});
 
 		// upate main search field
-		this.searchField.keyup(function(event) {
+		this.searchField.on('keyup', function(event) {
 			$('#search').val($(this).val());
 		})
-		
+
 		// tabbing forward from close button brings focus to search field
-		this.modal.find( '.close' ).keydown( function(e) {
+		this.modal.find( '.close' ).on('keydown',  function(e) {
 			var keyCode = e.keyCode || e.which;
 			if( keyCode == 9 ) {
 				if( !e.shiftKey ) {
@@ -96,14 +96,14 @@
 			    }
 		    }
 		} );
-		
+
 		// tabbing backwards from search field link brings focus to close button
-		this.searchField.keydown( function(e) {
+		this.searchField.on('keydown',  function(e) {
 			var keyCode = e.keyCode || e.which;
 			if( keyCode == 9 ) {
 				if( e.shiftKey ) {
 			    	e.preventDefault();
-					me.modal.find( '.close' )[ 0 ].focus();
+					me.modal.find( '.close' )[ 0 ].trigger('focus');
 			    }
 		    }
 		} );
@@ -192,7 +192,7 @@
 			row = $( '<tr><td class="title"><a href="javascript:;" tabindex="'+tabindex+'">'+node.getDisplayTitle()+'</a></td><td class="desc">'+description+'</td><td class="thumb">'+thumb+'</td><td class="matched hidden-xs hidden-sm">'+matched+'</td></tr>' ).appendTo( this.resultsTable );
 
 			row.data( 'node', node );
-			row.click( function() { document.location = addTemplateToURL($(this).data('node').url, 'cantaloupe'); } );
+			row.on('click',  function() { document.location = addTemplateToURL($(this).data('node').url, 'cantaloupe'); } );
 		}
 
 		this.pagination.empty();
@@ -200,7 +200,7 @@
 			row = $( '<tr><td style="width:30%">No results found.</td><td></td></tr>' ).appendTo( this.resultsTable );
 
 			this.modal.on('shown.bs.modal', function(e) {
-				me.modal.find('button.close').focus();
+				me.modal.find('button.close').trigger('focus');
 			});
 		} else {
 			this.modal.on('shown.bs.modal', function(e) {
@@ -212,7 +212,7 @@
 			if ( this.currentPage > 1 ) {
 				tabindex++;
 				prev = $('<li><a tabindex="'+tabindex+'" title="Previous results page" href="javascript:;">&laquo;</a></li>').appendTo( this.pagination );
-				prev.find('a').click( function() { me.previousPage(); } );
+				prev.find('a').on('click',  function() { me.previousPage(); } );
 			} else {
 				prev = $('<li class="disabled"><a href="javascript:;">&laquo;</a></li>').appendTo( this.pagination );
 			}
@@ -223,14 +223,14 @@
 				if ( i == this.currentPage ) {
 					pageBtn.addClass( 'active' );
 				}
-				pageBtn.click( function() {
+				pageBtn.on('click',  function() {
 					me.goToPage( $( this ).data( 'page' ) );
 				} );
 			}
 			if ( nodes.length == this.resultsPerPage ) {
 				tabindex++;
 				next = $( '<li><a tabindex="'+tabindex+'" title="Next results page" href="javascript:;">&raquo;</a></li>' ).appendTo( this.pagination );
-				next.find('a').click( function() { me.nextPage(); } );
+				next.find('a').on('click',  function() { me.nextPage(); } );
 			} else {
 				next = $( '<li class="disabled"><a href="javascript:;">&raquo;</a></li>' ).appendTo( this.pagination );
 			}
@@ -240,7 +240,7 @@
 	}
 
 	ScalarSearch.prototype.firstFocus = function() {
-		this.searchField.focus();
+		this.searchField.trigger('focus');
 	}
 
 
@@ -267,7 +267,7 @@
 	}
 
 	ScalarSearch.prototype.focusOnCurrentPage = function() {
-		this.pagination.find('a[data-page="'+this.currentPage+'"]').focus();
+		this.pagination.find('a[data-page="'+this.currentPage+'"]').trigger('focus');
 	}
 
     $.fn[pluginName] = function ( options ) {

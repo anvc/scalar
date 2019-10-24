@@ -3,18 +3,18 @@
 
 <script>
 $(window).ready(function() {
-    $('.save_changes').next('a').click(function() {
-    	$('#user_form').submit();
+    $('.save_changes').next('a').on('click', function() {
+    	$('#user_form').trigger('submit');
     	return false;
     });
-    $('.add_book_form').submit(function() {
+    $('.add_book_form').on('submit', function() {
     	if (!this.title.value.length||this.title.value=='New book title') {
         	alert('Please enter a book title');
         	return false;
         }
         $(this).find('input[type="submit"]').prop('disabled','disabled');
     });
-    $('input[name="is_duplicate"]').change(function() {
+    $('input[name="is_duplicate"]').on('change', function() {
 		var checked = $(this).is(':checked');
 		if (!checked) {
 			$('input[name="book_to_duplicate"]').val(0);

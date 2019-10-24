@@ -23,22 +23,22 @@
 
 		$(document).ready(function() {
 
-			$('#check_all').click(function() {
+			$('#check_all').on('click', function() {
 				var check_all = ($(this).is(':checked')) ? true : false;
 				$('.table_wrapper').find('input[type="checkbox"]').prop('checked', check_all);
 			});
 
-			$('#selectImportPages').change(function() {
+			$('#selectImportPages').on('change', function() {
 				var url = $('#selectImportPages option:selected').val();
 				document.location.href = url;
 			});
 
 			$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'media',start:start,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination,paywall:paywall});
 
-   			$(window).resize(function() { resizeList(); });
+   			$(window).on('resize', function() { resizeList(); });
    			resizeList();
 
-   			$('#formSearch').submit(function() {
+   			$('#formSearch').on('submit', function() {
    				start = 0;
    				$('.table_wrapper').html('<div id="loading">Loading</div>');
    	   			var sq = $(this).find('input[name="sq"]').val().toLowerCase();
@@ -51,7 +51,7 @@
    	   			return false;
    			});
 
-   			$('#formSearch').find('a').click(function() {
+   			$('#formSearch').find('a').on('click', function() {
    	   			start = 0;
    				$('.table_wrapper').html('<div id="loading">Loading</div>');
 				$(this).parent().find('input:first').val('Search for a media file');
@@ -66,12 +66,12 @@
 				for (j = 1; j <= total; j+=results) {
 					$jump_to.append('<option value="'+j+'">'+j+'</option>');
 				}
-				$jump_to.change(function() {
+				$jump_to.on('change', function() {
 					start = parseInt($(this).find('option:selected').val() - 1);
 					if (-1==start) start = 0;
 					$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'media',start:start,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination,paywall:paywall});
 	   			});
-	   			if (invoke) $jump_to.change();
+	   			if (invoke) $jump_to.trigger('change');
    			}
    			handle_jump_to();
 
@@ -79,7 +79,7 @@
 			for (j = results; j <= max_results; j+=results) {
 				$num_results.append('<option value="'+j+'"'+((j==results)?' selected':'')+'>'+j+'</option>');
 			}
-			$num_results.change({handle_jump_to:handle_jump_to}, function(e) {
+			$num_results.on('change', {handle_jump_to:handle_jump_to}, function(e) {
 				results = parseInt($num_results.val());
 				e.data.handle_jump_to(true);
 			});
@@ -112,11 +112,11 @@
 				$('.pagination').html('<b>'+(prev+1)+'</b> - <b>'+(next)+'</b> of ');
 				var $prev = $('<a href="javascript:;">'+((prev>0)?'Previous':'')+'</a>').appendTo('.prev');
 				var $next = $('<a href="javascript:;">'+((next<total)?'Next':'')+'</a>').appendTo('.next');
-				$prev.click(function() {
+				$prev.on('click', function() {
 					$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'media',start:_prev,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination,paywall:paywall});
 					start = _prev;
 				});
-				$next.click(function() {
+				$next.on('click', function() {
 					$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:'media',start:_next,results:results,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination,paywall:paywall});
 					start = _next;
 				});
@@ -208,7 +208,7 @@
 			// Get versions
 			if (!$the_link.data('is_open')) {
 				$the_link.data('orig_html', $the_link.html());
-				$the_link.blur();
+				$the_link.trigger('blur');
 				var $the_row = $('#row_'+content_id)
 				$.get('api/get_versions', {content_id:content_id}, function(data) {
 					var $next = $the_link.parent().parent().next();
@@ -235,7 +235,7 @@
 					    }
 						var $reorder = $('<tr><td></td><td colspan="3"><a href="javascript:;" class="generic_button">Re-order version numbers</a></td><td colspan="2"</td></tr>');
 						$data_row.after($reorder);
-						$reorder.find('a:first').click(function() {
+						$reorder.find('a:first').on('click', function() {
 							if (!confirm('Are you sure you wish to re-order version numbers?  This might break links to specific versions in your book.')) return false;
 							$.get('api/reorder_versions', {content_id:content_id}, function(data) {
 								get_versions(content_id, the_link);  // close
@@ -243,7 +243,7 @@
 							});
 						});
 						$the_link.html('Hide');
-						$the_link.blur();
+						$the_link.trigger('blur');
 						$the_link.data('is_open',true);
 					}
 					$('body').on("contentUpdated",function(e,update_opts) {
@@ -272,7 +272,7 @@
 				if ($next.hasClass('version_wrapper')) $next.remove();
 				$the_link.data('is_open',false);
 				$the_link.html('View');
-				$the_link.blur();
+				$the_link.trigger('blur');
 			}
 		}
 

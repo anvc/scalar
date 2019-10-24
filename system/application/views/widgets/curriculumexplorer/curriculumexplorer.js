@@ -1,7 +1,7 @@
 
 
 function curriculumexplorer(node) {
-	
+
 	var $wrapper = $('<div class="curriculum_explorer paragraph_wrapper"><div class="loading">Loading...</div></div>').appendTo("span[property='sioc:content']");
 	if (!node.current.sourceFile || !node.current.sourceFile.length) {
 		alert('A JSON file needs to be present as the page\'s Media URL for this view to operate.');
@@ -84,7 +84,7 @@ function curriculumexplorer(node) {
 			$('#ce-paths').append('<li data-index="'+j+'"><a href="javascript:void(null);" data-index="'+j+'">'+paths[j].charAt(0).toUpperCase()+paths[j].slice(1)+'</a></li>');
 		};
 		// Events
-		$('#ce-grades').find('a').click(function() {
+		$('#ce-grades').find('a').on('click', function() {
 			var $this = $(this);
 			$('#ce-select-grade').html( $this.html()).data('index', $(this).data('index') );
 			$('#ce-grades').find('li').removeClass('active');
@@ -93,11 +93,11 @@ function curriculumexplorer(node) {
 			set_pages();
 			set_goals();
 		});
-		$('#ce-subjects').find('input[type="checkbox"]').change(function() {
+		$('#ce-subjects').find('input[type="checkbox"]').on('change', function() {
 			set_pages();
 			set_goals();
 		});
-		$('#ce-paths').find('a').click(function() {
+		$('#ce-paths').find('a').on('click', function() {
 			var path_index = parseInt($(this).data('index'));
 			commit_path(path_index);
 		});
@@ -140,7 +140,7 @@ function curriculumexplorer(node) {
 			});
 			var $disabled_and_active = $('#ce-pages').find('li.disabled.active');  // If an active page becomes disabled, revert to first item
 			if ($disabled_and_active.length) {
-				$('#ce-pages').find('a:first').click();
+				$('#ce-pages').find('a:first').trigger('click');
 			}
 		};
 		var set_goals = function() {
@@ -153,7 +153,7 @@ function curriculumexplorer(node) {
 				var slugs = [];
 				$('#ce-pages').find('li').each(function() {
 					var $this = $(this);
-					if ($this.data('slug').length) slugs.push($this.data('slug')); 
+					if ($this.data('slug').length) slugs.push($this.data('slug'));
 				});
 			};
 			var gradeIndex = parseInt($('#ce-select-grade').data('index'));  // Chosen grade
@@ -163,8 +163,8 @@ function curriculumexplorer(node) {
 				var gradeIndexes = [];
     			$('#ce-grades').find('li').each(function() {
 					var $this = $(this);
-					if (!isNaN(parseInt($this.data('index')))) gradeIndexes.push(parseInt($this.data('index'))); 
-    			});                     				
+					if (!isNaN(parseInt($this.data('index')))) gradeIndexes.push(parseInt($this.data('index')));
+    			});
 			};
 			var subjectIndexes = [];  // Chosen subjects
 			$('#ce-subjects').find('input[type="checkbox"]:checked').each(function() {
@@ -267,7 +267,7 @@ function curriculumexplorer(node) {
         		};
         		set_pages();
         		set_goals();
-        		$('#ce-pages').find('a').click(function() {
+        		$('#ce-pages').find('a').on('click', function() {
         			var $this = $(this);
         			if ($this.parent().hasClass('disabled')) return;
         			$('#ce-content-image').prop('src', empty_img);
@@ -306,5 +306,5 @@ function curriculumexplorer(node) {
         };
 	  }
 	});
-	
+
 };

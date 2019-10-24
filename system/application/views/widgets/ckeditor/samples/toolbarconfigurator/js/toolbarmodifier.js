@@ -323,7 +323,7 @@
 			}
 
 			if ( active.data( 'type' ) === 'button' ) {
-				active.findOne( 'input' ).$.click();
+				active.findOne( 'input' ).$.trigger('click');
 			}
 		} );
 
@@ -1363,4 +1363,3 @@
 
 	return ToolbarModifier;
 } )();
-

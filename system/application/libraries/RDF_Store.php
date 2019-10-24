@@ -22,7 +22,7 @@
 * @projectDescription	Wrapper for ARC2
 * @abstract				ARC2 has its own resource helper, but this class includes methods for making interaction with it more direct (such as getting or saving resources)
 * @author				Craig Dietrich
-* @version				2.1
+* @version				2.2
 * @requires				This has been built as a CodeIgniter Library class, so assumes certain CI functions (such as base_url())
 * @todo					By booting up ARC2 in the constructor here, I think we're creating two connections to MySQL on one page load (this + the one CodeIgniter began earlier)
 */
@@ -53,6 +53,7 @@ class RDF_Store {
 		);
 
 		$this->store =@ ARC2::getStore($config);
+		//$this->store->createDBCon();
 		if (!$this->store->isSetUp()) $this->store->setUp();
 
 		$this->ns = $ci->config->item('namespaces');
@@ -168,6 +169,11 @@ class RDF_Store {
 			case 'turtle':
 				$parser =@ ARC2::getRDFParser();
 				$doc =@ $parser->toTurtle( $index, $this->ns );
+				break;
+			case 'jsonld':
+				$conf = array('ns' => $this->ns, 'serializer_prettyprint_container' => true); // , 'serializer_type_nodes' => true
+				$ser =@ ARC2::getJSONLDSerializer($conf);
+				$doc =@ $ser->getSerializedIndex( $index );
 				break;
 			default:  // xml
 				$conf = array('ns' => $this->ns, 'serializer_prettyprint_container' => true); // , 'serializer_type_nodes' => true

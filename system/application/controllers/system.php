@@ -319,6 +319,19 @@ class System extends MY_Controller {
 
 	}
 
+	public function getUserIpAddr() {
+			if(!empty($_SERVER['HTTP_CLIENT_IP'])){
+					//ip from share internet
+					$ip = $_SERVER['HTTP_CLIENT_IP'];
+			}elseif(!empty($_SERVER['HTTP_X_FORWARDED_FOR'])){
+					//ip pass from proxy
+					$ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+			}else{
+					$ip = $_SERVER['REMOTE_ADDR'];
+			}
+			return $ip;
+	}
+
 	public function dashboard() {
 
 		$this->load->model('book_model', 'books');
@@ -401,7 +414,7 @@ class System extends MY_Controller {
 					unset($array['password']);
 		 			unset($array['old_password']);
 		 			unset($array['password_2']);
-					log_message('error', 'Scalar: User saved their profile, with email '.$array['email'].'.');
+					log_message('error', 'Scalar: User saved their profile with email '.$array['email'].', from '.$this->getUserIpAddr().'.');
 		 			$this->users->save($array);
 		 			$this->set_login_params();
 		 			header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action=user_saved');

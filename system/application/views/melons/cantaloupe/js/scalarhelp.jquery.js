@@ -74,7 +74,7 @@
 			table.find( 'tr' ).eq( 2 ).append( '<td class="icon"><img src="'+this.options.root_url+'/images/annotate_icon.png" alt="Annotate icon" width="30" height="30" /></td><td class="' + descStyle + '">Annotate images or time-based media</td>' );
 			table.find( 'tr' ).eq( 3 ).append( '<td class="icon"><img src="'+this.options.root_url+'/images/import_icon.png" alt="Import icon" width="30" height="30" /></td><td class="' + descStyle + '">Import media</td>' );
 			table.find( 'tr' ).eq( 4 ).append( '<td class="icon"><img src="'+this.options.root_url+'/images/options_icon.png" alt="Book dashboard icon" width="30" height="30" /></td><td class="' + descStyle + '">Dashboard</td>' );
-			
+
 			content.append('<p>If you need help authoring your Scalar project, please consult the <a href="http://scalar.usc.edu/works/guide2" target="_scalar">User’s Guide.</a></p>')
 		}
 
@@ -82,7 +82,7 @@
 		this.modal = content.bootstrapModal({title: 'Help'});
 
 		this.modal.on('shown.bs.modal', function() {
-			me.modal.find( '.modal-body a' )[ 0 ].focus();
+			me.modal.find( '.modal-body a' )[ 0 ].trigger('focus');
 		});
 
 		this.element.replaceWith(this.element);
@@ -96,12 +96,12 @@
 
 		// tabbing forward from close button brings focus to first link
 		this.modal.find( '.close' ).onTab( function() {
-			me.modal.find( '.modal-body a' )[ 0 ].focus();
+			me.modal.find( '.modal-body a' )[ 0 ].trigger('focus');
 		});
 
 		// tabbing backwards from first link brings focus to close button
 		this.modal.find( '.modal-body a:eq(0)' ).onTabBack( function() {
-			me.modal.find( '.close' )[ 0 ].focus();
+			me.modal.find( '.close' )[ 0 ].trigger('focus');
 		});
 
 	}

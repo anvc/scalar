@@ -1,5 +1,5 @@
-<?$this->template->add_css('system/application/views/melons/honeydew/jquery-ui-1.8.12.custom.css')?>
-<?$this->template->add_js('system/application/views/melons/honeydew/jquery-ui-1.8.12.custom.min.js')?>
+<?$this->template->add_css('system/application/views/melons/honeydew/jquery-ui.min.css')?>
+<?$this->template->add_js('system/application/views/melons/honeydew/jquery-ui.min.js')?>
 <?
 // Title
 if (isset($page->version_index)):

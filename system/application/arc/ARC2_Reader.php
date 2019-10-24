@@ -3,8 +3,8 @@
  * ARC2 Web Client
  *
  * @author Benjamin Nowack
- * @license <http://arc.semsol.org/license>
- * @homepage <http://arc.semsol.org/>
+ * @license W3C Software License and GPL
+ * @homepage <https://github.com/semsol/arc2>
  * @package ARC2
  * @version 2010-11-16
 */
@@ -22,7 +22,7 @@ class ARC2_Reader extends ARC2_Class {
     $this->http_method = $this->v('http_method', 'GET', $this->a);
     $this->message_body = $this->v('message_body', '', $this->a);;
     $this->http_accept_header = $this->v('http_accept_header', 'Accept: application/rdf+xml; q=0.9, text/turtle; q=0.8, */*; q=0.1', $this->a);
-    $this->http_user_agent_header = $this->v('http_user_agent_header', 'User-Agent: ARC Reader (http://arc.semsol.org/)', $this->a);
+    $this->http_user_agent_header = $this->v('http_user_agent_header', 'User-Agent: ARC Reader (https://github.com/semsol/arc2)', $this->a);
     $this->http_custom_headers = $this->v('http_custom_headers', '', $this->a);
     $this->max_redirects = $this->v('max_redirects', 3, $this->a);
     $this->format = $this->v('format', false, $this->a);
@@ -214,6 +214,7 @@ class ARC2_Reader extends ARC2_Class {
     /* relative redirect */
     if (!isset($parts['scheme']) && $prev_parts) $parts['scheme'] = $prev_parts['scheme'];
     if (!isset($parts['host']) && $prev_parts) $parts['host'] = $prev_parts['host'];
+    if (!isset($parts['port']) && $prev_parts) $parts['port'] = $prev_parts['port'];
     /* no scheme */
     if (!$this->v('scheme', '', $parts)) return $this->addError('Socket error: Missing URI scheme.');
     /* port tweaks */

@@ -3,8 +3,8 @@
  * ARC2 Resource object
  *
  * @author Benjamin Nowack <bnowack@semsol.com>
- * @license http://arc.semsol.org/license
- * @homepage <http://arc.semsol.org/>
+ * @license W3C Software License and GPL
+ * @homepage <https://github.com/semsol/arc2>
  * @package ARC2
  * @version 2011-01-19
 */
@@ -112,8 +112,7 @@ class ARC2_Resource extends ARC2_Class {
   function getProps($p = '', $s = '') {
     if (!$s) $s = $this->uri;
     if (!$s) return array();
-    // Commented out by Craig Dietrich 2014-10-29
-    // if (!isset($this->index[$s])) $this->fetchData($s);
+    if (!isset($this->index[$s])) $this->fetchData($s);
     if (!$p) return $this->index[$s];
     return $this->v($this->expandPName($p), array(), $this->index[$s]);
   }

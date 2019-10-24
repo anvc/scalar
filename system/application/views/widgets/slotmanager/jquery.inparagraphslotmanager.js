@@ -1,21 +1,21 @@
 /**
- * Scalar    
+ * Scalar
  * Copyright 2013 The Alliance for Networking Visual Culture.
  * http://scalar.usc.edu/scalar
  * Alliance4NVC@gmail.com
  *
- * Licensed under the Educational Community License, Version 2.0 
- * (the "License"); you may not use this file except in compliance 
+ * Licensed under the Educational Community License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
- * 
- * http://www.osedu.org/licenses /ECL-2.0 
- * 
+ *
+ * http://www.osedu.org/licenses /ECL-2.0
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an "AS IS"
  * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing
- * permissions and limitations under the License.       
- */  
+ * permissions and limitations under the License.
+ */
 
 /**
  * @projectDescription  A vertical bar with slots for content
@@ -35,30 +35,30 @@
 			$this.data('tags', []);
 
 			// Listen for tags, and create or update the status of each tag's slot
-			
-			$('body').bind('texteoTags', function(event, $tags) {
-	
+
+			$('body').on('texteoTags', function(event, $tags) {
+
 				// Create slot rows
 				$tag.parents('div#content').inline_set_slots();
-					
+
 				// Predict the number of elements in each slot
 				for (var j = 0; j < $tags.length; j++) {
 					$tags[j].set_slot_row_count();
-				}	
-						
+				}
+
 				// Create slots
 				for (var j = 0; j < $tags.length; j++) {
 					var slot = $tags[j].slotmanager_set_slot();
-				}						
-				
-			});				
-		
-			$('body').bind('texteoTagClicked', function(event, $link, clickEvent) {
-			
+				}
+
+			});
+
+			$('body').on('texteoTagClicked', function(event, $link, clickEvent) {
+
 				if (!$link.data('texteo_resource_link')) return;
 
 				clickEvent.preventDefault()
-				clickEvent.stopPropagation();			
+				clickEvent.stopPropagation();
 				unhighlight_all($this.data('tags'));
 				if ($link.slotmanager_is_playing()) {
 					$link.slotmanager_pause();
@@ -67,16 +67,16 @@
 					$link.slotmanager_highlight();
 					$link.slotmanager_play();
 				}
-				
-			});		
-			
+
+			});
+
 		});
-		
+
 	}
-	
+
 	$.fn.set_slot_row_count = function() {
-	
-		var $tag = $(this); 
+
+		var $tag = $(this);
 		var $slot_row = slotmanager_get_closest_slot_row($tag);
 		var count = $slot_row.data('num_slots');
 		if (!count) count = 0;
@@ -84,20 +84,20 @@
 		$slot_row.data('num_slots', count);
 
 	}
-	
+
 	function slotmanager_get_closest_slot_row($tag) {
-	
+
 		var $slot_row = $tag.prevAll('.slot_row:first');
-		if (!$slot_row.length)  $slot_row = $tag.parent().prevAll('.slot_row:first'); // unsafe..	
+		if (!$slot_row.length)  $slot_row = $tag.parent().prevAll('.slot_row:first'); // unsafe..
 		return $slot_row;
-	
+
 	}
-	
+
 	$.fn.slotmanager_set_slot = function() {
 
 		var slot_width = 300;
 		var slot_height = null;
-		var $tag = $(this); 
+		var $tag = $(this);
 		if ($tag.data('slot')) return;
 		var $slot_row = slotmanager_get_closest_slot_row($tag);
 
@@ -105,30 +105,30 @@
 		if ($slot_row.data('num_slots') <= 1) {
 			if ($tag.attr('href') && $tag.attr('href').indexOf('svn')!=-1) { // TODO: hack, because having trouble getting annotation type from mediaelement
 				slot_width = $slot_row.parent().width();
-			}		
+			}
 		}
 
 		// Creat mediaelement
 		$tag.slotmanager_create_slot(slot_width, slot_height);
 		$slot_row.append( $tag.data('slot') );
-		
+
 		// Garbage collect
 		$slot_row.children('br').remove();
-		if ($slot_row.find('.slot').length) $slot_row.append('<br clear="both" />');	
-		
+		if ($slot_row.find('.slot').length) $slot_row.append('<br clear="both" />');
+
 		// The slot row will center itself, but needs to have a width; set it to the combined with of its children
 		$slot_row.set_width_to_children(slot_width);
-		
+
 		// Remove prev <br /> is appropriate (<br /><br />)
 		if ($slot_row.children().length && $slot_row.prev().is('br') && $slot_row.prev().prev().is('br')) $slot_row.prev().remove();
-		
+
 		return true;
-		
-	}	
-	
+
+	}
+
 	// http://stackoverflow.com/questions/1015669/calculate-total-width-of-children-with-jquery
 	jQuery.fn.set_width_to_children = function(slot_width) {
-	
+
 		var $this = $(this);
 		var width = 0;
 		var max_width = $this.parent().innerWidth();
@@ -138,20 +138,20 @@
     		width += slot_width + margin; // Unfortunately we can't know the width dynamically since there's a latency to the media loading
 		});
 		if (width > max_width) width = max_width;
-		
-		$this.css('width', width);	
-	
+
+		$this.css('width', width);
+
 	}
-	
+
 	jQuery.fn.slotmanager_create_slot = function(width, height) {
-	
+
 		var options = {'url_attributes':['href', 'src']};
-		$tag = $(this); 
+		$tag = $(this);
 		if ($tag.hasClass('inline')) return;
 		var url = null;
-		
+
 		// Get URL
-		
+
 		var url = null;
 		for (var k in options['url_attributes']) {
 			if ('undefined'==typeof($tag.attr(options['url_attributes'][k]))) continue;
@@ -163,27 +163,27 @@
 		if (!url) return;
 
 		// Seperate seek hash if present
-		
+
 		var annotation_url = null;
 		var uri_components = url.split('#');
-		
+
 		// TODO: Special case for hypercities #, until we correctly variable-ify #'s
 		if (uri_components.length>1 && uri_components[0].toLowerCase().indexOf('hypercities')!=-1) {
 			// keep URL as it is
 		} else if (uri_components.length>1) {
 			var url = uri_components[0];
-			annotation_url = uri_components[1];	
-			//if (annotation_url && annotation_url.indexOf('://')==-1) annotation_url = dirname(document.location.href)+'/'+annotation_url;	
+			annotation_url = uri_components[1];
+			//if (annotation_url && annotation_url.indexOf('://')==-1) annotation_url = dirname(document.location.href)+'/'+annotation_url;
 			// modified by Erik below to remove duplicated 'annotations/' in url
-			if (annotation_url && annotation_url.indexOf('://')==-1) annotation_url = scalarapi.model.urlPrefix+annotation_url;	
+			if (annotation_url && annotation_url.indexOf('://')==-1) annotation_url = scalarapi.model.urlPrefix+annotation_url;
 		}
 
 		// Metadata resource
-		var resource = $tag.attr('resource');	
+		var resource = $tag.attr('resource');
 		if (typeof(resource)=='undefined') return;
 		// Create media element object
-			
-		$tag.data( 'slot', $('<div class="slot"></div>') );	
+
+		$tag.data( 'slot', $('<div class="slot"></div>') );
 
 		var opts = {};
 		opts.width = width;
@@ -191,23 +191,23 @@
 		opts.player_dir = $('link#approot').attr('href')+'static/players/';
 		opts.base_dir = dirname(document.location.href)+'/';
 		opts.seek = annotation_url;
-		//if (opts.seek && opts.seek.length) alert('[Test mode] Asking to seek: '+opts.seek);		
+		//if (opts.seek && opts.seek.length) alert('[Test mode] Asking to seek: '+opts.seek);
 		$tag.data('path', url);
 		$tag.data('meta', resource);
 		$tag.mediaelement(opts);
 
 		// Insert media element's embed markup
-		
+
 		if (!$tag.data('mediaelement')) return false;  // mediaelement rejected the file
 		$tag.data('slot').html( $tag.data('mediaelement').getEmbedObject() );
 		$tag.data('slot').css('width', width+'px');
 
 		return $tag.data('slot');
-	
+
 	}
-	
+
 	jQuery.fn.inline_set_slots = function() {
-	
+
 		var $parent = $(this);
 		$parent.htmlClean();
 
@@ -215,25 +215,25 @@
 		$parent.find('br').each(function() {
 			var $next = $(this).next();
 			if ($next.is('br') && !$next.next().is('.slot_row')) {
-				$next.after('<div class="slot_row"></div>');	
+				$next.after('<div class="slot_row"></div>');
 			}
 		});
-		
+
 		// Insert a slot before paragraphs indicated by "<p>" or "<div>"
 		$parent.children('p, div').not('.slot_row').each(function() {
 			var $this = $(this);
 			if (!$this.prev().is('.slot_row')) {
-				$this.before('<div class="slot_row"></div>');		
+				$this.before('<div class="slot_row"></div>');
 			}
-		});		
-			
+		});
+
 		// Insert a slot at the begining
 		if (!$parent.children().first().is('.slot_row')) {
 			$parent.prepend('<div class="slot_row"></div>');
-		}	
-		
+		}
+
 		return $parent;
-	
+
 	}
 
 	// http://stackoverflow.com/questions/1539367/remove-whitespace-and-line-breaks-between-html-elements-using-jquery
@@ -248,68 +248,68 @@
 	        }
 	    }).remove();
 	}
-	
+
 	/*
 	 * $.fn.slotmanager_is_playing
 	 * Determine if a slot if playing.  Also is a safety to make sure data('is_playing') is set.
-     */		
-	
+     */
+
 	$.fn.slotmanager_is_playing = function() {
-	
+
 		var $tag = $(this);
 	    if (!$tag.data('mediaelement')) return false;
 		return $tag.data('mediaelement').is_playing();
-	}	
-	
+	}
+
 	/*
 	 * $.fn.slotmanager_play
 	 * Play a slot's mediaelement
-     */		
-	
+     */
+
 	$.fn.slotmanager_play = function() {
 
 		var $tag = $(this);
 		if (!$tag.data('mediaelement')) return false;
 		$tag.data('mediaelement').play();
-	
+
 	}
-	
+
 	/*
 	 * $.fn.slotmanager_pause
 	 * Pause a slot's mediaelement
-     */			
-	
+     */
+
 	$.fn.slotmanager_pause = function() {
-	
+
 		var $tag = $(this);
 		if (!$tag.data('mediaelement')) return false;
 		$tag.data('mediaelement').pause();
-	
-	}	
+
+	}
 
 	/*
 	 * $.fn.slotmanager_unhighlight
 	 * Unhlighlight a tag
-     */		
-	
+     */
+
 	$.fn.slotmanager_unhighlight = function() {
-	
+
 		$tag = $(this);
 		if ($tag.data('slot')) {
 			$tag.data('slot').find('.mediaElementHeader:first').css('background-color', '');
 			$tag.data('slot').find('.mediaElementHeader:first').css('padding', '');
 			$tag.data('slot').find('.mediaElementFooter:first').css('background-color', '');
 			$tag.css('background-color', '');
-		}	
+		}
 	}
-	
+
 	/*
 	 * $.fn.slotmanager_highlight
 	 * Hlighlight a tag
-     */			
-	
+     */
+
 	$.fn.slotmanager_highlight = function() {
-	
+
 		$tag = $(this);
 		if ($tag.data('slot')) {
 			$tag.data('slot').find('.mediaElementHeader:first').css('background-color', '#c5dceb');
@@ -317,36 +317,35 @@
 			$tag.data('slot').find('.mediaElementFooter:first').css('background-color', '#c5dceb');
 			$tag.css('background-color', '#c5dceb');
 		}
-	
-	}	
-	
+
+	}
+
 	/*
 	 * unhighlight_all
 	 * Unhlighlight an array of tags
 	 * @param arr $tags a list of jQuery tags
-     */		
-	
+     */
+
 	var unhighlight_all = function($tags) {
-	
+
 		for (var j = 0; j < $tags.length; j++) {
 			$tags[j].slotmanager_unhighlight();
 		}
-	
-	}	
+
+	}
 
 	/*
 	 * stop_playing_all
 	 * Stop playing an array of tags
 	 * @param arr $tags a list of jQuery tags
-     */		
-	
+     */
+
 	var stop_playing_all = function($tags) {
-	
+
 		for (var j = 0; j < $tags.length; j++) {
 			$tags[j].slotmanager_pause();
-		}	
-	
-	}		
+		}
+
+	}
 
 })(jQuery);
-

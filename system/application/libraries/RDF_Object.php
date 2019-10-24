@@ -49,10 +49,10 @@ class RDF_Object {
 	const USE_VERSIONS_EXCLUSIVE = 1;
 	const USE_VERSIONS_EDITORIAL = 2;
 	public $ns = array();
-	private $version_cache = array();
-	private $user_cache = array();
-	private $rel_fields = array('sort_number','start_seconds','end_seconds','start_line_num','end_line_num','points','datetime','paragraph_num');
-	private $defaults = array(
+	protected $version_cache = array();
+	protected $user_cache = array();
+	protected $rel_fields = array('sort_number','start_seconds','end_seconds','start_line_num','end_line_num','points','datetime','paragraph_num');
+	protected $defaults = array(
 		'books'			=> null,
 		'book'			=> null,
 		'users'			=> null,
@@ -193,13 +193,13 @@ class RDF_Object {
 
     }
 
-    private function _system($settings) {
+    protected function _system($settings) {
 
     	throw new Exception('System by value is not yet supported');
 
     }
 
-    private function _system_by_ref(&$return, $settings) {
+    protected function _system_by_ref(&$return, $settings) {
 
     	$CI =& get_instance();
     	if ('object'!=gettype($CI->books)) $CI->load->model('book_model','books');
@@ -221,13 +221,13 @@ class RDF_Object {
 
     }
 
-    private function _book($settings) {
+    protected function _book($settings) {
 
     	throw new Exception('Book by value is not yet supported');
 
     }
 
-    private function _book_by_ref(&$return, $settings) {
+    protected function _book_by_ref(&$return, $settings) {
 
 		$CI =& get_instance();
 		if ('object'!=gettype($CI->books)) $CI->load->model('book_model','books');
@@ -314,7 +314,7 @@ class RDF_Object {
 
     }
 
-    private function _index($settings=array()) {
+    protected function _index($settings=array()) {
 
     	$settings = $this->_settings($settings);
 		if (empty($settings['content'])) return $settings['content'];
@@ -336,7 +336,7 @@ class RDF_Object {
 
     }
 
-    private function _index_by_ref(&$return, $settings) {
+    protected function _index_by_ref(&$return, $settings) {
 
     	$settings = $this->_settings($settings);
 		if (empty($settings['content'])) return;
@@ -389,7 +389,7 @@ class RDF_Object {
 
     }
 
-	private function _content($row, $settings) {
+	protected function _content($row, $settings) {
 
 		// Grab list of relationship models
 		$CI =& get_instance();
@@ -438,7 +438,7 @@ class RDF_Object {
 
 	}
 
-    private function _content_by_ref(&$return, $row, $settings) {
+    protected function _content_by_ref(&$return, $row, $settings) {
 
 		if ($this->_uri_exists($return, $settings['base_uri'].$row->slug)) return;
 
@@ -588,7 +588,7 @@ class RDF_Object {
 
     }
 
-	private function _provenance($page, $settings) {
+	protected function _provenance($page, $settings) {
 
 		if (!$settings['prov']) return $page;
   		$CI =& get_instance();
@@ -636,7 +636,7 @@ class RDF_Object {
 
 	}
 
-	private function _provenance_by_ref(&$return, $row, $versions, $settings) {
+	protected function _provenance_by_ref(&$return, $row, $versions, $settings) {
 
 		if (!$settings['prov']) return;
   		$CI =& get_instance();
@@ -684,7 +684,7 @@ class RDF_Object {
 
 	}
 	
-	private function _tklabels($page, $settings) {
+	protected function _tklabels($page, $settings) {
 
 		if (!$settings['tklabels'] || empty($settings['tklabeldata'])) return $page;
 		$CI =& get_instance();
@@ -718,7 +718,7 @@ class RDF_Object {
 		
 	}
 	
-	private function _tklabels_by_ref(&$return, $row, $versions, $settings) {
+	protected function _tklabels_by_ref(&$return, $row, $versions, $settings) {
 
 		if (!$settings['tklabels'] || empty($settings['tklabeldata'])) return;
 		$CI =& get_instance();
@@ -752,7 +752,7 @@ class RDF_Object {
 		
 	}
 
-	private function _pagination($page, $settings) {
+	protected function _pagination($page, $settings) {
 
 		$CI =& get_instance();
 		$models = $CI->config->item('rel');
@@ -836,7 +836,7 @@ class RDF_Object {
 
 	}
 
-	private function _pagination_by_ref(&$return, $settings) {
+	protected function _pagination_by_ref(&$return, $settings) {
 
 		if (empty($return)) return;
 
@@ -862,7 +862,7 @@ class RDF_Object {
 
 	}
 
-	private function _relationships($row, $settings) {
+	protected function _relationships($row, $settings) {
 
 		$CI =& get_instance();
 		$models = $CI->config->item('rel');
@@ -901,7 +901,7 @@ class RDF_Object {
 
 	}
 
-    private function _relationships_by_ref(&$return, $versions, $settings) {
+    protected function _relationships_by_ref(&$return, $versions, $settings) {
 
 		if (empty($versions)) return;
 		if ($settings['num_recurses'] >= $settings['max_recurses']) return;
@@ -939,7 +939,7 @@ class RDF_Object {
 
     }
 
-	private function _annotation_parent($annotation, $settings) {
+	protected function _annotation_parent($annotation, $settings) {
 
 		$CI =& get_instance();
 		if ('object'!=gettype($CI->pages)) $CI->load->model('page_model','pages');
@@ -966,7 +966,7 @@ class RDF_Object {
 
 	}
 
-	private function _annotation_parent_by_ref(&$return, $annotation, $target_uri, $settings) {
+	protected function _annotation_parent_by_ref(&$return, $annotation, $target_uri, $settings) {
 
 		$CI =& get_instance();
 		if ('object'!=gettype($CI->pages)) $CI->load->model('page_model','pages');
@@ -996,7 +996,7 @@ class RDF_Object {
 
 	}
 
-	private function _annotation_child($annotation, $settings) {
+	protected function _annotation_child($annotation, $settings) {
 
 		$CI =& get_instance();
 		if ('object'!=gettype($CI->pages)) $CI->load->model('page_model','pages');
@@ -1023,7 +1023,7 @@ class RDF_Object {
 
 	}
 
-	private function _annotation_child_by_ref(&$return, $annotation, $body_uri, $settings) {
+	protected function _annotation_child_by_ref(&$return, $annotation, $body_uri, $settings) {
 
 		$CI =& get_instance();
 		if ('object'!=gettype($CI->pages)) $CI->load->model('page_model','pages');
@@ -1054,7 +1054,7 @@ class RDF_Object {
 
 	}
 
-	private function _annotation_category_by_ref(&$return, $version, $settings) {  // E.g., "review", "commentary"
+	protected function _annotation_category_by_ref(&$return, $version, $settings) {  // E.g., "review", "commentary"
 
 		$CI =& get_instance();
 		if ('object'!=gettype($CI->pages)) $CI->load->model('page_model','pages');
@@ -1068,13 +1068,13 @@ class RDF_Object {
 
 	}
 
-	private function _settings($settings=array()) {
+	protected function _settings($settings=array()) {
 
 		return array_merge($this->defaults, $settings);
 
 	}
 
-	private function _uri_exists($return, $uri='') {
+	protected function _uri_exists($return, $uri='') {
 
 		if (empty($return)) return false;
 		if (array_key_exists($uri, $return)) return true;
@@ -1082,14 +1082,14 @@ class RDF_Object {
 
 	}
 	
-	private function _safely_write_rdf(&$return, $uri, $rdf) {
+	protected function _safely_write_rdf(&$return, $uri, $rdf) {
 		
 		if (!$this->_uri_exists($return, $uri)) $return[$uri] = $rdf;
 		$return[$uri] = array_merge($return[$uri], $rdf);
 		
 	}
 
-	private function _object_exists($s, $p, $o) {
+	protected function _object_exists($s, $p, $o) {
 
 		if (!array_key_exists($p,$s)) return false;
 		foreach ($s[$p] as $rdf_type) {
@@ -1099,7 +1099,7 @@ class RDF_Object {
 
 	}
 	
-	private function _use_version($use_versions, $content_id) {
+	protected function _use_version($use_versions, $content_id) {
 		
 		if (!is_array($use_versions)) return null;
 		if (!isset($use_versions[$content_id])) return false;

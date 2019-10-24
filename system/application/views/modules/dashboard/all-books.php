@@ -13,7 +13,7 @@
 		<script>
 		$(document).ready(function() {
 
-			$('.jump-form').submit(function() {
+			$('.jump-form').on('submit', function() {
 				var x = parseInt($(this).children('.jump-to-page').val());
 				if(!isNaN(x)) {
 					var start = <?=$total?> * (x-1);
@@ -27,13 +27,13 @@
 				$('.book-search').val(search_text);
 			}
 
-			$('.book-search-form').submit(function() {
+			$('.book-search-form').on('submit', function() {
 				var sq = $(this).children('.book-search').val();
  				window.location.href = "<?=confirm_slash(base_url())?>system/dashboard?zone=all-books&sq=" + encodeURIComponent(sq) + "#tabs-all-books";
 				return false;
 			});
 
-			$('.value_select_trigger').click(function() {
+			$('.value_select_trigger').on('click', function() {
 				var $this = $(this);
 				var multiple = $this.hasClass('multiple');
 				var resource = $this.attr('resource');
@@ -73,7 +73,7 @@
 
 			});
 
-   			$(window).resize(function() { resizeList(); });
+   			$(window).on('resize', function() { resizeList(); });
    			resizeList();
 
 		});

@@ -423,13 +423,6 @@ function YouTubeGetID(url){
         me.model.path = me.model.node.current.sourceFile;
 				me.model.mediaSource = me.model.node.current.mediaSource;
 				me.view.beginSetup();
-
-				// don't parse annotations if this is an image and we're in the annotation editor (in that case, the annotation editor
-				// will take care of displaying the annotations)
-				if ((me.model.mediaSource.contentType != 'image') || (document.location.href.indexOf('.annotation_editor') == -1)) {
-					me.view.parseAnnotations();
-				}
-
 			}
 
 			$('body').trigger('mediaElementMetadataHandled', [$(link)]);
@@ -675,6 +668,12 @@ function YouTubeGetID(url){
 			$.when(promise).then($.proxy(function(){
 				this.parseMediaType();
 
+				// don't parse annotations if this is an image and we're in the annotation editor (in that case, the annotation editor
+				// will take care of displaying the annotations)
+				if ((this.model.mediaSource.contentType != 'image') || (document.location.href.indexOf('.annotation_editor') == -1)) {
+					this.parseAnnotations();
+				}
+
 				this.header = $('<div class="mediaElementHeader"></div>').appendTo(this.model.element);
 	  			this.annotationSidebar = $('<div class="mediaElementAnnotationSidebar"></div>').appendTo(this.model.element);
 	  			this.mediaContainer = $('<div class="mediaContainer"></div>').appendTo(this.model.element);
@@ -797,7 +796,7 @@ function YouTubeGetID(url){
 		    		this.header.append(tabs);
 
 		    		// Media button: maximize the media
-					this.header.find('#max_file_button').click(function() {
+					this.header.find('#max_file_button').on('click', function() {
 						$(this).parent().parent().find('span').removeClass('downArrow');
 						$(this).parent().parent().find('span').addClass('noArrow');
 						$(this).parent().parent().find('li').removeClass('sel');
@@ -811,7 +810,7 @@ function YouTubeGetID(url){
 					});
 
 					// Description button: open the title|description panel
-					this.header.find('#max_desc_button').click(function() {
+					this.header.find('#max_desc_button').on('click', function() {
 						$(this).parent().parent().find('span').removeClass('downArrow');
 						$(this).parent().parent().find('span').addClass('noArrow');
 						$(this).parent().parent().find('li').removeClass('sel');
@@ -831,7 +830,7 @@ function YouTubeGetID(url){
 					});
 
 					// Annotation button: open the annotation panel
-					this.header.find('#max_anno_button').click(function() {
+					this.header.find('#max_anno_button').on('click', function() {
 						$(this).parent().parent().find('span').removeClass('downArrow');
 						$(this).parent().parent().find('span').addClass('noArrow');
 						$(this).parent().parent().find('li').removeClass('sel');
@@ -851,7 +850,7 @@ function YouTubeGetID(url){
 					});
 
 					// Metadata button: open the meta panel
-					this.header.find('#max_meta_button').click(function() {
+					this.header.find('#max_meta_button').on('click', function() {
 						$(this).parent().parent().find('span').removeClass('downArrow');
 						$(this).parent().parent().find('span').addClass('noArrow');
 						$(this).parent().parent().find('li').removeClass('sel');
@@ -871,12 +870,12 @@ function YouTubeGetID(url){
 					});
 
 					// Permalink button: take user to file page
-					this.header.find('#max_perm_button').data('meta',this.model.meta).click(function() {
+					this.header.find('#max_perm_button').data('meta',this.model.meta).on('click', function() {
 						window.location.href = $(this).data('meta');
 					});
 
 					// Source button: open the file in a new browser window
-					this.header.find('#max_popout_button').data('path',this.model.path).click(function() {
+					this.header.find('#max_popout_button').data('path',this.model.path).on('click', function() {
 						window.open($(this).data('path'), 'popout', 'width='+(parseInt($(window).width())-100)+',height='+(parseInt($(window).height())-100));
 					});
 
@@ -885,14 +884,14 @@ function YouTubeGetID(url){
 					var close_span = $('<span class="close_link"></span>');
 					close_span.append(close_link);
 					this.header.append(close_span);
-					close_link.click(function() {
+					close_link.on('click', function() {
 						$(this).parents('.maximize').remove();
 						$('.vert_slots').find('.slot').find('object, embed').css('visibility','visible');
 					});
 					$slot.find('.mediaElementAlignRight').remove();
 
 					// makes the description tab the default on open
-					this.header.find('#max_desc_button').click();
+					this.header.find('#max_desc_button').trigger('click');
 
 		    	// Simple header
 		    	} else {
@@ -914,7 +913,7 @@ function YouTubeGetID(url){
 						var cntrllr = this.controller;
 						this.annotationLink = $('<a href="javascript:;">Annotations</a>');
 						this.annotationLink.data('cntrllr', cntrllr);
-						this.annotationLink.click(function() {
+						this.annotationLink.on('click', function() {
 							$(this).data('cntrllr').toggleAnnotations();
 						});
 						var temp = $('<p class="mediaElementAlignRight annotationToggle"></p>');
@@ -1050,7 +1049,7 @@ function YouTubeGetID(url){
 					maximizeButton.siblings('.mediaElementAlignLeft').addClass('mediaElementAlignLeftDetails');
 
 					// opens original media file (for HTML pages and PDFs only)
-					maximizeButton.find('a#viewPageLink').data('me', this).click(function() {
+					maximizeButton.find('a#viewPageLink').data('me', this).on('click', function() {
 						var $this = $(this);
 						var base_dir = scalarapi.model.urlPrefix;
 						var path = $this.data('me').model.path;
@@ -1060,7 +1059,7 @@ function YouTubeGetID(url){
 					});
 
 					// maximize link (now called 'Details' in the interface)
-					maximizeButton.find('a#maximizeLink').data('link', this.link).data('me', this).click(function() {
+					maximizeButton.find('a#maximizeLink').data('link', this.link).data('me', this).on('click', function() {
 						if (!$.isFunction($.fn.scalarmaximize)) return alert('Could not find maximize script.');
 
 						// pause all playing mediaelement instances
@@ -1108,12 +1107,16 @@ function YouTubeGetID(url){
 					player = this.model.mediaSource.browserSupport[scalarapi.scalarBrowser].player;
 				}
 
+        var isCulturallySensitive = false;
+
 				if (this.model.node.current.auxProperties['dcterms:accessRights'] != null) {
           if (this.model.node.current.auxProperties['dcterms:accessRights'].indexOf('culturally-sensitive') != -1) {
+            isCulturallySensitive = true;
             this.mediaObjectView = new $.CulturallySensitiveObjectView(this.model, this);
           }
+        }
 
-				} else {
+				if (!isCulturallySensitive) {
 
 					switch (this.model.mediaSource.contentType) {
 
@@ -1365,7 +1368,7 @@ function YouTubeGetID(url){
 
 			}
 
-			if ( this.model.mediaSource.contentType != 'image') {
+			if (this.model.mediaSource.contentType != 'image' && !full_size && !native_size) {
 				this.containerDim.y = Math.min( this.containerDim.y, window.innerHeight - 250 );
 			} else if ( scalarapi.getFileExtension( window.location.href ) == "annotation_editor" ) {
 				this.containerDim.y = Math.min( this.containerDim.y, window.innerHeight - 350 );
@@ -1385,7 +1388,6 @@ function YouTubeGetID(url){
 			if (this.mediaObjectView.isLiquid) {
 				this.intrinsicDim = this.containerDim;
 			}
-
 			if (this.intrinsicDim.x == 0) {
 
 				// intrinsic dim unknown; assume 640x480
@@ -1437,12 +1439,12 @@ function YouTubeGetID(url){
 						}
 					}
 				});
-
 				if (typeof maxHeight != 'undefined') {
 					if (mediaAR > containerAR) {
 						// Must limit width in order to get the right height limit
 						tempDims.x = Math.min(maxHeight * mediaAR,tempDims.x);
 					} else {
+
 						tempDims.y = Math.min(maxHeight, tempDims.y);
 					}
 				}
@@ -2075,7 +2077,7 @@ function YouTubeGetID(url){
 						// Seek on the view
 						annotationChip.data('annotation', annotation);
 						annotationChip.data('me', this.controller.view);
-						annotationChip.click( function() {
+						annotationChip.on('click',  function() {
 							var $me = $(this).data('me');
 							// don't cache the play command for YouTube videos since they play automatically on seeking anyway
 							if ( local_me.model.mediaSource.name != "YouTube" ) {
@@ -2098,7 +2100,7 @@ function YouTubeGetID(url){
 						annotationChip.append('<p class="annotationExtents"><a href="javascript:;">'+annotation.startString+annotation.separator+annotation.endString+'</a></p>');
 						annotationChip.data('annotation', annotation);
 						annotationChip.data('me', this.controller.view);
-						annotationChip.click( function() {
+						annotationChip.on('click',  function() {
 							$(this).data('me').cachedPlayCommand = true;
 							$(this).data('me').seek($(this).data('annotation'));
 							// don't show live annotations if we're in the annotation editor or the maximize view
@@ -2115,7 +2117,7 @@ function YouTubeGetID(url){
 						// Seek on the view
 						annotationChip.data('annotation', annotation);
 						annotationChip.data('me', this.controller.view);
-						annotationChip.click( function(e) {
+						annotationChip.on('click',  function(e) {
 							$(this).data('me').model.seekAnnotation = null;
 							$(this).data('me').seek($(this).data('annotation'));
 							$(this).data('me').play();
@@ -2269,7 +2271,15 @@ function YouTubeGetID(url){
 				'data-original': url + '-' + this.model.id // needed to support annotorious if the same image appears on the page more than once
 			});
 
-			$(this.image).load(function() {
+			$(this.image).on('load', function() {
+				// Standard practice is that 360 images must be exactly 2:1; alternatively could look for Exif XMP “ProjectionType=equirectangular”
+				// Panoramas that aren't 2:1 (e.g., created on a phone) will require a more nuanced look at the metadata to determine if the 360 view should load
+				if (2 == this.width / this.height && 'annotation_editor' != $('link#view').attr('href')) {  // Test for 360 image
+					me.parentView.mediaContainer.empty();
+					me.parentView.mediaObjectView = new $.I360ObjectView(model, parentView);
+					me.parentView.mediaObjectView.createObject();
+					return;
+				}
 				me.doImageSetup(this);
 			});
 
@@ -2283,11 +2293,7 @@ function YouTubeGetID(url){
 			this.parentView.removeLoadingMessage();
 
 			// Make visible
-			if ($.browser.msie) {
-				$(image).css('display','inline');
-			} else {
-				$(image).fadeIn();
-			}
+			$(image).hide().fadeIn();
 
 			if (this.annotations != null) {
 				this.setupAnnotations(this.annotations);
@@ -2404,7 +2410,7 @@ function YouTubeGetID(url){
 
 	 			}
 
-	 			$(".annotorious-popup").click(function(e) {
+	 			$(".annotorious-popup").on('click', function(e) {
 					e.stopPropagation();
 					return true;
 				}).css('z-index',999);
@@ -2448,7 +2454,75 @@ function YouTubeGetID(url){
 		}
 
 
-	}
+	} // !image
+
+	/**
+	 * View for 360 images, using Google's vrview.
+	 * @constructor
+	 *
+	 * @param {Object} model		Instance of the model.
+	 * @param {Object} parentView	Primary view for the media element.
+	 */
+	jQuery.I360ObjectView = function(model, parentView) {
+
+		var me = this;
+
+		this.model = model;  					// instance of the model
+		this.parentView = parentView;   		// primary view for the media element
+		this.hasLoaded = false;					// has the image loaded?
+		this.annotations = null;				// vrview hotspots
+		this.annotatedImage = null;				// hotspotted image object
+
+		/**
+		 * Creates the 360 media object.
+		 */
+ 		jQuery.I360ObjectView.prototype.createObject = function() {
+ 			this.hasLoaded = true;
+			//this.parentView.intrinsicDim.x = 6000;
+			//this.parentView.intrinsicDim.y = 3000;
+			this.parentView.layoutMediaObject();
+			this.parentView.removeLoadingMessage();
+
+ 			if ('undefined' == typeof(vrviews)) vrviews = 0;  // Global
+ 			var my_vrview = parseInt(vrviews);
+ 			vrviews++;
+			this.wrapper = $('<div class="mediaObject" id="vrview_'+my_vrview+'" style="width:100%;height:100%;"></div>');
+			$(this.wrapper).appendTo(this.parentView.mediaContainer);
+
+			var url = this.model.path;
+			var path = $('link#approot').attr('href')+'views/widgets/vrview/build/';
+			var obj = {
+				image: url,
+				script_path: path
+			};
+		    $.getScript( path+'vrview.js' , function() {
+		    	var vrView = new VRView.Player('#vrview_'+my_vrview, obj);  // Global
+		    	$('#vrview_'+my_vrview).find('iframe').css('width','100%').css('height','100%');
+		    });
+
+    	}
+
+		// TODO: vrview has an API for these for videos
+		jQuery.I360ObjectView.prototype.play = function() { }
+		jQuery.I360ObjectView.prototype.pause = function() { }
+		jQuery.I360ObjectView.prototype.seek = function(time) { }
+		jQuery.I360ObjectView.prototype.getCurrentTime = function() { return null; }
+		jQuery.I360ObjectView.prototype.isPlaying = function() { return true; }
+
+		/**
+		 * Resizes the vrview wrapper (in this case, ".mediaContainer" since vrview loads asyncronously) to the specified dimensions.
+		 *
+		 * @param {Number} width		The new width of the area.
+		 * @param {Number} height		The new height of the area.
+		 */
+		jQuery.I360ObjectView.prototype.resize = function(width, height) {
+			if (width > 500) height = width * 0.75;  // Artificially restrict the height
+			if (height > 400) height = 400;  // Artificially cap the height
+			$(me.parentView.mediaContainer).width(width+'px');
+			$(me.parentView.mediaContainer).height(height+'px');
+		}
+
+	}  // !360
 
 	/**
 	 * View for the QuickTime player.
@@ -2854,7 +2928,7 @@ function YouTubeGetID(url){
 				this.image = new Image();
 
 				// setup actions to be taken on image load
-				$(this.image).load(function() {
+				$(this.image).on('load', function() {
 					var $this = $(this);
 					me.video.attr('poster', $this.attr('src'));
 				}).attr('src', thumbnailURL);
@@ -2866,6 +2940,14 @@ function YouTubeGetID(url){
 
 			var metadataFunc = function() {
 
+				// Standard practice is that 360 video must be exactly 2:1
+				if (2 == me.video[0].videoWidth / me.video[0].videoHeight && 'annotation_editor' != $('link#view').attr('href')) {  // Test for 360 video
+					me.parentView.mediaContainer.empty();
+					me.parentView.mediaObjectView = new $.V360ObjectView(model, parentView);
+					me.parentView.mediaObjectView.createObject();
+					return;
+				}
+				
 				me.parentView.intrinsicDim.x = me.video[0].videoWidth;
 				me.parentView.intrinsicDim.y = me.video[0].videoHeight;
 				me.parentView.controllerOffset = 0;
@@ -2982,6 +3064,113 @@ function YouTubeGetID(url){
 		}
 
 	}
+	
+	/**
+	 * View for 360 videos, using Google's vrview.
+	 * @constructor
+	 *
+	 * @param {Object} model		Instance of the model.
+	 * @param {Object} parentView	Primary view for the media element.
+	 */
+	jQuery.V360ObjectView = function(model, parentView) {
+
+		var me = this;
+
+		this.model = model;  					// instance of the model
+		this.parentView = parentView;   		// primary view for the media element
+		this.hasLoaded = false;					// has the image loaded?
+		this.annotations = null;				// vrview hotspots
+		this.annotatedImage = null;				// hotspotted image object
+
+		/**
+		 * Creates the 360 media object.
+		 */
+ 		jQuery.V360ObjectView.prototype.createObject = function() {
+ 			this.hasLoaded = true;
+			//this.parentView.intrinsicDim.x = 6000;
+			//this.parentView.intrinsicDim.y = 3000;
+			this.parentView.layoutMediaObject();
+			this.parentView.removeLoadingMessage();
+
+ 			if ('undefined' == typeof(vrviews)) vrviews = 0;  // Global
+ 			var my_vrview = parseInt(vrviews);
+ 			vrviews++;
+			this.wrapper = $('<div class="mediaObject" id="vrview_'+my_vrview+'" style="width:100%;height:100%;"></div>');
+			$(this.wrapper).appendTo(this.parentView.mediaContainer);
+
+			var url = this.model.path;
+			var path = $('link#approot').attr('href')+'views/widgets/vrview/build/';
+			var obj = {
+				video: url,
+				script_path: path
+			};
+		    $.getScript( path+'vrview.js' , function() {
+		    	var vrview_selector = '#vrview_'+my_vrview;
+		    	var vrView = new VRView.Player(vrview_selector, obj);
+		    	var $play = $('<div class="vroptions"><small class="helper_msg"></small><div class="pull-left"><button type="button" class="btn btn-xs btn-success toggleplay"><span class="glyphicon glyphicon-play"></span>Play</button><span class="time">00:00</span></div><!--<div class="pull-right"><button type="button" class="btn btn-xs btn-default togglemute">Mute</button></div>--></div>');
+		    	$(vrview_selector).find('iframe').css('width','100%').css('height', '90%').after($play);
+			    // Center text
+			    var helper_msg = 'Click and drag video to move 360 perspective.';
+			    var width = parseInt($play.width());
+			    if (width < 300) helper_msg = '';
+			    $play.find('.helper_msg').text(helper_msg);
+			    // Play/pause
+				var $play_button = $play.find('.toggleplay');
+				$play_button.on('click', function() {
+					var $this = $(this);
+					if ('play' == $this.text().toLowerCase()) {  // Don't trust vrView.isPlaying
+						vrView.play();
+						$this.removeClass('btn-success').addClass('btn-danger').html('<span class="glyphicon glyphicon-pause"></span>Pause').blur();
+					} else {
+						vrView.pause();
+						$this.removeClass('btn-danger').addClass('btn-success').html('<span class="glyphicon glyphicon-play"></span>Play').blur();
+					}
+				});
+				// Time
+				var $time = $play.find('.time');
+				vrView.on('timeupdate', function(e) {
+				    var current = me.formatTime(e.currentTime);
+				    var duration = me.formatTime(e.duration);
+				    $time.text(current);
+				});
+				vrView.on('ready', function(e) {
+					vrView.pause();
+				});
+		    });
+
+    	}
+ 		
+ 		jQuery.V360ObjectView.prototype.formatTime = function(time) {
+ 			  time = !time || typeof time !== 'number' || time < 0 ? 0 : time;
+ 			  var minutes = Math.floor(time / 60) % 60;
+ 			  var seconds = Math.floor(time % 60);
+ 			  minutes = minutes <= 0 ? 0 : minutes;
+ 			  seconds = seconds <= 0 ? 0 : seconds;
+ 			  var result = (minutes < 10 ? '0' + minutes : minutes) + ':';
+ 			  result += seconds < 10 ? '0' + seconds : seconds;
+ 			  return result;
+ 		};
+
+		jQuery.V360ObjectView.prototype.play = function() { }
+		jQuery.V360ObjectView.prototype.pause = function() { }
+		jQuery.V360ObjectView.prototype.seek = function(time) { }
+		jQuery.V360ObjectView.prototype.getCurrentTime = function() { return null; }
+		jQuery.V360ObjectView.prototype.isPlaying = function() { return true; }
+
+		/**
+		 * Resizes the vrview wrapper (in this case, ".mediaContainer" since vrview loads asyncronously) to the specified dimensions.
+		 *
+		 * @param {Number} width		The new width of the area.
+		 * @param {Number} height		The new height of the area.
+		 */
+		jQuery.V360ObjectView.prototype.resize = function(width, height) {
+			if (width > 500) height = width * 0.75;  // Artificially restrict the height
+			if (height > 400) height = 400;  // Artificially cap the height
+			$(me.parentView.mediaContainer).width(width+'px');
+			$(me.parentView.mediaContainer).height(height+'px');
+		}
+
+	}  // !360
 
 	/**
 	 * View for the HTML5 audio player.
@@ -3906,9 +4095,9 @@ function YouTubeGetID(url){
 				cssSelectorAncestor:'#jp_interface_'+this.model.id
 			});
 
-			$('#jplayer'+this.model.filename+'_'+this.model.id).bind($.jPlayer.event.pause, function(e) { me.isAudioPlaying = !e.jPlayer.status.paused; me.currentTime = e.jPlayer.status.currentTime; me.parentView.endTimer(); });
-			$('#jplayer'+this.model.filename+'_'+this.model.id).bind($.jPlayer.event.play, function(e) { me.isAudioPlaying = !e.jPlayer.status.paused; me.currentTime = e.jPlayer.status.currentTime; me.parentView.startTimer(); $(this).jPlayer("pauseOthers"); });
-			$('#jplayer'+this.model.filename+'_'+this.model.id).bind($.jPlayer.event.timeupdate, function(e) { me.currentTime = e.jPlayer.status.currentTime; });
+			$('#jplayer'+this.model.filename+'_'+this.model.id).on($.jPlayer.event.pause, function(e) { me.isAudioPlaying = !e.jPlayer.status.paused; me.currentTime = e.jPlayer.status.currentTime; me.parentView.endTimer(); });
+			$('#jplayer'+this.model.filename+'_'+this.model.id).on($.jPlayer.event.play, function(e) { me.isAudioPlaying = !e.jPlayer.status.paused; me.currentTime = e.jPlayer.status.currentTime; me.parentView.startTimer(); $(this).jPlayer("pauseOthers"); });
+			$('#jplayer'+this.model.filename+'_'+this.model.id).on($.jPlayer.event.timeupdate, function(e) { me.currentTime = e.jPlayer.status.currentTime; });
 
 			this.parentView.controllerOnly = true;
 			this.parentView.controllerHeight = 80;
@@ -4029,7 +4218,7 @@ function YouTubeGetID(url){
 
 			this.frame = obj.find('#'+this.frameId)[0];
 
-			$(this.frame).bind("load", function () {
+			$(this.frame).on("load", function () {
 				me.codeToList();
 			   	me.hasFrameLoaded = true;
 			   	me.highlightAnnotatedLines();
@@ -4139,7 +4328,7 @@ function YouTubeGetID(url){
 					if (((index+1) >= annotation.properties.start) && ((index+1) <= annotation.properties.end)) {
 						$(value).addClass(style);
 						$(value).data('annotation', annotation);
-						$(value).click(function() {
+						$(value).on('click', function() {
 							var anno = $(this).data('annotation');
 							me.currentLine = index + 1;
 							me.textIsPlaying = true;
@@ -4313,7 +4502,7 @@ function YouTubeGetID(url){
 			}
 			this.object.append( temp );
 
-			this.object.click( function( e ) {
+			this.object.on('click',  function( e ) {
 
 				var i, n, htop, hbottom, highlight,
 		            posY = e.pageY - $(this).offset().top,
@@ -4570,7 +4759,7 @@ function YouTubeGetID(url){
 
 			this.frame = obj.find('#'+this.frameId)[0];
 
-			$(this.frame).bind("load", function () {
+			$(this.frame).on("load", function () {
 			   	me.hasFrameLoaded = true;
 			});
 

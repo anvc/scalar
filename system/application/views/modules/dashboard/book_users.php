@@ -11,7 +11,7 @@
         		}
    			});
 
-   			$(window).resize(function() { resizeList(); });
+   			$(window).on('resize', function() { resizeList(); });
    			resizeList();
 
 		});
@@ -39,7 +39,7 @@
 				$div.css('top', ((parseInt($(window).height())/2) - ($div.height()/2) + parseInt($(window).scrollTop()) + 'px') );
 				$div.show();
 				$('#connect_book_user_link').html(prev_text);
-				$div.find('a').click(function() {
+				$div.find('a').on('click', function() {
 					var $clicked = $(this);
 					var user_id = parseInt($clicked.attr('title'));
 					$.get('api/save_user_books', {id:user_id, selected_ids:[book_id], list_in_index:0}, function() {
@@ -57,16 +57,16 @@
 		}
 		function request_book_user(book_id) {
 				var $div = $('<div class="select_box"><h4 class="dialog_title">Add a user</h4>To connect a user to your book, first search for them by their full name.<br clear="both" /><br /><form><input class="generic_text_input" style="float:left;" type="text" name="fullname" value="Full name" /><input class="generic_button" style="float:left; margin-left:8px;" type="submit" value="Search" /><br clear="both" /></form><div class="results" style="padding-top:16px;padding-bottom:10px;"></div><a class="generic_button large" href="javascript:;" onclick="$(this).parent().remove();" style="float:right;font-size:larger;">Cancel</a></div>');
-				$div.find('input:first').focus(function() {if ($(this).val() == 'Full name') $(this).val('');});
+				$div.find('input:first').on('focus', function() {if ($(this).val() == 'Full name') $(this).val('');});
 				$('body').append($div);
-				$div.find('form:first').submit(function() {
+				$div.find('form:first').on('submit', function() {
 					if ($div.find('input:first').val()=='Full name') return false;
 					$div.find('input:submit').attr("disabled", "disabled");
 					var fullname = this.fullname.value;
 					$.get('api/user_search', {fullname:fullname}, function(data) {
 						if (!data.length) {
 							$div.find('.results').html('No users were found with the provided full name');
-							$div.find('input:submit').removeAttr("disabled");
+							$div.find('input:submit').prop("disabled", false);
 							return false;
 						}
 						$div.find('.results').html('<div style="padding-bottom:10px;">Please select a user below to link them to your book:</div>');
@@ -77,8 +77,8 @@
 							$div.find('.results').append($row);
 							$row.append($link);
 						}
-						$div.find('input:submit').removeAttr("disabled");
-						$div.find('a').click(function() {
+						$div.find('input:submit').prop("disabled", false);
+						$div.find('a').on('click', function() {
 							var user_id = parseInt($(this).data('user_id'));
 							$.get('api/save_user_books', {id:user_id, selected_ids:[book_id], list_in_index:0}, function() {
 								window.location.reload();
@@ -109,7 +109,7 @@
 			};
 			// Get contributions
 			if (!$the_link.data('is_open')) {
-				$the_link.blur();
+				$the_link.trigger('blur');
 				$the_link.html('Loading...');
 				$the_link.data('is_open',true);
 				var $the_row = $('#user_row_'+user_id)
@@ -146,7 +146,7 @@
 				var $next = $the_link.parent().parent().next();
 				if ($next.hasClass('version_wrapper')) $next.remove();
 				$the_link.data('is_open',false);
-				$the_link.blur();
+				$the_link.trigger('blur');
 				$the_link.html('View');
 			}
 

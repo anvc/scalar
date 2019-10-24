@@ -238,12 +238,12 @@
                 var minTabWidth = parseInt(temp.width());
                 temp.remove();
 
-                mediaelement.model.element.find("video").bind("webkitbeginfullscreen", function(e) {
+                mediaelement.model.element.find("video").on("webkitbeginfullscreen", function(e) {
                     page.isFullScreen = true;
                     page.lastOrientation = ((Math.abs(window.orientation) === 90) ? "landscape" : "portrait");
                 });
 
-                mediaelement.model.element.find("video").bind("webkitendfullscreen", function(e) {
+                mediaelement.model.element.find("video").on("webkitendfullscreen", function(e) {
                     page.isFullScreen = false;
                     // if orientation changed while we were full screen, then check to see if media needs to be reformatted
                     var currentOrientation = ((Math.abs(window.orientation) === 90) ? "landscape" : "portrait");
@@ -396,7 +396,7 @@
                 // make images open the citations view when clicked
                 if (document.location.href.indexOf('.annotation_editor') == -1) {
                     if (!isMobile && mediaelement.model.mediaSource.contentType == 'image') {
-                        mediaelement.model.element.find('.mediaObject').click(function() {
+                        mediaelement.model.element.find('.mediaObject').on('click', function() {
                             if ($('.media_details').css('display') == 'none') {
                                 page.mediaDetails.show(mediaelement.model.node);
                             }
@@ -719,8 +719,8 @@
             },
 
             addHeaderPathInfo: function() {
-
                 // show containing path in header
+                $('.path-breadcrumb').remove();
                 if (page.containingPaths.length > 0) {
                     if (page.containingPathNodes.length > 1) {
                         $('h1[property="dcterms:title"]').before('<div class="caption_font path-breadcrumb"><a href="' + page.containingPath.url + '">' + page.containingPath.getDisplayTitle() + '</a> (' + (page.containingPathIndex + 1) + '/' + page.containingPathNodes.length + ')</div>');
@@ -728,7 +728,6 @@
                         $('h1[property="dcterms:title"]').before('<div class="caption_font path-breadcrumb"><a href="' + page.containingPath.url + '">' + page.containingPath.getDisplayTitle() + '</a></div>');
                     }
                 }
-
             },
 
             addPathButton: function(direction, destinationNode, pathNode, isEndOfPath) {
@@ -968,7 +967,7 @@
                 }, 10);
 
                 //Fix back button height on resize
-                $(window).resize(function() {
+                $(window).on('resize', function() {
                     var back_btn = $('#back-btn');
                     if (back_btn.length > 0) {
                         var cont_btn = back_btn.parent().parent().find('.nav_btn').last();
@@ -1110,7 +1109,7 @@
                 $('#footer').before('<div id="incoming_comments" class="caption_font"><div id="comment_control" class="reply_link"><strong>' + ((comments.length > 0) ? comments.length : '&nbsp;') + '</strong></div></div>');
                 var commentDialogElement = $('<div></div>').appendTo('body');
                 commentDialog = commentDialogElement.scalarcomments({ root_url: modules_uri + '/cantaloupe' });
-                $('.reply_link').click(function() {
+                $('.reply_link').on('click', function() {
                     commentDialog.data('plugin_scalarcomments').showComments();
                 });
                 var queryVars = scalarapi.getQueryVars(document.location.href);
@@ -1136,7 +1135,7 @@
 	            	$wrapper.append('<div id="tk-add" title="Update TK Labels for this page" '+((!$labels.length)?'class="desciptor"':'')+'></div>');
 	            	$.getScript($('link#approot').attr('href')+'views/widgets/edit/jquery.add_metadata.js');
 	            	$.getScript($('link#approot').attr('href')+'views/melons/cantaloupe/js/bootbox.min.js');
-	            	$wrapper.find('#tk-add').click(function() {
+	            	$wrapper.find('#tk-add').on('click', function() {
 	            		var data = [];
 	            		$wrapper.children('[typeof="tk:TKLabel"]').each(function() {
 	            			var pnode = $(this).attr('resource').replace('http://localcontexts.org/tk/','tk:');
@@ -1262,7 +1261,7 @@
                     var editionListItem;
                     if (is_author_or_editor) {
                         editionListItem = $('<li><a href="javascript:;">Latest edits</a></li>');
-                        editionListItem.click(page.handleEditionSelect);
+                        editionListItem.on('click', page.handleEditionSelect);
                         editionList.append(editionListItem);
                         editionList.append('<li role="separator" class="divider"></li>');
                     }
@@ -1272,7 +1271,7 @@
                         if (editionNum == reversedIndex) {
                             editionListItem.addClass('active');
                         }
-                        editionListItem.find('a').data('edition', this).click(page.handleEditionSelect);
+                        editionListItem.find('a').data('edition', this).on('click', page.handleEditionSelect);
                         editionList.append(editionListItem);
                     });
                     var bookURL = $('link#parent').attr('href');
@@ -1326,7 +1325,7 @@
                     note = notes.eq(i);
                     resource = note.attr('resource');
                     note.wrapInner('<a href="javascript:;" rev="scalar:has_note" resource="' + resource + '"></a>');
-                    note.find('a').click(function(e) {
+                    note.find('a').on('click', function(e) {
                         e.stopPropagation();
                         page.showNote(this);
                     });
@@ -1870,7 +1869,7 @@
                                         '<a href="javascript:;" >' + node.getDisplayTitle() + '</a> (' + (i + 1) + '/' + n + ')' +
                                         '</span></div>');
                                 }
-                                item.find('a').data('node', node).click(function() {
+                                item.find('a').data('node', node).on('click', function() {
                                     if ($('.media_details').css('display') == 'none') {
                                         page.mediaDetails.show($(this).data('node'));
                                     }
@@ -1899,11 +1898,11 @@
                             page.mediaCarousel.carousel({ interval: false });
                             $(mediaLinks).each(function(i) {
                                 $(this).data('index', i);
-                                $(this).click(function(e) {
+                                $(this).on('click', function(e) {
                                     e.preventDefault();
                                     page.mediaCarousel.carousel($(this).data('index'));
                                 });
-                                $(this).click(page.handleMediaLinkClick);
+                                $(this).on('click', page.handleMediaLinkClick);
                             });
 
                             if (isMobile) {
@@ -2027,7 +2026,7 @@
                                         }
                                         page.addMediaElementForLink($(this), parent);
 
-                                        $(this).click(page.handleMediaLinkClick);
+                                        $(this).on('click', page.handleMediaLinkClick);
 
                                     }
                                 }
@@ -2102,7 +2101,7 @@
                     // Images can be larger than the window, but still give them a limit so that very long narrow images don't span too long
                     'image': $(window).height() * 1.3,
                     // The default for media should be to limit their size to fit within the bounds of the window
-                    'default': $(window).height() * 0.75,
+                    'default': Math.max($(window).height() * 0.75, 650),
                 };
             },
 
@@ -2140,7 +2139,7 @@
 
                 // Regenerate media details view if currently open
                 if ($('.media_details:visible').length == 1) {
-                    $('.media_details:visible').find('[title="Close"]').click();
+                    $('.media_details:visible').find('[title="Close"]').trigger('click');
                     setTimeout(page.mediaDetails.show, 1000);
                 }
                 // remove elements that were added the last time
@@ -2193,7 +2192,7 @@
 
                     var metadata = $('<div class="body_copy additional_metadata caption_font" style="clear: both;"></div>');
                     var button = $('<a class="btn btn-default" aria-expanded="false" aria-controls="additionalMetadata">Additional metadata</a>').appendTo(metadata);
-                    button.click(function() {
+                    button.on('click', function() {
                         var isExpanded = $(this).attr("aria-expanded");
                         if (isExpanded == "false") {
                             $("#additionalMetadata").show();
@@ -2227,9 +2226,9 @@
                     if (resource == null) {  // Links with resource="" are always internal
                         if ('undefined' != typeof(href) && base_url) {
                             if (href.substr(0, 4) == 'http' && href.indexOf(base_url) == -1) { // Is an external link
-                                $link.click(function() {
+                                $link.on('click', function() {
                                     if (target) { // E.g., open in a new tab
-                                        $link.click();
+                                        $link.trigger('click');
                                         return false;
                                     } else {
                                         var link_to = base_url + 'external?link=' + encodeURIComponent($(this).attr('href')) + '&prev=' + encodeURIComponent(document.location.href);
@@ -2442,7 +2441,7 @@
             },
 
             setupGoogleMapsLayout: function() {
-                $('header > span:not').eq(0).before('<div id="google-maps" class="maximized-embed"></div>');
+                $('h1[property="dcterms:title"]').before('<div id="google-maps" class="maximized-embed"></div>');
 
                 // create map
                 var mapOptions = {
@@ -2584,10 +2583,10 @@
         page.updateMediaHeightRestrictions();
         page.sortTags();
 
-        $('body').bind('setState', page.handleSetState);
-        $('body').bind('mediaElementMediaLoaded', page.handleMediaElementMetadata);
+        $('body').on('setState', page.handleSetState);
+        $('body').on('mediaElementMediaLoaded', page.handleMediaElementMetadata);
 
-        $(document).bind("mozfullscreenchange webkitfullscreenchange msfullscreenchange webkitbeginfullscreen webkitendfullscreen", function(e) {
+        $(document).on("mozfullscreenchange webkitfullscreenchange msfullscreenchange webkitbeginfullscreen webkitendfullscreen", function(e) {
 
             var fullscreenElement = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement;
             page.isFullScreen = (fullscreenElement != null);
@@ -2624,7 +2623,7 @@
 
         $('article').append('<div id="footer" class="caption_font"></div>');
 
-        $('body').bind('delayedResize', page.handleDelayedResize);
+        $('body').on('delayedResize', page.handleDelayedResize);
 
         if ($('body').width() <= page.mobileWidth) {
             page.adaptiveMedia = 'mobile';
@@ -2717,7 +2716,7 @@
                     		var self = this;
                     		$video.data('orig_w', parseInt($video.get(0).videoWidth));
                     		$video.data('orig_h', parseInt($video.get(0).videoHeight));
-                    		$(window).resize(function() {
+                    		$(window).on('resize', function() {
                     			cover_video.call($video.get(0));
                     		}).trigger('resize');
                     	});
@@ -2814,7 +2813,7 @@
                     		var $video = $(this);
                     		$video.data('orig_w', parseInt($video.get(0).videoWidth));
                     		$video.data('orig_h', parseInt($video.get(0).videoHeight));
-                    		$(window).resize(function() {
+                    		$(window).on('resize', function() {
                     			cover_video.call($video.get(0));
                     		}).trigger('resize');
                     	});
@@ -2868,6 +2867,7 @@
                             page.pendingDeferredScripts.GoogleMaps.push(promise);
                             $.when(promise).then($.proxy(function(){
                                 page.setupGoogleMapsLayout();
+                                page.addHeaderPathInfo();
                             },this));
                             break;
 
@@ -3166,7 +3166,7 @@
                                     		var $video = $(this);
                                     		$video.data('orig_w', parseInt($video.get(0).videoWidth));
                                     		$video.data('orig_h', parseInt($video.get(0).videoHeight));
-                                    		$(window).resize(function() {
+                                    		$(window).on('resize', function() {
                                     			cover_video.call($video.get(0));
                                     		}).trigger('resize');
                                     	});
@@ -3232,7 +3232,7 @@
 			$( document ).ready( function() {
 				if ( !$.cookie( 'warningMessageDismissed' ) ) {
 					var message = $('<div id="message" style="position: absolute; cursor: pointer; left: 20px; top: 70px; max-width: 400px; padding: 15px; z-index:99999; background-color: #fdcccb;">Warning message</div>').appendTo( 'body' );
-					message.click( function() {
+					message.on('click',  function() {
 						$( this ).hide();
 						$.cookie( 'warningMessageDismissed', true, { path: '/' } );
 					} );
@@ -3242,11 +3242,11 @@
 
             page.handleBook(); // we used to bind this to the return of a loadBook call, but now we can call it immediately
 
-            $('.note_viewer').click(function(e) {
+            $('.note_viewer').on('click', function(e) {
                 e.stopPropagation();
             })
 
-            $('body').click(function() {
+            $('body').on('click', function() {
                 $.each($('.note_viewer'), function() {
                     page.hideNote(this);
                 })

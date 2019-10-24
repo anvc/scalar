@@ -3,6 +3,7 @@
 	/*margin-top: -41px;*/
 	margin-right: 2px;
 	margin-bottom: 40px;
+	clear: both;
 }
 
 .annobuilderWarning {
@@ -72,7 +73,7 @@
 }
 
 .value a {
-	cursor:pointer;	
+	cursor:pointer;
 }
 
 #saveLink, #doneMessage {
@@ -180,7 +181,7 @@
 .help_button a:hover {
 	text-decoration: none;
 }
- 
+
 div.help_button em {
 	background: #858585;
 	color: white;

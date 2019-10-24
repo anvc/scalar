@@ -7,7 +7,7 @@
   var IS_IOS = /iphone|ipad/i.test(navigator.userAgent);
   $.fn.nodoubletapzoom = function() {
     if (IS_IOS)
-      $(this).bind('touchstart', function preventZoom(e) {
+      $(this).on('touchstart', function preventZoom(e) {
         var t2 = e.timeStamp
           , t1 = $(this).data('lastTouch') || t2
           , dt = t2 - t1
@@ -27,23 +27,23 @@ function handleViewTypeClick(radioBtn) {
 }
 
 /**
- * Scalar    
+ * Scalar
  * Copyright 2013 The Alliance for Networking Visual Culture.
  * http://scalar.usc.edu/scalar
  * Alliance4NVC@gmail.com
  *
- * Licensed under the Educational Community License, Version 2.0 
- * (the "License"); you may not use this file except in compliance 
+ * Licensed under the Educational Community License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
- * 
- * http://www.osedu.org/licenses /ECL-2.0 
- * 
+ *
+ * http://www.osedu.org/licenses /ECL-2.0
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an "AS IS"
  * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing
- * permissions and limitations under the License.       
- */  
+ * permissions and limitations under the License.
+ */
 
 /**
  * @projectDescription		The ScalarVis plug-in visualizes Scalar projects.
@@ -60,7 +60,7 @@ function handleViewTypeClick(radioBtn) {
 	 * @param {Object} options	An object containing relevant data for the plug-in.
 	 */
 	$.fn.scalarvis = function(options) {
-	
+
 		return this.each(function() {
 
 			// check to see if we've been passed a link to a Scalar media file
@@ -87,9 +87,9 @@ function handleViewTypeClick(radioBtn) {
 	 * @param 	{Object} options	An object containing relevant data for the plug-in.
 	 */
 	var ScalarVis = function(element, options) {
-		
+
 		var me = this;
-		
+
 		this.model = new $.VisModel(element, options);
 		this.view = new $.VisView(this.model);
 		this.controller = new $.VisController(this.model, this.view);
@@ -102,7 +102,7 @@ function handleViewTypeClick(radioBtn) {
 			this.view.setup();
 			this.controller.loadNextData();
 		}
-		
+
 		this.setup();
 
 	}
@@ -115,13 +115,13 @@ function handleViewTypeClick(radioBtn) {
 	 * @param	{Object} options	An object containing relevant data for the plug-in.
 	 */
 	jQuery.VisModel = function(element, options) {
-	
+
 		this.element = element;					// element in which the visualization will be displayed
 		this.options = options;					// data passed into the plug-in
 		this.maxNodesPerType = 0;				// maximum number of nodes per type
 		this.doneLoading = false;				// has all data been loaded?
 		this.crossDomain = false;				// are we making cross-domain requests for testing purposes?
-		
+
 		/**
 		 * Initializes the model.
 		 */
@@ -131,9 +131,9 @@ function handleViewTypeClick(radioBtn) {
 			this.book_title = $('h2.cover_title').html();
 
 		}
-		
+
 		this.init();
-		
+
 	}
 
 	/**
@@ -149,15 +149,15 @@ function handleViewTypeClick(radioBtn) {
 
 		this.model = model;															// instance of the model
 		this.view = view;															// instance of the view
-		
+
 		switch (this.model.options.default_tab) {
-		
+
 			case "vispath":
 			this.loadSequence = [
-				{id:'path', desc:"paths"} 
+				{id:'path', desc:"paths"}
 			];
 			break;
-		
+
 			case "vismedia":
 			// if this is the global media vis page, try to load all media
 			if ( window.location.href.indexOf( 'resources.vismedia' ) == -1 ) {
@@ -171,7 +171,7 @@ function handleViewTypeClick(radioBtn) {
 				];
 			}
 			break;
-		
+
 			case "vistag":
 			// if this is the global tag vis page, try to load all tags
 			if ( window.location.href.indexOf( 'resources.vistag' ) == -1 ) {
@@ -185,23 +185,23 @@ function handleViewTypeClick(radioBtn) {
 				];
 			}
 			break;
-					
+
 			default:
 			this.loadSequence = [
 				{id:'book', desc:'book'},
 				{id:'current', desc:"current page"},
 				{id:'currentRelations', desc:"current page's connections"},
-				{id:'path', desc:"paths"}, 
-				{id:'tag', desc:"tags"}, 
+				{id:'path', desc:"paths"},
+				{id:'tag', desc:"tags"},
 				{id:'media', desc:"media"},
-				{id:'page', desc:"pages"}, 
+				{id:'page', desc:"pages"},
 				{id:'annotation', desc:"annotations"},
 				{id:'commentary', desc:"commentaries"},
 				{id:'review', desc:"reviews"},
 				{id:'reply', desc:"comments"}
 			];
 			break;
-		
+
 		}
 
 		this.loadIndex = -1;														// index of currently loading data
@@ -209,105 +209,105 @@ function handleViewTypeClick(radioBtn) {
 		this.resultsPerPage = 25;
 		this.reachedLastPage = true;
 		this.typeCounts = {};
-		
+
 		jQuery.VisController.prototype.loadNode = function( slug, ref ) {
 			scalarapi.loadNode( slug, true, me.parseNode, null, 1, ref );
 		}
-		
+
 		jQuery.VisController.prototype.parseNode = function() {
 			me.view.update();
 		}
-		
+
 		/**
 		 * Loads the next round of data.
 		 */
 		jQuery.VisController.prototype.loadNextData = function() {
-		
+
 			// if we've reached the last page of the current content type, increment/reset the counters
 			if ( this.reachedLastPage ) {
 				this.loadIndex++;
 				this.pageIndex = 0;
 				this.reachedLastPage = false;
-				
+
 			// otherwise, just increment the page counter
 			} else {
 				this.pageIndex++;
 			}
-			
+
 			var url, result, start, end;
-			
+
 			// if we still have more data to load, then load it
 			if (this.loadIndex < this.loadSequence.length) {
-			
+
 				switch (this.loadSequence[this.loadIndex].id) {
-				
+
 					case 'book':
 					this.reachedLastPage = true;
 					result = scalarapi.loadBook(false, me.parseData, null);
 					start = end = -1;
 					break;
-				
+
 					case "current":
 					this.reachedLastPage = true;
 					result = scalarapi.loadCurrentPage(false, me.parseData, null, 1, false);
 					start = end = -1;
 					break;
-					
+
 					case "currentRelations":
 					this.reachedLastPage = true;
 					start = end = -1;
 					result = scalarapi.loadCurrentPage(true, me.parseData, null, 1, true);
 					break;
-					
+
 					// we only need to make these calls with depth=0; relationships will come with the other calls
 					case 'page':
 					start = ( this.pageIndex * this.resultsPerPage );
 					end = start + this.resultsPerPage;
 					result = scalarapi.loadPagesByType(this.loadSequence[this.loadIndex].id, true, me.parseData, null, 0, false, null, start, this.resultsPerPage );
 					break;
-				
+
 					case 'path':
 					case 'tag':
 					start = ( this.pageIndex * this.resultsPerPage );
 					end = start + this.resultsPerPage;
 					result = scalarapi.loadPagesByType(this.loadSequence[this.loadIndex].id, true, me.parseData, null, 1, false, this.loadSequence[this.loadIndex].id, start, this.resultsPerPage );
 					break;
-				
+
 					case 'media':
 					start = ( this.pageIndex * this.resultsPerPage );
 					end = start + this.resultsPerPage;
 					result = scalarapi.loadPagesByType(this.loadSequence[this.loadIndex].id, true, me.parseData, null, 0, false, null, start, this.resultsPerPage );
 					break;
-				
+
 					case 'media_references':
 					start = ( this.pageIndex * this.resultsPerPage );
 					end = start + this.resultsPerPage;
 					result = scalarapi.loadPagesByType( 'media', true, me.parseData, null, 1, true, null, start, this.resultsPerPage );
 					break;
-				
+
 					default:
 					start = ( this.pageIndex * this.resultsPerPage );
 					end = start + this.resultsPerPage;
 					result = scalarapi.loadPagesByType(this.loadSequence[this.loadIndex].id, true, me.parseData, null, 1, false, null, start, this.resultsPerPage );
 					break;
-				
+
 				}
-		
+
 				this.view.showLoadingMsg(
-					this.loadSequence[this.loadIndex].desc, 
-					((this.loadIndex + 1) / (this.loadSequence.length + 1)) * 100, 
-					( start == -1 ) ? -1 : start + 1, 
+					this.loadSequence[this.loadIndex].desc,
+					((this.loadIndex + 1) / (this.loadSequence.length + 1)) * 100,
+					( start == -1 ) ? -1 : start + 1,
 					end,
 					me.typeCounts[ me.loadSequence[me.loadIndex].id ]
 				);
-				
+
 				if (result == 'loaded') me.parseData();
-				
+
 				/*
 				if (this.model.crossDomain) {
 					url = 'http://localhost/utils/ba-simple-proxy.php?url='+url;
 				}
-				
+
 				$.ajax({
 					type:"GET",
 					url:url,
@@ -317,32 +317,32 @@ function handleViewTypeClick(radioBtn) {
 						//console.log(textStatus);
 					}
 				});*/
-				
+
 			// otherwise, hide the loading message
 			} else {
 				this.view.hideLoadingMsg();
 				this.model.doneLoading = true;
 			}
-		
+
 		}
-		
+
 		/**
 		 * Parses the current round of data.
 		 *
 		 * @param {Object} json		The data to be parsed.
 		 */
 		jQuery.VisController.prototype.parseData = function(json) {
-		
+
 			if ( jQuery.isEmptyObject( json ) || ( json == null ) ) {
 				me.reachedLastPage = true;
 			}
-			
+
 			// parse its relations with other nodes
 			if ((me.loadSequence[me.loadIndex].id != 'book') && (me.loadSequence[me.loadIndex].id != 'current') && (me.loadSequence[me.loadIndex].id != 'currentRelations')) {
 
 				var typedNodes = scalarapi.model.getNodesWithProperty('scalarType', me.loadSequence[me.loadIndex].id);
 				me.model.maxNodesPerType = Math.max(me.model.maxNodesPerType, typedNodes.length);
-	
+
 				// attempt to find the total count of the current item type as returned in the data
 				var i, n, count, citation, tempA, tempB;
 				for ( var prop in json ) {
@@ -363,7 +363,7 @@ function handleViewTypeClick(radioBtn) {
 
 				// if a count was found, store it
 				if ( count != null ) {
-					me.typeCounts[ me.loadSequence[me.loadIndex].id ] = count;	
+					me.typeCounts[ me.loadSequence[me.loadIndex].id ] = count;
 
 					// if the count is less than the point at which we'd start our next load, then
 					// we've reached the last page of data for this item type
@@ -372,14 +372,14 @@ function handleViewTypeClick(radioBtn) {
 					}
 				}
 			}
-		
+
 			// redraw the view
 			me.view.update();
-			
+
 			// get next chunk of data
 			me.loadNextData();
-		}		 
-		
+		}
+
 	}
 
 	/**
@@ -396,7 +396,7 @@ function handleViewTypeClick(radioBtn) {
 		this.leftMargin = 100;									// width of the visualization's left margin
 		this.rightMargin = 70;									// width of the visualization's right margin
 		this.indexTypeOrder = [									// determines the order in which types are shown in index view
-			{id:"path", name:"Paths"},		
+			{id:"path", name:"Paths"},
 			{id:"page", name:"Pages"},
 			{id:"media", name:"Media"},
 			{id:"tag", name:"Tags"},
@@ -413,7 +413,7 @@ function handleViewTypeClick(radioBtn) {
 		this.hasSelectedCurrentContent = false;					// has the current content been selected by default yet?
 		this.selectedNodes = [];								// currently selected nodes
 		this.deselectedSelf = false;							// has the user deselected the node for the page she's on?
-		this.currentNode = null;								// currently highlighted 
+		this.currentNode = null;								// currently highlighted
 		this.mouseX = -600;
 		this.mouseY = -600;
 		this.colorScale = d3.scale.category10();
@@ -429,9 +429,9 @@ function handleViewTypeClick(radioBtn) {
 			{type:'comment', direction:'outgoing'},
 			{type:'comment', direction:'incoming'}
 		];
-		
+
 		// pop-up that shows information about the selected node
-		this.nodeInfoBox = function(d) { 
+		this.nodeInfoBox = function(d) {
 			var str = '<div class="arrow"></div><div class="content"><p><strong>';
 			str += d.getDisplayTitle( true );
 			str += '</strong></p>';
@@ -464,85 +464,85 @@ function handleViewTypeClick(radioBtn) {
 				str += '<p><a href="'+d.url+'">View &raquo;</a></p>';
 			}
 			str += '</div></div>';
-			return str; 
+			return str;
 		}
 
 		/**
 		 * Basic initialization.
 		 */
 		jQuery.VisView.prototype.setup = function() {
-		
+
 			// makes sure color scheme is consistent no matter which vis loads first
 			var i;
 			var n = this.indexTypeOrder.length;
 			for (i=0; i<n; i++) {
 				this.colorScale(this.indexTypeOrder[i].id);
 			}
-		
+
 			switch (this.model.options.default_tab) {
-						
+
 				case "vis":
 				case "visradial":
 				this.selectedRadioBtn = "radio1";
 				break;
-				
+
 				case "visindex":
 				this.selectedRadioBtn = "radio2";
 				break;
-			
+
 				case "vispath":
 				this.selectedRadioBtn = "radio3";
 				break;
-			
+
 				case "vismedia":
 				this.selectedRadioBtn = "radio4";
 				break;
-			
+
 				case "vistag":
 				this.selectedRadioBtn = "radio5";
 				break;
-				
+
 				default:
 				this.selectedRadioBtn = "radio1";
 				break;
-			
+
 			}
-			
+
 			// create button bar
 			if (this.model.options.minimal) {
 				this.visTypeForm = $('<form><div id="radio"><input onClick="handleViewTypeClick(this);" type="radio" id="radio1" name="radio"/><label for="radio1">Radial</label><input onClick="handleViewTypeClick(this);" type="radio" id="radio2" name="radio" checked="checked"/><label for="radio2">Index</label><input onClick="handleViewTypeClick(this);" type="radio" id="radio3" name="radio"/><label for="radio3">Paths</label></div></form>').appendTo(this.model.element);
 			} else {
 				this.visTypeForm = $('<form><div id="radio"><input onClick="handleViewTypeClick(this);" type="radio" id="radio1" name="radio"/><label for="radio1">Radial</label><input onClick="handleViewTypeClick(this);" type="radio" id="radio2" name="radio" checked="checked"/><label for="radio2">Index</label><input onClick="handleViewTypeClick(this);" type="radio" id="radio3" name="radio"/><label for="radio3">Paths</label><input onClick="handleViewTypeClick(this);" type="radio" id="radio4" name="radio"/><label for="radio4">Media</label><input onClick="handleViewTypeClick(this);" type="radio" id="radio5" name="radio"/><label for="radio5">Tags</label></div></form>').appendTo(this.model.element);
 			}
-			$("#radio").buttonset();
-			
+			$("#radio").controlgroup();
+
 			this.visTypeForm.find('input').each(function() {
 				if ($(this).attr('id') == me.selectedRadioBtn) {
 					$(this).attr('checked', 'checked');
 				} else {
-					$(this).removeAttr('checked');
+					$(this).prop('checked', false);
 				}
-			})	
-			$("#radio").buttonset('refresh');
-			
+			})
+			$("#radio").controlgroup('refresh');
+
 			// create instructions div
 			this.instructions = $('<div class="instructions"><b>Paths and their contents.</b> Click to select; double-click to view.</div>').appendTo(this.model.element);
-			
+
 			// create loading message
 			this.loadingMsg = $('<div id="loadingMsg"><p>Loading data...</p><div id="progressbar"></div></div>').appendTo(this.model.element);
 			$("#progressbar").progressbar({value:10, max:100});
 			this.loadingMsg.hide();
-			
+
 			// create visualization div
 			this.visualization = $('<div id="scalarvis"></div>').appendTo(this.model.element);
-			
-			this.visualization.mousemove(function(e) {
+
+			this.visualization.on('mousemove', function(e) {
 				me.mouseX = e.pageX;
 				me.mouseY = e.pageY;
 			});
-			
+
 		}
-		
+
 		/**
 		 * Shows the loading message.
 		 *
@@ -558,51 +558,51 @@ function handleViewTypeClick(radioBtn) {
 			$("#progressbar").progressbar('option', 'value', percentDone);
 			this.loadingMsg.show();
 		}
-		
+
 		/**
 		 * Hides the loading message.
 		 */
 		jQuery.VisView.prototype.hideLoadingMsg = function() {
 			this.loadingMsg.hide();
 		}
-		
+
 		/**
 		 * Updates the currently visible visualization.
 		 */
 		jQuery.VisView.prototype.update = function() {
-		
+
 			clearInterval(this.int);
-			
+
 			var updateOnly = (this.selectedRadioBtn == this.lastSelectedRadioBtn);
-		 
+
 		 	switch (this.selectedRadioBtn) {
-		 		
+
 		 		case "radio1":
 		 		this.drawRadialVisualization(updateOnly);
 				break;
-		 		
+
 		 		case "radio2":
 		 		this.drawIndexVisualization(updateOnly);
 				break;
-		 	
+
 		 		case "radio3":
 		 		this.drawPathVisualization(updateOnly);
 		 		break;
-		 		
+
 		 		case "radio4":
 		 		this.drawMediaVisualization(updateOnly);
 		 		break;
-		 		
+
 		 		case "radio5":
 		 		this.drawTagVisualization(updateOnly);
 				break;
-		 		
+
 		 	}
-		 	
+
 		 	this.lastSelectedRadioBtn = this.selectedRadioBtn;
-		 
+
 		}
-		
+
 		/**
 		 * Returns a new string no longer than the specified amount of characters,
 		 * shortening with ellipses if necessary.
@@ -622,8 +622,8 @@ function handleViewTypeClick(radioBtn) {
 			}
 			return shortStr;
 		}
-		
-		
+
+
 		/**
 		 * Adds a legend to the specified svg group.
 		 *
@@ -631,10 +631,10 @@ function handleViewTypeClick(radioBtn) {
 		 * @param	xOffset		Horizontal offset to use in drawing the legend.
 		 * @param	height		Height of the group enclosing the legend.
 		 */
-		jQuery.VisView.prototype.drawLegend = function(group, xOffset, height) {	
-		
+		jQuery.VisView.prototype.drawLegend = function(group, xOffset, height) {
+
 			var legendOffset = height - (14 * this.indexTypeOrder.length);
-			
+
 			group.selectAll('rect.legend')
 				.data(this.indexTypeOrder)
 				.enter().append('svg:rect')
@@ -644,7 +644,7 @@ function handleViewTypeClick(radioBtn) {
 				.attr('width', 10)
 				.attr('height', 10)
 				.attr('fill', function(d) { return me.colorScale(d.id); });
-				
+
 			group.selectAll('text.legend')
 				.data(this.indexTypeOrder)
 				.enter().append('svg:text')
@@ -653,15 +653,15 @@ function handleViewTypeClick(radioBtn) {
 				.attr('dy', function(d,i) { return legendOffset + 9 + (i * 14); })
 				.attr('fill', '#aaa')
 				.text(function(d) { return d.name; });
-				
+
 			$('.legend').nodoubletapzoom();
 		}
-		
+
 		/**
 		 * Draws the paths visualization.
 		 */
 		jQuery.VisView.prototype.drawPathVisualization = function() {
-		
+
 			// if the user hasn't already made a selection, and either not all data has been loaded yet or we
 			// haven't selected the current page yet, then see if we can find the node for the current page
 			// and select it
@@ -673,21 +673,21 @@ function handleViewTypeClick(radioBtn) {
 					}
 				}
 			}
-			
+
 			this.visualization.empty();
 			this.visualization.css('padding', '10px');
 			this.instructions.html('<b>All paths and their contents.</b> Double-click an item to view.<br><br>');
-			
+
 			var i;
 			var j;
 			var k;
 			var n;
 			var o;
-			
+
 			// build a tree starting with the index page
-			
+
 			var processedNodes = [];
-			
+
 			// recursively parse through the nodes contained by this node and store their relationships
 			function getRelationsForData(sourceData) {
 				var destNode;
@@ -712,13 +712,13 @@ function handleViewTypeClick(radioBtn) {
 					}
 				}
 			}
-			
+
 			var root = { name: scalarapi.removeMarkup( this.model.book_title ), type:'root', children:[] };
 			var home = scalarapi.model.nodesByURL[scalarapi.model.urlPrefix+'index'];
-			
+
 			// if we can find a home node,
 			if (home) {
-			
+
 				// and if it's contained by a path, then insert that path above it
 				// in the hierarchy and then parse the home node's children
 				var containingPaths = home.getRelatedNodes('path', 'incoming');
@@ -730,7 +730,7 @@ function handleViewTypeClick(radioBtn) {
 						root.children.push(data);
 						getRelationsForData(data);
 					}
-					
+
 				// otherwise, make the home node next in the hierarchy and parse its
 				// children
 				} else {
@@ -739,13 +739,13 @@ function handleViewTypeClick(radioBtn) {
 					getRelationsForData(data);
 				}
 			}
-			
+
 			// add all other paths and their children to the graph
 			var paths = scalarapi.model.getNodesWithProperty('scalarType', 'path');
 			if (paths.length > 0) {
-			
+
 				var pathChildren = [];
-			
+
 				n = paths.length;
 				for (i=0 ;i<n; i++) {
 					node = paths[i];
@@ -755,38 +755,38 @@ function handleViewTypeClick(radioBtn) {
 						getRelationsForData(data);
 					}
 				}
-			
+
 				if (pathChildren.length > 0) {
 					var otherPaths = {name:'Other paths', type:'cipher', children:pathChildren};
 					root.children.push(otherPaths);
 				}
-				
+
 			}
-			
+
 			if (root.children.length > 0) {
-			
+
 				this.visualization.css('width', this.model.element.width());
 				this.visualization.css('padding', '0px');
 				var fullWidth = this.visualization.width();
 				var fullHeight = this.visualization.height();
-				
+
 				// do initial cluster processing
 				var cluster = d3.layout.cluster()
 					.size([fullHeight, fullWidth - 210]);
 				var clusterNodes = cluster.nodes(root);
-					
+
 				// find out how deep the cluster goes (used to figure out long to let
 				// the titles get)
 				var maxDepth = d3.max(clusterNodes, function(d) { return d.depth; });
-	
+
 				var maxNodeChars = Math.floor((fullWidth / (maxDepth + 1)) / 6);
 				var curNode;
 				var name;
 				var shortName;
 				var data;
-				
+
 				// generate short versions of node names that will fit in the node boxes
-				/*for (i=0; i<this.model.nodes.length; i++) {    
+				/*for (i=0; i<this.model.nodes.length; i++) {
 					curNode = this.model.nodes[i];
 					name = curNode.name;
 					if (curNode == home) name += ' [Home]';
@@ -797,7 +797,7 @@ function handleViewTypeClick(radioBtn) {
 					}
 					curNode.shortName = shortName;
 				}*/
-				
+
 				// find out how many nodes are at the lowest level (used to figure out
 				// how tall the vis should be)
 				var maxDepthCount = 0;
@@ -806,31 +806,31 @@ function handleViewTypeClick(radioBtn) {
 						maxDepthCount++;
 					}
 				});
-				
+
 				// resize the cluster accordingly
 				if (paths.length > 0) {
 					fullHeight = Math.max(this.visualization.height(), 20 + (15 * maxDepthCount) + (30 * (paths.length - 1)));
 					cluster.size([fullHeight, fullWidth - (fullWidth / (maxDepth + 1)) - 20]);
 					cluster.nodes(root);
 				}
-					
+
 				var diagonal = d3.svg.diagonal()
 					.projection(function(d) { return [d.y, d.x]; });
-				
+
 				// create visualization base element
 				var vis = d3.select('#scalarvis').append('svg:svg')
 					.attr('width', fullWidth)
 					.attr('height', fullHeight)
 					.append("svg:g")
 					.attr("transform", "translate(15, 0)");
-					
+
 				// lines
 				var link = vis.selectAll("path.clusterlink")
 					.data(cluster.links(clusterNodes))
 					.enter().append("svg:path")
 					.attr("class", "clusterlink")
 					.attr("d", diagonal);
-					
+
 				// node groups
 				var clusterNode = vis.selectAll("g.clusternode")
 					.data(clusterNodes)
@@ -842,14 +842,14 @@ function handleViewTypeClick(radioBtn) {
 							return self.location = d.node.url;
 						}
 					});
-					
+
 				// dots
 				clusterNode.append("svg:circle")
 					.style('fill', function(d, i) { return (d.node) ? me.colorScale(d.node.getDominantScalarType().id) : (d.type == 'root') ? '#ddd' : '#fff'; } )
 					.attr("class", function(d) { return d.type == 'cipher' ? 'cipher' : ''; })
 					/*.attr("class", function(d) { if (d.node) { console.log(d.node.name+' '+home.name); } return d.node == home ? 'current' : ''; })*/
 					.attr("r", 5);
-					
+
 				// texts
 				clusterNode.append("svg:text")
 					.attr("dx", function(d) { return /*d.children ? -8 :*/ 8; })
@@ -858,20 +858,20 @@ function handleViewTypeClick(radioBtn) {
 					.attr('font-weight', function(d) { return (((me.currentNode == d.node) || (me.selectedNodes.indexOf(d.node) != -1)) && d.node) ? 'bold' : 'normal'; })
 					.attr("text-anchor", function(d) { /*return d.children ? "end" :*/ "start"; })
 					.text(function(d) { return (d.node) ? me.getShortenedString(d.name, maxNodeChars) : d.name; });
-					
+
 				this.drawLegend(vis, -5, fullHeight);
-				
+
 			}
 
 		}
-				
+
 		/**
 		 * Draws the media visualization.
 		 *
 		 * @param	updateOnly		If true, then the vis only needs to be updated, not built from scratch.
 		 */
 		jQuery.VisView.prototype.drawMediaVisualization = function(updateOnly) {
-			
+
 			// if the user hasn't already made a selection, and either not all data has been loaded yet or we
 			// haven't selected the current page yet, then see if we can find the node for the current page
 			// and select it
@@ -883,7 +883,7 @@ function handleViewTypeClick(radioBtn) {
 					}
 				}
 			}
-			
+
 			var i;
 			var j;
 			var n;
@@ -891,7 +891,7 @@ function handleViewTypeClick(radioBtn) {
 			var node;
 			var targetNode;
 			var maxNodeChars = 15;
-			
+
 			// if we're drawing from scratch, wipe out the previous vis
 			if (!updateOnly) {
 				this.visualization.empty();
@@ -901,7 +901,7 @@ function handleViewTypeClick(radioBtn) {
 					this.instructions.html('<b>Media and their relationships.</b> Roll over the visualization to explore. Click to select; drag to move; double-click to view.');
 				}
 			}
-			
+
 			// init our local model
 			if (!this.mediaNodesByURL) {
 				this.mediaNodesByURL = {};
@@ -909,18 +909,18 @@ function handleViewTypeClick(radioBtn) {
 				this.mediaLinksByURL = {};
 				this.mediaLinks = [];
 			}
-				
+
 			var link;
 			var datum;
 			var targetDatum;
-			
+
 			// build arrays of nodes and links which describe media and their connections
-			
+
 			// loop through all the media files
 			var rawMediaNodes = scalarapi.model.getNodesWithProperty('scalarType', 'media');
 			n = rawMediaNodes.length;
 			for (i=0; i<n; i++) {
-			
+
 				// add each file to the array of nodes
 				node = rawMediaNodes[i];
 				if (!this.mediaNodesByURL[node.url]) {
@@ -930,12 +930,12 @@ function handleViewTypeClick(radioBtn) {
 				} else {
 					datum = this.mediaNodesByURL[node.url];
 				}
-				
+
 				// loop through all the nodes which reference the media file
 				var referencingNodes = node.getRelatedNodes('referee', 'incoming');
 				o = referencingNodes.length;
 				for (j=0; j<o; j++) {
-				
+
 					// add them to the array of nodes
 					targetNode = referencingNodes[j];
 					if (!this.mediaNodesByURL[targetNode.url]) {
@@ -945,7 +945,7 @@ function handleViewTypeClick(radioBtn) {
 					} else {
 						targetDatum = this.mediaNodesByURL[targetNode.url];
 					}
-					
+
 					// add the link to the array of links
 					if (!this.mediaLinksByURL[node.url+targetNode.url]) {
 						link = {source:datum.index, target:targetDatum.index, value:1};
@@ -953,12 +953,12 @@ function handleViewTypeClick(radioBtn) {
 						this.mediaLinks.push(link);
 					}
 				}
-				
+
 				// loop through all the nodes which annotate the media file
 				var annotatingNodes = node.getRelatedNodes('annotation', 'incoming');
 				o = annotatingNodes.length;
 				for (j=0; j<o; j++) {
-				
+
 					// add them to the array of nodes
 					targetNode = annotatingNodes[j];
 					if (!this.mediaNodesByURL[targetNode.url]) {
@@ -968,7 +968,7 @@ function handleViewTypeClick(radioBtn) {
 					} else {
 						targetDatum = this.mediaNodesByURL[targetNode.url];
 					}
-					
+
 					// add the link to the array of links
 					if (!this.mediaLinksByURL[node.url+targetNode.url]) {
 						link = {source:datum.index, target:targetDatum.index, value:1};
@@ -977,37 +977,37 @@ function handleViewTypeClick(radioBtn) {
 					}
 				}
 			}
-		
+
 			// if we're drawing from scratch, do some setup
 			if (!updateOnly) {
-			
+
 				this.visualization.css('width', this.model.element.width());
 				this.visualization.css('padding', '0px');
-		
+
 				var fullWidth = this.visualization.width();
 				var fullHeight = this.visualization.height();
-					
+
 				this.mediavis = d3.select('#scalarvis').append('svg:svg')
 					.attr('width', fullWidth)
 					.attr('height', fullHeight);
-					
+
 				this.mediavis_pathLayer = this.mediavis.append('svg:g')
 					.attr('width', fullWidth)
 					.attr('height', fullHeight)
 					.attr('class', 'pathLayer');
-					
+
 				this.mediavis_dotLayer = this.mediavis.append('svg:g')
 					.attr('width', fullWidth)
 					.attr('height', fullHeight)
 					.attr('class', 'dotLayer');
-					
+
 				this.mediavis_textLayer = this.mediavis.append('svg:g')
 					.attr('width', fullWidth)
 					.attr('height', fullHeight)
 					.attr('class', 'textLayer');
-					
+
 				this.drawLegend(this.mediavis, 10, fullHeight);
-								
+
 				// force-directed layout
 				this.force = d3.layout.force()
 					.nodes(this.mediaNodes)
@@ -1016,17 +1016,17 @@ function handleViewTypeClick(radioBtn) {
 					.charge(-80)
 					.size([fullWidth, fullHeight])
 					.start();
-					
+
 			// if the vis is already set up, then
 			} else {
-							
+
 				// update the force-directed layout's data
 				this.force.nodes(this.mediaNodes)
 					.links(this.mediaLinks)
 					.start();
-			
+
 			}
-			
+
 			// update positions of the nodes and labels
 			this.force.on('tick', function() {
 				me.mediavis.selectAll('line.link')
@@ -1034,20 +1034,20 @@ function handleViewTypeClick(radioBtn) {
 					.attr('y1', function(d) { return d.source.y; })
 					.attr('x2', function(d) { return d.target.x; })
 					.attr('y2', function(d) { return d.target.y; });
-					
+
 				me.mediavis.selectAll('circle.node')
 					.attr('cx', function(d) { return d.x; })
 					.attr('cy', function(d) { return d.y; });
-					
+
 				me.mediavis.selectAll('text.label')
 					.attr('x', function(d) { return d.x; })
 					.attr('y', function(d) { { return d.y + 21; } })
 			});
-			
+
 			// create the lines
 			var lines = this.mediavis_pathLayer.selectAll('line.link')
 				.data(this.mediaLinks);
-				
+
 			lines.enter().append('svg:line')
 				.attr('class', 'link mediaFile')
 				.attr('x1', function(d) { return d.source.x; })
@@ -1057,19 +1057,19 @@ function handleViewTypeClick(radioBtn) {
 				.attr('stroke-width', function(d) { return ((me.currentNode == d.source.node) || (me.selectedNodes.indexOf(d.source.node) != -1) || (me.currentNode == d.target.node) || (me.selectedNodes.indexOf(d.target.node) != -1)) ? "3" : "1"; })
 					.attr('stroke-opacity', function(d) { return ((me.currentNode == d.source.node) || (me.selectedNodes.indexOf(d.source.node) != -1) || (me.currentNode == d.target.node) || (me.selectedNodes.indexOf(d.target.node) != -1)) ? '1.0' : '0.5'; })
 					.attr('stroke', function(d) { return ((me.currentNode == d.source.node) || (me.selectedNodes.indexOf(d.source.node) != -1) || (me.currentNode == d.target.node) || (me.selectedNodes.indexOf(d.target.node) != -1)) ? '#000' : '#999'; });
-					
+
 			lines.exit().remove();
-				
+
 			// create the dots
 			var dots = this.mediavis_dotLayer.selectAll('circle.node')
 				.data(this.mediaNodes);
-				
+
 			dots.enter().append('svg:circle')
 				.attr('class', function(d) { return (d.type == 'media') ? 'node mediaFile' : 'node'; })
 				.attr('cx', function(d) { return d.x; })
 				.attr('cy', function(d) { return d.y; })
 				.attr('r', '8')
-				.attr('fill', function(d) { 
+				.attr('fill', function(d) {
 					var interpolator = d3.interpolateRgb(me.colorScale(d.type), d3.rgb(255,255,255));
 					return ((me.currentNode == d.node) || (me.selectedNodes.indexOf(d.node) != -1)) ? interpolator(0) : interpolator(.5);
 				 })
@@ -1084,21 +1084,21 @@ function handleViewTypeClick(radioBtn) {
 					}
 				})
 				.on("dblclick", function(d) { return self.location=d.node.url; })
-				.on("mouseover", function(d) { 
-					me.currentNode = d.node; 
+				.on("mouseover", function(d) {
+					me.currentNode = d.node;
 					updateGraph();
 				})
-				.on("mouseout", function() { 
-					me.currentNode = null; 
+				.on("mouseout", function() {
+					me.currentNode = null;
 					updateGraph();
 				});
-				
+
 			dots.exit().remove();
-							
+
 			// create the text labels
 			var labels = this.mediavis_textLayer.selectAll('text.label')
 				.data(this.mediaNodes);
-				
+
 			labels.enter().append('svg:text')
 				.attr('class', 'label')
 				.attr('x', function(d) { return d.x; })
@@ -1107,25 +1107,25 @@ function handleViewTypeClick(radioBtn) {
 				.attr('fill-opacity', '0.0')
 				.attr('opacity', '0.0')
 				.text(function(d) { return d.shortTitle; });
-				
+
 			labels.exit().remove();
-			
+
 			var updateGraph = function() {
-					
+
 				lines.attr('stroke-width', function(d) { return ((me.currentNode == d.source.node) || (me.selectedNodes.indexOf(d.source.node) != -1) || (me.currentNode == d.target.node) || (me.selectedNodes.indexOf(d.target.node) != -1)) ? "3" : "1"; })
 					.attr('stroke-opacity', function(d) { return ((me.currentNode == d.source.node) || (me.selectedNodes.indexOf(d.source.node) != -1) || (me.currentNode == d.target.node) || (me.selectedNodes.indexOf(d.target.node) != -1)) ? '1.0' : '0.5'; })
 					.attr('stroke', function(d) { return ((me.currentNode == d.source.node) || (me.selectedNodes.indexOf(d.source.node) != -1) || (me.currentNode == d.target.node) || (me.selectedNodes.indexOf(d.target.node) != -1)) ? me.colorScale('media') : '#999'; });
-					
-				dots.attr('fill', function(d) { 
+
+				dots.attr('fill', function(d) {
 						var interpolator = d3.interpolateRgb(me.colorScale(d.type), d3.rgb(255,255,255));
 						return ((me.currentNode == d.node) || (me.selectedNodes.indexOf(d.node) != -1)) ? interpolator(0) : interpolator(.5);
 					 });
-			
+
 			}
-			
+
 			// update visual elements per frame
 			var perFrame = function() {
-							
+
 				labels.attr('fill', function(d) { return ((me.currentNode == d.node) || (me.selectedNodes.indexOf(d.node) != -1)) ? '#000' : '#999'; })
 					.attr('opacity', function(d) {
 						if ((me.currentNode == d.node) || (me.selectedNodes.indexOf(d.node) != -1)) {
@@ -1149,29 +1149,29 @@ function handleViewTypeClick(radioBtn) {
 					 })
 					.attr('font-weight', function(d) { return ((me.currentNode == d.node) || (me.selectedNodes.indexOf(d.node) != -1)) ? 'bold' : 'normal'; })
 					.text(function(d) { return ((me.currentNode == d.node) || (me.selectedNodes.indexOf(d.node) != -1)) ? d.node.getDisplayTitle( true ) : d.shortTitle; });
-					
+
 			}
-		
+
 			this.int = self.setInterval(perFrame, 100);
-			
+
 			updateGraph();
-			
+
 		}
-		
+
 		/**
 		 * Draws the tags visualization.
 		 *
 		 * @param	updateOnly		If true, then the vis only needs to be updated, not built from scratch.
 		 */
 		jQuery.VisView.prototype.drawTagVisualization = function(updateOnly) {
-			
+
 			// if the user hasn't already made a selection, and either not all data has been loaded yet or we
 			// haven't selected the current page yet, then see if we can find the node for the current page
 			// and select it
 			if ((this.selectedNodes.length == 0) && (!this.model.doneLoading || !this.hasSelectedCurrentContent)) {
 				if (scalarapi.model.currentPageNode != null) {
 					this.selectedNodes = [];
-					if (!this.deselectedSelf) {	
+					if (!this.deselectedSelf) {
 						this.selectedNodes.push(scalarapi.model.currentPageNode);
 					}
 					if (this.model.doneLoading) {
@@ -1179,7 +1179,7 @@ function handleViewTypeClick(radioBtn) {
 					}
 				}
 			}
-			
+
 			var i;
 			var j;
 			var n;
@@ -1187,7 +1187,7 @@ function handleViewTypeClick(radioBtn) {
 			var node;
 			var targetNode;
 			var maxNodeChars = 15;
-			
+
 			// if we're drawing from scratch, wipe out the previous vis
 			if (!updateOnly) {
 				this.visualization.empty();
@@ -1197,7 +1197,7 @@ function handleViewTypeClick(radioBtn) {
 					this.instructions.html('<b>Tags and their relationships.</b> Click nodes to select them and reveal their tag relationships. Roll over the visualization to explore. Drag a node to move; double-click to view.');
 				}
 			}
-			
+
 			// init our local model
 			if (!this.tagNodesByURL) {
 				this.tagNodesByURL = {};
@@ -1205,11 +1205,11 @@ function handleViewTypeClick(radioBtn) {
 				this.tagLinksByURL = {};
 				this.tagLinks = [];
 			}
-							
+
 			var link;
 			var datum;
 			var targetDatum;
-			
+
 			// build arrays of nodes and links which describe tags and their connections
 			n = this.selectedNodes.length;
 			for (i=0; i<n; i++) {
@@ -1222,14 +1222,14 @@ function handleViewTypeClick(radioBtn) {
 					datum = this.tagNodesByURL[node.url];
 				}
 			}
-			
+
 			// if something is selected, only render what's connected to it
 			var rawTagNodes = scalarapi.model.getNodesWithProperty('scalarType', 'tag');
-		
+
 			// loop through all the tags
 			n = rawTagNodes.length;
 			for (i=0; i<n; i++) {
-			
+
 				// add each tag to the array of nodes
 				node = rawTagNodes[i];
 				if (!this.tagNodesByURL[node.url]) {
@@ -1239,13 +1239,13 @@ function handleViewTypeClick(radioBtn) {
 				} else {
 					datum = this.tagNodesByURL[node.url];
 				}
-					
-				
+
+
 				// loop through all the nodes tagged by the tag
 				var taggedNodes = node.getRelatedNodes('tag', 'outgoing');
 				o = taggedNodes.length;
 				for (j=0; j<o; j++) {
-				
+
 					// add them to the array of nodes
 					targetNode = taggedNodes[j];
 					if (!this.tagNodesByURL[targetNode.url]) {
@@ -1255,7 +1255,7 @@ function handleViewTypeClick(radioBtn) {
 					} else {
 						targetDatum = this.tagNodesByURL[targetNode.url];
 					}
-					
+
 					// add the link to the array of links
 					if (!this.tagLinksByURL[node.url+targetNode.url]) {
 						link = {source:datum.index, target:targetDatum.index, value:1};
@@ -1269,7 +1269,7 @@ function handleViewTypeClick(radioBtn) {
 				if ((this.selectedNodes.length > 0) && (taggingNodes.length > 0)) {
 					o = taggingNodes.length;
 					for (j=0; j<o; j++) {
-					
+
 						// add them to the array of nodes
 						targetNode = taggingNodes[j];
 						if (!this.tagNodesByURL[targetNode.url]) {
@@ -1279,7 +1279,7 @@ function handleViewTypeClick(radioBtn) {
 						} else {
 							targetDatum = this.tagNodesByURL[targetNode.url];
 						}
-						
+
 						// add the link to the array of links
 						if (!this.tagLinksByURL[targetNode.url+node.url]) {
 							link = {source:datum.index, target:targetDatum.index, value:1};
@@ -1289,7 +1289,7 @@ function handleViewTypeClick(radioBtn) {
 					}
 				}
 			}
-			
+
 			// now, figure out which of those stored nodes we are actually going to show
 			this.currentTagNodes = [];
 			this.currentTagLinks = [];
@@ -1303,7 +1303,7 @@ function handleViewTypeClick(radioBtn) {
 			for (i=0; i<n; i++) {
 				link = this.tagLinks[i];
 				var newLink = false;
-				
+
 				// d3 converts the link source and target from indexes to objects, but we may have
 				// mixed types at this point, so we have to check for both
 				if (typeof link.source == 'number') {
@@ -1311,15 +1311,15 @@ function handleViewTypeClick(radioBtn) {
 				} else if (typeof link.source == 'object') {
 					datum = link.source;
 				}
-				
-				if (typeof link.target == 'number') { 
+
+				if (typeof link.target == 'number') {
 					targetDatum = this.tagNodes[link.target];
 				} else if (typeof link.target == 'object') {
 					targetDatum = link.target;
 				}
-				
+
 				if ((this.selectedNodes.indexOf(datum.node) != -1) || (this.selectedNodes.indexOf(targetDatum.node) != -1)) newLink = true;
-				
+
 				if (newLink) {
 					if (this.currentTagNodes.indexOf(datum) == -1) this.currentTagNodes.push(datum);
 					if (this.currentTagNodes.indexOf(targetDatum) == -1) this.currentTagNodes.push(targetDatum);
@@ -1327,39 +1327,39 @@ function handleViewTypeClick(radioBtn) {
 						this.currentTagLinks.push(link);
 					}
 				}
-				
+
 			}
-		
+
 			// if we're drawing from scratch, do some setup
 			if (!updateOnly) {
-			
+
 				this.visualization.css('width', this.model.element.width());
 				this.visualization.css('padding', '0px');
-		
+
 				var fullWidth = this.visualization.width();
 				var fullHeight = this.visualization.height();
-					
+
 				this.tagvis = d3.select('#scalarvis').append('svg:svg')
 					.attr('width', fullWidth)
 					.attr('height', fullHeight);
-					
+
 				this.tagvis_pathLayer = this.tagvis.append('svg:g')
 					.attr('width', fullWidth)
 					.attr('height', fullHeight)
 					.attr('class', 'pathLayer');
-					
+
 				this.tagvis_dotLayer = this.tagvis.append('svg:g')
 					.attr('width', fullWidth)
 					.attr('height', fullHeight)
 					.attr('class', 'dotLayer');
-					
+
 				this.tagvis_textLayer = this.tagvis.append('svg:g')
 					.attr('width', fullWidth)
 					.attr('height', fullHeight)
 					.attr('class', 'textLayer');
-					
+
 				this.drawLegend(this.tagvis, 10, fullHeight);
-								
+
 				// force-directed layout
 				this.force = d3.layout.force()
 					.nodes((this.selectedNodes.length > 0) ? this.currentTagNodes : this.tagNodes)
@@ -1368,41 +1368,41 @@ function handleViewTypeClick(radioBtn) {
 					.charge(-80)
 					.size([fullWidth, fullHeight])
 					.start();
-					
+
 			// if the vis is already set up, then
 			} else {
-					
+
 				// update the force-directed layout's data
 				this.force.nodes((this.selectedNodes.length > 0) ? this.tagNodes : this.tagNodes) // modified here
 					.links((this.selectedNodes.length > 0) ? this.currentTagLinks : this.tagLinks)
 					.start();
-			
-			}		
-					
+
+			}
+
 			// update positions of the nodes and labels
 			this.force.on('tick', function() {
-				
+
 				me.tagvis.selectAll('line.link')
 					.attr('x1', function(d) { return d.source.x; })
 					.attr('y1', function(d) { return d.source.y; })
 					.attr('x2', function(d) { return d.target.x; })
 					.attr('y2', function(d) { return d.target.y; });
-					
+
 				me.tagvis.selectAll('circle.node')
 					.attr('cx', function(d) { return d.x; })
 					.attr('cy', function(d) { return d.y; });
-					
+
 				me.tagvis.selectAll('text.label')
 					.attr('x', function(d) { return d.x; })
 					/*.attr('y', function(d) { return d.y + ((d.shortType == "tag") ? (8 + tagDotSize(d.outgoing.tag_of.length)) : 8) + 12; })*/
 					.attr('y', function(d) { return d.y + 21; })
-				
+
 			});
-			
+
 			// create the lines
 			var lines = this.tagvis_pathLayer.selectAll('line.link')
 				.data((this.selectedNodes.length > 0) ? this.currentTagLinks : this.tagLinks);
-				
+
 			lines.enter().append('svg:line')
 				.attr('class', 'link tag')
 				.attr('x1', function(d) { return d.source.x; })
@@ -1412,21 +1412,21 @@ function handleViewTypeClick(radioBtn) {
 				.attr('stroke-width', function(d) { return ((me.currentNode == d.source.node) || (me.selectedNodes.indexOf(d.source.node) != -1) || (me.currentNode == d.target.node) || (me.selectedNodes.indexOf(d.target.node) != -1)) ? "3" : "1"; })
 				.attr('stroke-opacity', function(d) { return ((me.currentNode == d.source.node) || (me.selectedNodes.indexOf(d.source.node) != -1) || (me.currentNode == d.target.node) || (me.selectedNodes.indexOf(d.target.node) != -1)) ? '1.0' : '0.5'; })
 				.attr('stroke', function(d) { return ((me.currentNode == d.source.node) || (me.selectedNodes.indexOf(d.source.node) != -1) || (me.currentNode == d.target.node) || (me.selectedNodes.indexOf(d.target.node) != -1)) ? '#ff8888' : '#999'; });
-				
+
 			lines.exit().remove();
-				
+
 			// create the dots
 			var dots = this.tagvis_dotLayer.selectAll('circle.node')
 				.data((this.selectedNodes.length > 0) ? this.currentTagNodes : this.tagNodes);
-			
+
 			dots.enter().append('svg:circle')
 				.attr('class', function(d) { return (d.type == 'tag') ? 'node tag' : 'node'; })
 				.attr('cx', function(d) { return d.x; })
 				.attr('cy', function(d) { return d.y; })
 				.attr('r', '8')
 				.call(me.force.drag)
-				.call(function(d) { 
-					$(d).nodoubletapzoom(); 
+				.call(function(d) {
+					$(d).nodoubletapzoom();
 				})
 				.on('click', function(d) {
 					me.lastClickedNode = d.node;
@@ -1445,28 +1445,28 @@ function handleViewTypeClick(radioBtn) {
 					}
 					me.drawTagVisualization(true);
 				})
-				.on("dblclick", function(d) { 
-					return self.location=me.lastClickedNode.url; 
+				.on("dblclick", function(d) {
+					return self.location=me.lastClickedNode.url;
 				})
-				.on("mouseover", function(d) { 
+				.on("mouseover", function(d) {
 					me.currentNode = d.node;
 					updateGraph();
 				})
-				.on("mouseout", function() { 
+				.on("mouseout", function() {
 					me.currentNode = null;
 					updateGraph();
 				})
-				.attr('fill', function(d) { 
+				.attr('fill', function(d) {
 					var interpolator = d3.interpolateRgb(me.colorScale(d.type), d3.rgb(255,255,255));
 					return ((me.currentNode == d.node) || (me.selectedNodes.indexOf(d.node) != -1)) ? interpolator(0) : interpolator(.5);
 				 });
-				 
+
 			dots.exit().remove();
-				
+
 			// create the text labels
 			var labels = this.tagvis_textLayer.selectAll('text.label')
 				.data((this.selectedNodes.length > 0) ? this.currentTagNodes : this.tagNodes);
-				
+
 			labels.enter().append('svg:text')
 				.attr('class', 'label')
 				.attr('x', function(d) { return d.x; })
@@ -1474,27 +1474,27 @@ function handleViewTypeClick(radioBtn) {
 				.attr('text-anchor', 'middle')
 				.attr('opacity', '0.0')
 				.text(function(d) { return d.shortTitle; });
-				
+
 			labels.exit().remove();
-			
+
 			var updateGraph = function() {
-					
+
 				me.tagvis_pathLayer.selectAll('line.link')
 					.attr('stroke-width', function(d) { return ((me.currentNode == d.source.node) || (me.selectedNodes.indexOf(d.source.node) != -1) || (me.currentNode == d.target.node) || (me.selectedNodes.indexOf(d.target.node) != -1)) ? "3" : "1"; })
 					.attr('stroke-opacity', function(d) { return ((me.currentNode == d.source.node) || (me.selectedNodes.indexOf(d.source.node) != -1) || (me.currentNode == d.target.node) || (me.selectedNodes.indexOf(d.target.node) != -1)) ? '1.0' : '0.5'; })
 					.attr('stroke', function(d) { return ((me.currentNode == d.source.node) || (me.selectedNodes.indexOf(d.source.node) != -1) || (me.currentNode == d.target.node) || (me.selectedNodes.indexOf(d.target.node) != -1)) ? me.colorScale('tag') : '#999'; });
-					
+
 				me.tagvis_dotLayer.selectAll('circle.node')
-					.attr('fill', function(d) { 
+					.attr('fill', function(d) {
 						var interpolator = d3.interpolateRgb(me.colorScale(d.type), d3.rgb(255,255,255));
 						return ((me.currentNode == d.node) || (me.selectedNodes.indexOf(d.node) != -1)) ? interpolator(0) : interpolator(.5);
 					 });
-			
+
 			}
-			
+
 			// update visual elements per frame
 			var perFrame = function() {
-			
+
 				me.tagvis_textLayer.selectAll('text.label')
 					.attr('fill', function(d) { return ((me.currentNode == d.node) || (me.selectedNodes.indexOf(d.node) != -1)) ? "#000" :"#999"; })
 					.attr('opacity', function(d) {
@@ -1510,18 +1510,18 @@ function handleViewTypeClick(radioBtn) {
 					.attr('font-weight', function(d) { return ((me.currentNode == d.node) || (me.selectedNodes.indexOf(d.node) != -1)) ? 'bold' : 'normal'; })
 					.text(function(d) { return ((me.currentNode == d.node) || (me.selectedNodes.indexOf(d.node) != -1)) ? d.title : d.shortTitle; });
 			}
-		
+
 			this.int = self.setInterval(perFrame, 200);
-			
+
 			updateGraph();
-			
+
 		}
-		 
+
 		/**
 		 * Draws the radial visualization.
 		 */
 		jQuery.VisView.prototype.drawRadialVisualization = function() {
-		
+
 			// if the user hasn't already made a selection, and either not all data has been loaded yet or we
 			// haven't selected the current page yet, then see if we can find the node for the current page
 			// and select it
@@ -1534,21 +1534,21 @@ function handleViewTypeClick(radioBtn) {
 					}
 				}
 			}
-			
+
 			this.visualization.empty();
 			this.visualization.css('padding', '10px');
 			this.instructions.html('<b>All content and its relationships.</b> Roll over the visualization to explore. Click to expand an area or to select content to view its relationships; double-click content to view.');
-			
+
 			var maxNodeChars = 130 / 6;
 			var node;
-			
+
 			var i;
 			var j;
 			var k;
 			var n;
 			var o;
 			var p;
-			
+
 			// parse data into rows by type
 			var types = {title:"root", children:[]};
 			var nodes = [];
@@ -1564,72 +1564,72 @@ function handleViewTypeClick(radioBtn) {
 			var minAngle = 1;
 			var minChordAngle = .02;
 			var typedNodes;
-			
+
 			// loop through each type
 			for (i=0; i<this.indexTypeOrder.length; i++) {
 				indexType = this.indexTypeOrder[i];
-				
+
 				typedNodes = scalarapi.model.getNodesWithProperty('scalarType', indexType.id, 'alphabetical');
-				
+
 				// if we have nodes of that type, then
 				if (typedNodes.length > 0) {
-					
+
 					// these are the top-level type nodes
 					node = {title:indexType.name, type:indexType.id, isTopLevel:true, index:types.length, size:1, parent:types, maximizedAngle:360, children:[], descendantCount:typedNodes.length};
 					types.children.push(node);
-					
+
 					// recursively assign children to the node
 					node.children = setChildren(node, typedNodes);
-					
+
 				}
 			}
-			
+
 			/**
 			 * Recursive function for assigning children, grandchildren, etc. to the top-level nodes based on density.
 			 */
 			function setChildren(curNode, childNodes) {
-			
+
 				var j;
 				var n = childNodes.length;
 				var curChildren = [];
 				var curChild;
-				
-				// how big a node gets when maximized -- the smaller of the number of children * 15¡, or 270¡ total
+
+				// how big a node gets when maximized -- the smaller of the number of children * 15ï¿½, or 270ï¿½ total
 				var maximizedAngle = Math.min(270, (n * 15));
-				
+
 				// maximized angle of each child
 				var localAnglePerNode = curNode.maximizedAngle / n;
-				
-				// groups can't be smaller than the groupAngle (10¡) -- so figure out how many children
+
+				// groups can't be smaller than the groupAngle (10ï¿½) -- so figure out how many children
 				// need to be in each group for that to be true
 				var nodesPerGroup = Math.ceil(groupAngle / anglePerNode);
-				
+
 				// if the children of this segment, when maximized, will still be below a certain angle threshold, then
 				// we need to make sub-groups for them
 				if (localAnglePerNode < 5) {
-					
+
 					// how many sub-groups will this node have?
 					var groupCount = Math.ceil(n / nodesPerGroup);
-					
+
 					// split this group into as many sub-groups as needed so that each group is the group angle with maximized parent.
 					for (j=0; j<groupCount; j++) {
-					
+
 						curChild = {title:curNode.title+'_group'+j, type:indexType.id, isTopLevel:false, parent:curNode, maximizedAngle:maximizedAngle, children:[]};
-						
+
 						// if the next group will have less than the targeted number of children, combine it with the current group
 						if ((n - ((j + 1) * nodesPerGroup)) < nodesPerGroup) {
 							curChild.children = setChildren(curChild, childNodes.slice(j * nodesPerGroup));
 							j++;
-							
+
 						} else {
 							var descendants = childNodes.slice(j * nodesPerGroup, (j + 1) * nodesPerGroup);
 							curChild.children = setChildren(curChild, descendants);
 						}
-						
+
 						curChild.descendantCount = descendants.length;
 						curChildren.push(curChild);
 					}
-					
+
 				// otherwise, if there are enough children to fit in the group comfortably, then those
 				// children will be the end of the line; no sub-groups need to be created
 				} else {
@@ -1648,13 +1648,13 @@ function handleViewTypeClick(radioBtn) {
 						nodes.push(curChild);
 					}
 				}
-				
+
 				return curChildren;
 			}
-			
+
 			var maximizedNode = null;
 			var highlightedNode = null;
-			
+
 			/**
 			 * Returns true if the given node has the candidate node as an ancestor.
 			 */
@@ -1664,91 +1664,91 @@ function handleViewTypeClick(radioBtn) {
 				}
 				return ((self.parent == candidate) && (candidate != null));
 			}
-			
+
 			this.visualization.css('width', this.model.element.width());
 			this.visualization.css('padding', '0px');
 			var fullWidth = this.visualization.width();
 			var fullHeight = this.visualization.height();
-			
+
 			var myModPercentage = 1;		// relative value of the farthest descendants maximized item
 			var otherModPercentage = 1;		// relative value of the farthest descendants of the not-maximized item
-			
+
 			var r = Math.min(fullWidth, fullHeight) / 2 - 60;
 			var radiusMod = 1.55;
 			var textRadiusOffset = 10;
-			
+
 			// rollover label
 			var rollover = $('<div class="rollover">Test</div>').appendTo('#scalarvis');
-			$('#scalarvis').mousemove(function(e) {
+			$('#scalarvis').on('mousemove', function(e) {
 				rollover.css('left', (e.pageX-$(this).offset().left+parseInt($(this).parent().parent().css('padding-left'))+10)+'px');
 				rollover.css('top', (e.pageY-$(this).parent().parent().offset().top)+15+'px');
 			})
-				
+
 			// create visualization base element
 			var root = d3.select('#scalarvis').append('svg:svg')
 				.attr('width', fullWidth)
 				.attr('height', fullHeight);
-				
+
 			var vis = root.append("svg:g")
      			.attr("transform", "translate(" + fullWidth / 2 + "," + fullHeight / 2 + ")");
-				
+
 			// create canvas
 			var canvas = vis.append('svg:rect')
 				.attr('width', fullWidth)
 				.attr('height', fullHeight)
 				.attr('class', 'viscanvas');
-				
+
 			this.radialBaseLayer = root.append('svg:g')
 				.attr('width', fullWidth)
 				.attr('height', fullHeight);
-				
+
 			this.drawLegend(this.radialBaseLayer, 10, fullHeight);
-				
+
 			// arc generator
 			var arcs = d3.svg.arc()
     			.startAngle(function(d) { return d.x - (Math.PI * .5); })
      			.endAngle(function(d) { return d.x + d.dx - (Math.PI * .5); })
      			.innerRadius(function(d) { return (r * radiusMod) - Math.sqrt(d.y); })
     			.outerRadius(function(d) { return (r * radiusMod) - 	Math.sqrt(d.y + d.dy); });
-				
+
 			// layout which drives the arc display
 			var partition = d3.layout.partition()
 				.sort(null)
 				.size([Math.PI * 2, r * r])
-				
+
 				// returns the relative value for a given node d
 				.value(function(d) {
-				
+
 					// if a node is currently maximized, then
 					if (maximizedNode) {
-					
+
 						// if the maximized node is a top-level node, and this node is a bottom-level node, then
 						if ((maximizedNode.children != null) && (d.depth >= 2) && (d.children == null)) {
-						
+
 							// if the maximized node is an ancestor of this node, then return its maximized value
 							if (hasNodeAsAncestor(d, maximizedNode)) {
 								return myModPercentage;
-								
+
 							// otherwise, return its minimized value
 							} else {
 								return otherModPercentage;
 							}
-						
+
 						// otherwise, just return the standard value
 						} else {
 							return 1;
 						}
-						
+
 					// return the standard value
 					} else {
 						return 1;
 					}
 				});
-				
+
 			// create the arcs
 			var path = vis.data([types]).selectAll('path')
 				.data(partition.nodes);
-				
+
 			path.enter().append('svg:path')
 				.attr('class', 'ring')
 				.attr('d', arcs)
@@ -1759,40 +1759,40 @@ function handleViewTypeClick(radioBtn) {
 				.style('fill', function(d, i) { return me.colorScale(d.type); } )
 				.each(function(d) { d.centroid = arcs.centroid(d); })
 				.each(stash)
-				
+
 				// roll over a node
-				.on('mouseover', function(d) { 
+				.on('mouseover', function(d) {
 					highlightedNode = d;
 					updateHighlights(d);
 				})
-				
+
 				// roll off of a node
-				.on('mouseout', function(d) { 
+				.on('mouseout', function(d) {
 					if (highlightedNode == d) {
 						highlightedNode = null;
 						updateHighlights(d);
 					}
 				})
-				
+
 				// double-click a node
 				.on("dblclick", function(d) {
 					if (d.node) {
 						return self.location = d.node.url;
 					}
 				})
-				
+
 				// click on a node
 				.on('click', function(d) {
-				
+
 		    		var dx = arcs.centroid(d)[0];
 		    		var dy = arcs.centroid(d)[1];
 		    		var hw = fullWidth * .5;
-				
+
 					// if the node was maximized, normalize it
 					if (maximizedNode == d) {
-					
+
 						maximizedNode = null;
-						
+
 						// return the vis to its normalized state
 						path.data(partition.nodes).transition()
 							.duration(1000)
@@ -1836,22 +1836,22 @@ function handleViewTypeClick(radioBtn) {
 						    			return (hw-125)+','+dy+' '+(hw-135)+','+dy+' '+dx+','+dy;
 						    		}
 						    	});
-					    	
+
 					} else {
-						
+
 						// if the node has children, then maximize it and transition the vis to its maximized state
 						if (d.children != null) {
-					
+
 							maximizedNode = d;
-						
+
 							var numChildren = d.descendantCount;
 							var curPercentage = numChildren / nodes.length;
 							var targetPercentage = Math.min(.75, (numChildren * 15) / 360);
-							
+
 							// set the relative values of the farthest descendants of the maximized and non-maximized nodes
 							myModPercentage = targetPercentage / curPercentage;
 							otherModPercentage = (1 - targetPercentage) / (1 - curPercentage);
-							
+
 							path.data(partition.nodes).transition()
 								.duration(1000)
 								.style("stroke-width", function(d) { return (d.dx > minChordAngle) ? 1 : 0; })
@@ -1894,16 +1894,16 @@ function handleViewTypeClick(radioBtn) {
 							    			return (hw-125)+','+dy+' '+(hw-135)+','+dy+' '+dx+','+dy;
 							    		}
 							    	});
-						    	
+
 						} else {
 							toggleNodeSelected(d);
 						}
 					}
 				});
-				
+
 			path.exit().remove();
-			
-			
+
+
 			/**
 			 * Selects the given node data.
 			 */
@@ -1926,14 +1926,14 @@ function handleViewTypeClick(radioBtn) {
 				updateSelectedLabels();
 				updateHighlights(d);
 			}
-			
+
 			/**
 			 * Updates the display of labels for selected nodes.
 			 */
 			function updateSelectedLabels() {
-			
+
 			    var selectedLabels = vis.selectAll('text.selectedLabel').data(selectedNodeData);
-			    
+
 			    selectedLabels.enter().append('svg:text')
 			    	.attr('class', 'selectedLabel')
 			    	.attr('dx', function(d) {
@@ -1958,7 +1958,7 @@ function handleViewTypeClick(radioBtn) {
 			        .text(function(d) { return d.shortTitle; });
 
 				selectedLabels.exit().remove();
-				
+
 				selectedLabels.attr('dx', function(d) {
 			    	if (arcs.centroid(d)[0] < 0) {
 			    			return -(fullWidth * .5) + 120;
@@ -1977,9 +1977,9 @@ function handleViewTypeClick(radioBtn) {
 			    		}
 			        })
 			        .text(function(d) { return d.shortTitle; });
-			    	
+
 			    var selectedPointers = vis.selectAll('polyline.selectedPointer').data(selectedNodeData);
-			    
+
 			    selectedPointers.enter().append('svg:polyline')
 			    	.attr('class', 'selectedPointer')
 			    	.attr('points', function(d) {
@@ -1994,9 +1994,9 @@ function handleViewTypeClick(radioBtn) {
 			    	})
 			    	.attr('stroke','#444')
 			    	.attr('stroke-width',1);
-			    	
+
 			    selectedPointers.exit().remove();
-			    
+
 			    selectedPointers.attr('points', function(d) {
 			    		var dx = arcs.centroid(d)[0];
 			    		var dy = arcs.centroid(d)[1];
@@ -2009,43 +2009,43 @@ function handleViewTypeClick(radioBtn) {
 			    	});
 
 			}
-			
+
 			/**
 			 * Update the highlight elements.
 			 */
 			function updateHighlights(d) {
-			
+
 				// show the rollover label if this item has no children, i.e. is a single content item, not a parent
 				if (highlightedNode && (highlightedNode.children == null)) {
 					rollover.html(d.title);
 					rollover.css('display', 'block');
-				
+
 				// otherwise, hide the rollover label
 				} else {
 					rollover.css('display', 'none');
 				}
-				
+
 				// darken the arcs of the rolled-over node and its descendants
 				vis.selectAll('path.ring')
 					.data(partition.nodes)
 					.style('fill', function(d) {
 						return ((d == highlightedNode) || (hasNodeAsAncestor(d, highlightedNode)) || (me.selectedNodes.indexOf(d.node) != -1)) ? d3.rgb(me.colorScale(d.type)).darker() : me.colorScale(d.type);
 					})
-					
+
 				// darken the chords connected to the rolled-over node
 				vis.selectAll('path.chord')
 					.attr('opacity', function(d) {
 						return ((d.source == highlightedNode) || (d.target == highlightedNode) || (hasNodeAsAncestor(d.source, highlightedNode)) || (hasNodeAsAncestor(d.target, highlightedNode)) || (me.selectedNodes.indexOf(d.source.node) != -1) || (me.selectedNodes.indexOf(d.target.node) != -1)) ? .75 : (((highlightedNode == null) && (me.selectedNodes.length == 0)) ? .25 : 0);
 					});
-			} 
-				
+			}
+
 			var linkedNodes = [];
 			var srcNode;
 			var destNode;
 			var relatedNodes;
 			var index;
 			var links = [];
-			
+
 			var linkSpecs = [
 				{type:'referee', direction:'incoming'},
 				{type:'annotation', direction:'outgoing'},
@@ -2053,7 +2053,7 @@ function handleViewTypeClick(radioBtn) {
 				{type:'comment', direction:'outgoing'},
 				{type:'path', direction:'outgoing'},
 			];
-				
+
 			// parse all of the links between nodes so they can be used to draw chords
 			n = nodes.length;
 			for (i=0; i<n; i++) {
@@ -2070,16 +2070,16 @@ function handleViewTypeClick(radioBtn) {
 					}
 				}
 			}
-			
+
 			// chord generator
 			var chords = d3.svg.chord()
     			.startAngle(function(d) { return d.x - (Math.PI * .5); })
      			.endAngle(function(d) { return d.x + d.dx - (Math.PI * .5); })
 				.radius(function(d) { return (r * radiusMod) - Math.sqrt(d.y + d.dy); });
-			
+
 			// create the chords
 			var chordvis = vis.selectAll('path.chord').data(links);
-			
+
 			chordvis.enter().append('svg:path')
 				.attr('class', 'chord')
 				.attr('d', function(d) { return chords(d); })
@@ -2087,23 +2087,23 @@ function handleViewTypeClick(radioBtn) {
 				.attr('display', function(d) { return ((d.source.dx > minChordAngle) || (d.target.dx > minChordAngle)) ? null : 'none'; })
 				.attr('fill', function(d) { return me.colorScale(d.source.type); })
 				.each(stashChord);
-				
+
 			chordvis.exit().remove();
 
-			// create the type labels		    
+			// create the type labels
 		    var labels = vis.selectAll('text.typeLabel').data(types.children);
-		    
+
 		    labels.enter().append('svg:text')
 		    	.attr('class', 'typeLabel')
-		    	.attr('dx', function(d) { 
+		    	.attr('dx', function(d) {
 		    		d.angle = (((d.x+(d.dx*.5))/(Math.PI*2))*360-180);
 		    		d.isFlipped = ((d.angle > 90) || (d.angle < -90));
-		    		return d.isFlipped ? -10 : 10; 
+		    		return d.isFlipped ? -10 : 10;
 		    	})
 		    	.attr('dy', '.35em')
 		    	.attr('fill', '#aaa')
 		    	.attr('text-anchor', function(d) {
-		    		return d.isFlipped ? 'end' : null; 
+		    		return d.isFlipped ? 'end' : null;
 		    	})
 		    	.attr('transform', function(d) {
 		    		d.amount = r + textRadiusOffset;
@@ -2111,27 +2111,27 @@ function handleViewTypeClick(radioBtn) {
 		    			d.angle += 180;
 		    			d.amount *= -1;
 		    		}
-		    		return 'rotate('+d.angle+') translate('+d.amount+',0) '; 
+		    		return 'rotate('+d.angle+') translate('+d.amount+',0) ';
 		    	})
 		    	.text(function(d) { return d.title; });
-		    	
+
 		    labels.exit().remove();
-		    
+
 		    updateSelectedLabels();
 		    updateHighlights();
-				
+
 			// store current arc data for use in transitions
 			function stash(d) {
 				d.x0 = d.x;
 				d.dx0 = d.dx;
 			}
-			
+
 			// store current chord data for use in transitions
 			function stashChord(d) {
 				d.source0 = {x:d.source.x, dx:d.source.dx};
 				d.target0 = {x:d.target.x, dx:d.target.dx};
 			}
-			
+
 			// interpolates between path data for two arcs
 			function arcTween(a) {
 				var i = d3.interpolate({x: a.x0, dx: a.dx0}, a);
@@ -2142,7 +2142,7 @@ function handleViewTypeClick(radioBtn) {
 					return arcs(b);
 				};
 			}
-			
+
 			// interpolates between path data for two chords
 			function chordTween(a) {
 				var i = d3.interpolate({source: {x:a.source0.x, dx:a.source0.dx}, target: {x:a.target0.x, dx:a.target0.dx}}, a);
@@ -2153,21 +2153,21 @@ function handleViewTypeClick(radioBtn) {
 					return chords(b);
 				};
 			}
-			
+
 			// calculates the position of a type label
 			function calcTextDx(d) {
 	    		d.angle = (((d.x+(d.dx*.5))/(Math.PI*2))*360-180);
 	    		d.isFlipped = ((d.angle > 90) || (d.angle < -90));
-	    		return d.isFlipped ? -10 : 10; 
+	    		return d.isFlipped ? -10 : 10;
 			}
-			
+
 			// calculates the anchor point of a type label
 			function calcTextAnchor(d) {
 	    		d.angle = (((d.x+(d.dx*.5))/(Math.PI*2))*360-180);
 	    		d.isFlipped = ((d.angle > 90) || (d.angle < -90));
-		    	return d.isFlipped ? 'end' : null; 
+		    	return d.isFlipped ? 'end' : null;
 			}
-			
+
 			// calculates the transform (rotation) of a type label
 			function calcTextTransform(d) {
 	    		d.angle = (((d.x+(d.dx*.5))/(Math.PI*2))*360-180);
@@ -2177,10 +2177,10 @@ function handleViewTypeClick(radioBtn) {
 	    			d.angle += 180;
 	    			d.amount *= -1;
 	    		}
-	    		return 'rotate('+d.angle+') translate('+d.amount+',0) '; 
+	    		return 'rotate('+d.angle+') translate('+d.amount+',0) ';
 			}
-			
-			// interpolates between position data for two type labels			
+
+			// interpolates between position data for two type labels
 			function textDxTween(a) {
 				var i = d3.interpolate({x: a.x0, dx: a.dx0}, a);
 				return function(t) {
@@ -2190,8 +2190,8 @@ function handleViewTypeClick(radioBtn) {
 					return calcTextDx(b);
 				};
 			}
-			
-			// interpolates between anchor point data for two type labels			
+
+			// interpolates between anchor point data for two type labels
 			function textAnchorTween(a) {
 				var i = d3.interpolate({x: a.x0, dx: a.dx0}, a);
 				return function(t) {
@@ -2201,8 +2201,8 @@ function handleViewTypeClick(radioBtn) {
 					return calcTextAnchor(b);
 				};
 			}
-			
-			// interpolates between transform data for two type labels			
+
+			// interpolates between transform data for two type labels
 			function textTransformTween(a) {
 				var i = d3.interpolate({x: a.x0, dx: a.dx0}, a);
 				return function(t) {
@@ -2212,14 +2212,14 @@ function handleViewTypeClick(radioBtn) {
 					return calcTextTransform(b);
 				};
 			}
-			
+
 		}
-		 
+
 		/**
 		 * Draws the index visualization (D3 version).
 		 */
 		jQuery.VisView.prototype.drawIndexVisualization = function() {
-			
+
 			// if the user hasn't already made a selection, and either not all data has been loaded yet or we
 			// haven't selected the current page yet, then see if we can find the node for the current page
 			// and select it
@@ -2232,26 +2232,26 @@ function handleViewTypeClick(radioBtn) {
 					}
 				}
 			}
-			
+
 			this.visualization.empty();
 			this.visualization.css('padding', '10px');
 			this.instructions.html('<b>All content, sorted by type.</b> Roll over the visualization to explore. Darker colors indicate more connections. Click to select content and view its relationships; double-click to view.');
 			this.leftMargin = 0;
 			this.rightMargin = 0;
-			
+
 			var i;
 			var j;
 			var k;
 			var n;
 			var o;
-		
+
 			var colWidth = 36;
 			var fullWidth = Math.max(this.model.element.width() * this.scaleFactorH - (this.leftMargin + this.rightMargin), ((this.model.maxNodesPerType + 1) * colWidth) - (this.leftMargin + this.rightMargin));
 			var colScale = d3.scale.linear()
 				.domain([0, this.model.maxNodesPerType])
 				.range([0, this.model.maxNodesPerType * colWidth]);
 			var unitWidth = Math.max(colScale(1) - colScale(0), 36);
-			
+
 			// parse data into rows by type
 			var row;
 			var rows = [];
@@ -2262,11 +2262,11 @@ function handleViewTypeClick(radioBtn) {
 			var rowItems;
 			var node;
 			var datum;
-			
+
 			if (!this.indexNodesByURL) {
 				this.indexNodesByURL = {};
 			}
-			
+
 			// sort nodes by type, and then alphabetically
 			var sortedNodes = scalarapi.model.nodes.concat();
 			sortedNodes.sort(function(a,b) {
@@ -2289,7 +2289,7 @@ function handleViewTypeClick(radioBtn) {
 					return idSortA - idSortB;
 				}
 			})
-			
+
 			// count connections for each node so we can adjust opacity accordingly,
 			// cull null nodes
 			var maxConnections = 0.0;
@@ -2303,19 +2303,19 @@ function handleViewTypeClick(radioBtn) {
 				}
 			}
 			maxConnections++;
-				
+
 			// build rows of nodes
 			n = sortedNodes.length;
 			row = {index:rows.length, name:'', data:[]};
 			for (j=0; j<n; j++) {
-			
+
 				if (row.data.length >= itemsPerRow) {
 					rows.push(row);
 					row = {index:rows.length, name:'', data:[]};
 				}
-				
+
 				node = sortedNodes[j];
-				
+
 				// non-page/media nodes don't have anything in their 'current' property
 				datum = {title:node.getDisplayTitle( true ), shortTitle:this.getShortenedString(node.getDisplayTitle( true ), 20), node:node, row:rows.length, column:row.data.length};
 				row.data.push(datum);
@@ -2328,20 +2328,20 @@ function handleViewTypeClick(radioBtn) {
 						row.data.push(datum);
 					}
 				}*/
-				
+
 				// store info for new node
 				if (!this.indexNodesByURL[node.url]) {
 					this.indexNodesByURL[node.url] = datum;
-					
+
 				// or update info for a node we already know about
 				} else if ((node.current) || node.scalarTypes.person) {
 					this.indexNodesByURL[node.url].row = rows.length;
 					this.indexNodesByURL[node.url].column = row.data.length - 1;
 				}
-			
+
 			}
 			rows.push(row);
-						
+
 			var visHeight = rows.length * 46;
 			var visWidth = this.model.element.width();
 			var rowScale = d3.scale.linear()
@@ -2351,42 +2351,42 @@ function handleViewTypeClick(radioBtn) {
 			var fullHeight = unitHeight * rows.length + 20 + (14 * this.indexTypeOrder.length);
 			var maxNodeChars = unitWidth / 7;
 			var node;
-			
+
 			this.visualization.css('width', this.model.element.width() - 20); // accounts for padding
-					
+
 			this.indexvis = d3.select('#scalarvis').append('svg:svg')
 				.attr('width', visWidth)
 				.attr('height', fullHeight);
-					
+
 			// holds squares
 			this.indexvis_boxLayer = this.indexvis.append('svg:g')
 				.attr('width', visWidth)
 				.attr('height', fullHeight)
 				.attr('class', 'boxlayer');
-					
+
 			// holds lines for paths
 			this.indexvis_pathLayer = this.indexvis.append('svg:g')
 				.attr('width', visWidth)
 				.attr('height', fullHeight)
 				.attr('class', 'pathLayer');
-					
+
 			// holds all other drawn connections between nodes
 			this.indexvis_linkLayer = this.indexvis.append('svg:g')
 				.attr('width', visWidth)
 				.attr('height', fullHeight)
 				.attr('class', 'linkLayer');
-				
+
 			this.drawLegend(this.indexvis_boxLayer, 0, fullHeight);
-				
+
 			var url;
 			var pathData;
-			
+
 			var boxSize = 36;
-			
+
 			// loop through the rows
 			for (i=0; i<rows.length; i++) {
 				row = rows[i];
-				
+
 				// draw squares
 				this.indexvis_boxLayer.selectAll('rect.row'+i)
 					.data(row.data)
@@ -2405,15 +2405,15 @@ function handleViewTypeClick(radioBtn) {
 					.attr('fill', function(d) {
 						return me.colorScale(d.node.getDominantScalarType().singular);
 					})
-					.on("mouseover", function(d) { 
+					.on("mouseover", function(d) {
 						me.currentNode = d.node;
 						perFrame();
 					})
-					.on("mouseout", function() { 
-						me.currentNode = null; 
+					.on("mouseout", function() {
+						me.currentNode = null;
 						perFrame();
 					})
-					.on("click", function(d) { 
+					.on("click", function(d) {
 						var index = me.selectedNodes.indexOf(d.node);
 						if (index == -1) {
 							me.selectedNodes.push(d.node);
@@ -2424,60 +2424,60 @@ function handleViewTypeClick(radioBtn) {
 						return true;
 					})
 					.on("dblclick", function(d) { return self.location=d.node.url; });
-				
+
 			}
-			
+
 			var activeNodes;
 			var linkGroup;
 			var linkEnter;
 			var infoBoxes;
-			
+
 			// called whenever we need to update something, not literally every frame
 			var perFrame = function() {
-			
+
 				// get all highlighted nodes
 				if (me.currentNode && (me.selectedNodes.indexOf(me.currentNode) == -1)) {
 					activeNodes = me.selectedNodes.concat([me.currentNode]);
 				} else {
 					activeNodes = me.selectedNodes.concat();
 				}
-				
+
 				linkGroup = me.indexvis_linkLayer.data(activeNodes);
-			
+
 				// loop through the rows and update box fills
 				for (i=0; i<rows.length; i++) {
 					row = rows[i];
-				
+
 					me.indexvis_boxLayer.selectAll('rect.row'+i)
 						.attr('fill', function(d) { return (me.currentNode == d.node) ? d3.rgb(me.colorScale(d.node.getDominantScalarType().singular)).darker() : me.colorScale(d.node.getDominantScalarType().singular); });
-					
+
 				}
-				
+
 				// turn on/off path lines
 				me.indexvis_pathLayer.selectAll('g.pathGroup')
-					.attr('visibility', function(d) { 
-						return ((me.currentNode == d[0]) || (me.selectedNodes.indexOf(d[0]) != -1)) ? 'visible' : 'hidden'; 
+					.attr('visibility', function(d) {
+						return ((me.currentNode == d[0]) || (me.selectedNodes.indexOf(d[0]) != -1)) ? 'visible' : 'hidden';
 					});
-				
+
 				// draw info boxes for selected/highlighted nodes
 				infoBoxes = d3.select('#scalarvis').selectAll('div.info_box')
 					.data(activeNodes);
-					
+
 				infoBoxes.enter().append('div')
 					.attr('class', 'info_box')
 					.style('left', function(d) { return ($('#scalarvis').position().left + 10 + me.leftMargin + colScale(me.indexNodesByURL[d.url].column) + (boxSize * .5))+'px'; })
 					.style('top', function(d) { return ($('#scalarvis').position().top - 10 + rowScale(me.indexNodesByURL[d.url].row + 2) - (boxSize * .5))+'px'; });
-					
+
 				infoBoxes.style('left', function(d) { return ($('#scalarvis').position().left + 10 + me.leftMargin + colScale(me.indexNodesByURL[d.url].column) + (boxSize * .5))+'px'; })
 					.style('top', function(d) { return ($('#scalarvis').position().top - 10 + rowScale(me.indexNodesByURL[d.url].row + 2) - (boxSize * .5))+'px'; })
 					.html(me.nodeInfoBox);
-					
+
 				infoBoxes.exit().remove();
-				
+
 				// connections
 				linkGroup = me.indexvis_linkLayer.selectAll('g.linkGroup')
 					.data(activeNodes);
-				
+
 				// create a container group for each node's connections
 				linkEnter = linkGroup
 					.enter().append('g')
@@ -2485,12 +2485,12 @@ function handleViewTypeClick(radioBtn) {
 					.attr('height', unitHeight * rows.length + 20)
 					.attr('class', 'linkGroup')
 					.attr('pointer-events', 'none');
-					
+
 				linkGroup.exit().remove();
-					
+
 				// draw connection lines
 				linkEnter.selectAll('line.connection')
-					.data(function (d) { 
+					.data(function (d) {
 						var relationArr = [];
 						var relations = d.outgoingRelations.concat(d.incomingRelations);
 						var relation;
@@ -2513,10 +2513,10 @@ function handleViewTypeClick(radioBtn) {
 					.attr('stroke-width', 1)
 					.attr('stroke-dasharray', '1,2')
 					.attr('stroke', function(d) { return me.colorScale((d.type.id == 'referee') ? 'media' : d.type.id); });
-						
+
 				// draw connection dots
 				linkEnter.selectAll('circle.connectionDot'+i)
-					.data(function (d) { 
+					.data(function (d) {
 						var nodeArr = [];
 						var relations = d.outgoingRelations.concat(d.incomingRelations);
 						var relation;
@@ -2541,9 +2541,9 @@ function handleViewTypeClick(radioBtn) {
 						return rowScale(me.indexNodesByURL[d.node.url].row + 1) - (boxSize * .5);
 					})
 					.attr('r', function(d,i) { return (d.role == 'body') ? 5 : 3; });
-								
+
 			}
-			
+
 			// path vis line function
 			var line = d3.svg.line()
 				.x(function(d) {
@@ -2553,9 +2553,9 @@ function handleViewTypeClick(radioBtn) {
 					return rowScale(me.indexNodesByURL[d.url].row + 1) - (boxSize * .5);
 				})
 				.interpolate('cardinal');
-			
+
 			typedNodes = scalarapi.model.getNodesWithProperty('dominantScalarType', 'path', 'alphabetical');
-			
+
 			// build array of path contents
 			n = typedNodes.length;
 			var pathRelations;
@@ -2572,10 +2572,10 @@ function handleViewTypeClick(radioBtn) {
 				}
 				allPathContents.push(pathContents);
 			}
-			
+
 			var pathGroups = this.indexvis_pathLayer.selectAll('g.pathGroup')
 				.data(allPathContents);
-				
+
 			// create a container group for each path vis
 			var groupEnter = pathGroups.enter().append('g')
 				.attr('width', visWidth)
@@ -2583,23 +2583,23 @@ function handleViewTypeClick(radioBtn) {
 				.attr('class', 'pathGroup')
 				.attr('visibility', 'hidden')
 				.attr('pointer-events', 'none');
-				
+
 			// add the path to the group
 			groupEnter.append('path')
 				.attr('class', 'pathLink')
 				.attr('stroke', function(d) {
-					return d[0].color ? d[0].color : '#555'; 
+					return d[0].color ? d[0].color : '#555';
 				})
 				.attr('stroke-dasharray', '5,2')
 				.attr('d', line);
-					
+
 			// add the path's dots to the group
 			groupEnter.selectAll('circle.pathDot'+i)
 				.data(function(d) { return d; })
 				.enter().append('circle')
-				.attr('fill', function(d) { 
+				.attr('fill', function(d) {
 					var parentData = $(this).parent()[0].__data__;
-					return (parentData[0].color) ? parentData[0].color : '#555'; 
+					return (parentData[0].color) ? parentData[0].color : '#555';
 				})
 				.attr('class', 'pathDot')
 				.attr('cx', function(d) {
@@ -2609,14 +2609,14 @@ function handleViewTypeClick(radioBtn) {
 					return rowScale(me.indexNodesByURL[d.url].row + 1) - (boxSize * .5);
 				})
 				.attr('r', function(d,i) { return (i == 0) ? 5 : 3; });
-			
+
 			// add the step numbers to the group
 			groupEnter.selectAll('text.pathDotText'+i)
 				.data(function(d) { return d; })
 				.enter().append('text')
-				.attr('fill', function(d) { 
+				.attr('fill', function(d) {
 					var parentData = $(this).parent()[0].__data__;
-					return (parentData[0].color) ? parentData[0].color : '#555'; 
+					return (parentData[0].color) ? parentData[0].color : '#555';
 				})
 				.attr('class', 'pathDotText')
 				.attr('dx', function(d) {
@@ -2626,11 +2626,11 @@ function handleViewTypeClick(radioBtn) {
 					return rowScale(me.indexNodesByURL[d.url].row + 1) - 3;
 				})
 				.text(function(d,i) { return (i == 0) ? '' : i; });
-				
+
 			perFrame();
-			
+
 		}
-		
+
 		/**
 		 * Updates the visualization when a radio button is clicked.
 		 *
@@ -2638,35 +2638,35 @@ function handleViewTypeClick(radioBtn) {
 		 */
 		jQuery.VisView.prototype.handleViewTypeClick = function(radioBtn) {
 			if (radioBtn.id != this.selectedRadioBtn) {
-			
+
 				var url = scalarapi.stripAllExtensions( window.location.href );
-				
+
 				switch ( radioBtn.id ) {
-				
+
 					case "radio1":
 					window.location.href = url + ".vis";
 					break;
-				
+
 					case "radio2":
 					window.location.href = url + ".visindex";
 					break;
-				
+
 					case "radio3":
 					window.location.href = url + ".vispath";
 					break;
-				
+
 					case "radio4":
 					window.location.href = url + ".vismedia";
 					break;
-				
+
 					case "radio5":
 					window.location.href = url + ".vistag";
 					break;
-				
+
 				}
 			}
 		}
-		
+
 	}
 
 }) (jQuery);

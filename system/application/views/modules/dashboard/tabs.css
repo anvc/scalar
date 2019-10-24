@@ -82,7 +82,7 @@ td.styling_last {text-align:right; padding-right:0px;}
 }
 
 .tabs table td {
-  padding:10px 10px 10px 10px;
+  padding:10px 10px 10px 10px !important;
   vertical-align: top !important;
 }
 .trim_padding td {
@@ -93,6 +93,10 @@ td.styling_last {text-align:right; padding-right:0px;}
   padding-right:0px !important;
 }
 
+table.tablesorter {
+	font-size: 1.1em !important;
+	font-family: 'Lato', Arial, sans-serif !important;
+}
 .ui-widget {
     font-family: 'Lucida Grande','Lucida Sans Unicode',sans-serif !important;
     font-size: 1em;

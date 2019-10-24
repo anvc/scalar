@@ -6,14 +6,14 @@
 <?$this->template->add_css(path_from_file(__FILE__).'css/header.css');?>
 <?$this->template->add_css(path_from_file(__FILE__).'css/widgets.css');?>
 <?$this->template->add_css(path_from_file(__FILE__).'css/responsive.css')?>
-<?$this->template->add_css(path_from_file(__FILE__).'css/timeline.min.css')?>
+<?$this->template->add_css(path_from_file(__FILE__).'css/timeline.css')?>
 <?$this->template->add_css(path_from_file(__FILE__).'css/timeline.theme.scalar.css')?>
 <?$this->template->add_css(path_from_file(__FILE__).'css/screen_print.css', 'link', 'screen,print')?>
 <?$this->template->add_js(path_from_file(__FILE__).'js/bootstrap.min.js');?>
 <?$this->template->add_js(path_from_file(__FILE__).'js/jquery.bootstrap-modal.js');?>
 <?$this->template->add_js(path_from_file(__FILE__).'js/jquery.bootstrap-accessibility.js');?>
 <?$this->template->add_js(path_from_file(__FILE__).'js/main.js')?>
-<?$this->template->add_js(path_from_file(__FILE__).'js/jquery.dotdotdot.min.js');?>
+<?$this->template->add_js(path_from_file(__FILE__).'js/jquery.dotdotdot.js');?>
 <?$this->template->add_js(path_from_file(__FILE__).'js/jquery.scrollTo.min.js');?>
 <?$this->template->add_js(path_from_file(__FILE__).'js/scalarheader.jquery.js');?>
 <?$this->template->add_js(path_from_file(__FILE__).'js/scalarpage.jquery.js')?>
@@ -27,10 +27,10 @@
 <?$this->template->add_js(path_from_file(__FILE__).'js/scalarstructuredgallery.jquery.js')?>
 <?$this->template->add_js(path_from_file(__FILE__).'js/scalarwidgets.jquery.js')?>
 <?$this->template->add_js(path_from_file(__FILE__).'js/jquery.tabbing.js')?>
-<? 
+<?
 if (!empty($tklabels)):
 	unset($tklabels['versions']);
-	$this->template->add_js('var tklabels='.json_encode($tklabels),'embed'); 
+	$this->template->add_js('var tklabels='.json_encode($tklabels),'embed');
 endif;
 
 if (isset($plugins['thoughtmesh'])) {

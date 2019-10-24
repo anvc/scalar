@@ -1,235 +1,240 @@
 <?php
 /**
- * ARC2 RDF Store DELETE Query Handler
+ * ARC2 RDF Store DELETE Query Handler.
  *
  * @author Benjamin Nowack <bnowack@semsol.com>
- * @license http://arc.semsol.org/license
- * @homepage <http://arc.semsol.org/>
- * @package ARC2
-*/
-
+ * @license W3C Software License and GPL
+ * @homepage <https://github.com/semsol/arc2>
+ */
 ARC2::inc('StoreQueryHandler');
 
-class ARC2_StoreDeleteQueryHandler extends ARC2_StoreQueryHandler {
-
-  function __construct($a, &$caller) {/* caller has to be a store */
-    parent::__construct($a, $caller);
-  }
-
-  function __init() {/* db_con */
-    parent::__init();
-    $this->store = $this->caller;
-    $this->handler_type = 'delete';
-  }
-
-  /*  */
-
-  function runQuery($infos) {
-    $this->infos = $infos;
-    $con = $this->store->getDBCon();
-    $t1 = ARC2::mtime();
-    /* delete */
-    $this->refs_deleted = false;
-    /* graph(s) only */
-    if (!$this->v('construct_triples', array(), $this->infos['query'])) {
-      $tc = $this->deleteTargetGraphs();
+class ARC2_StoreDeleteQueryHandler extends ARC2_StoreQueryHandler
+{
+    public function __construct($a, &$caller)
+    {/* caller has to be a store */
+        parent::__construct($a, $caller);
     }
-    /* graph(s) + explicit triples */
-    elseif (!$this->v('pattern', array(), $this->infos['query'])) {
-      $tc = $this->deleteTriples();
-    }
-    /* graph(s) + constructed triples */
-    else {
-      $tc = $this->deleteConstructedGraph();
-    }
-    $t2 = ARC2::mtime();
-    /* clean up */
-    if ($tc && ($this->refs_deleted || (rand(1, 100) == 1))) $this->cleanTableReferences();
-    if ($tc && (rand(1, 100) == 1)) $this->store->optimizeTables();
-    if ($tc && (rand(1, 500) == 1)) $this->cleanValueTables();
-    $t3 = ARC2::mtime();
-    $index_dur = round($t3 - $t2, 4);
-    $dur = round($t3 - $t1, 4);
-    return array(
-      't_count' => $tc,
-      'delete_time' => $dur,
-      'index_update_time' => $index_dur,
-    );
-  }
 
-  /*  */
-
-  function deleteTargetGraphs() {
-    $tbl_prefix = $this->store->getTablePrefix();
-    $r = 0;
-    $con = $this->store->getDBCon();
-    foreach ($this->infos['query']['target_graphs'] as $g) {
-      if ($g_id = $this->getTermID($g, 'g')) {
-        $rs = mysqli_query( $con, 'DELETE FROM ' . $tbl_prefix . 'g2t WHERE g = ' .$g_id);
-        $r += mysqli_affected_rows($con);
-      }
+    public function __init()
+    {
+        parent::__init();
+        $this->store = $this->caller;
+        $this->handler_type = 'delete';
     }
-    $this->refs_deleted = $r ? 1 : 0;
-    return $r;
-  }
 
-  /*  */
-
-  function deleteTriples() {
-    $r = 0;
-    $dbv = $this->store->getDBVersion();
-    $tbl_prefix = $this->store->getTablePrefix();
-    $con = $this->store->getDBCon();
-    /* graph restriction */
-    $tgs = $this->infos['query']['target_graphs'];
-    $gq = '';
-    foreach ($tgs as $g) {
-      if ($g_id = $this->getTermID($g, 'g')) {
-        $gq .= $gq ? ', ' . $g_id : $g_id;
-      }
-    }
-    $gq = $gq ? ' AND G.g IN (' . $gq . ')' : '';
-    /* triples */
-    foreach ($this->infos['query']['construct_triples'] as $t) {
-      $q = '';
-      $skip = 0;
-      foreach (array('s', 'p', 'o') as $term) {
-        if (isset($t[$term . '_type']) && preg_match('/(var)/', $t[$term . '_type'])) {
-          //$skip = 1;
+    public function runQuery($infos)
+    {
+        $this->infos = $infos;
+        $t1 = ARC2::mtime();
+        /* delete */
+        $this->refs_deleted = false;
+        /* graph(s) only */
+        if (!$this->v('construct_triples', [], $this->infos['query'])) {
+            $tc = $this->deleteTargetGraphs();
         }
+        /* graph(s) + explicit triples */
+        elseif (!$this->v('pattern', [], $this->infos['query'])) {
+            $tc = $this->deleteTriples();
+        }
+        /* graph(s) + constructed triples */
         else {
-          $term_id = $this->getTermID($t[$term], $term);
-          $q .= ($q ? ' AND ' : '') . 'T.' . $term . '=' . $term_id;
-          /* explicit lang/dt restricts the matching */
-          if ($term == 'o') {
-            $o_lang = $this->v1('o_lang', '', $t);
-            $o_lang_dt = $this->v1('o_datatype', $o_lang, $t);
-            if ($o_lang_dt) {
-              $q .= ($q ? ' AND ' : '') . 'T.o_lang_dt=' . $this->getTermID($o_lang_dt, 'lang_dt');
-            }
-          }
+            $tc = $this->deleteConstructedGraph();
         }
-      }
-      if ($skip) {
-        continue;
-      }
-      if ($gq) {
-        $sql = ($dbv < '04-01') ? 'DELETE ' . $tbl_prefix . 'g2t' : 'DELETE G';
-        $sql .= '
-          FROM ' . $tbl_prefix . 'g2t G
-          JOIN ' . $this->getTripleTable() . ' T ON (T.t = G.t' . $gq . ')
-          WHERE ' . $q . '
-        ';
-        $this->refs_deleted = 1;
-      }
-      else {/* triples only */
-        $sql = ($dbv < '04-01') ? 'DELETE ' . $this->getTripleTable() : 'DELETE T';
-        $sql .= ' FROM ' . $this->getTripleTable() . ' T WHERE ' . $q;
-      }
-      //$rs = mysql_query($sql, $con);
-      $rs = $this->queryDB($sql, $con);
-      $er = mysqli_error($con);
-      if (!empty($er)) {
-        $this->addError($er .' in ' . $sql);
-      }
-      $r += mysqli_affected_rows($con);
+        $t2 = ARC2::mtime();
+        /* clean up */
+        if ($tc && ($this->refs_deleted || (1 == rand(1, 100)))) {
+            $this->cleanTableReferences();
+        }
+        // TODO What does this rand() call here? remove it and think about a cleaner way
+        //      when to trigger optimizeTables
+        if ($tc && (1 == rand(1, 100))) {
+            $this->store->optimizeTables();
+        }
+        // TODO What does this rand() call here? remove it and think about a cleaner way
+        //      when to trigger cleanValueTables
+        if ($tc && (1 == rand(1, 500))) {
+            $this->cleanValueTables();
+        }
+        $t3 = ARC2::mtime();
+        $index_dur = round($t3 - $t2, 4);
+        $dur = round($t3 - $t1, 4);
+
+        return [
+            't_count' => $tc,
+            'delete_time' => $dur,
+            'index_update_time' => $index_dur,
+        ];
     }
-    return $r;
-  }
 
-  /*  */
+    public function deleteTargetGraphs()
+    {
+        $tbl_prefix = $this->store->getTablePrefix();
+        $r = 0;
+        foreach ($this->infos['query']['target_graphs'] as $g) {
+            if ($g_id = $this->getTermID($g, 'g')) {
+                $r += $this->store->a['db_object']->exec('DELETE FROM '.$tbl_prefix.'g2t WHERE g = '.$g_id);
+            }
+        }
+        $this->refs_deleted = $r ? 1 : 0;
 
-  function deleteConstructedGraph() {
-    ARC2::inc('StoreConstructQueryHandler');
-    $h = new ARC2_StoreConstructQueryHandler($this->a, $this->store);
-    $sub_r = $h->runQuery($this->infos);
-    $triples = ARC2::getTriplesFromIndex($sub_r);
-    $tgs = $this->infos['query']['target_graphs'];
-    $this->infos = array('query' => array('construct_triples' => $triples, 'target_graphs' => $tgs));
-    return $this->deleteTriples();
-  }
+        return $r;
+    }
 
-  /*  */
+    public function deleteTriples()
+    {
+        $r = 0;
+        $dbv = $this->store->getDBVersion();
+        $tbl_prefix = $this->store->getTablePrefix();
+        /* graph restriction */
+        $tgs = $this->infos['query']['target_graphs'];
+        $gq = '';
+        foreach ($tgs as $g) {
+            if ($g_id = $this->getTermID($g, 'g')) {
+                $gq .= $gq ? ', '.$g_id : $g_id;
+            }
+        }
+        $gq = $gq ? ' AND G.g IN ('.$gq.')' : '';
+        /* triples */
+        foreach ($this->infos['query']['construct_triples'] as $t) {
+            $q = '';
+            $skip = 0;
+            foreach (['s', 'p', 'o'] as $term) {
+                if (isset($t[$term.'_type']) && preg_match('/(var)/', $t[$term.'_type'])) {
+                    //$skip = 1;
+                } else {
+                    $term_id = $this->getTermID($t[$term], $term);
+                    $q .= ($q ? ' AND ' : '').'T.'.$term.'='.$term_id;
+                    /* explicit lang/dt restricts the matching */
+                    if ('o' == $term) {
+                        $o_lang = $this->v1('o_lang', '', $t);
+                        $o_lang_dt = $this->v1('o_datatype', $o_lang, $t);
+                        if ($o_lang_dt) {
+                            $q .= ($q ? ' AND ' : '').'T.o_lang_dt='.$this->getTermID($o_lang_dt, 'lang_dt');
+                        }
+                    }
+                }
+            }
+            if ($skip) {
+                continue;
+            }
+            if ($gq) {
+                $sql = ($dbv < '04-01') ? 'DELETE '.$tbl_prefix.'g2t' : 'DELETE G';
+                $sql .= '
+          FROM '.$tbl_prefix.'g2t G
+          JOIN '.$this->getTripleTable().' T ON (T.t = G.t'.$gq.')
+          WHERE '.$q.'
+        ';
+                $this->refs_deleted = 1;
+            } else {/* triples only */
+                $sql = ($dbv < '04-01') ? 'DELETE '.$this->getTripleTable() : 'DELETE T';
+                $sql .= ' FROM '.$this->getTripleTable().' T WHERE '.$q;
+            }
+            $r += $this->store->a['db_object']->exec($sql);
+            if (!empty($this->store->a['db_object']->getErrorMessage())) {
+                $this->addError($this->store->a['db_object']->getErrorMessage().' in '.$sql);
+            }
+        }
 
-  function cleanTableReferences() {
-    /* lock */
-    if (!$this->store->getLock()) return $this->addError('Could not get lock in "cleanTableReferences"');
-    $con = $this->store->getDBCon();
-    $tbl_prefix = $this->store->getTablePrefix();
-    $dbv = $this->store->getDBVersion();
-    /* check for unconnected triples */
-    $sql = '
-      SELECT T.t FROM '. $tbl_prefix . 'triple T LEFT JOIN '. $tbl_prefix . 'g2t G ON ( G.t = T.t )
+        return $r;
+    }
+
+    public function deleteConstructedGraph()
+    {
+        ARC2::inc('StoreConstructQueryHandler');
+        $h = new ARC2_StoreConstructQueryHandler($this->a, $this->store);
+        $sub_r = $h->runQuery($this->infos);
+        $triples = ARC2::getTriplesFromIndex($sub_r);
+        $tgs = $this->infos['query']['target_graphs'];
+        $this->infos = ['query' => ['construct_triples' => $triples, 'target_graphs' => $tgs]];
+
+        return $this->deleteTriples();
+    }
+
+    public function cleanTableReferences()
+    {
+        /* lock */
+        if (!$this->store->getLock()) {
+            return $this->addError('Could not get lock in "cleanTableReferences"');
+        }
+        $tbl_prefix = $this->store->getTablePrefix();
+        $dbv = $this->store->getDBVersion();
+        /* check for unconnected triples */
+        $sql = '
+      SELECT T.t FROM '.$tbl_prefix.'triple T LEFT JOIN '.$tbl_prefix.'g2t G ON ( G.t = T.t )
       WHERE G.t IS NULL LIMIT 1
     ';
-    if (($rs = mysqli_query( $con, $sql)) && mysqli_num_rows($rs)) {
-      /* delete unconnected triples */
-      $sql = ($dbv < '04-01') ? 'DELETE ' . $tbl_prefix . 'triple' : 'DELETE T';
-      $sql .= '
-        FROM ' . $tbl_prefix . 'triple T
-        LEFT JOIN ' . $tbl_prefix . 'g2t G ON (G.t = T.t)
+        $numRows = $this->store->a['db_object']->getNumberOfRows($sql);
+        if (0 < $numRows) {
+            /* delete unconnected triples */
+            $sql = ($dbv < '04-01') ? 'DELETE '.$tbl_prefix.'triple' : 'DELETE T';
+            $sql .= '
+        FROM '.$tbl_prefix.'triple T
+        LEFT JOIN '.$tbl_prefix.'g2t G ON (G.t = T.t)
         WHERE G.t IS NULL
       ';
-      mysqli_query( $con, $sql);
+            $this->store->a['db_object']->simpleQuery($sql);
+        }
+        /* check for unconnected graph refs */
+        if ((1 == rand(1, 10))) {
+            $sql = '
+                SELECT G.g FROM '.$tbl_prefix.'g2t G LEFT JOIN '.$tbl_prefix.'triple T ON ( T.t = G.t )
+                WHERE T.t IS NULL LIMIT 1
+            ';
+            if (0 < $this->store->a['db_object']->getNumberOfRows($sql)) {
+                /* delete unconnected graph refs */
+                $sql = ($dbv < '04-01') ? 'DELETE '.$tbl_prefix.'g2t' : 'DELETE G';
+                $sql .= '
+                    FROM '.$tbl_prefix.'g2t G
+                    LEFT JOIN '.$tbl_prefix.'triple T ON (T.t = G.t)
+                    WHERE T.t IS NULL
+                ';
+                $this->store->a['db_object']->simpleQuery($sql);
+             }
+        }
+        /* release lock */
+        $this->store->releaseLock();
     }
-    /* check for unconnected graph refs */
-    if ((rand(1, 10) == 1)) {
-      $sql = '
-        SELECT G.g FROM '. $tbl_prefix . 'g2t G LEFT JOIN '. $tbl_prefix . 'triple T ON ( T.t = G.t )
-        WHERE T.t IS NULL LIMIT 1
-      ';
-      if (($rs = mysqli_query( $con, $sql)) && mysqli_num_rows($rs)) {
-        /* delete unconnected graph refs */
-        $sql = ($dbv < '04-01') ? 'DELETE ' . $tbl_prefix . 'g2t' : 'DELETE G';
+
+    public function cleanValueTables()
+    {
+        /* lock */
+        if (!$this->store->getLock()) {
+            return $this->addError('Could not get lock in "cleanValueTables"');
+        }
+        $tbl_prefix = $this->store->getTablePrefix();
+        $dbv = $this->store->getDBVersion();
+
+        /* o2val */
+        $sql = ($dbv < '04-01') ? 'DELETE '.$tbl_prefix.'o2val' : 'DELETE V';
         $sql .= '
-          FROM ' . $tbl_prefix . 'g2t G
-          LEFT JOIN ' . $tbl_prefix . 'triple T ON (T.t = G.t)
-          WHERE T.t IS NULL
-        ';
-        mysqli_query( $con, $sql);
-      }
-    }
-    /* release lock */
-    $this->store->releaseLock();
-  }
-
-  /*  */
-
-  function cleanValueTables() {
-    /* lock */
-    if (!$this->store->getLock()) return $this->addError('Could not get lock in "cleanValueTables"');
-    $con = $this->store->getDBCon();
-    $tbl_prefix = $this->store->getTablePrefix();
-    $dbv = $this->store->getDBVersion();
-    /* o2val */
-    $sql = ($dbv < '04-01') ? 'DELETE ' . $tbl_prefix . 'o2val' : 'DELETE V';
-    $sql .= '
-      FROM ' . $tbl_prefix . 'o2val V
-      LEFT JOIN ' . $tbl_prefix . 'triple T ON (T.o = V.id)
+      FROM '.$tbl_prefix.'o2val V
+      LEFT JOIN '.$tbl_prefix.'triple T ON (T.o = V.id)
       WHERE T.t IS NULL
     ';
-    mysqli_query( $con, $sql);
-    /* s2val */
-    $sql = ($dbv < '04-01') ? 'DELETE ' . $tbl_prefix . 's2val' : 'DELETE V';
-    $sql .= '
-      FROM ' . $tbl_prefix . 's2val V
-      LEFT JOIN ' . $tbl_prefix . 'triple T ON (T.s = V.id)
+        $this->store->a['db_object']->simpleQuery($sql);
+
+        /* s2val */
+        $sql = ($dbv < '04-01') ? 'DELETE '.$tbl_prefix.'s2val' : 'DELETE V';
+        $sql .= '
+      FROM '.$tbl_prefix.'s2val V
+      LEFT JOIN '.$tbl_prefix.'triple T ON (T.s = V.id)
       WHERE T.t IS NULL
     ';
-    mysqli_query( $con, $sql);
-    /* id2val */
-    $sql = ($dbv < '04-01') ? 'DELETE ' . $tbl_prefix . 'id2val' : 'DELETE V';
-    $sql .= '
-      FROM ' . $tbl_prefix . 'id2val V
-      LEFT JOIN ' . $tbl_prefix . 'g2t G ON (G.g = V.id)
-      LEFT JOIN ' . $tbl_prefix . 'triple T1 ON (T1.p = V.id)
-      LEFT JOIN ' . $tbl_prefix . 'triple T2 ON (T2.o_lang_dt = V.id)
+        $this->store->a['db_object']->simpleQuery($sql);
+
+        /* id2val */
+        $sql = ($dbv < '04-01') ? 'DELETE '.$tbl_prefix.'id2val' : 'DELETE V';
+        $sql .= '
+      FROM '.$tbl_prefix.'id2val V
+      LEFT JOIN '.$tbl_prefix.'g2t G ON (G.g = V.id)
+      LEFT JOIN '.$tbl_prefix.'triple T1 ON (T1.p = V.id)
+      LEFT JOIN '.$tbl_prefix.'triple T2 ON (T2.o_lang_dt = V.id)
       WHERE G.g IS NULL AND T1.t IS NULL AND T2.t IS NULL
     ';
-    //mysql_query($sql, $con);
-    $this->store->releaseLock();  /* Added by Craig Dietrich 3 December 2015, https://github.com/semsol/arc2/issues/33 */
-  }
+        // TODO was commented out before. could this be a problem?
+        $this->store->a['db_object']->simpleQuery($sql);
 
-  /*  */
-
+        /* release lock */
+        $this->store->releaseLock();
+    }
 }

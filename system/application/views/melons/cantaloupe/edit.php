@@ -54,6 +54,7 @@ table .p > td {padding-top:12px;}
 table .b > td:first-of-type {padding-top:10px;}
 div.p {padding-top:8px;}
 .content_selector .howto {font-size:16px !important;}
+#edit_content { overflow: hidden; }
 #edit_content td {padding-right:9px;} /* CKEditor extends to the right */
 #edit_content .cke_combo_text {width:18px !important;} /* Header pulldown */
 tr#select_view td, tr#relationships td, tr#styling td, tr#metadata td {vertical-align:top;}
@@ -156,8 +157,8 @@ $(document).ready(function() {
 	// If the type is passed via GET
 	checkTypeSelect();
 	if (-1!=document.location.href.indexOf('new.edit') && -1!=document.location.href.indexOf('type=media')) {
-		$("#type_text").removeAttr('checked');
-		$("#type_media").attr("checked", "checked");
+		$("#type_text").prop('checked', false);
+		$("#type_media").prop("checked", true);
 		checkTypeSelect();
 	}
 	// Relationships (path, comment, annotation, tag)
@@ -170,7 +171,7 @@ $(document).ready(function() {
 		$('.path_of_continue_msg').show();
 	}
 	var path_of_continue_msg = $('.path_of_continue_msg');
-	path_of_continue_msg.find('a:first').click(function() {
+	path_of_continue_msg.find('a:first').on('click', function() {
 		$('<div></div>').content_selector({changeable:true,multiple:false,msg:'Choose a page to continue to',callback:function(node){
 			var urn = node.content["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value;
 			var content_id = urn.substr(urn.lastIndexOf(':')+1);
@@ -179,11 +180,11 @@ $(document).ready(function() {
 			path_of_continue_msg.find('.title').html(title);
 		}});
 	});
-	path_of_continue_msg.find('a:last').click(function() {
+	path_of_continue_msg.find('a:last').on('click', function() {
 		path_of_continue_msg.find('input[name="scalar:continue_to_content_id"]').val('');
 		path_of_continue_msg.find('.title').html('[no destination set]');
 	});
-	$('.path_of_msg').find('a').click(function() {
+	$('.path_of_msg').find('a').on('click', function() {
 		$('<div></div>').content_selector({changeable:true,multiple:true,onthefly:true,msg:'Choose contents of the path',callback:function(nodes){
 			for (var j = 0; j < nodes.length; j++) {
 				var slug = nodes[j].slug;
@@ -198,7 +199,7 @@ $(document).ready(function() {
 	if ($('#reply_of').find('li').length) {
 		$('.reply_of_msg').show();
 	}
-	$('.reply_of_msg').find('a').click(function() {
+	$('.reply_of_msg').find('a').on('click', function() {
 		$('<div></div>').content_selector({changeable:true,multiple:true,onthefly:true,msg:'Choose items to be commented on',callback:function(nodes){
 			for (var j = 0; j < nodes.length; j++) {
 				var slug = nodes[j].slug;
@@ -212,7 +213,7 @@ $(document).ready(function() {
 	if ($('#annotation_of').find('li').length) {
 		$('.annotation_of_msg').show();
 	}
-	$('.annotation_of_msg').find('a').click(function() {
+	$('.annotation_of_msg').find('a').on('click', function() {
 		$('<div></div>').content_selector({type:'media',changeable:false,multiple:true,msg:'Choose items to be annotated',callback:function(nodes){
 			for (var j = 0; j < nodes.length; j++) {
 				var slug = nodes[j].slug;
@@ -261,7 +262,7 @@ $(document).ready(function() {
 	if ($('#tag_of').find('li').length) {
 		$('.tag_of_msg').show();
 	}
-	$('.tag_of_msg').find('a').click(function() {
+	$('.tag_of_msg').find('a').on('click', function() {
 		$('<div></div>').content_selector({changeable:true,multiple:true,onthefly:true,msg:'Choose items to be tagged',callback:function(nodes){
 			for (var j = 0; j < nodes.length; j++) {
 				var title = nodes[j].version["http://purl.org/dc/terms/title"][0].value;
@@ -275,7 +276,7 @@ $(document).ready(function() {
 	if ($('#has_tag').find('li').length) {
 		$('.has_tag_msg').show();
 	}
-	$('.has_tag_msg').find('a').click(function() {
+	$('.has_tag_msg').find('a').on('click', function() {
 		$('<div></div>').content_selector({changeable:true,multiple:true,onthefly:true,msg:'Choose items that tag the current page',callback:function(nodes){
 			for (var j = 0; j < nodes.length; j++) {
 				var title = nodes[j].version["http://purl.org/dc/terms/title"][0].value;
@@ -299,7 +300,7 @@ $(document).ready(function() {
 			}
 		}
 	});
-	$('#script-confirm .submit, #style-confirm .submit').click(function() {
+	$('#script-confirm .submit, #style-confirm .submit').on('click', function() {
 		$(this).parents('#style-confirm,#script-confirm').data('confirmed',true).modal('hide');
 	})
 	// Taxonomies for title typeahead
@@ -350,14 +351,14 @@ $(document).ready(function() {
 	var chosen_thumb = choose_thumb.find('option:selected').val();
 	if (chosen_thumb.length) thumbnail.val(chosen_thumb);
 	if (thumbnail.val().length) choose_thumb.parent().parent().append('<div class="well"><img src="'+((-1==thumbnail.val().indexOf('://'))?$('link[id="parent"]').attr('href')+thumbnail.val():thumbnail.val())+'" class="thumb_preview" /></div>');
-	choose_thumb.change(function() {
+	choose_thumb.on('change', function() {
 		thumbnail.val($(this).find('option:selected').val());
 		$(this).parent().parent().find('.thumb_preview').parent().remove();
 		var url = thumbnail.val();
 		if ((url.indexOf('://') == -1) && (url != '')) { url = $('link[id="parent"]').attr('href') + url; }
 		$(this).parent().parent().append('<div class="well"><img src="'+url+'" class="thumb_preview" /></div>');
 	});
-	thumbnail.change(function() {
+	thumbnail.on('change', function() {
 		$(this).parent().parent().find('.thumb_preview').parent().remove();
 		if ((url.indexOf('://') == -1) && (url != '')) { url = $('link[id="parent"]').attr('href') + url; }
 		$(this).parent().parent().append('<div class="well"><img src="'+url+'" class="thumb_preview" /></div>');
@@ -365,7 +366,7 @@ $(document).ready(function() {
 	// Background
 	var choose_background = $('#choose_background');
 	var chosen_background = choose_background.find('option:selected').val();
-	choose_background.change(function() {
+	choose_background.on('change', function() {
 		$(this).parent().parent().find('.thumb_preview').parent().remove();
 		chosen_background = choose_background.find('option:selected').val();
 		if ((chosen_background.indexOf('://') == -1) && (chosen_background != '')) { chosen_background = $('link[id="parent"]').attr('href') + chosen_background; }
@@ -374,41 +375,41 @@ $(document).ready(function() {
 	// Banner
 	var choose_banner = $('#choose_banner');
 	var chosen_banner = choose_banner.find('option:selected').val();
-	choose_banner.change(function() {
+	choose_banner.on('change', function() {
 		$(this).parent().parent().find('.well').remove();
 		chosen_banner = choose_banner.find('option:selected').val();
 		if (chosen_banner.length) {
 			if ((chosen_banner.indexOf('://') == -1) && (chosen_banner != '')) { chosen_banner = $('link[id="parent"]').attr('href') + chosen_banner; }
 			$(this).parent().parent().append('<div class="well"><img src="'+chosen_banner+'" class="thumb_preview" /></div>');
-			$(this).parent().parent().find('.thumb_preview').load(function() {
+			$(this).parent().parent().find('.thumb_preview').on('load', function() {
 				// ...
-			}).error(function() {
-				$(this).replaceWith('<span>Item is a MP4 video, now experimentally supported as a Key Image. The video might not play as expected across all platforms.</span>');
+			}).on('error', function() {
+				$(this).replaceWith('<span>Item is an MP4 video, now experimentally supported as a Key Image. The video might not play as expected across all platforms.</span>');
 			});
 		};
 	});
-	choose_banner.change();
+	choose_banner.trigger('change');
 	// Predefined CSS
 	if ('undefined'!=window['predefined_css'] && !$.isEmptyObject(window['predefined_css'])) {
     	$('textarea[name="scalar:custom_style"]').predefined({msg:'Insert predefined CSS:',data:window['predefined_css']});
 	}
 	// Protect from clicking away from edit page
-	$('a').not('form a').click(function() {
+	$('a').not('form a').on('click', function() {
 		if (!confirm('Are you sure you wish to leave this page? Any unsaved changes will be lost.')) return false;
 	});
 	// Additional metadata
-	$('.add_additional_metadata:first').click(function() {
+	$('.add_additional_metadata:first').on('click', function() {
 		var ontologies_url = $('link#approot').attr('href').replace('/system/application/','')+'/system/ontologies';
 		var tklabels = ('undefined' != typeof(window['tklabels'])) ? window['tklabels'] : null;
 		$('#metadata_rows').add_metadata({title:'Add additional metadata',ontologies_url:ontologies_url,tklabels:tklabels,scope:scope});
 	});
-	$('.add_additional_tklabels:first').click(function() {
+	$('.add_additional_tklabels:first').on('click', function() {
 		var ontologies_url = $('link#approot').attr('href').replace('/system/application/','')+'/system/ontologies';
 		var tklabels = ('undefined' != typeof(window['tklabels'])) ? window['tklabels'] : null;
 		$('#metadata_rows').add_metadata({title:'Add additional metadata',ontologies_url:ontologies_url,tklabels:tklabels,active:'tk',scope:scope});
 	});
 	$('#metadata_rows').populate_metadata_from_localstorage();
-	$('.populate_exif_fields:first').click(function() {
+	$('.populate_exif_fields:first').on('click', function() {
 		if (!confirm('This feature will find any IPTC or ID3 metadata fields embedded in the file, and add the field/values as additional metadata. IPTC metadata is typically embedded in JPEG and TIFF files, and ID3 in MP3 fles, by external applications. Do you wish to continue?')) return;
 		var url = $('input[name="scalar:url"]').val();
 		if (!url.length || url == 'http://') {
@@ -440,11 +441,11 @@ $(document).ready(function() {
 	});
 	// Badges
 	badges();
-	$('a[role="tab"] .badge').closest('a').click(function() { badges(); });
+	$('a[role="tab"] .badge').closest('a').on('click', function() { badges(); });
 	// Slug
 	var $slug = $('[name="scalar:slug"]');
 	if ($slug.val().length) {
-		$slug.data('orig',$slug.val()).keydown(function() {
+		$slug.data('orig',$slug.val()).on('keydown', function() {
 			var $this = $(this);
 			if ($this.data('confirmed')) return true;
 			if ($this.data('is_open')) return true;
@@ -477,9 +478,9 @@ $(document).ready(function() {
 	if ('undefined' != typeof(default_tabs)) {
 		var selected =  $("input:radio[name='rdf:type']:checked").val();
 		if (selected.indexOf('Composite')!=-1 && 'undefined'!=typeof(default_tabs['composite'])) {
-			if ($('a[href="'+default_tabs['composite']+'"]').length) $('a[href="'+default_tabs['composite']+'"]').click();
+			if ($('a[href="'+default_tabs['composite']+'"]').length) $('a[href="'+default_tabs['composite']+'"]').trigger('click');
         } else if (selected.indexOf('Media')!=-1 && 'undefined'!=typeof(default_tabs['media'])) {
-			if ($('a[href="'+default_tabs['media']+'"]').length) $('a[href="'+default_tabs['media']+'"]').click();
+			if ($('a[href="'+default_tabs['media']+'"]').length) $('a[href="'+default_tabs['media']+'"]').trigger('click');
         }
     };
 	// Editorial state
@@ -501,7 +502,7 @@ $(document).ready(function() {
 		}
 	}
 	if($('link#editorial_workflow').length > 0){
-		$('.state_dropdown li>a').click(function(e){
+		$('.state_dropdown li>a').on('click', function(e){
     		e.preventDefault();
     		$(this).parents('ul').find('a.active').removeClass('active');
     		$(this).addClass('active');
@@ -514,7 +515,7 @@ $(document).ready(function() {
 	$('body').on('savedPage',function(e){
 		$('.form-horizontal, #edit_content, .tab-pane, .saveButtons, #editorialToolsPanel .btn').toggleClass('editingDisabled',!editorialStates[$('#editorial_state').val()].canEdit);
 	});
-	$('#editorialStateConfirmationSave').click(function(e){
+	$('#editorialStateConfirmationSave').on('click', function(e){
 		e.preventDefault();
 		if(validate_edit_form($(this).data('$form'),$(this).data('no_action'))){
 			$('body').trigger('savedPage');
@@ -532,7 +533,7 @@ $(document).ready(function() {
 		initial_state = $('#editorial_state').val();
 		return false;
 	});
-	$('#editorialNewDraftConfirmationSave').click(function(e){
+	$('#editorialNewDraftConfirmationSave').on('click', function(e){
 		e.preventDefault();
 		$('#editorial_state').val('draft');
 		if(validate_edit_form($(this).data('$form'),$(this).data('no_action'))){
@@ -593,7 +594,7 @@ var editorialStates = {
 
 //If we're using the editorial state, first check to make sure if we have changed the editorial state - if so, alert re: that first
 function change_editorial_state_then_save($form){
-	$('.state_dropdown li:last-child>a').click();
+	$('.state_dropdown li:last-child>a').trigger('click');
 	confirm_editorial_state_then_save($form);
 }
 function confirm_editorial_state_then_save($form, no_action){
@@ -1534,7 +1535,7 @@ endif;
   </div>
 </div>
 <script>
-	$('#wysiwygNewFeatures .close').click(function(){
+	$('#wysiwygNewFeatures .close').on('click', function(){
 		var cookie_days = 0;
 		var cookie_months = 1;
 		var d = new Date();

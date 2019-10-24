@@ -1,13 +1,44 @@
 <?php
 
-define('ARC2_DIR', __DIR__ . '/../');
+namespace Tests;
 
-require_once ARC2_DIR . 'ARC2.php';
+use Psr\SimpleCache\CacheInterface;
 
-class ARC2_TestCase extends PHPUnit_Framework_TestCase {
+class ARC2_TestCase extends \PHPUnit\Framework\TestCase
+{
+    /**
+     * Store configuration to connect with the database.
+     *
+     * @var array
+     */
+    protected $dbConfig;
 
-    public function __construct() {
-		
+    /**
+     * Subject under test.
+     *
+     * @var mixed
+     */
+    protected $fixture;
+
+    public function setUp()
+    {
+        global $dbConfig;
+
+        $this->dbConfig = $dbConfig;
+
+        // in case we run with a cache, clear it
+        if (isset($this->dbConfig['cache_instance']) && $this->dbConfig['cache_instance'] instanceof CacheInterface) {
+            $this->dbConfig['cache_instance']->clear();
+        }
     }
-	
+
+    public function tearDown()
+    {
+        // in case we run with a cache, clear it
+        if (isset($this->dbConfig['cache_instance']) && $this->dbConfig['cache_instance'] instanceof CacheInterface) {
+            $this->dbConfig['cache_instance']->clear();
+        }
+
+        parent::tearDown();
+    }
 }

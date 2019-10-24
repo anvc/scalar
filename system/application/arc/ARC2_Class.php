@@ -3,12 +3,13 @@
  * ARC2 base class
  *
  * @author Benjamin Nowack
- * @license <http://arc.semsol.org/license>
- * @homepage <http://arc.semsol.org/>
+ * @license W3C Software License and GPL
+ * @homepage <https://github.com/semsol/arc2>
  * @package ARC2
  */
 
 class ARC2_Class {
+    protected $db_object;
 
   function __construct($a, &$caller) {
     $this->a = is_array($a) ? $a : array();
@@ -466,7 +467,7 @@ class ARC2_Class {
   /* prevent SQL injections via SPARQL REGEX */
 
   function checkRegex($str) {
-    return mysqli_real_escape_string($str); // @@todo extend
+    return addslashes($str); // @@todo extend
   }
 
   /* Microdata methods */
@@ -480,25 +481,65 @@ class ARC2_Class {
     return $this->getMicrodataAttrs($id, $type);
   }
 
-  /* central DB query hook */
+    /* central DB query hook */
 
-  function queryDB($sql, $con, $log_errors = 0) {
-    $t1 = ARC2::mtime();
-    $r = mysqli_query( $con, $sql);
-    if (0) {
-      $t2 = ARC2::mtime() - $t1;
-      $call_obj = $this;
-      $call_path = '';
-      while ($call_obj) {
-        $call_path = get_class($call_obj) . ' / ' . $call_path;
-        $call_obj = isset($call_obj->caller) ? $call_obj->caller : false;
-      }
-      echo "\n" . $call_path . " needed " . $t2 . ' secs for ' . str_replace("\n" , ' ', $sql);;
+    public function getDBObjectFromARC2Class($con = null)
+    {
+        if (null == $this->db_object) {
+            if (false === class_exists('\\ARC2\\Store\\Adapter\\AdapterFactory')) {
+                require __DIR__.'/src/ARC2/Store/Adapter/AdapterFactory.php';
+            }
+            if (false == isset($this->a['db_adapter'])) {
+                $this->a['db_adapter'] = 'mysqli';
+            }
+            $factory = new \ARC2\Store\Adapter\AdapterFactory();
+            $this->db_object = $factory->getInstanceFor($this->a['db_adapter'], $this->a);
+            if ($con) {
+                $this->db_object->connect($con);
+            } else {
+                $this->db_object->connect();
+            }
+        }
+        return $this->db_object;
     }
-    $er = mysqli_error($con);
-    if ($log_errors && !empty($er)) $this->addError($er);
-    return $r;
-  }
+
+    /**
+     * Dont use this function to directly query the database. It currently works only with mysqli DB adapter.
+     *
+     * @param string $sql SQL query
+     * @param mysqli $con Connection
+     * @param int    $log_errors 1 if you want to log errors. Default is 0
+     *
+     * @return mysqli Result
+     *
+     * @deprecated since 2.4.0
+     */
+    public function queryDB($sql, $con, $log_errors = 0)
+    {
+        $t1 = ARC2::mtime();
+
+        // create connection using an adapter, if not available yet
+        $this->getDBObjectFromARC2Class($con);
+
+        $r = $this->db_object->mysqliQuery($sql);
+
+        // TODO check if this is ever called. it seems not and therefore could be removed.
+        if (0) {
+            $t2 = ARC2::mtime() - $t1;
+            $call_obj = $this;
+            $call_path = '';
+            while ($call_obj) {
+                $call_path = get_class($call_obj) . ' / ' . $call_path;
+                $call_obj = isset($call_obj->caller) ? $call_obj->caller : false;
+            }
+            echo "\n" . $call_path . " needed " . $t2 . ' secs for ' . str_replace("\n" , ' ', $sql);;
+        }
+
+        if ($log_errors && !empty($this->db_object->getErrorMessage())) {
+            $this->addError($this->db_object->getErrorMessage());
+        }
+        return $r;
+    }
 
   /**
    * Shortcut method to create an RDF/XML backup dump from an RDF Store object.

@@ -1,17 +1,18 @@
 <?if (!defined('BASEPATH')) exit('No direct script access allowed')?>
-<?$this->template->add_css('system/application/views/arbors/admin/jquery-ui-1.8.12.custom.css')?>
+<?$this->template->add_css('system/application/views/arbors/admin/jquery-ui.min.css')?>
 <?$this->template->add_css('system/application/views/arbors/admin/admin.css')?>
 <?$this->template->add_css('system/application/views/modules/cover/title.css')?>
 <?$this->template->add_css('system/application/views/modules/cover/login.css')?>
 <?$this->template->add_css('system/application/views/modules/dashboard/tabs.css')?>
-<?$this->template->add_js('system/application/views/arbors/admin/jquery-1.7.min.js')?>
-<?$this->template->add_js('system/application/views/arbors/admin/jquery-ui-1.8.12.custom.min.js')?>
+<?$this->template->add_js('system/application/views/arbors/admin/jquery-3.4.1.min.js')?>
+<script src="https://code.jquery.com/jquery-migrate-3.1.0.js"></script>
+<?$this->template->add_js('system/application/views/arbors/admin/jquery-ui.min.js')?>
 <?$this->template->add_js('system/application/views/arbors/admin/admin.js')?>
 <?$this->template->add_js('system/application/views/modules/dashboard/tabs.js')?>
 
 <?
 $active_dashboard = $this->config->item('active_dashboard');
-if ('dashboard'==$active_dashboard): 
+if ('dashboard'==$active_dashboard):
 ?>
 <div style="position:absolute; top:0px; left:0px; width:100%;">
 	<div style="background-color:#f3f7b1; color:#444444; font-size:0.85rem; width:400px; border-radius:5px; margin:2px auto 0px auto; text-align:center; padding-top:4px; padding-bottom:4px;">
@@ -25,7 +26,7 @@ if ('dashboard'==$active_dashboard):
 <? $this->load->view('modules/cover/login') ?>
 <h2 class="title dashboard_title">
 <form action="<?=confirm_slash(base_url())?>system/dashboard" method="get" class="book_form">
-<select name="book_id" onchange="$(this).parent().submit();" style="margin:0;max-width:300px;">
+<select name="book_id" onchange="$(this).parent().trigger('submit');" style="margin:0;max-width:300px;">
 <option value="0">Select a book to manage</option>
 <?
 foreach ($my_books as $row) {

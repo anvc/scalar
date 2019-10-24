@@ -47,7 +47,7 @@
              base.currentNode = scalarapi.model.getCurrentPageNode();
              //60% of (page height minus header and H1 height)
              maxWidgetHeight = Math.floor((window.innerHeight-179)*.6);
-             $(window).resize(function(){
+             $(window).on('resize', function(){
                maxWidgetHeight = Math.floor((window.innerHeight-179)*.6);
              });
          };
@@ -90,7 +90,8 @@
 										});
 									}
                   //Create a deferred object and add it to a list of promises
-									var promise = $.Deferred().then($.proxy(function(){
+									var promise = $.Deferred();
+                  promise.then($.proxy(function(){
   									base.renderTimeline($(this));
   								},$widget));
 									base.pendingWidgets.timeline.push(promise);
@@ -299,8 +300,10 @@
                       height += 100;
                    }
                  }
-
-                 height -= $(this).data('container').find('.mediaElementFooter').outerHeight();
+                 var footer = $(this).data('container').find('.mediaElementFooter');
+                 if (footer.outerHeight() != null) {
+                   height -= $(this).data('container').find('.mediaElementFooter').outerHeight();
+                 }
 
                  $gmaps.height(height);
 
@@ -407,11 +410,13 @@
                     //var height_adjust = (1/.6)*.7;
                     var timelineHeight = (base.options.maxWidgetHeight,maxWidgetHeight) + 100;
                   }
-                  timelineHeight -= $(this).data('container').find('.mediaElementFooter').outerHeight();
+                  var footer = $(this).data('container').find('.mediaElementFooter');
+                  if (footer.outerHeight() != null) {
+                    timelineHeight -= $(this).data('container').find('.mediaElementFooter').outerHeight();
+                  }
                   $timeline.height(timelineHeight - 10);
                   var zoom = $widget.data('zoom')?$widget.data('zoom'):2;
                   var timeline = new TL.Timeline($timeline[0],$(this).data('timeline'),{width:$timeline.width()+200,scale_factor:zoom});
-
                   $(this).off("slotCreated");
                 });
 
@@ -595,7 +600,7 @@
                                 '<a href="javascript:;" >' + node.getDisplayTitle() + '</a>' + ($widget.data('hide_numbering') != undefined ? '' : (' (' + (i + 1) + '/' + n + ')')) +
                                 '</span></div>');
                         }
-                        item.find('a').data('node', node).click(function() {
+                        item.find('a').data('node', node).on('click', function() {
                           if ($('.media_details').css('display') == 'none') {
                               page.mediaDetails.show($(this).data('node'));
                           }
@@ -625,7 +630,7 @@
        							'</a>' );
 
                   $carousel.carousel( { interval: false } );
-                  $carousel.find('.carousel-control').click(function(e){
+                  $carousel.find('.carousel-control').on('click', function(e){
                     e.stopPropagation();
                     e.preventDefault();
                     $carousel = $(this).parents('.carousel');
@@ -1029,7 +1034,7 @@
             //$(window).on('resize',$.proxy(function(){widgets.calculateSize($(this));},$widget));
             base.calculateSize($widget);
 
-            $widget.click(function(){
+            $widget.on('click', function(){
 
               var scroll_buffer = 100;
               var scroll_time = 750;

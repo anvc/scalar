@@ -104,7 +104,7 @@
 				var buttons = $('<div class="right"></div>').appendTo(slideshowHeader);
 				slideshowHeader.append('<hr>');
 				addIconBtn(buttons, 'close_icon_dark.png', 'close_icon_dark_hover.png', 'Close');
-				mediaDetails.contentElement.find('[title="Close"]').click(mediaDetails.hide);
+				mediaDetails.contentElement.find('[title="Close"]').on('click', mediaDetails.hide);
 
 				element.show();
 
@@ -171,7 +171,7 @@
 							relation = relations[i];
 							row = $('<tr><td>'+relation.startString+'</td><td>'+relation.body.getDisplayTitle()+'</td></tr>').appendTo(table);
 							row.data('relation', relation);
-							row.click(function() {
+							row.on('click', function() {
 								var relation = $(this).data('relation');
 								mediaelement.seek(relation);
 								mediaelement.play();
@@ -244,11 +244,11 @@
 			}
 		};
 
-		$('body').bind('mediaElementMetadataHandled', mediaDetails.handleMediaElementMetadata);
+		$('body').on('mediaElementMetadataHandled', mediaDetails.handleMediaElementMetadata);
 
 		element.addClass('media_details');
 		/*mediaDetails.blackoutElement = $('<div class="blackout"></div>').appendTo(element);
-		mediaDetails.blackoutElement.click(mediaDetails.hide);*/
+		mediaDetails.blackoutElement.on('click', mediaDetails.hide);*/
 		mediaDetails.contentElement = $('<div class="content"></div>').appendTo(element);
 
 		return {

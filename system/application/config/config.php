@@ -382,10 +382,11 @@ $config['proxy_ips'] = '';
 /*
 | Load external libraries
 | Added by Craig Dietrich (Mar 2010) for the Arc RDF library
+| Updated by Craig Dietrich (Oct 2019) for an ARC update
 | This is purposefully ignoring CodeIgniter's build-in autoloader class, as it seems to conflict with its instantian
 */
 spl_autoload_register(function ($class) {
-    require_once('system/application/arc/ARC2.php');
+    require_once('system/application/arc/vendor/autoload.php');
 });
 
 /* End of file config.php */
