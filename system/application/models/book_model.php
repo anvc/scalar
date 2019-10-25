@@ -511,7 +511,7 @@ class Book_model extends MY_Model {
 
     	$uri = $orig = safe_name($title, false);  // Don't allow forward slashes
     	$count = 1;
- 		while (file_exists($uri)) {
+ 		while ($this->slug_exists($uri)) {
  			$uri = create_suffix($orig, $count);
  			$count++;
  		}
@@ -538,10 +538,16 @@ class Book_model extends MY_Model {
 			throw new Exception('no_dir_created');
 		}
 
-		$this->db->insert($this->books_table, $data);
-		$book_id = $this->db->insert_id();
+		$result = $this->db->insert($this->books_table, $data);
+		if ($result === false) {
+			log_message('error', "Error inserting book into {$this->books_table}: [Errno:{$this->db->_error_number()}] {$this->db->_error_message()}");
+			throw new Exception("error_add_book");
+		}
 
-		if (!empty($user_id)) $this->save_users($book_id, array($user_id), 'author');
+		$book_id = $this->db->insert_id();
+		if (!empty($user_id)) {
+			$this->save_users($book_id, array($user_id), 'author');
+		}
 
     	return $book_id;
 
@@ -930,10 +936,15 @@ class Book_model extends MY_Model {
 
     }
 
-    public function slug_exists($slug='') {
-
-    	return ((file_exists($slug)) ? true : false);
-
+	/**
+	 * Determine whether a book slug exists in the database.
+	 */
+    public function slug_exists($slug) {
+	    $result = $this->db->get_where($this->books_table, array('slug' => $slug));
+	    if($result->num_rows > 0) {
+		    return true;
+	    }
+	    return false;
     }
 
 	private function getStorage($bookSlug) {
