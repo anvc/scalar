@@ -104,6 +104,9 @@ $(document).ready(function() {
 <? if (isset($_REQUEST['error']) && 'error_while_duplicating'==$_REQUEST['error']): ?>
 <div class="alert alert-danger">There was an error attempting to duplicate the chosen book<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">remove notice</a></div>
 <? endif ?>
+<? if (isset($_REQUEST['error']) && 'error_add_book'==$_REQUEST['error']): ?>
+    <div class="alert alert-danger">Could not create book. Please try again with a different book name.<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">remove notice</a></div>
+<? endif ?>
 
 <div class="container-fluid user">
   <div class="row">
