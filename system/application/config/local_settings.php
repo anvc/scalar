@@ -35,7 +35,6 @@ $config['storage_adapter_options'] = array(
 //    'forceSSL'     => (bool) (getenv('SCALAR_S3_FORCE_SSL') ? getenv('SCALAR_S3_FORCE_SSL') : ''),
 //);
 
-
 // ReCAPTCHA key (leave blank for no ReCAPTCHA)
 $config['recaptcha_public_key'] = (getenv('SCALAR_RECAPTCHA_PUBLIC_KEY') ? getenv('SCALAR_RECAPTCHA_PUBLIC_KEY') : '');
 $config['recaptcha_private_key'] = (getenv('SCALAR_RECAPTCHA_PRIVATE_KEY') ? getenv('SCALAR_RECAPTCHA_PRIVATE_KEY') : '');
