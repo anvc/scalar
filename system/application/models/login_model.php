@@ -21,12 +21,16 @@
 class Login_model extends User_model {
 
 	protected $login_basename = null;
+	private $max_login_attempts = 0;
+	private $max_login_attempts_penalty_seconds = 0; 
 
     public function __construct() {
 
         parent::__construct();
 
         $this->login_basename = confirm_slash(base_url());
+        $this->max_login_attempts = (int) $this->config->item('max_login_attempts');  // 0 = no restriction on login attempts
+        $this->max_login_attempts_penalty_seconds = (int) $this->config->item('max_login_attempts_penalty_seconds');
 
     }
 
@@ -46,7 +50,6 @@ class Login_model extends User_model {
 		}
 
 		// Return empty
-
 		$data = new stdClass;
 		$data->is_logged_in = false;
 		$data->error = null;
@@ -88,22 +91,24 @@ class Login_model extends User_model {
 		if ($force || $action == 'do_login') {
 
 			$email = trim($_POST['email']);
+			if (empty($email)) throw new Exception( lang('login.invalid') );
 			log_message('error', 'Scalar: Login attempt by '.$email.', from '.$this->getUserIpAddr().'.');
 			$password = trim($_POST['password']);
             $result = false;
+            
+            if (!$this->increment_and_check_login_attempts()) {
+            	$this->session->unset_userdata($this->login_basename);
+            	$msg = lang('login.attempts');
+            	if (empty($msg)) $msg = 'Too many login attempts, try again in a few minutes';
+            	throw new Exception($msg);
+            }
 
-            // If LDAP is turned on ...
-            if ( $this->config->item('use_ldap') ) {
+            if ( $this->config->item('use_ldap') ) {  // LDAP
                 $result = $this->get_from_ldap_by_email_and_password($email, $password);
             }
 
-            // If they're not in LDAP, or use_ldap is off, then check the database
-            if (!$result) {
-                if ($this->has_empty_password($email)) {
-                    $result = $this->get_by_email($email);
-                } else {
-                    $result = $this->get_by_email_and_password($email, $password);
-                }
+            if (!$result) {  // Database
+                $result = $this->get_by_email_and_password($email, $password);
             }
 
 			if (!$result) {
@@ -113,14 +118,10 @@ class Login_model extends User_model {
 				$this->session->set_userdata(array($this->login_basename => (array) $result));
 				throw new Exception( lang('login.invalid') );
 			} else {
-				// Commenting this out ... if someone asks for a reset it shouldn't lock the user out
-				// if (!empty($result->reset_string)) {
-				//	throw new Exception( lang('login.is_reset') );
-				// }
-				// ... rather, get rid of the reset string if the user successfully logs in
-				parent::save_reset_string($result->user_id, '');
+				parent::save_reset_string($result->user_id, '');  // Get rid of any reset string if the user successfully logs in
 				$result->is_logged_in = true;
 				$this->session->set_userdata(array($this->login_basename => (array) $result));
+				$this->reset_login_attempts();
 				return true;
 			}
 
@@ -140,6 +141,40 @@ class Login_model extends User_model {
 
 		return parent::has_empty_password($email);
 
+	}
+	
+	private function increment_and_check_login_attempts() {
+		
+		// Is user on a penalty?
+		$start = $this->session->userdata($this->login_basename.'__penalty_start');
+		if (!empty($start)) {
+			$diff = time() - $start;
+			if ($diff < $this->max_login_attempts_penalty_seconds) return false;
+			$this->session->unset_userdata($this->login_basename.'__penalty_start');
+			$this->session->set_userdata($this->login_basename.'__login_attempts', 0);
+		}
+		// Max login attempts not set or deactivated
+		if (0 === $this->max_login_attempts) return true;
+		// Current attempt
+		$attempt = (int) $this->session->userdata($this->login_basename.'__login_attempts');
+		if (empty($attempt)) $attempt = 0;
+		$attempt++;
+		// User has hit the max attempts
+		if ($attempt > $this->max_login_attempts) {
+			$this->session->set_userdata($this->login_basename.'__penalty_start', time());
+			return false;
+		}
+		// Increment the number of attempts
+		$this->session->set_userdata($this->login_basename.'__login_attempts', $attempt);
+		return true;
+		
+	}
+	
+	private function reset_login_attempts() {
+		
+		$this->session->unset_userdata($this->login_basename.'__penalty_start');
+		$this->session->unset_userdata($this->login_basename.'__login_attempts');
+		
 	}
 
 }
