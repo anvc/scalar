@@ -112,7 +112,7 @@ class ARC2_Resource extends ARC2_Class {
   function getProps($p = '', $s = '') {
     if (!$s) $s = $this->uri;
     if (!$s) return array();
-    if (!isset($this->index[$s])) $this->fetchData($s);
+    // if (!isset($this->index[$s])) $this->fetchData($s);
     if (!$p) return $this->index[$s];
     return $this->v($this->expandPName($p), array(), $this->index[$s]);
   }

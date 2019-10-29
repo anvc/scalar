@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS `scalar_db_books` (
   `title` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
   `subtitle` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `description` text COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `slug` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `slug` varchar(250) COLLATE utf8mb4_general_ci NOT NULL UNIQUE,
   `url_is_public` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `display_in_index` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `is_featured` tinyint(1) unsigned NOT NULL DEFAULT '0',
@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `scalar_db_content` (
   `content_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `book_id` int(10) unsigned NOT NULL DEFAULT '0',
   `recent_version_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `slug` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `slug` varchar(249) COLLATE utf8mb4_general_ci NOT NULL,
   `type` enum('composite','media') COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'composite',
   `is_live` tinyint(1) unsigned NOT NULL DEFAULT '1',
   `paywall` tinyint(1) unsigned NOT NULL DEFAULT '0',
@@ -42,6 +42,7 @@ CREATE TABLE IF NOT EXISTS `scalar_db_content` (
   `user` varchar(64) COLLATE utf8mb4_general_ci NOT NULL,
   `created` datetime NOT NULL,
   PRIMARY KEY (`content_id`),
+  UNIQUE (`book_id`, `slug`),
   KEY `book_id` (`book_id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
