@@ -48,6 +48,10 @@ $config['recaptcha2_secret_key'] = (getenv('SCALAR_RECAPTCHA2_SECRET_KEY') ? get
 // One of the strings placed in this array will be required in order for new users to register
 $config['register_key'] = array();
 
+// Max login attempts (e.g., 10) and the penalty wait time in seconds (e.g., 120)
+$config['max_login_attempts'] = 6;
+$config['max_login_attempts_penalty_seconds'] = 120;
+
 // Soundcloud key
 $config['soundcloud_id'] = (getenv('SCALAR_SOUNDCLOUD_ID') ? getenv('SCALAR_SOUNDCLOUD_ID') : '');
 
