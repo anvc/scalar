@@ -173,7 +173,7 @@ class OAC_Object extends RDF_Object {
     		$row['creator'] = array(
     				'type' => 'Person',
     				'nickname' => $node->versions[$node->version_index]->user->fullname,
-    				'email' => $node->versions[$node->version_index]->user->email
+    				'email' => sha1('mailto:'.$node->versions[$node->version_index]->user->email)
     		);
     	}
     	return $row;
@@ -187,11 +187,12 @@ class OAC_Object extends RDF_Object {
     	$row['@context'] = 'http://www.w3.org/ns/anno.jsonld';
     	$row['id'] = (string) $node->versions[$node->version_index]->version_id;  // String: according to spec
     	$row['type'] = 'Annotation';
+    	$row['motivation'] = 'highlighting';
     	if (isset($node->versions[$node->version_index]->user) && isset($node->versions[$node->version_index]->user->fullname)) {
     		$row['creator'] = array(
     				'type' => 'Person',
     				'nickname' => $node->versions[$node->version_index]->user->fullname,
-    				'email' => $node->versions[$node->version_index]->user->email
+    				'email' => sha1('mailto:'.$node->versions[$node->version_index]->user->email)
     		);
     	}
     	$row['body'] = array(
@@ -214,14 +215,14 @@ class OAC_Object extends RDF_Object {
     		}
     	}
     	$row['target'] = array(
-    			array(
-    					"id" => $target->versions[$target->version_index]->url,
-    					"type" => "Version",
-    			),
-    			array(
-    					"type" => "FragmentSelector",
-    					"conformsTo" => "http://www.w3.org/TR/media-frags/",
-    					"value" => $this->annotation_append($node->versions[$node->version_index])
+    			"id" => $target->versions[$target->version_index]->url,
+   				"type" => "Version",
+    			"selector" => array(
+    					array(
+    						"type" => "FragmentSelector",
+    						"conformsTo" => "http://www.w3.org/TR/media-frags/",
+    						"value" => $this->annotation_append($node->versions[$node->version_index])
+    					)
     			)
     	);
     	return $row;
