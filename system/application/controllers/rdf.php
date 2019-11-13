@@ -213,6 +213,68 @@ class Rdf extends MY_Controller {
 		$this->template->render();
 
 	}
+	
+	/**
+	 * Output information about a media-page based on a file URL
+	 */
+	
+	public function file() {
+
+		if (empty($this->data['book'])) {
+			header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));
+			exit;
+		}
+		try {
+			switch ($this->data['format']) {
+				case 'oac':
+					$this->load->library( 'OAC_Object', 'oac_object' );
+					$object = 'oac_object';
+					break;
+				default:
+					$object = 'rdf_object';
+			}
+			$this->set_url_params();
+			$this->data['url'] = implode('/',array_slice($this->uri->segments, array_search(__FUNCTION__, $this->uri->segments)));
+			// TODO: past versions?
+			$content = $this->pages->get_by_version_url($this->data['book']->book_id, $this->data['url'], true);
+			if (!empty($content)) {
+				foreach ($content as $content_id => $row) {
+					if (!$row->is_live && !$this->login_is_book_admin($this->data['book']->book_id)) {
+						unset($content[$content_id]);  // Protect
+					}
+				}
+			}
+			$this->$object->index(
+					$this->data['content'],
+					array(
+							'book'         => $this->data['book'],
+							'content'      => $content,
+							'use_versions'	=> $this->data['use_versions'],
+							'use_versions_restriction' => ($this->editorial_is_on() && (null!==$this->data['url_params']['edition_index'] || !$this->login_is_book_admin())) ? RDF_OBJECT::USE_VERSIONS_EDITORIAL : RDF_OBJECT::USE_VERSIONS_INCLUSIVE,
+							'base_uri'     => $this->data['base_uri'],
+							'method'		=> __FUNCTION__.'/'.$this->data['url'],
+							'restrict'     => $this->data['restrict'],
+							'versions'     => (($this->data['versions'])?RDF_Object::VERSIONS_ALL:RDF_Object::VERSIONS_MOST_RECENT),
+							'ref'          => (($this->data['references'])?RDF_Object::REFERENCES_ALL:RDF_Object::REFERENCES_NONE),
+							'prov'			=> (($this->data['provenance'])?RDF_Object::PROVENANCE_ALL:RDF_Object::PROVENANCE_NONE),
+							'pagination'   => $this->data['pagination'],
+							'max_recurses' => $this->data['recursion'],
+							'paywall_msg'	=> $this->can_bypass_paywall(),
+							'tklabeldata'	=> $this->tklabels(),
+							'tklabels' 	=> (($this->data['tklabels'])?RDF_Object::TKLABELS_ALL:RDF_Object::TKLABELS_NONE),
+							'is_book_admin'=> $this->login_is_book_admin()
+					)
+					);
+			$this->$object->serialize($this->data['content'], $this->data['format']);
+		} catch (Exception $e) {
+			header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_INTERNAL_SERVER_ERROR));
+			exit;
+		}
+		$this->template->set_template('blank');
+		$this->template->write_view('content', 'modules/data/'.$this->data['format'], $this->data);
+		$this->template->render();
+		
+	}
 
 	/**
 	 * Output information about a group of pages based on class name

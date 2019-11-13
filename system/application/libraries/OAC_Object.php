@@ -43,9 +43,9 @@ class OAC_Object extends RDF_Object {
     	foreach ($return as $node) {
     		$output[] = $this->_content_node($node);
     		foreach ($rel_types as $type) {
-    			if (!isset($node->versions[$node->version_index]->$type)) continue;
-    			for ($j = 0; $j < count($node->versions[$node->version_index]->$type); $j++) {
-    				$output[] = $this->_annotation_node($node->versions[$node->version_index]->$type[$j], $node);
+    			if (!isset($node->versions[$node->version_index]->{$type})) continue;
+    			for ($j = 0; $j < count($node->versions[$node->version_index]->{$type}); $j++) {
+    				$output[] = $this->_annotation_node($node->versions[$node->version_index]->{$type}[$j], $node);
     			}
     		}
     	}
@@ -88,9 +88,9 @@ class OAC_Object extends RDF_Object {
     			if ($settings['max_recurses'] > 1) {  // Tags of the annotations
     				$rel_types = array('has_annotations');
     				foreach ($rel_types as $type) {
-    					if (!isset($temp_return->versions[$temp_return->version_index]->$type)) continue;
-    					for ($j = 0; $j < count($temp_return->versions[$temp_return->version_index]->$type); $j++) {
-    						$temp_return->versions[$temp_return->version_index]->$type[$j] = $this->_relationships($temp_return->versions[$temp_return->version_index]->$type[$j], $settings);
+    					if (!isset($temp_return->versions[$temp_return->version_index]->{$type})) continue;
+    					for ($j = 0; $j < count($temp_return->versions[$temp_return->version_index]->{$type}); $j++) {
+    						$temp_return->versions[$temp_return->version_index]->{$type}[$j] = $this->_relationships($temp_return->versions[$temp_return->version_index]->{$type}[$j], $settings);
     					}
     				}
     			}
@@ -118,6 +118,7 @@ class OAC_Object extends RDF_Object {
     			(!empty($use_version_id))?$use_version_id:$row->recent_version_id,
     			$settings['sq']
     		);
+    		if (isset($row->versions[0]->url) && !isURL($row->versions[0]->url)) $row->versions[0]->url = confirm_slash(base_url()).$settings['book']->slug.'/'.$row->versions[0]->url;
     	}
     	if ($settings['use_versions_restriction'] == self::USE_VERSIONS_EDITORIAL) {
     		for ($j = count($row->versions) - 1; $j >= 0; $j--) {
@@ -158,7 +159,7 @@ class OAC_Object extends RDF_Object {
     			)
     	);
     	$row['id'] = (string) $node->versions[$node->version_index]->version_id;  // String: according to spec
-    	$row['type'] = 'Version';
+    	$row['type'] = 'Video';
     	$row['dcterms:title'] = $node->versions[$node->version_index]->title;
     	if (isset($node->versions[$node->version_index]->description) && !empty($node->versions[$node->version_index]->description)) {
     		$row['dcterms:description'] = $node->versions[$node->version_index]->description;
@@ -216,7 +217,7 @@ class OAC_Object extends RDF_Object {
     	}
     	$row['target'] = array(
     			"id" => $target->versions[$target->version_index]->url,
-   				"type" => "Version",
+   				"type" => "Video",
     			"selector" => array(
     					array(
     						"type" => "FragmentSelector",

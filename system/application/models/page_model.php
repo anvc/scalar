@@ -205,6 +205,7 @@ class Page_model extends MY_Model {
 
     	$return = array();
 
+    	// Get all versions
     	$this->db->select($this->versions_table.'.*');
     	$this->db->from($this->versions_table);
     	$this->db->where($this->versions_table.'.url', $url);
@@ -212,17 +213,31 @@ class Page_model extends MY_Model {
     	$query = $this->db->get();
     	if (!$query->num_rows) return null;
     	$result = $query->result();
-
-    	foreach ($result as $row) {
-			if (!array_key_exists($row->content_id, $return)) {
-				$content = $this->get($row->content_id);
-				if (empty($content)) continue;
-				$return[$row->content_id] = $content;
-				$return[$row->content_id]->versions = array();
-			}
-			$return[$row->content_id]->versions[] = $row;
+    	
+    	// Group by content ID
+    	for ($j = 0; $j < count($result); $j++) {
+    		if (!array_key_exists($result[$j]->content_id, $return)) {
+    			$return[$result[$j]->content_id] = (object) array();
+    			$return[$result[$j]->content_id]->versions = array();
+    		}
+    		$return[$result[$j]->content_id]->versions[] = $result[$j];
     	}
 
+    	foreach ($return as $content_id => $row) {
+    		$content = $this->get($content_id);
+    		if ($content->book_id != $book_id) {
+    			unset($return[$content_id]);
+    			continue;
+    		}
+    		if ($is_live && (int) $content->is_live != 1) {
+    			unset($return[$content_id]);
+    			continue;
+    		}
+    		$content->versions = $return[$content_id]->versions;
+    		$content->version_index = 0;
+    		$return[$content_id] = $content;
+    	}
+    	
     	return $return;
 
     }
