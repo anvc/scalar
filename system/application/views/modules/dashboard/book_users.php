@@ -101,10 +101,10 @@
 								}
 							});
 							$div.find('a').on('click', function() {
-								var user_id = parseInt($(this).data('user_id'));
+								let user_id = parseInt($(this).data('user_id'));
 								let item = $(this);
 							  if (!item.hasClass('generic_button') && bookUserIDs.indexOf(String(user_id)) < 0){
-									item.parent().find('.animator').addClass('spinner')
+									item.parent().find('.animator').addClass('spinner');
 									$.get('api/save_user_books', {id:user_id, selected_ids:[book_id], list_in_index:0}, function() {
 										setTimeout(function() {
 											item.parent().find('.animator').removeClass('spinner');
