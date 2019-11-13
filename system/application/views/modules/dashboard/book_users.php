@@ -72,60 +72,59 @@
     };
 
 		function request_book_user(book_id) {
+		  let bookUserIDs = Array.prototype.map
+			  .call(document.querySelectorAll("[property='id']"), row => row.innerHTML);
 
-				let bookUserIDs = Array.prototype.map
-				    .call(document.querySelectorAll("[property='id']"), row => row.innerHTML);
-
-				let $div = $('<div class="select_box"><h4 class="dialog_title">Add a user</h4>To connect a user to your book, first search for them by their name or email.<br clear="both" /><br /><form><input class="generic_text_input" style="float:left;" type="text" name="searchValue" value="" /><br clear="both" /></form><div class="results" style="padding-top:16px;padding-bottom:10px;"></div><a class="generic_button large" href="javascript:;" onclick="window.location.reload();" style="float:right;font-size:larger;">Close</a></div>');
-				$('body').append($div);
-				$div.find('.generic_text_input').on('keyup', debounce(function() {
-					let sq = this.value;
-					if (sq.trim() !== "") { // dont search on empty, nor just spaces
-						$.get('api/get_system_users_by_name_or_email', {sq:sq}, function(data) {
-							if (!data.length) {
-								$div.find('.results').html('No users were found.');
-								return false;
+		  let $div = $('<div class="select_box"><h4 class="dialog_title">Add a user</h4>To connect a user to your book, first search for them by their name or email.<br clear="both" /><br /><form><input class="generic_text_input" style="float:left;" type="text" name="searchValue" value="" /><br clear="both" /></form><div class="results" style="padding-top:16px;padding-bottom:10px;"></div><a class="generic_button large" href="javascript:;" onclick="window.location.reload();style="float:right;font-size:larger;">Close</a></div>');
+		  $('body').append($div);
+			$div.find('.generic_text_input').on('keyup', debounce(function() {
+				let sq = this.value;
+				if (sq.trim() !== "") { // dont search on empty, nor just spaces
+					$.get('api/get_system_users_by_name_or_email', {sq:sq}, function(data) {
+						if (!data.length) {
+							$div.find('.results').html('No users were found.');
+							return false;
+						}
+						$div.find('.results').html('<div style="padding-bottom:10px;">Please select a user below to link them to your book:</div>');
+						data.forEach( (u)=> {
+							let link = $('<a href="javascript:void(null);">'+u.fullname+'</a>');
+							let email = $('<span>  --  '+u.email+'</span>');
+							link.data('user_id', u.user_id);
+							let row = $('<div style="padding-bottom:.68em;"></div>');
+							$div.find('.results').append(row);
+							row.append(link);
+							row.append(email);
+							row.append("<span class='animator'></span>");
+							if (bookUserIDs.indexOf(u.user_id) >= 0) {
+								row.find('.animator').addClass('check');
 							}
-							$div.find('.results').html('<div style="padding-bottom:10px;">Please select a user below to link them to your book:</div>');
-							data.forEach( (u)=> {
-								let link = $('<a href="javascript:void(null);">'+u.fullname+'</a>');
-								let email = $('<span>  --  '+u.email+'</span>');
-								link.data('user_id', u.user_id);
-								let row = $('<div style="padding-bottom:.68em;"></div>');
-								$div.find('.results').append(row);
-								row.append(link);
-								row.append(email);
-								row.append("<span class='animator'></span>");
-								if (bookUserIDs.indexOf(u.user_id) >= 0) {
-									row.find('.animator').addClass('check');
-								}
-							});
-							$div.find('a').on('click', function() {
-								let user_id = parseInt($(this).data('user_id'));
-								let item = $(this);
-							  if (!item.hasClass('generic_button') && bookUserIDs.indexOf(String(user_id)) < 0){
-									item.parent().find('.animator').addClass('spinner');
-									$.get('api/save_user_books', {id:user_id, selected_ids:[book_id], list_in_index:0}, function() {
-										setTimeout(function() {
-											item.parent().find('.animator').removeClass('spinner');
-											item.parent().find('.animator').addClass('check');
-											bookUserIDs.push(String(user_id));
-										}, 500);
-									});
-								}
-								return false;
-							});
 						});
-					}
-					else if ($div.find('.results').length > 0) {
-					  $div.find('.results').html('');
-					}
-					return false;
-				}, 350));
+						$div.find('a').on('click', function() {
+							let user_id = parseInt($(this).data('user_id'));
+							let item = $(this);
+							 if (!item.hasClass('generic_button') && bookUserIDs.indexOf(String(user_id)) < 0){
+								item.parent().find('.animator').addClass('spinner');
+								$.get('api/save_user_books', {id:user_id, selected_ids:[book_id], list_in_index:0}, function() {
+									setTimeout(function() {
+										item.parent().find('.animator').removeClass('spinner');
+										item.parent().find('.animator').addClass('check');
+										bookUserIDs.push(String(user_id));
+									}, 500);
+								});
+							}
+							return false;
+						});
+					});
+				}
+				else if ($div.find('.results').length > 0) {
+					 $div.find('.results').html('');
+				}
+				return false;
+			}, 350));
 
-				$div.css('left', ((parseInt($(window).width())/2) - ($div.width()/2) + 'px') );
-				$div.css('top', ((parseInt($(window).height())/2) - ($div.height()/2) + parseInt($(window).scrollTop()) + 'px') );
-				$div.show();
+			$div.css('left', ((parseInt($(window).width())/2) - ($div.width()/2) + 'px') );
+			$div.css('top', ((parseInt($(window).height())/2) - ($div.height()/2) + parseInt($(window).scrollTop()) + 'px') );
+			$div.show();
 		}
 
 		function user_get_contributions(user_id, the_link) {
