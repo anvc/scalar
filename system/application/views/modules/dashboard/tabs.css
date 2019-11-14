@@ -126,6 +126,11 @@ table.tablesorter {
 .select_box select {width:100%; height:230px;}
 .select_box_large {width:800px;}
 
+.add_book_user_select_box {
+	max-height: 370px;
+	overflow-y: scroll;
+}
+
 #interface {padding-bottom:0px; margin-bottom:0px;}
 #versions li {height:auto !important;}
 
