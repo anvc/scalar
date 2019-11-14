@@ -226,6 +226,12 @@ class OAC_Object extends RDF_Object {
     					)
     			)
     	);
+    	if (isset($node->versions[$node->version_index]->additional) && !empty($node->versions[$node->version_index]->additional)) {
+    		$row['target']['selector'][] = array(
+    			"type" => "SvgSelector",
+    			"value" => $node->versions[$node->version_index]->additional
+    		);
+    	}
     	return $row;
     	
     }

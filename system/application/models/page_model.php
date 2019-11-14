@@ -204,6 +204,8 @@ class Page_model extends MY_Model {
     public function get_by_version_url($book_id=0, $url='', $is_live=false) {
 
     	$return = array();
+    	$ci=&get_instance();
+    	$ci->load->model("version_model","versions");
 
     	// Get all versions
     	$this->db->select($this->versions_table.'.*');
@@ -220,6 +222,10 @@ class Page_model extends MY_Model {
     			$return[$result[$j]->content_id] = (object) array();
     			$return[$result[$j]->content_id]->versions = array();
     		}
+    		$result[$j]->urn = $ci->versions->urn($result[$j]->version_id);
+    		$result[$j]->attribution = unserialize_recursive($result[$j]->attribution);
+    		$result[$j]->rdf = $ci->rdf_store->get_by_urn('urn:scalar:version:'.$result[$j]->version_id);
+    		$result[$j]->citation = '';
     		$return[$result[$j]->content_id]->versions[] = $result[$j];
     	}
 

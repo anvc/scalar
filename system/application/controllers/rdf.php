@@ -243,6 +243,11 @@ class Rdf extends MY_Controller {
 						unset($content[$content_id]);  // Protect
 					}
 				}
+				if (!$this->data['versions']) {
+					foreach ($content as $content_id => $row) {
+						$content[$content_id]->versions = array(array_shift($content[$content_id]->versions));
+					}
+				}
 			}
 			$this->$object->index(
 					$this->data['content'],

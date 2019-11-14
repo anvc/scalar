@@ -608,6 +608,7 @@ header [typeof="tk:TKLabel"] { margin-left:6px; margin-right: 0; }
 	pointer-events: none; /* TODO: this won't work in IE */
 }
 .title_card .relationships { max-width: inherit; }
+.title_card .citation {font-size:1.2rem; margin:12px 0px 0px 0px; padding:0px 0px 0px 0px;}
 .splash.has_video {  /* Remove scale transform since it's jumpy with video but keep opacity transform */
 	-webkit-transform: scale( 1.0, 1.0 );
 	-moz-transform: scale( 1.0, 1.0 );

@@ -51,7 +51,7 @@ class RDF_Object {
 	public $ns = array();
 	protected $version_cache = array();
 	protected $user_cache = array();
-	protected $rel_fields = array('sort_number','start_seconds','end_seconds','start_line_num','end_line_num','points','datetime','paragraph_num');
+	protected $rel_fields = array('sort_number','start_seconds','end_seconds','start_line_num','end_line_num','points','additional','datetime','paragraph_num');
 	protected $defaults = array(
 		'books'			=> null,
 		'book'			=> null,
@@ -869,7 +869,7 @@ class RDF_Object {
 		$ref_models = $CI->config->item('ref');
 		if ('array'!=gettype($models)) throw new Exception('Could not locate relationship configuration');
 		if (!empty($ref_models)) $models = array_merge($models, $ref_models);
-		
+
 		for ($j = 0; $j < count($row->versions); $j++) {
 			$version_id = $row->versions[$j]->version_id;
 			foreach ($models as $model) {
