@@ -75,7 +75,7 @@
 		  let bookUserIDs = Array.prototype.map
 			  .call(document.querySelectorAll("[property='id']"), row => row.innerHTML);
 
-		  let $div = $('<div class="select_box"><h4 class="dialog_title">Add a user</h4>To connect a user to your book, first search for them by their name or email.<br clear="both" /><br /><form><input class="generic_text_input" style="float:left;" type="text" name="searchValue" value="" /><br clear="both" /></form><div class="results" style="padding-top:16px;padding-bottom:10px;"></div><a class="generic_button large" href="javascript:;" onclick="window.location.reload();style="float:right;font-size:larger;">Close</a></div>');
+		  let $div = $('<div class="select_box"><h4 class="dialog_title">Add a user</h4>To connect a user to your book, first search for them by their name or email.<br clear="both" /><br /><form><input class="generic_text_input" style="float:left;" type="text" name="searchValue" value="" /><br clear="both" /></form><div class="results" style="padding-top:16px;padding-bottom:10px;"></div><a class="generic_button large" href="javascript:;" onclick="window.location.reload();" style="float:right;font-size:larger;">Close</a></div>');
 		  $('body').append($div);
 			$div.find('.generic_text_input').on('keyup', debounce(function() {
 				let sq = this.value;
