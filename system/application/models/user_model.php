@@ -264,11 +264,14 @@ class User_model extends MY_Model {
 
     }
 
-		public function get_by_name_or_email($sq='') {
+		public function get_by_name_or_email($sq='', $limit=NULL) {
 			$this->db->select('user_id, fullname, email');
 			$this->db->from($this->users_table);
 			$this->db->like('fullname', $sq);
 			$this->db->or_like('email', $sq);
+			if ($limit){
+				$this->db->limit($limit);
+			}
 			$query = $this->db->get();
 			if ($query->num_rows == 0) return false;
     	return $query->result();  	// Could be more than one

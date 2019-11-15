@@ -74,6 +74,7 @@
 		function request_book_user(book_id) {
 		  let bookUserIDs = Array.prototype.map
 			  .call(document.querySelectorAll("[property='id']"), row => row.innerHTML);
+			const showEmail = <?php echo $this->config->item('show_email_in_search') ?>;
 
 		  let $div = $('<div class="select_box add_book_user_select_box"><h4 class="dialog_title">Add a user</h4>To connect a user to your book, first search for them by their name or email.<br clear="both" /><br /><form><input class="generic_text_input" style="float:left;" type="text" name="searchValue" value="" /><br clear="both" /></form><div class="results" style="padding-top:16px;padding-bottom:10px;"></div><a class="generic_button large" href="javascript:;" onclick="window.location.reload();" style="float:right;font-size:larger;">Close</a></div>');
 		  $('body').append($div);
@@ -86,7 +87,7 @@
 
 			$div.find('.generic_text_input').on('keyup', debounce(function() {
 				let sq = this.value;
-				if (sq.trim() !== "") { // dont search on empty, nor just spaces
+				if (sq.trim() !== "" && sq.trim().length > 1) { // dont search on empty, nor just spaces, nor anything less than 2 chars
 					$.get('api/get_system_users_by_name_or_email', {sq:sq}, function(data) {
 						if (!data.length) {
 							$div.find('.results').html('No users were found.');
@@ -94,13 +95,15 @@
 						}
 						$div.find('.results').html('<div style="padding-bottom:10px;">Please select a user below to link them to your book:</div>');
 						data.forEach( (u)=> {
-							let link = $('<a href="javascript:void(null);">'+u.fullname+'</a>');
-							let email = $('<span>  --  '+u.email+'</span>');
-							link.data('user_id', u.user_id);
 							let row = $('<div style="padding-bottom:.68em;"></div>');
-							$div.find('.results').append(row);
+							let link = $('<a href="javascript:void(null);">'+u.fullname+'</a>');
 							row.append(link);
-							row.append(email);
+							link.data('user_id', u.user_id);
+							if (showEmail) {
+								let email = $('<span>  --  '+u.email+'</span>');
+								row.append(email);
+							}
+							$div.find('.results').append(row);
 							row.append("<span class='animator'></span>");
 							if (bookUserIDs.indexOf(u.user_id) >= 0) {
 								row.find('.animator').addClass('check');
