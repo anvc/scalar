@@ -879,9 +879,8 @@ class System extends MY_Controller {
 				}
 				break;
 			case 'get_system_users_by_name_or_email':
-				// if (!$this->data['login_is_super']) $this->kickout();
 			  $sq =@ $_REQUEST['sq'];
-				$this->data['content'] = $this->users->get_by_name_or_email($sq);
+				$this->data['content'] = $this->users->get_by_name_or_email($sq, 100);
 				break;
 			case 'get_system_users':
 				if (!$this->data['login_is_super']) $this->kickout();
