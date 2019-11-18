@@ -220,17 +220,13 @@ jQuery.AnnoBuilderController = function() {
 	 * Loads annotations for the media file.
 	 */
 	jQuery.AnnoBuilderController.prototype.loadAnnotations = function() {
-		if ( $( 'article' ).length ) {  // Cantaloupe loads each annotation in seperate API calls
-			if (scalarapi.loadCurrentPage(true, this.handleAnnotations, null, 1, false, 'annotation') == 'loaded') this.handleAnnotations();
-		} else {  // Honeydew needs tag info along with annotation info
-			scalarapi.model.removeNodes();
-			if (scalarapi.loadCurrentPage(true, this.handleAnnotations, null, 2, false, 'annotation,tag') == 'loaded') this.handleAnnotations();
-		}
+		scalarapi.model.removeNodes();
+		if (scalarapi.loadCurrentPage(true, this.handleAnnotations, null, 2, false, 'annotation,tag') == 'loaded') this.handleAnnotations();
 		if ( $.annobuilder.model.node.current.mediaSource.contentType == 'image' ) {
       console.log($.annobuilder.model.mediaElement.view.mediaObjectView);
  			anno.removeAll( $.annobuilder.model.mediaElement.view.mediaObjectView.image.src + '-0' );
 		}
-}
+  }
 
 	/**
 	 * Handles loaded annotation data.
