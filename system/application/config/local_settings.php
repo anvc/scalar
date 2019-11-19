@@ -16,7 +16,7 @@ $config['active_cover'] = 'cover';
 $config['active_dashboard'] = 'dashboard';
 
 // Configure the user search when adding users to books to show their email or not. Default to false.
-$config['show_email_in_search'] = 'true';
+$config['show_email_in_search'] = true;
 
 // SALT, any string you want as long as it is complicated
 $config['shasalt'] = (getenv('SCALAR_SHASALT') ? getenv('SCALAR_SHASALT') : '');
