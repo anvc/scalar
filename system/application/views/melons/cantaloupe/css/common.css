@@ -588,6 +588,9 @@ header [typeof="tk:TKLabel"] { margin-left:6px; margin-right: 0; }
    -o-transform: translateZ(0);
 	opacity: 0;
 }
+.splash .title_card {
+	margin-bottom: 5rem;
+}
 .title_card.fade_in {
 	-webkit-transition: all 1s ease-in-out;
 	-moz-transition: all 1s ease-in-out;
