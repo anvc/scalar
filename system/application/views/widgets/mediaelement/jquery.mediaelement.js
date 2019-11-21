@@ -2277,6 +2277,7 @@ function YouTubeGetID(url){
 				if (2 == this.width / this.height && 'annotation_editor' != $('link#view').attr('href')) {  // Test for 360 image
 					me.parentView.mediaContainer.empty();
 					me.parentView.mediaObjectView = new $.I360ObjectView(model, parentView);
+					me.parentView.mediaObjectView.annotations = me.annotations;
 					me.parentView.mediaObjectView.createObject();
 					return;
 				}
@@ -2477,6 +2478,7 @@ function YouTubeGetID(url){
 		 * Creates the 360 media object.
 		 */
  		jQuery.I360ObjectView.prototype.createObject = function() {
+ 			
  			this.hasLoaded = true;
 			//this.parentView.intrinsicDim.x = 6000;
 			//this.parentView.intrinsicDim.y = 3000;
@@ -2496,18 +2498,70 @@ function YouTubeGetID(url){
 				script_path: path
 			};
 		    $.getScript( path+'vrview.js' , function() {
-		    	var vrView = new VRView.Player('#vrview_'+my_vrview, obj);  // Global
+		    	var vrView = new VRView.Player('#vrview_'+my_vrview, obj);
 		    	$('#vrview_'+my_vrview).find('iframe').css('width','100%').css('height','100%');
+		    	vrView.on('ready', function(){
+					if (me.annotations != null) {
+						me.setupAnnotations(vrView, me.annotations);
+					}
+		    	});
 		    });
 
     	}
+ 		
+		/**
+		 * Sets up the image's annotations
+		 *
+		 * @param {Array} annotations		The annotations to be added to the image.
+		 */
+ 		jQuery.I360ObjectView.prototype.setupAnnotations = function(vrView, annotations) {
 
-		// TODO: vrview has an API for these for videos
-		jQuery.I360ObjectView.prototype.play = function() { }
-		jQuery.I360ObjectView.prototype.pause = function() { }
-		jQuery.I360ObjectView.prototype.seek = function(time) { }
-		jQuery.I360ObjectView.prototype.getCurrentTime = function() { return null; }
-		jQuery.I360ObjectView.prototype.isPlaying = function() { return true; }
+	 		for (i=0; i<annotations.length; i++) {
+
+	 			annotation = annotations[i];
+	 			console.log(annotation);
+	 			var x;
+	 			var y;
+	 			var width;
+	 			var height;
+	 				
+				if (annotation.properties.x.charAt(annotation.properties.x.length - 1) == '%') {
+					x = (parseFloat(annotation.properties.x.substr(0, annotation.properties.x.length - 1)) * .01) * this.parentView.mediaScale;
+					x *= this.parentView.intrinsicDim.x;
+				} else {
+					x = parseFloat(annotation.properties.x) * this.parentView.mediaScale;
+				}
+
+				if (annotation.properties.y.charAt(annotation.properties.y.length - 1) == '%') {
+					y = (parseFloat(annotation.properties.y.substr(0, annotation.properties.y.length - 1)) * .01) * this.parentView.mediaScale;
+					y *= this.parentView.intrinsicDim.y;
+				} else {
+					y = parseFloat(annotation.properties.y) * this.parentView.mediaScale;
+				}
+				if (annotation.properties.width.charAt(annotation.properties.width.length - 1) == '%') {
+					width = (parseFloat(annotation.properties.width.substr(0, annotation.properties.width.length - 1)) * .01) * this.parentView.mediaScale;
+					width *= this.parentView.intrinsicDim.x;
+				} else {
+					width = parseFloat(annotation.properties.width) * this.parentView.mediaScale;
+				}
+
+				if (annotation.properties.height.charAt(annotation.properties.height.length - 1) == '%') {
+					height = (parseFloat(annotation.properties.height.substr(0, annotation.properties.height.length - 1)) * .01) * this.parentView.mediaScale;
+					height *= this.parentView.intrinsicDim.y;
+				} else {
+					height = parseFloat(annotation.properties.height) * this.parentView.mediaScale;
+				}
+					
+	 			vrView.addHotspot('dining-room', {
+	 				pitch: -60, // In degrees. Up is positive.
+	 				yaw: 90, // In degrees. To the right is positive.
+	 				radius: 0.5, // Radius of the circular target in meters.
+	 				distance: 10 // Distance of target from camera in meters.
+	 			});
+
+	 		}
+
+ 		}
 
 		/**
 		 * Resizes the vrview wrapper (in this case, ".mediaContainer" since vrview loads asyncronously) to the specified dimensions.
@@ -2521,6 +2575,12 @@ function YouTubeGetID(url){
 			$(me.parentView.mediaContainer).width(width+'px');
 			$(me.parentView.mediaContainer).height(height+'px');
 		}
+		
+		jQuery.I360ObjectView.prototype.play = function() { }
+		jQuery.I360ObjectView.prototype.pause = function() { }
+		jQuery.I360ObjectView.prototype.seek = function(time) { }
+		jQuery.I360ObjectView.prototype.getCurrentTime = function() { return null; }
+		jQuery.I360ObjectView.prototype.isPlaying = function() { return true; }
 
 	}  // !360
 
@@ -3151,12 +3211,6 @@ function YouTubeGetID(url){
  			  return result;
  		};
 
-		jQuery.V360ObjectView.prototype.play = function() { }
-		jQuery.V360ObjectView.prototype.pause = function() { }
-		jQuery.V360ObjectView.prototype.seek = function(time) { }
-		jQuery.V360ObjectView.prototype.getCurrentTime = function() { return null; }
-		jQuery.V360ObjectView.prototype.isPlaying = function() { return true; }
-
 		/**
 		 * Resizes the vrview wrapper (in this case, ".mediaContainer" since vrview loads asyncronously) to the specified dimensions.
 		 *
@@ -3169,6 +3223,12 @@ function YouTubeGetID(url){
 			$(me.parentView.mediaContainer).width(width+'px');
 			$(me.parentView.mediaContainer).height(height+'px');
 		}
+		
+		jQuery.V360ObjectView.prototype.play = function() { }
+		jQuery.V360ObjectView.prototype.pause = function() { }
+		jQuery.V360ObjectView.prototype.seek = function(time) { }
+		jQuery.V360ObjectView.prototype.getCurrentTime = function() { return null; }
+		jQuery.V360ObjectView.prototype.isPlaying = function() { return true; }
 
 	}  // !360
 
