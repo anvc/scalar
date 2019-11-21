@@ -1166,6 +1166,7 @@ function YouTubeGetID(url){
 
 							case 'native':
 							this.mediaObjectView = new $.HTML5VideoObjectView(this.model, this);
+							//this.mediaObjectView = new $.SemanticAnnotationToolObjectView(this.model, this);
 							break;
 
 							case 'proprietary':
@@ -3124,6 +3125,217 @@ function YouTubeGetID(url){
 		}
 
 	}
+	
+	/**
+	 * View for the Semantic Annotation Tool video player.
+	 * @constructor
+	 *
+	 * @param {Object} model		Instance of the model.
+	 * @param {Object} parentView	Primary view for the media element.
+	 */
+	jQuery.SemanticAnnotationToolObjectView = function(model, parentView) {
+
+		var me = this;
+
+		this.model = model;  					// instance of the model
+		this.parentView = parentView;   		// primary view for the media element
+
+		/**
+		 * Creates the video media object.
+		 */
+		jQuery.SemanticAnnotationToolObjectView.prototype.createObject = function() {
+
+			var mimeType;
+			switch (this.model.mediaSource.name) {
+
+				case "QuickTime":
+				mimeType = "video/quicktime"
+				break;
+
+				case "MPEG-4":
+				case "M4V":
+				mimeType = "video/mp4";
+				break;
+
+				case "OGG":
+				mimeType = "video/ogg";
+				break;
+
+				case "3GPP":
+				mimeType = "video/3gpp";
+				break;
+
+				case "CriticalCommons-LegacyVideo":
+				var temp = this.model.path.split('//');
+				if (temp.length == 3) {
+					var temp2 = temp[2].split('-');
+					temp2.pop();
+					var chunk = temp2.join('-');
+					chunk = chunk.replace(/%20/g, '-');
+					temp = chunk.split('/');
+					var slug = temp[temp.length - 1];
+					var url = 'http://videos.criticalcommons.org/transcoded/http/ccserver.usc.edu/8080/cc/Members/' + chunk + '.mp4/mp4-high/' + slug.toLowerCase() + '-mp4.mp4';
+					this.model.path = url;
+				}
+				mimeType = this.updateCriticalCommonsURLForBrowser();
+				break;
+
+				case "CriticalCommons-Video":
+				mimeType = this.updateCriticalCommonsURLForBrowser();
+				break;
+
+				case "WebM":
+				mimeType = "video/webm";
+				break;
+
+			}
+
+			obj = $('<div class="mediaObject"><video id="'+this.model.filename+'_'+this.model.id+'"><source src="'+this.model.path+'" type="'+mimeType+'"/>Your browser does not support the video tag.</video></div>').appendTo(this.parentView.mediaContainer);
+			if ( this.model.options.autoplay && ( this.model.seek == null ) ) {
+				obj.find( 'video' ).attr( 'autoplay', 'true' );
+			}
+
+			this.video = obj.find('video#'+this.model.filename+'_'+this.model.id);
+
+			this.parentView.controllerOffset = 22;
+
+			var metadataFunc = function() {
+				
+				me.parentView.intrinsicDim.x = me.video[0].videoWidth;
+				me.parentView.intrinsicDim.y = me.video[0].videoHeight;
+				me.parentView.controllerOffset = 0;
+
+				me.parentView.layoutMediaObject();
+				me.parentView.removeLoadingMessage();
+
+			}
+
+			if (document.addEventListener) {
+				this.video[0].addEventListener('loadedmetadata', metadataFunc, false);
+			} else {
+				this.video[0].attachEvent('onloadedmetadata', metadataFunc);
+			}
+			
+			me.setupTool();
+			
+			return;
+		}
+
+		jQuery.SemanticAnnotationToolObjectView.prototype.setupTool = function() {
+			
+			var serverAddress = $('link#parent').attr('href');
+			var tagsAddress = "https://onomy.org/published/83/json";
+			var apiKey = "facc287b-2f51-431d-87ec-773e12302fcf";
+			
+			$('head').append('<link rel="stylesheet" href="' + serverAddress + 'annotator-frontend.css" type="text/css" />');
+			$.getScript(serverAddress + 'annotator-frontend.js', function() {
+				
+				var waldorf_callback = function(event) {
+					console.log('Waldorf callback');
+				};
+				waldorf = me.video.first().annotate({
+					serverURL: serverAddress, 
+					tagsURL: tagsAddress, 
+					apiKey: apiKey, 
+					kioskMode: false,
+					cmsUsername: "Scalar Test User",
+					cmsEmail: "wahwho@yahoo.com",
+					displayIndex: false,
+					callback: waldorf_callback
+				});
+				
+			});
+			
+		}
+
+		jQuery.SemanticAnnotationToolObjectView.prototype.updateCriticalCommonsURLForBrowser = function() {
+			var ext, format, mimeType;
+			if ( this.model.mediaSource.browserSupport[scalarapi.scalarBrowser] != null ) {
+				format = this.model.mediaSource.browserSupport[scalarapi.scalarBrowser].format;
+			}
+			if (format == 'MPEG-4') {
+				ext = 'mp4';
+				mimeType = "video/mp4";
+			} else {
+				ext = 'webm';
+				mimeType = "video/webm";
+				this.model.path = this.model.path.replace('mp4-high','webm-high');
+				this.model.path = this.model.path.replace('mp4-low','webm-low');
+			}
+			var path_segments = this.model.path.split('.');
+			if (path_segments.length > 1) {
+				path_segments[path_segments.length-1] = ext;
+				this.model.path = path_segments.join('.');
+			}
+			return mimeType;
+		}
+
+		/**
+		 * Starts playback of the video.
+		 */
+		jQuery.SemanticAnnotationToolObjectView.prototype.play = function() {
+			if ((this.model.seekAnnotation != null) && (!this.parentView.overrideAutoSeek)) {
+				this.video[0].currentTime = this.model.seekAnnotation.properties.start;
+			}
+			if (this.video[0].paused) {
+				this.video[0].play();
+			}
+		}
+
+		/**
+		 * Pauses playback of the video.
+		 */
+		jQuery.SemanticAnnotationToolObjectView.prototype.pause = function() {
+			if (this.video[0]) {
+				this.video[0].pause();
+			}
+		}
+
+		/**
+		 * Seeks to the specified location in the video.
+		 *
+		 * @param {Number} time			Seek location in seconds.
+		 */
+		jQuery.SemanticAnnotationToolObjectView.prototype.seek = function(time) {
+			if (this.video[0]) {
+				this.video[0].currentTime = time;
+			}
+		}
+
+		/**
+		 * Returns the current playback position of the video.
+		 * @return	The current playback position in seconds.
+		 */
+		jQuery.SemanticAnnotationToolObjectView.prototype.getCurrentTime = function() {
+			if (this.video[0]) {
+				return this.video[0].currentTime;
+			}
+		}
+
+		/**
+		 * Resizes the video to the specified dimensions.
+		 *
+		 * @param {Number} width		The new width of the video.
+		 * @param {Number} height		The new height of the video.
+		 */
+		jQuery.SemanticAnnotationToolObjectView.prototype.resize = function(width, height) {
+			if (this.video) {
+				this.video[0].width = width;
+				this.video[0].height = height;
+			}
+		}
+
+		/**
+		 * Returns true if the video is currently playing.
+		 * @return	Returns true if the video is playing.
+		 */
+		jQuery.SemanticAnnotationToolObjectView.prototype.isPlaying = function() {
+			if (this.video[0]) {
+				return !this.video[0].paused;
+			}
+		}
+
+	}	
 	
 	/**
 	 * View for 360 videos, using Google's vrview.
