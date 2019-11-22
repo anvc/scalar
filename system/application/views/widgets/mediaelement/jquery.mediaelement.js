@@ -2275,13 +2275,13 @@ function YouTubeGetID(url){
 			$(this.image).on('load', function() {
 				// Standard practice is that 360 images must be exactly 2:1; alternatively could look for Exif XMP “ProjectionType=equirectangular”
 				// Panoramas that aren't 2:1 (e.g., created on a phone) will require a more nuanced look at the metadata to determine if the 360 view should load
-				if (2 == this.width / this.height && 'annotation_editor' != $('link#view').attr('href')) {  // Test for 360 image
+				/*if (2 == this.width / this.height && 'annotation_editor' != $('link#view').attr('href')) {  // Test for 360 image
 					me.parentView.mediaContainer.empty();
 					me.parentView.mediaObjectView = new $.I360ObjectView(model, parentView);
 					me.parentView.mediaObjectView.annotations = me.annotations;
 					me.parentView.mediaObjectView.createObject();
 					return;
-				}
+				}*/
 				me.doImageSetup(this);
 			});
 
@@ -2479,7 +2479,7 @@ function YouTubeGetID(url){
 		 * Creates the 360 media object.
 		 */
  		jQuery.I360ObjectView.prototype.createObject = function() {
- 			
+
  			this.hasLoaded = true;
 			//this.parentView.intrinsicDim.x = 6000;
 			//this.parentView.intrinsicDim.y = 3000;
@@ -2509,7 +2509,7 @@ function YouTubeGetID(url){
 		    });
 
     	}
- 		
+
 		/**
 		 * Sets up the image's annotations
 		 *
@@ -2525,7 +2525,7 @@ function YouTubeGetID(url){
 	 			var y;
 	 			var width;
 	 			var height;
-	 				
+
 				if (annotation.properties.x.charAt(annotation.properties.x.length - 1) == '%') {
 					x = (parseFloat(annotation.properties.x.substr(0, annotation.properties.x.length - 1)) * .01) * this.parentView.mediaScale;
 					x *= this.parentView.intrinsicDim.x;
@@ -2552,7 +2552,7 @@ function YouTubeGetID(url){
 				} else {
 					height = parseFloat(annotation.properties.height) * this.parentView.mediaScale;
 				}
-					
+
 	 			vrView.addHotspot('dining-room', {
 	 				pitch: -60, // In degrees. Up is positive.
 	 				yaw: 90, // In degrees. To the right is positive.
@@ -2576,7 +2576,7 @@ function YouTubeGetID(url){
 			$(me.parentView.mediaContainer).width(width+'px');
 			$(me.parentView.mediaContainer).height(height+'px');
 		}
-		
+
 		jQuery.I360ObjectView.prototype.play = function() { }
 		jQuery.I360ObjectView.prototype.pause = function() { }
 		jQuery.I360ObjectView.prototype.seek = function(time) { }
@@ -3002,13 +3002,13 @@ function YouTubeGetID(url){
 			var metadataFunc = function() {
 
 				// Standard practice is that 360 video must be exactly 2:1
-				if (2 == me.video[0].videoWidth / me.video[0].videoHeight && 'annotation_editor' != $('link#view').attr('href')) {  // Test for 360 video
+				/*if (2 == me.video[0].videoWidth / me.video[0].videoHeight && 'annotation_editor' != $('link#view').attr('href')) {  // Test for 360 video
 					me.parentView.mediaContainer.empty();
 					me.parentView.mediaObjectView = new $.V360ObjectView(model, parentView);
 					me.parentView.mediaObjectView.createObject();
 					return;
-				}
-				
+				}*/
+
 				me.parentView.intrinsicDim.x = me.video[0].videoWidth;
 				me.parentView.intrinsicDim.y = me.video[0].videoHeight;
 				me.parentView.controllerOffset = 0;
@@ -3125,7 +3125,7 @@ function YouTubeGetID(url){
 		}
 
 	}
-	
+
 	/**
 	 * View for the Semantic Annotation Tool video player.
 	 * @constructor
@@ -3200,7 +3200,7 @@ function YouTubeGetID(url){
 			this.parentView.controllerOffset = 22;
 
 			var metadataFunc = function() {
-				
+
 				me.parentView.intrinsicDim.x = me.video[0].videoWidth;
 				me.parentView.intrinsicDim.y = me.video[0].videoHeight;
 				me.parentView.controllerOffset = 0;
@@ -3215,37 +3215,37 @@ function YouTubeGetID(url){
 			} else {
 				this.video[0].attachEvent('onloadedmetadata', metadataFunc);
 			}
-			
+
 			me.setupTool();
-			
+
 			return;
 		}
 
 		jQuery.SemanticAnnotationToolObjectView.prototype.setupTool = function() {
-			
+
 			var serverAddress = $('link#parent').attr('href');
 			var tagsAddress = "https://onomy.org/published/83/json";
 			var apiKey = "facc287b-2f51-431d-87ec-773e12302fcf";
-			
+
 			$('head').append('<link rel="stylesheet" href="' + serverAddress + 'annotator-frontend.css" type="text/css" />');
 			$.getScript(serverAddress + 'annotator-frontend.js', function() {
-				
+
 				var waldorf_callback = function(event) {
 					console.log('Waldorf callback');
 				};
 				waldorf = me.video.first().annotate({
-					serverURL: serverAddress, 
-					tagsURL: tagsAddress, 
-					apiKey: apiKey, 
+					serverURL: serverAddress,
+					tagsURL: tagsAddress,
+					apiKey: apiKey,
 					kioskMode: false,
 					cmsUsername: "Scalar Test User",
 					cmsEmail: "wahwho@yahoo.com",
 					displayIndex: false,
 					callback: waldorf_callback
 				});
-				
+
 			});
-			
+
 		}
 
 		jQuery.SemanticAnnotationToolObjectView.prototype.updateCriticalCommonsURLForBrowser = function() {
@@ -3335,8 +3335,8 @@ function YouTubeGetID(url){
 			}
 		}
 
-	}	
-	
+	}
+
 	/**
 	 * View for 360 videos, using Google's vrview.
 	 * @constructor
@@ -3411,7 +3411,7 @@ function YouTubeGetID(url){
 		    });
 
     	}
- 		
+
  		jQuery.V360ObjectView.prototype.formatTime = function(time) {
  			  time = !time || typeof time !== 'number' || time < 0 ? 0 : time;
  			  var minutes = Math.floor(time / 60) % 60;
@@ -3435,7 +3435,7 @@ function YouTubeGetID(url){
 			$(me.parentView.mediaContainer).width(width+'px');
 			$(me.parentView.mediaContainer).height(height+'px');
 		}
-		
+
 		jQuery.V360ObjectView.prototype.play = function() { }
 		jQuery.V360ObjectView.prototype.pause = function() { }
 		jQuery.V360ObjectView.prototype.seek = function(time) { }
