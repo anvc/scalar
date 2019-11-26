@@ -21,7 +21,7 @@
  * @projectDescription		The MediaElement plug-in creates and manages the interface for a Scalar media resource.
  *							Scalar is a project of The Alliance for Networking Visual Culture (http://scalar.usc.edu).
  * @author					Erik Loyer
- * @version					1.0
+ * @version					1.1
  */
 
 var mediaElementUniqueID = 0;
@@ -3227,9 +3227,16 @@ function YouTubeGetID(url){
 			var tagsAddress = "https://onomy.org/published/83/json";
 			var apiKey = "facc287b-2f51-431d-87ec-773e12302fcf";
 
+			$('head').append('<link rel="stylesheet" href="' + serverAddress + 'jquery-ui-1.12.1.custom/jquery-ui.min.css" type="text/css" />');
+			$('head').append('<link rel="stylesheet" href="' + serverAddress + 'select2.min.css" type="text/css" />');
 			$('head').append('<link rel="stylesheet" href="' + serverAddress + 'annotator-frontend.css" type="text/css" />');
-			$.getScript(serverAddress + 'annotator-frontend.js', function() {
+			$.when(
+				$.getScript(serverAddress + 'jquery-ui-1.12.1.custom/jquery-ui.min.js'),
+				$.getScript(serverAddress + 'select2.min.js'),
+				$.getScript(serverAddress + 'annotator-frontend.js')
+			).done(function(){
 
+				console.log('Booting up Waldorf');
 				var waldorf_callback = function(event) {
 					console.log('Waldorf callback');
 				};
