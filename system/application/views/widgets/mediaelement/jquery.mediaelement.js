@@ -8,7 +8,7 @@
  * (the "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
  *
- * http://www.osedu.org/licenses/ECL-2.0
+ * http://www.osedu.org/licenses /ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an "AS IS"
@@ -21,7 +21,7 @@
  * @projectDescription		The MediaElement plug-in creates and manages the interface for a Scalar media resource.
  *							Scalar is a project of The Alliance for Networking Visual Culture (http://scalar.usc.edu).
  * @author					Erik Loyer
- * @version					1.1
+ * @version					1.0
  */
 
 var mediaElementUniqueID = 0;
@@ -1165,8 +1165,8 @@ function YouTubeGetID(url){
 							break;
 
 							case 'native':
-							//this.mediaObjectView = new $.HTML5VideoObjectView(this.model, this);
-							this.mediaObjectView = new $.SemanticAnnotationToolObjectView(this.model, this);
+							this.mediaObjectView = new $.HTML5VideoObjectView(this.model, this);
+							//this.mediaObjectView = new $.SemanticAnnotationToolObjectView(this.model, this);
 							break;
 
 							case 'proprietary':
@@ -3227,16 +3227,9 @@ function YouTubeGetID(url){
 			var tagsAddress = "https://onomy.org/published/83/json";
 			var apiKey = "facc287b-2f51-431d-87ec-773e12302fcf";
 
-			$('head').append('<link rel="stylesheet" href="' + serverAddress + 'jquery-ui-1.12.1.custom/jquery-ui.min.css" type="text/css" />');
-			$('head').append('<link rel="stylesheet" href="' + serverAddress + 'select2.min.css" type="text/css" />');
 			$('head').append('<link rel="stylesheet" href="' + serverAddress + 'annotator-frontend.css" type="text/css" />');
-			$.when(
-				$.getScript(serverAddress + 'jquery-ui-1.12.1.custom/jquery-ui.min.js'),
-				$.getScript(serverAddress + 'select2.min.js'),
-				$.getScript(serverAddress + 'annotator-frontend.js')
-			).done(function(){
+			$.getScript(serverAddress + 'annotator-frontend.js', function() {
 
-				console.log('Booting up Waldorf');
 				var waldorf_callback = function(event) {
 					console.log('Waldorf callback');
 				};
@@ -3250,7 +3243,7 @@ function YouTubeGetID(url){
 					displayIndex: false,
 					callback: waldorf_callback
 				});
-				
+
 			});
 
 		}
