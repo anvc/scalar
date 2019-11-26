@@ -154,7 +154,7 @@ class RDF_Store {
 	}
 
 	/**
-	 * Serialize an index into either RDF-XML or RDF-JSON
+	 * Serialize an index into either RDF-XML, RDF-JSON, or Turtle
 	 */
 
 	public function serialize($index, $prefix='', $format='xml') {
