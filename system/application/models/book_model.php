@@ -95,9 +95,9 @@ class Book_model extends MY_Model {
     	return $book;
 
     }
-    
+
     public function get_by_slug($uri='') {
-    	
+
     	$query = $this->db->get_where($this->books_table, array('slug'=>$uri));
     	$result = $query->result();
     	if (!isset($result[0])) return null;
@@ -106,11 +106,11 @@ class Book_model extends MY_Model {
     		if (isset($result[$j]->editions) && !empty($result[$j]->editions)) $result[$j]->editions = unserialize($result[$j]->editions);
     	}
     	return $result[0];
-    	
+
     }
-    
+
     public function get_by_urn($urn='') {
-    	
+
     	$pk = (int) $this->urn_to_pk($urn);
     	$query = $this->db->get_where($this->books_table, array('page_id'=>$pk), 1);
     	$result = $query->result();
@@ -120,7 +120,7 @@ class Book_model extends MY_Model {
     		if (isset($result[$j]->editions) && !empty($result[$j]->editions)) $result[$j]->editions = unserialize($result[$j]->editions);
     	}
     	return $result[0];
-    	
+
     }
 
     public function get_by_content_id($content_id) {
@@ -310,7 +310,7 @@ class Book_model extends MY_Model {
     		 "AND A.book_id = $book_id " .
     		 "AND A.type='media' " .
     	     "AND A.is_live = 1 " .
-    		 "AND (B.url LIKE '%.gif' OR B.url LIKE '%.jpg' OR B.url LIKE '%.jpeg' OR B.url LIKE '%.png' OR B.url LIKE '%JPEG%' ".$add_str.") " .
+    		 "AND (B.url LIKE '%.gif%' OR B.url LIKE '%.jpg%' OR B.url LIKE '%.jpeg%' OR B.url LIKE '%.png%' OR B.url LIKE '%JPEG%' ".$add_str.") " .
     		 "ORDER BY B.title ASC, B.version_num ASC";
     	$query = $this->db->query($q);
     	$result = $query->result();
