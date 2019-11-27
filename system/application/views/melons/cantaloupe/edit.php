@@ -880,12 +880,12 @@ if($currentRole == 'commentator'){
 				<strong>Notice:</strong> There are unsaved query changes—please save page to commit.
 			</div>
 		<?php } ?>
-		<?php /* if(!isset($_COOKIE['hide_widgets_alert'])){ ?>
+		<?php  if(!isset($_COOKIE['hide_widgets_alert']) && $this->config->item('index_msg') != ''){ ?>
 		<div id="wysiwygNewFeatures" class="alert alert-info alert-dismissible caption_font" role="alert" style="">
 		  <button type="button" class="close" data-dismiss="alert" aria-label="Close">&times;</button>
-		  <strong>Check out our latest feature – Scalar widgets.</strong><hr /> Widgets are modular interface elements that provide additional navigation, visualization, and media options for your readers. To add widgets to a page use the two new buttons in the toolbar below (the ones that look like puzzle pieces). For step-by-step instructions on adding widgets see our <a href="http://scalar.usc.edu/works/guide2/working-with-widgets" target="_blank">User’s Guide</a>. Feel free to <a href="http://scalar.usc.edu/contact/" target="_blank">contact us</a> if you have any questions.
+		  <? echo($this->config->item('index_msg')); ?>
 		</div>
-		<?php } */ ?>
+		<?php }  ?>
 		<textarea id="editor" wrap="soft" name="sioc:content" style="visibility:hidden;"<?php if(isset($book->editorial_is_on) && $book->editorial_is_on === '1' && !$canChangeState){ echo ' data-readonly="true"';} ?>>
 		<?php
 		if (isset($page->version_index)):
