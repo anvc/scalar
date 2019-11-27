@@ -528,44 +528,46 @@
              var $widget = this;
 
              $widget.on('slotCreated',function(){
-               //Carousel rendering content
-               base.carouselCount++;
-               var carouselId = "carousel-" + base.carouselCount;
-               var $carousel = $('<div id="' + carouselId + '" class="carousel slide" data-interval="false" style=""></div>').appendTo($element);
-               var $wrapper = $( '<div class="carousel-inner" role="listbox"></div>' ).appendTo( $carousel );
+             //Carousel rendering content
+             base.carouselCount++;
+             var carouselId = "carousel-" + base.carouselCount;
+             var $carousel = $('<div id="' + carouselId + '" class="carousel slide" data-interval="false" style=""></div>').appendTo($element);
+             var $wrapper = $( '<div class="carousel-inner" role="listbox"></div>' ).appendTo( $carousel );
 
-               if ( page.adaptiveMedia == "mobile" ) {
-                 var galleryHeight = 300;
-               } else {
-                 // this magic number matches a similar one in the calculateContainerSize method of jquery.mediaelement.js;
-                 // keeping them synced up helps keep media vertically aligned in galleries
-                 if($widget.parents('.placeholder').length > 0){
-                  var galleryHeight = Math.min(200,base.options.maxWidgetHeight,maxWidgetHeight);
-                 }else{
-                  var galleryHeight = Math.min(base.options.maxWidgetHeight,maxWidgetHeight);
-                 }
-
-                 if($widget.data('container').data('size') == 'full'){
-                    galleryHeight += 100;
-                 }
+             if ( page.adaptiveMedia == "mobile" ) {
+               var galleryHeight = 300;
+             } else {
+               // this magic number matches a similar one in the calculateContainerSize method of jquery.mediaelement.js;
+               // keeping them synced up helps keep media vertically aligned in galleries
+               if($widget.parents('.placeholder').length > 0){
+                var galleryHeight = Math.min(200,base.options.maxWidgetHeight,maxWidgetHeight);
+               }else{
+                var galleryHeight = Math.min(base.options.maxWidgetHeight,maxWidgetHeight);
                }
-               $carousel.css('min-height',galleryHeight+'px');
-               var media_nodes = [];
-               var index = 0;
-               var calculateMediaNodes = function(nodes){
+
+               if($widget.data('container').data('size') == 'full'){
+                  galleryHeight += 100;
+               }
+             }
+             $carousel.css('min-height',galleryHeight+'px');
+             var media_nodes = [];
+             var index = 0;
+              var calculateMediaNodes = function(nodes){
                 var n = nodes.length;
                 for ( var i = 0; i < n; i++ ) {
-                      var node = nodes[i];
-                      if(typeof node.scalarTypes.media != 'undefined'){
-                          media_nodes[index++] = node;
+                  var node = nodes[i];
+                  if (node.scalarTypes != undefined) {
+                    if(typeof node.scalarTypes.media != 'undefined'){
+                      media_nodes[index++] = node;
+                    }
+                    if(typeof node.children != "undefined"){
+                      for(var t in node.children){
+                        calculateMediaNodes(node.children[t]);
                       }
-                      if(typeof node.children != "undefined"){
-                        for(var t in node.children){
-                          calculateMediaNodes(node.children[t]);
-                        }
-                      }
+                    }
+                  }
                 }
-               }
+              }
 
                calculateMediaNodes($widget.data('node'));
 
