@@ -300,7 +300,7 @@
                     }
 
                     // If the media is smaller than the "small" size, remove tabs below media
-                    if (mediaWidth < minTabWidth) {
+                    if (mediaWidth < minTabWidth && mediaWidth != 0) {
                         mediaelement.model.options.solo = true;
                     }
 
@@ -330,7 +330,6 @@
                 }
 
                 // the "solo" option is used when showing media items that don't get media details tabs beneath
-
 
                 if (mediaelement.model.options.solo != true) {
                     if (isFullWidth) {

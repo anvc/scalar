@@ -1608,7 +1608,6 @@ function YouTubeGetID(url){
 				}
 				if (this.model.containerLayout == "horizontal") {
 					this.annotationSidebar.css('display','none');
-					this.mediaContainer.css('float', 'inherit');
 					if (this.mediaContainer.closest('.slot').length == 0) {
 						if (this.controllerOnly && (this.model.options.header != 'nav_bar')) {
 		 					this.containerDim.y = Math.max(this.minContainerDim.y, this.controllerHeight + (this.gutterSize * 2));
