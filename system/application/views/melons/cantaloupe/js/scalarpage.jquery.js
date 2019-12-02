@@ -2750,7 +2750,7 @@
 	                    		var title = media_node[uri]['http://purl.org/dc/terms/title'][0].value;
 	                    		//var description = ('undefined'!=typeof(media_node[uri]['http://purl.org/dc/terms/description'])) ? media_node[uri]['http://purl.org/dc/terms/description'][0].value : null;
 	                    		var source = ('undefined'!=typeof(media_node[uri]['http://purl.org/dc/terms/source'])) ? media_node[uri]['http://purl.org/dc/terms/source'][0].value : null;
-	                    		var html = '<div class="citation"><a href="'+url+'">Background: '+title+''+((null!=source)?' ('+source+')':'')+'</a></div>';
+	                    		var html = '<div class="citation caption_font"><a href="'+url+'">Background: '+title+''+((null!=source)?' ('+source+')':'')+'</a></div>';
 	                    		$('.title_card').append(html);
 	                    	}
 	                    });
