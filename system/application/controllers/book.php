@@ -566,7 +566,7 @@ class Book extends MY_Controller {
 
 			try {
 				$this->load->library('Image_Metadata');
-				$image_metdadata = $this->image_metadata->get($source_file['tmp_name'], Image_Metadata::FORMAT_NS);
+				$image_metadata = $this->image_metadata->get($source_file['tmp_name'], Image_Metadata::FORMAT_NS);
 			} catch (Exception $e) {
 				// Don't throw exception since this isn't critical
 			}
@@ -582,7 +582,7 @@ class Book extends MY_Controller {
 			}
 
 			$return[$url] = array();
-			if($image_metadata) {
+			if (!empty($image_metadata)) {
 				$return[$url] = $image_metadata;
 			}
 			if ($thumb_url) {
