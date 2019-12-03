@@ -128,7 +128,7 @@
 			$head = $table.find('.head');
 			$head.append('<th></th>');
 			$head.append('<th style="display:none;"></th>');
-			$head.append('<th>Live?&nbsp; </th>');
+			$head.append('<th style="text-align:center;">Live?&nbsp; </th>');
 			if (-1==options.hide_columns.indexOf('category')) $head.append('<th>Category</th>');
 			if (-1==options.hide_columns.indexOf('thumbnail')) $head.append('<th>Thumb</th>');
 			$head.append('<th>URL</th>');
@@ -137,9 +137,9 @@
 			if (-1==options.hide_columns.indexOf('content')) $head.append('<th>Content</th>');
 			if (-1==options.hide_columns.indexOf('url')) $head.append('<th>Filename</th>');
 			$head.append('<th>Created</th>');
-			if (-1==options.hide_columns.indexOf('user')) $head.append('<th>User</th>');
+			if (-1==options.hide_columns.indexOf('user')) $head.append('<th style="text-align:center;">User</th>');
 			if (options.paywall) $head.append('<th>Paywall?</th>');
-			$head.append('<th style="white-space:nowrap;">'+options.expand_column.name+'</th>');
+			$head.append('<th style="white-space:nowrap;text-align:center;">'+options.expand_column.name+'</th>');
 			$(options.wrapper).html($table);
 
 		},
