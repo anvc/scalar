@@ -1,0 +1,389 @@
+@import "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css";
+.annotator-qtip .qtip-content {
+  font-size: 15px;
+  font-family: Verdana, Geneva, sans-serif;
+  color: #FFFFFF;
+}
+
+.waldorf-container .select2-dropdown-annotator {
+  z-index: 3;
+}
+
+/* Allow Font Awesome Icons in lieu of jQuery UI and only apply when using a FA icon */
+.waldorf-container .ui-icon[class*=" fa-"] {
+  /* Remove the jQuery UI Icon */
+  background: none repeat scroll 0 0 transparent !important;
+  /* Remove the jQuery UI Text Indent */
+  text-indent: 0;
+  /* Bump it up - jQuery UI is -8px */
+  margin-top: -0.5em;
+}
+
+/* Allow use of icon-large to be properly aligned */
+.waldorf-container .ui-icon.icon-large {
+  margin-top: -0.75em;
+}
+
+.waldorf-container .ui-button-icon-only .ui-icon[class*=" fa-"] {
+  /* Bump it - jQuery UI is -8px */
+  display: inline-block;
+  background-position: center;
+}
+
+.waldorf-video-player {
+  background-color: black;
+  position: relative;
+  width: 100% !important;
+  height: auto !important;
+}
+.waldorf-video-player video {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.waldorf-fullscreen {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.waldorf-player-toolbar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 5px;
+  opacity: 0;
+  background-color: #e2e2e2;
+  cursor: default;
+  vertical-align: middle;
+  z-index: 20;
+}
+.waldorf-player-toolbar p {
+  display: inline;
+  vertical-align: middle;
+  margin: 0px;
+  margin-left: 5px;
+  margin-right: 5px;
+  font-family: Verdana, Geneva, sans-serif;
+  color: #575757;
+  user-select: none;
+}
+.waldorf-player-toolbar .ui-button {
+  font-size: 11px;
+}
+.waldorf-player-toolbar #volume-bar {
+  width: 100px;
+  height: 5px;
+  /*    display: inline-block;*/
+  /*    vertical-align: middle;*/
+  margin-left: 10px;
+  margin-right: 10px;
+}
+.waldorf-player-toolbar #volume-bar .ui-slider-range {
+  /* Background color for volume slider */
+  background: #00b1ff;
+}
+.waldorf-player-toolbar #volume-handle {
+  /*    vertical-align: middle;*/
+  /*    12 width, -6 margin left*/
+  width: 8px;
+  margin-left: -4px;
+  height: 16px;
+  margin-top: -2px;
+}
+.waldorf-player-toolbar #seek-bar {
+  margin: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+  border-radius: 0;
+  position: absolute;
+  display: block;
+  cursor: pointer;
+  width: 100%;
+  height: 10px;
+  top: -10px;
+  left: 0;
+  /*    background-color: rgb(232, 248, 255);*/
+}
+.waldorf-player-toolbar #seek-fill {
+  margin: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+  border-radius: 0;
+  position: absolute;
+  display: block;
+  cursor: pointer;
+  width: 0%;
+  height: 10px;
+  top: -10px;
+  left: 0;
+  background-color: #00b1ff;
+  pointer-events: none;
+  /*    Animation for width changes. Not really helpful yet. */
+  /*    transition: width 1.1s;*/
+}
+.waldorf-player-toolbar #seek-handle {
+  width: 0.5em;
+  vertical-align: middle;
+  width: 12px;
+  margin-left: -6px;
+  visibility: hidden;
+}
+
+.flex-toolbar {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+
+.flex-toolbar * {
+  /*    Vertical align flexboxes*/
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+.waldorf-seekbar-tooltip {
+  background-color: rgba(0, 0, 0, 0.7);
+  width: auto;
+  height: auto;
+  left: 0px;
+  top: 0px;
+  position: absolute;
+  border-style: solid;
+  border-width: 1px;
+  border-color: white;
+  border-radius: 5px;
+}
+.waldorf-seekbar-tooltip p {
+  color: white;
+  text-align: center;
+  vertical-align: middle;
+  opacity: 1;
+}
+
+.waldorf-container {
+  height: auto !important;
+  display: inline-block !important;
+}
+
+.waldorf-video-overlay {
+  position: absolute;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+  z-index: 7;
+  pointer-events: none;
+}
+.waldorf-video-overlay .waldorf-overlay-poly {
+  position: absolute;
+  background-color: rgba(0, 118, 255, 0.55);
+  width: 100%;
+  height: 100%;
+  pointer-events: all;
+}
+
+.waldorf-edit-overlay {
+  position: absolute;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+  z-index: 8;
+  pointer-events: none;
+  background-color: rgba(121, 221, 121, 0.3);
+}
+.waldorf-edit-overlay + .waldorf-edit-poly {
+  position: absolute;
+  background-color: rgba(255, 118, 0, 0.55);
+  width: 100%;
+  height: 100%;
+  z-index: 9;
+  pointer-events: none;
+}
+
+.waldorf-tickbar {
+  position: absolute;
+  display: block;
+  cursor: pointer;
+  width: 100%;
+  height: 5px;
+  top: -15px;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0);
+}
+.waldorf-tickbar .waldorf-tickbar-tick {
+  position: absolute;
+  width: 2px;
+  height: 100%;
+  opacity: 0.75;
+  background-color: rgba(0, 255, 49, 0.78);
+}
+
+.waldorf-info {
+  position: relative;
+  background-color: rgba(121, 121, 221, 0.3);
+  width: 100%;
+  min-height: 15em;
+  max-height: 15em;
+  overflow-y: scroll;
+}
+.waldorf-info p {
+  margin: 0px;
+  padding: 10px;
+}
+
+.waldorf-debug-controls {
+  position: relative;
+  background-color: rgba(121, 221, 121, 0.3);
+  width: 100%;
+  height: auto;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+.waldorf-debug-controls > * {
+  margin: 5px 5px 5px 5px;
+}
+
+.waldorf-vp-post {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 5px;
+  opacity: 1;
+  /*    height: 30px;*/
+  transition: opacity 0.3s;
+  background-color: rgba(52, 52, 52, 0.67);
+  cursor: default;
+  z-index: 20;
+}
+.waldorf-vp-post .ui-field-contain {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+.waldorf-vp-post textarea {
+  height: 25px;
+  resize: vertical;
+  padding-top: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  font: menu;
+  font-size: 16px;
+}
+.waldorf-vp-post label {
+  font-family: Verdana, Geneva, sans-serif;
+  color: #ffffff;
+  user-select: none;
+  font-size: 0.8em;
+  padding-right: 5px;
+}
+.waldorf-vp-post input {
+  font-size: 0.8em;
+}
+
+.waldorf-vp-click-surface {
+  z-index: 8;
+  pointer-events: auto;
+}
+.waldorf-vp-click-surface .breadcrumb {
+  border-radius: 50%;
+  width: 10px;
+  height: 10px;
+  background: #ccc;
+  border: 1px solid #000;
+  margin: 0px;
+  padding: 0px;
+}
+
+.waldorf-cancel-button {
+  border-color: #F44336;
+  background-color: #F44336;
+  color: #FFFFFF;
+}
+.waldorf-cancel-button:hover {
+  color: #F44336;
+}
+
+.waldorf-confirm-button {
+  border-color: #8BC34A;
+  background-color: #8BC34A;
+  color: #FFFFFF;
+}
+.waldorf-confirm-button:hover {
+  color: #8BC34A;
+}
+
+.waldorf-message-overlay {
+  background-color: rgba(52, 52, 52, 0.95);
+  position: absolute;
+  margin: auto;
+  top: 0;
+  left: 0;
+  border-radius: 15px;
+  text-align: center;
+  display: inline-block;
+  z-index: 100;
+  pointer-events: none;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.waldorf-message-overlay p {
+  color: white;
+  font: menu;
+  display: inline-block;
+  position: relative;
+  text-align: center;
+  margin: 15px;
+}
+
+.waldorf-message-overlay-error {
+  background-color: rgba(255, 30, 30, 0.95);
+}
+
+.waldorf-session-modal label, .waldorf-session-modal input {
+  display: block;
+}
+.waldorf-session-modal input.text, .waldorf-session-modal input.file {
+  margin-bottom: 12px;
+  width: 95%;
+  padding: 0.4em;
+}
+.waldorf-session-modal fieldset {
+  padding: 0;
+  border: 0;
+  margin-top: 25px;
+}
+.waldorf-session-modal h1 {
+  font-size: 1.2em;
+  margin: 0.6em 0;
+}
+.waldorf-session-modal div#users-contain {
+  width: 350px;
+  margin: 20px 0;
+}
+.waldorf-session-modal div#users-contain table {
+  margin: 1em 0;
+  border-collapse: collapse;
+  width: 100%;
+}
+.waldorf-session-modal div#users-contain table td, .waldorf-session-modal div#users-contain table th {
+  border: 1px solid #eee;
+  padding: 0.6em 10px;
+  text-align: left;
+}
+.waldorf-session-modal .modal-error-text {
+  color: red;
+}
+.waldorf-session-modal .ui-dialog .ui-state-error {
+  padding: 0.3em;
+}
+.waldorf-session-modal .validateTips {
+  border: 1px solid transparent;
+  padding: 0.3em;
+}
+
+/*# sourceMappingURL=annotator-frontend.css.map */

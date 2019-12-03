@@ -568,8 +568,8 @@ function YouTubeGetID(url){
 					if(typeof pendingDeferredMedia.SoundCloud == 'undefined'){
 						pendingDeferredMedia.SoundCloud = [];
 						$.when(
-              $.getScript('https://connect.soundcloud.com/sdk/sdk-3.3.2.js'),
-              $.getScript('https://w.soundcloud.com/player/api.js')
+							$.getScript('https://connect.soundcloud.com/sdk/sdk-3.3.2.js'),
+							$.getScript('https://w.soundcloud.com/player/api.js')
 						).then(function(){
 							for(var i = 0; i < pendingDeferredMedia.SoundCloud.length; i++){
 									pendingDeferredMedia.SoundCloud[i].resolve();
@@ -3222,17 +3222,18 @@ function YouTubeGetID(url){
 
 		jQuery.SemanticAnnotationToolObjectView.prototype.setupTool = function() {
 
+			var dependanciesAddress = $('link#approot').attr('href') + 'views/widgets/waldorf/';
 			var serverAddress = $('link#parent').attr('href');
 			var tagsAddress = "https://onomy.org/published/83/json";
 			var apiKey = "facc287b-2f51-431d-87ec-773e12302fcf";
 
-			$('head').append('<link rel="stylesheet" href="' + serverAddress + 'jquery-ui-1.12.1.custom/jquery-ui.min.css" type="text/css" />');
-			$('head').append('<link rel="stylesheet" href="' + serverAddress + 'select2.min.css" type="text/css" />');
-			$('head').append('<link rel="stylesheet" href="' + serverAddress + 'annotator-frontend.css" type="text/css" />');
+			$('head').append('<link rel="stylesheet" href="' + dependanciesAddress + 'jquery-ui-1.12.1.custom/jquery-ui.min.css" type="text/css" />');
+			$('head').append('<link rel="stylesheet" href="' + dependanciesAddress + 'select2.min.css" type="text/css" />');
+			$('head').append('<link rel="stylesheet" href="' + dependanciesAddress + 'annotator-frontend.css" type="text/css" />');
 			$.when(
-				$.getScript(serverAddress + 'jquery-ui-1.12.1.custom/jquery-ui.min.js'),
-				$.getScript(serverAddress + 'select2.min.js'),
-				$.getScript(serverAddress + 'annotator-frontend.js')
+				$.getScript(dependanciesAddress + 'jquery-ui-1.12.1.custom/jquery-ui.min.js'),
+				$.getScript(dependanciesAddress + 'select2.min.js'),
+				$.getScript(dependanciesAddress + 'annotator-frontend.js')
 			).done(function(){
 
 				console.log('Booting up Waldorf');
