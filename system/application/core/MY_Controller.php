@@ -347,17 +347,31 @@ class MY_Controller extends CI_Controller {
 	 * @return 	str 	URI
 	 */
 
-   	protected function redirect_url() {
-
-   		// A specific redirect URL has been sent via GET/POST
-   		if (isset($_REQUEST{'redirect_url'}) && !empty($_REQUEST['redirect_url'])) {
-   			return urldecode(trim($_REQUEST{'redirect_url'}));
+   	public function redirect_url($set='') {
+   		
+   		// Set the redirect URL if one is passed
+   		if (!empty($set)) {
+   			if (substr($set, 0, strlen(base_url())) == base_url() && filter_var($set, FILTER_VALIDATE_URL)) {
+   				$this->session->set_userdata('redirect_url', urlencode($set));
+   			}
+   			return false;
    		}
-    	// Book is present and might have a page slug
-    	if (isset($this->data['book']) && isset($this->data['book']->slug) && !empty($this->data['book']->slug)) {
+   		
+   		// Always remove the redirect_url
+   		$redirect_url_from_session = $this->session->userdata('redirect_url');
+   		$this->session->unset_userdata('redirect_url');
+   		
+   		// Go to URL previously set
+   		if (!empty($redirect_url_from_session)) {
+   			return urldecode($redirect_url_from_session);
+   		}
+   		
+   		// Go to a page in the book
+   		if (isset($this->data['book']) && isset($this->data['book']->slug) && !empty($this->data['book']->slug)) {
    			$segs = $this->uri->segment_array();
     		return confirm_slash(base_url()).implode('/',$segs);
     	}
+    	
     	// Dashboard
 		$segs = $this->uri->segment_array();
 		if ('system'==$segs[1] && 'dashboard'==$segs[2]) {
@@ -365,6 +379,7 @@ class MY_Controller extends CI_Controller {
 			$zone = (isset($_GET['zone']) && !empty($_GET['zone'])) ? $_GET['zone'] : 'style';
 			return confirm_slash(base_url()).'system/dashboard'.urlencode('?book_id='.$book_id.'&zone='.$zone.'#tabs-'.$zone);
 		}
+		
    		// Default to the install index
    		return base_url();
 

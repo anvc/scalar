@@ -163,7 +163,6 @@ class System extends MY_Controller {
 				$this->load->model('book_model', 'books');
 				$user_id = $this->users->register($_POST);
 				// Create new book
-				// Turning this feature off to avoid spammers who seem to be getting by the CAPTCHA
 				/*
 				if (isset($_POST['book_title']) && !empty($_POST['book_title'])) {
 					$book_id = $this->books->add(array('title'=>trim($_POST['book_title']), 'user_id'=>$user_id), false);

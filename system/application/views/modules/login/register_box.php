@@ -1,7 +1,13 @@
-<?if (!defined('BASEPATH')) exit('No direct script access allowed')?>
-<?$this->template->add_meta('viewport','width=device-width');?>
-<?$this->template->add_css('system/application/views/arbors/admin/admin.css')?>
-<?$this->template->add_js('system/application/views/arbors/admin/jquery-3.4.1.min.js')?>
+<?
+if (!defined('BASEPATH')) exit('No direct script access allowed');
+if (isset($_REQUEST['redirect_url'])) {
+	$CI =& get_instance();
+	$CI->redirect_url($_REQUEST['redirect_url']);
+}
+$this->template->add_meta('viewport','width=device-width');
+$this->template->add_css('system/application/views/arbors/admin/admin.css');
+$this->template->add_js('system/application/views/arbors/admin/jquery-3.4.1.min.js');
+?>
 <script src="https://code.jquery.com/jquery-migrate-3.1.0.js"></script>
 <?$this->template->add_js('system/application/views/arbors/admin/admin.js')?>
 <div class="system_wrapper">
@@ -17,7 +23,6 @@ if (isset($_POST['registration_key'])) $registration_key = trim(htmlspecialchars
 <? endif ?>
 	<form action="<?=confirm_slash(base_url())?>system/register" method="post" class="panel">
 		<input type="hidden" name="action" value="do_register" />
-		<input type="hidden" name="redirect_url" value="<?=((isset($_REQUEST['redirect_url']))?htmlspecialchars($_REQUEST['redirect_url']):'')?>" />
 		<table class="form_fields">
 			<tr>
 				<td class="login_header" colspan="2">

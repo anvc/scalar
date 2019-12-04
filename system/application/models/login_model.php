@@ -64,6 +64,10 @@ class Login_model extends User_model {
     	// Run user logout (if applicable)
     	$action = (isset($_REQUEST['action'])) ? $_REQUEST['action'] : null;
     	if ($force || $action == 'do_logout') {
+    		if (isset($_REQUEST['redirect_url'])) {
+    			$CI =& get_instance();
+    			$CI->redirect_url($_REQUEST['redirect_url']);
+    		}
     		$this->session->unset_userdata($this->login_basename);
 			return true;
     	}
