@@ -69,7 +69,7 @@
 		    timeout = setTimeout(later, wait);
 		    if (callNow) func.apply(context, args);
 	    };
-    };
+        };
 
 		function request_book_user(book_id) {
 		  let bookUserIDs = Array.prototype.map
@@ -80,10 +80,10 @@
 		  $('body').append($div);
 
 			$(document).on('mouseup', function (e) { // if the user clicks away from the dialog, reload the page.
-        if ($(e.target).parents(".add_book_user_select_box").length === 0 && !($(e.target).hasClass("add_book_user_select_box"))) {
-          window.location.reload();
-        }
-      });
+                if ($(e.target).parents(".add_book_user_select_box").length === 0 && !($(e.target).hasClass("add_book_user_select_box"))) {
+                    window.location.reload();
+                }
+            });
 
 			$div.find('.generic_text_input').on('keyup', debounce(function() {
 				let sq = this.value;
