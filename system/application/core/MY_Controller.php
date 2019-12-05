@@ -352,7 +352,7 @@ class MY_Controller extends CI_Controller {
    		// Set the redirect URL if one is passed
    		if (!empty($set)) {
    			if (substr($set, 0, strlen(base_url())) == base_url() && filter_var($set, FILTER_VALIDATE_URL)) {
-   				$this->session->set_userdata('redirect_url', urlencode($set));
+   				$this->session->set_userdata('redirect_url', $set);
    			}
    			return false;
    		}
@@ -363,7 +363,7 @@ class MY_Controller extends CI_Controller {
    		
    		// Go to URL previously set
    		if (!empty($redirect_url_from_session)) {
-   			return urldecode($redirect_url_from_session);
+   			return $redirect_url_from_session;
    		}
    		
    		// Go to a page in the book
@@ -377,7 +377,7 @@ class MY_Controller extends CI_Controller {
 		if ('system'==$segs[1] && 'dashboard'==$segs[2]) {
 			$book_id = (isset($_GET['book_id']) && !empty($_GET['book_id'])) ? (int) $_GET['book_id'] : 0;
 			$zone = (isset($_GET['zone']) && !empty($_GET['zone'])) ? $_GET['zone'] : 'style';
-			return confirm_slash(base_url()).'system/dashboard'.urlencode('?book_id='.$book_id.'&zone='.$zone.'#tabs-'.$zone);
+			return confirm_slash(base_url()).'system/dashboard?book_id='.$book_id.'&zone='.$zone.'#tabs-'.$zone;
 		}
 		
    		// Default to the install index
