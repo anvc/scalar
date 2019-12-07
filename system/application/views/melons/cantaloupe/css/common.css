@@ -517,9 +517,10 @@ a:hover { text-decoration: underline; }
 
 .popover.tk-help .supertitle { font-size: 1rem; text-transform: uppercase; color: #666; padding: 0; margin: 0; }
 .popover.tk-help { font-size: 1.2rem; color: #333; }
-.popover.tk-help h3 { padding-left: 0; padding-right: 0; font-size: 1.8rem; margin-top: 0; line-height: 2.4rem; }
+.popover.tk-help h3 { padding-left: 0; padding-right: 0; margin-bottom: 12px !important; font-size: 1.8rem; margin-top: 0; line-height: 2.4rem; color: black;}
 .popover.tk-help p { margin-bottom: 1.2rem; }
 .popover.tk-help p:last-child { margin-bottom: 0; }
+.popover.tk-help a {color:#026697;}
 
 header [typeof="tk:TKLabel"] { float:right; }
 header [typeof="tk:TKLabel"].last { margin-right:7.2rem; }
