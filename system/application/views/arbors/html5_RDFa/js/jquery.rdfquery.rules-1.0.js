@@ -3863,7 +3863,9 @@
 
     serialize = function (elem, ignoreNs) {
       var i, string = '', atts, a, name, ns, tag;
-      elem.contents(':not(iframe)').each(function () {  // Added ':not(iframe)' by Craig Dietrich 7 August 2014 to avoid XSS bailout
+      // Added ':not(iframe)' by Craig Dietrich 7 August 2014 to avoid XSS bailout
+      // It seems as of the jQuery update in November 2019, .contents() is no longer returning text nodes here
+      elem.contents(':not(iframe)').each(function () {
         var j = $(this),
           e = j[0];
         if (e.nodeType === 1) { // tests whether the node is an element
@@ -3979,8 +3981,7 @@
             } else {
               object = $.rdf.literal(content, { lang: lang });
             }
-          } else if (children.length === 0 ||
-                     datatype === '') {
+          } else if (children.length === 0 || datatype === '') {
             lang = getLang(this, context);
             if (lang === undefined) {
               object = $.rdf.literal('"' + this.text() + '"');
@@ -3988,7 +3989,9 @@
               object = $.rdf.literal(this.text(), { lang: lang });
             }
           } else {
-            object = $.rdf.literal(serialize(this), { datatype: rdfXMLLiteral });
+        	// Edited by Craig 7 December 2019 to just get to the string representation and not mess with the messy serialize() function
+            // object = $.rdf.literal(serialize(this), { datatype: rdfXMLLiteral });
+        	object = $.rdf.literal($(this).html().toString(), { datatype: rdfXMLLiteral });
           }
           for (i = 0; i < properties.length; i += 1) {
             triple = $.rdf.triple(subject, properties[i], object, { source: this[0] });
