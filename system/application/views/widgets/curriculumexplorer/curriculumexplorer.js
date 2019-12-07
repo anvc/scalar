@@ -105,7 +105,7 @@ function curriculumexplorer(node) {
 		var set_subjects = function() {
 			var grade_index = parseInt($('#ce-select-grade').data('index'));
 			$('#ce-subjects').find('input[type="checkbox"]').each(function() {  // Enable all subjects
-				$(this).removeProp('disabled').parent().css('color','initial').css('cursor','pointer').css('-webkit-text-fill-color','initial');
+				$(this).prop('disabled',false).parent().css('color','initial').css('cursor','pointer').css('-webkit-text-fill-color','initial');
 			});
 			if (isNaN(grade_index)) return;
 			$('#ce-subjects').find('input[type="checkbox"]').each(function() {  // Disable all subjects
@@ -113,9 +113,9 @@ function curriculumexplorer(node) {
 			});
 			for (var j = 0; j < json.connections.length; j++) {  // Enable subjects connected to the chosen grade
 				if (grade_index != json.connections[j].gradeIndex) continue;
-				$('#ce-subjects').find('input[type="checkbox"][value="'+json.connections[j].subjectIndex+'"]').removeProp('disabled').parent().css('color','initial').css('cursor','pointer').css('-webkit-text-fill-color','initial');
+				$('#ce-subjects').find('input[type="checkbox"][value="'+json.connections[j].subjectIndex+'"]').prop('disabled',false).parent().css('color','initial').css('cursor','pointer').css('-webkit-text-fill-color','initial');
 			};
-			$('#ce-subjects').find('input[type="checkbox"][disabled]').removeProp('checked');
+			$('#ce-subjects').find('input[type="checkbox"][disabled]').prop('checked',false);
 		}
 		var set_pages = function() {
 			$('#ce-pages').find('li').removeClass('disabled');
