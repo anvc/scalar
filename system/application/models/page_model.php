@@ -210,7 +210,11 @@ class Page_model extends MY_Model {
     	// Get all versions
     	$this->db->select($this->versions_table.'.*');
     	$this->db->from($this->versions_table);
+    	$this->db->join($this->pages_table, $this->pages_table.'.content_id='.$this->versions_table.'.content_id');
+    	$this->db->join($this->books_table, $this->books_table.'.book_id='.$this->pages_table.'.book_id');
+    	$this->db->where($this->books_table.'.book_id', $book_id);
     	$this->db->where($this->versions_table.'.url', $url);
+    	if (!empty($is_live)) $this->db->where($this->pages_table.'.is_live', 1);
     	$this->db->order_by($this->versions_table.'.version_id', 'desc');
     	$query = $this->db->get();
     	if (!$query->num_rows) return null;
@@ -231,14 +235,6 @@ class Page_model extends MY_Model {
 
     	foreach ($return as $content_id => $row) {
     		$content = $this->get($content_id);
-    		if ($content->book_id != $book_id) {
-    			unset($return[$content_id]);
-    			continue;
-    		}
-    		if ($is_live && (int) $content->is_live != 1) {
-    			unset($return[$content_id]);
-    			continue;
-    		}
     		$content->versions = $return[$content_id]->versions;
     		$content->version_index = 0;
     		$return[$content_id] = $content;
