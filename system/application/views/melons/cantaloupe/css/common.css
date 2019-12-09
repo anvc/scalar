@@ -809,7 +809,7 @@ a.media_info {
 }
 .media_annotations td, .current_annotation td {
 	padding-left: .8rem !important;
-	word-break: break-all;
+	word-break: break-word;
 }
 .citations_metadata td {
 	padding-left: 0 !important;
