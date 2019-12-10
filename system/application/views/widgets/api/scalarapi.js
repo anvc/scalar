@@ -8,7 +8,7 @@
  * (the "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
  *
- * http://www.osedu.org/licenses /ECL-2.0
+ * http://www.osedu.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an "AS IS"
@@ -29,7 +29,7 @@ function is_array(input){
  * the resulting instance in the global variable scalarapi.
  * @class 		A jQuery-dependent JavaScript library which allows easy access to the Scalar API.
  * @author		<a href="mailto:erik@song.nu">Erik Loyer</a>
- * @version		1.0
+ * @version		1.1
  */
 function ScalarAPI() {
 
@@ -1951,7 +1951,7 @@ ScalarAPI.prototype.handleNodeExistsSuccess = function(json) {
  * @param   allVersions         If true, will return all versions - else, returns only current version
  * @return						A string indicating the state of the request.
  */
-ScalarAPI.prototype.loadNode = ScalarAPI.prototype.loadPage = function(uriSegment, forceReload, successCallback, errorCallback, depth, references, relation, start, results, provenance, allVersions) {
+ScalarAPI.prototype.loadNode = ScalarAPI.prototype.loadPage = function(uriSegment, forceReload, successCallback, errorCallback, depth, references, relation, start, results, provenance, allVersions, includeMetadata) {
 
 	var url = this.model.urlPrefix+uriSegment;
 	var node = this.model.nodesByURL[this.model.urlPrefix+uriSegment];
@@ -1985,7 +1985,10 @@ ScalarAPI.prototype.loadNode = ScalarAPI.prototype.loadPage = function(uriSegmen
 
 	var versions = (allVersions === true)?1:0;
 	queryString += '&versions='+versions;
-
+	
+	includeMetadata = ('undefined'!=typeof(includeMetadata) && false === includeMetadata) ? false : true;
+	if (!includeMetadata) queryString += '&meta=0';
+	
 	if (this.loadPageStatus[url] == null) {
 		this.loadPageStatus[url] = {isLoading:false, queuedSuccessCallbacks:[], queuedErrorCallbacks:[]};
 	}
@@ -2073,7 +2076,7 @@ ScalarAPI.prototype.parsePage = function(json) {
  * @param	relation			If true, will return only relations of the named type
  * @return						A string indicating the state of the request.
  */
-ScalarAPI.prototype.loadCurrentNode = ScalarAPI.prototype.loadCurrentPage = function(forceReload, successCallback, errorCallback, depth, references, relation) {
+ScalarAPI.prototype.loadCurrentNode = ScalarAPI.prototype.loadCurrentPage = function(forceReload, successCallback, errorCallback, depth, references, relation, includeMetadata) {
 
 	// TODO: Potentially rejigger this to call loadPage or loadMedia
 
@@ -2090,6 +2093,8 @@ ScalarAPI.prototype.loadCurrentNode = ScalarAPI.prototype.loadCurrentPage = func
 	if (relation != null) {
 		queryString += '&res='+relation;
 	}
+	includeMetadata = ('undefined'!=typeof(includeMetadata) && false === includeMetadata) ? false : true;
+	if (!includeMetadata) queryString += '&meta=0';
 
 	// if we're forcing the data to load, or if the data hasn't already been loaded, then
 	if (forceReload || (this.model.currentPageNode == null)) {
@@ -2270,7 +2275,7 @@ ScalarAPI.prototype.parseBook = function(json) {
  * @param	hidden				Include results where live is set to 0
  * @return						A string indicating the state of the request.
  */
-ScalarAPI.prototype.loadNodesByType = ScalarAPI.prototype.loadPagesByType = function(type, forceReload, successCallback, errorCallback, depth, references, relation, start, results, hidden) {
+ScalarAPI.prototype.loadNodesByType = ScalarAPI.prototype.loadPagesByType = function(type, forceReload, successCallback, errorCallback, depth, references, relation, start, results, hidden, includeMetadata) {
 
 	var nodes = this.model.getNodesWithProperty('scalarType', type);
 
@@ -2296,6 +2301,8 @@ ScalarAPI.prototype.loadNodesByType = ScalarAPI.prototype.loadPagesByType = func
 	if (hidden != null) {  // Added by Craig 21 July 2014
 		queryString += '&hidden='+hidden;
 	}
+	includeMetadata = ('undefined'!=typeof(includeMetadata) && false === includeMetadata) ? false : true;
+	if (!includeMetadata) queryString += '&meta=0';
 
 	// if we're forcing the data to load, no nodes of the given type have already been loaded, or pagination settings are active, then
 	if (forceReload || (nodes.length == 0) || (start != null) || (results != null)) {
@@ -2344,7 +2351,7 @@ ScalarAPI.prototype.loadNodesByType = ScalarAPI.prototype.loadPagesByType = func
  * @param	type				Only search in specific content types
  * @return						A string indicating the state of the request.
  */
-ScalarAPI.prototype.nodeSearch = function(sq, successCallback, errorCallback, depth, references, relation, start, results, hidden, type, searchMetadata) {
+ScalarAPI.prototype.nodeSearch = function(sq, successCallback, errorCallback, depth, references, relation, start, results, hidden, type, searchMetadata, includeMetadata) {
 
 	var queryString = 'sq='+encodeURIComponent(sq)+'&format=json';
 
@@ -2375,6 +2382,8 @@ ScalarAPI.prototype.nodeSearch = function(sq, successCallback, errorCallback, de
 	if (searchMetadata != null) {
 		queryString += '&s_all=1';
 	}
+	includeMetadata = ('undefined'!=typeof(includeMetadata) && false === includeMetadata) ? false : true;
+	if (!includeMetadata) queryString += '&meta=0';
 
 	$.ajax({
 		type:"GET",

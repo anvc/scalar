@@ -8,7 +8,7 @@
  * (the "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
  *
- * http://www.osedu.org/licenses /ECL-2.0
+ * http://www.osedu.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an "AS IS"
@@ -139,12 +139,12 @@
 			if ( base.options.modal ) {
 				base.loadingMsg.addClass( 'bounded' ); // removes left page margin padding
 			}
-			base.progressBar = $( '<div class="progress"><div class="progress-bar" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100" style="width: 10%;"><span class="sr-only">10% complete</span></div></div>' ).appendTo( base.loadingMsg );
+			base.progressBar = $( '<div class="progress"><div class="progress-bar" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100" style="width: 10%;"><span class="sr-only">10% complete</span></div></div>' ).prependTo( base.loadingMsg );
 
 			// only modal visualizations get the controls
 			if ( base.options.modal ) {
 
-				base.controls = $( '<div class="vis-controls form-inline"></div>' ).appendTo( base.visElement );
+				base.controls = $( '<div class="vis-controls form-inline form-group-sm"></div>' ).appendTo( base.visElement );
 
 				var controls_html = 	'<select class="vis-content-control form-control">';
 				for ( var prop in base.VisualizationContent ) {
@@ -644,7 +644,7 @@
 			if (depth == null) {
 				depth = 1;
 			}
-			scalarapi.loadNode( slug, true, base.parseNode, null, depth, ref, 0, 100 );
+			scalarapi.loadNode( slug, true, base.parseNode, null, depth, ref, null, 0, 100, null, null, false );
 		}
 
 		base.parseNode = function( data ) {
@@ -734,7 +734,7 @@
 					}
 					base.reachedLastPage = true;
 					start = end = -1;
-					result = scalarapi.loadCurrentPage( forceReload, base.parseData, null, depth, references, relations);
+					result = scalarapi.loadCurrentPage( forceReload, base.parseData, null, depth, references, relations, false);
 					break;
 
 					case 'toc':
@@ -755,7 +755,7 @@
 					}
 					start = ( this.pageIndex * this.resultsPerPage );
 					end = start + this.resultsPerPage;
-					result = scalarapi.loadPage( loadInstruction.node.slug, forceReload, base.parseData, null, depth, references, relations, start, base.resultsPerPage );
+					result = scalarapi.loadPage( loadInstruction.node.slug, forceReload, base.parseData, null, depth, references, relations, start, base.resultsPerPage, null, null, false );
 					break;
 
 					default:
@@ -774,7 +774,7 @@
 					}
 					start = ( this.pageIndex * this.resultsPerPage );
 					end = start + this.resultsPerPage;
-					result = scalarapi.loadPagesByType( loadInstruction.id, true, base.parseData, null, depth, references, relations, start, base.resultsPerPage );
+					result = scalarapi.loadPagesByType( loadInstruction.id, true, base.parseData, null, depth, references, relations, start, base.resultsPerPage, false, false );
 					break;
 
 				}
@@ -2131,7 +2131,7 @@
 				fullWidth = base.visElement.width();
 				if ( window.innerWidth > 768 ) {
 					if ( base.options.modal ) {
-						fullHeight = Math.max( 300, window.innerHeight * .9 - 200 );
+						fullHeight = Math.max( 300, window.innerHeight * .9 - 170 );
 					} else {
 						fullHeight = 568;
 					}
@@ -2449,7 +2449,7 @@
 				fullWidth = base.visElement.width();
 				if ( window.innerWidth > 768 ) {
 					if ( base.options.modal ) {
-						fullHeight = Math.max( 300, window.innerHeight * .9 - 200 );
+						fullHeight = Math.max( 300, window.innerHeight * .9 - 170 );
 					} else {
 						fullHeight = 568;
 					}
@@ -3156,7 +3156,7 @@
 					fullWidth = base.visElement.width();
 					if ( window.innerWidth > 768 ) {
 						if ( base.options.modal ) {
-							fullHeight = Math.max( 300, window.innerHeight * .9 - 200 );
+							fullHeight = Math.max( 300, window.innerHeight * .9 - 170 );
 						} else {
 							fullHeight = 568;
 						}

@@ -116,7 +116,7 @@ class Version_model extends MY_Model {
 	/**
 	 * Return a version row based on a version ID; sending an optional search query will filter the result
 	 */
-    public function get($version_id=0, $sq='') {
+  	public function get($version_id=0, $sq='', $include_metadata=true) {
 
     	$ci =& get_instance();  // for use with the rdf_store
 
@@ -127,7 +127,7 @@ class Version_model extends MY_Model {
     	$result = $query->result();
     	$result[0]->urn = $this->urn($result[0]->version_id);
     	$result[0]->attribution = unserialize_recursive($result[0]->attribution);
-    	$result[0]->rdf = $ci->rdf_store->get_by_urn('urn:scalar:version:'.$result[0]->version_id);
+    	$result[0]->rdf = ($include_metadata) ? $ci->rdf_store->get_by_urn('urn:scalar:version:'.$result[0]->version_id) : null;
     	$result[0]->citation = '';
 
         if (!empty($sq)) {
@@ -144,10 +144,10 @@ class Version_model extends MY_Model {
      * Return the most recent version which can be cut off by a datetime
      * If 2nd argument is passed, it'll either be the specific version ID or a request to save the result to content's recent_version_id
      */
-    public function get_single($content_id=0, $version_id=null, $sq='') {
+    public function get_single($content_id=0, $version_id=null, $sq='', $include_metadata=true) {
 
 		if (!empty($version_id)) {
-			$result = self::get($version_id, $sq);
+			$result = self::get($version_id, $sq, $include_metadata);
 			if (null!==$result) return $result;
 		}
 
@@ -161,7 +161,7 @@ class Version_model extends MY_Model {
     	$result = $query->result();
     	$result[0]->urn = $this->urn($result[0]->version_id);
     	$result[0]->attribution = unserialize_recursive($result[0]->attribution);
-    	$result[0]->rdf = $ci->rdf_store->get_by_urn('urn:scalar:version:'.$result[0]->version_id);
+    	$result[0]->rdf = ($include_metadata) ? $ci->rdf_store->get_by_urn('urn:scalar:version:'.$result[0]->version_id) : null;
     	$result[0]->citation = '';
 
         if (!empty($sq)) {
@@ -181,7 +181,7 @@ class Version_model extends MY_Model {
 	/**
 	 * Return version(s) given a content ID
 	 */
-    public function get_all($content_id=0, $limit=null, $sq='') {
+    public function get_all($content_id=0, $limit=null, $sq='', $include_metadata=true) {
 
 		$ci =& get_instance();  // for use with the rdf_store
 
@@ -205,7 +205,7 @@ class Version_model extends MY_Model {
     	foreach ($result as $key => $value) {
     		$result[$key]->urn = $this->urn($result[$key]->version_id);
     		$result[$key]->attribution = unserialize_recursive($result[$key]->attribution);
-    		$result[$key]->rdf = $ci->rdf_store->get_by_urn('urn:scalar:version:'.$result[$key]->version_id);
+    		$result[$key]->rdf = ($include_metadata) ? $ci->rdf_store->get_by_urn('urn:scalar:version:'.$result[$key]->version_id) : null;
     	}
 
     	return $result;

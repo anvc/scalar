@@ -22,7 +22,7 @@
  * @projectDescription		RDF API controller for displaying RDF graphs based on REST (GET) queries
  * @return					On success outputs RDF-JSON or RDF-XML; errors are processed as HTTP response codes
  * @author					Craig Dietrich
- * @version					3.1
+ * @version					3.2
  */
 
 class Rdf extends MY_Controller {
@@ -55,7 +55,6 @@ class Rdf extends MY_Controller {
 			$this->data['base_uri'] = confirm_slash(base_url());
 		} else {  // Book was found
 			$this->data['base_uri'] = confirm_slash(base_url()).confirm_slash($this->data['book']->slug);
-			// TODO: provide api_key authentication like api.php
 			$this->set_user_book_perms();
 			if (!$this->data['book']->url_is_public && !$this->login_is_book_admin('reader')) {
 				header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));
@@ -78,6 +77,10 @@ class Rdf extends MY_Controller {
 			if (!in_array(plural(strtolower($res)), $this->models)) continue;
 			$this->data['restrict'][] = (string) plural(strtolower($res));
 		}
+		// Include ARC tables ("Additional Metadata")?
+		$this->data['include_meta'] = (isset($_REQUEST['meta']) && 0 === (int) $_REQUEST['meta']) ? false : true;
+		$this->data['meta_recursion'] = (isset($_REQUEST['metarec']) && is_numeric($_REQUEST['metarec'])) ? (int) $_REQUEST['metarec']: null;
+		if (is_int($this->data['meta_recursion'])) $this->data['include_meta'] = true;
 		// Display all versions?
 		$this->data['versions'] = (isset($_REQUEST['versions']) && $_REQUEST['versions']) ? true : false;
 		if ($this->books->is_hide_versions($this->data['book']) && !$this->login_is_book_admin()) $this->data['versions'] = false;
@@ -197,6 +200,8 @@ class Rdf extends MY_Controller {
 									     'prov'			=> (($this->data['provenance'])?RDF_Object::PROVENANCE_ALL:RDF_Object::PROVENANCE_NONE),
 				                         'pagination'   => $this->data['pagination'],
 				                         'max_recurses' => $this->data['recursion'],
+									   	 'meta'			=> $this->data['include_meta'],
+									   	 'max_meta_recs'=> $this->data['meta_recursion'],
 									   	 'paywall_msg'	=> $this->can_bypass_paywall(),
 									   	 'tklabeldata'	=> $this->tklabels(),
 									   	 'tklabels' 	=> (($this->data['tklabels'])?RDF_Object::TKLABELS_ALL:RDF_Object::TKLABELS_NONE),
@@ -264,6 +269,8 @@ class Rdf extends MY_Controller {
 							'prov'			=> (($this->data['provenance'])?RDF_Object::PROVENANCE_ALL:RDF_Object::PROVENANCE_NONE),
 							'pagination'   => $this->data['pagination'],
 							'max_recurses' => $this->data['recursion'],
+							'meta'			=> $this->data['include_meta'],
+							'max_meta_recs' => $this->data['meta_recursion'],
 							'paywall_msg'	=> $this->can_bypass_paywall(),
 							'tklabeldata'	=> $this->tklabels(),
 							'tklabels' 	=> (($this->data['tklabels'])?RDF_Object::TKLABELS_ALL:RDF_Object::TKLABELS_NONE),
@@ -385,6 +392,8 @@ class Rdf extends MY_Controller {
 			                           	 'prov'			=> (($this->data['provenance'])?RDF_Object::PROVENANCE_ALL:RDF_Object::PROVENANCE_NONE),
 			                         	 'pagination'   => $this->data['pagination'],
 			                         	 'max_recurses' => $this->data['recursion'],
+			                           	 'meta'			=> $this->data['include_meta'],
+			                           	 'max_meta_recs'=> $this->data['meta_recursion'],
 			                             'paywall_msg'	=> $this->can_bypass_paywall(),
 			                           	 'editorial_state' => ((isset($this->data['editorial_state']))?$this->data['editorial_state']:null),
 			                           	 'tklabeldata'	=> $this->tklabels(),
