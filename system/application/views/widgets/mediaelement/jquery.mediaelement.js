@@ -2998,13 +2998,13 @@ function YouTubeGetID(url){
 
 			var metadataFunc = function() {
 
-				// Standard practice is that 360 video must be exactly 2:1
-				/*if (2 == me.video[0].videoWidth / me.video[0].videoHeight && 'annotation_editor' != $('link#view').attr('href')) {  // Test for 360 video
+				// Until there's a way to find out from the MP4 if it's an equirectangular video...
+				if ('undefined' != typeof(me.model.node.current.properties["http://ns.google.com/photos/1.0/panorama/stitchingsoftware"])) {
 					me.parentView.mediaContainer.empty();
 					me.parentView.mediaObjectView = new $.V360ObjectView(model, parentView);
 					me.parentView.mediaObjectView.createObject();
 					return;
-				}*/
+				}
 
 				me.parentView.intrinsicDim.x = me.video[0].videoWidth;
 				me.parentView.intrinsicDim.y = me.video[0].videoHeight;
