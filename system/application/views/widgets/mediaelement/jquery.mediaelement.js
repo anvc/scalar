@@ -2272,15 +2272,13 @@ function YouTubeGetID(url){
 			});
 
 			$(this.image).on('load', function() {
-				// Standard practice is that 360 images must be exactly 2:1; alternatively could look for Exif XMP “ProjectionType=equirectangular”
-				// Panoramas that aren't 2:1 (e.g., created on a phone) will require a more nuanced look at the metadata to determine if the 360 view should load
-				/*if (2 == this.width / this.height && 'annotation_editor' != $('link#view').attr('href')) {  // Test for 360 image
+				if ('undefined' != typeof(me.model.node.current.properties["http://ns.google.com/photos/1.0/panorama/stitchingsoftware"])) {  // Test for 360 image
 					me.parentView.mediaContainer.empty();
 					me.parentView.mediaObjectView = new $.I360ObjectView(model, parentView);
 					me.parentView.mediaObjectView.annotations = me.annotations;
 					me.parentView.mediaObjectView.createObject();
 					return;
-				}*/
+				}
 				me.doImageSetup(this);
 			});
 
