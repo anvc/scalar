@@ -15,7 +15,7 @@ There are a few .htaccess files included in the Scalar build, therefore please m
 
 ***
 If PHP's short_open_tag (<? vs <?php) is turned off, CodeIgniter is supposed to make them operational, but this feature doesn't
-seem to be working properly.  Please make sure short_open_tag is turned on in PHP. Scalar also requires the non-default PHP extensions: the GD image processing library (http://php.net/manual/en/book.image.php), and mbstring (http://php.net/manual/en/mbstring.installation.php). 
+seem to be working properly. So, make sure short_open_tag is turned on in PHP :)
 ***
 
 ***
@@ -27,9 +27,7 @@ When Scalar creates the book folders it should chmod the newly created folders t
 ***
 
 ***
-You can download the most recent Scalar build from GitHub. However, we also occassionally package Scalar into a GitHub Release,
-downloadable at https://github.com/anvc/scalar/releases. Installing from a release ensures that the Scalar team has tested its contents on development and 
-live environments (e.g., scalar.usc.edu).  To update an existing Scalar install, see UPDATE.txt.
+Go ahead and download the most recent Release at: https://github.com/anvc/scalar/releases. Releases have been tested by the Scalar team on development and live environments (e.g., scalar.usc.edu).  To update an existing Scalar install, see UPDATE.txt.
 ***
 
 ***
