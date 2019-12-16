@@ -38,6 +38,12 @@ $config['storage_adapter_options'] = array(
 //    'forceSSL'     => (bool) (getenv('SCALAR_S3_FORCE_SSL') ? getenv('SCALAR_S3_FORCE_SSL') : ''),
 //);
 
+// Person Data Service Settings
+// Used in bulk user association in Havard Settings Plugin
+$config['pds_base_url'] = (getenv('PDS_BASE_URL') ? getenv('PDS_BASE_URL') : '');
+$config['pds_client_id'] = (getenv('PDS_CLIENT_ID') ? getenv('PDS_CLIENT_ID') : '');
+$config['pds_client_secret'] = (getenv('PDS_CLIENT_SECRET') ? getenv('PDS_CLIENT_SECRET') : '');
+
 // ReCAPTCHA key (leave blank for no ReCAPTCHA)
 $config['recaptcha_public_key'] = (getenv('SCALAR_RECAPTCHA_PUBLIC_KEY') ? getenv('SCALAR_RECAPTCHA_PUBLIC_KEY') : '');
 $config['recaptcha_private_key'] = (getenv('SCALAR_RECAPTCHA_PRIVATE_KEY') ? getenv('SCALAR_RECAPTCHA_PRIVATE_KEY') : '');
