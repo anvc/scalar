@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS `scalar_db_rel_replied` (
   `parent_version_id` int(10) unsigned NOT NULL DEFAULT '0',
   `child_version_id` int(10) unsigned NOT NULL DEFAULT '0',
   `paragraph_num` int(5) unsigned NOT NULL DEFAULT '0',
-  `datetime` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
+  `datetime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   KEY `parent_child` (`parent_version_id`,`child_version_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
