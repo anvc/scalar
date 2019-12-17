@@ -42,8 +42,8 @@
 			{type:'tag', direction:'incoming'},
 			{type:'annotation', direction:'outgoing'},
 			{type:'annotation', direction:'incoming'},
-			{type:'referee', direction:'outgoing'},
-			{type:'referee', direction:'incoming'},
+			{type:'reference', direction:'outgoing'},
+			{type:'reference', direction:'incoming'},
 			{type:'comment', direction:'outgoing'},
 			{type:'comment', direction:'incoming'}
 		];
@@ -199,22 +199,27 @@
 				visFooter.append( '|' );
 				base.legendButton = $( '<button class="btn btn-link btn-xs" data-toggle="popover" data-placement="top" >Legend</button>' );
 				visFooter.append( base.legendButton );
-				var type, name,
+				var type, color, name,
 					legendMarkup = "";
 				n = base.canonicalTypeOrder.length;
 				for ( i = 0; i < n; i++ ) {
 					type = base.canonicalTypeOrder[ i ];
+					color = base.highlightColorScale( type );
 					name = scalarapi.model.scalarTypes[ type ].plural;
 					name = name.charAt(0).toUpperCase() + name.slice(1)
-					legendMarkup += '<span style="color:' + base.highlightColorScale( type ) + ';">&#9632;</span> ' + name + '<br>';
+					legendMarkup += '<span style="color:' + color  + ';">&#9632;</span> ' + name + '<br>';
 				}
-				legendMarkup += '<br><div style="max-width: 175px;">Since content can have more than one type, a given item may change colors depending on context.</div>';
+				legendMarkup += '<br><div>Since content can have more than one type, a given item may change colors depending on context.</div>';
 				base.legendButton.attr( "data-content", legendMarkup );
 				base.legendButton.popover( {
 					trigger: "hover click",
-					html: true,
-					template: base.popoverTemplate
-				} );
+					template: base.popoverTemplate,
+					html: true
+				} ).on('shown.bs.popover', function () {
+					// It seems that the popover's html insert no longer preserves HTML attributes, so overwriting here to bring back colors ~Craig
+					var html = $(this).attr('data-content');
+					base.legendButton.next().find('.popover-content').html(html);
+				});
 			}
 
 			if (!isMobile) {
@@ -275,7 +280,7 @@
 				}
 			}
 			if ( base.options.relations == "media" ) {
-				base.options.relations = "referee";
+				base.options.relations = "reference";
 			}
 			base.visualize();
         }
@@ -304,7 +309,7 @@
 					base.options.relations = content;
 				}
 				if ( base.options.relations == "media" ) {
-					base.options.relations = "referee";
+					base.options.relations = "reference";
 				}
 				break;
 
@@ -373,7 +378,12 @@
 
 				case "comment":
 				case "reply":
+				var componentToHex = function (c) {
+					var hex = c.toString(16);
+					return hex.length == 1 ? "0" + hex : hex;
+				}
 				color = d3.rgb( "#ffff33" ).darker();
+				color = "#" + componentToHex(color.r) + componentToHex(color.g) + componentToHex(color.b);
 				break;
 
 				case "annotation":
@@ -385,7 +395,7 @@
 				break;
 
 				case "media":
-				case "referee":
+				case "reference":
 				color = "#4daf4a";
 				break;
 
@@ -415,7 +425,7 @@
 					case "comment":
 					case "annotation":
 					case "tag":
-					case "referee":
+					case "reference":
 					return color;
 					break;
 
@@ -613,7 +623,7 @@
 				base.loadSequence.push( { id: 'current', desc: "current page's connections", relations: 'all' } );
 				base.loadSequence.push( { id: 'path', desc: "paths", relations: 'path' } );
 				base.loadSequence.push( { id: 'tag', desc: "tags", relations: 'tag' } );
-				base.loadSequence.push( { id: 'media', desc: "media", relations: 'referee' } );
+				base.loadSequence.push( { id: 'media', desc: "media", relations: 'reference' } );
 				base.loadSequence.push( { id: 'page', desc: "pages", relations: 'none' } );
 				base.loadSequence.push( { id: 'annotation', desc: "annotations", relations: 'annotation' } );
 				base.loadSequence.push( { id: 'reply', desc: "comments", relations: 'reply' } );
@@ -725,7 +735,7 @@
 					} else {
 						forceReload = true;
 						depth = 2;
-						references = ( loadInstruction.relations == 'referee' );
+						references = ( loadInstruction.relations == 'reference' );
 						if ( loadInstruction.relations == 'all' ) {
 							relations = null;
 						} else {
@@ -746,7 +756,7 @@
 					} else {
 						forceReload = true;
 						depth = 1;
-						references = ( loadInstruction.relations == 'referee' );
+						references = ( loadInstruction.relations == 'reference' );
 						if ( loadInstruction.relations == 'all' ) {
 							relations = null;
 						} else {
@@ -765,7 +775,7 @@
 						relations = null;
 					} else {
 						depth = 1;
-						references = (( loadInstruction.relations == 'referee' ) || ( loadInstruction.relations == 'all' ));
+						references = (( loadInstruction.relations == 'reference' ) || ( loadInstruction.relations == 'all' ));
 						if ( loadInstruction.relations == 'all' ) {
 							relations = null;
 						} else {
@@ -996,8 +1006,8 @@
 
 				case "toc":
 				base.contentNodes = [];
-				relNodes = scalarapi.model.getMainMenuNode().getRelatedNodes( 'referee', 'outgoing', true );
-				rels = scalarapi.model.getMainMenuNode().getRelations( 'referee', 'outgoing', true );
+				relNodes = scalarapi.model.getMainMenuNode().getRelatedNodes( 'reference', 'outgoing', true );
+				rels = scalarapi.model.getMainMenuNode().getRelations( 'reference', 'outgoing', true );
 				base.relatedNodes = base.relatedNodes.concat( relNodes );
 				base.relations = base.relations.concat( rels );
 				if ( base.options.relations != "none" ) {
@@ -1223,7 +1233,7 @@
 			//}
 
 			if ( includeToc ) {
-				var tocNodes = scalarapi.model.getMainMenuNode().getRelatedNodes( 'referee', 'outgoing', true );
+				var tocNodes = scalarapi.model.getMainMenuNode().getRelatedNodes( 'reference', 'outgoing', true );
 			}
 
 			// sort nodes by type
@@ -1482,7 +1492,7 @@
 				break;
 
 				default:
-				if ( base.options.relations == "referee" ) {
+				if ( base.options.relations == "reference" ) {
 					relationList = [ { type: base.options.relations, direction: 'incoming' } ];
 				} else {
 					relationList = [ { type: base.options.relations, direction: 'outgoing' } ];
@@ -1998,7 +2008,7 @@
 						.attr('y2', function(d) { return d.target[base.instanceId].y + (boxSize * .5); })
 						.attr('stroke-width', 1)
 						.attr('stroke-dasharray', '1,2')
-						.attr('stroke', function(d) { return base.highlightColorScale((d.type.id == 'referee') ? 'media' : d.type.id ); });
+						.attr('stroke', function(d) { return base.highlightColorScale((d.type.id == 'reference') ? 'media' : d.type.id ); });
 
 					// draw connection dots
 					linkEnter.selectAll('circle.connectionDot')
@@ -2020,7 +2030,7 @@
 							return nodeArr;
 						})
 						.enter().append('circle')
-						.attr('fill', function(d) { return base.highlightColorScale((d.type.id == 'referee') ? 'media' : d.type.id); })
+						.attr('fill', function(d) { return base.highlightColorScale((d.type.id == 'reference') ? 'media' : d.type.id); })
 						.attr('class', 'connectionDot')
 						.attr('cx', function(d) {
 							return d.node[base.instanceId].x + (boxSize * .5);
@@ -2959,7 +2969,7 @@
 				var links = [];
 
 				var linkSpecs = [
-					{type:'referee', direction:'incoming'},
+					{type:'reference', direction:'incoming'},
 					{type:'annotation', direction:'outgoing'},
 					{type:'tag', direction:'outgoing'},
 					{type:'comment', direction:'outgoing'},

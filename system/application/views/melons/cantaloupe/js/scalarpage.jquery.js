@@ -652,7 +652,7 @@
 
                     $('.context.popover').remove();
 
-                    relations = currentNode.getRelations('referee', 'incoming');
+                    relations = currentNode.getRelations('reference', 'incoming');
                     for (i in relations) {
                         relation = relations[i];
                         if (relation.body.current.content != null) {
@@ -2953,7 +2953,7 @@
                                     visOptions = {
                                         modal: false,
                                         content: 'current',
-                                        relations: 'referee',
+                                        relations: 'reference',
                                         format: 'force-directed'
                                     }
                                     break;
@@ -3003,7 +3003,7 @@
 
                                 relatedNodes.push(node.getRelatedNodes('path', 'outgoing'));
                                 relatedNodes.push(node.getRelatedNodes('tag', 'outgoing'));
-                                relatedNodes.push(node.getRelatedNodes('referee', 'outgoing'));
+                                relatedNodes.push(node.getRelatedNodes('reference', 'outgoing'));
                                 relatedNodes.push(node.getRelatedNodes('annotation', 'outgoing'));
 
                                 var tempdata = {

@@ -77,6 +77,7 @@ class Rdf extends MY_Controller {
 			if (!in_array(plural(strtolower($res)), $this->models)) continue;
 			$this->data['restrict'][] = (string) plural(strtolower($res));
 		}
+		if (in_array('reference', $restrict) || in_array('references', $restrict)) $this->data['restrict'][] = 'references';
 		// Include ARC tables ("Additional Metadata")?
 		$this->data['include_meta'] = (isset($_REQUEST['meta']) && 0 === (int) $_REQUEST['meta']) ? false : true;
 		$this->data['meta_recursion'] = (isset($_REQUEST['metarec']) && is_numeric($_REQUEST['metarec'])) ? (int) $_REQUEST['metarec']: null;

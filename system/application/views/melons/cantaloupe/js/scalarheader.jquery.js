@@ -623,7 +623,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
 
                     case "vismedia":
                     options.content = 'media';
-                    options.relations = 'referee';
+                    options.relations = 'reference';
                     options.format = 'force-directed';
                     break;
 
@@ -1178,7 +1178,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                     var splitList = $('<ul></ul>');
 
                     var path_of = node.getRelatedNodes('path', 'outgoing');
-                    var features = node.getRelatedNodes('referee', 'outgoing');
+                    var features = node.getRelatedNodes('reference', 'outgoing');
                     var tag_of = node.getRelatedNodes('tag', 'incoming');
                     var annotates = node.getRelatedNodes('annotation', 'outgoing');
                     var comments_on = node.getRelatedNodes('comment', 'outgoing');
@@ -1512,13 +1512,13 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
         base.getParents = function(node,depth){
             if(typeof base.currentNode !== 'undefined'){
                 var in_path = node.getRelatedNodes('path', 'incoming');
-                var featured = node.getRelatedNodes('referee', 'incoming');
+                var featured = node.getRelatedNodes('reference', 'incoming');
                 var tagged_by = node.getRelatedNodes('tag', 'outgoing');
                 var annotated_by = node.getRelatedNodes('annotation', 'incoming');
                 var commented_by = node.getRelatedNodes('comment', 'incoming');
                 /*
                 var in_path = node.getRelations('path', 'incoming', 'reverseindex');
-                var featured = node.getRelations('referee', 'incoming', 'reverseindex');
+                var featured = node.getRelations('reference', 'incoming', 'reverseindex');
                 var tagged_by = node.getRelations('tag', 'outgoing', 'reverseindex');
                 var annotated_by = node.getRelations('annotation', 'incoming', 'reverseindex');
                 var commented_by = node.getRelations('comment', 'incoming', 'reverseindex');
@@ -1623,7 +1623,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
 
             if (node != null) {
                 var i, subMenu, subMenuItem,
-                    menuItems = node.getRelatedNodes('referee', 'outgoing', true),
+                    menuItems = node.getRelatedNodes('reference', 'outgoing', true),
                     n = menuItems.length;
                 if (n > 0) {
                     var tocNode, listItem;
