@@ -35,7 +35,8 @@ class Image_Metadata {
 		$iptc_arr = (!empty($this->iptc_ns)) ? $this->get_iptc($path) : array();
 		$exif_arr = (!empty($this->exif_ns)) ? $this->get_exif($path) : array();
 		$id3_arr = (!empty($this->id3_ns)) ? $this->get_id3($path) : array();
-		$pano_str = (!empty($this->pano_ns)) ? $this->getXmpData($path) : array();
+		$pano_str = (!empty($this->pano_ns)) ? $this->getXmpData($path) : '';
+		$pano_arr = array();
 
 		if (!empty($pano_str)) {
 			$p = xml_parser_create();
@@ -190,7 +191,7 @@ class Image_Metadata {
 		}
 		
 		fclose($file_pointer);
-		return ($hasXmp) ? $buffer : NULL;
+		return ($hasXmp) ? $buffer : null;
 		
 	}
 
