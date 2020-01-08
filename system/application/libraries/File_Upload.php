@@ -38,7 +38,7 @@ class File_Upload {
     }
 
     // Upload media file and its thumbnail image
-    public function uploadMedia($file, $versions = null) {
+    public function uploadMedia($file, $versions = null, $base_uri = '') {
         $this->assertValidFileUpload($file);
 
         // check the path that is prepended to the source file name is valid (no prepend or "media")
@@ -53,8 +53,9 @@ class File_Upload {
         if (!empty($_POST['replace']) && !empty($versions)) {
             $arr = explode(':', $_POST['replace']);  // replace is an urn
             $version_id = array_pop($arr);
-            $version = $versions->get($version_id);
+            $version = $versions->get($version_id, null, false);
             $sourceName = $version->url;
+            if (!empty($base_uri) && substr($sourceName, 0, strlen($base_uri)) == $base_uri) $sourceName = substr($sourceName, strlen($base_uri));
             if (substr($sourceName, 0, 6) == 'media/') $sourceName = substr($sourceName, 6);  // Don't use ltrim() because of an apparent OS X bug (we have verifiable problems when a filename began with "em")
             if (!$this->is_allowed($sourceName)) {
                 throw new Exception(FILE_NAME_NOT_ALLOWED);

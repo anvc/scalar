@@ -594,10 +594,11 @@ class Version_model extends MY_Model {
     /**
      * Make an assumption on whether or not the URL field is local or external
      */
-    public function url_is_local($url) {
+    public function url_is_local($url, $base_uri='') {
 
     	$arr = parse_url($url);
     	if (!isset($arr['scheme']) || empty($arr['scheme'])) return true;
+    	if (!empty($base_uri) && $base_uri == substr($url, 0, strlen($base_uri))) return true;
     	return false;
 
     }

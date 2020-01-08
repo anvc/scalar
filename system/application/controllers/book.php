@@ -572,7 +572,7 @@ class Book extends MY_Controller {
 			}
 
 			try {
-				$result = $this->file_upload->uploadMedia($source_file, $this->versions);
+				$result = $this->file_upload->uploadMedia($source_file, $this->versions, $this->data['base_uri']);
 				$url = $result['url'];
 				$thumb_url = $result['thumbUrl'];
 			} catch (Exception $e) {
@@ -595,11 +595,11 @@ class Book extends MY_Controller {
 		} // if
 		
 		$this->data['book_media'] = $this->pages->get_all($this->data['book']->book_id, 'media', null, false);  // List of media pages
-		$to_remove = array();
 		for ($j = 0; $j < count($this->data['book_media']); $j++) {
 			$this->data['book_media'][$j]->versions = array();
-			$this->data['book_media'][$j]->versions[0] = $this->versions->get_single($this->data['book_media'][$j]->content_id, $this->data['book_media'][$j]->recent_version_id);
+			$this->data['book_media'][$j]->versions[0] = $this->versions->get_single($this->data['book_media'][$j]->content_id, $this->data['book_media'][$j]->recent_version_id, null, false);
 		}
+		usort($this->data['book_media'], "sortSearchResults");
 
 	}
 
