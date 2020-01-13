@@ -855,10 +855,15 @@
 				// if a count was found, store it
 				if ( count != null ) {
 					base.typeCounts[ loadInstruction.id ] = count;
-
+					
 					// if the count is less than the point at which we'd start our next load, then
 					// we've reached the last page of data for this item type
-					if ( count < (( base.pageIndex + 1 ) * base.resultsPerPage )) {
+					//if ( count < (( base.pageIndex + 1 ) * base.resultsPerPage )) {
+
+					// 'methodNumNodes' (count) decreases in each consecutive API call... it's the
+					// number of nodes remaining (current call nodes inclusive) rather than the total
+					// number of nodes across all API calls of a particular type ~Craig
+					if (count < base.resultsPerPage) {
 						base.reachedLastPage = true;
 					}
 				}
