@@ -367,7 +367,7 @@ function handleViewTypeClick(radioBtn) {
 
 					// if the count is less than the point at which we'd start our next load, then
 					// we've reached the last page of data for this item type
-					if ( count < (( me.pageIndex + 1 ) * me.resultsPerPage )) {
+					if ( count < me.resultsPerPage )) {
 						me.reachedLastPage = true;
 					}
 				}
