@@ -32,7 +32,7 @@
         base.el = el;
 
         base.visStarted = false;
-		base.resultsPerPage = 25;
+		base.resultsPerPage = 50;
 		base.loadedAllContent = false;
 		base.canonicalTypeOrder = [ "path", "page", "comment", "tag", "annotation", "media" ];
 		base.canonicalRelationOrder = [
@@ -67,7 +67,7 @@
         // one-time setup
         base.init = function(){
 
-            //Replace undefined options with defaults...
+            // replace undefined options with defaults...
             base.setOptions( $.extend( {}, $.scalarvis.defaultOptions, options ) );
 
 			if (base.currentNode != null) {
@@ -124,7 +124,7 @@
 			// inform all instances that content has finished loading
 			$( 'body' ).on( 'visLoadedAllContent', function() { base.loadedAllContent = true; } );
 
-			// Add a reverse reference to the DOM object
+			// add a reverse reference to the DOM object
 			base.visElement.data( "scalarvis", base );
 
 			// other setup goes here
@@ -899,9 +899,10 @@
 			}
 
 			if (( start != -1 ) && ( total != null )) {
-				base.loadingMsg.find('p').text( 'Loading ' + typeName + ' (' + start + '/' + total + ')...' );
+				//base.loadingMsg.find('p').text( 'Loading ' + typeName + ' (' + start + '/' + total + ')...' );
+				base.loadingMsg.find('p').text( 'Loading ' + typeName + ' (' + (total - base.resultsPerPage) + ' remaining) ...' );
 			} else {
-				base.loadingMsg.find('p').text( 'Loading ' + typeName + '...' );
+				base.loadingMsg.find('p').text( 'Loading ' + typeName + ' ...' );
 			}
 			base.progressBar.find( ".progress-bar" ).attr( "aria-valuenow", percentDone ).css( "width", percentDone + "%" );
 			base.progressBar.find( ".sr-only" ).text( percentDone + "% complete" );
