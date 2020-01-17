@@ -54,21 +54,24 @@ CREATE TABLE IF NOT EXISTS `scalar_db_rel_annotated` (
   `start_line_num` smallint(2) unsigned NOT NULL DEFAULT '0',
   `end_line_num` smallint(2) unsigned NOT NULL DEFAULT '0',
   `points` varchar(128) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  KEY `parent_child` (`parent_version_id`,`child_version_id`)
+  KEY `parent_child` (`parent_version_id`,`child_version_id`),
+  KEY `child_parent` (`child_version_id`,`parent_version_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `scalar_db_rel_contained` (
   `parent_version_id` int(10) unsigned NOT NULL DEFAULT '0',
   `child_version_id` int(10) unsigned NOT NULL DEFAULT '0',
   `sort_number` int(5) unsigned NOT NULL DEFAULT '0',
-  KEY `parent_child` (`parent_version_id`,`child_version_id`)
+  KEY `parent_child` (`parent_version_id`,`child_version_id`),
+  KEY `child_parent` (`child_version_id`,`parent_version_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `scalar_db_rel_referenced` (
   `parent_version_id` int(10) unsigned NOT NULL DEFAULT '0',
   `child_version_id` int(10) unsigned NOT NULL DEFAULT '0',
   `reference_text` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  KEY `parent_child` (`parent_version_id`,`child_version_id`)
+  KEY `parent_child` (`parent_version_id`,`child_version_id`),
+  KEY `child_parent` (`child_version_id`,`parent_version_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `scalar_db_rel_replied` (
@@ -76,13 +79,15 @@ CREATE TABLE IF NOT EXISTS `scalar_db_rel_replied` (
   `child_version_id` int(10) unsigned NOT NULL DEFAULT '0',
   `paragraph_num` int(5) unsigned NOT NULL DEFAULT '0',
   `datetime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  KEY `parent_child` (`parent_version_id`,`child_version_id`)
+  KEY `parent_child` (`parent_version_id`,`child_version_id`),
+  KEY `child_parent` (`child_version_id`,`parent_version_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `scalar_db_rel_tagged` (
   `parent_version_id` int(10) unsigned DEFAULT '0',
   `child_version_id` int(10) unsigned NOT NULL DEFAULT '0',
-  KEY `parent_child` (`parent_version_id`,`child_version_id`)
+  KEY `parent_child` (`parent_version_id`,`child_version_id`),
+  KEY `child_parent` (`child_version_id`,`parent_version_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `scalar_db_resources` (
