@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS `scalar_db_content` (
   `user` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
   `created` datetime NOT NULL,
   PRIMARY KEY (`content_id`),
-  UNIQUE (`book_id`, `slug`),
+  UNIQUE (`slug`),
   KEY `book_id` (`book_id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
