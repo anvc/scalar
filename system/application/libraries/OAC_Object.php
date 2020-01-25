@@ -21,7 +21,7 @@
 /**
  * @projectDescription		Convert internal structures to OAC, with help from RDF_Object
  * @author					Craig Dietrich
- * @version					1.0
+ * @version					1.1
  */
 
 if ( ! defined('BASEPATH')) exit('No direct script access allowed');
@@ -64,6 +64,61 @@ class OAC_Object extends RDF_Object {
     	} else {
     		die('Only passing by ref is supported.');
     		return $this->_index($arg0);
+    	}
+    	
+    }
+    
+    public function decode($arr=array(), $book=null) {
+    	
+    	$CI =& get_instance();
+    	if (!isset($CI->pages) || 'object'!=gettype($CI->pages)) $CI->load->model('page_model','pages');
+    	if (!isset($CI->versions) || 'object'!=gettype($CI->versions)) $CI->load->model('version_model','versions');
+    	$return = array();
+    	
+    	// Validate the book and get the page based on the target URL
+    	if (empty($book) || !isset($book->book_id)) return $return;
+    	$book_url = base_url() . $book->slug . '/';
+    	$target_url = urldecode($arr['target']['id']);
+    	$content = $CI->pages->get_by_version_url($book->book_id, $target_url);
+    	if (empty($content) && !stristr($target_url, $book_url)) {
+    		return $return;
+    	} elseif (empty($content)) {
+    		$target_url = str_replace($book_url, '', $target_url);
+    		$content = $CI->pages->get_by_version_url($book->book_id, $target_url);
+    		if (empty($content)) return $return;
+    	}
+    	
+    	foreach ($content as $content_id => $page) {
+    	
+    		// Relational fields
+    		if (empty($page->versions)) return $return;
+    		$return['rdf:type'] = $CI->versions->rdf_type('media');
+    		$return['scalar:child_type'] = $CI->versions->rdf_type('version');
+	    	$return['scalar:child_urn'] = $CI->versions->urn($page->versions[$page->version_index]->version_id);
+	    	$return['scalar:child_rel'] = 'annotated';
+	    	
+	    	// Version fields
+	    	foreach ($arr['body'] as $el) {
+	    		if ('describing' == $el['purpose']) {
+	    			$return['dcterms:title'] = $el['value'];
+	    			$return['dcterms:language'] = $el['language'];
+	    			$return['dcterms:format'] = $el['format'];
+	    		}
+	    	}
+	    	foreach ($arr['target']['selector'] as $el) {
+	    		if ('FragmentSelector' == $el['type']) {
+	    			$value = $el['value'];
+	    			$value = str_replace('npt:', '', $value);
+	    			$value_arr = explode('=', $value);
+	    			$value = $value_arr[1];
+	    			$value_arr = explode(',', $value);
+	    			$return['scalar:start_seconds'] = $value_arr[0];
+	    			$return['scalar:end_seconds'] = $value_arr[1];
+	    		}
+	    	}
+	    	
+	    	return $return;  // If there are more than one pages with the URL, then only act on the first
+	    	
     	}
     	
     }

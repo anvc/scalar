@@ -1165,8 +1165,10 @@ function YouTubeGetID(url){
 							break;
 
 							case 'native':
-							this.mediaObjectView = new $.HTML5VideoObjectView(this.model, this);
-							//this.mediaObjectView = new $.SemanticAnnotationToolObjectView(this.model, this);
+								this.mediaObjectView = new $.HTML5VideoObjectView(this.model, this);
+								if ($('.book-title').children('[data-semantic-annotation-tool="true"]').length) {
+									this.mediaObjectView = new $.SemanticAnnotationToolObjectView(this.model, this);
+								}
 							break;
 
 							case 'proprietary':

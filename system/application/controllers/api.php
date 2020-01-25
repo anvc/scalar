@@ -74,6 +74,9 @@ Class Api extends CI_Controller {
 		$this->load->library('statusCodes');
 		$this->load->library('RDF_Store','rdf_store');
  		$this->data = array();
+ 		
+ 		//Determine if the incoming request has a payload (JSON blob) and convert to post fields if available
+		$this->_payload_to_auth_data();
 
  		//All requests to this controller must be accompanied by authentication credentials and a valid action
  		if(!$this->_load_auth_data()) $this->_output_error(StatusCodes::HTTP_UNAUTHORIZED);
@@ -95,6 +98,9 @@ Class Api extends CI_Controller {
  		} else if(!$this->user = $this->api_users->do_login($this->data['email'], $this->data['api_key'], $this->data['host'])){
  			$this->_output_error(StatusCodes::HTTP_UNAUTHORIZED, 'Could not log in via API key');
  		}
+ 		
+ 		//Determine if the incoming request has a payload (JSON blob) and convert to post fields if available
+ 		$this->_payload_to_data($this->data['book']);
  		
  		//Propagate allowable prefixes
  		$ontologies = $this->config->item('ontologies');
@@ -280,7 +286,6 @@ Class Api extends CI_Controller {
 	 * _load_x functions parse POST data and do some validation for each type of x
 	 */
 	private function _load_auth_data(){
-	//Loads data from the POST array into the Api class and does a bit of validation
 		$this->data['native'] = $this->input->post('native');
 		$this->data['email'] = $this->input->post('id');
 		$this->data['api_key'] = $this->input->post('api_key');
@@ -673,6 +678,42 @@ Class Api extends CI_Controller {
 		if (!empty($tklabels)) $tklabels = unserialize($tklabels);
 
 		return $tklabels;
+		
+	}
+	
+	/**
+	 * 
+	 */
+	private function _payload_to_auth_data() {
+		
+		$request_body = file_get_contents('php://input');
+		if (empty($request_body)) return false;
+		$json = json_decode($request_body, true);
+		if (false === $json) return false;
+		if (!isset($json[0])) $json = array($json);
+
+		if (isset($json[0]['@context']) && 'http://www.w3.org/ns/anno.jsonld' == $json[0]['@context']) {  // OAC (Semantic Annotation Tool)
+			$_POST['native'] = 'true';
+			$_POST['action'] = 'ADD';
+		}
+		
+	}
+	
+	/**
+	 *
+	 */
+	private function _payload_to_data($book=null) {
+		
+		$request_body = file_get_contents('php://input');
+		if (empty($request_body)) return false;
+		$json = json_decode($request_body, true);
+		if (false === $json) return false;
+		if (!isset($json[0])) $json = array($json);
+		
+		if (isset($json[0]['@context']) && 'http://www.w3.org/ns/anno.jsonld' == $json[0]['@context']) {
+			$this->load->library('OAC_Object','oac_object');
+			$_POST = array_merge($_POST, $this->oac_object->decode($json[0], $book));
+		}
 		
 	}
 }

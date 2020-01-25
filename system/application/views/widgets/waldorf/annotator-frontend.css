@@ -107,6 +107,20 @@
   left: 0;
   /*    background-color: rgb(232, 248, 255);*/
 }
+.waldorf-player-toolbar button {
+	background-color:#ffffff;
+	border:solid 1px #cccccc;
+	border-radius:3px;
+	margin-left:1px;
+	margin-right:1px;
+	padding-top:3px;
+	padding-bottom:3px;
+}
+.waldorf-player-toolbar p {
+	margin-left:7px;
+	margin-right:7px;
+	padding-top:4px;
+}
 .waldorf-player-toolbar #seek-fill {
   margin: 0;
   padding: 0;
@@ -223,16 +237,31 @@
 
 .waldorf-info {
   position: relative;
-  background-color: rgba(121, 121, 221, 0.3);
+  background-color: #eeeeee;
+  border-top: solid 4px #dddddd;
+  border-bottom: solid 4px #dddddd;
   width: 100%;
-  min-height: 15em;
-  max-height: 15em;
-  overflow-y: scroll;
+  height:13.5em;
+  overflow-y: scroll; 
 }
 .waldorf-info p {
   margin: 0px;
-  padding: 10px;
+  padding: 5px 0px 0px 0px;
+  font-size:14px;
+  line-height:1.75;
 }
+.waldorf-info > p {
+  margin:6px 0px 6px 8px;
+  border-left:solid 8px #cccccc;
+  padding:10px 20px 10px 20px;
+}
+.waldorf-info b {
+	font-weight:normal;
+	color:#000000;
+}
+.waldorf-info a b {
+	color:#026697;
+} 
 
 .waldorf-debug-controls {
   position: relative;
