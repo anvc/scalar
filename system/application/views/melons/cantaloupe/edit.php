@@ -369,7 +369,7 @@ $(document).ready(function() {
 		$use_media_file.show();
 		if (!media_file_url_val.length) $use_media_file.hide();
 		if (-1==media_file_url_val.indexOf('.jpg')&&-1==media_file_url_val.indexOf('.png')&&-1==media_file_url_val.indexOf('.gif')&&-1==media_file_url_val.indexOf('JPEG')) $use_media_file.hide();
-		$use_media_file.on('click', function() {
+		$use_media_file.off('click').on('click', function() {
 			$use_media_file.closest('div').find('input').val(media_file_url_val);
 		});
 	};
