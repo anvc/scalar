@@ -640,10 +640,11 @@ function checkTypeSelect() {
 		$('#select_view').select_view({data:media_views,default_value:$('link#default_view').attr('href')});
 	}
 }
-// Set Badges for Relationship tab
+// Set Badges for Relationship and Metadata tabs
 function badges() {
+    // Relationships
 	var total = 0;
-	$('.badge').each(function() {
+	$('.relationships-dropdown .badge').each(function() {
 		var self = $(this);
 		var j = 0;
 		switch(self.parent().attr('href')) {
@@ -663,7 +664,13 @@ function badges() {
 		self.html(((j>0)?j:''));
 		total = total + j;
 	});
-	$('a[role="tab"] .badge').html(((total>0)?total:''));
+	$('.relationships-dropdown .badge:first').html(((total>0)?total:''));
+    // Metadata
+	total = 0;
+	$('#metadata_rows input[type="text"]').each(function() {
+	  if ($(this).val().length) total++;
+    });
+    $('a[href="#metadata-pane"] .badge').text(total);
 };
 END;
 
@@ -904,7 +911,7 @@ if($currentRole == 'commentator'){
 <div id="editor-tabpanel" role="tabpanel" class="p">
 	<ul id="editor-tabs" class="nav nav-tabs" role="tablist">
 		<li role="presentation" class="active"><a href="#layout-pane" aria-controls="layout-pane" role="tab" data-toggle="tab">Layout</a></li>
-		<li role="presentation" class="dropdown"><a class="dropdown-toggle" href="#" role="tab" data-toggle="dropdown">Relationships <span class="badge"></span><span class="caret"></span></a>
+		<li role="presentation" class="dropdown relationships-dropdown"><a class="dropdown-toggle" href="#" role="tab" data-toggle="dropdown">Relationships <span class="badge"></span><span class="caret"></span></a>
 			<ul class="dropdown-menu" role="menu">
 				<li role="presentation"><a role="menuitem" tabindex="-1" href="#path-pane" aria-controls="path-pane" data-toggle="tab"><span class="path_icon"></span> Path <span class="badge"></span></a></li>
 				<li role="presentation"><a role="menuitem" tabindex="-1" href="#comment-pane" aria-controls="comment-pane" data-toggle="tab"><span class="reply_icon"></span> Comment <span class="badge"></span></a></li>
@@ -923,7 +930,7 @@ if($currentRole == 'commentator'){
 			</ul>
 		</li>
 		<li role="presentation"><a href="#properties-pane" aria-controls="properties-pane" role="tab" data-toggle="tab">Properties</a></li>
-		<li role="presentation"><a href="#metadata-pane" aria-controls="metadata-pane" role="tab" data-toggle="tab">Metadata</a></li>
+		<li role="presentation"><a href="#metadata-pane" aria-controls="metadata-pane" role="tab" data-toggle="tab">Metadata <span class="badge"></span></a></li>
 	</ul>
 	<div class="tab-content">
 
