@@ -363,6 +363,20 @@ $(document).ready(function() {
 		if ((url.indexOf('://') == -1) && (url != '')) { url = $('link[id="parent"]').attr('href') + url; }
 		$(this).parent().parent().append('<div class="well"><img src="'+url+'" class="thumb_preview" /></div>');
 	});
+	var check_use_media_file_url = function() {
+	 	var media_file_url_val = $('#media_file_url').val();
+		var $use_media_file = $('#use-the-media-file-url');
+		$use_media_file.show();
+		if (!media_file_url_val.length) $use_media_file.hide();
+		if (-1==media_file_url_val.indexOf('.jpg')&&-1==media_file_url_val.indexOf('.png')&&-1==media_file_url_val.indexOf('.gif')&&-1==media_file_url_val.indexOf('JPEG')) $use_media_file.hide();
+		$use_media_file.on('click', function() {
+			$use_media_file.closest('div').find('input').val(media_file_url_val);
+		});
+	};
+	check_use_media_file_url();
+	$('#media_file_url').on('change', function() {
+		check_use_media_file_url();
+	});
 	// Background
 	var choose_background = $('#choose_background');
 	var chosen_background = choose_background.find('option:selected').val();
@@ -1197,7 +1211,7 @@ if($currentRole == 'commentator'){
 
 		<div id="thumbnail-pane" role="tabpanel" class="tab-pane<?=$canChangeState?'':' editingDisabled'?>">
 			<div class="row p">
-				<div class="col-md-8">
+				<div class="col-md-10">
 					<div class="form-group">
 						<label for="choose_thumbnail">Choose an image from your library to use as a thumbnail for this page:</label>
 			  			<select id="choose_thumbnail" class="form-control"><option value="">Choose an image</option><?
@@ -1215,8 +1229,8 @@ if($currentRole == 'commentator'){
 					</div>
 					-->
 					<div class="form-group">
-			  			<label for="enter_thumbnail_url">Or enter any image URL:</label>
-			  			<input id="enter_thumbnail_url" class="form-control" type="text" name="scalar:thumbnail" value="<?=@$page->thumbnail?>" />
+			  			<label for="enter_thumbnail_url" style="display:block;">Or enter any image URL:<a href="javascript:void(null);" id="use-the-media-file-url" style="font-size:12px;float:right;">Use the Media file URL</a></label>
+			  			<input id="enter_thumbnail_url" class="form-control"type="text" name="scalar:thumbnail" value="<?=@$page->thumbnail?>" />
 					</div>
 	  			</div>
 			</div>
