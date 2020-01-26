@@ -178,6 +178,7 @@ header { padding-top: 4.8rem; }
 
 .search_control form { display: inline; }
 .search_submit { display: none; }
+.search_loading {display:inline-block; position:relative; top:2px; display:none;}
 
 .s_all_label {float:right;}
 .s_all_label label {cursor:pointer;}
