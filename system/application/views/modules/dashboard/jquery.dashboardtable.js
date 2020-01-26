@@ -90,7 +90,7 @@
 					$.fn.scalardashboardtable('init', options);
 				};
 				var error = function() { };
-				options.scalarapi.loadNodesByType(options.query_type, 1, success, error, 0, 0, null, options.start, options.results, 1);
+				options.scalarapi.loadNodesByType(options.query_type, 1, success, error, 0, 0, null, options.start, options.results, 1, false);
 			});
 
 		},
@@ -110,7 +110,7 @@
 					$.fn.scalardashboardtable('init', options);
 				};
 				var error = function() { };
-				options.scalarapi.nodeSearch(options.sq, success, error, 0, 0, 0, null, null, 1, null, options.s_all);
+				options.scalarapi.nodeSearch(options.sq, success, error, 0, 0, 0, null, null, 1, null, options.s_all, ((options.s_all)?1:false));
 			});
 
 		},

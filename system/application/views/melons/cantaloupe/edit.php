@@ -684,7 +684,13 @@ function badges() {
 	$('#metadata_rows input[type="text"]').each(function() {
 	  if ($(this).val().length) total++;
     });
-    $('a[href="#metadata-pane"] .badge').text(total);
+	$meta_badge = $('a[href="#metadata-pane"] .badge');
+	$meta_badge.text(total);
+	if (!total) {
+		$meta_badge.hide();
+	} else {
+		$meta_badge.show();
+	};
 };
 END;
 

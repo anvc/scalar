@@ -9,6 +9,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 		multiple: false,
 		onthefly: false,
 		pagination: true,
+		includeMetadata: false,
 		/* Sorts by slug, not title */
 		start: 0,
 		resultsPerPage: 100,
@@ -1404,6 +1405,9 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			if (doSearch) {
 				url += "&sq=" + search;
 			};
+			if (!opts.includeMetadata) {
+				url += '&meta=0';
+			};
 			if (!doSearch && typeof loaded_nodeLists[type] !== "undefined" && options.page == 0) {
 				promise.resolve();
 			} else {
@@ -1986,7 +1990,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								hasChildSelector = true;
 								rowHTML += '<td class="select_children text-center' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" style="height: 50px;" data-width="' + fieldWidths[col] +'">';
 								if (item.hasRelations) {
-									rowHTML += '<input type="checkbox" value="" style="margin-top: 1.5rem;">';
+									rowHTML += '<input type="checkbox" value="">';
 								}
 								rowHTML += '</td>';
 								break;
