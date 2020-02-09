@@ -113,6 +113,39 @@ class System extends MY_Controller {
 		$this->template->render();
 
 	}
+	
+	public function lenses() {
+		
+		$version_id = (isset($_REQUEST['version_id'])) ? (int) $_REQUEST['version_id'] : 0;
+		$book_id = (isset($_REQUEST['book_id'])) ? (int) $_REQUEST['book_id'] : 0;
+		
+		if (!empty($version_id)) {
+			$this->load->model('book_model', 'books');
+			$this->load->model('lens_model', 'lenses');
+			$this->load->model('version_model', 'versions');
+			$book_id = (int) $this->versions->get_book($version_id);
+			if (empty($book_id)) die ('{"error":"Could not find a book associated with the Version ID"}');
+			$this->data['book'] = $this->books->get($book_id);
+			$this->set_user_book_perms();
+			//if (!$this->login_is_book_admin()) die ('{"error":"Invalid permissions"}');
+			$this->data['content'] = $this->lenses->get_children($version_id);
+		} elseif (!empty($book_id)) {
+			$this->load->model('book_model', 'books');
+			$this->load->model('lens_model', 'lenses');
+			$this->load->model('version_model', 'versions');
+			$this->data['book'] = $this->books->get($book_id);
+			$this->set_user_book_perms();
+			//if (!$this->login_is_book_admin()) die ('{"error":"Invalid permissions"}');
+			$this->data['content'] = $this->lenses->get_all($book_id);
+		} else {
+			$this->data['content'] = '{"error":"Missing Version ID or Book ID"}';
+		}
+		
+		$this->template->set_template('blank');
+		$this->template->write_view('content', 'modules/data/json', $this->data);
+		$this->template->render();
+		
+	}
 
 	public function login() {
 

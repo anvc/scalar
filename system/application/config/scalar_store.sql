@@ -90,6 +90,12 @@ CREATE TABLE IF NOT EXISTS `scalar_db_rel_tagged` (
   KEY `child_parent` (`child_version_id`,`parent_version_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS `scalar_db_rel_grouped` (
+  `parent_version_id` int(10) unsigned DEFAULT '0',
+  `contents` TEXT NOT NULL,
+  KEY `parent` (`parent_version_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS `scalar_db_resources` (
   `field` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
   `value` mediumtext COLLATE utf8_unicode_ci NOT NULL,

@@ -49,6 +49,7 @@ Class Api extends CI_Controller {
 	private $rel_referenced = array('reference_text');
 	private $rel_replied = array('paragraph_num', 'datetime');
 	private $rel_tagged = array();
+	private $rel_grouped = array('contents');
 
 	//Defaults
 	private $default_return_format = 'json';
@@ -98,7 +99,7 @@ Class Api extends CI_Controller {
  		} else if(!$this->user = $this->api_users->do_login($this->data['email'], $this->data['api_key'], $this->data['host'])){
  			$this->_output_error(StatusCodes::HTTP_UNAUTHORIZED, 'Could not log in via API key');
  		}
- 		
+
  		//Determine if the incoming request has a payload (JSON blob) and convert to post fields if available
  		$this->_payload_to_data($this->data['book']);
  		
@@ -369,11 +370,14 @@ Class Api extends CI_Controller {
 	private function _load_relate_data() {
 
 		// Required fields
+		$rel_meta = 'rel_'.$this->input->post('scalar:child_rel');
 		foreach($this->relate_fields as $idx) {
 			$this->data[$idx] = $this->input->post($idx);
-			if(!$this->data[$idx]) $this->_output_error(StatusCodes::HTTP_BAD_REQUEST, 'Incomplete or missing field.');
+			if(!$this->data[$idx]) {
+				if ('rel_grouped'==$rel_meta && 'scalar:child_urn'==$idx) continue;  // Special consideration for lenses, which don't have a 'child' in the relationship
+				$this->_output_error(StatusCodes::HTTP_BAD_REQUEST, 'Incomplete or missing field: '.$idx);
+			}
 		}
-		$rel_meta = 'rel_'.$this->input->post('scalar:child_rel');
 		if (isset($this->$rel_meta)) {
 			foreach($this->$rel_meta as $idx){
 				if($this->input->post('scalar:'.$idx)!==false){
@@ -406,12 +410,12 @@ Class Api extends CI_Controller {
 		}
 
 		// Validate scalar:child_urn + possibly glean URN from slug if that's what is sent
-		if (strpos($this->data['scalar:child_urn'], ':')) {   // e.g., urn:scalar:version:12345
+		if (!empty($this->data['scalar:child_urn']) && strpos($this->data['scalar:child_urn'], ':')) {   // e.g., urn:scalar:version:12345
 			$arr = explode(':', $this->data['scalar:child_urn']);  // Avoid E_STRICT pass by reference warning
 			$book_id = $this->versions->get_book(array_pop($arr));
 			if (!$book_id) $this->_output_error(StatusCodes::HTTP_NOT_FOUND, 'Requested scalar:child_urn does not exist');
 			if ($book_id != $this->user->book_id) $this->_output_error(StatusCodes::HTTP_UNAUTHORIZED, 'Requested scalar:child_urn is not part of the request book');
-		} else {  // e.g., my-first-scalar-page
+		} elseif (!empty($this->data['scalar:child_urn'])) {  // e.g., my-first-scalar-page
 			$page = $this->pages->get_by_slug($this->user->book_id, $this->data['scalar:child_urn']);
 			if (empty($page)) $this->_output_error(StatusCodes::HTTP_NOT_FOUND, 'Requested scalar:child_urn (page slug) does not exist');
 			$version = $this->versions->get_single($page->content_id, $page->recent_version_id);
@@ -633,6 +637,10 @@ Class Api extends CI_Controller {
 				$this->load->model('tag_model', 'tags');
 				$this->tags->save_children($parent_id, array($this->data['scalar:child_urn']));
 				break;
+			case 'grouped':
+				$this->load->model('lens_model', 'lenses');
+				$this->lenses->save_children($parent_id, array($save['contents']));
+				break;
 		}
 
 		return $parent_id;
@@ -685,14 +693,20 @@ Class Api extends CI_Controller {
 	 * 
 	 */
 	private function _payload_to_auth_data() {
-		
+
 		$request_body = file_get_contents('php://input');
 		if (empty($request_body)) return false;
 		$json = json_decode($request_body, true);
-		if (false === $json) return false;
+		if (!$json) return false;
 		if (!isset($json[0])) $json = array($json);
 
-		if (isset($json[0]['@context']) && 'http://www.w3.org/ns/anno.jsonld' == $json[0]['@context']) {  // OAC (Semantic Annotation Tool)
+		// OAC from Semantic Annotation Tool
+		if (isset($json[0]['@context']) && 'http://www.w3.org/ns/anno.jsonld' == $json[0]['@context']) {
+			$_POST['native'] = 'true';
+			$_POST['action'] = 'ADD';
+			
+		// Lens JSON
+		} elseif (isset($json[0]['urn']) && 'urn:scalar:lens:' == substr($json[0]['urn'], 0, 16)) {
 			$_POST['native'] = 'true';
 			$_POST['action'] = 'ADD';
 		}
@@ -709,10 +723,16 @@ Class Api extends CI_Controller {
 		$json = json_decode($request_body, true);
 		if (false === $json) return false;
 		if (!isset($json[0])) $json = array($json);
-		
+
+		// OAC from Semantic Annotation Tool
 		if (isset($json[0]['@context']) && 'http://www.w3.org/ns/anno.jsonld' == $json[0]['@context']) {
 			$this->load->library('OAC_Object','oac_object');
 			$_POST = array_merge($_POST, $this->oac_object->decode($json[0], $book));
+
+		// Lens JSON
+		} elseif (isset($json[0]['urn']) && 'urn:scalar:lens:' == substr($json[0]['urn'], 0, 16)) {
+			$this->load->model('lens_model', 'lenses');
+			$_POST = array_merge($_POST, $this->lenses->decode($json[0], $book));
 		}
 		
 	}
