@@ -74,9 +74,11 @@ class Lens_model extends MY_Model {
 		$result = $query->result();
 		$return = array();
 		for ($j = 0; $j < count($result); $j++) {
-			$result[$j]->contents = json_decode($result[$j]->contents);
-			$result[$j]->contents->urn = $this->urn($result[$j]->parent_version_id);
-			$return[] = $result[$j]->contents;
+			if (isset($result[$j]->contents) && !empty($result[$j]->contents)) {
+				$result[$j]->contents = json_decode($result[$j]->contents);
+				$result[$j]->contents->urn = $this->urn($result[$j]->parent_version_id);
+				$return[] = $result[$j]->contents;
+			}
 		}
 		return json_encode($return);
 		
