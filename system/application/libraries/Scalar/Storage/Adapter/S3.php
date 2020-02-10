@@ -218,7 +218,6 @@ class Scalar_Storage_Adapter_S3 implements Scalar_Storage_Adapter_AdapterInterfa
                 $destKey = $destFolder . '/' . substr($key, strlen($prefix));
                 $this->_log("Copying object: $key => $destKey");
                 $this->_s3->copyObject($this->_bucket, $key, $this->_bucket, $destKey);
-                $this->delete($key);
             }
 
             $this->_log("Finished transfer.");
