@@ -735,7 +735,7 @@ class Book_model extends MY_Model {
 					
 					if ($query->num_rows()) {
 						$result = $query->result();
-						foreach ($result as $row) { // this should only have one db connection
+						foreach ($result as $row) {
 							$old_url = $row->$column;
 							$content_id = $row->content_id;
 							$new_url = str_replace("/$slug/", "/".$array['slug']."/", $old_url);
