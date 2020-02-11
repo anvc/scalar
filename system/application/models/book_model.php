@@ -723,29 +723,41 @@ class Book_model extends MY_Model {
 					throw new Exception('The destination folder already exists or the source folder doesn\'t exist.');
 				}
 				
-				$columns = array('background', 'thumbnail', 'banner');
-				foreach ($columns as $column) {
-					// update background urls
-					$q = "SELECT $column, content_id ".
-						 "FROM $dbprefix"."content " .
-						 "WHERE book_id = $book_id " .
-						 "AND INSTR($column, '/$slug/')";
-					$query = $this->db->query($q);
-					
-					
-					if ($query->num_rows()) {
-						$result = $query->result();
-						foreach ($result as $row) {
-							$old_url = $row->$column;
-							$content_id = $row->content_id;
-							$new_url = str_replace("/$slug/", "/".$array['slug']."/", $old_url);
-							$this->db->where($column, $old_url);
-							$this->db->update('scalar_db_content', array($column => $new_url));
-							$this->db->where('content_id', $content_id);
-							$this->db->update('scalar_db_versions', array('url' => $new_url));	
-						}
-					}
+				// Update hard URLs in version contet + thumbnail and background fields
+				$media_url = $this->config->item('media_url') ? $this->config->item('media_url') : base_url();
+				$old = confirm_slash($media_url).confirm_slash($slug);
+				$new = confirm_slash($media_url).confirm_slash($array['slug']);
+				// List of versions for this book
+				$this->db->select($this->versions_table.'.version_id');
+				$this->db->from($this->versions_table);
+				$this->db->join($this->pages_table, $this->versions_table.'.content_id='.$this->pages_table.'.content_id');
+				$this->db->join($this->books_table, $this->pages_table.'.book_id='.$this->books_table.'.book_id');
+				$this->db->where($this->books_table.'.book_id', $book_id);
+				$query = $this->db->get();
+				if ($query->num_rows()) {
+					$book_version_ids = array();
+					$result = $query->result();
+					foreach ($result as $row) $book_version_ids[] = $row->version_id;
 				}
+				// List of pages for this book
+				$this->db->select($this->pages_table.'.content_id');
+				$this->db->from($this->pages_table);
+				$this->db->join($this->books_table, $this->pages_table.'.book_id='.$this->books_table.'.book_id');
+				$this->db->where($this->books_table.'.book_id', $book_id);
+				$query = $this->db->get();
+				if ($query->num_rows()) {
+					$book_page_ids = array();
+					$result = $query->result();
+					foreach ($result as $row) $book_page_ids[] = $row->content_id;
+				}
+				
+				// Run the rewrites
+				$query = $this->db->query("UPDATE ".$dbprefix.$this->versions_table." SET content = replace(content, ".$this->db->escape($old).", ".$this->db->escape($new).") WHERE version_id IN (".implode(',',$book_version_ids).")");
+				$query = $this->db->query("UPDATE ".$dbprefix.$this->pages_table." SET thumbnail = replace(thumbnail, ".$this->db->escape($old).", ".$this->db->escape($new).") WHERE content_id IN (".implode(',',$book_page_ids).")");
+				$query = $this->db->query("UPDATE ".$dbprefix.$this->pages_table." SET background = replace(background, ".$this->db->escape($old).", ".$this->db->escape($new).") WHERE content_id IN (".implode(',',$book_page_ids).")");
+				
+				
+				
 			}
 			
 	    }
