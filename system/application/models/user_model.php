@@ -172,9 +172,9 @@ class User_model extends MY_Model {
         $ad_bind_user = $this->config->item('ad_bind_user');
         $ad_bind_pass = $this->config->item('ad_bind_pass');
 
-	if ( strlen(trim($password)) == 0 ) {
+        if ( strlen(trim($password)) == 0 ) {
            return false;
-	}
+        }
 
         $ldapCon = ldap_connect( $ldap_host, $ldap_port );
         if ( !$ldapCon) {
