@@ -167,10 +167,14 @@ class User_model extends MY_Model {
         $ldap_port = $this->config->item('ldap_port');
         $basedn = $this->config->item('ldap_basedn');
         $uname_field = $this->config->item('ldap_uname_field');
+        $filter = $this->config->item('ldap_filter');
+        $use_ad = $this->config->item('use_ad_ldap');
+        $ad_bind_user = $this->config->item('ad_bind_user');
+        $ad_bind_pass = $this->config->item('ad_bind_pass');
 
-		if ( strlen(trim($password)) == 0 ) {
+	if ( strlen(trim($password)) == 0 ) {
            return false;
-		}
+	}
 
         $ldapCon = ldap_connect( $ldap_host, $ldap_port );
         if ( !$ldapCon) {
@@ -179,11 +183,20 @@ class User_model extends MY_Model {
 
         ldap_set_option($ldapCon, LDAP_OPT_PROTOCOL_VERSION, 3);
 
+        if ( $use_ad === true ) {
+            ldap_set_option($ldapCon, LDAP_OPT_REFERRALS, 0);
+        }
+
         if ( !ldap_start_tls($ldapCon) ) {
             throw new Exception('Unable to start TLS on LDAP connection');
         }
 
-        $ldapFilter = $uname_field . "=" . $uname;
+        if ( $use_ad === true ) {
+            $ldapBind = ldap_bind($ldapCon, $ad_bind_user, $ad_bind_pass);
+        }
+
+        $ldapFilter = '(&(objectClass=user)(' . $uname_field . '=' . $uname . ')' . $filter . ')';
+
         $ldapSearch = ldap_search($ldapCon, $basedn, $ldapFilter);
 
         // Found the user, now check the password by trying to bind as that user
