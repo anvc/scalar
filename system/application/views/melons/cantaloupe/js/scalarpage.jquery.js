@@ -1693,7 +1693,8 @@
                     }
 
                 } else if ('lens' == extension) {
-                  // temporary place to call the lens plugin; will be removed later
+                    // temporary place to call the lens plugin; will be removed later
+                    page.bodyContent().append('<div class="body_copy"><p>Hello World</p></div>')
 
                 } else if ('edit' == extension) {
                     // Nothing needed here

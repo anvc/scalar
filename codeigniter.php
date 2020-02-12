@@ -1,5 +1,5 @@
 <?php
-
+require('setenv.php');
 /*
  *---------------------------------------------------------------
  * APPLICATION ENVIRONMENT
