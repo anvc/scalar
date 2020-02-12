@@ -752,12 +752,14 @@ class Book_model extends MY_Model {
 				}
 				
 				// Run the rewrites
-				$query = $this->db->query("UPDATE ".$dbprefix.$this->versions_table." SET content = replace(content, ".$this->db->escape($old).", ".$this->db->escape($new).") WHERE version_id IN (".implode(',',$book_version_ids).")");
-				$query = $this->db->query("UPDATE ".$dbprefix.$this->pages_table." SET thumbnail = replace(thumbnail, ".$this->db->escape($old).", ".$this->db->escape($new).") WHERE content_id IN (".implode(',',$book_page_ids).")");
-				$query = $this->db->query("UPDATE ".$dbprefix.$this->pages_table." SET background = replace(background, ".$this->db->escape($old).", ".$this->db->escape($new).") WHERE content_id IN (".implode(',',$book_page_ids).")");
-				
-				
-				
+				$replace_old_new = $this->db->escape($old).', '.$this->db->escape($new);
+				$query = $this->db->query("UPDATE ".$dbprefix.$this->versions_table." SET content = REPLACE(content, $replace_old_new), url = REPLACE(url, $replace_old_new) WHERE version_id IN (".implode(',',$book_version_ids).")");
+				$query = $this->db->query("UPDATE ".$dbprefix.$this->pages_table." SET thumbnail = REPLACE(thumbnail, $replace_old_new), background = REPLACE(background, $replace_old_new), banner = REPLACE(banner, $replace_old_new) WHERE content_id IN (".implode(',',$book_page_ids).")");
+				$query = $this->db->query("UPDATE ".$dbprefix.$this->books_table." SET thumbnail = REPLACE(thumbnail, $replace_old_new), publisher_thumbnail = REPLACE(publisher_thumbnail, $replace_old_new) WHERE book_id = $book_id");
+
+				// Preserve the book property rewrites
+				unset($array['thumbnail']);
+				unset($array['publisher_thumbnail']); 
 			}
 			
 	    }
