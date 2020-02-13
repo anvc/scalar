@@ -1694,7 +1694,10 @@
 
                 } else if ('lens' == extension) {
                     // temporary place to call the lens plugin; will be removed later
-                    page.bodyContent().append('<div class="body_copy"><p>Hello World</p></div>')
+                    $.getScript(views_uri + '/melons/cantaloupe/js/scalarlens.jquery.js', function(jd) {
+                        init(page);
+                    });
+
 
                 } else if ('edit' == extension) {
                     // Nothing needed here
