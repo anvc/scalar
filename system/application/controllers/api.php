@@ -23,7 +23,7 @@
 * @abstract				This controller dispatches authentication requests and database updates received via POST
 * @return				On success returns RDF-JSON; error messages are sent as HTTP response codes
 * @author				John Bell w/ Craig Dietrich
-* @version				1.2
+* @version				1.3
 */
 
 Class Api extends CI_Controller {
@@ -708,7 +708,7 @@ Class Api extends CI_Controller {
 		// Lens JSON
 		} elseif (isset($json[0]['urn']) && 'urn:scalar:lens:' == substr($json[0]['urn'], 0, 16)) {
 			$_POST['native'] = 'true';
-			$_POST['action'] = 'ADD';
+			$_POST['action'] = 'RELATE';
 		}
 		
 	}

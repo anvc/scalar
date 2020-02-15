@@ -293,7 +293,7 @@ class RDF_Object {
 	 	// Users
 		foreach ($settings['users'] as $row) {
 			if ($settings['u_all']==self::USERS_LISTED && !$row->list_in_index) continue;
-			$return[$settings['base_uri'].'users/'.$row->user_id] = $CI->users->rdf($row);
+			$this->_safely_write_rdf($return, $settings['base_uri'].'users/'.$row->user_id, $CI->users->rdf($row));
 		}
 
 	 	// Table of contents nodes
@@ -301,7 +301,7 @@ class RDF_Object {
 			foreach ($row->versions as $version) {
 				$row->has_version[] = $settings['base_uri'].$row->slug.'.'.$version->version_num;
 			}
-			$return[$settings['base_uri'].$row->slug] = $CI->pages->rdf($row, $settings['base_uri']);
+			$this->_safely_write_rdf($return, $settings['base_uri'].$row->slug, $CI->pages->rdf($row, $settings['base_uri']));
 			foreach ($row->versions as $version) {
 				$return[$settings['base_uri'].$row->slug.'.'.$version->version_num] = $CI->versions->rdf($version, $settings['base_uri']);
 			}
