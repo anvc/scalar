@@ -141,6 +141,7 @@ CodeIgniter:
 
 ARC2 (updated 2019-10-07 from https://github.com/semsol/arc2):
 1) ARC2_Resource.php->getProps(): comment out "if (!isset($this->index[$s])) $this->fetchData($s);"
+2) ARC2_Store.php->hasHashColumn(): look for 'false' rather than 'null' from fetchRow()
 
 Template (libraries/Template.php):
 1) Added add_meta() and supporting updates to regions arrays
