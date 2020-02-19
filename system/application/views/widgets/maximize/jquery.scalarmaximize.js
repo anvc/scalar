@@ -32,11 +32,10 @@
 			var $link = $(this);
 			var mediaelement = $link.data('mediaelement');
 			var json = $link.data('json');
-			var is_ie = /*($.browser.msie) ? true :*/ false;
 
 			$('.maximize').remove();
 			var $div = $('<div class="maximize"><div class="maximize_fade"></div><div class="maximize_content"></div></div>');
-			if (!is_ie) $div.css({ opacity: 0.0 });  // For fading in later (can't use fadeIn() because display:block disrupts the fixed positioning)
+			$div.css({ opacity: 0.0 });  // For fading in later (can't use fadeIn() because display:block disrupts the fixed positioning)
 			$('body').append($div);
 
 			// Set height of maximize box + reposition based on vertical scroll position
