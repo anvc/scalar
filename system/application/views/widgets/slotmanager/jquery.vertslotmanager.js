@@ -435,16 +435,11 @@
      */
 
 	var hide_problem_formats = function($tags) {
-
-		var is_safari = (jQuery.browser.hasOwnProperty('safari')) ? true : false;
-		if (!is_safari) return;
-
 		var do_hide;
 		for (var j = 0; j < $tags.length; j++) {
 			do_hide = ($tags[j].data('slot').find('embed').length > 0) ? true : false;
 			if (do_hide) $tags[j].data('slot').find('.mediaContainer').css('visibility', 'hidden');
 		}
-
 	}
 
 	var show_all = function($tags) {
