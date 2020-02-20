@@ -738,7 +738,7 @@
 			if (this.node) {
 
 				this.element = $('<div class="listButton" style="text-align:left;"></div>');
-				var menuItems = this.node.getRelatedNodes('referee', 'outgoing', true);
+				var menuItems = this.node.getRelatedNodes('reference', 'outgoing', true);
 
 				var i;
 				var n = menuItems.length;
@@ -813,8 +813,8 @@
 				this.element = this.element.add(this.createButton('tag', 'incoming'));
 				this.element = this.element.add(this.createButton('annotation', 'outgoing'));
 				this.element = this.element.add(this.createButton('annotation', 'incoming'));
-				this.element = this.element.add(this.createButton('referee', 'outgoing'));
-				this.element = this.element.add(this.createButton('referee', 'incoming'));
+				this.element = this.element.add(this.createButton('reference', 'outgoing'));
+				this.element = this.element.add(this.createButton('reference', 'incoming'));
 				this.element = this.element.add(this.createButton('comment', 'outgoing'));
 				this.element = this.element.add(this.createButton('comment', 'incoming'));
 

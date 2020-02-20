@@ -402,7 +402,7 @@
                                     var splitList = $('<ul></ul>');
 
                                     var path_of = node.getRelatedNodes('path', 'outgoing');
-                                    var features = node.getRelatedNodes('referee', 'outgoing');
+                                    var features = node.getRelatedNodes('reference', 'outgoing');
                                     var tag_of = node.getRelatedNodes('tag', 'incoming');
                                     var annotates = node.getRelatedNodes('annotation', 'outgoing');
                                     var comments_on = node.getRelatedNodes('comment', 'outgoing');

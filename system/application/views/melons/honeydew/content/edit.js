@@ -30,9 +30,6 @@
 
 $(window).ready(function() {
 
-    // Warnings
-    //if ($.browser.msie) $('#ie_warning').show();
-
 	// If the type is passed via GET
 	checkTypeSelect();
 	if (-1!=document.location.href.indexOf('new.edit') && -1!=document.location.href.indexOf('type=media')) {

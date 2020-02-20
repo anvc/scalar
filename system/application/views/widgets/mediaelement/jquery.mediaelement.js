@@ -21,7 +21,7 @@
  * @projectDescription		The MediaElement plug-in creates and manages the interface for a Scalar media resource.
  *							Scalar is a project of The Alliance for Networking Visual Culture (http://scalar.usc.edu).
  * @author					Erik Loyer
- * @version					1.0
+ * @version					1.1
  */
 
 var mediaElementUniqueID = 0;
@@ -568,8 +568,8 @@ function YouTubeGetID(url){
 					if(typeof pendingDeferredMedia.SoundCloud == 'undefined'){
 						pendingDeferredMedia.SoundCloud = [];
 						$.when(
-              $.getScript('https://connect.soundcloud.com/sdk/sdk-3.3.2.js'),
-              $.getScript('https://w.soundcloud.com/player/api.js')
+							$.getScript('https://connect.soundcloud.com/sdk/sdk-3.3.2.js'),
+							$.getScript('https://w.soundcloud.com/player/api.js')
 						).then(function(){
 							for(var i = 0; i < pendingDeferredMedia.SoundCloud.length; i++){
 									pendingDeferredMedia.SoundCloud[i].resolve();
@@ -1165,7 +1165,10 @@ function YouTubeGetID(url){
 							break;
 
 							case 'native':
-							this.mediaObjectView = new $.HTML5VideoObjectView(this.model, this);
+								this.mediaObjectView = new $.HTML5VideoObjectView(this.model, this);
+								if ($('.book-title').children('[data-semantic-annotation-tool="true"]').length) {
+									this.mediaObjectView = new $.SemanticAnnotationToolObjectView(this.model, this);
+								}
 							break;
 
 							case 'proprietary':
@@ -1607,7 +1610,6 @@ function YouTubeGetID(url){
 				}
 				if (this.model.containerLayout == "horizontal") {
 					this.annotationSidebar.css('display','none');
-					this.mediaContainer.css('float', 'inherit');
 					if (this.mediaContainer.closest('.slot').length == 0) {
 						if (this.controllerOnly && (this.model.options.header != 'nav_bar')) {
 		 					this.containerDim.y = Math.max(this.minContainerDim.y, this.controllerHeight + (this.gutterSize * 2));
@@ -2272,11 +2274,10 @@ function YouTubeGetID(url){
 			});
 
 			$(this.image).on('load', function() {
-				// Standard practice is that 360 images must be exactly 2:1; alternatively could look for Exif XMP “ProjectionType=equirectangular”
-				// Panoramas that aren't 2:1 (e.g., created on a phone) will require a more nuanced look at the metadata to determine if the 360 view should load
-				if (2 == this.width / this.height && 'annotation_editor' != $('link#view').attr('href')) {  // Test for 360 image
+				if ('undefined' != typeof(me.model.node.current.properties["http://ns.google.com/photos/1.0/panorama/stitchingsoftware"])) {  // Test for 360 image
 					me.parentView.mediaContainer.empty();
 					me.parentView.mediaObjectView = new $.I360ObjectView(model, parentView);
+					me.parentView.mediaObjectView.annotations = me.annotations;
 					me.parentView.mediaObjectView.createObject();
 					return;
 				}
@@ -2477,6 +2478,7 @@ function YouTubeGetID(url){
 		 * Creates the 360 media object.
 		 */
  		jQuery.I360ObjectView.prototype.createObject = function() {
+
  			this.hasLoaded = true;
 			//this.parentView.intrinsicDim.x = 6000;
 			//this.parentView.intrinsicDim.y = 3000;
@@ -2496,18 +2498,70 @@ function YouTubeGetID(url){
 				script_path: path
 			};
 		    $.getScript( path+'vrview.js' , function() {
-		    	var vrView = new VRView.Player('#vrview_'+my_vrview, obj);  // Global
+		    	var vrView = new VRView.Player('#vrview_'+my_vrview, obj);
 		    	$('#vrview_'+my_vrview).find('iframe').css('width','100%').css('height','100%');
+		    	vrView.on('ready', function(){
+					if (me.annotations != null) {
+						me.setupAnnotations(vrView, me.annotations);
+					}
+		    	});
 		    });
 
     	}
 
-		// TODO: vrview has an API for these for videos
-		jQuery.I360ObjectView.prototype.play = function() { }
-		jQuery.I360ObjectView.prototype.pause = function() { }
-		jQuery.I360ObjectView.prototype.seek = function(time) { }
-		jQuery.I360ObjectView.prototype.getCurrentTime = function() { return null; }
-		jQuery.I360ObjectView.prototype.isPlaying = function() { return true; }
+		/**
+		 * Sets up the image's annotations
+		 *
+		 * @param {Array} annotations		The annotations to be added to the image.
+		 */
+ 		jQuery.I360ObjectView.prototype.setupAnnotations = function(vrView, annotations) {
+
+	 		for (i=0; i<annotations.length; i++) {
+
+	 			annotation = annotations[i];
+	 			console.log(annotation);
+	 			var x;
+	 			var y;
+	 			var width;
+	 			var height;
+
+				if (annotation.properties.x.charAt(annotation.properties.x.length - 1) == '%') {
+					x = (parseFloat(annotation.properties.x.substr(0, annotation.properties.x.length - 1)) * .01) * this.parentView.mediaScale;
+					x *= this.parentView.intrinsicDim.x;
+				} else {
+					x = parseFloat(annotation.properties.x) * this.parentView.mediaScale;
+				}
+
+				if (annotation.properties.y.charAt(annotation.properties.y.length - 1) == '%') {
+					y = (parseFloat(annotation.properties.y.substr(0, annotation.properties.y.length - 1)) * .01) * this.parentView.mediaScale;
+					y *= this.parentView.intrinsicDim.y;
+				} else {
+					y = parseFloat(annotation.properties.y) * this.parentView.mediaScale;
+				}
+				if (annotation.properties.width.charAt(annotation.properties.width.length - 1) == '%') {
+					width = (parseFloat(annotation.properties.width.substr(0, annotation.properties.width.length - 1)) * .01) * this.parentView.mediaScale;
+					width *= this.parentView.intrinsicDim.x;
+				} else {
+					width = parseFloat(annotation.properties.width) * this.parentView.mediaScale;
+				}
+
+				if (annotation.properties.height.charAt(annotation.properties.height.length - 1) == '%') {
+					height = (parseFloat(annotation.properties.height.substr(0, annotation.properties.height.length - 1)) * .01) * this.parentView.mediaScale;
+					height *= this.parentView.intrinsicDim.y;
+				} else {
+					height = parseFloat(annotation.properties.height) * this.parentView.mediaScale;
+				}
+
+	 			vrView.addHotspot('dining-room', {
+	 				pitch: -60, // In degrees. Up is positive.
+	 				yaw: 90, // In degrees. To the right is positive.
+	 				radius: 0.5, // Radius of the circular target in meters.
+	 				distance: 10 // Distance of target from camera in meters.
+	 			});
+
+	 		}
+
+ 		}
 
 		/**
 		 * Resizes the vrview wrapper (in this case, ".mediaContainer" since vrview loads asyncronously) to the specified dimensions.
@@ -2521,6 +2575,12 @@ function YouTubeGetID(url){
 			$(me.parentView.mediaContainer).width(width+'px');
 			$(me.parentView.mediaContainer).height(height+'px');
 		}
+
+		jQuery.I360ObjectView.prototype.play = function() { }
+		jQuery.I360ObjectView.prototype.pause = function() { }
+		jQuery.I360ObjectView.prototype.seek = function(time) { }
+		jQuery.I360ObjectView.prototype.getCurrentTime = function() { return null; }
+		jQuery.I360ObjectView.prototype.isPlaying = function() { return true; }
 
 	}  // !360
 
@@ -2940,14 +3000,14 @@ function YouTubeGetID(url){
 
 			var metadataFunc = function() {
 
-				// Standard practice is that 360 video must be exactly 2:1
-				if (2 == me.video[0].videoWidth / me.video[0].videoHeight && 'annotation_editor' != $('link#view').attr('href')) {  // Test for 360 video
+				// Until there's a way to find out from the MP4 if it's an equirectangular video...
+				if ('undefined' != typeof(me.model.node.current.properties["http://ns.google.com/photos/1.0/panorama/stitchingsoftware"])) {
 					me.parentView.mediaContainer.empty();
 					me.parentView.mediaObjectView = new $.V360ObjectView(model, parentView);
 					me.parentView.mediaObjectView.createObject();
 					return;
 				}
-				
+
 				me.parentView.intrinsicDim.x = me.video[0].videoWidth;
 				me.parentView.intrinsicDim.y = me.video[0].videoHeight;
 				me.parentView.controllerOffset = 0;
@@ -3064,7 +3124,226 @@ function YouTubeGetID(url){
 		}
 
 	}
-	
+
+	/**
+	 * View for the Semantic Annotation Tool video player.
+	 * @constructor
+	 *
+	 * @param {Object} model		Instance of the model.
+	 * @param {Object} parentView	Primary view for the media element.
+	 */
+	jQuery.SemanticAnnotationToolObjectView = function(model, parentView) {
+
+		var me = this;
+
+		this.model = model;  					// instance of the model
+		this.parentView = parentView;   		// primary view for the media element
+
+		/**
+		 * Creates the video media object.
+		 */
+		jQuery.SemanticAnnotationToolObjectView.prototype.createObject = function() {
+
+			var mimeType;
+			switch (this.model.mediaSource.name) {
+
+				case "QuickTime":
+				mimeType = "video/quicktime"
+				break;
+
+				case "MPEG-4":
+				case "M4V":
+				mimeType = "video/mp4";
+				break;
+
+				case "OGG":
+				mimeType = "video/ogg";
+				break;
+
+				case "3GPP":
+				mimeType = "video/3gpp";
+				break;
+
+				case "CriticalCommons-LegacyVideo":
+				var temp = this.model.path.split('//');
+				if (temp.length == 3) {
+					var temp2 = temp[2].split('-');
+					temp2.pop();
+					var chunk = temp2.join('-');
+					chunk = chunk.replace(/%20/g, '-');
+					temp = chunk.split('/');
+					var slug = temp[temp.length - 1];
+					var url = 'http://videos.criticalcommons.org/transcoded/http/ccserver.usc.edu/8080/cc/Members/' + chunk + '.mp4/mp4-high/' + slug.toLowerCase() + '-mp4.mp4';
+					this.model.path = url;
+				}
+				mimeType = this.updateCriticalCommonsURLForBrowser();
+				break;
+
+				case "CriticalCommons-Video":
+				mimeType = this.updateCriticalCommonsURLForBrowser();
+				break;
+
+				case "WebM":
+				mimeType = "video/webm";
+				break;
+
+			}
+
+			obj = $('<div class="mediaObject"><video id="'+this.model.filename+'_'+this.model.id+'"><source src="'+this.model.path+'" type="'+mimeType+'"/>Your browser does not support the video tag.</video></div>').appendTo(this.parentView.mediaContainer);
+			if ( this.model.options.autoplay && ( this.model.seek == null ) ) {
+				obj.find( 'video' ).attr( 'autoplay', 'true' );
+			}
+
+			this.video = obj.find('video#'+this.model.filename+'_'+this.model.id);
+
+			this.parentView.controllerOffset = 22;
+
+			var metadataFunc = function() {
+
+				me.parentView.intrinsicDim.x = me.video[0].videoWidth;
+				me.parentView.intrinsicDim.y = me.video[0].videoHeight;
+				me.parentView.controllerOffset = 0;
+
+				me.parentView.layoutMediaObject();
+				me.parentView.removeLoadingMessage();
+
+			}
+
+			if (document.addEventListener) {
+				this.video[0].addEventListener('loadedmetadata', metadataFunc, false);
+			} else {
+				this.video[0].attachEvent('onloadedmetadata', metadataFunc);
+			}
+
+			me.setupTool();
+
+			return;
+		}
+
+		jQuery.SemanticAnnotationToolObjectView.prototype.setupTool = function() {
+
+			var dependanciesAddress = $('link#approot').attr('href') + 'views/widgets/waldorf/';
+			var serverAddress = $('link#parent').attr('href');
+			var tagsAddress = "https://onomy.org/published/83/json";
+			var apiKey = "facc287b-2f51-431d-87ec-773e12302fcf";
+
+			$('head').append('<link rel="stylesheet" href="' + dependanciesAddress + 'jquery-ui-1.12.1.custom/jquery-ui.min.css" type="text/css" />');
+			$('head').append('<link rel="stylesheet" href="' + dependanciesAddress + 'select2.min.css" type="text/css" />');
+			$('head').append('<link rel="stylesheet" href="' + dependanciesAddress + 'annotator-frontend.css" type="text/css" />');
+			$.when(
+				$.getScript(dependanciesAddress + 'jquery-ui-1.12.1.custom/jquery-ui.min.js'),
+				$.getScript(dependanciesAddress + 'select2.min.js'),
+				$.getScript(dependanciesAddress + 'annotator-frontend.js')
+			).done(function(){
+
+				console.log('Booting up Waldorf');
+				var waldorf_callback = function(event) {
+					console.log('Waldorf callback');
+				};
+				waldorf = me.video.first().annotate({
+					serverURL: serverAddress,
+					tagsURL: tagsAddress,
+					apiKey: apiKey,
+					kioskMode: false,
+					cmsUsername: "Scalar Test User",
+					cmsEmail: "wahwho@yahoo.com",
+					displayIndex: false,
+					callback: waldorf_callback
+				});
+
+			});
+
+		}
+
+		jQuery.SemanticAnnotationToolObjectView.prototype.updateCriticalCommonsURLForBrowser = function() {
+			var ext, format, mimeType;
+			if ( this.model.mediaSource.browserSupport[scalarapi.scalarBrowser] != null ) {
+				format = this.model.mediaSource.browserSupport[scalarapi.scalarBrowser].format;
+			}
+			if (format == 'MPEG-4') {
+				ext = 'mp4';
+				mimeType = "video/mp4";
+			} else {
+				ext = 'webm';
+				mimeType = "video/webm";
+				this.model.path = this.model.path.replace('mp4-high','webm-high');
+				this.model.path = this.model.path.replace('mp4-low','webm-low');
+			}
+			var path_segments = this.model.path.split('.');
+			if (path_segments.length > 1) {
+				path_segments[path_segments.length-1] = ext;
+				this.model.path = path_segments.join('.');
+			}
+			return mimeType;
+		}
+
+		/**
+		 * Starts playback of the video.
+		 */
+		jQuery.SemanticAnnotationToolObjectView.prototype.play = function() {
+			if ((this.model.seekAnnotation != null) && (!this.parentView.overrideAutoSeek)) {
+				this.video[0].currentTime = this.model.seekAnnotation.properties.start;
+			}
+			if (this.video[0].paused) {
+				this.video[0].play();
+			}
+		}
+
+		/**
+		 * Pauses playback of the video.
+		 */
+		jQuery.SemanticAnnotationToolObjectView.prototype.pause = function() {
+			if (this.video[0]) {
+				this.video[0].pause();
+			}
+		}
+
+		/**
+		 * Seeks to the specified location in the video.
+		 *
+		 * @param {Number} time			Seek location in seconds.
+		 */
+		jQuery.SemanticAnnotationToolObjectView.prototype.seek = function(time) {
+			if (this.video[0]) {
+				this.video[0].currentTime = time;
+			}
+		}
+
+		/**
+		 * Returns the current playback position of the video.
+		 * @return	The current playback position in seconds.
+		 */
+		jQuery.SemanticAnnotationToolObjectView.prototype.getCurrentTime = function() {
+			if (this.video[0]) {
+				return this.video[0].currentTime;
+			}
+		}
+
+		/**
+		 * Resizes the video to the specified dimensions.
+		 *
+		 * @param {Number} width		The new width of the video.
+		 * @param {Number} height		The new height of the video.
+		 */
+		jQuery.SemanticAnnotationToolObjectView.prototype.resize = function(width, height) {
+			if (this.video) {
+				this.video[0].width = width;
+				this.video[0].height = height;
+			}
+		}
+
+		/**
+		 * Returns true if the video is currently playing.
+		 * @return	Returns true if the video is playing.
+		 */
+		jQuery.SemanticAnnotationToolObjectView.prototype.isPlaying = function() {
+			if (this.video[0]) {
+				return !this.video[0].paused;
+			}
+		}
+
+	}
+
 	/**
 	 * View for 360 videos, using Google's vrview.
 	 * @constructor
@@ -3139,7 +3418,7 @@ function YouTubeGetID(url){
 		    });
 
     	}
- 		
+
  		jQuery.V360ObjectView.prototype.formatTime = function(time) {
  			  time = !time || typeof time !== 'number' || time < 0 ? 0 : time;
  			  var minutes = Math.floor(time / 60) % 60;
@@ -3150,12 +3429,6 @@ function YouTubeGetID(url){
  			  result += seconds < 10 ? '0' + seconds : seconds;
  			  return result;
  		};
-
-		jQuery.V360ObjectView.prototype.play = function() { }
-		jQuery.V360ObjectView.prototype.pause = function() { }
-		jQuery.V360ObjectView.prototype.seek = function(time) { }
-		jQuery.V360ObjectView.prototype.getCurrentTime = function() { return null; }
-		jQuery.V360ObjectView.prototype.isPlaying = function() { return true; }
 
 		/**
 		 * Resizes the vrview wrapper (in this case, ".mediaContainer" since vrview loads asyncronously) to the specified dimensions.
@@ -3169,6 +3442,12 @@ function YouTubeGetID(url){
 			$(me.parentView.mediaContainer).width(width+'px');
 			$(me.parentView.mediaContainer).height(height+'px');
 		}
+
+		jQuery.V360ObjectView.prototype.play = function() { }
+		jQuery.V360ObjectView.prototype.pause = function() { }
+		jQuery.V360ObjectView.prototype.seek = function(time) { }
+		jQuery.V360ObjectView.prototype.getCurrentTime = function() { return null; }
+		jQuery.V360ObjectView.prototype.isPlaying = function() { return true; }
 
 	}  // !360
 

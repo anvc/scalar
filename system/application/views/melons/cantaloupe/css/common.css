@@ -178,6 +178,7 @@ header { padding-top: 4.8rem; }
 
 .search_control form { display: inline; }
 .search_submit { display: none; }
+.search_loading {display:inline-block; position:relative; top:2px; display:none;}
 
 .s_all_label {float:right;}
 .s_all_label label {cursor:pointer;}
@@ -224,6 +225,7 @@ li.divider-above { border-top: 1px dotted #888; }
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00000000', endColorstr='#80000000',GradientType=1 ); /* IE6-9 */
 }
 .title_card .description { font-style: italic; font-size: 2.4rem; padding-left: 7.2rem; line-height: 120%; }
+.title_card h1 { margin-bottom: 1.2rem; }
 
 #book_title div > span {
     padding: 1rem;
@@ -516,9 +518,10 @@ a:hover { text-decoration: underline; }
 
 .popover.tk-help .supertitle { font-size: 1rem; text-transform: uppercase; color: #666; padding: 0; margin: 0; }
 .popover.tk-help { font-size: 1.2rem; color: #333; }
-.popover.tk-help h3 { padding-left: 0; padding-right: 0; font-size: 1.8rem; margin-top: 0; line-height: 2.4rem; }
+.popover.tk-help h3 { padding-left: 0; padding-right: 0; margin-bottom: 12px !important; font-size: 1.8rem; margin-top: 0; line-height: 2.4rem; color: black;}
 .popover.tk-help p { margin-bottom: 1.2rem; }
 .popover.tk-help p:last-child { margin-bottom: 0; }
+.popover.tk-help a {color:#026697;}
 
 header [typeof="tk:TKLabel"] { float:right; }
 header [typeof="tk:TKLabel"].last { margin-right:7.2rem; }
@@ -574,7 +577,6 @@ header [typeof="tk:TKLabel"] { margin-left:6px; margin-right: 0; }
 	bottom: 0;
 	padding: 10.8rem 7.2rem 3.6rem 7.2rem;
 	text-align: center;
-	margin-bottom: 5rem;
 	background: -moz-linear-gradient(top,  rgba(0,0,0,0) 0%, rgba(0,0,0,0.5) 80%, rgba(0,0,0,0.5) 100%); /* FF3.6+ */
 	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(0,0,0,0)), color-stop(80%,rgba(0,0,0,0.5)), color-stop(100%,rgba(0,0,0,0.5))); /* Chrome,Safari4+ */
 	background: -webkit-linear-gradient(top,  rgba(0,0,0,0) 0%,rgba(0,0,0,0.5) 80%,rgba(0,0,0,0.5) 100%); /* Chrome10+,Safari5.1+ */
@@ -587,6 +589,9 @@ header [typeof="tk:TKLabel"] { margin-left:6px; margin-right: 0; }
    -ms-transform: translateZ(0);
    -o-transform: translateZ(0);
 	opacity: 0;
+}
+.splash .title_card {
+	margin-bottom: 5rem;
 }
 .title_card.fade_in {
 	-webkit-transition: all 1s ease-in-out;
@@ -608,6 +613,8 @@ header [typeof="tk:TKLabel"] { margin-left:6px; margin-right: 0; }
 	pointer-events: none; /* TODO: this won't work in IE */
 }
 .title_card .relationships { max-width: inherit; }
+.title_card .citation {font-size:1.2rem; margin:12px 0px 0px 0px; padding:0px 0px 0px 0px; color: #777;}
+.title_card .citation a { color: #777; }
 .splash.has_video {  /* Remove scale transform since it's jumpy with video but keep opacity transform */
 	-webkit-transform: scale( 1.0, 1.0 );
 	-moz-transform: scale( 1.0, 1.0 );
@@ -803,7 +810,7 @@ a.media_info {
 }
 .media_annotations td, .current_annotation td {
 	padding-left: .8rem !important;
-	word-break: break-all;
+	word-break: break-word;
 }
 .citations_metadata td {
 	padding-left: 0 !important;

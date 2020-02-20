@@ -90,7 +90,7 @@
 					$.fn.scalardashboardtable('init', options);
 				};
 				var error = function() { };
-				options.scalarapi.loadNodesByType(options.query_type, 1, success, error, 0, 0, null, options.start, options.results, 1);
+				options.scalarapi.loadNodesByType(options.query_type, 1, success, error, 0, 0, null, options.start, options.results, 1, false);
 			});
 
 		},
@@ -110,7 +110,7 @@
 					$.fn.scalardashboardtable('init', options);
 				};
 				var error = function() { };
-				options.scalarapi.nodeSearch(options.sq, success, error, 0, 0, 0, null, null, 1, null, options.s_all);
+				options.scalarapi.nodeSearch(options.sq, success, error, 0, 0, 0, null, null, 1, null, options.s_all, ((options.s_all)?1:false));
 			});
 
 		},
@@ -128,7 +128,7 @@
 			$head = $table.find('.head');
 			$head.append('<th></th>');
 			$head.append('<th style="display:none;"></th>');
-			$head.append('<th>Live?&nbsp; </th>');
+			$head.append('<th style="text-align:center;">Live?&nbsp; </th>');
 			if (-1==options.hide_columns.indexOf('category')) $head.append('<th>Category</th>');
 			if (-1==options.hide_columns.indexOf('thumbnail')) $head.append('<th>Thumb</th>');
 			$head.append('<th>URL</th>');
@@ -137,9 +137,9 @@
 			if (-1==options.hide_columns.indexOf('content')) $head.append('<th>Content</th>');
 			if (-1==options.hide_columns.indexOf('url')) $head.append('<th>Filename</th>');
 			$head.append('<th>Created</th>');
-			if (-1==options.hide_columns.indexOf('user')) $head.append('<th>User</th>');
+			if (-1==options.hide_columns.indexOf('user')) $head.append('<th style="text-align:center;">User</th>');
 			if (options.paywall) $head.append('<th>Paywall?</th>');
-			$head.append('<th style="white-space:nowrap;">'+options.expand_column.name+'</th>');
+			$head.append('<th style="white-space:nowrap;text-align:center;">'+options.expand_column.name+'</th>');
 			$(options.wrapper).html($table);
 
 		},

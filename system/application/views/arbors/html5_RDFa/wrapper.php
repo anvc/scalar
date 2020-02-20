@@ -207,7 +207,7 @@ endif;
 <?	 		endfor;?>
 		</span>
 <?  for ($j = 0; $j < count($book->versions); $j++):
-			if (empty($book->versions[$j]->content_id) || empty(@$page->content_id)) continue;
+			if (empty($book->versions[$j]->content_id)) continue;
 			if ($book->versions[$j]->content_id == @$page->content_id) continue;
 ?>
 		<span aria-hidden="true" resource="<?=$base_uri.$book->versions[$j]->slug?>" typeof="scalar:<?=('media'==$book->versions[$j]->type)?'Media':'Composite'?>">

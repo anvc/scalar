@@ -44,6 +44,7 @@ class MY_Model extends CI_Model {
 	var $references_table = 'rel_referenced';
 	var $replies_table = 'rel_replied';
 	var $tags_table = 'rel_tagged';
+	var $lenses_table = 'rel_grouped';
 	var $whitelist_table = 'whitelist';
 	var $book_urn_template = 'urn:scalar:book:$1';
 	var $page_urn_template = 'urn:scalar:content:$1';

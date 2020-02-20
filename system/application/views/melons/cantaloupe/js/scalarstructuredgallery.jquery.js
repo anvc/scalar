@@ -44,7 +44,7 @@
 		var childPaths;
 		var childTags;
 		var mediaDetails, children, interval;
-		var childRelationships = ['path', 'tag', 'referee'],
+		var childRelationships = ['path', 'tag', 'reference'],
 			relationships = ['path', 'tag'],
 			childLoadIndex = -1,
 			contentBlocks = [];

@@ -367,7 +367,7 @@ function handleViewTypeClick(radioBtn) {
 
 					// if the count is less than the point at which we'd start our next load, then
 					// we've reached the last page of data for this item type
-					if ( count < (( me.pageIndex + 1 ) * me.resultsPerPage )) {
+					if ( count < me.resultsPerPage )) {
 						me.reachedLastPage = true;
 					}
 				}
@@ -424,8 +424,8 @@ function handleViewTypeClick(radioBtn) {
 			{type:'tag', direction:'incoming'},
 			{type:'annotation', direction:'outgoing'},
 			{type:'annotation', direction:'incoming'},
-			{type:'referee', direction:'outgoing'},
-			{type:'referee', direction:'incoming'},
+			{type:'reference', direction:'outgoing'},
+			{type:'reference', direction:'incoming'},
 			{type:'comment', direction:'outgoing'},
 			{type:'comment', direction:'incoming'}
 		];
@@ -454,7 +454,7 @@ function handleViewTypeClick(radioBtn) {
 				relatedNodes = d.getRelatedNodes(type, direction);
 				itemCount = relatedNodes.length;
 				(itemCount > 1) ? itemName = relationType[itemType+'Plural'] : itemName = relationType[itemType];
-				if (itemCount > 0) str += '<p style="color:'+d3.rgb(me.colorScale((relationType.id == 'referee') ? 'media' : relationType.id)).brighter(1.5)+';">'+description+' '+itemCount+' '+itemName+'</p>';
+				if (itemCount > 0) str += '<p style="color:'+d3.rgb(me.colorScale((relationType.id == 'reference') ? 'media' : relationType.id)).brighter(1.5)+';">'+description+' '+itemCount+' '+itemName+'</p>';
 			}
 			if (me.currentNode) {
 				if ((me.currentNode.url != d.url) || (me.selectedNodes.indexOf(d) != -1)) {
@@ -932,7 +932,7 @@ function handleViewTypeClick(radioBtn) {
 				}
 
 				// loop through all the nodes which reference the media file
-				var referencingNodes = node.getRelatedNodes('referee', 'incoming');
+				var referencingNodes = node.getRelatedNodes('reference', 'incoming');
 				o = referencingNodes.length;
 				for (j=0; j<o; j++) {
 
@@ -2047,7 +2047,7 @@ function handleViewTypeClick(radioBtn) {
 			var links = [];
 
 			var linkSpecs = [
-				{type:'referee', direction:'incoming'},
+				{type:'reference', direction:'incoming'},
 				{type:'annotation', direction:'outgoing'},
 				{type:'tag', direction:'outgoing'},
 				{type:'comment', direction:'outgoing'},
@@ -2512,7 +2512,7 @@ function handleViewTypeClick(radioBtn) {
 					.attr('y2', function(d) { return rowScale(me.indexNodesByURL[d.target.url].row + 1) - (boxSize * .5); })
 					.attr('stroke-width', 1)
 					.attr('stroke-dasharray', '1,2')
-					.attr('stroke', function(d) { return me.colorScale((d.type.id == 'referee') ? 'media' : d.type.id); });
+					.attr('stroke', function(d) { return me.colorScale((d.type.id == 'reference') ? 'media' : d.type.id); });
 
 				// draw connection dots
 				linkEnter.selectAll('circle.connectionDot'+i)
@@ -2532,7 +2532,7 @@ function handleViewTypeClick(radioBtn) {
 						return nodeArr;
 					})
 					.enter().append('circle')
-					.attr('fill', function(d) { return me.colorScale((d.type.id == 'referee') ? 'media' : d.type.id); })
+					.attr('fill', function(d) { return me.colorScale((d.type.id == 'reference') ? 'media' : d.type.id); })
 					.attr('class', 'connectionDot')
 					.attr('cx', function(d) {
 						return me.leftMargin + colScale(me.indexNodesByURL[d.node.url].column) + (boxSize * .5);

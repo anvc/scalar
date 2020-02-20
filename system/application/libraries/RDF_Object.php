@@ -41,6 +41,8 @@ class RDF_Object {
 	const NO_PAGINATION = null;
 	const PROVENANCE_ALL = 1;
 	const PROVENANCE_NONE = null;
+	const METADATA_ALL = true;
+	const METADATA_NONE = false;
 	const TKLABELS_ALL = 1;
 	const TKLABELS_NONE = 0;
 	const USERS_ALL = 1;
@@ -51,7 +53,7 @@ class RDF_Object {
 	public $ns = array();
 	protected $version_cache = array();
 	protected $user_cache = array();
-	protected $rel_fields = array('sort_number','start_seconds','end_seconds','start_line_num','end_line_num','points','datetime','paragraph_num');
+	protected $rel_fields = array('sort_number','start_seconds','end_seconds','start_line_num','end_line_num','points','additional','datetime','paragraph_num');
 	protected $defaults = array(
 		'books'			=> null,
 		'book'			=> null,
@@ -70,6 +72,7 @@ class RDF_Object {
 		'use_versions_restriction' => self::USE_VERSIONS_INCLUSIVE,
 		'max_recurses'	=> 0,
 		'num_recurses'	=> 0,
+		'meta' 			=> self::METADATA_ALL,
 		'total'			=> 0,
 		'anon_name'		=> 'anonymous',
 		'u_all'			=> self::USERS_LISTED,
@@ -290,7 +293,7 @@ class RDF_Object {
 	 	// Users
 		foreach ($settings['users'] as $row) {
 			if ($settings['u_all']==self::USERS_LISTED && !$row->list_in_index) continue;
-			$return[$settings['base_uri'].'users/'.$row->user_id] = $CI->users->rdf($row);
+			$this->_safely_write_rdf($return, $settings['base_uri'].'users/'.$row->user_id, $CI->users->rdf($row));
 		}
 
 	 	// Table of contents nodes
@@ -298,7 +301,7 @@ class RDF_Object {
 			foreach ($row->versions as $version) {
 				$row->has_version[] = $settings['base_uri'].$row->slug.'.'.$version->version_num;
 			}
-			$return[$settings['base_uri'].$row->slug] = $CI->pages->rdf($row, $settings['base_uri']);
+			$this->_safely_write_rdf($return, $settings['base_uri'].$row->slug, $CI->pages->rdf($row, $settings['base_uri']));
 			foreach ($row->versions as $version) {
 				$return[$settings['base_uri'].$row->slug.'.'.$version->version_num] = $CI->versions->rdf($version, $settings['base_uri']);
 			}
@@ -401,12 +404,13 @@ class RDF_Object {
 			$use_version_id = $this->_use_version($settings['use_versions'], $row->content_id);
 			if (false===$use_version_id && $settings['use_versions_restriction'] >= self::USE_VERSIONS_EXCLUSIVE) return null;
 			if (self::VERSIONS_ALL === $settings['versions']) {
-				$row->versions = $CI->versions->get_all($row->content_id, null, $settings['sq']);
+				$row->versions = $CI->versions->get_all($row->content_id, null, $settings['sq'], $settings['meta']);
 			} else {
 				$row->versions[0] = $CI->versions->get_single(
 					$row->content_id,
 					(!empty($use_version_id))?$use_version_id:$row->recent_version_id,
-					$settings['sq']
+					$settings['sq'],
+					$settings['meta']
 				);
 			}
 			if ($settings['use_versions_restriction'] == self::USE_VERSIONS_EDITORIAL) {
@@ -466,12 +470,13 @@ class RDF_Object {
 			if (false===$use_version_id && $settings['use_versions_restriction'] >= self::USE_VERSIONS_EXCLUSIVE) return null;
 			$versions = array();
 			if (self::VERSIONS_ALL === $settings['versions']) {
-				$versions = $CI->versions->get_all($row->content_id, null, $settings['sq']);
+				$versions = $CI->versions->get_all($row->content_id, null, $settings['sq'], $settings['meta']);
 			} else {
 				$versions[0] = $CI->versions->get_single(
 					$row->content_id,
 					(!empty($use_version_id))?$use_version_id:$row->recent_version_id,
-					$settings['sq']
+					$settings['sq'],
+					$settings['meta']
 				);
 				if (empty($versions[0])) unset($versions[0]);
 			}
@@ -869,7 +874,7 @@ class RDF_Object {
 		$ref_models = $CI->config->item('ref');
 		if ('array'!=gettype($models)) throw new Exception('Could not locate relationship configuration');
 		if (!empty($ref_models)) $models = array_merge($models, $ref_models);
-		
+
 		for ($j = 0; $j < count($row->versions); $j++) {
 			$version_id = $row->versions[$j]->version_id;
 			foreach ($models as $model) {

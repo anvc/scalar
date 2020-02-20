@@ -363,6 +363,20 @@ $(document).ready(function() {
 		if ((url.indexOf('://') == -1) && (url != '')) { url = $('link[id="parent"]').attr('href') + url; }
 		$(this).parent().parent().append('<div class="well"><img src="'+url+'" class="thumb_preview" /></div>');
 	});
+	var check_use_media_file_url = function() {
+	 	var media_file_url_val = $('#media_file_url').val();
+		var $use_media_file = $('#use-the-media-file-url');
+		$use_media_file.show();
+		if (!media_file_url_val.length) $use_media_file.hide();
+		if (-1==media_file_url_val.indexOf('.jpg')&&-1==media_file_url_val.indexOf('.png')&&-1==media_file_url_val.indexOf('.gif')&&-1==media_file_url_val.indexOf('JPEG')) $use_media_file.hide();
+		$use_media_file.off('click').on('click', function() {
+			$use_media_file.closest('div').find('input').val(media_file_url_val);
+		});
+	};
+	check_use_media_file_url();
+	$('#media_file_url').on('change', function() {
+		check_use_media_file_url();
+	});
 	// Background
 	var choose_background = $('#choose_background');
 	var chosen_background = choose_background.find('option:selected').val();
@@ -640,10 +654,11 @@ function checkTypeSelect() {
 		$('#select_view').select_view({data:media_views,default_value:$('link#default_view').attr('href')});
 	}
 }
-// Set Badges for Relationship tab
+// Set Badges for Relationship and Metadata tabs
 function badges() {
+    // Relationships
 	var total = 0;
-	$('.badge').each(function() {
+	$('.relationships-dropdown .badge').each(function() {
 		var self = $(this);
 		var j = 0;
 		switch(self.parent().attr('href')) {
@@ -663,7 +678,19 @@ function badges() {
 		self.html(((j>0)?j:''));
 		total = total + j;
 	});
-	$('a[role="tab"] .badge').html(((total>0)?total:''));
+	$('.relationships-dropdown .badge:first').html(((total>0)?total:''));
+    // Metadata
+	total = 0;
+	$('#metadata_rows input[type="text"]').each(function() {
+	  if ($(this).val().length) total++;
+    });
+	$meta_badge = $('a[href="#metadata-pane"] .badge');
+	$meta_badge.text(total);
+	if (!total) {
+		$meta_badge.hide();
+	} else {
+		$meta_badge.show();
+	};
 };
 END;
 
@@ -880,12 +907,12 @@ if($currentRole == 'commentator'){
 				<strong>Notice:</strong> There are unsaved query changes—please save page to commit.
 			</div>
 		<?php } ?>
-		<?php /* if(!isset($_COOKIE['hide_widgets_alert'])){ ?>
+		<?php  if(!isset($_COOKIE['hide_widgets_alert']) && $this->config->item('index_msg') != ''){ ?>
 		<div id="wysiwygNewFeatures" class="alert alert-info alert-dismissible caption_font" role="alert" style="">
 		  <button type="button" class="close" data-dismiss="alert" aria-label="Close">&times;</button>
-		  <strong>Check out our latest feature – Scalar widgets.</strong><hr /> Widgets are modular interface elements that provide additional navigation, visualization, and media options for your readers. To add widgets to a page use the two new buttons in the toolbar below (the ones that look like puzzle pieces). For step-by-step instructions on adding widgets see our <a href="http://scalar.usc.edu/works/guide2/working-with-widgets" target="_blank">User’s Guide</a>. Feel free to <a href="http://scalar.usc.edu/contact/" target="_blank">contact us</a> if you have any questions.
+		  <? echo($this->config->item('index_msg')); ?>
 		</div>
-		<?php } */ ?>
+		<?php }  ?>
 		<textarea id="editor" wrap="soft" name="sioc:content" style="visibility:hidden;"<?php if(isset($book->editorial_is_on) && $book->editorial_is_on === '1' && !$canChangeState){ echo ' data-readonly="true"';} ?>>
 		<?php
 		if (isset($page->version_index)):
@@ -904,7 +931,7 @@ if($currentRole == 'commentator'){
 <div id="editor-tabpanel" role="tabpanel" class="p">
 	<ul id="editor-tabs" class="nav nav-tabs" role="tablist">
 		<li role="presentation" class="active"><a href="#layout-pane" aria-controls="layout-pane" role="tab" data-toggle="tab">Layout</a></li>
-		<li role="presentation" class="dropdown"><a class="dropdown-toggle" href="#" role="tab" data-toggle="dropdown">Relationships <span class="badge"></span><span class="caret"></span></a>
+		<li role="presentation" class="dropdown relationships-dropdown"><a class="dropdown-toggle" href="#" role="tab" data-toggle="dropdown">Relationships <span class="badge"></span><span class="caret"></span></a>
 			<ul class="dropdown-menu" role="menu">
 				<li role="presentation"><a role="menuitem" tabindex="-1" href="#path-pane" aria-controls="path-pane" data-toggle="tab"><span class="path_icon"></span> Path <span class="badge"></span></a></li>
 				<li role="presentation"><a role="menuitem" tabindex="-1" href="#comment-pane" aria-controls="comment-pane" data-toggle="tab"><span class="reply_icon"></span> Comment <span class="badge"></span></a></li>
@@ -923,7 +950,7 @@ if($currentRole == 'commentator'){
 			</ul>
 		</li>
 		<li role="presentation"><a href="#properties-pane" aria-controls="properties-pane" role="tab" data-toggle="tab">Properties</a></li>
-		<li role="presentation"><a href="#metadata-pane" aria-controls="metadata-pane" role="tab" data-toggle="tab">Metadata</a></li>
+		<li role="presentation"><a href="#metadata-pane" aria-controls="metadata-pane" role="tab" data-toggle="tab">Metadata <span class="badge"></span></a></li>
 	</ul>
 	<div class="tab-content">
 
@@ -1190,7 +1217,7 @@ if($currentRole == 'commentator'){
 
 		<div id="thumbnail-pane" role="tabpanel" class="tab-pane<?=$canChangeState?'':' editingDisabled'?>">
 			<div class="row p">
-				<div class="col-md-8">
+				<div class="col-md-10">
 					<div class="form-group">
 						<label for="choose_thumbnail">Choose an image from your library to use as a thumbnail for this page:</label>
 			  			<select id="choose_thumbnail" class="form-control"><option value="">Choose an image</option><?
@@ -1208,8 +1235,8 @@ if($currentRole == 'commentator'){
 					</div>
 					-->
 					<div class="form-group">
-			  			<label for="enter_thumbnail_url">Or enter any image URL:</label>
-			  			<input id="enter_thumbnail_url" class="form-control" type="text" name="scalar:thumbnail" value="<?=@$page->thumbnail?>" />
+			  			<label for="enter_thumbnail_url" style="display:block;">Or enter any image URL:<a href="javascript:void(null);" id="use-the-media-file-url" style="font-size:12px;float:right;">Use the Media file URL</a></label>
+			  			<input id="enter_thumbnail_url" class="form-control"type="text" name="scalar:thumbnail" value="<?=@$page->thumbnail?>" />
 					</div>
 	  			</div>
 			</div>

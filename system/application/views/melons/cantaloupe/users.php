@@ -12,7 +12,7 @@ if (!empty($book_user->url)) echo '</a>';
 <?php endif; ?>
 <?php
 if (!empty($book_user->url)) {
-	$this->template->add_js('$(document).ready(function(){$(\'header h1[property="dcterms:title"]:first\').append(\'<a href="'.$book_user->url.'" class="btn btn-primary btn-sm" style="float:right;margin-top:10px;">Homepage</a>\');});','embed');
+	$this->template->add_js('$(document).ready(function(){$(\'header h1[property="dcterms:title"]:first\').before(\'<a href="'.$book_user->url.'" class="btn btn-primary" style="float:right;margin-top:10px;margin-right:7.2rem;">'.$book_user->fullname.'\\\'s Homepage</a>\');});','embed');
 }
 $content = (isset($page->version_index)) ? $page->versions[0]->content : null;
 if (!empty($content)) {

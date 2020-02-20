@@ -300,7 +300,7 @@
                     }
 
                     // If the media is smaller than the "small" size, remove tabs below media
-                    if (mediaWidth < minTabWidth) {
+                    if (mediaWidth < minTabWidth && mediaWidth != 0) {
                         mediaelement.model.options.solo = true;
                     }
 
@@ -330,7 +330,6 @@
                 }
 
                 // the "solo" option is used when showing media items that don't get media details tabs beneath
-
 
                 if (mediaelement.model.options.solo != true) {
                     if (isFullWidth) {
@@ -653,7 +652,7 @@
 
                     $('.context.popover').remove();
 
-                    relations = currentNode.getRelations('referee', 'incoming');
+                    relations = currentNode.getRelations('reference', 'incoming');
                     for (i in relations) {
                         relation = relations[i];
                         if (relation.body.current.content != null) {
@@ -1692,6 +1691,9 @@
                     } else {
                         page.bodyContent().append('<div class="body_copy"><p class="text-danger">The annotation editor could not be loaded because this is not a media page.</p></div>');
                     }
+
+                } else if ('lens' == extension) {
+                  // temporary place to call the lens plugin; will be removed later
 
                 } else if ('edit' == extension) {
                     // Nothing needed here
@@ -2735,6 +2737,28 @@
                             next();
                         });
                     }, 200);
+                    // Information about the banner
+                    var parent = $('link#parent').attr('href');
+                    var api_url = null;
+                    if (-1 == banner.indexOf(parent)) {  // External file
+                    	// TODO
+                    } else {  // Local file
+                    	api_url = parent+'rdf/file/'+banner.replace(parent,'')+'?format=json';
+                    }
+                    if (null != api_url) {
+	                    $.getJSON(api_url, function(media_node) {
+	                    	for (var uri in media_node) {
+	                    		if ('undefined' == typeof(media_node[uri]['http://open.vocab.org/terms/versionnumber'])) continue;
+	                    		var url = media_node[uri]['http://purl.org/dc/terms/isVersionOf'][0].value;
+	                    		var title = media_node[uri]['http://purl.org/dc/terms/title'][0].value;
+	                    		//var description = ('undefined'!=typeof(media_node[uri]['http://purl.org/dc/terms/description'])) ? media_node[uri]['http://purl.org/dc/terms/description'][0].value : null;
+	                    		var source = ('undefined'!=typeof(media_node[uri]['http://purl.org/dc/terms/source'])) ? media_node[uri]['http://purl.org/dc/terms/source'][0].value : null;
+	                    		if (-1 != source.indexOf('//')) source = null;  // Is a URL
+	                    		var html = '<div class="citation caption_font"><a href="'+url+'">Background: '+title+''+((null!=source)?' ('+source+')':'')+'</a></div>';
+	                    		$('.title_card').append(html);
+	                    	}
+	                    });
+                    };
                     break;
 
                 case 'gallery':
@@ -2933,7 +2957,7 @@
                                     visOptions = {
                                         modal: false,
                                         content: 'current',
-                                        relations: 'referee',
+                                        relations: 'reference',
                                         format: 'force-directed'
                                     }
                                     break;
@@ -2983,7 +3007,7 @@
 
                                 relatedNodes.push(node.getRelatedNodes('path', 'outgoing'));
                                 relatedNodes.push(node.getRelatedNodes('tag', 'outgoing'));
-                                relatedNodes.push(node.getRelatedNodes('referee', 'outgoing'));
+                                relatedNodes.push(node.getRelatedNodes('reference', 'outgoing'));
                                 relatedNodes.push(node.getRelatedNodes('annotation', 'outgoing'));
 
                                 var tempdata = {

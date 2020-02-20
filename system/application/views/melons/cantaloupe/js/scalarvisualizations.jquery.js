@@ -8,7 +8,7 @@
  * (the "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
  *
- * http://www.osedu.org/licenses /ECL-2.0
+ * http://www.osedu.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an "AS IS"
@@ -32,7 +32,7 @@
         base.el = el;
 
         base.visStarted = false;
-		base.resultsPerPage = 25;
+		base.resultsPerPage = 50;
 		base.loadedAllContent = false;
 		base.canonicalTypeOrder = [ "path", "page", "comment", "tag", "annotation", "media" ];
 		base.canonicalRelationOrder = [
@@ -42,8 +42,8 @@
 			{type:'tag', direction:'incoming'},
 			{type:'annotation', direction:'outgoing'},
 			{type:'annotation', direction:'incoming'},
-			{type:'referee', direction:'outgoing'},
-			{type:'referee', direction:'incoming'},
+			{type:'reference', direction:'outgoing'},
+			{type:'reference', direction:'incoming'},
 			{type:'comment', direction:'outgoing'},
 			{type:'comment', direction:'incoming'}
 		];
@@ -67,7 +67,7 @@
         // one-time setup
         base.init = function(){
 
-            //Replace undefined options with defaults...
+            // replace undefined options with defaults...
             base.setOptions( $.extend( {}, $.scalarvis.defaultOptions, options ) );
 
 			if (base.currentNode != null) {
@@ -124,7 +124,7 @@
 			// inform all instances that content has finished loading
 			$( 'body' ).on( 'visLoadedAllContent', function() { base.loadedAllContent = true; } );
 
-			// Add a reverse reference to the DOM object
+			// add a reverse reference to the DOM object
 			base.visElement.data( "scalarvis", base );
 
 			// other setup goes here
@@ -139,12 +139,12 @@
 			if ( base.options.modal ) {
 				base.loadingMsg.addClass( 'bounded' ); // removes left page margin padding
 			}
-			base.progressBar = $( '<div class="progress"><div class="progress-bar" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100" style="width: 10%;"><span class="sr-only">10% complete</span></div></div>' ).appendTo( base.loadingMsg );
+			base.progressBar = $( '<div class="progress"><div class="progress-bar" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100" style="width: 10%;"><span class="sr-only">10% complete</span></div></div>' ).prependTo( base.loadingMsg );
 
 			// only modal visualizations get the controls
 			if ( base.options.modal ) {
 
-				base.controls = $( '<div class="vis-controls form-inline"></div>' ).appendTo( base.visElement );
+				base.controls = $( '<div class="vis-controls form-inline form-group-sm"></div>' ).appendTo( base.visElement );
 
 				var controls_html = 	'<select class="vis-content-control form-control">';
 				for ( var prop in base.VisualizationContent ) {
@@ -199,22 +199,27 @@
 				visFooter.append( '|' );
 				base.legendButton = $( '<button class="btn btn-link btn-xs" data-toggle="popover" data-placement="top" >Legend</button>' );
 				visFooter.append( base.legendButton );
-				var type, name,
+				var type, color, name,
 					legendMarkup = "";
 				n = base.canonicalTypeOrder.length;
 				for ( i = 0; i < n; i++ ) {
 					type = base.canonicalTypeOrder[ i ];
+					color = base.highlightColorScale( type );
 					name = scalarapi.model.scalarTypes[ type ].plural;
 					name = name.charAt(0).toUpperCase() + name.slice(1)
-					legendMarkup += '<span style="color:' + base.highlightColorScale( type ) + ';">&#9632;</span> ' + name + '<br>';
+					legendMarkup += '<span style="color:' + color  + ';">&#9632;</span> ' + name + '<br>';
 				}
-				legendMarkup += '<br><div style="max-width: 175px;">Since content can have more than one type, a given item may change colors depending on context.</div>';
+				legendMarkup += '<br><div>Since content can have more than one type, a given item may change colors depending on context.</div>';
 				base.legendButton.attr( "data-content", legendMarkup );
 				base.legendButton.popover( {
 					trigger: "hover click",
-					html: true,
-					template: base.popoverTemplate
-				} );
+					template: base.popoverTemplate,
+					html: true
+				} ).on('shown.bs.popover', function () {
+					// It seems that the popover's html insert no longer preserves HTML attributes, so overwriting here to bring back colors ~Craig
+					var html = $(this).attr('data-content');
+					base.legendButton.next().find('.popover-content').html(html);
+				});
 			}
 
 			if (!isMobile) {
@@ -275,7 +280,7 @@
 				}
 			}
 			if ( base.options.relations == "media" ) {
-				base.options.relations = "referee";
+				base.options.relations = "reference";
 			}
 			base.visualize();
         }
@@ -304,7 +309,7 @@
 					base.options.relations = content;
 				}
 				if ( base.options.relations == "media" ) {
-					base.options.relations = "referee";
+					base.options.relations = "reference";
 				}
 				break;
 
@@ -373,7 +378,12 @@
 
 				case "comment":
 				case "reply":
+				var componentToHex = function (c) {
+					var hex = c.toString(16);
+					return hex.length == 1 ? "0" + hex : hex;
+				}
 				color = d3.rgb( "#ffff33" ).darker();
+				color = "#" + componentToHex(color.r) + componentToHex(color.g) + componentToHex(color.b);
 				break;
 
 				case "annotation":
@@ -385,7 +395,7 @@
 				break;
 
 				case "media":
-				case "referee":
+				case "reference":
 				color = "#4daf4a";
 				break;
 
@@ -415,7 +425,7 @@
 					case "comment":
 					case "annotation":
 					case "tag":
-					case "referee":
+					case "reference":
 					return color;
 					break;
 
@@ -613,7 +623,7 @@
 				base.loadSequence.push( { id: 'current', desc: "current page's connections", relations: 'all' } );
 				base.loadSequence.push( { id: 'path', desc: "paths", relations: 'path' } );
 				base.loadSequence.push( { id: 'tag', desc: "tags", relations: 'tag' } );
-				base.loadSequence.push( { id: 'media', desc: "media", relations: 'referee' } );
+				base.loadSequence.push( { id: 'media', desc: "media", relations: 'reference' } );
 				base.loadSequence.push( { id: 'page', desc: "pages", relations: 'none' } );
 				base.loadSequence.push( { id: 'annotation', desc: "annotations", relations: 'annotation' } );
 				base.loadSequence.push( { id: 'reply', desc: "comments", relations: 'reply' } );
@@ -644,7 +654,7 @@
 			if (depth == null) {
 				depth = 1;
 			}
-			scalarapi.loadNode( slug, true, base.parseNode, null, depth, ref, 0, 100 );
+			scalarapi.loadNode( slug, true, base.parseNode, null, depth, ref, null, 0, 100, null, null, false );
 		}
 
 		base.parseNode = function( data ) {
@@ -725,7 +735,7 @@
 					} else {
 						forceReload = true;
 						depth = 2;
-						references = ( loadInstruction.relations == 'referee' );
+						references = ( loadInstruction.relations == 'reference' );
 						if ( loadInstruction.relations == 'all' ) {
 							relations = null;
 						} else {
@@ -734,7 +744,7 @@
 					}
 					base.reachedLastPage = true;
 					start = end = -1;
-					result = scalarapi.loadCurrentPage( forceReload, base.parseData, null, depth, references, relations);
+					result = scalarapi.loadCurrentPage( forceReload, base.parseData, null, depth, references, relations, false);
 					break;
 
 					case 'toc':
@@ -746,7 +756,7 @@
 					} else {
 						forceReload = true;
 						depth = 1;
-						references = ( loadInstruction.relations == 'referee' );
+						references = ( loadInstruction.relations == 'reference' );
 						if ( loadInstruction.relations == 'all' ) {
 							relations = null;
 						} else {
@@ -755,7 +765,7 @@
 					}
 					start = ( this.pageIndex * this.resultsPerPage );
 					end = start + this.resultsPerPage;
-					result = scalarapi.loadPage( loadInstruction.node.slug, forceReload, base.parseData, null, depth, references, relations, start, base.resultsPerPage );
+					result = scalarapi.loadPage( loadInstruction.node.slug, forceReload, base.parseData, null, depth, references, relations, start, base.resultsPerPage, null, null, false );
 					break;
 
 					default:
@@ -765,7 +775,7 @@
 						relations = null;
 					} else {
 						depth = 1;
-						references = (( loadInstruction.relations == 'referee' ) || ( loadInstruction.relations == 'all' ));
+						references = (( loadInstruction.relations == 'reference' ) || ( loadInstruction.relations == 'all' ));
 						if ( loadInstruction.relations == 'all' ) {
 							relations = null;
 						} else {
@@ -774,7 +784,7 @@
 					}
 					start = ( this.pageIndex * this.resultsPerPage );
 					end = start + this.resultsPerPage;
-					result = scalarapi.loadPagesByType( loadInstruction.id, true, base.parseData, null, depth, references, relations, start, base.resultsPerPage );
+					result = scalarapi.loadPagesByType( loadInstruction.id, true, base.parseData, null, depth, references, relations, start, base.resultsPerPage, false, false );
 					break;
 
 				}
@@ -845,10 +855,15 @@
 				// if a count was found, store it
 				if ( count != null ) {
 					base.typeCounts[ loadInstruction.id ] = count;
-
+					
 					// if the count is less than the point at which we'd start our next load, then
 					// we've reached the last page of data for this item type
-					if ( count < (( base.pageIndex + 1 ) * base.resultsPerPage )) {
+					//if ( count < (( base.pageIndex + 1 ) * base.resultsPerPage )) {
+
+					// 'methodNumNodes' (count) decreases in each consecutive API call... it's the
+					// number of nodes remaining (current call nodes inclusive) rather than the total
+					// number of nodes across all API calls of a particular type ~Craig
+					if (count < base.resultsPerPage) {
 						base.reachedLastPage = true;
 					}
 				}
@@ -884,9 +899,10 @@
 			}
 
 			if (( start != -1 ) && ( total != null )) {
-				base.loadingMsg.find('p').text( 'Loading ' + typeName + ' (' + start + '/' + total + ')...' );
+				//base.loadingMsg.find('p').text( 'Loading ' + typeName + ' (' + start + '/' + total + ')...' );
+				base.loadingMsg.find('p').text( 'Loading ' + typeName + ' (' + (total - base.resultsPerPage) + ' remaining) ...' );
 			} else {
-				base.loadingMsg.find('p').text( 'Loading ' + typeName + '...' );
+				base.loadingMsg.find('p').text( 'Loading ' + typeName + ' ...' );
 			}
 			base.progressBar.find( ".progress-bar" ).attr( "aria-valuenow", percentDone ).css( "width", percentDone + "%" );
 			base.progressBar.find( ".sr-only" ).text( percentDone + "% complete" );
@@ -996,8 +1012,8 @@
 
 				case "toc":
 				base.contentNodes = [];
-				relNodes = scalarapi.model.getMainMenuNode().getRelatedNodes( 'referee', 'outgoing', true );
-				rels = scalarapi.model.getMainMenuNode().getRelations( 'referee', 'outgoing', true );
+				relNodes = scalarapi.model.getMainMenuNode().getRelatedNodes( 'reference', 'outgoing', true );
+				rels = scalarapi.model.getMainMenuNode().getRelations( 'reference', 'outgoing', true );
 				base.relatedNodes = base.relatedNodes.concat( relNodes );
 				base.relations = base.relations.concat( rels );
 				if ( base.options.relations != "none" ) {
@@ -1223,7 +1239,7 @@
 			//}
 
 			if ( includeToc ) {
-				var tocNodes = scalarapi.model.getMainMenuNode().getRelatedNodes( 'referee', 'outgoing', true );
+				var tocNodes = scalarapi.model.getMainMenuNode().getRelatedNodes( 'reference', 'outgoing', true );
 			}
 
 			// sort nodes by type
@@ -1482,7 +1498,7 @@
 				break;
 
 				default:
-				if ( base.options.relations == "referee" ) {
+				if ( base.options.relations == "reference" ) {
 					relationList = [ { type: base.options.relations, direction: 'incoming' } ];
 				} else {
 					relationList = [ { type: base.options.relations, direction: 'outgoing' } ];
@@ -1998,7 +2014,7 @@
 						.attr('y2', function(d) { return d.target[base.instanceId].y + (boxSize * .5); })
 						.attr('stroke-width', 1)
 						.attr('stroke-dasharray', '1,2')
-						.attr('stroke', function(d) { return base.highlightColorScale((d.type.id == 'referee') ? 'media' : d.type.id ); });
+						.attr('stroke', function(d) { return base.highlightColorScale((d.type.id == 'reference') ? 'media' : d.type.id ); });
 
 					// draw connection dots
 					linkEnter.selectAll('circle.connectionDot')
@@ -2020,7 +2036,7 @@
 							return nodeArr;
 						})
 						.enter().append('circle')
-						.attr('fill', function(d) { return base.highlightColorScale((d.type.id == 'referee') ? 'media' : d.type.id); })
+						.attr('fill', function(d) { return base.highlightColorScale((d.type.id == 'reference') ? 'media' : d.type.id); })
 						.attr('class', 'connectionDot')
 						.attr('cx', function(d) {
 							return d.node[base.instanceId].x + (boxSize * .5);
@@ -2131,7 +2147,7 @@
 				fullWidth = base.visElement.width();
 				if ( window.innerWidth > 768 ) {
 					if ( base.options.modal ) {
-						fullHeight = Math.max( 300, window.innerHeight * .9 - 200 );
+						fullHeight = Math.max( 300, window.innerHeight * .9 - 170 );
 					} else {
 						fullHeight = 568;
 					}
@@ -2449,7 +2465,7 @@
 				fullWidth = base.visElement.width();
 				if ( window.innerWidth > 768 ) {
 					if ( base.options.modal ) {
-						fullHeight = Math.max( 300, window.innerHeight * .9 - 200 );
+						fullHeight = Math.max( 300, window.innerHeight * .9 - 170 );
 					} else {
 						fullHeight = 568;
 					}
@@ -2959,7 +2975,7 @@
 				var links = [];
 
 				var linkSpecs = [
-					{type:'referee', direction:'incoming'},
+					{type:'reference', direction:'incoming'},
 					{type:'annotation', direction:'outgoing'},
 					{type:'tag', direction:'outgoing'},
 					{type:'comment', direction:'outgoing'},
@@ -3156,7 +3172,7 @@
 					fullWidth = base.visElement.width();
 					if ( window.innerWidth > 768 ) {
 						if ( base.options.modal ) {
-							fullHeight = Math.max( 300, window.innerHeight * .9 - 200 );
+							fullHeight = Math.max( 300, window.innerHeight * .9 - 170 );
 						} else {
 							fullHeight = 568;
 						}

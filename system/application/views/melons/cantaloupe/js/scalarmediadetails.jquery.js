@@ -186,7 +186,7 @@
 					var citations = $('<div class="citations"><h3>Citations of this media</h3></div>').appendTo(annotationWrap);
 
 					// show media references with excerpts
-					relations = mediaelement.model.node.getRelations('referee', 'incoming');
+					relations = mediaelement.model.node.getRelations('reference', 'incoming');
 					for (i in relations) {
 						relation = relations[i];
 	                    if (relation.body.current.content != null) {
