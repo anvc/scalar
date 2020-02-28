@@ -220,17 +220,13 @@ jQuery.AnnoBuilderController = function() {
 	 * Loads annotations for the media file.
 	 */
 	jQuery.AnnoBuilderController.prototype.loadAnnotations = function() {
-		if ( $( 'article' ).length ) {  // Cantaloupe loads each annotation in seperate API calls
-			if (scalarapi.loadCurrentPage(true, this.handleAnnotations, null, 1, false, 'annotation') == 'loaded') this.handleAnnotations();
-		} else {  // Honeydew needs tag info along with annotation info
-			scalarapi.model.removeNodes();
-			if (scalarapi.loadCurrentPage(true, this.handleAnnotations, null, 2, false, 'annotation,tag') == 'loaded') this.handleAnnotations();
-		}
+		scalarapi.model.removeNodes();
+		if (scalarapi.loadCurrentPage(true, this.handleAnnotations, null, 2, false, 'annotation,tag') == 'loaded') this.handleAnnotations();
 		if ( $.annobuilder.model.node.current.mediaSource.contentType == 'image' ) {
       console.log($.annobuilder.model.mediaElement.view.mediaObjectView);
  			anno.removeAll( $.annobuilder.model.mediaElement.view.mediaObjectView.image.src + '-0' );
 		}
-}
+  }
 
 	/**
 	 * Handles loaded annotation data.
@@ -508,7 +504,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 
 		this.annotationForm.find('tbody').append('<tr><td class="field">Content</td><td class="value"><div class="help_button"><a role="button">?</a><em>The full content of the annotation.</em></div><textarea id="annotationContent" class="form-control" type="text" cols="40" rows="6" onchange="$.annobuilder.view.builder.handleEditContent()" onkeyup="$.annobuilder.view.builder.handleEditContent()"/></td></tr>');
 		this.annotationForm.find('tbody').append('<tr><td class="field">Description</td><td class="value"><input id="annotationDescription" class="form-control" type="text" size="43" onchange="$.annobuilder.view.builder.handleEditDescription()" onkeyup="$.annobuilder.view.builder.handleEditDescription()"/><div class="help_button"><a role="button">?</a><em>Optional descripiton of the annotation.</em></div></td></tr>');
-	    this.annotationForm.find('tbody').append('<tr><td class="field" style="vertical-align:middle;">Tags</td><td class="value" style="vertical-align:middle;"><span class="tagged_by_msg" style="display:none;">This annotation is tagged by:</span><ul style="display:none;" id="taggedBy"></ul><div class="form_fields_sub_element"><a class="btn btn-default btn-sm" id="tagButton" role="button">Add tags</a><div class="help_button"><a role="button">?</a><em>You can select one or more content items to tag this annotation.</em></div></div></td></tr>');
+	    this.annotationForm.find('tbody').append('<tr><td class="field">Tags</td><td class="value" style="vertical-align:middle;"><div class="help_button"><a role="button">?</a><em>You can select one or more content items to tag this annotation.</em></div><span class="tagged_by_msg" style="display:none;">This annotation is tagged by:</span><ul style="display:none;" id="taggedBy"></ul><div class="form_fields_sub_element"><a class="btn btn-default btn-sm" id="tagButton" role="button">Add tags</a></div></td></tr>');
 
 		$('#setStartTimeBtn').on('click', this.handleSetStartTime);
 		$('#setEndTimeBtn').on('click', this.handleSetEndTime);

@@ -9,20 +9,23 @@ h1.visualization { margin-bottom: 1.2rem; }
 	margin-left: 0;
 }
 
-.progressbar {
-	height: 8px;
+.progress {
+	height:2px;
+	margin-bottom:0px;
+}
+.progress-bar {
+	height: 2px;
 	margin-bottom: 5px;
 }
-
 .loadingMsg {
 	font-size: 1.2rem;
 	color: #666;
 	vertical-align: middle;
 	display: none;
 }
-
 .loadingMsg > p {
-	margin-bottom: 4px;
+	margin-top:3px;
+	margin-bottom: 8px;
 }
 
 .scalarvis {
@@ -30,7 +33,7 @@ h1.visualization { margin-bottom: 1.2rem; }
 	margin-bottom: 10px;
 	background-color: #fff;
 	min-height: 300px;
-	overflow-y: auto;
+	overflow-y: hidden;
 	overflow-x: hidden;
 }
 
@@ -100,7 +103,7 @@ h1.visualization { margin-bottom: 1.2rem; }
 }
 
 .vis_footer {
-	margin-bottom: 2.4rem;
+	margin-bottom: 0.0rem;
 	text-align: right;
 	font-size: 1.4rem;
 	line-height: 140%;

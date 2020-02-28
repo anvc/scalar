@@ -22,7 +22,7 @@ class Login_model extends User_model {
 
 	protected $login_basename = null;
 	private $max_login_attempts = 0;
-	private $max_login_attempts_penalty_seconds = 0; 
+	private $max_login_attempts_penalty_seconds = 0;
 
     public function __construct() {
 
@@ -64,6 +64,10 @@ class Login_model extends User_model {
     	// Run user logout (if applicable)
     	$action = (isset($_REQUEST['action'])) ? $_REQUEST['action'] : null;
     	if ($force || $action == 'do_logout') {
+    		if (isset($_REQUEST['redirect_url'])) {
+    			$CI =& get_instance();
+    			$CI->redirect_url($_REQUEST['redirect_url']);
+    		}
     		$this->session->unset_userdata($this->login_basename);
 			return true;
     	}
@@ -95,7 +99,7 @@ class Login_model extends User_model {
 			log_message('error', 'Scalar: Login attempt by '.$email.', from '.$this->getUserIpAddr().'.');
 			$password = trim($_POST['password']);
             $result = false;
-            
+
             if (!$this->increment_and_check_login_attempts()) {
             	$this->session->unset_userdata($this->login_basename);
             	$msg = lang('login.attempts');
@@ -142,9 +146,9 @@ class Login_model extends User_model {
 		return parent::has_empty_password($email);
 
 	}
-	
+
 	private function increment_and_check_login_attempts() {
-		
+
 		// Is user on a penalty?
 		$start = $this->session->userdata($this->login_basename.'__penalty_start');
 		if (!empty($start)) {
@@ -162,19 +166,21 @@ class Login_model extends User_model {
 		// User has hit the max attempts
 		if ($attempt > $this->max_login_attempts) {
 			$this->session->set_userdata($this->login_basename.'__penalty_start', time());
+			$email = trim($_POST['email']);
+			log_message('error', 'Scalar: User exceeded max login attempts for account '.$email.' ('.$this->getUserIpAddr().').');
 			return false;
 		}
 		// Increment the number of attempts
 		$this->session->set_userdata($this->login_basename.'__login_attempts', $attempt);
 		return true;
-		
+
 	}
-	
+
 	private function reset_login_attempts() {
-		
+
 		$this->session->unset_userdata($this->login_basename.'__penalty_start');
 		$this->session->unset_userdata($this->login_basename.'__login_attempts');
-		
+
 	}
 
 }

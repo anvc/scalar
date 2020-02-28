@@ -112,6 +112,7 @@ $(document).ready(function() {
 	        echo '<div class="plugin transfer">';
 	        if (file_exists(FCPATH.$path)) {
 	        	echo '<iframe style="width:100%; min-height:700px; border:none;" src="'.confirm_slash(base_url()).$path.$get_vars.'"></iframe>'."\n";
+	        	//echo '<iframe style="width:100%; min-height:700px; border:none;" src="http://localhost/scalar-book-transfer-tool/index.html'.$get_vars.'"></iframe>'."\n";
 	        } else {
 	        	echo '<div class="alert alert-warning">Please contact a system administrator to install the <b>Transfer</b> plugin at <b style="white-space:nowrap;">/system/application/plugins/transfer</b>.</div>';
 	        }

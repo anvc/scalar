@@ -11,6 +11,8 @@ class Image_Metadata {
 	private $exif_uri = '';
 	private $id3_ns = 'id3';
 	private $id3_uri = '';
+	private $pano_ns = 'gpano';
+	private $pano_uri = '';
 
 	public function __construct() {
 
@@ -22,6 +24,7 @@ class Image_Metadata {
 		$this->iptc = $ontologies[$this->iptc_ns];  // The IPTC parser matches against the ontology list in config/rdf.php
 		$this->exif_uri =@ $namespaces[$this->exif_ns];
 		$this->id3_uri =@ $namespaces[$this->id3_ns];
+		$this->pano_uri =@ $namespaces[$this->pano_ns];
 
 	}
 
@@ -32,6 +35,14 @@ class Image_Metadata {
 		$iptc_arr = (!empty($this->iptc_ns)) ? $this->get_iptc($path) : array();
 		$exif_arr = (!empty($this->exif_ns)) ? $this->get_exif($path) : array();
 		$id3_arr = (!empty($this->id3_ns)) ? $this->get_id3($path) : array();
+		$pano_str = (!empty($this->pano_ns)) ? $this->getXmpData($path) : '';
+		$pano_arr = array();
+
+		if (!empty($pano_str)) {
+			$p = xml_parser_create();
+			xml_parse_into_struct($p, $pano_str, $pano_arr, $_index);
+			xml_parser_free($p);
+		}
 
 		foreach ($iptc_arr as $field => $value) {
 			switch ($format) {
@@ -60,6 +71,19 @@ class Image_Metadata {
 					break;
 				case Image_Metadata::FORMAT_URI:
 					$return[$this->id3_uri.$field] = $this->rdf_value($value);
+					break;
+			}
+		}
+		foreach ($pano_arr as $item) {
+			switch ($format) {
+				case Image_Metadata::FORMAT_NS:
+					$field = strtolower($item['tag']);
+					if (false === strpos($field, $this->pano_ns)) continue 2;
+					if (empty($item['value'])) continue 2;
+					$return[$field] = $this->rdf_value($item['value']);
+					break;
+				case Image_Metadata::FORMAT_URI:
+					// TODO
 					break;
 			}
 		}
@@ -127,6 +151,48 @@ class Image_Metadata {
 		if (null===$aTags || !is_array($aTags)) $aTags = array();
 		return $aTags;
 
+	}
+	
+	private function getXmpData($filename, $chunkSize = 1024) {  // https://stackoverflow.com/questions/1578169/how-can-i-read-xmp-data-from-a-jpg-with-php
+		
+		if (!is_int($chunkSize)) {
+			throw new RuntimeException('Expected integer value for argument #2 (chunkSize)');
+		}
+		if ($chunkSize < 12) {
+			throw new RuntimeException('Chunk size cannot be less than 12 argument #2 (chunkSize)');
+		}
+		if (($file_pointer = fopen($filename, 'r')) === FALSE) {
+			throw new RuntimeException('Could not open file for reading');
+		}
+		
+		$startTag = '<x:xmpmeta';
+		$endTag = '</x:xmpmeta>';
+		$buffer = NULL;
+		$hasXmp = FALSE;
+		
+		while (($chunk = fread($file_pointer, $chunkSize)) !== FALSE) {
+			if ($chunk === "") {
+				break;
+			}
+			$buffer .= $chunk;
+			$startPosition = strpos($buffer, $startTag);
+			$endPosition = strpos($buffer, $endTag);
+			
+			if ($startPosition !== FALSE && $endPosition !== FALSE) {
+				$buffer = substr($buffer, $startPosition, $endPosition - $startPosition + 12);
+				$hasXmp = TRUE;
+				break;
+			} elseif ($startPosition !== FALSE) {
+				$buffer = substr($buffer, $startPosition);
+				$hasXmp = TRUE;
+			} elseif (strlen($buffer) > (strlen($startTag) * 2)) {
+				$buffer = substr($buffer, strlen($startTag));
+			}
+		}
+		
+		fclose($file_pointer);
+		return ($hasXmp) ? $buffer : null;
+		
 	}
 
 	private function rdf_value($value=array()) {

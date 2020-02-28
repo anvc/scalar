@@ -11,7 +11,7 @@ $(document).ready(function() {
 		dataType:"jsonp",
 		success:systemSuccess,
 		error:systemError
-	});	
+	});
 });
 function systemURI() {
 	return $('.search_archive_form').find('input[name="system_uri"]').val();
@@ -61,7 +61,7 @@ function search_archive() {
 		alert('Please select a book');
 		return false;
 	}
-	
+
 	var the_form = $('.search_archive_form:first').get(0);
 	var proxy = the_form.proxy.value;
 	var uri = $('#ddSlick-htmlselect').data('ddslick').selectedData.value;
@@ -72,48 +72,48 @@ function search_archive() {
 	if (sq.length==0) {
 		if (!confirm('Without a search term, all media from the selected book will be accessed.  Do you wish to continue?')) return false;
 	}
-	
+
 	// Enter the query
 	uri = uri+((-1==uri.indexOf('?')) ? '?' : '&')+'sq='+encodeURIComponent(sq);
 
 	// Show loading bar
 	$('.search_archive_form_wrapper:first').find('.search_results_title:first').show();
-	
+
 	// Run request
 	var the_request = proxy+'?xsl='+encodeURIComponent(xsl)+'&uri='+encodeURIComponent(uri);
-	
+
 	$.ajax({
 	  url: the_request,
 	  type: 'GET',
-	  dataType: ($.browser.msie) ? "text" : "xml",
+	  dataType: "xml",
 	  success: function(xml) {
 	  	var result;
 		// Fork to either jQuery-based XML processing or Javascript-based.  Kludgy but works in FF, Safari, IE, Opera.
-		if ($.browser.msie || $(xml).find('rdf\\:Description').length) {
+		if ($(xml).find('rdf\\:Description').length) {
 			result = import_parse_xml_with_jquery(xml, sq, 1, false, uri, null);      // Firefox, IE
 		} else {
 			result = import_parse_xml_with_javascript(xml, sq, 1, false, uri, null);  // Safari
 		}
 		return result;
 	  }
-	});	
-	
+	});
+
 	return false;
-	
+
 }
 </script>
 
 <h4 class="content_title">Import from another Scalar book</h4>
 
-<div class="search_archive_form_wrapper" id="external">	
-		
+<div class="search_archive_form_wrapper" id="external">
+
 	<form action="" class="search_archive_form" method="get" onsubmit="return search_archive();">
 		<!-- Fields used for proxy search -->
 		<input type="hidden" name="proxy" value="<?=confirm_slash($app_root)?>rdf/proxy.php" />
 		<input type="hidden" name="system_uri" value="<?=rtrim(base_url(),'/')?>" />
 		<input type="hidden" name="xsl" value="<?=confirm_slash($app_root)?>rdf/xsl/system.xsl" />
-		<select id="ddSlick-htmlselect" name="uri"></select>&nbsp; 
-		<input type="text" name="sq" class="input_search_query generic_input large" value="" />&nbsp; 
+		<select id="ddSlick-htmlselect" name="uri"></select>&nbsp;
+		<input type="text" name="sq" class="input_search_query generic_input large" value="" />&nbsp;
 		<input type="submit" value="Search" class="input_search_submit generic_button large" />
 		<br clear="both" /><br />
 		<!-- Fields used for ADD -->
@@ -125,13 +125,13 @@ function search_archive() {
 		<input type="hidden" name="rdf:type" value="http://scalar.usc.edu/2012/01/scalar-ns#Media" />
 		<input type="hidden" name="scalar:child_urn" value="<?=$book->urn?>" />
 		<input type="hidden" name="scalar:child_type" value="http://scalar.usc.edu/2012/01/scalar-ns#Book" />
-		<input type="hidden" name="scalar:child_rel" value="page" />	
-		<input type="hidden" name="sioc:content" value="" />	
-	</form>		
-		
+		<input type="hidden" name="scalar:child_rel" value="page" />
+		<input type="hidden" name="sioc:content" value="" />
+	</form>
+
 	<p class="search_results_title"><img src="<?=confirm_slash($app_root)?>views/melons/honeydew/images/loading.gif" height="16" align="absmiddle" />&nbsp; Searching the archive (may take a moment)</p>
 	<div class="search_results_header"></div>
-		
+
 	<div class="search_results_wrapper">
 	<table class="search_archive_results" cellspacing="0" cellpadding="0"><tbody></tbody></table>
 	</div>

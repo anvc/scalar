@@ -97,6 +97,16 @@ table.tablesorter {
 	font-size: 1.1em !important;
 	font-family: 'Lato', Arial, sans-serif !important;
 }
+table.tablesorter th {
+	padding: 6px 11px 6px 11px !important;
+}
+table.tablesorter .tablesorter-header-inner {
+	font-size:0.8rem !important;
+}
+.ui-state-active, .ui-widget-content .ui-state-active, .ui-widget-header .ui-state-active, a.ui-button:active, .ui-button:active, .ui-button.ui-state-active:hover {
+	background-color:#cccccc;
+	border-color:#aaaaaa;	
+}
 .ui-widget {
     font-family: 'Lucida Grande','Lucida Sans Unicode',sans-serif !important;
     font-size: 1em;

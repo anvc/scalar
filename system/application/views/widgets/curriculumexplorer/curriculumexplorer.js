@@ -50,11 +50,15 @@ function curriculumexplorer(node) {
 		html += '      <button class="btn btn-default dropdown-toggle select_page_btn" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"><span id="ce-select-page">Select a page</span> <span class="caret"></span></button>';
 		html += '      <ul id="ce-pages" class="dropdown-menu"></ul>';
 		html += '    </div><br />';
-		html += '    <div id="ce-content" style="margin-top:18px;">';
-		html += '      <img src="'+empty_img+'" alt="" id="ce-content-image" class="img-thumbnail" align="left">';
-		html += '      <h4><a href="" id="ce-content-title">&nbsp;</a></h4>';
-		html += '      <div id="ce-content-desc"></div>';
-		html += '      <a id="ce-content-button" class="btn btn-default btn-sm" href="">Go to page</a>';
+		html += '    <div id="ce-content" class="row">';
+		html += '      <div class="col-xs-4">';
+		html += '        <img src="'+empty_img+'" alt="" id="ce-content-image" align="left">';
+		html += '      </div>';
+		html += '      <div class="col-xs-8">';
+		html += '        <h4><a href="" id="ce-content-title">&nbsp;</a></h4>';
+		html += '        <div id="ce-content-desc"></div>';
+		html += '        <a id="ce-content-button" class="btn btn-default btn-sm" href="">Go to page</a>';
+		html += '      </div>';
 		html += '    </div>';
 		html += '  </div>';
 		html += '</div>';
@@ -105,7 +109,7 @@ function curriculumexplorer(node) {
 		var set_subjects = function() {
 			var grade_index = parseInt($('#ce-select-grade').data('index'));
 			$('#ce-subjects').find('input[type="checkbox"]').each(function() {  // Enable all subjects
-				$(this).removeProp('disabled').parent().css('color','initial').css('cursor','pointer').css('-webkit-text-fill-color','initial');
+				$(this).prop('disabled',false).parent().css('color','initial').css('cursor','pointer').css('-webkit-text-fill-color','initial');
 			});
 			if (isNaN(grade_index)) return;
 			$('#ce-subjects').find('input[type="checkbox"]').each(function() {  // Disable all subjects
@@ -113,9 +117,9 @@ function curriculumexplorer(node) {
 			});
 			for (var j = 0; j < json.connections.length; j++) {  // Enable subjects connected to the chosen grade
 				if (grade_index != json.connections[j].gradeIndex) continue;
-				$('#ce-subjects').find('input[type="checkbox"][value="'+json.connections[j].subjectIndex+'"]').removeProp('disabled').parent().css('color','initial').css('cursor','pointer').css('-webkit-text-fill-color','initial');
+				$('#ce-subjects').find('input[type="checkbox"][value="'+json.connections[j].subjectIndex+'"]').prop('disabled',false).parent().css('color','initial').css('cursor','pointer').css('-webkit-text-fill-color','initial');
 			};
-			$('#ce-subjects').find('input[type="checkbox"][disabled]').removeProp('checked');
+			$('#ce-subjects').find('input[type="checkbox"][disabled]').prop('checked',false);
 		}
 		var set_pages = function() {
 			$('#ce-pages').find('li').removeClass('disabled');
@@ -284,7 +288,7 @@ function curriculumexplorer(node) {
         				$('#ce-content-image').prop('src', fields.banner);
         				$('#ce-content-title').html(fields.title.replace(/(<([^>]+)>)/ig,"")).attr('href', fields.content_uri);
         				var desc = (fields.description.length > fields.content.length) ? fields.description.replace(/(<([^>]+)>)/ig,"") : fields.content.replace(/(<([^>]+)>)/ig,"");
-        				if (desc.length > 250) desc = desc.substr(0, 250) + '...';
+        				if (desc.length > 300) desc = desc.substr(0, 300) + '...';
         				$('#ce-content-desc').html(desc);
         				$('#ce-content-button').show().attr('href', fields.content_uri);
         			};

@@ -204,25 +204,42 @@ class Page_model extends MY_Model {
     public function get_by_version_url($book_id=0, $url='', $is_live=false) {
 
     	$return = array();
+    	$ci=&get_instance();
+    	$ci->load->model("version_model","versions");
 
+    	// Get all versions
     	$this->db->select($this->versions_table.'.*');
     	$this->db->from($this->versions_table);
+    	$this->db->join($this->pages_table, $this->pages_table.'.content_id='.$this->versions_table.'.content_id');
+    	$this->db->join($this->books_table, $this->books_table.'.book_id='.$this->pages_table.'.book_id');
+    	$this->db->where($this->books_table.'.book_id', $book_id);
     	$this->db->where($this->versions_table.'.url', $url);
+    	if (!empty($is_live)) $this->db->where($this->pages_table.'.is_live', 1);
     	$this->db->order_by($this->versions_table.'.version_id', 'desc');
     	$query = $this->db->get();
     	if (!$query->num_rows) return null;
     	$result = $query->result();
-
-    	foreach ($result as $row) {
-			if (!array_key_exists($row->content_id, $return)) {
-				$content = $this->get($row->content_id);
-				if (empty($content)) continue;
-				$return[$row->content_id] = $content;
-				$return[$row->content_id]->versions = array();
-			}
-			$return[$row->content_id]->versions[] = $row;
+    	
+    	// Group by content ID
+    	for ($j = 0; $j < count($result); $j++) {
+    		if (!array_key_exists($result[$j]->content_id, $return)) {
+    			$return[$result[$j]->content_id] = (object) array();
+    			$return[$result[$j]->content_id]->versions = array();
+    		}
+    		$result[$j]->urn = $ci->versions->urn($result[$j]->version_id);
+    		$result[$j]->attribution = unserialize_recursive($result[$j]->attribution);
+    		$result[$j]->rdf = $ci->rdf_store->get_by_urn('urn:scalar:version:'.$result[$j]->version_id);
+    		$result[$j]->citation = '';
+    		$return[$result[$j]->content_id]->versions[] = $result[$j];
     	}
 
+    	foreach ($return as $content_id => $row) {
+    		$content = $this->get($content_id);
+    		$content->versions = $return[$content_id]->versions;
+    		$content->version_index = 0;
+    		$return[$content_id] = $content;
+    	}
+    	
     	return $return;
 
     }

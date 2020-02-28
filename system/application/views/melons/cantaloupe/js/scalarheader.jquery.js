@@ -623,7 +623,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
 
                     case "vismedia":
                     options.content = 'media';
-                    options.relations = 'referee';
+                    options.relations = 'reference';
                     options.format = 'force-directed';
                     break;
 
@@ -1029,7 +1029,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
 
             var description = node.current.description;
 
-            var container = $('<div class="expandedPage"><h2 class="title">'+node.current.title+'</h2><div class="description">'+description+'</div><ul class="description_more_link_container"><li class="pull-right"><a class="description_more_link" title="Display full description">more</a></li></ul><ul class="links"><!--<a class="details">Details</a>--><li><a class="visit" href="'+base.get_param(node.url)+'" title="Visit page, \''+node.current.title+'\'"tabindex="-1">Visit page</a></li></ul><div class="relationships"><i class="loader"></i></div></div>').data({'index': n, 'slug': node.slug}).css('right',offset+'px').appendTo(expanded_menu);
+            var container = $('<div class="expandedPage"><h2 class="title">'+node.getDisplayTitle(true)+'</h2><div class="description">'+description+'</div><ul class="description_more_link_container"><li class="pull-right"><a class="description_more_link" title="Display full description">more</a></li></ul><ul class="links"><!--<a class="details">Details</a>--><li><a class="visit" href="'+base.get_param(node.url)+'" title="Visit page, \''+node.getDisplayTitle(true)+'\'"tabindex="-1">Visit page</a></li></ul><div class="relationships"><i class="loader"></i></div></div>').data({'index': n, 'slug': node.slug}).css('right',offset+'px').appendTo(expanded_menu);
 
             if(!base.usingMobileView){
                 container.prepend('<div class="close" role="link" tabindex="-1" title="Close expanded panel"><span class="menuIcon closeIcon"></span></div>');
@@ -1178,7 +1178,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                     var splitList = $('<ul></ul>');
 
                     var path_of = node.getRelatedNodes('path', 'outgoing');
-                    var features = node.getRelatedNodes('referee', 'outgoing');
+                    var features = node.getRelatedNodes('reference', 'outgoing');
                     var tag_of = node.getRelatedNodes('tag', 'incoming');
                     var annotates = node.getRelatedNodes('annotation', 'outgoing');
                     var comments_on = node.getRelatedNodes('comment', 'outgoing');
@@ -1187,7 +1187,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                         var newList = $('<li><strong>Contains</strong><ol></ol></li>').appendTo(splitList).find('ol');
                         for(var i in path_of){
                             var relNode = path_of[i];
-                            var nodeItem = $('<li><a href="'+relNode.url+'?path='+node.slug+'" tabindex="-1">'+relNode.current.title+'</a></li>')
+                            var nodeItem = $('<li><a href="'+relNode.url+'?path='+node.slug+'" tabindex="-1">'+relNode.getDisplayTitle(true)+'</a></li>')
                                                 .data({
                                                     'slug': relNode.slug,
                                                     'node': relNode
@@ -1205,7 +1205,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                         var newList = $('<li><strong>Features</strong><ol></ol></li>').appendTo(splitList).find('ol');
                         for(var i in features){
                             var relNode = features[i];
-                            var nodeItem = $('<li><a href="'+relNode.url+'" tabindex="-1">'+relNode.current.title+'</a></li>')
+                            var nodeItem = $('<li><a href="'+relNode.url+'" tabindex="-1">'+relNode.getDisplayTitle(true)+'</a></li>')
                                                 .data({
                                                     'slug': relNode.slug,
                                                     'node': relNode
@@ -1224,7 +1224,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                         var newList = $('<li><strong>Tagged by</strong><ol class="tags"></ol></li>').appendTo(splitList).find('ol');
                         for(var i in tag_of){
                             var relNode = tag_of[i];
-                            var nodeItem = $('<li><a href="'+relNode.url+'" tabindex="-1">'+relNode.current.title+'</a></li>')
+                            var nodeItem = $('<li><a href="'+relNode.url+'" tabindex="-1">'+relNode.getDisplayTitle(true)+'</a></li>')
                                                 .data({
                                                     'slug': relNode.slug,
                                                     'node': relNode
@@ -1243,7 +1243,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                         var newList = $('<li><strong>Annotates</strong><ol></ol></li>').appendTo(splitList).find('ol');
                         for(var i in annotates){
                             var relNode = annotates[i];
-                            var nodeItem = $('<li><a href="'+relNode.url+'" tabindex="-1">'+relNode.current.title+'</a></li>')
+                            var nodeItem = $('<li><a href="'+relNode.url+'" tabindex="-1">'+relNode.getDisplayTitle(true)+'</a></li>')
                                                 .data({
                                                     'slug': relNode.slug,
                                                     'node': relNode
@@ -1262,7 +1262,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                         var newList = $('<li><strong>Comments on</strong><ol></ol></li>').appendTo(splitList).find('ol');
                         for(var i in comments_on){
                             var relNode = comments_on[i];
-                            var nodeItem = $('<li><a href="'+relNode.url+'" tabindex="-1">'+relNode.current.title+'</a></li>')
+                            var nodeItem = $('<li><a href="'+relNode.url+'" tabindex="-1">'+relNode.getDisplayTitle(true)+'</a></li>')
                                                 .data({
                                                     'slug': relNode.slug,
                                                     'node': relNode
@@ -1512,13 +1512,13 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
         base.getParents = function(node,depth){
             if(typeof base.currentNode !== 'undefined'){
                 var in_path = node.getRelatedNodes('path', 'incoming');
-                var featured = node.getRelatedNodes('referee', 'incoming');
+                var featured = node.getRelatedNodes('reference', 'incoming');
                 var tagged_by = node.getRelatedNodes('tag', 'outgoing');
                 var annotated_by = node.getRelatedNodes('annotation', 'incoming');
                 var commented_by = node.getRelatedNodes('comment', 'incoming');
                 /*
                 var in_path = node.getRelations('path', 'incoming', 'reverseindex');
-                var featured = node.getRelations('referee', 'incoming', 'reverseindex');
+                var featured = node.getRelations('reference', 'incoming', 'reverseindex');
                 var tagged_by = node.getRelations('tag', 'outgoing', 'reverseindex');
                 var annotated_by = node.getRelations('annotation', 'incoming', 'reverseindex');
                 var commented_by = node.getRelations('comment', 'incoming', 'reverseindex');
@@ -1623,13 +1623,13 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
 
             if (node != null) {
                 var i, subMenu, subMenuItem,
-                    menuItems = node.getRelatedNodes('referee', 'outgoing', true),
+                    menuItems = node.getRelatedNodes('reference', 'outgoing', true),
                     n = menuItems.length;
                 if (n > 0) {
                     var tocNode, listItem;
                     for (i=n-1; i>=0; i--) { //going in reverse here, since we're prepending...
                         tocNode = menuItems[i];
-                        listItem = $( '<li><a href="' + tocNode.url + '">'+ tocNode.getDisplayTitle() + '</a></li>' )
+                        listItem = $( '<li><a href="' + tocNode.url + '">'+ tocNode.getDisplayTitle(true) + '</a></li>' )
                                     .prependTo( menu )
                                     .data({
                                         'slug': tocNode.slug,
@@ -1638,7 +1638,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                     .addClass((base.parentNodes.indexOf(tocNode.slug) < 0 && (typeof base.currentNode === 'undefined' || tocNode.slug != base.currentNode.slug))?'':'is_parent')
                                     .addClass((base.visitedPages.indexOf(tocNode.url) < 0 && (typeof base.currentNode === 'undefined' || tocNode.url != base.currentNode.url))?'':'visited');
 
-                        $('<a class="expand" title="Explore '+tocNode.getDisplayTitle()+'"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(listItem).on('click', function(e){
+                        $('<a class="expand" title="Explore '+tocNode.getDisplayTitle(true)+'"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(listItem).on('click', function(e){
                             var base = $('#scalarheader.navbar').data('scalarheader');
                             var target_toc_item = $(this).parent().data('node');
                             base.expandMenu(target_toc_item,0);

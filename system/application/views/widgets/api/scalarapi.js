@@ -8,7 +8,7 @@
  * (the "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
  *
- * http://www.osedu.org/licenses /ECL-2.0
+ * http://www.osedu.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an "AS IS"
@@ -29,7 +29,7 @@ function is_array(input){
  * the resulting instance in the global variable scalarapi.
  * @class 		A jQuery-dependent JavaScript library which allows easy access to the Scalar API.
  * @author		<a href="mailto:erik@song.nu">Erik Loyer</a>
- * @version		1.0
+ * @version		1.1
  */
 function ScalarAPI() {
 
@@ -1570,7 +1570,7 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 					};
 					break;
 
-					case 'referee':
+					case 'reference':
 					completeRelationData[this.id] = {
 						action: 'RELATE',
 						native: baseProperties.native,
@@ -1687,7 +1687,7 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 					};
 					break;
 
-					case 'referee':
+					case 'reference':
 					completeRelationData[this.id] = {
 						action: 'RELATE',
 						native: baseProperties.native,
@@ -1951,7 +1951,7 @@ ScalarAPI.prototype.handleNodeExistsSuccess = function(json) {
  * @param   allVersions         If true, will return all versions - else, returns only current version
  * @return						A string indicating the state of the request.
  */
-ScalarAPI.prototype.loadNode = ScalarAPI.prototype.loadPage = function(uriSegment, forceReload, successCallback, errorCallback, depth, references, relation, start, results, provenance, allVersions) {
+ScalarAPI.prototype.loadNode = ScalarAPI.prototype.loadPage = function(uriSegment, forceReload, successCallback, errorCallback, depth, references, relation, start, results, provenance, allVersions, includeMetadata) {
 
 	var url = this.model.urlPrefix+uriSegment;
 	var node = this.model.nodesByURL[this.model.urlPrefix+uriSegment];
@@ -1985,7 +1985,10 @@ ScalarAPI.prototype.loadNode = ScalarAPI.prototype.loadPage = function(uriSegmen
 
 	var versions = (allVersions === true)?1:0;
 	queryString += '&versions='+versions;
-
+	
+	includeMetadata = ('undefined'!=typeof(includeMetadata) && false === includeMetadata) ? false : true;
+	if (!includeMetadata) queryString += '&meta=0';
+	
 	if (this.loadPageStatus[url] == null) {
 		this.loadPageStatus[url] = {isLoading:false, queuedSuccessCallbacks:[], queuedErrorCallbacks:[]};
 	}
@@ -2073,7 +2076,7 @@ ScalarAPI.prototype.parsePage = function(json) {
  * @param	relation			If true, will return only relations of the named type
  * @return						A string indicating the state of the request.
  */
-ScalarAPI.prototype.loadCurrentNode = ScalarAPI.prototype.loadCurrentPage = function(forceReload, successCallback, errorCallback, depth, references, relation) {
+ScalarAPI.prototype.loadCurrentNode = ScalarAPI.prototype.loadCurrentPage = function(forceReload, successCallback, errorCallback, depth, references, relation, includeMetadata) {
 
 	// TODO: Potentially rejigger this to call loadPage or loadMedia
 
@@ -2090,6 +2093,8 @@ ScalarAPI.prototype.loadCurrentNode = ScalarAPI.prototype.loadCurrentPage = func
 	if (relation != null) {
 		queryString += '&res='+relation;
 	}
+	includeMetadata = ('undefined'!=typeof(includeMetadata) && false === includeMetadata) ? false : true;
+	if (!includeMetadata) queryString += '&meta=0';
 
 	// if we're forcing the data to load, or if the data hasn't already been loaded, then
 	if (forceReload || (this.model.currentPageNode == null)) {
@@ -2270,7 +2275,7 @@ ScalarAPI.prototype.parseBook = function(json) {
  * @param	hidden				Include results where live is set to 0
  * @return						A string indicating the state of the request.
  */
-ScalarAPI.prototype.loadNodesByType = ScalarAPI.prototype.loadPagesByType = function(type, forceReload, successCallback, errorCallback, depth, references, relation, start, results, hidden) {
+ScalarAPI.prototype.loadNodesByType = ScalarAPI.prototype.loadPagesByType = function(type, forceReload, successCallback, errorCallback, depth, references, relation, start, results, hidden, includeMetadata) {
 
 	var nodes = this.model.getNodesWithProperty('scalarType', type);
 
@@ -2296,6 +2301,8 @@ ScalarAPI.prototype.loadNodesByType = ScalarAPI.prototype.loadPagesByType = func
 	if (hidden != null) {  // Added by Craig 21 July 2014
 		queryString += '&hidden='+hidden;
 	}
+	includeMetadata = ('undefined'!=typeof(includeMetadata) && false === includeMetadata) ? false : true;
+	if (!includeMetadata) queryString += '&meta=0';
 
 	// if we're forcing the data to load, no nodes of the given type have already been loaded, or pagination settings are active, then
 	if (forceReload || (nodes.length == 0) || (start != null) || (results != null)) {
@@ -2344,7 +2351,7 @@ ScalarAPI.prototype.loadNodesByType = ScalarAPI.prototype.loadPagesByType = func
  * @param	type				Only search in specific content types
  * @return						A string indicating the state of the request.
  */
-ScalarAPI.prototype.nodeSearch = function(sq, successCallback, errorCallback, depth, references, relation, start, results, hidden, type, searchMetadata) {
+ScalarAPI.prototype.nodeSearch = function(sq, successCallback, errorCallback, depth, references, relation, start, results, hidden, type, searchMetadata, includeMetadata) {
 
 	var queryString = 'sq='+encodeURIComponent(sq)+'&format=json';
 
@@ -2375,6 +2382,8 @@ ScalarAPI.prototype.nodeSearch = function(sq, successCallback, errorCallback, de
 	if (searchMetadata != null) {
 		queryString += '&s_all=1';
 	}
+	includeMetadata = ('undefined'!=typeof(includeMetadata) && false === includeMetadata) ? false : true;
+	if (!includeMetadata) queryString += '&meta=0';
 
 	$.ajax({
 		type:"GET",
@@ -2503,7 +2512,7 @@ function ScalarModel(options) {
 	this.relationTypes = {
 		'tag':{id:'tag', body:'tag', bodyPlural:'tags', target:'item', targetPlural:'items', incoming:'has', outgoing:'tags'},
 		'path':{id:'path', body:'path', bodyPlural:'paths', target:'item', targetPlural:'items', incoming:'contained by', outgoing:'contains'},
-		'referee':{id:'referee', body:'item', bodyPlural:'items', target:'media file', targetPlural:'media files', incoming:'referenced by', outgoing:'references'},
+		'reference':{id:'reference', body:'item', bodyPlural:'items', target:'media file', targetPlural:'media files', incoming:'referenced by', outgoing:'references'},
 		'annotation':{id:'annotation', body:'annotation', bodyPlural:'annotations', target:'item', targetPlural:'items', incoming:'annotated by', outgoing:'annotates'},
 		'comment':{id:'comment', body:'comment', bodyPlural:'comments', target:'item', targetPlural:'items', incoming:'has', outgoing:'is a comment on'},
 		'commentary':{id:'commentary', body:'commentary', bodyPlural:'commentaries', target:'item', targetPlural:'items', incoming:'has', outgoing:'is a commentary on'},
@@ -3105,7 +3114,7 @@ ScalarNode.prototype.parseRelations = function() {
 			target = scalarapi.model.nodesByURL[scalarapi.stripAllExtensions(arr[i].value)];
 			anchorVars = scalarapi.getAnchorVars(arr[i].value);
 			if ((body && target) && (scalarapi.model.relationsById[body.url+target.url] == null)) {
-				relation = new ScalarRelation(null, body, target, scalarapi.model.relationTypes.referee);
+				relation = new ScalarRelation(null, body, target, scalarapi.model.relationTypes.reference);
 				//scalarapi.model.relations.push(relation);
 				scalarapi.model.relationsById[relation.id] = relation;
 				for (var prop in anchorVars) {
@@ -3181,10 +3190,10 @@ ScalarNode.prototype.addRelation = function(relation) {
 				this.outgoingRelations.push(relation);
 			}
 
-			// 'referee' is not a Scalar type, so don't track it
+			// 'reference' is not a Scalar type, so don't track it
 			// the 'author', 'commentator' and 'reviewer' types all get assigned
 			// to the target, not the body
-			if ((relation.type.id != 'referee') && (relation.type.id != 'author') && (relation.type.id != 'commentator') && (relation.type.id != 'reviewer') && (!this.scalarTypes[relation.type.id])) {
+			if ((relation.type.id != 'reference') && (relation.type.id != 'author') && (relation.type.id != 'commentator') && (relation.type.id != 'reviewer') && (!this.scalarTypes[relation.type.id])) {
 				this.scalarTypes[relation.type.id] = scalarapi.model.scalarTypes[relation.type.id];
 			}
 
@@ -3305,7 +3314,6 @@ ScalarNode.prototype.getDominantScalarType = function( preferredType ) {
 			break;
 
 			case 'reference':
-			case 'referee':
 			// ignore
 			break;
 
@@ -3514,7 +3522,7 @@ ScalarNode.prototype.isRelatedToNode = function( node, relations ) {
 	}
 
 	if ( relations == null ) {
-		relations = [ "tag", "path", "referee", "annotation", "comment" ]
+		relations = [ "tag", "path", "reference", "annotation", "comment" ]
 	}
 
 	for ( var i in relations ) {
@@ -3690,7 +3698,7 @@ ScalarVersion.prototype.parseRelations = function() {
 			body = scalarapi.model.nodesByURL[this.isVersionOf];
 			target = scalarapi.model.nodesByURL[arr[i].value];
 			if (body && target) {
-				relation = new ScalarRelation(null, body, target, scalarapi.model.relationTypes.referee);
+				relation = new ScalarRelation(null, body, target, scalarapi.model.relationTypes.reference);
 				//scalarapi.model.relations.push(relation);
 				scalarapi.model.relationsById[relation.id] = relation;
 			}
@@ -3704,7 +3712,7 @@ ScalarVersion.prototype.parseRelations = function() {
 			body = scalarapi.model.nodesByURL[arr[i].value];
 			target = scalarapi.model.nodesByURL[this.isVersionOf];
 			if (body && target) {
-				relation = new ScalarRelation(null, body, target, scalarapi.model.relationTypes.referee);
+				relation = new ScalarRelation(null, body, target, scalarapi.model.relationTypes.reference);
 				//scalarapi.model.relations.push(relation);
 				scalarapi.model.relationsById[relation.id] = relation;
 			}
