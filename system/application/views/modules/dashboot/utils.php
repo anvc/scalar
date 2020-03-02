@@ -93,6 +93,7 @@ $(document).ready(function() {
 		<li class="admin" data-id="recreate-book-folders"><a href="?book_id=<?=((isset($book) && !empty($book))?$book->book_id:'0')?>&zone=utils&pill=recreate-book-folders#tabs-utils">Recreate book folders</a></li>
 		<li class="admin" data-id="list-all-users"><a href="?book_id=<?=((isset($book) && !empty($book))?$book->book_id:'0')?>&zone=utils&pill=list-all-users#tabs-utils">List all users</a></li>
 		<li class="admin" data-id="list-all-books"><a href="?book_id=<?=((isset($book) && !empty($book))?$book->book_id:'0')?>&zone=utils&pill=list-all-books#tabs-utils">List all books</a></li>
+		<li class="admin" data-id="normalize-id2val"><a href="?book_id=<?=((isset($book) && !empty($book))?$book->book_id:'0')?>&zone=utils&pill=normalize-id2val#tabs-utils">Normalize id2val table</a></li>
 <? endif ?>
 	  </ul>
     </aside>
@@ -646,6 +647,28 @@ $(document).ready(function() {
 			<input type="button" value="Generate" class="btn btn-primary" onclick="this.disabled=true;$(this).parent().find('form:first').trigger('submit');" />
     	<?php endif; ?>
     	</div>
+    	<div class="section" id="normalize-id2val">
+    	<?php if ('normalize-id2val'==$pill): ?>
+			<form action="<?=confirm_slash(base_url())?>system/dashboard?book_id=<?=((isset($book)&&!empty($book))?$book->book_id:0)?>&zone=utils&pill=normalize-id2val#tabs-utils" method="post">
+			<input type="hidden" name="zone" value="utils" />
+			<input type="hidden" name="action" value="normalize_predicate_table" />
+			<h4>Normalize id2val table</h4>
+			Will remove duplicates from the ARC2 id2val table so that predicate searches work as expected.<br /><br />
+			<div class="div_list"><?php
+			if (!isset($normalize_predicate_table)) {
+				
+			} elseif (empty($normalize_predicate_table)) {
+				echo 'No book folders required recreating';
+			} else {
+				echo implode("<br />\n", $normalize_predicate_table);
+			}
+			echo '</div>'."\n";
+			echo '</form>'."\n";
+			?>
+			<br />
+			<input type="button" value="Normalize" class="btn btn-primary" onclick="this.disabled=true;$(this).parent().find('form:first').trigger('submit');" />
+    	<?php endif; ?>
+    	</div>    	
     </section>
   </div>
 </div>

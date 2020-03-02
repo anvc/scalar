@@ -671,6 +671,36 @@ class Version_model extends MY_Model {
     	return false;
 
     }
+    
+    /**
+     * Remove duplicates from id2val table
+     */
+    public function normalize_predicate_table() {
+    	
+    	$predicate_lowest_id = array();
+    	$query = $this->db->query("SELECT * FROM scalar_store_id2val");
+    	$results = $query->result();
+    	foreach ($results as $row) {
+    		$id = (int) $row->id;
+    		$p = $row->val;
+    		if (!array_key_exists($p, $predicate_lowest_id)) {
+    			$predicate_lowest_id[$p] = $id;
+    		} else {
+    			if ($id < $predicate_lowest_id[$p]) $predicate_lowest_id[$p] = $id;
+    		}
+    	}
+    	foreach ($results as $row) {
+    		$id = (int) $row->id;
+    		$p = $row->val;
+    		$should_be_id = (int) $predicate_lowest_id[$p];
+    		if ($id != $should_be_id) {
+    			$query = $this->db->query("DELETE FROM scalar_store_id2val WHERE id = ".$id);
+    			$query = $this->db->query("UPDATE scalar_store_triple SET p = ".$should_be_id." WHERE p = ".$id);
+    		}
+    	}
+    	return $predicate_lowest_id;
+    	
+    }
 
 }
 ?>

@@ -575,6 +575,12 @@ class System extends MY_Controller {
 					}
 					unset($books);
 					break;
+				case "normalize_predicate_table":  // Admin: Tools
+					if (!$this->data['login_is_super']) $this->kickout();
+					$predicates = $this->versions->normalize_predicate_table();
+					$this->data['normalize_predicate_table'] = array_keys($predicates);
+					unset($predicates);
+					break;
 		 	}
 	 	} catch (Exception $e) {
 			show_error($e->getMessage());
