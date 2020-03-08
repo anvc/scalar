@@ -111,6 +111,7 @@ if ('json'==$format) {
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+		if (!empty($_SERVER['SERVER_NAME'])) curl_setopt($ch, CURLOPT_REFERER, $_SERVER['SERVER_NAME']);
 		$response = curl_exec($ch);
 		curl_close($ch);
 		$json = json_decode($response, true);
