@@ -74,6 +74,30 @@ class RDF_Store {
 		return $rs['result'][$urn];
 
     }
+    
+    /**
+     * Select based on a predicate
+     */
+    
+    public function get_urns_from_predicate($p='') {
+    	
+    	if (strstr($p, '//')) {
+    		$p = '<' . $p . '>';
+    	}
+    	$q = 'PREFIX dcterms:  <http://purl.org/dc/terms/> .
+              SELECT *
+              WHERE {
+                ?s '.$p.' ?o .
+             }';
+    	$rows = $this->store->query($q, 'rows');
+    	if (!is_array($rows)) return false;
+    	$return = array();
+    	foreach ($rows as $row) {
+    		$return[] = $row['s'];
+    	}
+    	return $return;
+    	
+    }
 
 	/**
 	 * Save an array of fields and values for a single node by URN
@@ -127,15 +151,15 @@ class RDF_Store {
 
 		if (empty($urn)) return true;
 
-		 $q = 'DELETE {
+		$q = 'DELETE {
 				<'.$urn.'> ?p ?o .
-		 }';
-		 $done = $this->store->query($q);
-		 if ($errs = $this->store->getErrors()) {
-			 print_r($errs);
-		 }
+		}';
+		$done = $this->store->query($q);
+		if ($errs = $this->store->getErrors()) {
+			print_r($errs);
+		}
 
-		 return true;
+		return true;
 
 	}
 
