@@ -551,6 +551,18 @@ function YouTubeGetID(url){
 					}
 					promise = $.Deferred();
 					pendingDeferredMedia.OpenSeadragon.push(promise);
+          
+        }else if(typeof Mirador === 'undefined' && this.model.mediaSource.contentType == 'manifest'){
+					if(typeof pendingDeferredMedia.Mirador == 'undefined'){
+						pendingDeferredMedia.Mirador = [];
+						$.getScript(widgets_uri+'/mediaelement/mirador.min.js',function(){
+							for(var i = 0; i < pendingDeferredMedia.Mirador.length; i++){
+									pendingDeferredMedia.Mirador[i].resolve();
+							}
+						});
+					}
+					promise = $.Deferred();
+					pendingDeferredMedia.Mirador.push(promise);
 
 				}else if(typeof $f === 'undefined' && this.model.mediaSource.contentType == 'video' && (player == 'Flash' || (player == 'proprietary' && this.model.mediaSource.name == 'HIDVL'))){
 					if(typeof pendingDeferredMedia.Flowplayer == 'undefined'){
@@ -1119,13 +1131,13 @@ function YouTubeGetID(url){
 				if (!isCulturallySensitive) {
 
 					switch (this.model.mediaSource.contentType) {
-
+          
 						case '3D':
 						if (player == 'Threejs') {
 							this.mediaObjectView = new $.ThreejsObjectView(this.model, this);
 						}
 						break;
-
+          
 						case 'image':
 						if (player == 'QuickTime') {
 							this.mediaObjectView = new $.QuickTimeObjectView(this.model, this);
@@ -1133,11 +1145,15 @@ function YouTubeGetID(url){
 							this.mediaObjectView = new $.ImageObjectView(this.model, this);
 						}
 						break;
-
+          
 						case 'tiledImage':
 							this.mediaObjectView = new $.DeepZoomImageObjectView(this.model, this);
 						break;
-
+          
+            case 'manifest':
+              this.mediaObjectView = new $.MiradorObjectView(this.model, this);
+            break;
+          
 						case 'audio':
 						if (this.model.mediaSource.name == 'SoundCloud') {
 							this.mediaObjectView = new $.SoundCloudAudioObjectView(this.model, this);
@@ -1151,7 +1167,7 @@ function YouTubeGetID(url){
 						break;
 						case 'video':
 						switch (player) {
-
+          
 							case 'QuickTime':
 								if (this.model.mediaSource.name == 'QuickTimeStreaming') {
 									this.mediaObjectView = new $.StreamingQuickTimeObjectView(this.model, this);
@@ -1159,46 +1175,46 @@ function YouTubeGetID(url){
 									this.mediaObjectView = new $.QuickTimeObjectView(this.model, this);
 								}
 							break;
-
+          
 							case 'Flash':
 								this.mediaObjectView = new $.FlowplayerVideoObjectView(this.model, this);
 							break;
-
+          
 							case 'native':
 								this.mediaObjectView = new $.HTML5VideoObjectView(this.model, this);
 								if ($('.book-title').children('[data-semantic-annotation-tool="true"]').length) {
 									this.mediaObjectView = new $.SemanticAnnotationToolObjectView(this.model, this);
 								}
 							break;
-
+          
 							case 'proprietary':
 							switch (this.model.mediaSource.name) {
-
+          
 								case 'HIDVL':
 								this.mediaObjectView = new $.HemisphericInstituteVideoObjectView(this.model, this);
 								break;
-
+          
 								case 'Vimeo':
 								this.mediaObjectView = new $.VimeoVideoObjectView(this.model, this);
 								break;
-
+          
 								case 'YouTube':
 								this.mediaObjectView = new $.YouTubeVideoObjectView(this.model, this);
 								break;
-
+          
 							}
 							break;
-
+          
 							default:
 							this.mediaObjectView = new $.UnsupportedObjectView(this.model, this);
 							break;
-
+          
 						}
 						break;
-
+          
 						case 'map':
 						switch (this.model.mediaSource.name) {
-
+          
 							case 'HyperCities':
 							if ((this.model.options.header == 'nav_bar') || (this.model.meta == scalarapi.stripAllExtensions(window.location.href)) || this.model.options.height) {
 								this.mediaObjectView = new $.HyperCitiesObjectView(this.model, this);
@@ -1209,29 +1225,29 @@ function YouTubeGetID(url){
 								this.model.path = this.model.mediaelement_dir +'hypercities_card.gif';
 							}
 							break;
-
+          
 							case 'KML':
 							this.mediaObjectView = new $.GoogleMapsObjectView(this.model, this);
 							break;
-
+          
 							default:
 							this.mediaObjectView = new $.UnsupportedObjectView(this.model, this);
 							break;
-
+          
 						}
 						break;
-
+          
 						case 'document':
 						switch (this.model.mediaSource.name) {
-
+          
 							case 'HTML':
 							this.mediaObjectView = new $.HTMLObjectView(this.model, this);
 							break;
-
+          
 							case 'PDF':
 							this.mediaObjectView = new $.PDFObjectView(this.model, this);
 							break;
-
+          
 							case 'PlainText':
 							var queryVars = scalarapi.getQueryVars( this.model.path );
 							if ( queryVars.lang != null ) {
@@ -1240,18 +1256,18 @@ function YouTubeGetID(url){
 								this.mediaObjectView = new $.TextObjectView(this.model, this);
 							}
 							break;
-
+          
 							case 'SourceCode':
 							this.mediaObjectView = new $.SourceCodeObjectView(this.model, this);
 							break;
-
+          
 							case 'Prezi':
 							this.mediaObjectView = new $.PreziObjectView(this.model, this);
 							break;
-
+          
 						}
 						break;
-
+          
 						default:
 						this.mediaObjectView = new $.UnsupportedObjectView(this.model, this);
 						break;
@@ -5485,6 +5501,63 @@ function YouTubeGetID(url){
 		jQuery.DeepZoomImageObjectView.prototype.resize = function(width, height) {
 			$('#openseadragon'+me.model.id).width(Math.round(width));
 			$('#openseadragon'+me.model.id).height(Math.round(height));
+		}
+
+	}
+  
+  /**
+	 * View for IIIF manifest (Mirador) content.
+	 * @constructor
+	 *
+	 * @param {Object} model		Instance of the model.
+	 * @param {Object} parentView	Primary view for the media element.
+	 */
+	jQuery.MiradorObjectView = function(model, parentView) {
+
+		var me = this;
+
+		this.model = model;  					// instance of the model
+		this.parentView = parentView;   		// primary view for the media element
+		this.isLiquid = true;					// media will expand to fill available space
+
+		/**
+		 * Creates the video media object.
+		 */
+		jQuery.MiradorObjectView.prototype.createObject = function() {
+
+			var approot = $('link#approot').attr('href');
+
+			this.mediaObject = $( '<div class="mediaObject" id="mirador"></div>' ).appendTo( this.parentView.mediaContainer );
+      
+      var miradorInstance = Mirador.viewer({
+        id: 'mirador',
+        windows: [
+          { manifestId: this.model.node.current.sourceFile }
+        ]
+      });
+
+			this.parentView.layoutMediaObject();
+			this.parentView.removeLoadingMessage();
+
+			return;
+		}
+
+		// These functions are basically irrelevant for this type of media
+		jQuery.MiradorObjectView.prototype.play = function() { }
+		jQuery.MiradorObjectView.prototype.pause = function() { }
+		jQuery.MiradorObjectView.prototype.seek = function(time) { }
+		jQuery.MiradorObjectView.prototype.getCurrentTime = function() { }
+		jQuery.MiradorObjectView.prototype.isPlaying = function(value, player_id) { return null; }
+
+		/**
+		 * Resizes the media to the specified dimensions.
+		 *
+		 * @param {Number} width		The new width of the media.
+		 * @param {Number} height		The new height of the media.
+		 */
+		jQuery.MiradorObjectView.prototype.resize = function(width, height) {
+			$('#mirador').width(Math.round(width));
+			$('#mirador').height(Math.round(height));
 		}
 
 	}
