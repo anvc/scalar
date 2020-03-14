@@ -465,7 +465,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				className: 'content_selector_bootbox',
 				animate: true // This must remain true for iOS, otherwise the wysiwyg selection goes away
 			});
-			$('.bootbox').find('.modal-title').addClass('heading_font');
+			$('.bootbox').find('.modal-title').addClass('heading_font').css('font-size','2rem');
 			// Default content
 			var $content = $('<div class="content"></div>').appendTo($wrapper);
 			var $nodeCount;
@@ -1405,9 +1405,21 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			if (doSearch) {
 				url += "&sq=" + search;
 			};
-			if (!opts.includeMetadata) {
-				url += '&meta=0';
-			};
+			if (opts.s_all) {
+				url += '&meta=1';
+				url += '&s_all=1';
+			} else {
+				if ('search' == lastLoadType && $('#content_selector_s_all').is(':checked')) {
+					url += '&meta=1';
+					url += '&s_all=1';					
+				} else if (opts.includeMetadata) {
+					url += '&meta=1';
+					url += '&s_all=0';
+				} else {
+					url += '&meta=0';
+					url += '&s_all=0';					
+				}
+			}
 			if (!doSearch && typeof loaded_nodeLists[type] !== "undefined" && options.page == 0) {
 				promise.resolve();
 			} else {
@@ -1597,15 +1609,16 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 		var dialogue_container = '<div class="panel-default node_selector"> \
 																	<div class="panel-heading"> \
 																		<div class="row"> \
-																			<div class="col-sm-5 col-md-4 node_filter"> \
+																			<div class="col-xs-3 node_filter"> \
 																				<div class="node_types"> \
 																					<select class="btn btn-default generic_button large"></select> \
 																					<div class="filter_spinner form-control"><div class="spinner_container"></div></div> \
 																					<br class="visible-xs"> \
 																				</div> \
 																			</div> \
-																			<div class="col-sm-6 col-sm-offset-1 col-md-5 col-md-offset-3"> \
-																				<div class="input-group node_search"> \
+																			<div class="col-xs-9" style="text-align:right;"> \
+																				<div class="caption_font col-xs-12 col-md-7" onmouseover="$(this).css(\'color\',\'#444444\')" onmouseout="$(this).css(\'color\',\'#aaaaaa\')" style="font-size:14px; color:#aaaaaa; text-align:right; padding-top:5px;">Search: &nbsp; <label for="content_selector_s_not_all" style="font-weight:normal;"><input tabindex="9002" type="radio" id="content_selector_s_not_all" name="s_all" value="0" checked=""> &nbsp;title &amp; description</label> &nbsp; <label for="content_selector_s_all" style="font-weight:normal;"><input tabindex="9003" type="radio" id="content_selector_s_all" name="s_all" value="1"> &nbsp;all fields &amp; metadata</label></div> \
+																				<div class="input-group node_search col-xs-12 col-md-5"> \
 																					<input type="text" class="form-control" placeholder="Search by title or description"> \
 																					<span class="input-group-btn"> \
 																						<button class="btn btn-default" type="button"> \
