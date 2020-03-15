@@ -60,6 +60,7 @@ function jsonToXMLNodes($row) {
 	if (!is_array($row)) return $return;
 	foreach ($row as $field => $value) {
 		if (is_numeric($field)) $field = 'node';
+		if (is_numeric(substr($field, 0, 1))) $field = 'node_'.$field;
 		$field = str_replace(' ','_',$field);
 		$field = str_replace('@','',$field);
 		$field = str_replace('#','',$field);
