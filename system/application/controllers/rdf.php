@@ -152,7 +152,7 @@ class Rdf extends MY_Controller {
 	}
 
 	/**
-	 * Output information about a page
+	 * Get pages based on queries of the semantic (ARC) tables
 	 */
 	
 	public function query() {
@@ -176,30 +176,11 @@ class Rdf extends MY_Controller {
 		$this->load->library('RDF_Store', 'rdf_store');
 		switch ($method) {
 			case 'hasPredicate':
-				$version_urns = $this->rdf_store->get_urns_from_predicate($value);
+				$content = $this->versions->get_by_predicate($this->data['book']->book_id, $value, $this->data['versions']);
 				break;
 			default:
 				header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));
 				exit;
-		}
-		rsort($version_urns, SORT_NATURAL);
-		$content = array();
-		foreach ($version_urns as $version_urn) {
-			$version_urn_arr = explode(':', $version_urn);
-			$version_id = (int) array_pop($version_urn_arr);
-			$version = $this->versions->get($version_id);
-			if (!isset($content[$version->content_id])) {
-				$row = $this->pages->get($version->content_id);
-				if (empty($row)) continue;
-				$row->versions = array();
-				$content[$row->content_id] = $row;
-			}
-			$content[$version->content_id]->versions[] = $version;
-		}
-		if (!$this->data['versions']) {
-			foreach ($content as $content_id => $row) {
-				$content[$content_id]->versions = array(reset($content[$content_id]->versions));
-			}
 		}
 		$this->rdf_object->index(
 				$this->data['content'],
@@ -372,6 +353,16 @@ class Rdf extends MY_Controller {
 		$this->template->render();
 		
 	}
+	
+	/**
+	 * Output a page's lens JSON
+	 */
+	
+	public function lens() {
+		
+		// TODO
+		
+	}
 
 	/**
 	 * Output information about a group of pages based on class name
@@ -417,6 +408,9 @@ class Rdf extends MY_Controller {
 				case 'reference':
 					$this->load->model($class.'_model', plural($class));
 					$model = plural($class);
+					break;
+				case 'lens':
+					// TODO
 					break;
 				case 'hidden':
 					if (!$this->data['login'] || !$this->login_is_book_admin()) {

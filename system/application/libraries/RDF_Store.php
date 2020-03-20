@@ -79,17 +79,29 @@ class RDF_Store {
      * Select based on a predicate
      */
     
-    public function get_urns_from_predicate($p='') {
+    public function get_urns_from_predicate($p='', $in_version_urns=array()) {
     	
     	if (strstr($p, '//')) {
     		$p = '<' . $p . '>';
     	}
+    	
+    	$list = array();
+    	foreach ($in_version_urns as $urn) {
+    		$list[] = '?s = "'.$urn.'"';
+    	}
+    	
     	$q = 'PREFIX dcterms:  <http://purl.org/dc/terms/> .
               SELECT *
-              WHERE {
-                ?s '.$p.' ?o .
-             }';
-    	$rows = $this->store->query($q, 'rows');
+              WHERE {';
+		$q .=  '
+               { ?s '.$p.' ?o . }';
+		$q .= '
+              FILTER ('.implode(' || ',$list).')';
+    	$q .= '
+              }';
+
+
+    	$rows = $this->store->query($q, 'rows');    	
     	if (!is_array($rows)) return false;
     	$return = array();
     	foreach ($rows as $row) {

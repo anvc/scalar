@@ -311,6 +311,49 @@ class Version_model extends MY_Model {
     	return $return;
     	
     }
+    
+    /**
+     * Search the ARC tables for versions that have a certain predicate
+     */
+    public function get_by_predicate($book_id=0, $p='', $all_versions=false, $id_array=null) {
+    	
+    	$ci =& get_instance();
+    	
+    	// Get all URNs in the book
+    	$book_version_urns = array();
+    	$pages = $ci->pages->get_all($book_id, null, null, true, $id_array);
+    	for ($j = 0; $j < count($pages); $j++) {
+    		$pages[$j]->versions = array($this->get_single($pages[$j]->content_id, $pages[$j]->recent_version_id, $sq='', false));
+    		for ($k = 0; $k < count($pages[$j]->versions); $k++) {
+    			$book_version_urns[] = $this->urn($pages[$j]->versions[$k]->version_id);
+    		}
+    	}
+    	
+    	// Get all URNs that have the predicate
+    	$version_urns = $ci->rdf_store->get_urns_from_predicate($p, $book_version_urns);
+
+    	rsort($version_urns, SORT_NATURAL);
+    	$content = array();
+    	foreach ($version_urns as $version_urn) {
+    		$version_urn_arr = explode(':', $version_urn);
+    		$version_id = (int) array_pop($version_urn_arr);
+    		$version = $this->versions->get($version_id);
+    		if (!isset($content[$version->content_id])) {
+    			$row = $this->pages->get($version->content_id);
+    			if (empty($row)) continue;
+    			$row->versions = array();
+    			$content[$row->content_id] = $row;
+    		}
+    		$content[$version->content_id]->versions[] = $version;
+    	}
+    	if (!$this->data['versions']) {
+    		foreach ($content as $content_id => $row) {
+    			$content[$content_id]->versions = array(reset($content[$content_id]->versions));
+    		}
+    	}
+    	return $content;
+    	
+    }
 
 	/**
 	 * Return true of the owner ("user") of a version is the passed user ID
