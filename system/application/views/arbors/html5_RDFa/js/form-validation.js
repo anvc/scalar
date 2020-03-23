@@ -117,7 +117,7 @@ function validate_upload_form($form, obj) {
 }
 
 function validate_edit_form(form, no_action) {
-
+  
 	no_action = ('undefined'==typeof(no_action) || !no_action) ? false : true; // Don't load the saved page after saving
 
 	var check_fields = function() {
@@ -136,6 +136,9 @@ function validate_edit_form(form, no_action) {
 				return false;
 			}
 		}
+    if ($('#media_file_url_iiif')){
+      $('#media_file_url_iiif').val = $('#media_file_url_iiif').checked === true ? 1 : 0;
+    }
 		return true;
 	};
 
@@ -254,6 +257,10 @@ function send_form($form, additional_values, success, redirect_url) {
 			}
 		}
 	}
+  
+  if (values['iiif-url'] && values['iiif-url'] === "on") { // if user indicates the url is a iiif manifest
+    values['scalar:url'] = values['scalar:url'].concat('?iiif-manifest=1');
+  } 
 
 	if ('undefined'==typeof(success) || null==success) {
 		success = function(version) {

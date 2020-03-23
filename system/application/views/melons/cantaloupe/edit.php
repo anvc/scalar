@@ -899,6 +899,11 @@ if($currentRole == 'commentator'){
 	</div>
 <? endif ?>
 </div>
+<div class="type_media form-horizontal<?=$canChangeState?'':' editingDisabled'?>">
+	<div class="checkbox">
+		<label><input type="checkbox" id="media_file_url_iiif" name="iiif-url" /> Is IIIF Manifest</label>	
+	</div>
+</div>
 <table>
 <tr id="edit_content" class="p type_composite<?=$canChangeState?'':' editingDisabled'?>">
 	<td colspan="2">
