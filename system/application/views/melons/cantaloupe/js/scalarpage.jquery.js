@@ -462,9 +462,61 @@
                 temp.remove();
 
             },
+            
+            addInlineNoteElementForLink: function(link) {
+            	
+            	link.wrap('<div class="inlineNoteBody body_copy"></div>');
+            	link.text('Go to note').attr('href', $('link#parent').attr('href')+link.attr('resource'));
+            	var wrapper = link.parent();
+            	var slug = link.attr('resource');
+            	var show = {title:false,description:false,content:true};
+            	if (link.data('show-title') == 'yes') show.title = true;
+            	if (link.data('show-description') == 'yes') show.description = true;
+            	if (link.data('show-content') != 'yes') show.content = false;
+            	var size = link.data('size');
+            	var wrap = link.data('text-wrap');
+            	var align = link.data('align');
+            	switch (size) {
+            		case "small":
+            			wrapper.css('max-width', '350px');
+            			break;
+            		case "medium":
+            			wrapper.css('max-width', '550px');
+            			break;
+            	}
+            	if (wrap == 'wrap-text-around-media' && size != 'full') {
+                	switch (align) {
+	            		case "right":
+	            			wrapper.css('float', 'right');
+	            			break;
+	            		default:
+	            			wrapper.css('float', 'left');
+	            	}           		
+            	}
+            	scalarapi.loadNode(slug, true, function(node) {
+            		for (uri in node) {
+            			var version_uri = node[uri]['http://purl.org/dc/terms/hasVersion'][0].value;
+            			var version = node[version_uri];
+            			if (show.content && 'undefined' != typeof(version['http://rdfs.org/sioc/ns#content'])) {
+            				var content = version['http://rdfs.org/sioc/ns#content'][0].value;
+            				wrapper.prepend('<div class="content">'+content+'</div>');
+            			};
+            			if (show.description && 'undefined' != typeof(version['http://purl.org/dc/terms/description'])) {
+            				var description = version['http://purl.org/dc/terms/description'][0].value;
+            				wrapper.prepend('<div class="description">'+description+'</div>');
+            			};
+            			if (show.title && 'undefined' != typeof(version['http://purl.org/dc/terms/title'])) {
+            				var title = version['http://purl.org/dc/terms/title'][0].value;
+            				wrapper.prepend('<div class="title">'+title+'</div>');
+            			};
+            			break;
+            		}
+            	});
+            },
 
             addMediaElementForLink: function(link, parent, height, baseOptions) {
 
+            	console.log(link);
                 var inline = link.hasClass('inline'),
                     size = link.attr('data-size'),
                     align = link.attr('data-align');
@@ -528,7 +580,7 @@
                 // create the slot where the media will be added
                 slot = link.slotmanager_create_slot(width, height, options);
 
-                // if the slot was successfully created,
+                // slot was successfully created
                 if (slot) {
 
                     // hide the media element until we get it fully set up (after its metadata has loaded)
@@ -1536,21 +1588,26 @@
                 mediaLinks = [];
 
                 $(element).find('a').each(function() {
-                    if ((($(this).attr('resource') != null) || // linked media
-                            ($(this).find('[property="art:url"]').length > 0) || // inline media
-                            (($(this).parents('.annotation_of').length > 0) && ($(this).parent('span[property="dcterms:title"]').length > 0)) || // annotated media
-                            (includeWidgets && $(this).data('widget') != undefined)) //self-referential widget
-                        && ($(this).attr('rev') != 'scalar:has_note') && ($(this).attr('data-relation') == null)) {
-                        if ($(this).data('widget') != undefined) {
-                            if (includeWidgets !== true) {
-                                return;
-                            } else {
-                                $(this).addClass('widget_link');
-                            }
+                	var $this = $(this);
+                    if (
+                    (($this.attr('resource') != null) || // linked media
+                    ($this.find('[property="art:url"]').length > 0) || // inline media
+                    (($this.parents('.annotation_of').length > 0) && ($this.parent('span[property="dcterms:title"]').length > 0)) || // annotated media
+                    (includeWidgets && $this.data('widget') != undefined)) // self-referential widget
+                    && ($this.attr('rev') != 'scalar:has_note') && ($this.attr('data-relation') == null) // not a note
+                    ) {
+                        if ($this.data('widget') != undefined) {
+                        	if (includeWidgets !== true) {
+                        		return;
+                        	} else {
+                        		$this.addClass('widget_link');
+                        	}
                         } else {
-                            $(this).addClass('media_link');
+                        	$this.addClass('media_link');
                         }
-                        mediaLinks.push($(this));
+                        mediaLinks.push($this);
+                    } else if ($this.hasClass('inlineNote')) { // inline note
+                    	mediaLinks.push($this);
                     }
                 });
 
@@ -1953,22 +2010,26 @@
                                 page.structuredGallery.addMedia();
                             }
                             var mediaLinks = page.getMediaLinks($('article > span[property="sioc:content"],.relationships > .annotation_of'), true);
-
+                            
                             $(mediaLinks).each(function() {
                                 if ($(this).parents('widget_carousel').length > 0) {
                                     return;
                                 }
-                                if ($(this).hasClass('widget_link')) {
+                                if ($(this).hasClass('inlineNote')) {
+                                	page.addInlineNoteElementForLink($(this));
+                                } else if ($(this).hasClass('widget_link')) {
                                     if ($(this).data('slot') !== undefined) {
                                         $(this).data('slot').remove();
                                     }
                                     widgets.handleWidget($(this));
                                 } else {
-                                    if ((($(this).attr('resource') != null) || // linked media
-                                            ($(this).find('[property="art:url"]').length > 0) || // inline media
-                                            (($(this).parents('.annotation_of').length > 0) && ($(this).parent('span[property="dcterms:title"]').length > 0))) // annotated media
-                                        && ($(this).attr('rev') != 'scalar:has_note') && ($(this).attr('data-relation') == null)) {
-
+                                    if (
+                                    (($(this).attr('resource') != null) || // linked media
+                                    ($(this).find('[property="art:url"]').length > 0) || // inline media
+                                    (($(this).parents('.annotation_of').length > 0) && ($(this).parent('span[property="dcterms:title"]').length > 0))) // annotated media
+                                    && ($(this).attr('rev') != 'scalar:has_note') && ($(this).attr('data-relation') == null)) 
+                                    {
+                                    	
                                         var slot, slotDOMElement, slotMediaElement, count, parent;
 
                                         if ($(this).attr('resource') == undefined) {
@@ -1980,11 +2041,11 @@
                                                 $(this).attr('data-size', 'full');
                                                 parent = $(this);
 
-                                                // inline media (subsequent, after page resize)
+                                            // inline media (subsequent, after page resize)
                                             } else if ($(this).attr('href') == currentNode.current.sourceFile) {
                                                 parent = $(this);
 
-                                                // annotated media link (as appears on an annotation page)
+                                            // annotated media link (as appears on an annotation page)
                                             } else {
                                                 var annotatedMedia = currentNode.getRelatedNodes("annotation", "outgoing");
                                                 var i, node, annotationURL,
@@ -2011,7 +2072,7 @@
                                             }
                                             $(this).addClass("resource-added");
 
-                                            // standard media link
+                                        // standard media link
                                         } else {
                                             parent = $(this).closest('.body_copy');
 

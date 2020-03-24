@@ -244,14 +244,15 @@ li.divider-above { border-top: 1px dotted #888; }
 	background-color: #eee;
 	z-index: 10;
 	color: #222;
-	box-shadow: 3px 3px 5px rgba(0,0,0,.2);
-	padding: 1.0rem 1.6rem 1.0rem 1.6rem;
+	box-shadow: 4px 4px 5px rgba(0,0,0,.4);
+	padding: 1.25rem 1.75rem 1.25rem 1.75rem;
+	border-radius:10px;
 	font-size: 1.4rem;
-	max-width: 400px;
-	max-height: 300px;
+	max-width: 420px;
+	max-height: 320px;
 	overflow-y: auto;
 	overflow-x: hidden;
-	line-height: 130%;
+	line-height: 150%;
 	-webkit-overflow-scrolling: touch;
 	display: none;
 }
@@ -715,6 +716,12 @@ header [typeof="tk:TKLabel"] { margin-left:6px; margin-right: 0; }
 	-webkit-backface-visibility: hidden;
 }
 
+.inlineNoteBody  {
+	background-color:#eeeeee; padding:20px; line-height:170%; font-size:14px; margin:.5rem 4.8rem 2.4rem 4.8rem;
+	border-radius:10px; box-shadow: 4px 4px 5px #cccccc; color:#222222;
+}
+.inlineNoteBody .title {font-weight:Bold; font-size:15px;}
+.inlineNoteBody .content {margin-top:14px; margin-bottom:6px;}
 
 /* Remove border on any text media objects or code media */
 .mediaObject iframe[src$=".txt"],
