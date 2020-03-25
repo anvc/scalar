@@ -1694,6 +1694,8 @@
 
                 } else if ('lens' == extension) {
                   // temporary place to call the lens plugin; will be removed later
+                  $('<span property="sioc:content”><div>Hello World</div></span>').scalarLenses();
+
 
                 } else if ('edit' == extension) {
                     // Nothing needed here
