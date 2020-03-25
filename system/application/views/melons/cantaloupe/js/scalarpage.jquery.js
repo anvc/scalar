@@ -1694,7 +1694,7 @@
 
                 } else if ('lens' == extension) {
                   // temporary place to call the lens plugin; will be removed later
-                  $("[property|='sioc:content']").append('<div class="test">Hello World</div>').scalarLenses();
+                  $("[property|='sioc:content']").append('<div class="paragraph_wrapper"><div class="body_copy"><div class="test">Hello World</div></div></div>').scalarLenses();
 
 
 
