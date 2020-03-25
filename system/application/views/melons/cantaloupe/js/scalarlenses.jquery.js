@@ -7,18 +7,14 @@
 
 ;(function ( $, window, document, undefined ) {
 
-
     var pluginName = 'scalarLenses',
         defaults = {
             propertyName: "value"
         };
 
-
     function Plugin( element, options ) {
         this.element = element;
-
         this.options = $.extend( {}, defaults, options) ;
-
         this._defaults = defaults;
         this._name = pluginName;
 
@@ -31,8 +27,8 @@
       // the options via the instance, e.g. this.element
       // and this.options
 
-      console.log('Lenses test');
-      this.element.css({'color':'#eb4034'});
+      console.log('Lens plugin test success');
+
 
     };
 
