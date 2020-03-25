@@ -831,9 +831,10 @@ CKEDITOR.plugins.add( 'scalar', {
 					}
 				}
 				var callback = function(node,element) {
-        			CKEDITOR._scalar.contentoptions({data:reference_options['insertNote'],node:node,element:element,isMedia:false,callback:function(options) {
+        			CKEDITOR._scalar.contentoptions({data:reference_options['insertInlineNote'],node:node,element:element,isMedia:false,callback:function(options) {
 	            		element.setAttribute('class', 'inline inlineNote');
 	        			element.setAttribute('rev', 'scalar:has_note');
+	        			element.setAttribute('name', 'scalar-inline-note');
 	        			element.setAttribute('resource', node.slug);
             			for (var key in options) {
             				if (key == 'node') continue;

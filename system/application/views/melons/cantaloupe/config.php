@@ -92,12 +92,16 @@ $config['reference_options'] = array(
 	'insertNote' 			=> array(
 								'show-title' => array('yes','no'),
 								'show-description' => array('yes','no'),
+								'show-content' => array('yes','no')
+								),
+	'insertInlineNote' 		=> array(
+								'show-title' => array('yes','no'),
+								'show-description' => array('yes','no'),
 								'show-content' => array('yes','no'),
 								'size' => array('small', 'medium', 'large', 'full'),
 								'text-wrap' => array('create-new-line-for-media','wrap-text-around-media'),
 								'align' => array('left', 'center', 'right')
 								),
-	'insertInlineNote' 		=> array(),
 	'createInternalLink' 	=> array()
 );
 

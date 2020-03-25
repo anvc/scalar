@@ -256,7 +256,9 @@ li.divider-above { border-top: 1px dotted #888; }
 	-webkit-overflow-scrolling: touch;
 	display: none;
 }
-
+.note_viewer .title {font-weight:bold; margin-bottom:6px;}
+.note_viewer .description {font-style:italic; margin-bottom:6px;}
+.note_viewer .content {margin-bottom:6px;}
 
 /* --- PAGE --- */
 
@@ -717,9 +719,10 @@ header [typeof="tk:TKLabel"] { margin-left:6px; margin-right: 0; }
 }
 
 .inlineNoteBody  {
-	background-color:#eeeeee; padding:20px; line-height:170%; font-size:14px; margin:.5rem 4.8rem 2.4rem 4.8rem;
+	background-color:#eeeeee; padding:20px; line-height:170%; font-size:14px; margin:.5rem 7.0rem 2.4rem 7.0rem;
 	border-radius:10px; box-shadow: 4px 4px 5px #cccccc; color:#222222;
 }
+.inlineNoteBody.wrap {margin-left:4.2rem; margin-right:4.2rem;}
 .inlineNoteBody .title {font-weight:Bold; font-size:15px;}
 .inlineNoteBody .content {margin-top:14px; margin-bottom:6px;}
 

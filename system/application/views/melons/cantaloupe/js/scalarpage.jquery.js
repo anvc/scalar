@@ -476,6 +476,7 @@
             	var size = link.data('size');
             	var wrap = link.data('text-wrap');
             	var align = link.data('align');
+            	wrapper.addClass('size_'+size);
             	switch (size) {
             		case "small":
             			wrapper.css('max-width', '350px');
@@ -485,6 +486,7 @@
             			break;
             	}
             	if (wrap == 'wrap-text-around-media' && size != 'full') {
+            		wrapper.addClass('wrap');
                 	switch (align) {
 	            		case "right":
 	            			wrapper.css('float', 'right');
@@ -1380,7 +1382,10 @@
                         e.stopPropagation();
                         page.showNote(this);
                     });
-                    note.find('a').unwrap().addClass('texteo_icon texteo_icon_note');
+                    var title = (note.data('show-title') == 'yes') ? true : false;
+                    var desc = (note.data('show-description') == 'yes') ? true : false;
+                    var content = (note.data('show-content') == 'no') ? false : true;
+                    note.find('a').data('show-title', title).data('show-desc', desc).data('show-content', content).unwrap().addClass('texteo_icon texteo_icon_note');
                 }
 
                 $('body').append('<div class="note_viewer caption_font"></div>');
@@ -1389,6 +1394,8 @@
 
             showNote: function(note) {
                 note = $(note);
+                var viewer = $('.note_viewer');
+                viewer.data('show-title', note.data('show-title')).data('show-desc', note.data('show-desc')).data('show-content', note.data('show-content'));
                 if (note.hasClass('media_link')) {
                     $('[rev="scalar:has_note"]').removeClass('media_link');
                     $('.note_viewer').hide();
@@ -1437,11 +1444,17 @@
                 noteViewer.empty();
                 var width = parseInt(noteViewer.css('max-width')) - noteViewer.innerWidth() - 50;
                 if (node != null) {
-                    if (node.current.content != null) {
+                	if (node.current.title != null && noteViewer.data('show-title')) {
+                		$('<div class="title">' + node.current.title + '</div>').appendTo(noteViewer);
+                	}
+                	if (node.current.description != null && noteViewer.data('show-desc')) {
+                		$('<div class="description">' + node.current.description + '</div>').appendTo(noteViewer);
+                	}    	
+                    if (node.current.content != null && noteViewer.data('show-content')) {
 
                         var height = parseInt(noteViewer.css('max-height')) - noteViewer.innerHeight() - 50;
 
-                        var temp = $('<div>' + node.current.content + '</div>').appendTo(noteViewer);
+                        var temp = $('<div class="content">' + node.current.content + '</div>').appendTo(noteViewer);
                         if (temp.children('p:last').is(':last-child')) temp.children('p:last').css('margin-bottom','0px');
 
                         $(page.getMediaLinks(temp)).each(function() {
@@ -1470,12 +1483,13 @@
                             page.addNoteOrAnnotationMedia($(this), parent, width, height);
 
                         });
-                    } else if (node.hasScalarType('media')) {
+                    }
+                    if (node.hasScalarType('media')) {
                         var parent = $('<div class="node_media_' + node.slug + '"></div>').appendTo(noteViewer);
                         var link = $('<a href="' + node.current.sourceFile + '" data-annotations="[]" data-align="center" resource="' + node.slug + '" class="inline"></a>').hide().appendTo(parent);
                         page.addNoteOrAnnotationMedia(link, parent, width, height);
                     }
-                    noteViewer.append('<br /><a class="noteLink" href="' + scalarapi.model.urlPrefix + node.slug + '">Go to note</a>');
+                    noteViewer.append('<a class="noteLink" href="' + scalarapi.model.urlPrefix + node.slug + '">Go to note</a>');
                 }
             },
 
