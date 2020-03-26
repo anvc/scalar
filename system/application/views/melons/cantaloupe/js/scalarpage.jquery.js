@@ -1694,8 +1694,36 @@
 
                 } else if ('lens' == extension) {
                   // temporary place to call the lens plugin; will be removed later
-                  $("[property|='sioc:content']").append('<div class="paragraph_wrapper"><div class="body_copy"><div class="test">Hello World</div></div></div>').scalarLenses();
+                  $("[property|='sioc:content']").append(
+                  '<div class="paragraph_wrapper">'+
+                  '<div class="body_copy">'+
+                  '<div class="row">'+
+                  '<div id="lens" class="col-lg-12">'+
+                  '<div class="lens-icon-wrapper col-xs-1"><span class="lens-icon"></span></div>'+
+                  '<div class="lens-content col-xs-11">'+
+                  '<h3 class="lens-title heading_font heading_weight"> Tokyo Area Commercial Networks <span class="badge">4</span></h3>' +
+                  '<div class="btn-group"><button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'+
+                  'Select visualization<span class="caret"></span></button>'+
+                  '<ul class="dropdown-menu">'+
+                  '<li><a href="#">Force-Directed</a></li>'+
+                  '<li><a href="#">Grid</a></li>'+
+                  '<li><a href="#">List</a></li>'+
+                  '<li><a href="#">Map</a></li>'+
+                  '<li><a href="#">Radial</a></li>'+
+                  '<li><a href="#">Tree</a></li>'+
+                  '<li><a href="#">Word Cloud</a></li>'+
+                  '</ul>'+
+                  '</div></div></div>'+
+                  '</div></div></div>').scalarLenses();
 
+
+                  // '<select class="form-control">'+
+                  //   '<option>1</option>'+
+                  //   '<option>2</option>'+
+                  //   '<option>3</option>'+
+                  //   '<option>4</option>'+
+                  //   '<option>5</option>'+
+                  // '</select>'+
 
 
                 } else if ('edit' == extension) {

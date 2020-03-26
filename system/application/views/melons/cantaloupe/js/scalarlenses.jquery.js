@@ -26,8 +26,7 @@
       // You already have access to the DOM element and
       // the options via the instance, e.g. this.element
       // and this.options
-
-      console.log('Lens plugin test success');
+      //$("#lens").prepend('<span class="lens-icon"></span>');
 
 
     };

@@ -9,6 +9,7 @@
 <?$this->template->add_css(path_from_file(__FILE__).'css/timeline.css')?>
 <?$this->template->add_css(path_from_file(__FILE__).'css/timeline.theme.scalar.css')?>
 <?$this->template->add_css(path_from_file(__FILE__).'css/screen_print.css', 'link', 'screen,print')?>
+<?$this->template->add_css(path_from_file(__FILE__).'css/lens.css')?>
 <?$this->template->add_js(path_from_file(__FILE__).'js/bootstrap.min.js');?>
 <?$this->template->add_js(path_from_file(__FILE__).'js/jquery.bootstrap-modal.js');?>
 <?$this->template->add_js(path_from_file(__FILE__).'js/jquery.bootstrap-accessibility.js');?>
