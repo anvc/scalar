@@ -1401,4 +1401,62 @@ body>.annotorious-popup{
     .sp-block-people .sp-block__content .slot .mediaelement { display: unset; }
     #tk-add {display:inline-block;}
   }
+
+
+
+
+#lens .col-xs-12 {
+  padding:0;
+  background:#d8d8d8;
+  border-radius:5px;
+  border:1px solid lightgrey;
+	cursor:pointer;
+}
+.lens-content {
+  padding:15px;
+  background:white;
+  float:right;
+}
+.lens-content.col-xs-11 {
+  width:96%;
+}
+.lens-icon-wrapper.col-xs-1 {
+  position:absolute;
+  top:40%;
+  left:5px;
+  padding:0;
+  width:20px;
+}
+.lens-icon {
+  background:url(../images/lens.png);
+  background-repeat:no-repeat;
+  background-size:100%;
+  background-position:50% 50%;
+  width:20px;
+  height:20px;
+  float:left;
+}
+
+.body_copy .lens-title {
+  margin-top:0;
+  margin-bottom:0;
+}
+#lens .btn-primary {
+  background:#985da9;
+}
+.paragraph_wrapper #lens ul li {
+  margin-left:0;
+}
+#lens .btn .caret {
+  margin-left:5px;
+}
+#lens .badge {
+  float:right;
+  padding: 5px 10px;
+  font-size:14px;
+  font-weight:200;
+  background:#3b82c0;
+}
+.lens-tags {
+	margin-top:15px;
 }
