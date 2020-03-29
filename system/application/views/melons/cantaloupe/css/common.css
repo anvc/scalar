@@ -1443,6 +1443,7 @@ body>.annotorious-popup{
 }
 #lens .btn-primary {
   background:#985da9;
+	margin-top:10px;
 }
 .paragraph_wrapper #lens ul li {
   margin-left:0;
@@ -1457,6 +1458,6 @@ body>.annotorious-popup{
   font-weight:200;
   background:#3b82c0;
 }
-.lens-tags {
+/* .lens-tags {
 	margin-top:15px;
-}
+} */

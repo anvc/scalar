@@ -26,25 +26,25 @@
       // You already have access to the DOM element and
       // the options via the instance, e.g. this.element
       // and this.options
-      //$("#lens").prepend('<span class="lens-icon"></span>');
 
 
-const lenseObject = {
-  "expanded": false,
-	"submitted": true/false,
-	"public": true/false,
-	"frozen": true/false,
-	"frozen-items": [ "slug1", "slug2"],
-	"visualization": {
-		"type": "force-directed/grid/list/map/radial/tree/word-cloud",
-		"options": {
-			"option": "value"
-		}
-	}
-};
+
+    const lenseObject = {
+      "expanded": false,
+    	"submitted": true/false,
+    	"public": true/false,
+    	"frozen": true/false,
+    	"frozen-items": [ "slug1", "slug2"],
+    	"visualization": {
+    		"type": "force-directed/grid/list/map/radial/tree/word-cloud",
+    		"options": {
+    			"option": "value"
+    		}
+    	}
+    };
 
 
-console.log('testing');
+
 
     };
 
