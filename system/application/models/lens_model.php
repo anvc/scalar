@@ -41,6 +41,18 @@ class Lens_model extends MY_Model {
 
 	}
 	
+	private function select() {
+		
+	}
+	
+	private function filter() {
+		
+	}
+	
+	private function sort() {
+		
+	}
+	
 	public function decode($arr=array(), $book=null) {
 		
 		$CI =& get_instance();

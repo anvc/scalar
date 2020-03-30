@@ -783,7 +783,7 @@ CKEDITOR.plugins.add( 'scalar', {
 							$(element.$).data({
 								element : element,
 								contentOptionsCallback : CKEDITOR._scalar.inlineMediaCallback,
-								selectOptions : {type:'media',changeable:false,multiple:false,msg:'Insert Scalar Media Link',element:element,callback:CKEDITOR._scalar.inlineMediaCallback}
+								selectOptions : {type:'media',changeable:false,multiple:false,msg:'Insert Inline Scalar Media Link',element:element,callback:CKEDITOR._scalar.inlineMediaCallback}
 							});
 						}
 

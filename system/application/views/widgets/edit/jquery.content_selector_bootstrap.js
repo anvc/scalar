@@ -470,7 +470,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			bootbox.hideAll()
 			var box = bootbox.dialog({
 				message: '<div id="bootbox-content-selector-content" class="heading_font"></div>',
-				title: 'Select content',
+				title: (('string'==typeof(opts.msg) && opts.msg.length)?opts.msg:'Select content'),
 				className: 'content_selector_bootbox',
 				animate: true // This must remain true for iOS, otherwise the wysiwyg selection goes away
 			});
