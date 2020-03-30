@@ -9,12 +9,22 @@
 
     var pluginName = 'scalarLenses',
         defaults = {
-            propertyName: "value"
+
         };
 
-    function Plugin( element, options ) {
+    function Plugin( element, options) {
         this.element = element;
-        this.options = $.extend( {}, defaults, options) ;
+        this.options = $.extend( {
+          lenseTitle: "untitled",
+          expanded: false,
+          visualization: {
+            type: "force-directed/grid/list/map/radial/tree/word-cloud",
+            options: {
+
+            }
+          }
+        }, defaults, options);
+
         this._defaults = defaults;
         this._name = pluginName;
 
@@ -27,22 +37,19 @@
       // the options via the instance, e.g. this.element
       // and this.options
 
+      // function to populate any dropdown value
+      $(function(){
 
+        $(".dropdown-menu li a").click(function(){
 
-    const lenseObject = {
-      "expanded": false,
-    	"submitted": true/false,
-    	"public": true/false,
-    	"frozen": true/false,
-    	"frozen-items": [ "slug1", "slug2"],
-    	"visualization": {
-    		"type": "force-directed/grid/list/map/radial/tree/word-cloud",
-    		"options": {
-    			"option": "value"
-    		}
-    	}
-    };
+          $(".btn:first-child").text($(this).text());
+          $(".btn:first-child").val($(this).text()).append('<span class="caret"></span>');
 
+       });
+
+       
+
+      });
 
 
 

@@ -1694,18 +1694,20 @@
 
                 } else if ('lens' == extension) {
                   // temporary place to call the lens plugin; will be removed later
+                  //$("[property|='sioc:content']").append('<div></div>').scalarLenses();
+
                   $("[property|='sioc:content']").append(
                   '<div class="paragraph_wrapper">'+
                   '<div class="body_copy">'+
                   '<div class="row">'+
                   '<div id="lens">'+
                   '<div class="col-xs-12">'+
-                  '<div class="lens-expand-container" data-toggle="collapse" data-target=".lens-tags">'+
+                  '<div class="lens-expand-container" data-toggle="collapse" data-target="">'+
                   '<div class="lens-icon-wrapper col-xs-1"><span class="lens-icon"></span></div>'+
                   '<div class="lens-content col-xs-11">'+
                   '<h3 class="lens-title heading_font heading_weight"> Tokyo Area Commercial Networks <span class="badge">4</span></h3>' +
-                  '<div class="lens-tags collapse">'+
-                  '<div class="btn-group"><button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'+
+                  '<div class="lens-tags">'+
+                  '<div class="btn-group"><button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'+
                   'Select visualization<span class="caret"></span></button>'+
                   '<ul class="dropdown-menu">'+
                   '<li><a href="#">Force-Directed</a></li>'+
