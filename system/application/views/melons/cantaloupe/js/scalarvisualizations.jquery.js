@@ -2871,7 +2871,7 @@ window.scalarvis = { instanceCount: -1 };
       transitionTypeLabels() {
         this.vis.selectAll('text.typeLabel').transition()
           .duration(1000)
-          /*.attrTween('dx', (d) => { return this.textDxTween(d); })*/
+          .attrTween('dx', (d) => { return this.textDxTween(d); })
           .attrTween('text-anchor', (d) => { return this.textAnchorTween(d); })
           .attrTween('transform', (d) => { return this.textTransformTween(d); });
       }
@@ -3210,28 +3210,23 @@ window.scalarvis = { instanceCount: -1 };
 
       calcTextAngleOrientation(d) {
         d.angle = (((d.x0 + ((d.x1 - d.x0) * .5)) / (Math.PI * 2)) * 360 - 180);
-        console.log(d.x0+' '+d.x1+' '+d.angle);
         d.isFlipped = (d.angle > 90 || d.angle < -90);
       }
 
       // calculates the position of a type label
       calcTextDx(d) {
-        console.log('calcTextDx');
         this.calcTextAngleOrientation(d);
-        console.log(d.angle+' '+d.isFlipped);
         return d.isFlipped ? -10 : 10;
       }
 
       // calculates the anchor point of a type label
       calcTextAnchor(d) {
-        console.log('calcTextAnchor');
         this.calcTextAngleOrientation(d);
         return d.isFlipped ? 'end' : null;
       }
 
       // calculates the transform (rotation) of a type label
       calcTextTransform(d) {
-        console.log('calcTextTransform');
         this.calcTextAngleOrientation(d);
         d.amount = this.r + this.textRadiusOffset;
         var angleProxy = d.angle;
@@ -3245,7 +3240,7 @@ window.scalarvis = { instanceCount: -1 };
 
       // interpolates between position data for two type labels
       textDxTween(a) {
-        var i = d3.interpolate({ x0: a.x0, x1: a.dx0 }, a);
+        var i = d3.interpolate({ x0: a.x0_s, x1: a.x1_s }, a);
         return (t) => {
           var b = i(t);
           a.x0_s = b.x0;
