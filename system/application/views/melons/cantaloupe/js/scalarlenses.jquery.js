@@ -7,23 +7,32 @@
 
 ;(function ( $, window, document, undefined ) {
 
-    var pluginName = 'scalarLenses',
+    var pluginName = 'ScalarLenses',
         defaults = {
 
-        };
-
-    function Plugin( element, options) {
-        this.element = element;
-        this.options = $.extend( {
-          lenseTitle: "untitled",
-          expanded: false,
-          visualization: {
+          "expanded": false,
+          "submitted": false,
+          "frozen": false,
+          "frozen-items": [],
+          "expanded": false,
+          "visualization": {
             type: "force-directed/grid/list/map/radial/tree/word-cloud",
             options: {
 
             }
           }
-        }, defaults, options);
+        };
+
+        defaultLens = {
+
+        }
+
+
+
+
+    function Plugin( element, options) {
+        this.element = element;
+        this.options = $.extend( {}, defaults, options);
 
         this._defaults = defaults;
         this._name = pluginName;
@@ -37,19 +46,20 @@
       // the options via the instance, e.g. this.element
       // and this.options
 
-      // function to populate any dropdown value
+      // function to populate dropdown value
+      // handles multiple instances of dropdowns
       $(function(){
+        $(".dropdown-menu").on('click', 'li a', function(){
+          $(this).parent().parent().siblings(".btn:first-child").html($(this).text()+' <span class="caret"></span>');
+          $(this).parent().parent().siblings(".btn:first-child").val($(this).text());
 
-        $(".dropdown-menu li a").click(function(){
-
-          $(".btn:first-child").text($(this).text());
-          $(".btn:first-child").val($(this).text()).append('<span class="caret"></span>');
-
-       });
-
-       
-
+          if($(this).text() == 'Force-Directed'){
+            //alert('you selected Force-Directed');
+            //return $(this).parent().parent().siblings(".btn:first-child").val($(this));
+          }
+        });
       });
+
 
 
 
