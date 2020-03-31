@@ -1425,18 +1425,18 @@ body>.annotorious-popup{
 }
 .lens-icon-wrapper.col-xs-1 {
   position:absolute;
-  top:40%;
-  left:5px;
+  top:45%;
+  left:10px;
   padding:0;
-  width:20px;
+  width:10px;
 }
 .lens-icon {
   background:url(../images/lens.png);
   background-repeat:no-repeat;
   background-size:100%;
   background-position:50% 50%;
-  width:20px;
-  height:20px;
+  width:10px;
+  height:10px;
   float:left;
 }
 
