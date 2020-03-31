@@ -2477,14 +2477,14 @@ window.scalarvis = { instanceCount: -1 };
           this.r = (Math.min(base.visSize.width, base.visSize.height) - 70) * .5;
           base.visSize.width < base.visSize.height ? this.r -= 120 : this.r -= 60;
           var radiusMod = 1.55;
-          var textRadiusOffset = 10;
+          this.textRadiusOffset = 10;
 
           // arc generator
           this.arcs = d3.arc()
-            .startAngle(function(d) { return d.x0 - (Math.PI * .5); })
-            .endAngle(function(d) { return d.x1 - (Math.PI * .5); })
-            .innerRadius(function(d) { return (this.r * radiusMod) - Math.sqrt(d.y0); })
-            .outerRadius(function(d) { return (this.r * radiusMod) - Math.sqrt(d.y1); });
+            .startAngle((d) => { return d.x0 - (Math.PI * .5); })
+            .endAngle((d) => { return d.x1 - (Math.PI * .5); })
+            .innerRadius((d) => { return (this.r * radiusMod) - Math.sqrt(d.y0); })
+            .outerRadius((d) => { return (this.r * radiusMod) - Math.sqrt(d.y1); });
 
           // note: d3.hierarchy takes each node of base.hierarchy and sets it
           // as the 'data' property of a new node that takes the old node's place in a recreated hierarchy
@@ -2746,25 +2746,25 @@ window.scalarvis = { instanceCount: -1 };
               .join(
                 enter => enter.append('svg:text')
                   .attr('class', 'typeLabel')
-                  .attr('dx', function(d) {
+                  .attr('dx', (d) => {
                     d.angle = (((d.x0 + ((d.x1 - d.x0) * .5)) / (Math.PI * 2)) * 360 - 180);
                     d.isFlipped = ((d.angle > 90) || (d.angle < -90));
                     return d.isFlipped ? -10 : 10;
                   })
                   .attr('dy', '.35em')
                   .attr('fill', '#666')
-                  .attr('text-anchor', function(d) {
+                  .attr('text-anchor', (d) => {
                     return d.isFlipped ? 'end' : null;
                   })
-                  .attr('transform', function(d) {
-                    d.amount = this.r + textRadiusOffset;
+                  .attr('transform', (d) => {
+                    d.amount = this.r + this.textRadiusOffset;
                     if (d.isFlipped) {
                       d.angle += 180;
                       d.amount *= -1;
                     }
                     return 'rotate(' + d.angle + ') translate(' + d.amount + ',0) ';
                   })
-                  .text(function(d) { return d.data.title; }),
+                  .text((d) => { return d.data.title; }),
                 exit => exit.remove()
               )
           }
@@ -2813,7 +2813,6 @@ window.scalarvis = { instanceCount: -1 };
       }
 
       calculateChords() {
-        console.log('calculate chords');
         this.links = [];
 
         // recreate the abstractedNodesBySlug locally since the global
@@ -2872,7 +2871,7 @@ window.scalarvis = { instanceCount: -1 };
       transitionTypeLabels() {
         this.vis.selectAll('text.typeLabel').transition()
           .duration(1000)
-          .attrTween('dx', (d) => { return this.textDxTween(d); })
+          /*.attrTween('dx', (d) => { return this.textDxTween(d); })*/
           .attrTween('text-anchor', (d) => { return this.textAnchorTween(d); })
           .attrTween('transform', (d) => { return this.textTransformTween(d); });
       }
@@ -3209,30 +3208,39 @@ window.scalarvis = { instanceCount: -1 };
         };
       }
 
+      calcTextAngleOrientation(d) {
+        d.angle = (((d.x0 + ((d.x1 - d.x0) * .5)) / (Math.PI * 2)) * 360 - 180);
+        console.log(d.x0+' '+d.x1+' '+d.angle);
+        d.isFlipped = (d.angle > 90 || d.angle < -90);
+      }
+
       // calculates the position of a type label
       calcTextDx(d) {
-        d.angle = (((d.x0 + (d.x1 * .5)) / (Math.PI * 2)) * 360 - 180);
-        d.isFlipped = ((d.angle > 90) || (d.angle < -90));
+        console.log('calcTextDx');
+        this.calcTextAngleOrientation(d);
+        console.log(d.angle+' '+d.isFlipped);
         return d.isFlipped ? -10 : 10;
       }
 
       // calculates the anchor point of a type label
       calcTextAnchor(d) {
-        d.angle = (((d.x0 + (d.x1 * .5)) / (Math.PI * 2)) * 360 - 180);
-        d.isFlipped = ((d.angle > 90) || (d.angle < -90));
+        console.log('calcTextAnchor');
+        this.calcTextAngleOrientation(d);
         return d.isFlipped ? 'end' : null;
       }
 
       // calculates the transform (rotation) of a type label
       calcTextTransform(d) {
-        d.angle = (((d.x0 + (d.x1 * .5)) / (Math.PI * 2)) * 360 - 180);
-        d.isFlipped = ((d.angle > 90) || (d.angle < -90));
-        d.amount = this.r + textRadiusOffset;
+        console.log('calcTextTransform');
+        this.calcTextAngleOrientation(d);
+        d.amount = this.r + this.textRadiusOffset;
+        var angleProxy = d.angle;
+        var amountProxy = d.amount;
         if (d.isFlipped) {
-          d.angle += 180;
-          d.amount *= -1;
+          angleProxy += 180;
+          amountProxy *= -1;
         }
-        return 'rotate(' + d.angle + ') translate(' + d.amount + ',0) ';
+        return 'rotate(' + angleProxy + ') translate(' + amountProxy + ',0) ';
       }
 
       // interpolates between position data for two type labels
