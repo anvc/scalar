@@ -1693,11 +1693,13 @@
                     }
 
                 } else if ('lens' == extension) {
-                  // temporary place to call the lens plugin; will be removed later
-                  $('<div></div>').ScalarLenses();
-
-
-
+                  $.when(
+                    $.getScript(views_uri+'/melons/cantaloupe/js/bootbox.min.js'),
+                    $.getScript(views_uri+'/widgets/edit/jquery.content_selector_bootstrap.js'),
+                    $.Deferred((deferred) => {
+                      $(deferred.resolve);
+                    })
+                  ).done(() => { $('<div></div>').ScalarLenses(); });
 
                 } else if ('edit' == extension) {
                     // Nothing needed here
