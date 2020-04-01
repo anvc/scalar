@@ -1699,7 +1699,7 @@
                   $("[property|='sioc:content']").append(
                     '<div class="paragraph_wrapper">'+
                     '<div class="body_copy">'+
-                    '<div class="row">'+
+                    '<div class="row lens">'+
                     '<div id="lens">'+
                     '<div class="col-xs-12">'+
                     '<div class="lens-expand-container" data-toggle="collapse" data-target="">'+
@@ -1707,19 +1707,19 @@
                     '<div class="lens-content col-xs-11">'+
                     '<h3 class="lens-title heading_font heading_weight"> Tokyo Area Commercial Networks <span class="badge">4</span></h3>' +
                     '<div class="lens-tags">'+
-                    '<div id="visualization-btn" class="btn-group"><button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'+
+                    '<div id="visualization-btn" class="btn-group"><button type="button" class="btn btn-primary btn-xs dropdown-toggle caption_font" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'+
                     'Select visualization<span class="caret"></span></button>'+
                     '<ul class="dropdown-menu">'+
-                    '<li><a><img class="dropdown-item-icon" src="/scalar/system/application/views/melons/cantaloupe/images/menu_connections_icon.png">Force-Directed</a></li>'+
-                    '<li><a><img class="dropdown-item-icon" src="/scalar/system/application/views/melons/cantaloupe/images/menu_grid_icon.png">Grid</a></li>'+
-                    '<li><a><img class="dropdown-item-icon" src="/scalar/system/application/views/melons/cantaloupe/images/menu_icon.png">List</a></li>'+
-                    '<li><a><img class="dropdown-item-icon" src="/scalar/system/application/views/melons/cantaloupe/images/menu_map_icon.png">Map</a></li>'+
-                    '<li><a><img class="dropdown-item-icon" src="/scalar/system/application/views/melons/cantaloupe/images/menu_radial_icon.png">Radial</a></li>'+
-                    '<li><a><img class="dropdown-item-icon" src="/scalar/system/application/views/melons/cantaloupe/images/menu_toc_icon.png ">Tree</a></li>'+
-                    '<li><a><img class="dropdown-item-icon" src="/scalar/system/application/views/melons/cantaloupe/images/menu_wordcloud_icon.png">Word Cloud</a></li>'+
+                    '<li><a><span class="dropdown-item-icon"></span>Force-Directed</a></li>'+
+                    '<li><a><span class="dropdown-item-icon"></span>Grid</a></li>'+
+                    '<li><a><span class="dropdown-item-icon"></span>List</a></li>'+
+                    '<li><a><span class="dropdown-item-icon"></span>Map</a></li>'+
+                    '<li><a><span class="dropdown-item-icon"></span>Radial</a></li>'+
+                    '<li><a><span class="dropdown-item-icon"></span>Tree</a></li>'+
+                    '<li><a><span class="dropdown-item-icon"></span>Word Cloud</a></li>'+
                     '</ul>'+
                     '</div>'+
-                    '<div id="content-selector-btn" class="btn-group"><button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'+
+                    '<div id="content-selector-btn" class="btn-group"><button type="button" class="btn btn-primary btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'+
                     'Select items...<span class="caret"></span></button>'+
                     '<ul class="dropdown-menu">'+
                     '<li><a>Specific items...</a></li>'+

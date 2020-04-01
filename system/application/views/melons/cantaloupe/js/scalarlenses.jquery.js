@@ -9,24 +9,27 @@
 
     var pluginName = 'ScalarLenses',
         defaults = {
-
           "expanded": false,
           "submitted": false,
           "frozen": false,
           "frozen-items": [],
-          "expanded": false,
           "visualization": {
-            type: "force-directed/grid/list/map/radial/tree/word-cloud",
-            options: {
+            "type": "force-directed/grid/list/map/radial/tree/word-cloud",
+            "options": {}
+          },
+          "components": [
+            {
+              "content-selector": {
+                "type": "items/content-type/distance",
+                "content-type": "page/path/tag/annotation",
+                "items":[],
+                "quantity":"",
+                "units":"",
 
+              }
             }
-          }
+          ]
         };
-
-        defaultLens = {
-
-        }
-
 
 
 
