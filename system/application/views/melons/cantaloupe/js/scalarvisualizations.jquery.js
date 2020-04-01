@@ -623,11 +623,11 @@ window.scalarvis = { instanceCount: -1 };
           base.loadSequence.push({ id: 'current', desc: "current page", relations: 'none' });
           base.loadSequence.push({ id: 'current', desc: "current page's connections", relations: 'all' });
           base.loadSequence.push({ id: 'path', desc: "paths", relations: 'path' });
-          /*base.loadSequence.push({ id: 'tag', desc: "tags", relations: 'tag' });
+          base.loadSequence.push({ id: 'tag', desc: "tags", relations: 'tag' });
           base.loadSequence.push({ id: 'media', desc: "media", relations: 'reference' });
           base.loadSequence.push({ id: 'page', desc: "pages", relations: 'none' });
           base.loadSequence.push({ id: 'annotation', desc: "annotations", relations: 'annotation' });
-          base.loadSequence.push({ id: 'reply', desc: "comments", relations: 'reply' });*/
+          base.loadSequence.push({ id: 'reply', desc: "comments", relations: 'reply' });
           break;
 
         case "current":
@@ -2705,16 +2705,16 @@ window.scalarvis = { instanceCount: -1 };
 
       toggleNodeSelected(d) {
         var index;
-        index = base.selectedNodes.indexOf(d.data.node);
+        index = base.selectedNodes.indexOf(d.data);
         if (index == -1) {
-          base.selectedNodes.push(d.data.node);
-          index = base.selectedHierarchyNodes.indexOf(d.data.node);
+          base.selectedNodes.push(d.data);
+          index = base.selectedHierarchyNodes.indexOf(d.data);
           if (index == -1) {
-            base.selectedHierarchyNodes.push(d.data.node);
+            base.selectedHierarchyNodes.push(d.data);
           }
         } else {
           base.selectedNodes.splice(index, 1);
-          index = base.selectedHierarchyNodes.indexOf(d.data.node);
+          index = base.selectedHierarchyNodes.indexOf(d.data);
           if (index != -1) {
             base.selectedHierarchyNodes.splice(index, 1);
           }
@@ -2734,16 +2734,11 @@ window.scalarvis = { instanceCount: -1 };
         var n = descendants.length;
         for (var i=0; i<n; i++) {
           descendant = descendants[i];
-          index = base.selectedHierarchyNodes.indexOf(descendant.data.node);
+          index = base.selectedHierarchyNodes.indexOf(descendant.data);
           if (index != -1) {
             this.selectedHierarchyNodes.push(descendant);
-          } else {
-            console.log(descendant);
           }
         }
-
-        console.log(this.selectedHierarchyNodes);
-        console.log(base.selectedHierarchyNodes);
 
         this.vis.selectAll('text.selectedLabel')
           .data(this.selectedHierarchyNodes)
