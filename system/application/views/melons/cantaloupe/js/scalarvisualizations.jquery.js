@@ -2581,9 +2581,9 @@ window.scalarvis = { instanceCount: -1 };
             .join(
               enter => enter.append('svg:path')
                 .attr('class', 'chord')
-                .attr('d', (d) => { return this.ribbon(d); })
+                .attr('d', (d) => { console.log('enter'); return this.ribbon(d); })
                 .attr('opacity', .25)
-                .attr('display', (d) => { return ((Math.abs(d.source.x1 - d.source.x0) > this.minChordAngle) || (Math.abs(d.target.x1 - d.target.x0) > this.minChordAngle)) ? null : 'none'; })
+                .attr('display', (d) => { return this.calculateChordDisplay(d); })
                 .attr('fill', (d) => { return base.highlightColorScale(d.type.id); })
                 .each(this.stashChord),
               exit => exit.remove()
@@ -2660,7 +2660,7 @@ window.scalarvis = { instanceCount: -1 };
       transitionChords() {
         this.vis.selectAll('path.chord').transition()
           .duration(1000)
-          .attr('display', (d) => { return ((d.source.x1 > this.minChordAngle) || (d.target.x1 > this.minChordAngle)) ? null : 'none'; })
+          .attr('display', (d) => { return this.calculateChordDisplay(d); })
           .attrTween('d', (d) => { return this.chordTween(d); });
       }
 
@@ -3015,6 +3015,10 @@ window.scalarvis = { instanceCount: -1 };
         } else {
           return (d.x1 > this.minChordAngle) ? 1 : 0;
         }
+      }
+
+      calculateChordDisplay(d) {
+        return ((Math.abs(d.source.x1 - d.source.x0) > this.minChordAngle) || (Math.abs(d.target.x1 - d.target.x0) > this.minChordAngle)) ? null : 'none';
       }
 
       calculateTextAngleOrientation(d) {
