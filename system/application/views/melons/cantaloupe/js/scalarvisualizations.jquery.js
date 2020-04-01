@@ -2540,21 +2540,7 @@ window.scalarvis = { instanceCount: -1 };
                     this.transitionTypeLabels();
 
                     // return the vis to its normalized state
-                    /*this.vis.selectAll('path.ring').transition()
-                      .duration(1000)
-                      .style("stroke-width", (d) => {
-                        return (d.x1 > this.minChordAngle) ? 1 : 0;
-                      })
-                      .attrTween('d', function(d) { arcTween(d); });
-                    this.vis.selectAll('path.chord').transition()
-                      .duration(1000)
-                      .attr('display', (d) => { return (d.source.x1 > this.minChordAngle) ? null : 'none'; })
-                      .attrTween('d', this.chordTween);
-                    this.vis.selectAll('text.typeLabel').transition()
-                      .duration(1000)
-                      .attrTween('dx', this.textDxTween)
-                      .attrTween('text-anchor', this.textAnchorTween)
-                      .attrTween('transform', this.textTransformTween);
+                    /*
                     this.vis.selectAll('text.selectedLabel').transition()
                       .duration(1000)
                       .attr('dx', (d) => {
@@ -2596,52 +2582,7 @@ window.scalarvis = { instanceCount: -1 };
                         this.transitionChords();
                         this.transitionTypeLabels();
 
-                        /*var t = this.vis.selectAll('path.ring').transition()
-                          .duration(1000);
-
-                        this.vis.selectAll('path.ring')
-                          .data(this.root.descendants())
-                          .join(
-                            update => update
-                              .call(update => update.transition(t)
-                                .style("stroke-width", (d) => {
-                                  if (d.parent != null) {
-                                    if ((d.parent.type == "current") || (d.type == "current")) {
-                                      return 10;
-                                    } else {
-                                      return (d.x1 > this.minChordAngle) ? 1 : 0;
-                                    }
-                                  } else {
-                                    return (d.x1 > this.minChordAngle) ? 1 : 0;
-                                  }
-                                })
-                                .attrTween('d', (d) => { return arcTween(d); })
-                              )
-                          );
-                          /*.transition()
-                          .duration(1000)
-                          .style("stroke-width", (d) => {
-                            if (d.parent != null) {
-                              if ((d.parent.type == "current") || (d.type == "current")) {
-                                return 10;
-                              } else {
-                                return (d.x1 > this.minChordAngle) ? 1 : 0;
-                              }
-                            } else {
-                              return (d.x1 > this.minChordAngle) ? 1 : 0;
-                            }
-                          })
-                          .attrTween('d', (d) => { return arcTween(d); });
-                        /*this.vis.selectAll('path.chord').transition()
-                          .duration(1000)
-                          .attr('display', (d) => { return ((d.source.x1 > this.minChordAngle) || (d.target.x1 > this.minChordAngle)) ? null : 'none'; })
-                          .attrTween('d', (d) => { this.chordTween(d); });
-                        this.vis.selectAll('text.typeLabel').transition()
-                          .duration(1000)
-                          .attrTween('dx', (d) => { this.textDxTween(d); })
-                          .attrTween('text-anchor', (d) => { this.textAnchorTween(d); })
-                          .attrTween('transform', (d) => { this.textTransformTween(d); });
-                        this.vis.selectAll('text.selectedLabel').transition()
+                        /*this.vis.selectAll('text.selectedLabel').transition()
                           .duration(1000)
                           .attr('dx', function(d) {
                             if (arcs.centroid(d)[0] < 0) {
@@ -2679,43 +2620,6 @@ window.scalarvis = { instanceCount: -1 };
           var candidateRelatedNodes;
           var relatedNodes;
           var index;
-          /*var links = [];
-
-          var linkSpecs = [
-            { type: 'reference', direction: 'incoming' },
-            { type: 'annotation', direction: 'outgoing' },
-            { type: 'tag', direction: 'outgoing' },
-            { type: 'comment', direction: 'outgoing' },
-            { type: 'path', direction: 'outgoing' },
-          ];
-
-          // recreate the abstractedNodesBySlug locally since the global
-          // version doesn't include the arc coordinates
-          this.abstractedNodesBySlug = {};
-          var descendant;
-          var descendants = this.root.descendants();
-          var n = descendants.length;
-          for (var i=0; i<n; i++) {
-            descendant = descendants[i];
-            if (descendant.data.node) {
-              this.abstractedNodesBySlug[descendant.data.node.slug] = descendant;
-            }
-          }
-
-          var link, localLink;
-          n = base.links.length;
-          for (i = 0; i < n; i++) {
-            link = base.links[i];
-            localLink = {
-              source: this.abstractedNodesBySlug[link.source.node.slug],
-              target: this.abstractedNodesBySlug[link.target.node.slug],
-              type: link.type.id
-            };
-            // this prevents toc links from being added, since their source node is null
-            if (localLink.source && localLink.target) {
-              links.push(localLink);
-            }
-          }*/
 
           this.calculateChords();
 
@@ -2733,7 +2637,7 @@ window.scalarvis = { instanceCount: -1 };
                 .attr('d', (d) => { return this.ribbon(d); })
                 .attr('opacity', .25)
                 .attr('display', (d) => { return ((Math.abs(d.source.x1 - d.source.x0) > this.minChordAngle) || (Math.abs(d.target.x1 - d.target.x0) > this.minChordAngle)) ? null : 'none'; })
-                .attr('fill', function(d) { return base.highlightColorScale(d.type.id); })
+                .attr('fill', (d) => { return base.highlightColorScale(d.type.id); })
                 .each(this.stashChord),
               exit => exit.remove()
             );
@@ -2746,24 +2650,11 @@ window.scalarvis = { instanceCount: -1 };
               .join(
                 enter => enter.append('svg:text')
                   .attr('class', 'typeLabel')
-                  .attr('dx', (d) => {
-                    d.angle = (((d.x0 + ((d.x1 - d.x0) * .5)) / (Math.PI * 2)) * 360 - 180);
-                    d.isFlipped = ((d.angle > 90) || (d.angle < -90));
-                    return d.isFlipped ? -10 : 10;
-                  })
+                  .attr('dx', (d) => { return this.calcTextDx(d); })
                   .attr('dy', '.35em')
                   .attr('fill', '#666')
-                  .attr('text-anchor', (d) => {
-                    return d.isFlipped ? 'end' : null;
-                  })
-                  .attr('transform', (d) => {
-                    d.amount = this.r + this.textRadiusOffset;
-                    if (d.isFlipped) {
-                      d.angle += 180;
-                      d.amount *= -1;
-                    }
-                    return 'rotate(' + d.angle + ') translate(' + d.amount + ',0) ';
-                  })
+                  .attr('text-anchor', (d) => { return this.calcTextAnchor(d); })
+                  .attr('transform', (d) => { return this.calcTextTransform(d); })
                   .text((d) => { return d.data.title; }),
                 exit => exit.remove()
               )
@@ -2879,7 +2770,7 @@ window.scalarvis = { instanceCount: -1 };
       getPointerPoints(d) {
         var dx = this.arcs.centroid(d)[0];
         var dy = this.arcs.centroid(d)[1];
-        var hw = fullWidth * .5;
+        var hw = base.visSize.width * .5;
         if (this.arcs.centroid(d)[0] < 0) {
           return ((d.textWidth + 5) - hw) + ',' + dy + ' ' + ((d.textWidth + 5) - hw) + ',' + dy + ' ' + dx + ',' + dy;
         } else {
@@ -2925,7 +2816,7 @@ window.scalarvis = { instanceCount: -1 };
           }
         }
 
-        var selectedLabels = this.vis.selectAll('text.selectedLabel')
+        this.vis.selectAll('text.selectedLabel')
           .data(this.selectedHierarchyNodes)
           .join(
             enter => enter.append('svg:text')
@@ -2948,100 +2839,51 @@ window.scalarvis = { instanceCount: -1 };
                   return 'end';
                 }
               })
-              .text(function(d) { return base.getShortenedString(d.data.node.getDisplayTitle(true), labelCharCount); })
+              .text((d) => { return base.getShortenedString(d.data.node.getDisplayTitle(true), labelCharCount); })
               .attr('fill', '#000')
               .attr('font-weight', 'bold')
-              .attr('text-anchor', (d) => {
-                if (this.arcs.centroid(d)[0] < 0) {
-                  return 'end';
-                } else {
-                  return null;
-                }
-              })
-              .on("click", function(d) {
+              .on("click", (d) => {
                 if (d.data.node) {
                   window.open(d.data.node.url, '_blank');
                 }
               })
-              .each(function(d) { d.data.textWidth = this.getComputedTextLength(); }),
+              .each(function(d) { d.textWidth = this.getComputedTextLength(); }),
+            update => update
+              .attr('dx', (d) => {
+                var title = base.getShortenedString(d.data.node.getDisplayTitle(true), labelCharCount);
+                if (this.arcs.centroid(d)[0] < 0) {
+                  return -(base.visSize.width * .5);
+                } else {
+                  return (base.visSize.width * .5);
+                }
+              })
+              .attr('dy', (d) => {
+                return this.arcs.centroid(d)[1] + 4;
+              })
+              .text((d) => { return base.getShortenedString(d.data.node.getDisplayTitle(true), labelCharCount); })
+              .attr('text-anchor', (d) => {
+                if (this.arcs.centroid(d)[0] < 0) {
+                  return null;
+                } else {
+                  return 'end';
+                }
+              })
+              .each(function(d) { d.textWidth = this.getComputedTextLength(); }),
             exit => exit.remove()
-          )
+          );
 
-        /*var selectedPointers = this.vis.selectAll('polyline.selectedPointer')
-          .data(base.selectedHierarchyNodes)
+        this.vis.selectAll('polyline.selectedPointer')
+          .data(this.selectedHierarchyNodes)
           .join(
             enter => enter.append('svg:polyline')
               .attr('class', 'selectedPointer')
-              .attr('points', () => this.getPointerPoints())
+              .attr('points', (d) => { return this.getPointerPoints(d); })
               .attr('stroke', '#444')
               .attr('stroke-width', 1),
+            update => update
+              .attr('points', (d) => { return this.getPointerPoints(d); }),
             exit => exit.remove()
-          )*/
-
-        /*var selectedLabels = this.vis.selectAll('text.selectedLabel').data(base.selectedHierarchyNodes);
-
-        selectedLabels.enter().append('svg:text')
-          .attr('class', 'selectedLabel')
-          .attr('dx', (d) => {
-            var title = base.getShortenedString(d.node.getDisplayTitle(true), labelCharCount);
-            if (this.arcs.centroid(d)[0] < 0) {
-              return -(base.visSize.width * .5) + ((title.length / 15) * 70);
-            } else {
-              return (base.visSize.width * .5) - ((title.length / 15) * 70);
-            }
-          })
-          .attr('dy', (d) => {
-            return this.arcs.centroid(d)[1] + 4;
-          })
-          .attr('fill', '#000')
-          .attr('font-weight', 'bold')
-          .attr('text-anchor', (d) => {
-            if (this.arcs.centroid(d)[0] < 0) {
-              return 'end';
-            } else {
-              return null;
-            }
-          })
-          .on("click", function(d) {
-            if (d.node) {
-              window.open(d.node.url, '_blank');
-            }
-          })
-          .text(function(d) { return base.getShortenedString(d.node.getDisplayTitle(true), labelCharCount); })
-          .each(function(d) { d.textWidth = this.getComputedTextLength(); });
-
-        selectedLabels.exit().remove();
-
-        selectedLabels.attr('dx', (d) => {
-          var title = base.getShortenedString(d.node.getDisplayTitle(true), labelCharCount);
-          if (this.arcs.centroid(d)[0] < 0) {
-            return -(fullWidth * .5);
-          } else {
-            return (fullWidth * .5);
-          }
-        })
-          .attr('dy', (d) => {
-            return this.arcs.centroid(d)[1] + 4;
-          })
-          .attr('text-anchor', (d) => {
-            if (this.arcs.centroid(d)[0] < 0) {
-              return null;
-            } else {
-              return 'end';
-            }
-          })
-          .text(function(d) { return base.getShortenedString(d.node.getDisplayTitle(true), labelCharCount); });*/
-
-        /*selectedPointers.enter().append('svg:polyline')
-          .attr('class', 'selectedPointer')
-          .attr('points', () => this.getPointerPoints())
-          .attr('stroke', '#444')
-          .attr('stroke-width', 1);
-
-        selectedPointers.exit().remove();
-
-        selectedPointers.attr('points', () => this.getPointerPoints());*/
-
+          )
       }
 
       updateHighlights(d) {
