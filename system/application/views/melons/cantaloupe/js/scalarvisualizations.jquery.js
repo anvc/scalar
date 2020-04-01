@@ -2538,6 +2538,8 @@ window.scalarvis = { instanceCount: -1 };
                     this.transitionRings();
                     this.transitionChords();
                     this.transitionTypeLabels();
+                    this.transitionSelectedLabels();
+                    this.transitionSelectedPointers();
 
                     // return the vis to its normalized state
                     /*
@@ -2581,6 +2583,8 @@ window.scalarvis = { instanceCount: -1 };
                         this.transitionRings();
                         this.transitionChords();
                         this.transitionTypeLabels();
+                        this.transitionSelectedLabels();
+                        this.transitionSelectedPointers();
 
                         /*this.vis.selectAll('text.selectedLabel').transition()
                           .duration(1000)
@@ -2767,6 +2771,51 @@ window.scalarvis = { instanceCount: -1 };
           .attrTween('transform', (d) => { return this.textTransformTween(d); });
       }
 
+      selectedTextAnchorTween(d) {
+        var i = d3.interpolate({ x0: d.x0_s, x1: d.x1_s }, d);
+        return (t) => {
+          var angle;
+          if (t < .5) {
+            angle = (((d.x0_s + ((d.x1_s - d.x0_s) * .5)) / (Math.PI * 2)) * 360 - 180);
+          } else {
+            angle = (((d.x0 + ((d.x1 - d.x0) * .5)) / (Math.PI * 2)) * 360 - 180);
+          }
+          var isFlipped = (angle > 90 || angle < -90);
+          if (isFlipped) {
+            return null;
+          } else {
+            return 'end';
+          }
+        }
+      }
+
+      transitionSelectedLabels() {
+        this.vis.selectAll('text.selectedLabel').transition()
+          .duration(1000)
+          .attr('dx', (d) => {
+            if (this.arcs.centroid(d)[0] < 0) {
+              return -(base.visSize.width * .5);
+            } else {
+              return (base.visSize.width * .5);
+            }
+          })
+          .attr('dy', (d) => { return this.arcs.centroid(d)[1] + 4; })
+          .attrTween('text-anchor', (d) => { return this.selectedTextAnchorTween(d); })
+          /*.attr('text-anchor', (d) => {
+            if (this.arcs.centroid(d)[0] < 0) {
+              return null;
+            } else {
+              return 'end';
+            }
+          })*/;
+      }
+
+      transitionSelectedPointers() {
+        this.vis.selectAll('polyline.selectedPointer').transition()
+          .duration(1000)
+          .attr('points', (d) => { return this.getPointerPoints(d); });
+      }
+
       getPointerPoints(d) {
         var dx = this.arcs.centroid(d)[0];
         var dy = this.arcs.centroid(d)[1];
@@ -2822,7 +2871,6 @@ window.scalarvis = { instanceCount: -1 };
             enter => enter.append('svg:text')
               .attr('class', 'selectedLabel')
               .attr('dx', (d) => {
-                var title = base.getShortenedString(d.data.node.getDisplayTitle(true), labelCharCount);
                 if (this.arcs.centroid(d)[0] < 0) {
                   return -(base.visSize.width * .5);
                 } else {
