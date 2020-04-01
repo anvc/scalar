@@ -2503,12 +2503,11 @@ window.scalarvis = { instanceCount: -1 };
               enter => enter.append('svg:path')
                 .attr('class', 'ring')
                 .attr('d', this.arcs)
-                .style('stroke-width', (d) => { return (Math.abs(d.x1 - d.x0) > this.minChordAngle) ? 1 : 0; })
+                .style('stroke-width', (d) => { return this.calculateRingStroke(d); })
                 .style('stroke', 'white')
                 .attr('cursor', 'pointer')
                 .attr('display', function(d) { return d.depth ? null : "none"; })
                 .style('fill', function() { return base.neutralColor; })
-                .each((d) => { d.data.centroid = this.arcs.centroid(d); }) // do we need this?
                 .each(this.stash)
                 .on('mouseover', (d) => {
                   this.highlightedNode = d;
@@ -2541,32 +2540,7 @@ window.scalarvis = { instanceCount: -1 };
                     this.transitionSelectedLabels();
                     this.transitionSelectedPointers();
 
-                    // return the vis to its normalized state
-                    /*
-                    this.vis.selectAll('text.selectedLabel').transition()
-                      .duration(1000)
-                      .attr('dx', (d) => {
-                        if (this.arcs.centroid(d)[0] < 0) {
-                          return -(base.visSize.width * .5) + 120;
-                        } else {
-                          return (base.visSize.width * .5) - 120;
-                        }
-                      })
-                      .attr('dy', (d) => { return this.arcs.centroid(d)[1] + 4; })
-                      .attr('text-anchor', (d) => {
-                        if (this.arcs.centroid(d)[0] < 0) {
-                          return 'end';
-                        } else {
-                          return null;
-                        }
-                      })
-                      .each('end', (d) => { this.updateSelectedLabels() });
-                    this.vis.selectAll('polyline.selectedPointer').transition()
-                      .duration(1000)
-                      .attr('points', this.getPointerPoints);*/
-
                   } else {
-
                     // if the node has children, then maximize it and transition the vis to its maximized state
                     if (d.children != null) {
                       var numChildren = d.data.descendantCount;
@@ -2578,6 +2552,7 @@ window.scalarvis = { instanceCount: -1 };
                         // set the relative values of the farthest descendants of the maximized and non-maximized nodes
                         this.myModPercentage = targetPercentage / curPercentage;
                         this.otherModPercentage = (1 - targetPercentage) / (1 - curPercentage);
+
                         this.root.sum((d) => { return this.sumHierarchy(d); }).sort();
                         d3.partition().size([Math.PI * 2, this.r * this.r])(this.root);
                         this.transitionRings();
@@ -2585,28 +2560,6 @@ window.scalarvis = { instanceCount: -1 };
                         this.transitionTypeLabels();
                         this.transitionSelectedLabels();
                         this.transitionSelectedPointers();
-
-                        /*this.vis.selectAll('text.selectedLabel').transition()
-                          .duration(1000)
-                          .attr('dx', function(d) {
-                            if (arcs.centroid(d)[0] < 0) {
-                              return -(base.visSize.width * .5) + 120;
-                            } else {
-                              return (base.visSize.width * .5) - 120;
-                            }
-                          })
-                          .attr('dy', (d) => { return this.arcs.centroid(d)[1] + 4; })
-                          .attr('text-anchor', (d) => {
-                            if (this.arcs.centroid(d)[0] < 0) {
-                              return 'end';
-                            } else {
-                              return null;
-                            }
-                          })
-                          .each('end', (d) => { this.updateSelectedLabels() });
-                        this.vis.selectAll('polyline.selectedPointer').transition()
-                          .duration(1000)
-                          .attr('points', this.getPointerPoints);*/
                       }
                     } else {
                       this.toggleNodeSelected(d);
@@ -2614,16 +2567,6 @@ window.scalarvis = { instanceCount: -1 };
                   }
                 })
             )
-
-          var me = this;
-
-          var parent;
-          var linkedNodes = [];
-          var srcNode;
-          var destNode;
-          var candidateRelatedNodes;
-          var relatedNodes;
-          var index;
 
           this.calculateChords();
 
@@ -2654,11 +2597,11 @@ window.scalarvis = { instanceCount: -1 };
               .join(
                 enter => enter.append('svg:text')
                   .attr('class', 'typeLabel')
-                  .attr('dx', (d) => { return this.calcTextDx(d); })
+                  .attr('dx', (d) => { return this.calculateTextDx(d); })
                   .attr('dy', '.35em')
                   .attr('fill', '#666')
-                  .attr('text-anchor', (d) => { return this.calcTextAnchor(d); })
-                  .attr('transform', (d) => { return this.calcTextTransform(d); })
+                  .attr('text-anchor', (d) => { return this.calculateTextAnchor(d); })
+                  .attr('transform', (d) => { return this.calculateTextTransform(d); })
                   .text((d) => { return d.data.title; }),
                 exit => exit.remove()
               )
@@ -2707,52 +2650,10 @@ window.scalarvis = { instanceCount: -1 };
         base.hasBeenDrawn = true;
       }
 
-      calculateChords() {
-        this.links = [];
-
-        // recreate the abstractedNodesBySlug locally since the global
-        // version doesn't include the arc coordinates
-        this.abstractedNodesBySlug = {};
-        var descendant;
-        var descendants = this.root.descendants();
-        var n = descendants.length;
-        for (var i=0; i<n; i++) {
-          descendant = descendants[i];
-          if (descendant.data.node) {
-            this.abstractedNodesBySlug[descendant.data.node.slug] = descendant;
-          }
-        }
-
-        var link, localLink;
-        n = base.links.length;
-        for (i = 0; i < n; i++) {
-          link = base.links[i];
-          localLink = {
-            source: this.abstractedNodesBySlug[link.source.node.slug],
-            target: this.abstractedNodesBySlug[link.target.node.slug],
-            type: link.type.id
-          };
-          // this prevents toc links from being added, since their source node is null
-          if (localLink.source && localLink.target) {
-            this.links.push(localLink);
-          }
-        }
-      }
-
       transitionRings() {
         this.vis.selectAll('path.ring').transition()
           .duration(1000)
-          .style("stroke-width", (d) => {
-            if (d.parent != null) {
-              if ((d.parent.type == "current") || (d.type == "current")) {
-                return 10;
-              } else {
-                return (d.x1 > this.minChordAngle) ? 1 : 0;
-              }
-            } else {
-              return (d.x1 > this.minChordAngle) ? 1 : 0;
-            }
-          })
+          .style("stroke-width", (d) => { return this.calculateRingStroke(d); })
           .attrTween('d', (d) => { return this.arcTween(d); });
       }
 
@@ -2771,24 +2672,6 @@ window.scalarvis = { instanceCount: -1 };
           .attrTween('transform', (d) => { return this.textTransformTween(d); });
       }
 
-      selectedTextAnchorTween(d) {
-        var i = d3.interpolate({ x0: d.x0_s, x1: d.x1_s }, d);
-        return (t) => {
-          var angle;
-          if (t < .5) {
-            angle = (((d.x0_s + ((d.x1_s - d.x0_s) * .5)) / (Math.PI * 2)) * 360 - 180);
-          } else {
-            angle = (((d.x0 + ((d.x1 - d.x0) * .5)) / (Math.PI * 2)) * 360 - 180);
-          }
-          var isFlipped = (angle > 90 || angle < -90);
-          if (isFlipped) {
-            return null;
-          } else {
-            return 'end';
-          }
-        }
-      }
-
       transitionSelectedLabels() {
         this.vis.selectAll('text.selectedLabel').transition()
           .duration(1000)
@@ -2800,14 +2683,7 @@ window.scalarvis = { instanceCount: -1 };
             }
           })
           .attr('dy', (d) => { return this.arcs.centroid(d)[1] + 4; })
-          .attrTween('text-anchor', (d) => { return this.selectedTextAnchorTween(d); })
-          /*.attr('text-anchor', (d) => {
-            if (this.arcs.centroid(d)[0] < 0) {
-              return null;
-            } else {
-              return 'end';
-            }
-          })*/;
+          .attrTween('text-anchor', (d) => { return this.selectedTextAnchorTween(d); });
       }
 
       transitionSelectedPointers() {
@@ -2848,7 +2724,6 @@ window.scalarvis = { instanceCount: -1 };
       }
 
       updateSelectedLabels() {
-
         var labelCharCount = Math.round(((((base.visSize.width - (this.r * 2)) - 70) - 70) / 120) * 15);
 
         // create a local version of selectedHierarchyNodes that
@@ -2862,8 +2737,13 @@ window.scalarvis = { instanceCount: -1 };
           index = base.selectedHierarchyNodes.indexOf(descendant.data.node);
           if (index != -1) {
             this.selectedHierarchyNodes.push(descendant);
+          } else {
+            console.log(descendant);
           }
         }
+
+        console.log(this.selectedHierarchyNodes);
+        console.log(base.selectedHierarchyNodes);
 
         this.vis.selectAll('text.selectedLabel')
           .data(this.selectedHierarchyNodes)
@@ -3098,26 +2978,70 @@ window.scalarvis = { instanceCount: -1 };
         };
       }
 
-      calcTextAngleOrientation(d) {
+      calculateChords() {
+        this.links = [];
+
+        // recreate the abstractedNodesBySlug locally since the global
+        // version doesn't include the arc coordinates
+        this.abstractedNodesBySlug = {};
+        var descendant;
+        var descendants = this.root.descendants();
+        var n = descendants.length;
+        for (var i=0; i<n; i++) {
+          descendant = descendants[i];
+          if (descendant.data.node) {
+            this.abstractedNodesBySlug[descendant.data.node.slug] = descendant;
+          }
+        }
+
+        var link, localLink;
+        n = base.links.length;
+        for (i = 0; i < n; i++) {
+          link = base.links[i];
+          localLink = {
+            source: this.abstractedNodesBySlug[link.source.node.slug],
+            target: this.abstractedNodesBySlug[link.target.node.slug],
+            type: link.type.id
+          };
+          // this prevents toc links from being added, since their source node is null
+          if (localLink.source && localLink.target) {
+            this.links.push(localLink);
+          }
+        }
+      }
+
+      calculateRingStroke(d) {
+        if (d.parent != null) {
+          if ((d.parent.type == "current") || (d.type == "current")) {
+            return 10;
+          } else {
+            return (d.x1 > this.minChordAngle) ? 1 : 0;
+          }
+        } else {
+          return (d.x1 > this.minChordAngle) ? 1 : 0;
+        }
+      }
+
+      calculateTextAngleOrientation(d) {
         d.angle = (((d.x0 + ((d.x1 - d.x0) * .5)) / (Math.PI * 2)) * 360 - 180);
         d.isFlipped = (d.angle > 90 || d.angle < -90);
       }
 
       // calculates the position of a type label
-      calcTextDx(d) {
-        this.calcTextAngleOrientation(d);
+      calculateTextDx(d) {
+        this.calculateTextAngleOrientation(d);
         return d.isFlipped ? -10 : 10;
       }
 
       // calculates the anchor point of a type label
-      calcTextAnchor(d) {
-        this.calcTextAngleOrientation(d);
+      calculateTextAnchor(d) {
+        this.calculateTextAngleOrientation(d);
         return d.isFlipped ? 'end' : null;
       }
 
       // calculates the transform (rotation) of a type label
-      calcTextTransform(d) {
-        this.calcTextAngleOrientation(d);
+      calculateTextTransform(d) {
+        this.calculateTextAngleOrientation(d);
         d.amount = this.r + this.textRadiusOffset;
         var angleProxy = d.angle;
         var amountProxy = d.amount;
@@ -3135,7 +3059,7 @@ window.scalarvis = { instanceCount: -1 };
           var b = i(t);
           a.x0_s = b.x0;
           a.x1_s = b.x1;
-          return this.calcTextDx(b);
+          return this.calculateTextDx(b);
         };
       }
 
@@ -3146,7 +3070,7 @@ window.scalarvis = { instanceCount: -1 };
           var b = i(t);
           a.x0_s = b.x0;
           a.x1_s = b.x1;
-          return this.calcTextAnchor(b);
+          return this.calculateTextAnchor(b);
         };
       }
 
@@ -3157,705 +3081,29 @@ window.scalarvis = { instanceCount: -1 };
           var b = i(t);
           a.x0_s = b.x0;
           a.x1_s = b.x1;
-          return this.calcTextTransform(b);
+          return this.calculateTextTransform(b);
         };
       }
 
+      // interpolates anchor for the selected text label
+      selectedTextAnchorTween(d) {
+        var i = d3.interpolate({ x0: d.x0_s, x1: d.x1_s }, d);
+        return (t) => {
+          var angle;
+          if (t < .5) {
+            angle = (((d.x0_s + ((d.x1_s - d.x0_s) * .5)) / (Math.PI * 2)) * 360 - 180);
+          } else {
+            angle = (((d.x0 + ((d.x1 - d.x0) * .5)) / (Math.PI * 2)) * 360 - 180);
+          }
+          var isFlipped = (angle > 90 || angle < -90);
+          if (isFlipped) {
+            return null;
+          } else {
+            return 'end';
+          }
+        }
+      }
     }
-
-    /************************
-     * RADIAL VISUALIZATION *
-     ************************
-    base.drawRadial = function(updateOnly) {
-
-      var vis, rollover, fullWidth, fullHeight,
-        currentNode = scalarapi.model.getCurrentPageNode(),
-        minChordAngle = .02,
-        maximizedNode = null,
-        highlightedNode = null;
-
-      base.visualization.empty();
-
-      var isFullScreen = document.fullScreen || document.mozFullScreen || document.webkitIsFullScreen;
-      if (!isFullScreen) {
-        fullWidth = base.visElement.width();
-        if (window.innerWidth > 768) {
-          if (base.options.modal) {
-            fullHeight = Math.max(300, window.innerHeight * .9 - 170);
-          } else {
-            fullHeight = 568;
-          }
-        } else {
-          fullHeight = 300;
-        }
-      } else {
-        fullWidth = window.innerWidth;
-        fullHeight = window.innerHeight;
-      }
-
-      base.visualization.css('min-height', fullHeight + 'px');
-
-      if (((base.options.content == 'all') || (base.options.content == 'current')) && (currentNode != null)) {
-        helpContent = "This visualization shows how <b>&ldquo;" + currentNode.getDisplayTitle() + "&rdquo;</b> is connected to other content in this work.<ul>";
-      } else {
-        helpContent = "This visualization shows <b>how content is interconnected</b> in this work.<ul>";
-      }
-
-      helpContent += "<li>Each inner arc represents a connection, color-coded by type.</li>" +
-        "<li>Roll over the visualization to browse connections.</li>" +
-        "<li>Click to add more content to the current selection.</li>" +
-        "<li>To explore a group of connections in more detail, click its outer arc to expand the contents.</li>" +
-        "<li>Click the name of any item to navigate to it.</li></ul>";
-
-      base.helpButton.attr("data-content", helpContent);
-
-      base.visualization.removeClass('bounded');
-
-      // rollover label
-      rollover = $('<div class="rollover caption_font">Test</div>').appendTo(base.visualization);
-      base.visualization.on('mousemove', function(e) {
-        rollover.css('left', (e.pageX - $(this).offset().left + parseInt($(this).parent().parent().css('padding-left')) + 10) + 'px');
-        rollover.css('top', (e.pageY - $(this).parent().parent().offset().top) + 15 + 'px');
-      })
-
-      // create visualization base element
-      base.svg = d3.select(base.visualization[0]).append('svg:svg')
-        .attr('width', fullWidth)
-        .attr('height', fullHeight);
-
-      vis = base.svg.append("g")
-        .attr("transform", "translate(" + fullWidth / 2 + "," + fullHeight / 2 + ")")
-        .attr("class", "radialvis");
-
-      // create canvas
-      var canvas = vis.append('svg:rect')
-        .attr('width', fullWidth)
-        .attr('height', fullHeight)
-        .attr('class', 'viscanvas');
-
-      this.radialBaseLayer = base.svg.append('svg:g')
-        .attr('width', fullWidth)
-        .attr('height', fullHeight);
-
-      base.hasBeenDrawn = true;
-
-      if (base.svg != null) {
-
-        var myModPercentage = 1;		// relative value of the farthest descendants maximized item
-        var otherModPercentage = 1;		// relative value of the farthest descendants of the not-maximized item
-
-        var r = (Math.min(fullWidth, fullHeight) - 70) * .5;
-        if (fullWidth < fullHeight) {
-          r -= 120;
-        } else {
-          r -= 60;
-        }
-        var radiusMod = 1.55;
-        var textRadiusOffset = 10;
-        var arcOffset = 0;
-
-        // arc generator
-        var arcs = d3.svg.arc()
-          .startAngle(function(d) {
-            return d.x - (Math.PI * .5) + arcOffset;
-          })
-          .endAngle(function(d) { return d.x + d.dx - (Math.PI * .5) + arcOffset; })
-          .innerRadius(function(d) { return (r * radiusMod) - Math.sqrt(d.y); })
-          .outerRadius(function(d) { return (r * radiusMod) - Math.sqrt(d.y + d.dy); });
-
-        // layout which drives the arc display
-        var partition = d3.layout.partition()
-          .sort(null)
-          .size([Math.PI * 2, r * r])
-
-          // returns the relative value for a given node d
-          .value(function(d) {
-
-            // if a node is currently maximized, then
-            if (maximizedNode) {
-
-              // if the maximized node is a top-level node, and this node is a bottom-level node, then
-              if ((maximizedNode.children != null) && (d.depth >= 2) && (d.children == null)) {
-
-                // if the maximized node is an ancestor of this node, then return its maximized value
-                if (base.hasHierarchyNodeAsAncestor(d, maximizedNode)) {
-                  return myModPercentage;
-
-                  // otherwise, return its minimized value
-                } else {
-                  return otherModPercentage;
-                }
-
-                // otherwise, just return the standard value
-              } else {
-                return 1;
-              }
-
-              // return the standard value
-            } else {
-              return 1;
-            }
-          });
-
-        // create the arcs
-        vis = vis.data([base.hierarchy]);
-        var path = vis.selectAll('path');
-        path = path.data(partition.nodes);
-
-        path.enter().append('svg:path')
-          .attr('class', 'ring')
-          .attr('d', arcs)
-          .style("stroke-width", function(d) { return (d.dx > minChordAngle) ? 1 : 0; })
-          .style("stroke", 'white')
-          .attr('cursor', 'pointer')
-          .attr("display", function(d) { return d.depth ? null : "none"; })
-          .style('fill', function(d, i) { return base.neutralColor; })
-          .each(function(d) { d.centroid = arcs.centroid(d); })
-          .each(stash)
-
-          // roll over a node
-          .on('mouseover', function(d) {
-            highlightedNode = d;
-            updateHighlights(d);
-          })
-
-          // roll off of a node
-          .on('mouseout', function(d) {
-            if (highlightedNode == d) {
-              highlightedNode = null;
-              updateHighlights(d);
-            }
-          })
-
-          // double-click a node
-          .on("dblclick", function(d) {
-            if (d.node) {
-              window.open(d.node.url, '_blank');
-            }
-          })
-
-          // click on a node
-          .on('click', function(d) {
-
-            var dx = arcs.centroid(d)[0];
-            var dy = arcs.centroid(d)[1];
-            var hw = fullWidth * .5;
-
-            //if ( d != nodeForCurrentContent ) {
-
-            // if the node was maximized, normalize it
-            if (maximizedNode == d) {
-
-              maximizedNode = null;
-
-              // return the vis to its normalized state
-              path.data(partition.nodes).transition()
-                .duration(1000)
-                .style("stroke-width", function(d) {
-                  return (d.dx > minChordAngle) ? 1 : 0;
-                })
-                .attrTween('d', arcTween);
-              vis.selectAll('path.chord').transition()
-                .duration(1000)
-                .attr('display', function(d) { return (d.source.dx > minChordAngle) ? null : 'none'; })
-                .attrTween('d', chordTween);
-              vis.selectAll('text.typeLabel').transition()
-                .duration(1000)
-                .attrTween('dx', textDxTween)
-                .attrTween('text-anchor', textAnchorTween)
-                .attrTween('transform', textTransformTween);
-              vis.selectAll('text.selectedLabel').transition()
-                .duration(1000)
-                .attr('dx', function(d) {
-                  if (arcs.centroid(d)[0] < 0) {
-                    return -(fullWidth * .5) + 120;
-                  } else {
-                    return (fullWidth * .5) - 120;
-                  }
-                })
-                .attr('dy', function(d) { return arcs.centroid(d)[1] + 4; })
-                .attr('text-anchor', function(d) {
-                  if (arcs.centroid(d)[0] < 0) {
-                    return 'end';
-                  } else {
-                    return null;
-                  }
-                })
-                .each('end', function(d) { updateSelectedLabels() });
-              vis.selectAll('polyline.selectedPointer').transition()
-                .duration(1000)
-                .attr('points', getPointerPoints);
-
-            } else {
-
-              // if the node has children, then maximize it and transition the vis to its maximized state
-              if (d.children != null) {
-
-                var numChildren = d.descendantCount;
-                var curPercentage = numChildren / base.sortedNodes.length;
-                var targetPercentage = Math.min(.75, (numChildren * 15) / 360);
-
-                if (targetPercentage > curPercentage) {
-
-                  maximizedNode = d;
-
-                  // set the relative values of the farthest descendants of the maximized and non-maximized nodes
-                  myModPercentage = targetPercentage / curPercentage;
-                  otherModPercentage = (1 - targetPercentage) / (1 - curPercentage);
-
-                  path.data(partition.nodes).transition()
-                    .duration(1000)
-                    .style("stroke-width", function(d) {
-                      if (d.parent != null) {
-                        if ((d.parent.type == "current") || (d.type == "current")) {
-                          return 10;
-                        } else {
-                          return (d.dx > minChordAngle) ? 1 : 0;
-                        }
-                      } else {
-                        return (d.dx > minChordAngle) ? 1 : 0;
-                      }
-                    })
-                    .attrTween('d', arcTween);
-                  vis.selectAll('path.chord').transition()
-                    .duration(1000)
-                    .attr('display', function(d) { return ((d.source.dx > minChordAngle) || (d.target.dx > minChordAngle)) ? null : 'none'; })
-                    .attrTween('d', chordTween);
-                  vis.selectAll('text.typeLabel').transition()
-                    .duration(1000)
-                    .attrTween('dx', textDxTween)
-                    .attrTween('text-anchor', textAnchorTween)
-                    .attrTween('transform', textTransformTween);
-                  vis.selectAll('text.selectedLabel').transition()
-                    .duration(1000)
-                    .attr('dx', function(d) {
-                      if (arcs.centroid(d)[0] < 0) {
-                        return -(fullWidth * .5) + 120;
-                      } else {
-                        return (fullWidth * .5) - 120;
-                      }
-                    })
-                    .attr('dy', function(d) { return arcs.centroid(d)[1] + 4; })
-                    .attr('text-anchor', function(d) {
-                      if (arcs.centroid(d)[0] < 0) {
-                        return 'end';
-                      } else {
-                        return null;
-                      }
-                    })
-                    .each('end', function(d) { updateSelectedLabels() });
-                  vis.selectAll('polyline.selectedPointer').transition()
-                    .duration(1000)
-                    .attr('points', getPointerPoints);
-
-                }
-
-              } else {
-                toggleNodeSelected(d);
-              }
-            }
-            //}
-          });
-
-        path.exit().remove();
-
-        function getPointerPoints(d) {
-          var dx = arcs.centroid(d)[0];
-          var dy = arcs.centroid(d)[1];
-          var hw = fullWidth * .5;
-          if (arcs.centroid(d)[0] < 0) {
-            return ((d.textWidth + 5) - hw) + ',' + dy + ' ' + ((d.textWidth + 5) - hw) + ',' + dy + ' ' + dx + ',' + dy;
-          } else {
-            return (hw - (d.textWidth + 5)) + ',' + dy + ' ' + (hw - (d.textWidth + 5)) + ',' + dy + ' ' + dx + ',' + dy;
-          }
-        }
-
-				/**
-				 * Selects the given node data.
-				 *
-        function toggleNodeSelected(d) {
-          var index;
-          index = base.selectedNodes.indexOf(d.node);
-          if (index == -1) {
-            base.selectedNodes.push(d.node);
-            index = base.selectedHierarchyNodes.indexOf(d);
-            if (index == -1) {
-              base.selectedHierarchyNodes.push(d);
-            }
-          } else {
-            base.selectedNodes.splice(index, 1);
-            index = base.selectedHierarchyNodes.indexOf(d);
-            if (index != -1) {
-              base.selectedHierarchyNodes.splice(index, 1);
-            }
-          }
-          updateSelectedLabels();
-          updateHighlights(d);
-        }
-
-				/**
-				 * Updates the display of labels for selected nodes.
-				 *
-        function updateSelectedLabels() {
-
-          var selectedLabels = vis.selectAll('text.selectedLabel').data(base.selectedHierarchyNodes);
-
-          var r = (Math.min(fullWidth, fullHeight) - 70) * .5;
-          var labelCharCount = Math.round(((((fullWidth - (r * 2)) - 70) - 70) / 120) * 15);
-
-          selectedLabels.enter().append('svg:text')
-            .attr('class', 'selectedLabel')
-            .attr('dx', function(d) {
-              var title = base.getShortenedString(d.node.getDisplayTitle(true), labelCharCount);
-              if (arcs.centroid(d)[0] < 0) {
-                return -(fullWidth * .5) + ((title.length / 15) * 70);
-              } else {
-                return (fullWidth * .5) - ((title.length / 15) * 70);
-              }
-            })
-            .attr('dy', function(d) {
-              return arcs.centroid(d)[1] + 4;
-            })
-            .attr('fill', '#000')
-            .attr('font-weight', 'bold')
-            .attr('text-anchor', function(d) {
-              if (arcs.centroid(d)[0] < 0) {
-                return 'end';
-              } else {
-                return null;
-              }
-            })
-            .on("click", function(d) {
-              if (d.node) {
-                window.open(d.node.url, '_blank');
-              }
-            })
-            .text(function(d) { return base.getShortenedString(d.node.getDisplayTitle(true), labelCharCount); })
-            .each(function(d) { d.textWidth = this.getComputedTextLength(); });
-
-          selectedLabels.exit().remove();
-
-          selectedLabels.attr('dx', function(d) {
-            var title = base.getShortenedString(d.node.getDisplayTitle(true), labelCharCount);
-            if (arcs.centroid(d)[0] < 0) {
-              return -(fullWidth * .5);
-            } else {
-              return (fullWidth * .5);
-            }
-          })
-            .attr('dy', function(d) {
-              return arcs.centroid(d)[1] + 4;
-            })
-            .attr('text-anchor', function(d) {
-              if (arcs.centroid(d)[0] < 0) {
-                return null;
-              } else {
-                return 'end';
-              }
-            })
-            .text(function(d) { return base.getShortenedString(d.node.getDisplayTitle(true), labelCharCount); });
-
-          var selectedPointers = vis.selectAll('polyline.selectedPointer').data(base.selectedHierarchyNodes);
-
-          selectedPointers.enter().append('svg:polyline')
-            .attr('class', 'selectedPointer')
-            .attr('points', getPointerPoints)
-            .attr('stroke', '#444')
-            .attr('stroke-width', 1);
-
-          selectedPointers.exit().remove();
-
-          selectedPointers.attr('points', getPointerPoints);
-
-        }
-
-				/**
-				 * Update the highlight elements.
-				 *
-        function updateHighlights(d) {
-
-          // show the rollover label if this item has no children, i.e. is a single content item, not a parent
-          if (highlightedNode && d.showsTitle) {
-            rollover.html(d.title);
-            rollover.css('display', 'block');
-
-            // otherwise, hide the rollover label
-          } else {
-            rollover.css('display', 'none');
-          }
-
-          // darken the arcs of the rolled-over node and its descendants
-          vis.selectAll('path.ring')
-            .data(partition.nodes)
-            .style('stroke-width', function(d) {
-              if (d.parent != null) {
-                if ((d.parent.type == "current") || (d.type == "current")) {
-                  return 5;
-                } else {
-                  return (d.dx > minChordAngle) ? 1 : 0;
-                }
-              } else {
-                return (d.dx > minChordAngle) ? 1 : 0;
-              }
-            })
-            .style('fill', function(d) {
-
-              var color = base.neutralColor,
-                okToHighlight = true;
-
-              // if the item isn't the root, then
-              if (d.parent != null) {
-
-                // if it's representing the current content, then make it white
-                if (d.type == "current") {
-                  if ((d.children == null) || (!base.options.local && (d.children == null))) {
-                    color = "#000000";
-                  } else {
-                    color = "#ffffff";
-                  }
-
-                  // if the mouse is over the arc and it's not representing an individual item, then color it by noun
-                } else if (d == highlightedNode) {
-
-                  if (d.children != null) {
-                    color = base.highlightColorScale(d.type, "noun");
-                  } else {
-                    color = base.neutralColor;
-                  }
-
-                  // if we got an actual color, then don't darken it when highlighted
-                  if (color != base.neutralColor) {
-                    okToHighlight = false;
-                  }
-                }
-              }
-              return (
-                ((d == highlightedNode) ||
-                  (base.hasHierarchyNodeAsAncestor(d, highlightedNode)) ||
-                  ((base.selectedNodes.indexOf(d.node) != -1) && (d.node != null) /*&& (d == nodeForCurrentContent)*)) &&
-                okToHighlight)
-                ? d3.rgb(color).darker()
-                : color;
-            })
-
-          // darken the chords connected to the rolled-over node
-          vis.selectAll('path.chord')
-            .attr('opacity', function(d) {
-
-              // chord is connected to a selected node
-              if (
-                (base.selectedNodes.indexOf(d.source.node) != -1) ||
-                (base.selectedNodes.indexOf(d.target.node) != -1)
-              ) {
-                return .9;
-
-                // chord is connected to a rolled over node
-              } else if (
-                (
-                  (d.source == highlightedNode) ||
-                  (d.target == highlightedNode) ||
-                  base.hasHierarchyNodeAsAncestor(d.source, highlightedNode)
-                ) || (
-                  base.hasHierarchyNodeAsAncestor(d.target, highlightedNode)
-                )
-              ) {
-                return .9;
-
-                // chord isn't connected to anything selected or rolled over
-              } else {
-                return .25;
-              }
-
-            })
-            .attr('fill', function(d) {
-              return (
-                (d.source == highlightedNode) ||
-                (d.target == highlightedNode) ||
-                base.hasHierarchyNodeAsAncestor(d.source, highlightedNode) ||
-                base.hasHierarchyNodeAsAncestor(d.target, highlightedNode) ||
-                (base.selectedNodes.indexOf(d.source.node) != -1) ||
-                (base.selectedNodes.indexOf(d.target.node) != -1)
-              )
-                ? base.highlightColorScale(d.type, "verb")
-                : base.neutralColor;
-            });
-        }
-
-        var parent;
-        var linkedNodes = [];
-        var srcNode;
-        var destNode;
-        var candidateRelatedNodes;
-        var relatedNodes;
-        var index;
-        var links = [];
-
-        var linkSpecs = [
-          { type: 'reference', direction: 'incoming' },
-          { type: 'annotation', direction: 'outgoing' },
-          { type: 'tag', direction: 'outgoing' },
-          { type: 'comment', direction: 'outgoing' },
-          { type: 'path', direction: 'outgoing' },
-        ];
-
-        var link;
-        n = base.links.length;
-        for (i = 0; i < n; i++) {
-          link = base.links[i];
-          links.push({
-            source: base.abstractedNodesBySlug[link.source.node.slug],
-            target: base.abstractedNodesBySlug[link.target.node.slug],
-            type: link.type.id
-          })
-        }
-
-        // chord generator
-        var chords = d3.svg.chord()
-          .startAngle(function(d) { return d.x - (Math.PI * .5) + arcOffset; })
-          .endAngle(function(d) { return d.x + d.dx - (Math.PI * .5) + arcOffset; })
-          .radius(function(d) { return (r * radiusMod) - Math.sqrt(d.y + d.dy); });
-
-        // create the chords
-        var chordvis = vis.selectAll('path.chord').data(links);
-
-        chordvis.enter().append('svg:path')
-          .attr('class', 'chord')
-          .attr('d', function(d) { return chords(d); })
-          .attr('opacity', .25)
-          .attr('display', function(d) { return ((d.source.dx > minChordAngle) || (d.target.dx > minChordAngle)) ? null : 'none'; })
-          .attr('fill', function(d) { return base.highlightColorScale(d.type.id); })
-          .each(stashChord);
-
-        chordvis.exit().remove();
-
-        if (base.hierarchy.children != null) {
-
-          // create the type labels
-          var labels = vis.selectAll('text.typeLabel').data(base.hierarchy.children);
-
-          labels.enter().append('svg:text')
-            .attr('class', 'typeLabel')
-            .attr('dx', function(d) {
-              d.angle = (((d.x + (d.dx * .5) + arcOffset) / (Math.PI * 2)) * 360 - 180);
-              d.isFlipped = ((d.angle > 90) || (d.angle < -90));
-              return d.isFlipped ? -10 : 10;
-            })
-            .attr('dy', '.35em')
-            .attr('fill', '#666')
-            .attr('text-anchor', function(d) {
-              return d.isFlipped ? 'end' : null;
-            })
-            .attr('transform', function(d) {
-              d.amount = r + textRadiusOffset;
-              if (d.isFlipped) {
-                d.angle += 180;
-                d.amount *= -1;
-              }
-              return 'rotate(' + d.angle + ') translate(' + d.amount + ',0) ';
-            })
-            .text(function(d) { return d.title; });
-
-          labels.exit().remove();
-
-        }
-
-        updateSelectedLabels();
-        updateHighlights();
-      }
-
-      // store current arc data for use in transitions
-      function stash(d) {
-        d.x0 = d.x;
-        d.dx0 = d.dx;
-      }
-
-      // store current chord data for use in transitions
-      function stashChord(d) {
-        d.source0 = { x: d.source.x, dx: d.source.dx };
-        d.target0 = { x: d.target.x, dx: d.target.dx };
-      }
-
-      // interpolates between path data for two arcs
-      function arcTween(a) {
-        var i = d3.interpolate({ x: a.x0, dx: a.dx0 }, a);
-        return function(t) {
-          var b = i(t);
-          a.x0 = b.x;
-          a.dx0 = b.dx;
-          return arcs(b);
-        };
-      }
-
-      // interpolates between path data for two chords
-      function chordTween(a) {
-        var i = d3.interpolate({ source: { x: a.source0.x, dx: a.source0.dx }, target: { x: a.target0.x, dx: a.target0.dx } }, a);
-        return function(t) {
-          var b = i(t);
-          a.source0 = { x: b.source.x, dx: b.source.dx };
-          a.target0 = { x: b.target.x, dx: b.target.dx };
-          return chords(b);
-        };
-      }
-
-      // calculates the position of a type label
-      function calcTextDx(d) {
-        d.angle = (((d.x + (d.dx * .5)) / (Math.PI * 2)) * 360 - 180);
-        d.isFlipped = ((d.angle > 90) || (d.angle < -90));
-        return d.isFlipped ? -10 : 10;
-      }
-
-      // calculates the anchor point of a type label
-      function calcTextAnchor(d) {
-        d.angle = (((d.x + (d.dx * .5)) / (Math.PI * 2)) * 360 - 180);
-        d.isFlipped = ((d.angle > 90) || (d.angle < -90));
-        return d.isFlipped ? 'end' : null;
-      }
-
-      // calculates the transform (rotation) of a type label
-      function calcTextTransform(d) {
-        d.angle = (((d.x + (d.dx * .5)) / (Math.PI * 2)) * 360 - 180);
-        d.isFlipped = ((d.angle > 90) || (d.angle < -90));
-        d.amount = r + textRadiusOffset;
-        if (d.isFlipped) {
-          d.angle += 180;
-          d.amount *= -1;
-        }
-        return 'rotate(' + d.angle + ') translate(' + d.amount + ',0) ';
-      }
-
-      // interpolates between position data for two type labels
-      function textDxTween(a) {
-        var i = d3.interpolate({ x: a.x0, dx: a.dx0 }, a);
-        return function(t) {
-          var b = i(t);
-          a.x0 = b.x;
-          a.dx0 = b.dx;
-          return calcTextDx(b);
-        };
-      }
-
-      // interpolates between anchor point data for two type labels
-      function textAnchorTween(a) {
-        var i = d3.interpolate({ x: a.x0, dx: a.dx0 }, a);
-        return function(t) {
-          var b = i(t);
-          a.x0 = b.x;
-          a.dx0 = b.dx;
-          return calcTextAnchor(b);
-        };
-      }
-
-      // interpolates between transform data for two type labels
-      function textTransformTween(a) {
-        var i = d3.interpolate({ x: a.x0, dx: a.dx0 }, a);
-        return function(t) {
-          var b = i(t);
-          a.x0 = b.x;
-          a.dx0 = b.dx;
-          return calcTextTransform(b);
-        };
-      }
-    }*/
 
     /********************************
      * FORCE-DIRECTED VISUALIZATION *
