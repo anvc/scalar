@@ -59,7 +59,7 @@
         '<div id="content-selector-btn" class="btn-group"><button type="button" class="btn btn-primary btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'+
         'Select items...<span class="caret"></span></button>'+
         '<ul class="dropdown-menu">'+
-        '<li><a>Specific items...</a></li>'+
+        '<li class="content-selector"><a>Specific items...</a></li>'+
         '<li><a>Items by type...</a></li>'+
         '<li><a>Items by distance...</a></li>'+
         '</ul>'+
@@ -80,7 +80,6 @@
     }
 
     Plugin.prototype.init = function () {
-      // Place initialization logic here
       // You already have access to the DOM element and
       // the options via the instance, e.g. this.element
       // and this.options
@@ -89,36 +88,64 @@
       // handles multiple instances of dropdowns
       $(function(){
         $(".dropdown-menu").on('click', 'li a', function(){
-          $(this).parent().parent().siblings(".btn:first-child").html($(this).text()+' <span class="caret"></span>');
+          var buttonValue = $(this).parent().parent().siblings(".btn:first-child").html($(this).text()+' <span class="caret"></span>');
+          buttonValue
           $(this).parent().parent().siblings(".btn:first-child").val($(this).text());
 
-          if($(this).text() == 'Force-Directed'){
-            $(this).parent().parent().siblings(".btn:first-child").html($(this).text()+' <span class="caret"></span>').prepend('<span class="dropdown-item-icon force light"></span>');
-          }
-          if($(this).text() == 'Grid'){
-            $(this).parent().parent().siblings(".btn:first-child").html($(this).text()+' <span class="caret"></span>').prepend('<span class="dropdown-item-icon grid light"></span>');
-          }
-          if($(this).text() == 'List'){
-            $(this).parent().parent().siblings(".btn:first-child").html($(this).text()+' <span class="caret"></span>').prepend('<span class="dropdown-item-icon list light"></span>');
-          }
-          if($(this).text() == 'Map'){
-            $(this).parent().parent().siblings(".btn:first-child").html($(this).text()+' <span class="caret"></span>').prepend('<span class="dropdown-item-icon map light"></span>');
-          }
-          if($(this).text() == 'Radial'){
-            $(this).parent().parent().siblings(".btn:first-child").html($(this).text()+' <span class="caret"></span>').prepend('<span class="dropdown-item-icon radial light"></span>');
-          }
-          if($(this).text() == 'Tree'){
-            $(this).parent().parent().siblings(".btn:first-child").html($(this).text()+' <span class="caret"></span>').prepend('<span class="dropdown-item-icon tree light"></span>');
-          }
-          if($(this).text() == 'Word Cloud'){
-            $(this).parent().parent().siblings(".btn:first-child").html($(this).text()+' <span class="caret"></span>').prepend('<span class="dropdown-item-icon word-cloud light"></span>');
-          }
 
-
-
+          switch($(this).text()) {
+            // Display icons inside visualization dropdown button
+            case 'Force-Directed':
+              buttonValue.prepend('<span class="dropdown-item-icon force light"></span>');
+              break;
+            case 'Grid':
+              buttonValue.prepend('<span class="dropdown-item-icon grid light"></span>');
+              break;
+            case 'List':
+              buttonValue.prepend('<span class="dropdown-item-icon list light"></span>');
+              break;
+            case 'Map':
+              buttonValue.prepend('<span class="dropdown-item-icon map light"></span>');
+              break;
+            case 'Radial':
+              buttonValue.prepend('<span class="dropdown-item-icon radial light"></span>');
+              break;
+            case 'Tree':
+              buttonValue.prepend('<span class="dropdown-item-icon tree light"></span>');
+              break;
+            case 'Word Cloud':
+              buttonValue.prepend('<span class="dropdown-item-icon word-cloud light"></span>');
+              break;
+            //
+            // tigger content-selector
+            //
+            case 'Specific items...':
+              alert('trigger content-selector');
+              $('<div></div>').content_selector({
+                changeable: true,
+                multiple: true,
+                onthefly: true,
+                msg: 'Choose items to be included in this lens.',
+                callback: this.handleAddTags
+                });
+                ScalarLenses.prototype.handleAddTags = function(nodes) {
+                  if (nodes && nodes.length != 0) {
+                    // extract the 'slug' property of each node and put into an array;
+                    // this will be what gets stored in the "items" property
+                  }
+                }
+              break;
+            case 'Items by type...':
+              alert('Trigger modal for type');
+              break;
+            case 'Items by distance...':
+              alert('Trigger modal for distance');
+              break;
+          }
 
         });
       });
+
 
 
       $("[property|='sioc:content']").append(lensHtml);
