@@ -1420,12 +1420,13 @@ body>.annotorious-popup{
 }
 .lens-content {
 	font-family:'Lato', sans-serif !important;
-  padding:15px;
+  padding: 8px 10px;
   background:white;
   float:right;
 }
 .lens-content.col-xs-11 {
   width:97%;
+	border-radius:0px 8px 8px 0px;
 }
 .lens-icon-wrapper.col-xs-1 {
   position:absolute;
@@ -1435,7 +1436,7 @@ body>.annotorious-popup{
   width:10px;
 }
 .lens-icon {
-  background:url(../images/icon_lens_dark.png);
+  background:url(../images/lens.png);
   background-repeat:no-repeat;
   background-size:100%;
   background-position:50% 50%;
@@ -1449,7 +1450,7 @@ body>.annotorious-popup{
 }
 #lens .btn-primary {
 	font-family:'Lato', sans-serif !important;
-	margin-top:10px;
+	margin-top:8px;
 	margin-right:5px;
 	padding: 3px 8px;
 }
@@ -1472,14 +1473,10 @@ body>.annotorious-popup{
 .dropdown-menu {
 	min-width:152px;
 }
-.dropdown-item-icon {
-	max-width:25px;
-	margin-right:6px;
-}
 #visualization-btn ul li a {
 	padding:4px 15px 4px;
 }
-#visualization-btn ul li a .dropdown-item-icon {
+.dropdown-item-icon {
 	background-repeat:no-repeat;
 	background-position:50% 50%;
 	background-size:cover;
@@ -1487,27 +1484,54 @@ body>.annotorious-popup{
 	width: 15px;
   height: 15px;
   margin-top: 3px;
+	max-width:25px;
+	margin-right:6px;
 }
-#visualization-btn ul li:nth-child(1) a .dropdown-item-icon {
+.dropdown-item-icon.light {
+	margin-right:5px;
+	margin-top:1px;
+}
+.dropdown-item-icon.force {
 	background-image:url(../images/icon_forcedir_dark.png);
 }
-#visualization-btn ul li:nth-child(2) a .dropdown-item-icon {
+.dropdown-item-icon.force.light {
+	background-image:url(../images/icon_forcedir_light.png);
+}
+.dropdown-item-icon.grid {
 	background-image:url(../images/icon_grid_dark.png);
 }
-#visualization-btn ul li:nth-child(3) a .dropdown-item-icon {
+.dropdown-item-icon.grid.light {
+	background-image:url(../images/icon_grid_light.png);
+}
+.dropdown-item-icon.list {
 	background-image:url(../images/icon_list_dark.png);
 }
-#visualization-btn ul li:nth-child(4) a .dropdown-item-icon {
+.dropdown-item-icon.list.light {
+	background-image:url(../images/icon_list_light.png);
+}
+.dropdown-item-icon.map {
 	background-image:url(../images/icon_map_dark.png);
 }
-#visualization-btn ul li:nth-child(5) a .dropdown-item-icon {
+.dropdown-item-icon.map.light {
+	background-image:url(../images/icon_map_light.png);
+}
+.dropdown-item-icon.radial {
 	background-image:url(../images/icon_radial_dark.png);
 }
-#visualization-btn ul li:nth-child(6) a .dropdown-item-icon {
+.dropdown-item-icon.radial.light {
+	background-image:url(../images/icon_radial_light.png);
+}
+.dropdown-item-icon.tree {
 	background-image:url(../images/icon_tree_dark.png);
 }
-#visualization-btn ul li:nth-child(7) a .dropdown-item-icon {
+.dropdown-item-icon.tree.light{
+	background-image:url(../images/icon_tree_light.png);
+}
+.dropdown-item-icon.word-cloud {
 	background-image:url(../images/icon_wordcloud_dark.png);
+}
+.dropdown-item-icon.word-cloud.light {
+	background-image:url(../images/icon_wordcloud_light.png);
 }
 #visualization-btn .btn-primary {
 	background:#985da9;
