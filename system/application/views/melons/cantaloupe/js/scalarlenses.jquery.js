@@ -69,7 +69,7 @@
         '</div></div></div>';
 
 
-    function Plugin( element, options) {
+    function ScalarLenses( element, options) {
         this.element = element;
         this.options = $.extend( {}, defaults, options);
 
@@ -79,7 +79,7 @@
         this.init();
     }
 
-    Plugin.prototype.init = function () {
+    ScalarLenses.prototype.init = function () {
       // You already have access to the DOM element and
       // the options via the instance, e.g. this.element
       // and this.options
@@ -120,7 +120,6 @@
             // tigger content-selector
             //
             case 'Specific items...':
-              alert('trigger content-selector');
               $('<div></div>').content_selector({
                 changeable: true,
                 multiple: true,
@@ -128,12 +127,8 @@
                 msg: 'Choose items to be included in this lens.',
                 callback: this.handleAddTags
                 });
-                ScalarLenses.prototype.handleAddTags = function(nodes) {
-                  if (nodes && nodes.length != 0) {
-                    // extract the 'slug' property of each node and put into an array;
-                    // this will be what gets stored in the "items" property
-                  }
-                }
+
+
               break;
             case 'Items by type...':
               alert('Trigger modal for type');
@@ -152,15 +147,25 @@
 
     };
 
+    // callback for content selector
+    ScalarLenses.prototype.handleAddTags = function(nodes) {
+      if (nodes && nodes.length != 0) {
+        // extract the 'slug' property of each node and put into an array;
+        // this will be what gets stored in the "items" property
+      }
+    }
+    
+
     // A really lightweight plugin wrapper around the constructor,
     // preventing against multiple instantiations
     $.fn[pluginName] = function ( options ) {
         return this.each(function () {
             if (!$.data(this, 'plugin_' + pluginName)) {
                 $.data(this, 'plugin_' + pluginName,
-                new Plugin( this, options ));
+                new ScalarLenses( this, options ));
             }
         });
     }
+
 
 })( jQuery, window, document );
