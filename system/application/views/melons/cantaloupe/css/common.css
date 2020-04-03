@@ -1448,6 +1448,9 @@ body>.annotorious-popup{
   margin-top:0;
   margin-bottom:0;
 }
+.lens-tags {
+	max-width:320px;
+}
 #lens .btn-primary {
 	font-family:'Lato', sans-serif !important;
 	margin-top:8px;
@@ -1472,6 +1475,9 @@ body>.annotorious-popup{
 }
 .dropdown-menu {
 	min-width:152px;
+}
+.dropdown-menu li a {
+	cursor:pointer;
 }
 #visualization-btn ul li a {
 	padding:4px 15px 4px;
@@ -1543,4 +1549,34 @@ body>.annotorious-popup{
 }
 #content-selector-btn .dropdown-menu li a {
 	padding:4px 10px;
+}
+.close {
+	font-size:0px;
+}
+#byItem li {
+	cursor:pointer;
+}
+.btn-default .caret {
+	margin-left:10px;
+}
+#modalByType .modal-dialog {
+	max-width:350px;
+}
+#modalByDistance .modal-dialog {
+	max-width:520px;
+}
+#modalByType .modal-footer,
+#modalByDistance .modal-footer {
+	border:none;
+	padding:0 15px 15px;
+}
+#modalByDistance .col-sm-5,
+#modalByDistance .col-sm-6 {
+	padding:0;
+}
+#distanceInput.form-control {
+	width:97%;
+}
+#latitude.form-control {
+	width:98%;
 }
