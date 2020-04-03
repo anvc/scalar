@@ -1985,10 +1985,10 @@ ScalarAPI.prototype.loadNode = ScalarAPI.prototype.loadPage = function(uriSegmen
 
 	var versions = (allVersions === true)?1:0;
 	queryString += '&versions='+versions;
-	
+
 	includeMetadata = ('undefined'!=typeof(includeMetadata) && false === includeMetadata) ? false : true;
 	if (!includeMetadata) queryString += '&meta=0';
-	
+
 	if (this.loadPageStatus[url] == null) {
 		this.loadPageStatus[url] = {isLoading:false, queuedSuccessCallbacks:[], queuedErrorCallbacks:[]};
 	}
@@ -2505,7 +2505,8 @@ function ScalarModel(options) {
 		{property:'fullname', uri:'http://scalar.usc.edu/2012/01/scalar-ns#fullname', type:'string'},
 		{property:'author', uri:'http://www.w3.org/ns/prov#wasAttributedTo', type:'string'},
 		{property:'references', uri:'http://purl.org/dc/terms/references', type:'string'},
-		{property:'isReferencedBy', uri:'http://purl.org/dc/terms/isReferencedBy', type:'string'}
+		{property:'isReferencedBy', uri:'http://purl.org/dc/terms/isReferencedBy', type:'string'},
+    {property:'isLensOf', uri:'http://scalar.usc.edu/2012/01/scalar-ns#isLensOf', type:'json'}
 	];
 
 	// metadata about each relation type
