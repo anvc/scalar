@@ -96,7 +96,7 @@ class Lens_model extends MY_Model {
 		
     }
 
-    public function get_children($parent_version_id=0, $is_live=false, $id_array=null) {
+    public function get_children($parent_version_id=0) {
     	
     	$this->db->select('*');
     	$this->db->from($this->lenses_table);
