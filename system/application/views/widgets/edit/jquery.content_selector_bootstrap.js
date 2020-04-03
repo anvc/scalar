@@ -38,6 +38,11 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			opts.callback(options);
 			return;
 		}
+		if ('undefined' == typeof(opts.isMedia) || opts.isMedia) {
+			opts.isMedia = true;
+		} else {
+			opts.isMedia = false;
+		}
 		// Helpers
 		var ucwords = function(str) { // http://kevin.vanzonneveld.net
 			return (str ).replace(/^([a-z\u00E0-\u00FC])|\s+([a-z\u00E0-\u00FC])/g, function($1) {
@@ -51,9 +56,11 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			return str.replace(/-/g, ' ');
 		}
 		// Create the modal
+		var dialog_title = mediaType == '' ? 'Media formatting options' : mediaType + ' media formatting options';
+		if (!opts.isMedia) dialog_title = 'Formatting options';
 		bootbox.dialog({
 			message: '<div id="bootbox-media-options-content" class="heading_font"></div>',
-			title: mediaType == '' ? 'Media formatting options' : mediaType + ' media formatting options',
+			title: dialog_title,
 			className: 'media_options_bootbox',
 			animate: ((navigator.userAgent.match(/(iPod|iPhone|iPad)/)) ? false : true) // Panel is unclickable if true for iOS
 		});
@@ -67,7 +74,9 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 		var node = typeof opts.node.current != 'undefined' ? opts.node.current : opts.node;
 		var $media_preview = $('<div class="row selectedItemPreview"><div class="col-xs-3 col-sm-4 col-md-3 left mediaThumbnail"></div><div class="col-xs-9 col-sm-8 col-md-9 right"><strong class="mediaTitle">' + node.title + '</strong><p class="mediaDescription"></p><div class="link"></div></div></div><hr />');
 		var thumbnail = undefined;
-		if (typeof opts.node.thumbnail != 'undefined' && opts.node.thumbnail != null) {
+		if (!opts.isMedia) {
+			thumbnail = $('link#approot').attr('href')+'views/melons/cantaloupe/images/widget_image_note.png';
+		} else if (typeof opts.node.thumbnail != 'undefined' && opts.node.thumbnail != null) {
 			thumbnail = opts.node.thumbnail;
 		} else if (typeof opts.node.content != 'undefined' && opts.node.content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail'] != 'undefined' && opts.node.content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail'] != null) {
 			thumbnail = opts.node.content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail'][0].value;
@@ -119,7 +128,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 		}
 		for (var option_name in opts.data) {
 			if (option_name != 'annotations' && option_name != 'node') {
-				var $option = $('<div class="form-group"><label class="col-sm-3 control-label">' + ucwords(dash_to_space(option_name)) + ': </label><div class="col-sm-9"><select class="btn btn-default" name="' + option_name + '"></select></div></div>');
+				var $option = $('<div class="form-group"><label class="col-sm-3 control-label" style="white-space:nowrap;">' + ucwords(dash_to_space(option_name)) + ': </label><div class="col-sm-9"><select class="btn btn-default" name="' + option_name + '"></select></div></div>');
 				for (var j = 0; j < opts.data[option_name].length; j++) {
 
 					$option.find('select:first').append('<option value="' + opts.data[option_name][j] + '">' + (option_name == 'text-wrap' ? sentenceCase(dash_to_space(opts.data[option_name][j])) : ucwords(dash_to_space(opts.data[option_name][j]))) + '</option>');
@@ -461,7 +470,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			bootbox.hideAll()
 			var box = bootbox.dialog({
 				message: '<div id="bootbox-content-selector-content" class="heading_font"></div>',
-				title: 'Select content',
+				title: (('string'==typeof(opts.msg) && opts.msg.length)?opts.msg:'Select content'),
 				className: 'content_selector_bootbox',
 				animate: true // This must remain true for iOS, otherwise the wysiwyg selection goes away
 			});

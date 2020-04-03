@@ -337,7 +337,7 @@ class Version_model extends MY_Model {
     	foreach ($version_urns as $version_urn) {
     		$version_urn_arr = explode(':', $version_urn);
     		$version_id = (int) array_pop($version_urn_arr);
-    		$version = $this->versions->get($version_id);
+    		$version = $this->versions->get($version_id, null, false);  // Get without metadata
     		if (!isset($content[$version->content_id])) {
     			$row = $this->pages->get($version->content_id);
     			if (empty($row)) continue;
@@ -348,7 +348,8 @@ class Version_model extends MY_Model {
     	}
     	if (!$this->data['versions']) {
     		foreach ($content as $content_id => $row) {
-    			$content[$content_id]->versions = array(reset($content[$content_id]->versions));
+    			 $top_version = reset($content[$content_id]->versions);
+    			 $content[$content_id]->versions = array($this->versions->get($top_version->version_id, null, true));  // Get with metadata
     		}
     	}
     	return $content;

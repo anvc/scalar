@@ -8,7 +8,6 @@
  * @author 	Craig Dietrich
  * @version	1.1 (refactor \n => <br /> on paste due to changes in CKEditor's bubbling
  */
-
 var codemirror_cke_1_previous_changes = [];  // Global
 $(document).on('paste', 'textarea', function (e, c) {
 	if ('undefined' == typeof(codemirror_cke_1) || !codemirror_cke_1) return;  // Not in Source view
@@ -34,23 +33,6 @@ CKEDITOR.on('instanceReady', function(evt){
 		if (codemirror_cke_1_previous_changes.length > 2) codemirror_cke_1_previous_changes.shift();
 	});
 });
-
-//TODO: Remove this after editor changes are live
-var getUrlParameter = function getUrlParameter(sParam) {
-    var sPageURL = decodeURIComponent(window.location.search.substring(1)),
-        sURLVariables = sPageURL.split('&'),
-        sParameterName,
-        i;
-
-    for (i = 0; i < sURLVariables.length; i++) {
-        sParameterName = sURLVariables[i].split('=');
-
-        if (sParameterName[0] === sParam) {
-            return sParameterName[1] === undefined ? true : sParameterName[1];
-        }
-    }
-    return false;
-};
 
 // Editor config
 CKEDITOR.editorConfig = function( config ) {
@@ -93,7 +75,7 @@ CKEDITOR.editorConfig = function( config ) {
             'iframe,'+
             'codemirror,'+
             'scalarunlink,'+
-            (getUrlParameter("useBetaEditor")?'scalarbeta,':'scalar,')+
+            'scalar,'+
             'floatingspace';
 	config.skin = 'bootstrapck';
 	config.allowedContent = true;
@@ -116,7 +98,7 @@ CKEDITOR.editorConfig = function( config ) {
 		{ name: 'basicstyles', items : [ 'Bold','Italic','Underline','TextColor', 'BGColor' ] },
 		{ name: 'clear', items : [ 'RemoveFormat','Unlink' ] },
 		{ name: 'formatting', items : [ 'Format','NumberedList','BulletedList','Blockquote','-','SpecialChar','Code','Iframe' ] },
-		{ name: 'advanced', items : [ 'Scalar1', 'Scalar2', 'Scalar5', 'Scalar8', 'Scalar9', 'Scalar6', 'Scalar7' ] },
+		{ name: 'advanced', items : [ 'Scalar1', 'Scalar2', 'Scalar5', 'Scalar10', 'Scalar8', 'Scalar9', 'Scalar6', 'Scalar7' ] },
 		{ name: 'editorial', items:['editorialTools']}
 	];
 	config.toolbar_ScalarInline =
@@ -128,7 +110,7 @@ CKEDITOR.editorConfig = function( config ) {
 		{ name: 'clear', items : [ 'RemoveFormat' ] },
 		{ name: 'formatting', items : [ 'Format','NumberedList','BulletedList','Blockquote','-','SpecialChar','Code','Iframe' ]},
 		'/',
-		{ name: 'advanced', items : [ 'Scalar1', 'Scalar2', 'Scalar5', 'Scalar8', 'Scalar9', 'Scalar6', 'Scalar7' ] }
+		{ name: 'advanced', items : [ 'Scalar1', 'Scalar2', 'Scalar5', 'Scalar10', 'Scalar8', 'Scalar9', 'Scalar6', 'Scalar7' ] }
 		
 	];
 

@@ -12,7 +12,8 @@
 .cke_button__scalar5,
 .cke_button__scalar6,
 .cke_button__scalar8,
-.cke_button__scalar9 {
+.cke_button__scalar9,
+.cke_button__scalar10 {
 	background-color:#2894b8 !important;
 	margin-left:1px !important;
 	margin-right:1px !important;
@@ -30,7 +31,8 @@
 .cke_button__scalar5:hover,
 .cke_button__scalar6:hover,
 .cke_button__scalar8:hover,
-.cke_button__scalar9:hover {
+.cke_button__scalar9:hover,
+.cke_button__scalar10:hover {
 	background-color:#1d6e88 !important;
 }
 .cke_button__scalar7:hover {

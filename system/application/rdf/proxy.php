@@ -26,7 +26,7 @@ $header =@ urldecode($_REQUEST['header']);
 $domain = parse_url($uri, PHP_URL_HOST);
 $archives_path = __DIR__.'/xsl/archives.rdf';
 $archives_rdf = file_get_contents($archives_path);
-$is_valid_domain = ($domain==$_SERVER['HTTP_HOST'] || false!==strstr($archives_rdf,$domain)) ? true : false;
+$is_valid_domain = ($domain=='localhost' || $domain==$_SERVER['HTTP_HOST'] || false!==strstr($archives_rdf,$domain)) ? true : false;
 if (!$is_valid_domain) die ('Invalid domain');
 
 header("content-type: text/xml");

@@ -257,7 +257,8 @@ if ('undefined'==typeof(escape_html)) {
 				if ('object'==typeof(results_data[j].thumb) && results_data[j].thumb.length) results_data[j].thumb = results_data[j].thumb[0];
 				results_data[j].mediatype = ('undefined'!=typeof(post[j]['dcterms:type'])) ? post[j]['dcterms:type'] : 'Media';
 				results_data[j].contributor = ('undefined'!=typeof(post[j]['dcterms:contributor'])) ? post[j]['dcterms:contributor'] : null;
-
+				results_data[j].sourceLocation = ('undefined'!=typeof(post[j]['art:sourceLocation'])) ? post[j]['art:sourceLocation'] : null;
+				
 			}
 
 			return results_data;
@@ -477,7 +478,7 @@ if ('undefined'==typeof(escape_html)) {
 				} else {
 					var url_str = '<div class="url">';
 					url_str += '<a href="javascript:;" onclick="scalarimport_preview(\''+results_data[j].url+'\')" class="btn btn-default btn-xs generic_button small">Preview</a>&nbsp; ';
-					url_str += '<a href="'+results_data[j].node_uri+'" target="_blank" class="btn btn-default btn-xs generic_button small">Source</a>&nbsp; ';
+					url_str += '<a href="'+((null!=results_data[j].sourceLocation) ? results_data[j].sourceLocation : results_data[j].node_uri)+'" target="_blank" class="btn btn-default btn-xs generic_button small">Source</a>&nbsp; ';
 					url_str += '<span>'+results_data[j].mediatype+': '+basename(results_data[j].url)+'</span>';
 					url_str += '</div>';
 					$(url_str).appendTo($content);
