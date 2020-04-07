@@ -27,15 +27,15 @@
       "frozen": false,
       "frozen-items": [],
       "visualization": {
-        "type": $('#visualization-button').val(),
+        "type": "",
         "options": {
-          "option":''
+          "option":""
         }
       },
       "components": [
         {
           "content-selector": {
-            "type": "",
+            "type": "items",
             "content-type": "",
             "items":[],
             "quantity": "",
@@ -274,9 +274,9 @@
           // this will be what gets stored in the "items" property
 
           let contentItem = nodes.map(node => node.slug);
-          //let contentItemsArray = JSON.stringify(contentItem);
+          let contentItemsArray = JSON.stringify(contentItem);
 
-          scalarLensObject["components"][0]["content-selector"]["items"].push(contentItem);
+          scalarLensObject["components"][0]["content-selector"]["items"] = contentItem;
           console.log(scalarLensObject);
 
         }
@@ -292,6 +292,10 @@
 
 
 
+
+
+
+
     // A really lightweight plugin wrapper around the constructor,
     // preventing against multiple instantiations
     $.fn[pluginName] = function ( options ) {
@@ -302,6 +306,8 @@
             }
         });
     }
+
+
 
 
 
