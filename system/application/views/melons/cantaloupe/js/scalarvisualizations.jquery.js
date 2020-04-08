@@ -1722,19 +1722,24 @@ window.scalarvis = { instanceCount: -1 };
         }
       }
 
+      var needsInstantiation;
       switch (base.options.format) {
 
         case "grid":
-          base.drawGrid();
+          needsInstantiation = base.visInstance ? base.visInstance.constructor.name != 'GridVisualization' : true;
+          if (needsInstantiation) base.visInstance = new GridVisualization();
+          base.visInstance.draw();
           break;
 
         case "tree":
-          base.visInstance = new TreeVisualization();
+          needsInstantiation = base.visInstance ? base.visInstance.constructor.name != 'TreeVisualization' : true;
+          if (needsInstantiation) base.visInstance = new TreeVisualization();
           base.visInstance.draw();
           break;
 
         case "radial":
-          base.visInstance = new RadialVisualization();
+          needsInstantiation = base.visInstance ? base.visInstance.constructor.name != 'RadialVisualization' : true;
+          if (needsInstantiation) base.visInstance = new RadialVisualization();
           base.visInstance.draw();
           break;
 
@@ -1752,9 +1757,425 @@ window.scalarvis = { instanceCount: -1 };
 
     };
 
+    /*****************************
+     * ABSTRACT VISUALIZATION V5 *
+     *****************************/
+
+    class AbstractVisualization {
+      // Not a strict abstract class, contains some utitlity methods
+      // and a guide for creating new visualizations
+
+      // call using super() to do needed init
+      constructor() {
+        this.hasBeenDrawn = false;
+        this.size = {width:0, height:0};
+      }
+
+      // no need to call directly
+      updateSize() {
+        var isFullScreen = document.fullScreen || document.mozFullScreen || document.webkitIsFullScreen;
+        if (!isFullScreen) {
+          this.size.width = base.visElement.width();
+          if (window.innerWidth > 768) {
+            if (base.options.modal) {
+              this.size.height = Math.max(300, window.innerHeight * .9 - 170);
+            } else {
+              this.size.height = 568;
+            }
+          } else {
+            this.size.height = 300;
+          }
+        } else {
+          this.size.width = window.innerWidth;
+          this.size.height = window.innerHeight;
+        }
+      }
+
+      // call using super.draw() from your draw method
+      draw() {
+        this.updateSize();
+        if (!this.hasBeenDrawn && base.visElement.width() > 0) {
+          base.helpButton.attr('data-content', this.getHelpContent());
+          this.setupElement();
+          this.hasBeenDrawn = true;
+        }
+      }
+
+      // override with your own version that returns HTML
+      // to insert in the "About this visualization" popover
+      getHelpContent() {
+        return 'This is sample help content.';
+      }
+
+      // overrider with your own version that sets up the
+      // base.visualization element
+      setupElement() {
+        // set up the element
+      }
+
+    }
+
+    /*************************
+     * GRID VISUALIZATION V5 *
+     *************************/
+
+    class GridVisualization extends AbstractVisualization {
+
+       constructor() {
+         super();
+         this.colWidth = 36;
+         this.boxSize = 36;
+         this.currentNode = scalarapi.model.getCurrentPageNode();
+       }
+
+       draw() {
+         super.draw();
+         if (base.svg != null) {
+           this.itemsPerRow = Math.floor(this.size.width / this.colWidth);
+           this.colScale = d3.scaleLinear([0, this.itemsPerRow], [0, this.itemsPerRow * this.colWidth]);
+           var unitWidth = Math.max(this.colScale(1) - this.colScale(0), 36);
+           var rowCount = Math.ceil(base.sortedNodes.length / this.itemsPerRow);
+           var visHeight = rowCount * 46;
+           this.rowScale = d3.scaleLinear([0, rowCount], [0, visHeight]);
+           var unitHeight = this.rowScale(1) - this.rowScale(0);
+           var fullHeight = unitHeight * rowCount + 20;
+           var maxNodeChars = unitWidth / 7;
+           var node;
+           base.svg.attr('height', fullHeight);
+
+           //this.box = this.gridBoxLayer.selectAll('.rowBox');
+
+           var tocNode = scalarapi.model.getMainMenuNode();
+           var gridNodes = base.sortedNodes.concat();
+           var index = gridNodes.indexOf(tocNode);
+           if (index != -1) {
+             gridNodes.splice(index, 1);
+           }
+
+           this.box = this.gridBoxLayer.selectAll('.rowBox')
+             .data(gridNodes, (d) => { return d.type.id + '-' + d.slug; })
+             .join(
+               enter => enter.append('svg:rect')
+                 .each(function(d) { d.svgTarget = this; })
+                 .attr('class', 'rowBox')
+                 .attr('x', (d, i) => { d[base.instanceId].x = this.colScale(i % this.itemsPerRow) + 0.5; return d[base.instanceId].x; })
+                 .attr('y', (d, i) => { d[base.instanceId].y = this.rowScale(Math.floor(i / this.itemsPerRow) + 1) - this.boxSize + 0.5; return d[base.instanceId].y; })
+                 .attr('width', this.boxSize)
+                 .attr('height', this.boxSize)
+                 .attr('stroke', '#000')
+                 .style('cursor', 'pointer')
+                 .attr('stroke-opacity', '.2')
+                 .attr('fill-opacity', function(d) {
+                   var val = 0;
+                   if (base.maxConnections > 0) {
+                     if (d.outgoingRelations) {
+                       val = d.outgoingRelations.length;
+                     }
+                     if (d.incomingRelations) {
+                       val += d.incomingRelations.length;
+                     }
+                     val += 1;
+                     val /= base.maxConnections;
+                     val *= .75;
+                   } else {
+                     val = .1;
+                   }
+                   val += .1;
+                   return val;
+                 })
+                 .attr('fill', function(d) {
+                   return base.highlightColorScale(d.type.singular);
+                 })
+                 .on("click", (d) => {
+                   var index = base.selectedNodes.indexOf(d);
+                   if (index == -1) {
+                     base.selectedNodes.push(d);
+                   } else {
+                     base.selectedNodes.splice(index, 1);
+                   }
+                   this.updateGraph();
+                   return true;
+                 })
+                 .on("mouseover", (d) => {
+                   if (!isMobile) {
+                     base.rolloverNode = d;
+                     this.updateGraph();
+                   }
+                 })
+                 .on("mouseout", (d) => {
+                   if (!isMobile) {
+                     base.rolloverNode = null;
+                     this.updateGraph();
+                   }
+                 })
+             );
+
+           if (((base.options.content == "path") || (base.options.content == "all")) && ((base.options.relations == "path") || (base.options.relations == "all"))) {
+
+             // path vis line function
+             this.line = d3.line()
+               .x((d) => {
+                 return d[base.instanceId].x + (this.boxSize * .5);
+               })
+               .y((d) => {
+                 return d[base.instanceId].y + (this.boxSize * .5);
+               })
+               .curve(d3.curveCatmullRom.alpha(0.5));
+
+             var typedNodes = scalarapi.model.getNodesWithProperty('dominantScalarType', 'path', 'alphabetical');
+
+             // build array of path contents
+             n = typedNodes.length;
+             var pathRelations;
+             var allPathContents = [];
+             var pathContents;
+             for (i = 0; i < n; i++) {
+               node = typedNodes[i];
+               pathContents = node.getRelatedNodes('path', 'outgoing');
+               pathContents.unshift(node);
+               allPathContents.push(pathContents);
+             }
+
+             var pathGroups = this.gridPathLayer.selectAll('g.pathGroup')
+               .data(allPathContents, function(d) { return d[0].slug; });
+
+             // create a container group for each path vis
+             var groupEnter = pathGroups.enter().append('g')
+               .attr('width', this.size.width)
+               .attr('height', base.svg.attr('height'))
+               .attr('class', 'pathGroup')
+               .attr('visibility', 'hidden')
+               .attr('pointer-events', 'none');
+
+             // add the path to the group
+             groupEnter.append('path')
+               .attr('class', 'pathLink')
+               .attr('stroke', function(d) {
+                 return base.highlightColorScale("path", "verb");
+               })
+               .attr('stroke-dasharray', '5,2')
+               .attr('d', this.line);
+
+             // add the path's dots to the group
+             groupEnter.selectAll('circle.pathDot')
+               .data(function(d) { return d; })
+               .enter().append('circle')
+               .attr('fill', function(d) {
+                 return base.highlightColorScale("path", "verb");
+               })
+               .attr('class', 'pathDot')
+               .attr('cx', (d) => {
+                 return d[base.instanceId].x + (this.boxSize * .5);
+               })
+               .attr('cy', (d) => {
+                 return d[base.instanceId].y + (this.boxSize * .5);
+               })
+               .attr('r', function(d, i) { return (i == 0) ? 5 : 3; });
+
+             // add the step numbers to the group
+             groupEnter.selectAll('text.pathDotText')
+               .data(function(d) { return d; })
+               .enter().append('text')
+               .attr('fill', function(d) {
+                 return base.highlightColorScale("path", "verb");
+               })
+               .attr('class', 'pathDotText')
+               .attr('dx', function(d) {
+                 return d[base.instanceId].x + 3;
+               })
+               .attr('dy', function(d) {
+                 return d[base.instanceId].y + this.boxSize - 3;
+               })
+               .text(function(d, i) { return (i == 0) ? '' : i; });
+
+           }
+
+           this.redrawGrid();
+           this.updateGraph();
+         }
+       }
+
+       getHelpContent() {
+         var helpContent;
+         if (base.options.content != 'current') {
+           helpContent = "This visualization shows <b>how content is interconnected</b> in this work.<ul>";
+         } else {
+           helpContent = "This visualization shows how <b>&ldquo;" + currentNode.getDisplayTitle() + "&rdquo;</b> is connected to other content in this work.<ul>";
+         }
+         helpContent += "<li>Each box represents a piece of content, color-coded by type.</li>" +
+           "<li>The darker the box, the more connections it has to other content (relative to the other boxes).</li>" +
+           "<li>Each line represents a connection, color-coded by type.</li>" +
+           "<li>You can roll over the boxes to browse connections, or click to add more content to the current selection.</li>" +
+           "<li>Click the &ldquo;View&rdquo; button of any selected item to navigate to it.</li></ul>";
+         return helpContent;
+       }
+
+       setupElement() {
+         base.visualization.empty();
+         base.visualization.removeClass('bounded');
+         base.visualization.css('width', base.visElement.width() - 20); // accounts for padding
+         base.svg = d3.select(base.visualization[0]).append('svg:svg').attr('width', this.size.width);
+         this.gridBoxLayer = base.svg.append('svg:g')
+           .attr('width', this.size.width)
+           .attr('height', this.size.height);
+         this.gridPathLayer = base.svg.append('svg:g')
+           .attr('width', this.size.width)
+           .attr('height', this.size.height);
+         this.gridLinkLayer = base.svg.append('svg:g')
+           .attr('width', this.size.width)
+           .attr('height', this.size.height);
+       }
+
+       redrawGrid() {
+         this.box.sort(base.typeSort)
+           .attr('fill', (d) => { return (base.rolloverNode == d) ? d3.rgb(base.highlightColorScale(d.type.singular)).darker() : base.highlightColorScale(d.type.singular); })
+           .attr('x', (d, i) => { d[base.instanceId].x = this.colScale(i % this.itemsPerRow) + 0.5; return d[base.instanceId].x; })
+           .attr('y', (d, i) => { d[base.instanceId].y = this.rowScale(Math.floor(i / this.itemsPerRow) + 1) - this.boxSize + 0.5; return d[base.instanceId].y; });
+
+         this.gridPathLayer.selectAll('path').attr('d', this.line);
+         this.gridPathLayer.selectAll('circle.pathDot')
+           .attr('cx', (d) => {
+             return d[base.instanceId].x + (this.boxSize * .5);
+           })
+           .attr('cy', (d) => {
+             return d[base.instanceId].y + (this.boxSize * .5);
+           });
+         this.gridPathLayer.selectAll('text.pathDotText')
+           .attr('dx', (d) => {
+             return d[base.instanceId].x + 3;
+           })
+           .attr('dy', (d) => {
+             return d[base.instanceId].y + this.boxSize - 3;
+           });
+
+         var visPos = base.visualization.position();
+
+         d3.select(base.visualization[0]).selectAll('div.info_box')
+           .style('left', (d) => { return (d[base.instanceId].x + visPos.left + (this.boxSize * .5)) + 'px'; })
+           .style('top', (d) => { return (d[base.instanceId].y + visPos.top + this.boxSize + 5) + 'px'; });
+
+         this.gridLinkLayer.selectAll('line.connection')
+           .attr('x1', (d) => { return d.body[base.instanceId].x + (this.boxSize * .5); })
+           .attr('y1', (d) => { return d.body[base.instanceId].y + (this.boxSize * .5); })
+           .attr('x2', (d) => { return d.target[base.instanceId].x + (this.boxSize * .5); })
+           .attr('y2', (d) => { return d.target[base.instanceId].y + (this.boxSize * .5); });
+         this.gridLinkLayer.selectAll('circle.connectionDot')
+           .attr('cx', (d) => { return d.node[base.instanceId].x + (this.boxSize * .5); })
+           .attr('cy', (d) => { return d.node[base.instanceId].y + (this.boxSize * .5); });
+       }
+
+       updateGraph() {
+         base.updateActiveNodes();
+         this.box.attr('fill', function(d) { return (base.rolloverNode == d) ? d3.rgb(base.highlightColorScale(d.type.singular)).darker() : base.highlightColorScale(d.type.singular); });
+
+         // turn on/off path lines
+         this.gridPathLayer.selectAll('g.pathGroup')
+           .attr('visibility', function(d) {
+             return ((base.activeNodes.indexOf(d[0]) != -1)) ? 'visible' : 'hidden';
+           });
+
+         var visPos = base.visualization.position();
+         d3.select(base.visualization[0]).selectAll('div.info_box')
+          .data(base.activeNodes, function(d) { return d.slug; })
+          .join(
+            enter => enter.append('div')
+              .attr('class', 'info_box')
+              .style('left', (d) => { return (d[base.instanceId].x + visPos.left + (this.boxSize * .5)) + 'px'; })
+              .style('top', (d) => { return (d[base.instanceId].y + visPos.top + this.boxSize + 5) + 'px'; }),
+            update => update.style('left', (d) => { return (d[base.instanceId].x + visPos.left + (this.boxSize * .5)) + 'px'; })
+              .style('top', (d) => { return (d[base.instanceId].y + visPos.top + this.boxSize + 5) + 'px'; })
+              .html(base.nodeInfoBox),
+            exit => exit.remove()
+          );
+
+         // connections
+         var linkGroup = this.gridLinkLayer.selectAll('g.linkGroup')
+           .data(base.activeNodes)
+           .join(
+             enter => enter.append('g')
+               .attr('width', this.size.width)
+               .attr('height', base.svg.attr('height'))
+               //.attr('class', 'linkGroup')
+               .attr('pointer-events', 'none'),
+             exit => exit.remove()
+           )
+
+         // create a container group for each node's connections
+         /*var linkEnter = linkGroup
+           .enter().append('g')
+           .attr('width', this.size.width)
+           .attr('height', base.svg.attr('height'))
+           .attr('class', 'linkGroup')
+           .attr('pointer-events', 'none');
+
+         linkGroup.exit().remove();*/
+
+         // draw connection lines
+         this.gridLinkLayer.selectAll('line.connection')
+           .data(function(d) {
+             console.log(d);
+             var relationArr = [];
+             var relations = d.outgoingRelations.concat(d.incomingRelations);
+             var relation;
+             var i;
+             var n = relations.length;
+             for (i = 0; i < n; i++) {
+               relation = relations[i];
+               if ((relation.type.id == base.options.relations) || (base.options.relations == "all")) {
+                 if ((relation.type.id != 'path') && (base.sortedNodes.indexOf(relation.body) != -1) && (base.sortedNodes.indexOf(relation.target) != -1)) {
+                   relationArr.push(relations[i]);
+                 }
+               }
+             }
+             return relationArr;
+           })
+           .join(
+             enter => enter.append('line')
+             .attr('class', 'connection')
+             .attr('x1', (d) => { console.log(d); return d.body[base.instanceId].x + (this.boxSize * .5); })
+             .attr('y1', (d) => { return d.body[base.instanceId].y + (this.boxSize * .5); })
+             .attr('x2', (d) => { return d.target[base.instanceId].x + (this.boxSize * .5); })
+             .attr('y2', (d) => { return d.target[base.instanceId].y + (this.boxSize * .5); })
+             .attr('stroke-width', 1)
+             .attr('stroke-dasharray', '1,2')
+             .attr('stroke', function(d) { return base.highlightColorScale((d.type.id == 'reference') ? 'media' : d.type.id); })
+           )
+
+         // draw connection dots
+         /*linkEnter.selectAll('circle.connectionDot')
+           .data(function(d) {
+             var nodeArr = [];
+             var relations = d.outgoingRelations.concat(d.incomingRelations);
+             var relation;
+             var i;
+             var n = relations.length;
+             for (i = 0; i < n; i++) {
+               relation = relations[i];
+               if ((relation.type.id == base.options.relations) || (base.options.relations == "all")) {
+                 if ((relation.type.id != 'path') && (base.sortedNodes.indexOf(relation.body) != -1) && (base.sortedNodes.indexOf(relation.target) != -1)) {
+                   nodeArr.push({ role: 'body', node: relation.body, type: relation.type });
+                   nodeArr.push({ role: 'target', node: relation.target, type: relation.type });
+                 }
+               }
+             }
+             return nodeArr;
+           })
+           .enter().append('circle')
+           .attr('fill', function(d) { return base.highlightColorScale((d.type.id == 'reference') ? 'media' : d.type.id); })
+           .attr('class', 'connectionDot')
+           .attr('cx', function(d) {
+             return d.node[base.instanceId].x + (this.boxSize * .5);
+           })
+           .attr('cy', function(d) {
+             return d.node[base.instanceId].y + (this.boxSize * .5);
+           })
+           .attr('r', function(d, i) { return (d.role == 'body') ? 5 : 3; });*/
+       }
+    }
+
     /**********************
      * GRID VISUALIZATION *
-     **********************/
+     **********************
     base.drawGrid = function(updateOnly) {
 
       var i, j, k, n, o, helpContent,
@@ -1782,14 +2203,6 @@ window.scalarvis = { instanceCount: -1 };
         base.helpButton.attr("data-content", helpContent);
 
         base.visualization.removeClass('bounded');
-
-        var isFullScreen = document.fullScreen || document.mozFullScreen || document.webkitIsFullScreen;
-        var fullWidth;
-        if (!isFullScreen) {
-          fullWidth = base.visElement.width();
-        } else {
-          fullWidth = window.innerWidth;
-        }
 
         base.visualization.css('width', base.visElement.width() - 20); // accounts for padding
 
@@ -2131,67 +2544,7 @@ window.scalarvis = { instanceCount: -1 };
         redrawGrid();
         updateGraph();
       }
-    }
-
-    class AbstractVisualization {
-      // Not a strict abstract class, contains some utitlity methods
-      // and a guide for creating new visualizations
-
-      // call using super() to do needed init
-      constructor() {
-        this.hasBeenDrawn = false;
-        this.size = {width:0, height:0};
-      }
-
-      // no need to call directly
-      updateSize() {
-        var isFullScreen = document.fullScreen || document.mozFullScreen || document.webkitIsFullScreen;
-        if (!isFullScreen) {
-          this.size.width = base.visElement.width();
-          if (window.innerWidth > 768) {
-            if (base.options.modal) {
-              this.size.height = Math.max(300, window.innerHeight * .9 - 170);
-            } else {
-              this.size.height = 568;
-            }
-          } else {
-            this.size.height = 300;
-          }
-        } else {
-          this.size.width = window.innerWidth;
-          this.size.height = window.innerHeight;
-        }
-      }
-
-      // no need to call directly
-      setup() {
-        base.visualization.empty();
-        this.updateSize();
-        if (!this.hasBeenDrawn && base.visElement.width() > 0) {
-          base.helpButton.attr('data-content', this.getHelpContent());
-          this.setupElement();
-          this.hasBeenDrawn = true;
-        }
-      }
-
-      // call using super.draw() from your draw method
-      draw() {
-        this.setup();
-      }
-
-      // override with your own version that returns HTML
-      // to insert in the "About this visualization" popover
-      getHelpContent() {
-        return 'This is sample help content.';
-      }
-
-      // overrider with your own version that sets up the
-      // base.visualization element
-      setupElement() {
-        // set up the element
-      }
-
-    }
+    }*/
 
     /*************************
      * TREE VISUALIZATION V5 *
