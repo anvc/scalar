@@ -6,9 +6,7 @@
 
 ;(function ( $, window, document, undefined ) {
 
-
     const pluginName = 'ScalarLenses', defaults = {};
-
 
     function ScalarLenses( element, options) {
         this.element = element;
@@ -22,10 +20,6 @@
 
 
 
-
-
-
-
     ScalarLenses.prototype.init = function () {
       // You already have access to the DOM element and
       // the options via the instance, e.g. this.element
@@ -35,7 +29,7 @@
       let me = this;
 
       //
-      /// main object for a lens
+      /// the Lens object
       //
       let scalarLensObject = {
         "expanded": false,
@@ -85,7 +79,7 @@
 
 
       //
-      /// HTML for ScalarLens
+      /// HTML for the Lens
       //
       let lensHtml =
       '<div class="paragraph_wrapper">'+
@@ -137,7 +131,7 @@
                     '<div class="modal-body">'+
                       //'<button type="button" class="close" data-dismiss="modal">&times;</button>'+
                       '<p>Select all items of this type:</p>'+
-                      '<div id="byItem" class="btn-group"><button type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'+
+                      '<div class="btn-group"><button id="byType" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'+
                           'Select item...<span class="caret"></span></button>'+
                         '<ul class="dropdown-menu">'+
                           '<li><a>Annotation</a></li>'+
@@ -151,7 +145,7 @@
                     '</div>'+ // modal body
                     '<div class="modal-footer">'+
                       '<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>'+
-                      '<button type="button" class="btn btn-primary" data-dismiss="modal">Done</button>'+
+                      '<button id="typeDone" type="button" class="btn btn-primary" data-dismiss="modal">Done</button>'+
                   '  </div>'+
                   '</div>'+ // modal content
                 '</div>'+ // modal dialog
@@ -169,11 +163,11 @@
                       '<div class="row">'+
                         '<div class="col-sm-10">'+
                           '<div class="col-sm-5">'+
-                            '<input id="distanceInput" type="text" class="form-control" aria-label="..." placeholder="Enter distance">'+
+                            '<input id="distanceQuantity" type="text" class="form-control" aria-label="..." placeholder="Enter distance">'+
                           '</div>'+
                           '<div class="col-sm-5">'+
-                            '<div id="byDistance" class="btn-group">'+
-                              '<button type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'+
+                            '<div class="btn-group">'+
+                              '<button id="distanceUnits" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'+
                                 'Select unit...<span class="caret"></span></button>'+
                               '<ul class="dropdown-menu">'+
                                 '<li><a>miles</a></li>'+
@@ -197,7 +191,7 @@
                     '</div>'+ // modal body
                     '<div class="modal-footer">'+
                       '<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>'+
-                      '<button type="button" class="btn btn-primary" data-dismiss="modal">Done</button>'+
+                      '<button id="distanceDone" type="button" class="btn btn-primary" data-dismiss="modal">Done</button>'+
                   '  </div>'+
                   '</div>'+
                 '</div>'+
@@ -257,11 +251,33 @@
               break;
           }
 
+          // store visualization type
           scalarLensObject["visualization"]["type"] = $('#visualization-button').val();
-          console.log(scalarLensObject);
 
 
         });
+
+
+
+        // store 'items by type' modal content-type
+        $('#typeDone').click(function(){
+          scalarLensObject["components"][0]["content-selector"]["content-type"] = $('#byType').val();
+          console.log(scalarLensObject);
+        });
+
+        // store 'items by distance' values
+        $('#distanceDone').click(function(){
+          // quantity
+          scalarLensObject["components"][0]["content-selector"]["quantity"] = $('#distanceQuantity').val();
+          // units
+          scalarLensObject["components"][0]["content-selector"]["units"] = $('#distanceUnits').val();
+
+          // coordinates
+          scalarLensObject["components"][0]["content-selector"]["coordinates"] = $('#latitude').val() + ', ' + $('#longitude').val() ;
+
+          console.log(scalarLensObject);
+        });
+
       });
 
 
@@ -271,7 +287,7 @@
 
 
       //
-      /// callback for content selector
+      /// callback for content-selector
       //
       ScalarLenses.prototype.handleAddTags = function(nodes) {
         if (nodes && nodes.length != 0) {
@@ -279,7 +295,6 @@
 
           // extract the 'slug' property of each node and put into an array;
           // this will be what gets stored in the "items" property
-
           let contentItem = nodes.map(node => node.slug);
           let contentItemsArray = JSON.stringify(contentItem);
 
@@ -293,7 +308,7 @@
 
 
 
-    };
+    }; // init function
 
 
 
