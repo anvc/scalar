@@ -32,7 +32,6 @@ window.scalarvis = { instanceCount: -1 };
     base.el = el;
 
     base.visStarted = false;
-    base.visSize = {width:0, height:0};
     base.resultsPerPage = 50;
     base.loadedAllContent = false;
     base.canonicalTypeOrder = ["path", "page", "comment", "tag", "annotation", "media"];
@@ -572,7 +571,6 @@ window.scalarvis = { instanceCount: -1 };
       base.nodesBySlug = {};
       base.svg = null;
       base.selectedNodes = [base.currentNode];
-      base.hasBeenDrawn = false;
       base.loadSequence = null;
       base.maxConnections = 0;
       base.hierarchy = null;
@@ -2135,44 +2133,81 @@ window.scalarvis = { instanceCount: -1 };
       }
     }
 
-    base.updateVisSize = function() {
-      var isFullScreen = document.fullScreen || document.mozFullScreen || document.webkitIsFullScreen;
-      if (!isFullScreen) {
-        base.visSize.width = base.visElement.width();
-        if (window.innerWidth > 768) {
-          if (base.options.modal) {
-            base.visSize.height = Math.max(300, window.innerHeight * .9 - 170);
+    class AbstractVisualization {
+      // Not a strict abstract class, contains some utitlity methods
+      // and a guide for creating new visualizations
+
+      // call using super() to do needed init
+      constructor() {
+        this.hasBeenDrawn = false;
+        this.size = {width:0, height:0};
+      }
+
+      // no need to call directly
+      updateSize() {
+        var isFullScreen = document.fullScreen || document.mozFullScreen || document.webkitIsFullScreen;
+        if (!isFullScreen) {
+          this.size.width = base.visElement.width();
+          if (window.innerWidth > 768) {
+            if (base.options.modal) {
+              this.size.height = Math.max(300, window.innerHeight * .9 - 170);
+            } else {
+              this.size.height = 568;
+            }
           } else {
-            base.visSize.height = 568;
+            this.size.height = 300;
           }
         } else {
-          base.visSize.height = 300;
+          this.size.width = window.innerWidth;
+          this.size.height = window.innerHeight;
         }
-      } else {
-        base.visSize.width = window.innerWidth;
-        base.visSize.height = window.innerHeight;
       }
+
+      // no need to call directly
+      setup() {
+        base.visualization.empty();
+        this.updateSize();
+        if (!this.hasBeenDrawn && base.visElement.width() > 0) {
+          base.helpButton.attr('data-content', this.getHelpContent());
+          this.setupElement();
+          this.hasBeenDrawn = true;
+        }
+      }
+
+      // call using super.draw() from your draw method
+      draw() {
+        this.setup();
+      }
+
+      // override with your own version that returns HTML
+      // to insert in the "About this visualization" popover
+      getHelpContent() {
+        return 'This is sample help content.';
+      }
+
+      // overrider with your own version that sets up the
+      // base.visualization element
+      setupElement() {
+        // set up the element
+      }
+
     }
 
     /*************************
      * TREE VISUALIZATION V5 *
      *************************/
 
-    class TreeVisualization {
+    class TreeVisualization extends AbstractVisualization {
 
       constructor() {
-        base.hasBeenDrawn = false;
+        super();
         this.columnWidth = window.innerWidth > 768 ? 180 : 90;
         this.container = null;
         this.root = null;
       }
 
       draw() {
-        base.updateVisSize();
-        if (!base.hasBeenDrawn && base.visElement.width() > 0) {
-          this.setupHelp();
-          this.setupElement();
-        }
+        super.draw();
         if (base.svg != null && base.hierarchy != null) {
           this.root = d3.hierarchy(base.hierarchy);
           this.container = base.svg.selectAll('g.container');
@@ -2191,7 +2226,7 @@ window.scalarvis = { instanceCount: -1 };
         }
       }
 
-      setupHelp() {
+      getHelpContent() {
         var helpContent;
         if (base.options.content != 'current') {
           helpContent = "This visualization shows <b>how content is interconnected</b> in this work.<ul>";
@@ -2202,21 +2237,21 @@ window.scalarvis = { instanceCount: -1 };
           "<li>Click and hold to drag.</li>" +
           "<li>Click any filled circle to reveal its connections; click again to hide them.</li>" +
           "<li>Click the name of any item to navigate to it.</li></ul>";
-        base.helpButton.attr("data-content", helpContent);
+        return helpContent;
       }
 
       setupElement() {
-        base.hasBeenDrawn = true;
+        base.visualization.empty();
         base.visualization.addClass('bounded');
-        base.visualization.css('height', base.visSize.height + 'px');
-        base.visualization.css('width', base.visSize.width + 'px');
+        base.visualization.css('height', this.size.height + 'px');
+        base.visualization.css('width', this.size.width + 'px');
         base.svg = d3.select(base.visualization[0]).append('svg:svg')
-          .attr('width', base.visSize.width - 2)
-          .attr('height', base.visSize.height - 2);
+          .attr('width', this.size.width - 2)
+          .attr('height', this.size.height - 2);
         var container = base.svg.append("g").attr('class', 'container');
         base.svg.call(d3.zoom().on("zoom", function() { container.attr("transform", d3.event.transform); }));
         base.svg.style("cursor", "move");
-        base.tree = d3.cluster().nodeSize([30, base.visSize.height]);
+        base.tree = d3.cluster().nodeSize([30, this.size.height]);
         base.diagonal = d3.linkHorizontal()
           .x(function(d) { return d.y; })
           .y(function(d) { return d.x; });
@@ -2296,11 +2331,9 @@ window.scalarvis = { instanceCount: -1 };
         var nodes = root.descendants();
         base.tree(root);
 
-        console.log(root);
-
         // Normalize for fixed-depth.
         nodes.forEach((d) => {
-          d.x += (base.visSize.height * .5);
+          d.x += (this.size.height * .5);
           d.y = (d.depth + 1) * this.columnWidth;
         });
 
@@ -2416,7 +2449,7 @@ window.scalarvis = { instanceCount: -1 };
               source = d.source;
             }
             var o;
-            o = {x:source.x0, y:source.y0};
+            o = {x:source.x, y:source.y};
             return base.diagonal({ source: o, target: o });
           })
           .transition()
@@ -2453,29 +2486,32 @@ window.scalarvis = { instanceCount: -1 };
      * RADIAL VISUALIZATION V5 *
      ***************************/
 
-    class RadialVisualization {
+    class RadialVisualization extends AbstractVisualization {
 
       constructor() {
-        base.hasBeenDrawn = false;
+        super();
         this.currentNode = null;
         this.minChordAngle = .02;
         this.maximizedNode = null;
         this.highlightedNode = null;
+        this.currentNode = scalarapi.model.getCurrentPageNode();
       }
 
       draw() {
-        this.currentNode = scalarapi.model.getCurrentPageNode();
-        base.visualization.empty();
-        base.updateVisSize();
-        if (!base.hasBeenDrawn && base.visElement.width() > 0) {
-          this.setupHelp();
-          this.setupElement();
-        }
+        super.draw();
+
+        // setup rollover caption
+        this.rollover = $('<div class="rollover caption_font">Test</div>').appendTo(base.visualization);
+        base.visualization.on('mousemove', (e) => {
+          this.rollover.css('left', (e.pageX - $(base.visualization).offset().left + parseInt($(base.visualization).parent().parent().css('padding-left')) + 10) + 'px');
+          this.rollover.css('top', (e.pageY - $(base.visualization).parent().parent().offset().top) + 15 + 'px');
+        })
+
         if (base.svg != null) {
           this.myModPercentage = 1;		// relative value of the farthest descendants maximized item
           this.otherModPercentage = 1;		// relative value of the farthest descendants of the not-maximized item
-          this.r = (Math.min(base.visSize.width, base.visSize.height) - 70) * .5;
-          base.visSize.width < base.visSize.height ? this.r -= 120 : this.r -= 60;
+          this.r = (Math.min(this.size.width, this.size.height) - 70) * .5;
+          this.size.width < this.size.height ? this.r -= 120 : this.r -= 60;
           var radiusMod = 1.55;
           this.textRadiusOffset = 10;
 
@@ -2527,7 +2563,7 @@ window.scalarvis = { instanceCount: -1 };
                 .on('click', (d) => {
                   var dx = this.arcs.centroid(d)[0];
                   var dy = this.arcs.centroid(d)[1];
-                  var hw = base.visSize.width * .5;
+                  var hw = this.size.width * .5;
 
                   // if the node was maximized, normalize it
                   if (this.maximizedNode == d) {
@@ -2612,7 +2648,7 @@ window.scalarvis = { instanceCount: -1 };
         }
       }
 
-      setupHelp() {
+      getHelpContent() {
         var helpContent;
         if (((base.options.content == 'all') || (base.options.content == 'current')) && (this.currentNode != null)) {
           helpContent = "This visualization shows how <b>&ldquo;" + this.currentNode.getDisplayTitle() + "&rdquo;</b> is connected to other content in this work.<ul>";
@@ -2624,30 +2660,25 @@ window.scalarvis = { instanceCount: -1 };
           "<li>Click to add more content to the current selection.</li>" +
           "<li>To explore a group of connections in more detail, click its outer arc to expand the contents.</li>" +
           "<li>Click the name of any item to navigate to it.</li></ul>";
-        base.helpButton.attr("data-content", helpContent);
-        this.rollover = $('<div class="rollover caption_font">Test</div>').appendTo(base.visualization);
-        base.visualization.on('mousemove', (e) => {
-          this.rollover.css('left', (e.pageX - $(base.visualization).offset().left + parseInt($(base.visualization).parent().parent().css('padding-left')) + 10) + 'px');
-          this.rollover.css('top', (e.pageY - $(base.visualization).parent().parent().offset().top) + 15 + 'px');
-        })
+        return helpContent;
       }
 
       setupElement() {
+        base.visualization.empty();
         base.visualization.removeClass('bounded');
         base.svg = d3.select(base.visualization[0]).append('svg:svg')
-          .attr('width', base.visSize.width + 'px')
-          .attr('height', base.visSize.height + 'px');
+          .attr('width', this.size.width + 'px')
+          .attr('height', this.size.height + 'px');
         this.vis = base.svg.append("g")
-          .attr("transform", "translate(" + base.visSize.width / 2 + "," + base.visSize.height / 2 + ")")
+          .attr("transform", "translate(" + this.size.width / 2 + "," + this.size.height / 2 + ")")
           .attr("class", "radialvis");
         var canvas = this.vis.append('svg:rect')
-          .attr('width', base.visSize.width)
-          .attr('height', base.visSize.height)
+          .attr('width', this.size.width)
+          .attr('height', this.size.height)
           .attr('class', 'viscanvas');
         this.radialBaseLayer = base.svg.append('svg:g')
-          .attr('width', base.visSize.width)
-          .attr('height', base.visSize.height);
-        base.hasBeenDrawn = true;
+          .attr('width', this.size.width)
+          .attr('height', this.size.height);
       }
 
       transitionRings() {
@@ -2677,9 +2708,9 @@ window.scalarvis = { instanceCount: -1 };
           .duration(1000)
           .attr('dx', (d) => {
             if (this.arcs.centroid(d)[0] < 0) {
-              return -(base.visSize.width * .5);
+              return -(this.size.width * .5);
             } else {
-              return (base.visSize.width * .5);
+              return (this.size.width * .5);
             }
           })
           .attr('dy', (d) => { return this.arcs.centroid(d)[1] + 4; })
@@ -2695,7 +2726,7 @@ window.scalarvis = { instanceCount: -1 };
       getPointerPoints(d) {
         var dx = this.arcs.centroid(d)[0];
         var dy = this.arcs.centroid(d)[1];
-        var hw = base.visSize.width * .5;
+        var hw = this.size.width * .5;
         if (this.arcs.centroid(d)[0] < 0) {
           return ((d.textWidth + 5) - hw) + ',' + dy + ' ' + ((d.textWidth + 5) - hw) + ',' + dy + ' ' + dx + ',' + dy;
         } else {
@@ -2724,7 +2755,7 @@ window.scalarvis = { instanceCount: -1 };
       }
 
       updateSelectedLabels() {
-        var labelCharCount = Math.round(((((base.visSize.width - (this.r * 2)) - 70) - 70) / 120) * 15);
+        var labelCharCount = Math.round(((((this.size.width - (this.r * 2)) - 70) - 70) / 120) * 15);
 
         // create a local version of selectedHierarchyNodes that
         // includes arc coordinates
@@ -2747,9 +2778,9 @@ window.scalarvis = { instanceCount: -1 };
               .attr('class', 'selectedLabel')
               .attr('dx', (d) => {
                 if (this.arcs.centroid(d)[0] < 0) {
-                  return -(base.visSize.width * .5);
+                  return -(this.size.width * .5);
                 } else {
-                  return (base.visSize.width * .5);
+                  return (this.size.width * .5);
                 }
               })
               .attr('dy', (d) => {
@@ -2775,9 +2806,9 @@ window.scalarvis = { instanceCount: -1 };
               .attr('dx', (d) => {
                 var title = base.getShortenedString(d.data.node.getDisplayTitle(true), labelCharCount);
                 if (this.arcs.centroid(d)[0] < 0) {
-                  return -(base.visSize.width * .5);
+                  return -(this.size.width * .5);
                 } else {
-                  return (base.visSize.width * .5);
+                  return (this.size.width * .5);
                 }
               })
               .attr('dy', (d) => {
