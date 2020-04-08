@@ -21,51 +21,7 @@
     }
 
 
-    let scalarLensObject = {
-      "expanded": false,
-      "submitted": false,
-      "frozen": false,
-      "frozen-items": [],
-      "visualization": {
-        "type": "",
-        "options": {
-          "option":""
-        }
-      },
-      "components": [
-        {
-          "content-selector": {
-            "type": "items",
-            "content-type": "",
-            "items":[],
-            "quantity": "",
-            "units": "",
-            "coordinates": ""
-          },
-        "modifiers": [
-          {
-            "type": "filter",
-            "subtype": "type/content/relationship/distance/quantity/metadata/visitdate",
-            "content-types": [ "page", "path"],
-            "relationship": "parent/child",
-            "operator": "inclusive/exclusive",
-            "content": "arbitrary string",
-            "quantity": 100,
-            "units": "miles/kilometers/hours/days/months",
-            "metadata-field": "dcterms:title",
-            "datetime": "01/02/2020 11:37 AM"
-          },
-          {
-            "type": "sort",
-            "metadata-field": "dcterms:title",
-            "sort-order": "ascending/descending",
-            "sort-type": "alphabetical/numerical/creation-date/edit-date/distance/type/match-count/relationship-count/relationship-ordinal/visit-date",
-            "content": "arbitrary string"
-          }
-        ]
-      }
-    ]
-    };
+
 
 
 
@@ -74,7 +30,58 @@
       // You already have access to the DOM element and
       // the options via the instance, e.g. this.element
       // and this.options
+
+      // reference for content-selector callback function
       let me = this;
+
+      //
+      /// main object for a lens
+      //
+      let scalarLensObject = {
+        "expanded": false,
+        "submitted": false,
+        "frozen": false,
+        "frozen-items": [],
+        "visualization": {
+          "type": "",
+          "options": {
+            "option":""
+          }
+        },
+        "components": [
+          {
+            "content-selector": {
+              "type": "items",
+              "content-type": "",
+              "items":[],
+              "quantity": "",
+              "units": "",
+              "coordinates": ""
+            },
+          "modifiers": [
+            {
+              "type": "filter",
+              "subtype": "type/content/relationship/distance/quantity/metadata/visitdate",
+              "content-types": [ "page", "path"],
+              "relationship": "parent/child",
+              "operator": "inclusive/exclusive",
+              "content": "arbitrary string",
+              "quantity": 100,
+              "units": "miles/kilometers/hours/days/months",
+              "metadata-field": "dcterms:title",
+              "datetime": "01/02/2020 11:37 AM"
+            },
+            {
+              "type": "sort",
+              "metadata-field": "dcterms:title",
+              "sort-order": "ascending/descending",
+              "sort-type": "alphabetical/numerical/creation-date/edit-date/distance/type/match-count/relationship-count/relationship-ordinal/visit-date",
+              "content": "arbitrary string"
+            }
+          ]
+        }
+      ]
+      };
 
 
       //
@@ -201,7 +208,8 @@
       // function to populate dropdown value
       // handles multiple instances of dropdowns
       $(function(){
-        $(".dropdown-menu").on('click', 'li a', function(){
+        $(".dropdown-menu").on('click', 'li a', function(ev){
+          ev.preventDefault();
           let buttonValue = $(this).parent().parent().siblings(".btn:first-child").html($(this).text()+' <span class="caret"></span>');
           buttonValue
           $(this).parent().parent().siblings(".btn:first-child").val($(this).text());
@@ -230,7 +238,7 @@
               buttonValue.prepend('<span class="dropdown-item-icon word-cloud light"></span>');
               break;
             //
-            // tigger content-selector
+            // trigger content-selector
             //
             case 'Specific items...':
               $('<div></div>').content_selector({
@@ -249,13 +257,12 @@
               break;
           }
 
+          scalarLensObject["visualization"]["type"] = $('#visualization-button').val();
+          console.log(scalarLensObject);
+
+
         });
       });
-
-
-
-
-      //console.log(lensObject["components"][0]["content-selector"]["items"]);
 
 
 
@@ -287,9 +294,6 @@
 
 
     };
-
-
-
 
 
 
