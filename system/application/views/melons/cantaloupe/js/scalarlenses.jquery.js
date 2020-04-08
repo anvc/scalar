@@ -54,23 +54,23 @@
             },
           "modifiers": [
             {
-              "type": "filter",
-              "subtype": "type/content/relationship/distance/quantity/metadata/visitdate",
-              "content-types": [ "page", "path"],
-              "relationship": "parent/child",
-              "operator": "inclusive/exclusive",
-              "content": "arbitrary string",
-              "quantity": 100,
-              "units": "miles/kilometers/hours/days/months",
-              "metadata-field": "dcterms:title",
-              "datetime": "01/02/2020 11:37 AM"
+              "type": "",
+              "subtype": "",
+              "content-types": [],
+              "relationship": "",
+              "operator": "",
+              "content": "",
+              "quantity": "",
+              "units": "",
+              "metadata-field": "",
+              "datetime": ""
             },
             {
-              "type": "sort",
-              "metadata-field": "dcterms:title",
-              "sort-order": "ascending/descending",
-              "sort-type": "alphabetical/numerical/creation-date/edit-date/distance/type/match-count/relationship-count/relationship-ordinal/visit-date",
-              "content": "arbitrary string"
+              "type": "",
+              "metadata-field": "",
+              "sort-order": "",
+              "sort-type": "",
+              "content": ""
             }
           ]
         }
@@ -110,12 +110,12 @@
                       //
                       /// Content selector dropdown
                       //
-                      '<div id="content-selector-btn" class="btn-group"><button type="button" class="btn btn-primary btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'+
+                      '<div class="btn-group"><button id="content-selector-button" type="button" class="btn btn-primary btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'+
                           'Select items...<span class="caret"></span></button>'+
                         '<ul class="dropdown-menu">'+
-                          '<li class="content-selector"><a>Specific items...</a></li>'+
-                          '<li><a data-toggle="modal" data-target="#modalByType">Items by type...</a></li>'+
-                          '<li><a data-toggle="modal" data-target="#modalByDistance">Items by distance...</a></li>'+
+                          '<li class="content-selector"><a>Specific items</a></li>'+
+                          '<li><a data-toggle="modal" data-target="#modalByType">Items by type</a></li>'+
+                          '<li><a data-toggle="modal" data-target="#modalByDistance">Items by distance</a></li>'+
                         '</ul>'+
                       '</div>'+
                   '</div></div>'+
@@ -234,7 +234,7 @@
             //
             // trigger content-selector
             //
-            case 'Specific items...':
+            case 'Specific items':
               $('<div></div>').content_selector({
                 changeable: true,
                 multiple: true,
@@ -242,17 +242,36 @@
                 msg: 'Choose items to be included in this lens.',
                 callback: me.handleAddTags
               });
+              $('#byType').val(" ").text("Select item...");
+              $('#distanceUnits').val(" ").text("Select unit...");
+              $('#distanceQuantity, #latitude, #longitude').val(" ");
+              scalarLensObject["components"][0]["content-selector"]["content-type"] = "";
+              scalarLensObject["components"][0]["content-selector"]["quantity"] = "";
+              scalarLensObject["components"][0]["content-selector"]["units"] = "";
+              scalarLensObject["components"][0]["content-selector"]["coordinates"] = "";
               break;
-            case 'Items by type...':
-              //alert('Trigger modal for type');
+            case 'Items by type':
+              scalarLensObject["components"][0]["content-selector"]["items"] = [];
+              $('#distanceQuantity, #latitude, #longitude').val(" ");
+              $('#distanceUnits').val(" ").text("Select unit...");
+
+              scalarLensObject["components"][0]["content-selector"]["quantity"] = "";
+              scalarLensObject["components"][0]["content-selector"]["units"] = "";
+              scalarLensObject["components"][0]["content-selector"]["coordinates"] = "";
+
               break;
-            case 'Items by distance...':
-              //alert('Trigger modal for distance');
+            case 'Items by distance':
+              scalarLensObject["components"][0]["content-selector"]["items"] = [];
+              scalarLensObject["components"][0]["content-selector"]["content-type"] = "";
+              $('#byType').val("Select item...");
               break;
           }
 
-          // store visualization type
-          scalarLensObject["visualization"]["type"] = $('#visualization-button').val();
+
+            // store visualization-type value (kebab-case)
+            scalarLensObject["visualization"]["type"] = $('#visualization-button').val().split(/[_\s]/).join("-").toLowerCase();
+
+            scalarLensObject["components"][0]["content-selector"]["type"] = $('#content-selector-button').val().split(/[_\s]/).join("-").toLowerCase();
 
 
         });
@@ -302,6 +321,8 @@
           console.log(scalarLensObject);
 
         }
+
+
       }
 
 
