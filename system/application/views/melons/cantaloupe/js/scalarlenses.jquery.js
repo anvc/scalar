@@ -37,44 +37,19 @@
         "frozen": false,
         "frozen-items": [],
         "visualization": {
-          "type": "",
-          "options": {
-            "option":""
-          }
+          "type": ""
         },
         "components": [
           {
             "content-selector": {
               "type": "items",
-              "content-type": "",
               "items":[],
               "quantity": "",
               "units": "",
               "coordinates": ""
             },
-          "modifiers": [
-            {
-              "type": "",
-              "subtype": "",
-              "content-types": [],
-              "relationship": "",
-              "operator": "",
-              "content": "",
-              "quantity": "",
-              "units": "",
-              "metadata-field": "",
-              "datetime": ""
-            },
-            {
-              "type": "",
-              "metadata-field": "",
-              "sort-order": "",
-              "sort-type": "",
-              "content": ""
-            }
-          ]
-        }
-      ]
+          }
+        ]
       };
 
 
@@ -245,33 +220,35 @@
               $('#byType').val(" ").text("Select item...");
               $('#distanceUnits').val(" ").text("Select unit...");
               $('#distanceQuantity, #latitude, #longitude').val(" ");
-              scalarLensObject["components"][0]["content-selector"]["content-type"] = "";
-              scalarLensObject["components"][0]["content-selector"]["quantity"] = "";
-              scalarLensObject["components"][0]["content-selector"]["units"] = "";
-              scalarLensObject["components"][0]["content-selector"]["coordinates"] = "";
+              //delete scalarLensObject["components"][0]["content-selector"]["content-type"];
+              delete scalarLensObject["components"][0]["content-selector"]["quantity"];
+              delete scalarLensObject["components"][0]["content-selector"]["units"];
+              delete scalarLensObject["components"][0]["content-selector"]["coordinates"];
               break;
             case 'Items by type':
-              scalarLensObject["components"][0]["content-selector"]["items"] = [];
               $('#distanceQuantity, #latitude, #longitude').val(" ");
               $('#distanceUnits').val(" ").text("Select unit...");
 
-              scalarLensObject["components"][0]["content-selector"]["quantity"] = "";
-              scalarLensObject["components"][0]["content-selector"]["units"] = "";
-              scalarLensObject["components"][0]["content-selector"]["coordinates"] = "";
+              delete scalarLensObject["components"][0]["content-selector"]["items"];
+              delete scalarLensObject["components"][0]["content-selector"]["quantity"];
+              delete scalarLensObject["components"][0]["content-selector"]["units"];
+              delete scalarLensObject["components"][0]["content-selector"]["coordinates"];
 
               break;
             case 'Items by distance':
-              scalarLensObject["components"][0]["content-selector"]["items"] = [];
-              scalarLensObject["components"][0]["content-selector"]["content-type"] = "";
+              delete scalarLensObject["components"][0]["content-selector"]["items"];
+              delete scalarLensObject["components"][0]["content-selector"]["content-type"];
               $('#byType').val("Select item...");
               break;
           }
 
 
-            // store visualization-type value (kebab-case)
+            // store visualization-type value as kebab-case
             scalarLensObject["visualization"]["type"] = $('#visualization-button').val().split(/[_\s]/).join("-").toLowerCase();
-
+            // store content-selector type as kebab-case
             scalarLensObject["components"][0]["content-selector"]["type"] = $('#content-selector-button').val().split(/[_\s]/).join("-").toLowerCase();
+            // store content-selector content-type as kebab-case
+            //scalarLensObject["components"][0]["content-selector"]["content-type"] = $('#byType').val().split(/[_\s]/).join("-").toLowerCase();
 
 
         });
@@ -280,7 +257,7 @@
 
         // store 'items by type' modal content-type
         $('#typeDone').click(function(){
-          scalarLensObject["components"][0]["content-selector"]["content-type"] = $('#byType').val();
+          scalarLensObject["components"][0]["content-selector"]["content-type"] = $('#byType').val().split(/[_\s]/).join("-").toLowerCase();
           console.log(scalarLensObject);
         });
 
