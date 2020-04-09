@@ -462,9 +462,9 @@
                 temp.remove();
 
             },
-            
+
             addInlineNoteElementForLink: function(link) {
-            	
+
             	link.wrap('<div class="inlineNoteBody body_copy"></div>');
             	link.text('Go to note').attr('href', $('link#parent').attr('href')+link.attr('resource'));
             	var wrapper = link.parent();
@@ -493,7 +493,7 @@
 	            			break;
 	            		default:
 	            			wrapper.css('float', 'left');
-	            	}           		
+	            	}
             	}
             	scalarapi.loadNode(slug, true, function(node) {
             		for (uri in node) {
@@ -518,7 +518,6 @@
 
             addMediaElementForLink: function(link, parent, height, baseOptions) {
 
-            	console.log(link);
                 var inline = link.hasClass('inline'),
                     size = link.attr('data-size'),
                     align = link.attr('data-align');
@@ -1449,7 +1448,7 @@
                 	}
                 	if (node.current.description != null && noteViewer.data('show-desc')) {
                 		$('<div class="description">' + node.current.description + '</div>').appendTo(noteViewer);
-                	}    	
+                	}
                     if (node.current.content != null && noteViewer.data('show-content')) {
 
                         var height = parseInt(noteViewer.css('max-height')) - noteViewer.innerHeight() - 50;
@@ -2024,7 +2023,7 @@
                                 page.structuredGallery.addMedia();
                             }
                             var mediaLinks = page.getMediaLinks($('article > span[property="sioc:content"],.relationships > .annotation_of'), true);
-                            
+
                             $(mediaLinks).each(function() {
                                 if ($(this).parents('widget_carousel').length > 0) {
                                     return;
@@ -2041,9 +2040,9 @@
                                     (($(this).attr('resource') != null) || // linked media
                                     ($(this).find('[property="art:url"]').length > 0) || // inline media
                                     (($(this).parents('.annotation_of').length > 0) && ($(this).parent('span[property="dcterms:title"]').length > 0))) // annotated media
-                                    && ($(this).attr('rev') != 'scalar:has_note') && ($(this).attr('data-relation') == null)) 
+                                    && ($(this).attr('rev') != 'scalar:has_note') && ($(this).attr('data-relation') == null))
                                     {
-                                    	
+
                                         var slot, slotDOMElement, slotMediaElement, count, parent;
 
                                         if ($(this).attr('resource') == undefined) {

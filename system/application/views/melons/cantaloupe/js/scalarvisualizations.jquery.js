@@ -2067,6 +2067,7 @@ window.scalarvis = { instanceCount: -1 };
        updateGraph() {
          base.updateActiveNodes();
          this.box.attr('fill', function(d) { return (base.rolloverNode == d) ? d3.rgb(base.highlightColorScale(d.type.singular)).darker() : base.highlightColorScale(d.type.singular); });
+         var infoBox = d3.select(base.visualization[0]).selectAll('div.info_box');
 
          // turn on/off path lines
          this.gridPathLayer.selectAll('g.pathGroup')
@@ -2074,46 +2075,38 @@ window.scalarvis = { instanceCount: -1 };
              return ((base.activeNodes.indexOf(d[0]) != -1)) ? 'visible' : 'hidden';
            });
 
+         infoBox = infoBox.data(base.activeNodes, function(d) { return d.slug; });
+
          var visPos = base.visualization.position();
-         d3.select(base.visualization[0]).selectAll('div.info_box')
-          .data(base.activeNodes, function(d) { return d.slug; })
-          .join(
-            enter => enter.append('div')
-              .attr('class', 'info_box')
-              .style('left', (d) => { return (d[base.instanceId].x + visPos.left + (this.boxSize * .5)) + 'px'; })
-              .style('top', (d) => { return (d[base.instanceId].y + visPos.top + this.boxSize + 5) + 'px'; }),
-            update => update.style('left', (d) => { return (d[base.instanceId].x + visPos.left + (this.boxSize * .5)) + 'px'; })
-              .style('top', (d) => { return (d[base.instanceId].y + visPos.top + this.boxSize + 5) + 'px'; })
-              .html(base.nodeInfoBox),
-            exit => exit.remove()
-          );
+
+         infoBox.enter().append('div')
+           .attr('class', 'info_box')
+           .style('left', (d) => { return (d[base.instanceId].x + visPos.left + (this.boxSize * .5)) + 'px'; })
+           .style('top', (d) => { return (d[base.instanceId].y + visPos.top + this.boxSize + 5) + 'px'; });
+
+         infoBox.style('left', (d) => { return (d[base.instanceId].x + visPos.left + (this.boxSize * .5)) + 'px'; })
+           .style('top', (d) => { return (d[base.instanceId].y + visPos.top + this.boxSize + 5) + 'px'; })
+           .html(base.nodeInfoBox);
+
+         infoBox.exit().remove();
 
          // connections
          var linkGroup = this.gridLinkLayer.selectAll('g.linkGroup')
-           .data(base.activeNodes)
-           .join(
-             enter => enter.append('g')
-               .attr('width', this.size.width)
-               .attr('height', base.svg.attr('height'))
-               //.attr('class', 'linkGroup')
-               .attr('pointer-events', 'none'),
-             exit => exit.remove()
-           )
+           .data(base.activeNodes);
 
          // create a container group for each node's connections
-         /*var linkEnter = linkGroup
+         var linkEnter = linkGroup
            .enter().append('g')
            .attr('width', this.size.width)
            .attr('height', base.svg.attr('height'))
            .attr('class', 'linkGroup')
            .attr('pointer-events', 'none');
 
-         linkGroup.exit().remove();*/
+         linkGroup.exit().remove();
 
          // draw connection lines
-         this.gridLinkLayer.selectAll('line.connection')
+         linkEnter.selectAll('line.connection')
            .data(function(d) {
-             console.log(d);
              var relationArr = [];
              var relations = d.outgoingRelations.concat(d.incomingRelations);
              var relation;
@@ -2129,8 +2122,7 @@ window.scalarvis = { instanceCount: -1 };
              }
              return relationArr;
            })
-           .join(
-             enter => enter.append('line')
+           .enter().append('line')
              .attr('class', 'connection')
              .attr('x1', (d) => { console.log(d); return d.body[base.instanceId].x + (this.boxSize * .5); })
              .attr('y1', (d) => { return d.body[base.instanceId].y + (this.boxSize * .5); })
@@ -2138,11 +2130,10 @@ window.scalarvis = { instanceCount: -1 };
              .attr('y2', (d) => { return d.target[base.instanceId].y + (this.boxSize * .5); })
              .attr('stroke-width', 1)
              .attr('stroke-dasharray', '1,2')
-             .attr('stroke', function(d) { return base.highlightColorScale((d.type.id == 'reference') ? 'media' : d.type.id); })
-           )
+             .attr('stroke', function(d) { return base.highlightColorScale((d.type.id == 'reference') ? 'media' : d.type.id); });
 
          // draw connection dots
-         /*linkEnter.selectAll('circle.connectionDot')
+         linkEnter.selectAll('circle.connectionDot')
            .data(function(d) {
              var nodeArr = [];
              var relations = d.outgoingRelations.concat(d.incomingRelations);
@@ -2163,13 +2154,9 @@ window.scalarvis = { instanceCount: -1 };
            .enter().append('circle')
            .attr('fill', function(d) { return base.highlightColorScale((d.type.id == 'reference') ? 'media' : d.type.id); })
            .attr('class', 'connectionDot')
-           .attr('cx', function(d) {
-             return d.node[base.instanceId].x + (this.boxSize * .5);
-           })
-           .attr('cy', function(d) {
-             return d.node[base.instanceId].y + (this.boxSize * .5);
-           })
-           .attr('r', function(d, i) { return (d.role == 'body') ? 5 : 3; });*/
+           .attr('cx', (d) => { return d.node[base.instanceId].x + (this.boxSize * .5); })
+           .attr('cy', (d) => { return d.node[base.instanceId].y + (this.boxSize * .5); })
+           .attr('r', (d, i) => { return (d.role == 'body') ? 5 : 3; });
        }
     }
 
