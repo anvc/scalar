@@ -530,8 +530,6 @@ window.scalarvis = { instanceCount: -1 };
 
       bbox.bbox = tbbox;
 
-      //console.log( tbbox );
-
       return bbox;
     }
 
@@ -649,7 +647,6 @@ window.scalarvis = { instanceCount: -1 };
     };
 
     base.loadNode = function(slug, ref, depth) {
-      //console.log( 'load node' );
       if (depth == null) {
         depth = 1;
       }
@@ -657,7 +654,6 @@ window.scalarvis = { instanceCount: -1 };
     }
 
     base.parseNode = function(data) {
-      //console.log( 'parse node' );
       base.filter();
       base.draw(true);
     }
@@ -1616,15 +1612,6 @@ window.scalarvis = { instanceCount: -1 };
           base.links.splice(index, 1);
         }
       }
-
-			/*console.log( '----' );
-			var link
-			n = base.links.length;
-			for ( i = 0; i < n; i++ ) {
-				link = base.links[ i ];
-				console.log( link.source.slug + ' - ' + link.target.slug );
-			}*/
-
     }
 
     base.typeSort = function(a, b) {
@@ -1865,24 +1852,7 @@ window.scalarvis = { instanceCount: -1 };
                  .attr('stroke', '#000')
                  .style('cursor', 'pointer')
                  .attr('stroke-opacity', '.2')
-                 .attr('fill-opacity', function(d) {
-                   var val = 0;
-                   if (base.maxConnections > 0) {
-                     if (d.outgoingRelations) {
-                       val = d.outgoingRelations.length;
-                     }
-                     if (d.incomingRelations) {
-                       val += d.incomingRelations.length;
-                     }
-                     val += 1;
-                     val /= base.maxConnections;
-                     val *= .75;
-                   } else {
-                     val = .1;
-                   }
-                   val += .1;
-                   return val;
-                 })
+                 .attr('fill-opacity', this.calculateOpacity)
                  .attr('fill', function(d) {
                    return base.highlightColorScale(d.type.singular);
                  })
@@ -2026,9 +1996,29 @@ window.scalarvis = { instanceCount: -1 };
            .attr('height', this.size.height);
        }
 
+       calculateOpacity(d) {
+         var val = 0;
+         if (base.maxConnections > 0) {
+           if (d.outgoingRelations) {
+             val = d.outgoingRelations.length;
+           }
+           if (d.incomingRelations) {
+             val += d.incomingRelations.length;
+           }
+           val += 1;
+           val /= base.maxConnections;
+           val *= .75;
+         } else {
+           val = .1;
+         }
+         val += .1;
+         return val;
+       }
+
        redrawGrid() {
          this.box.sort(base.typeSort)
            .attr('fill', (d) => { return (base.rolloverNode == d) ? d3.rgb(base.highlightColorScale(d.type.singular)).darker() : base.highlightColorScale(d.type.singular); })
+           .attr('fill-opacity', this.calculateOpacity)
            .attr('x', (d, i) => { d[base.instanceId].x = this.colScale(i % this.itemsPerRow) + 0.5; return d[base.instanceId].x; })
            .attr('y', (d, i) => { d[base.instanceId].y = this.rowScale(Math.floor(i / this.itemsPerRow) + 1) - this.boxSize + 0.5; return d[base.instanceId].y; });
 
@@ -2114,9 +2104,11 @@ window.scalarvis = { instanceCount: -1 };
              var n = relations.length;
              for (i = 0; i < n; i++) {
                relation = relations[i];
-               if ((relation.type.id == base.options.relations) || (base.options.relations == "all")) {
-                 if ((relation.type.id != 'path') && (base.sortedNodes.indexOf(relation.body) != -1) && (base.sortedNodes.indexOf(relation.target) != -1)) {
-                   relationArr.push(relations[i]);
+               if (relation.type.id == base.options.relations || base.options.relations == "all") {
+                 if (relation.type.id != 'path' && base.sortedNodes.indexOf(relation.body) != -1 && base.sortedNodes.indexOf(relation.target) != -1) {
+                   if (!relation.body.scalarTypes.toc) {
+                     relationArr.push(relations[i]);
+                   }
                  }
                }
              }
@@ -2124,7 +2116,7 @@ window.scalarvis = { instanceCount: -1 };
            })
            .enter().append('line')
              .attr('class', 'connection')
-             .attr('x1', (d) => { console.log(d); return d.body[base.instanceId].x + (this.boxSize * .5); })
+             .attr('x1', (d) => { return d.body[base.instanceId].x + (this.boxSize * .5); })
              .attr('y1', (d) => { return d.body[base.instanceId].y + (this.boxSize * .5); })
              .attr('x2', (d) => { return d.target[base.instanceId].x + (this.boxSize * .5); })
              .attr('y2', (d) => { return d.target[base.instanceId].y + (this.boxSize * .5); })
@@ -2144,8 +2136,10 @@ window.scalarvis = { instanceCount: -1 };
                relation = relations[i];
                if ((relation.type.id == base.options.relations) || (base.options.relations == "all")) {
                  if ((relation.type.id != 'path') && (base.sortedNodes.indexOf(relation.body) != -1) && (base.sortedNodes.indexOf(relation.target) != -1)) {
-                   nodeArr.push({ role: 'body', node: relation.body, type: relation.type });
-                   nodeArr.push({ role: 'target', node: relation.target, type: relation.type });
+                   if (!relation.body.scalarTypes.toc) {
+                     nodeArr.push({ role: 'body', node: relation.body, type: relation.type });
+                     nodeArr.push({ role: 'target', node: relation.target, type: relation.type });
+                   }
                  }
                }
              }
@@ -2159,379 +2153,6 @@ window.scalarvis = { instanceCount: -1 };
            .attr('r', (d, i) => { return (d.role == 'body') ? 5 : 3; });
        }
     }
-
-    /**********************
-     * GRID VISUALIZATION *
-     **********************
-    base.drawGrid = function(updateOnly) {
-
-      var i, j, k, n, o, helpContent,
-        colWidth = 36,
-        boxSize = 36,
-        currentNode = scalarapi.model.getCurrentPageNode();
-
-      // if we're drawing from scratch, do some setup
-      if (!base.hasBeenDrawn && (base.visElement.width() > 0)) {
-
-        base.hasBeenDrawn = true;
-
-        if (base.options.content != 'current') {
-          helpContent = "This visualization shows <b>how content is interconnected</b> in this work.<ul>";
-        } else {
-          helpContent = "This visualization shows how <b>&ldquo;" + currentNode.getDisplayTitle() + "&rdquo;</b> is connected to other content in this work.<ul>";
-        }
-
-        helpContent += "<li>Each box represents a piece of content, color-coded by type.</li>" +
-          "<li>The darker the box, the more connections it has to other content (relative to the other boxes).</li>" +
-          "<li>Each line represents a connection, color-coded by type.</li>" +
-          "<li>You can roll over the boxes to browse connections, or click to add more content to the current selection.</li>" +
-          "<li>Click the &ldquo;View&rdquo; button of any selected item to navigate to it.</li></ul>";
-
-        base.helpButton.attr("data-content", helpContent);
-
-        base.visualization.removeClass('bounded');
-
-        base.visualization.css('width', base.visElement.width() - 20); // accounts for padding
-
-        base.svg = d3.select(base.visualization[0]).append('svg:svg').attr('width', fullWidth);
-
-        this.gridBoxLayer = base.svg.append('svg:g')
-          .attr('width', fullWidth)
-          .attr('height', fullHeight);
-
-        this.gridPathLayer = base.svg.append('svg:g')
-          .attr('width', fullWidth)
-          .attr('height', fullHeight);
-
-        this.gridLinkLayer = base.svg.append('svg:g')
-          .attr('width', fullWidth)
-          .attr('height', fullHeight);
-
-      }
-
-      if (base.svg != null) {
-
-        var itemsPerRow = Math.floor(base.svg.attr('width') / colWidth);
-
-        var colScale = d3.scale.linear()
-          .domain([0, itemsPerRow])
-          .range([0, itemsPerRow * colWidth]);
-
-        var unitWidth = Math.max(colScale(1) - colScale(0), 36);
-
-        var rowCount = Math.ceil(base.sortedNodes.length / itemsPerRow);
-        var visWidth = base.visElement.width();
-        var visHeight = rowCount * 46;
-        var rowScale = d3.scale.linear()
-          .domain([0, rowCount])
-          .range([0, visHeight]);
-        var unitHeight = rowScale(1) - rowScale(0);
-        var fullHeight = unitHeight * rowCount + 20;
-        var maxNodeChars = unitWidth / 7;
-        var node;
-
-        base.svg.attr('height', fullHeight);
-
-        var box = base.gridBoxLayer.selectAll('.rowBox');
-
-        var tocNode = scalarapi.model.getMainMenuNode();
-        var gridNodes = base.sortedNodes.concat();
-        var index = gridNodes.indexOf(tocNode);
-        if (index != -1) {
-          gridNodes.splice(index, 1);
-        }
-
-        box = box.data(gridNodes, function(d) { return d.type.id + '-' + d.slug; });
-
-        // draw squares
-        var selection = box.enter().append('svg:rect')
-          .each(function(d) { d.svgTarget = this; })
-          .attr('class', 'rowBox')
-          .attr('x', function(d, i) { d[base.instanceId].x = colScale(i % itemsPerRow) + 0.5; return d[base.instanceId].x; })
-          .attr('y', function(d, i) { d[base.instanceId].y = rowScale(Math.floor(i / itemsPerRow) + 1) - boxSize + 0.5; return d[base.instanceId].y; })
-          .attr('width', boxSize)
-          .attr('height', boxSize)
-          .attr('stroke', '#000')
-          .style('cursor', 'pointer')
-          .attr('stroke-opacity', '.2')
-          .attr('fill-opacity', function(d) {
-            var val = 0;
-            if (base.maxConnections > 0) {
-              if (d.outgoingRelations) {
-                val = d.outgoingRelations.length;
-              }
-              if (d.incomingRelations) {
-                val += d.incomingRelations.length;
-              }
-              val += 1;
-              val /= base.maxConnections;
-              val *= .75;
-            } else {
-              val = .1;
-            }
-            val += .1;
-            return val;
-          })
-          .attr('fill', function(d) {
-            return base.highlightColorScale(d.type.singular);
-          })
-          .on("click", function(d) {
-            var index = base.selectedNodes.indexOf(d);
-            if (index == -1) {
-              base.selectedNodes.push(d);
-            } else {
-              base.selectedNodes.splice(index, 1);
-            }
-            updateGraph();
-            return true;
-          });
-
-        if (!isMobile) {
-          selection
-            .on("mouseover", function(d) {
-              base.rolloverNode = d;
-              updateGraph();
-            })
-            .on("mouseout", function(d) {
-              base.rolloverNode = null;
-              updateGraph();
-            });
-        }
-
-        var linkGroup, linkEnter, infoBoxes;
-
-        var redrawGrid = function() {
-
-          box.sort(base.typeSort)
-            .attr('fill', function(d) { return (base.rolloverNode == d) ? d3.rgb(base.highlightColorScale(d.type.singular)).darker() : base.highlightColorScale(d.type.singular); })
-            .attr('x', function(d, i) { d[base.instanceId].x = colScale(i % itemsPerRow) + 0.5; return d[base.instanceId].x; })
-            .attr('y', function(d, i) { d[base.instanceId].y = rowScale(Math.floor(i / itemsPerRow) + 1) - boxSize + 0.5; return d[base.instanceId].y; });
-
-          base.gridPathLayer.selectAll('path').attr('d', line);
-          base.gridPathLayer.selectAll('circle.pathDot')
-            .attr('cx', function(d) {
-              return d[base.instanceId].x + (boxSize * .5);
-            })
-            .attr('cy', function(d) {
-              return d[base.instanceId].y + (boxSize * .5);
-            });
-          base.gridPathLayer.selectAll('text.pathDotText')
-            .attr('dx', function(d) {
-              return d[base.instanceId].x + 3;
-            })
-            .attr('dy', function(d) {
-              return d[base.instanceId].y + boxSize - 3;
-            });
-
-          var visPos = base.visualization.position();
-
-          d3.select(base.visualization[0]).selectAll('div.info_box')
-            .style('left', function(d) { return (d[base.instanceId].x + visPos.left + (boxSize * .5)) + 'px'; })
-            .style('top', function(d) { return (d[base.instanceId].y + visPos.top + boxSize + 5) + 'px'; });
-
-          base.gridLinkLayer.selectAll('line.connection')
-            .attr('x1', function(d) { return d.body[base.instanceId].x + (boxSize * .5); })
-            .attr('y1', function(d) { return d.body[base.instanceId].y + (boxSize * .5); })
-            .attr('x2', function(d) { return d.target[base.instanceId].x + (boxSize * .5); })
-            .attr('y2', function(d) { return d.target[base.instanceId].y + (boxSize * .5); });
-          base.gridLinkLayer.selectAll('circle.connectionDot')
-            .attr('cx', function(d) {
-              return d.node[base.instanceId].x + (boxSize * .5);
-            })
-            .attr('cy', function(d) {
-              return d.node[base.instanceId].y + (boxSize * .5);
-            });
-        }
-
-        var updateGraph = function() {
-
-          base.updateActiveNodes();
-
-          box.attr('fill', function(d) { return (base.rolloverNode == d) ? d3.rgb(base.highlightColorScale(d.type.singular)).darker() : base.highlightColorScale(d.type.singular); });
-
-          //}
-
-          var infoBox = d3.select(base.visualization[0]).selectAll('div.info_box');
-
-          // turn on/off path lines
-          base.gridPathLayer.selectAll('g.pathGroup')
-            .attr('visibility', function(d) {
-              return ((base.activeNodes.indexOf(d[0]) != -1)) ? 'visible' : 'hidden';
-            });
-
-          infoBox = infoBox.data(base.activeNodes, function(d) { return d.slug; });
-
-          var visPos = base.visualization.position();
-
-          infoBox.enter().append('div')
-            .attr('class', 'info_box')
-            .style('left', function(d) { return (d[base.instanceId].x + visPos.left + (boxSize * .5)) + 'px'; })
-            .style('top', function(d) { return (d[base.instanceId].y + visPos.top + boxSize + 5) + 'px'; });
-
-          infoBox.style('left', function(d) { return (d[base.instanceId].x + visPos.left + (boxSize * .5)) + 'px'; })
-            .style('top', function(d) { return (d[base.instanceId].y + visPos.top + boxSize + 5) + 'px'; })
-            .html(base.nodeInfoBox);
-
-          infoBox.exit().remove();
-
-          // connections
-          linkGroup = base.gridLinkLayer.selectAll('g.linkGroup')
-            .data(base.activeNodes);
-
-          // create a container group for each node's connections
-          linkEnter = linkGroup
-            .enter().append('g')
-            .attr('width', visWidth)
-            .attr('height', base.svg.attr('height'))
-            .attr('class', 'linkGroup')
-            .attr('pointer-events', 'none');
-
-          linkGroup.exit().remove();
-
-          // draw connection lines
-          linkEnter.selectAll('line.connection')
-            .data(function(d) {
-              var relationArr = [];
-              var relations = d.outgoingRelations.concat(d.incomingRelations);
-              var relation;
-              var i;
-              var n = relations.length;
-              for (i = 0; i < n; i++) {
-                relation = relations[i];
-                if ((relation.type.id == base.options.relations) || (base.options.relations == "all")) {
-                  if ((relation.type.id != 'path') && (base.sortedNodes.indexOf(relation.body) != -1) && (base.sortedNodes.indexOf(relation.target) != -1)) {
-                    relationArr.push(relations[i]);
-                  }
-                }
-              }
-              return relationArr;
-            })
-            .enter().append('line')
-            .attr('class', 'connection')
-            .attr('x1', function(d) { return d.body[base.instanceId].x + (boxSize * .5); })
-            .attr('y1', function(d) { return d.body[base.instanceId].y + (boxSize * .5); })
-            .attr('x2', function(d) { return d.target[base.instanceId].x + (boxSize * .5); })
-            .attr('y2', function(d) { return d.target[base.instanceId].y + (boxSize * .5); })
-            .attr('stroke-width', 1)
-            .attr('stroke-dasharray', '1,2')
-            .attr('stroke', function(d) { return base.highlightColorScale((d.type.id == 'reference') ? 'media' : d.type.id); });
-
-          // draw connection dots
-          linkEnter.selectAll('circle.connectionDot')
-            .data(function(d) {
-              var nodeArr = [];
-              var relations = d.outgoingRelations.concat(d.incomingRelations);
-              var relation;
-              var i;
-              var n = relations.length;
-              for (i = 0; i < n; i++) {
-                relation = relations[i];
-                if ((relation.type.id == base.options.relations) || (base.options.relations == "all")) {
-                  if ((relation.type.id != 'path') && (base.sortedNodes.indexOf(relation.body) != -1) && (base.sortedNodes.indexOf(relation.target) != -1)) {
-                    nodeArr.push({ role: 'body', node: relation.body, type: relation.type });
-                    nodeArr.push({ role: 'target', node: relation.target, type: relation.type });
-                  }
-                }
-              }
-              return nodeArr;
-            })
-            .enter().append('circle')
-            .attr('fill', function(d) { return base.highlightColorScale((d.type.id == 'reference') ? 'media' : d.type.id); })
-            .attr('class', 'connectionDot')
-            .attr('cx', function(d) {
-              return d.node[base.instanceId].x + (boxSize * .5);
-            })
-            .attr('cy', function(d) {
-              return d.node[base.instanceId].y + (boxSize * .5);
-            })
-            .attr('r', function(d, i) { return (d.role == 'body') ? 5 : 3; });
-
-        }
-
-        if (((base.options.content == "path") || (base.options.content == "all")) && ((base.options.relations == "path") || (base.options.relations == "all"))) {
-
-          // path vis line function
-          var line = d3.svg.line()
-            .x(function(d) {
-              return d[base.instanceId].x + (boxSize * .5);
-            })
-            .y(function(d) {
-              return d[base.instanceId].y + (boxSize * .5);
-            })
-            .interpolate('cardinal');
-
-          typedNodes = scalarapi.model.getNodesWithProperty('dominantScalarType', 'path', 'alphabetical');
-
-          // build array of path contents
-          n = typedNodes.length;
-          var pathRelations;
-          var allPathContents = [];
-          var pathContents;
-          for (i = 0; i < n; i++) {
-            node = typedNodes[i];
-            pathContents = node.getRelatedNodes('path', 'outgoing');
-            pathContents.unshift(node);
-            allPathContents.push(pathContents);
-          }
-
-          var pathGroups = base.gridPathLayer.selectAll('g.pathGroup')
-            .data(allPathContents, function(d) { return d[0].slug; });
-
-          // create a container group for each path vis
-          var groupEnter = pathGroups.enter().append('g')
-            .attr('width', visWidth)
-            .attr('height', base.svg.attr('height'))
-            .attr('class', 'pathGroup')
-            .attr('visibility', 'hidden')
-            .attr('pointer-events', 'none');
-
-          // add the path to the group
-          groupEnter.append('path')
-            .attr('class', 'pathLink')
-            .attr('stroke', function(d) {
-              return base.highlightColorScale("path", "verb");
-            })
-            .attr('stroke-dasharray', '5,2')
-            .attr('d', line);
-
-          // add the path's dots to the group
-          groupEnter.selectAll('circle.pathDot')
-            .data(function(d) { return d; })
-            .enter().append('circle')
-            .attr('fill', function(d) {
-              return base.highlightColorScale("path", "verb");
-            })
-            .attr('class', 'pathDot')
-            .attr('cx', function(d) {
-              return d[base.instanceId].x + (boxSize * .5);
-            })
-            .attr('cy', function(d) {
-              return d[base.instanceId].y + (boxSize * .5);
-            })
-            .attr('r', function(d, i) { return (i == 0) ? 5 : 3; });
-
-          // add the step numbers to the group
-          groupEnter.selectAll('text.pathDotText')
-            .data(function(d) { return d; })
-            .enter().append('text')
-            .attr('fill', function(d) {
-              return base.highlightColorScale("path", "verb");
-            })
-            .attr('class', 'pathDotText')
-            .attr('dx', function(d) {
-              return d[base.instanceId].x + 3;
-            })
-            .attr('dy', function(d) {
-              return d[base.instanceId].y + boxSize - 3;
-            })
-            .text(function(d, i) { return (i == 0) ? '' : i; });
-
-        }
-
-        redrawGrid();
-        updateGraph();
-      }
-    }*/
 
     /*************************
      * TREE VISUALIZATION V5 *
@@ -2957,7 +2578,7 @@ window.scalarvis = { instanceCount: -1 };
             .join(
               enter => enter.append('svg:path')
                 .attr('class', 'chord')
-                .attr('d', (d) => { console.log('enter'); return this.ribbon(d); })
+                .attr('d', (d) => { return this.ribbon(d); })
                 .attr('opacity', .25)
                 .attr('display', (d) => { return this.calculateChordDisplay(d); })
                 .attr('fill', (d) => { return base.highlightColorScale(d.type.id); })
@@ -3305,7 +2926,6 @@ window.scalarvis = { instanceCount: -1 };
           // if the maximized node is a top-level node, and this node is a bottom-level node, then
           if ((this.maximizedNode.children != null) && (d.parent ? (d.parent.parent ? true : false) : false) && (d.children == null)) {
             // if the maximized node is an ancestor of this node, then return its maximized value
-            //console.log('***');
             if (base.hasHierarchyNodeAsAncestor(d, this.maximizedNode.data)) {
               return this.myModPercentage;
               // otherwise, return its minimized value
