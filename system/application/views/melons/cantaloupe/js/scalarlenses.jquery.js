@@ -260,6 +260,7 @@
         $('#typeDone').click(function(){
           scalarLensObject["components"][0]["content-selector"]["content-type"] = $('#byType').val().split(/[_\s]/).join("-").toLowerCase();
           console.log(scalarLensObject);
+          me.saveLens();
         });
 
         // store 'items by distance' values
@@ -273,13 +274,17 @@
           scalarLensObject["components"][0]["content-selector"]["coordinates"] = $('#latitude').val() + ', ' + $('#longitude').val() ;
 
           console.log(scalarLensObject);
+          me.saveLens();
         });
 
+      });
 
 
 
+      $("[property|='sioc:content']").append(lensHtml);
+
+      ScalarLenses.prototype.saveLens = function() {
         this.baseURL = $('link#parent').attr('href');
-
         $.ajax({
           url: this.baseURL + "api/relate",
           type: "POST",
@@ -295,16 +300,7 @@
             console.log(response);
           }
         });
-
-        console.log(JSON.parse($('span[property="scalar:isLensOf"]').text()));
-
-      });
-
-
-
-      $("[property|='sioc:content']").append(lensHtml);
-
-
+      }
 
       //
       /// callback for content-selector
@@ -320,6 +316,7 @@
 
           scalarLensObject["components"][0]["content-selector"]["items"] = contentItem;
           console.log(scalarLensObject);
+          me.saveLens();
 
         }
 
