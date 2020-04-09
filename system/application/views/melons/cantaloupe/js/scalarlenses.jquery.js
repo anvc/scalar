@@ -32,6 +32,7 @@
       /// the Lens object
       //
       let scalarLensObject = {
+        "urn": $('link#urn').attr('href').replace("version", "lens"),
         "expanded": false,
         "submitted": false,
         "frozen": false,
@@ -219,14 +220,14 @@
               });
               $('#byType').val(" ").text("Select item...");
               $('#distanceUnits').val(" ").text("Select unit...");
-              $('#distanceQuantity, #latitude, #longitude').val(" ");
+              $('#distanceQuantity, #latitude, #longitude').val("");
               //delete scalarLensObject["components"][0]["content-selector"]["content-type"];
               delete scalarLensObject["components"][0]["content-selector"]["quantity"];
               delete scalarLensObject["components"][0]["content-selector"]["units"];
               delete scalarLensObject["components"][0]["content-selector"]["coordinates"];
               break;
             case 'Items by type':
-              $('#distanceQuantity, #latitude, #longitude').val(" ");
+              $('#distanceQuantity, #latitude, #longitude').val("");
               $('#distanceUnits').val(" ").text("Select unit...");
 
               delete scalarLensObject["components"][0]["content-selector"]["items"];
@@ -274,6 +275,29 @@
           console.log(scalarLensObject);
         });
 
+
+
+
+        this.baseURL = $('link#parent').attr('href');
+
+        $.ajax({
+          url: this.baseURL + "api/relate",
+          type: "POST",
+          dataType: 'json',
+          contentType: 'application/json',
+          data: JSON.stringify(scalarLensObject),
+          async: true,
+          context: this,
+          success: function success(data) {
+            console.log(data);
+          },
+          error: function error(response) {
+            console.log(response);
+          }
+        });
+
+        console.log(JSON.parse($('span[property="scalar:isLensOf"]').text()));
+
       });
 
 
@@ -300,7 +324,10 @@
         }
 
 
-      }
+      } // handleAddTags callback
+
+
+
 
 
 
