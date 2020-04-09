@@ -250,17 +250,17 @@ function ScalarAPI() {
 			}},
 		'CriticalCommons-Video': {
 			name:'CriticalCommons-Video',
-			extensions:['mp4','webm'],
+			extensions:['mp4'],
 			isProprietary:false,
 			contentType:'video',
 			browserSupport: {
-				'Mozilla': {extensions:['webm'], format:'WebM', player:'native', specifiesDimensions:true},
+				'Mozilla': {extensions:['mp4'], format:'MPEG-4', player:'native', specifiesDimensions:true},
 				'Explorer': {extensions:['mp4'], format:'MPEG-4', player:'native', specifiesDimensions:true},
 				'MobileSafari': {extensions:['mp4'], format:'MPEG-4', player:'native', specifiesDimensions:true},
 				'Safari': {extensions:['mp4'], format:'MPEG-4', player:'native', specifiesDimensions:true},
-				'Chrome': {extensions:['webm'], format:'WebM', player:'native', specifiesDimensions:true},
-				'Android': {extensions:['webm'], format:'WebM', player:'native', specifiesDimensions:true},
-				'Other': {extensions:['webm'], format:'WebM', player:'native', specifiesDimensions:true}
+				'Chrome': {extensions:['mp4'], format:'MPEG-4', player:'native', specifiesDimensions:true},
+				'Android': {extensions:['mp4'], format:'MPEG-4', player:'native', specifiesDimensions:true},
+				'Other': {extensions:['mp4'], format:'MPEG-4', player:'native', specifiesDimensions:true}
 			}},
 		'Deep Zoom Image': {
 			name:'DeepZoomImage',
