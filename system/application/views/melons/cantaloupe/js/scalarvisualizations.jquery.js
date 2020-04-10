@@ -1760,9 +1760,9 @@ window.scalarvis = { instanceCount: -1 };
 
       // no need to call directly
       updateSize() {
-        var isFullScreen = document.fullScreen || document.mozFullScreen || document.webkitIsFullScreen;
-        if (!isFullScreen) {
-          this.size.width = base.visElement.width();
+        var isFullScreenNow = document.fullScreen || document.mozFullScreen || document.webkitIsFullScreen;
+        this.size.width = base.visElement.width();
+        if (!isFullScreenNow) {
           if (window.innerWidth > 768) {
             if (base.options.modal) {
               this.size.height = Math.max(300, window.innerHeight * .9 - 170);
@@ -1773,9 +1773,12 @@ window.scalarvis = { instanceCount: -1 };
             this.size.height = 300;
           }
         } else {
-          this.size.width = window.innerWidth;
           this.size.height = window.innerHeight;
         }
+        if (this.isFullScreen != isFullScreenNow) {
+          this.hasBeenDrawn = false;
+        }
+        this.isFullScreen = isFullScreenNow;
       }
 
       // call using super.draw() from your draw method
