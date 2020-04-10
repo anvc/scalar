@@ -252,7 +252,12 @@
             //scalarLensObject["components"][0]["content-selector"]["content-type"] = $('#byType').val().split(/[_\s]/).join("-").toLowerCase();
 
 
+
         });
+
+
+
+
 
 
 
@@ -269,7 +274,6 @@
           scalarLensObject["components"][0]["content-selector"]["quantity"] = $('#distanceQuantity').val();
           // units
           scalarLensObject["components"][0]["content-selector"]["units"] = $('#distanceUnits').val();
-
           // coordinates
           scalarLensObject["components"][0]["content-selector"]["coordinates"] = $('#latitude').val() + ', ' + $('#longitude').val() ;
 
@@ -278,6 +282,8 @@
         });
 
       });
+
+
 
 
 
@@ -312,9 +318,16 @@
           // extract the 'slug' property of each node and put into an array;
           // this will be what gets stored in the "items" property
           let contentItem = nodes.map(node => node.slug);
-          let contentItemsArray = JSON.stringify(contentItem);
-
+          //let contentItemsArray = JSON.stringify(contentItem);
           scalarLensObject["components"][0]["content-selector"]["items"] = contentItem;
+
+          // show content selections in content-selector button
+          let nodeTitle = nodes.map(node => node.title);
+          if(nodeTitle.length <= 1){
+            $('#content-selector-button').text('"'+ nodeTitle + '"').append('<span class="caret"></span>');
+          } else if(nodeTitle.length > 1){
+            $('#content-selector-button').text('"'+ nodeTitle[0] + '"' + ' and more...').append('<span class="caret"></span>');
+          }
           console.log(scalarLensObject);
           me.saveLens();
 
