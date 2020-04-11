@@ -2581,10 +2581,10 @@ window.scalarvis = { instanceCount: -1 };
             .join(
               enter => enter.append('svg:path')
                 .attr('class', 'chord')
-                .attr('d', (d) => { return this.ribbon(d); })
+                .attr('d', (d) => { console.log(d); return this.ribbon(d); })
                 .attr('opacity', .25)
-                .attr('display', (d) => { return this.calculateChordDisplay(d); })
-                .attr('fill', (d) => { return base.highlightColorScale(d.type.id); })
+                .attr('display', (d) => { console.log('a'); return this.calculateChordDisplay(d); })
+                .attr('fill', (d) => { console.log('b'); return base.highlightColorScale(d.type); })
                 .each(this.stashChord),
               exit => exit.remove()
             );
