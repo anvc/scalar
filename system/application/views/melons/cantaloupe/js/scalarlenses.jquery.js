@@ -43,7 +43,7 @@
         "components": [
           {
             "content-selector": {
-              "type": "items",
+              "type": "",
               "items":[],
               "quantity": "",
               "units": "",
@@ -298,6 +298,7 @@
 
           $('#content-selector-button').text('items ≤ ' + updateByDistance + '').append('<span class="caret"></span>');
 
+
           console.log(scalarLensObject);
 
           me.saveLens();
@@ -367,14 +368,7 @@
 
 
 
-
-
-
-
-
     }; // init function
-
-
 
 
 
@@ -389,9 +383,6 @@
             }
         });
     }
-
-
-
 
 
 
