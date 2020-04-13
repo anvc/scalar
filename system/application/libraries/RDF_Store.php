@@ -124,10 +124,13 @@ class RDF_Store {
      * Look for versions that match the predicate and a search on the object
      */
     
-    public function get_urns_from_predicate_and_object($p='', $o='', $in_version_urns=array()) {
+    public function get_urns_from_predicate_and_object($p_arr=array(), $o='', $in_version_urns=array()) {
     	
-    	if (strstr($p, '//')) {
-    		$p = '<' . $p . '>';
+    	if (!is_array($p_arr)) $p_arr= array($p_arr);
+    	for ($j = 0; $j < count($p_arr); $j++) {
+    		if (strstr($p_arr[$j], '//')) $p_arr[$j]= '<' . $p_arr[$j]. '>';
+    		$p_arr[$j] = '
+               { ?s '.$p_arr[$j].' ?o }';
     	}
     	
     	$list = array();
@@ -143,12 +146,13 @@ class RDF_Store {
     	$q .= '
               SELECT *
               WHERE {';
-    	$q .=  '
-               { ?s '.$p.' ?o . }';
+
+    	$q .= implode(' UNION ', $p_arr);
+    	
     	$q .= '
-              FILTER ('.implode(' || ',$list).') . ';
+               FILTER ('.implode(' || ',$list).') . ';
     	$q .= '
-              FILTER (regex (?o,"'.$o.'","i")) . ';
+               FILTER (regex (?o,"'.$o.'","i")) . ';
     	$q .= '
               }';
     	

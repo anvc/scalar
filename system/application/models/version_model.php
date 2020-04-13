@@ -320,16 +320,14 @@ class Version_model extends MY_Model {
     	$ci =& get_instance();
     	if (!is_array($p)) $p = array($p);
     	
-    	// TODO: more than one $p
-    	
     	// Check if the predicate is a "built in" field
     	$rdf_fields = $this->config->item('rdf_fields');
-    	if (in_array($p, $rdf_fields)) {
+    	if (isset($p[0]) && in_array($p[0], $rdf_fields)) {  // TODO: more than one $p
     		if (empty($o)) {
     			// TODO: return every page in the book where there is a value
     			die("Return all pages that have the field");
     		} else {
-    			$field = array_search($p, $rdf_fields);
+    			$field = array_search($p[0], $rdf_fields);
     			$content = $ci->pages->get_all($book_id, null, null, true, null);
     			for ($j = 0; $j < count($content); $j++) {
     				$content[$j]->versions = array($this->get_single($content[$j]->content_id, $content[$j]->recent_version_id, null, false));
