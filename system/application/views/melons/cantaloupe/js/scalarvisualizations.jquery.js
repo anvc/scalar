@@ -2462,6 +2462,7 @@ window.scalarvis = { instanceCount: -1 };
       }
 
       draw() {
+        this.hasBeenDrawn = false; // vis overdraws itself if we don't do this; need to investigate
         super.draw();
 
         // setup rollover caption
@@ -2581,10 +2582,10 @@ window.scalarvis = { instanceCount: -1 };
             .join(
               enter => enter.append('svg:path')
                 .attr('class', 'chord')
-                .attr('d', (d) => { console.log(d); return this.ribbon(d); })
+                .attr('d', (d) => { return this.ribbon(d); })
                 .attr('opacity', .25)
-                .attr('display', (d) => { console.log('a'); return this.calculateChordDisplay(d); })
-                .attr('fill', (d) => { console.log('b'); return base.highlightColorScale(d.type); })
+                .attr('display', (d) => { return this.calculateChordDisplay(d); })
+                .attr('fill', (d) => { return base.highlightColorScale(d.type); })
                 .each(this.stashChord),
               exit => exit.remove()
             );
@@ -2631,12 +2632,12 @@ window.scalarvis = { instanceCount: -1 };
         base.visualization.empty();
         base.visualization.removeClass('bounded');
         base.svg = d3.select(base.visualization[0]).append('svg:svg')
-          .attr('width', this.size.width + 'px')
-          .attr('height', this.size.height + 'px');
+          .attr('width', this.size.width)
+          .attr('height', this.size.height);
         this.vis = base.svg.append("g")
           .attr("transform", "translate(" + this.size.width / 2 + "," + this.size.height / 2 + ")")
           .attr("class", "radialvis");
-        var canvas = this.vis.append('svg:rect')
+        this.vis.append('svg:rect')
           .attr('width', this.size.width)
           .attr('height', this.size.height)
           .attr('class', 'viscanvas');
