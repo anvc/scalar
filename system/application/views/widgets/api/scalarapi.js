@@ -250,17 +250,17 @@ function ScalarAPI() {
 			}},
 		'CriticalCommons-Video': {
 			name:'CriticalCommons-Video',
-			extensions:['mp4','webm'],
+			extensions:['mp4'],
 			isProprietary:false,
 			contentType:'video',
 			browserSupport: {
-				'Mozilla': {extensions:['webm'], format:'WebM', player:'native', specifiesDimensions:true},
+				'Mozilla': {extensions:['mp4'], format:'MPEG-4', player:'native', specifiesDimensions:true},
 				'Explorer': {extensions:['mp4'], format:'MPEG-4', player:'native', specifiesDimensions:true},
 				'MobileSafari': {extensions:['mp4'], format:'MPEG-4', player:'native', specifiesDimensions:true},
 				'Safari': {extensions:['mp4'], format:'MPEG-4', player:'native', specifiesDimensions:true},
-				'Chrome': {extensions:['webm'], format:'WebM', player:'native', specifiesDimensions:true},
-				'Android': {extensions:['webm'], format:'WebM', player:'native', specifiesDimensions:true},
-				'Other': {extensions:['webm'], format:'WebM', player:'native', specifiesDimensions:true}
+				'Chrome': {extensions:['mp4'], format:'MPEG-4', player:'native', specifiesDimensions:true},
+				'Android': {extensions:['mp4'], format:'MPEG-4', player:'native', specifiesDimensions:true},
+				'Other': {extensions:['mp4'], format:'MPEG-4', player:'native', specifiesDimensions:true}
 			}},
 		'Deep Zoom Image': {
 			name:'DeepZoomImage',
@@ -1985,10 +1985,10 @@ ScalarAPI.prototype.loadNode = ScalarAPI.prototype.loadPage = function(uriSegmen
 
 	var versions = (allVersions === true)?1:0;
 	queryString += '&versions='+versions;
-	
+
 	includeMetadata = ('undefined'!=typeof(includeMetadata) && false === includeMetadata) ? false : true;
 	if (!includeMetadata) queryString += '&meta=0';
-	
+
 	if (this.loadPageStatus[url] == null) {
 		this.loadPageStatus[url] = {isLoading:false, queuedSuccessCallbacks:[], queuedErrorCallbacks:[]};
 	}
@@ -2505,7 +2505,8 @@ function ScalarModel(options) {
 		{property:'fullname', uri:'http://scalar.usc.edu/2012/01/scalar-ns#fullname', type:'string'},
 		{property:'author', uri:'http://www.w3.org/ns/prov#wasAttributedTo', type:'string'},
 		{property:'references', uri:'http://purl.org/dc/terms/references', type:'string'},
-		{property:'isReferencedBy', uri:'http://purl.org/dc/terms/isReferencedBy', type:'string'}
+		{property:'isReferencedBy', uri:'http://purl.org/dc/terms/isReferencedBy', type:'string'},
+    {property:'isLensOf', uri:'http://scalar.usc.edu/2012/01/scalar-ns#isLensOf', type:'json'}
 	];
 
 	// metadata about each relation type

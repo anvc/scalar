@@ -93,7 +93,7 @@ $(document).ready(function() {
 		<li class="admin" data-id="recreate-book-folders"><a href="?book_id=<?=((isset($book) && !empty($book))?$book->book_id:'0')?>&zone=utils&pill=recreate-book-folders#tabs-utils">Recreate book folders</a></li>
 		<li class="admin" data-id="list-all-users"><a href="?book_id=<?=((isset($book) && !empty($book))?$book->book_id:'0')?>&zone=utils&pill=list-all-users#tabs-utils">List all users</a></li>
 		<li class="admin" data-id="list-all-books"><a href="?book_id=<?=((isset($book) && !empty($book))?$book->book_id:'0')?>&zone=utils&pill=list-all-books#tabs-utils">List all books</a></li>
-		<li class="admin" data-id="normalize-id2val"><a href="?book_id=<?=((isset($book) && !empty($book))?$book->book_id:'0')?>&zone=utils&pill=normalize-id2val#tabs-utils">Normalize id2val table</a></li>
+		<li class="admin" data-id="normalize-id2val"><a href="?book_id=<?=((isset($book) && !empty($book))?$book->book_id:'0')?>&zone=utils&pill=normalize-id2val#tabs-utils">Normalize predicate table</a></li>
 <? endif ?>
 	  </ul>
     </aside>
