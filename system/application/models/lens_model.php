@@ -126,6 +126,7 @@ class Lens_model extends MY_Model {
 								$distance_in_meters = $modifier['quantity'];
 								$items = $CI->versions->get_by_predicate($book_id, array('dcterms:spatial','dcterms:coverage'));
 								foreach ($from_arr as $from) {
+									$content = array();
 									$item = $this->filter_by_slug($items, $from);
 									if (!empty($item)) {
 										$latlng = $this->get_latlng_from_item($item[0]);
@@ -140,6 +141,7 @@ class Lens_model extends MY_Model {
 									$page = $CI->pages->get_by_slug($book_id, $from, true);
 									$version = $CI->versions->get_single($page->content_id, $page->recent_version_id, null, false);
 									$types = $modifier['content-types'];
+									$content = array();
 									foreach ($types as $type) {
 										$type_p = $type.'s';
 										if ($type_p== 'replys') $type_p= 'replies';
