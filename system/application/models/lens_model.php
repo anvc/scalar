@@ -41,18 +41,6 @@ class Lens_model extends MY_Model {
 
 	}
 	
-	private function select() {
-		
-	}
-	
-	private function filter() {
-		
-	}
-	
-	private function sort() {
-		
-	}
-	
 	public function decode($arr=array(), $book=null) {
 		
 		$CI =& get_instance();
@@ -112,6 +100,79 @@ class Lens_model extends MY_Model {
     	return $result[0]->contents;
 
 	}
+	
+	public function get_nodes_from_json($book_id=0, $json='', $prefix='') {
+		
+		$CI =& get_instance();
+		if (!isset($CI->pages) || 'object'!=gettype($CI->pages)) $CI->load->model('page_model','pages');
+		if (!isset($CI->versions) || 'object'!=gettype($CI->versions)) $CI->load->model('version_model','versions');
+		if (empty($book_id)) throw new Exception("Invalud Book ID");
+		$operator = 'and';
+		$contents = array();
+
+		foreach ($json['components'] as $component) {
+			foreach ($component['modifiers'] as $modifier) {
+				switch ($modifier['type']) {
+					case "filter":
+						switch ($modifier['subtype']) {
+							case "metadata":
+								$field = trim($modifier['metadata-field']);
+								$value = trim($modifier['content']);
+								$content = $CI->versions->get_by_predicate($book_id, $field, false, null, $value);
+								$contents = $this->combine_by_operator($contents, $content, $operator);
+								break;
+							case "distance":
+								$from_arr = $this->get_pages_from_content_selector($component['content-selector']);
+								$distance_in_meters = $modifier['quantity'];
+								$items = $CI->versions->get_by_predicate($book_id, array('dcterms:spatial','dcterms:coverage'));
+								foreach ($from_arr as $from) {
+									$item = $this->filter_by_slug($items, $from);
+									if (!empty($item)) {
+										$latlng = $this->get_latlng_from_item($item[0]);
+										$content = $this->filter_by_location($items, $latlng, $distance_in_meters);
+									}
+									$contents = $this->combine_by_operator($contents, $content, $operator);
+								}
+								break;
+							case "relationship":
+								$from_arr = $this->get_pages_from_content_selector($component['content-selector']);
+								foreach ($from_arr as $from) {
+									$page = $CI->pages->get_by_slug($book_id, $from, true);
+									$version = $CI->versions->get_single($page->content_id, $page->recent_version_id, null, false);
+									$types = $modifier['content-types'];
+									foreach ($types as $type) {
+										$type_p = $type.'s';
+										if ($type_p== 'replys') $type_p= 'replies';
+										if (!isset($CI->$type_p) || 'object'!=gettype($CI->$type_p)) $CI->load->model($type.'_model',$type_p);
+										$items = $CI->$type_p->get_children($version->version_id, '', '', true, null);
+										foreach ($items as $item) {
+											$page = $CI->pages->get($item->child_content_id);
+											$page->versions = array();
+											$page->versions[] = $CI->versions->get_single($page->content_id, $page->recent_version_id, null, true);
+											$content[] = $page;
+										}
+									}
+									$contents = $this->combine_by_operator($contents, $content, $operator);
+								}
+								break;
+						}
+						break;
+				}
+			}
+		}
+
+		$return = array();
+		if (empty($contents)) return $return;
+		foreach ($contents as $content_id => $page) {
+			$uri = $prefix.'/'.$page->slug;
+			$return[$uri] = $CI->pages->rdf($page);
+			$version_uri = $uri.'.'.$page->versions[0]->version_num;
+			$return[$version_uri] = $CI->versions->rdf($page->versions[0]);
+		}
+
+		return $return;
+		
+	}
 
     public function save_children($parent_version_id=0, $array=array()) {
 
@@ -144,6 +205,83 @@ class Lens_model extends MY_Model {
     	}
     	return true;
 
+    }
+    
+    public function filter_by_location($items, $location, $distance_in_meters) {
+    	
+    	$arr = explode(',',$location);
+    	$loc_lat = trim($arr[0]);
+    	$loc_lng = trim($arr[1]);
+    	$return = array();
+    	
+    	foreach ($items as $item) {
+    		$latlng = $this->get_latlng_from_item($item);
+    		if (empty($latlng)) continue;
+    		$arr = explode(',',$latlng);
+    		$dest_lat = trim($arr[0]);
+    		$dest_lng = trim($arr[1]);
+    		$dest_distance_in_meters = latlng_distance($loc_lat, $loc_lng, $dest_lat, $dest_lng);
+    		if ($dest_distance_in_meters > $distance_in_meters) continue;
+    		$return[] = $item;
+    	}
+    	
+    	return $return;
+    	
+    }
+    
+    public function filter_by_slug($items, $slug) {
+    	
+    	$return = array();
+    	foreach ($items as $item) {
+    		if ($item->slug != $slug) continue;
+    		$return[] = $item;
+    		break;
+    	}
+    	return $return;
+    	
+    }
+    
+    public function get_latlng_from_item($item) {
+    	
+    	$latlng = false;
+    	if (!isset($item->versions[0]->rdf)) return $latlng;
+    	$rdf = $item->versions[0]->rdf;
+    	$latlng = '';
+    	$spatial = '';
+    	$coverage = '';
+    	if (isset($rdf['http://purl.org/dc/terms/spatial'])) {
+    		$spatial = $rdf['http://purl.org/dc/terms/spatial'][0]['value'];
+    	}
+    	if (isset($rdf['http://purl.org/dc/terms/coverage'])) {
+    		$coverage = $rdf['http://purl.org/dc/terms/coverage'][0]['value'];
+    	}
+    	if (preg_match('/^(\-?\d+(\.\d+)?),\s*(\-?\d+(\.\d+)?)$/', $spatial)) {
+    		$latlng = $spatial;
+    	} elseif (preg_match('/^(\-?\d+(\.\d+)?),\s*(\-?\d+(\.\d+)?)$/', $coverage)) {
+    		$latlng = $coverage;
+    	}
+    	return $latlng;
+    	
+    }
+    
+    public function combine_by_operator($contents, $content, $operator) {
+    	
+    	switch ($operator) {
+    		case "and":
+    			return array_merge($contents, $content);
+    		default:  // or
+    			// TODO: "or" operator
+    	}
+    	
+    }
+    
+    public function get_pages_from_content_selector($json) {
+    	
+    	if (isset($json['items'])) {
+    		return $json['items'];
+    	}
+    	return array();
+    	
     }
 
 }

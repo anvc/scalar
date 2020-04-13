@@ -79,7 +79,52 @@ class RDF_Store {
      * Select based on a predicate
      */
     
-    public function get_urns_from_predicate($p='', $in_version_urns=array()) {
+    public function get_urns_from_predicate($p_arr=array(), $in_version_urns=array()) {
+    	
+    	if (!is_array($p_arr)) $p_arr= array($p_arr);
+    	for ($j = 0; $j < count($p_arr); $j++) {
+    		if (strstr($p_arr[$j], '//')) $p_arr[$j]= '<' . $p_arr[$j]. '>';
+    		$p_arr[$j] = '
+               { ?s '.$p_arr[$j].' ?o }';
+    	}
+    	
+    	
+    	$list = array();
+    	foreach ($in_version_urns as $urn) {
+    		$list[] = '?s = "'.$urn.'"';
+    	}
+    	
+    	$q = '';
+    	foreach ($this->ns as $prefix => $uri) {
+    		$q .= 'PREFIX '.$prefix.': <'.$uri.'> . '."\n";
+    	}
+    	
+    	$q .= '
+              SELECT *
+              WHERE {';
+		
+		$q .= implode(' UNION ', $p_arr);
+    	
+		$q .= '
+               FILTER ('.implode(' || ',$list).') . ';
+    	$q .= '
+              }';
+
+    	$rows = $this->store->query($q, 'rows');
+    	if (!is_array($rows)) return false;
+    	$return = array();
+    	foreach ($rows as $row) {
+    		$return[] = $row['s'];
+    	}
+    	return $return;
+    	
+    }
+    
+    /**
+     * Look for versions that match the predicate and a search on the object
+     */
+    
+    public function get_urns_from_predicate_and_object($p='', $o='', $in_version_urns=array()) {
     	
     	if (strstr($p, '//')) {
     		$p = '<' . $p . '>';
@@ -90,18 +135,24 @@ class RDF_Store {
     		$list[] = '?s = "'.$urn.'"';
     	}
     	
-    	$q = 'PREFIX dcterms:  <http://purl.org/dc/terms/> .
+    	$q = '';
+    	foreach ($this->ns as $prefix => $uri) {
+    		$q .= 'PREFIX '.$prefix.': <'.$uri.'> . '."\n";
+    	}
+    	
+    	$q .= '
               SELECT *
               WHERE {';
-		$q .=  '
+    	$q .=  '
                { ?s '.$p.' ?o . }';
-		$q .= '
-              FILTER ('.implode(' || ',$list).')';
+    	$q .= '
+              FILTER ('.implode(' || ',$list).') . ';
+    	$q .= '
+              FILTER (regex (?o,"'.$o.'","i")) . ';
     	$q .= '
               }';
-
-
-    	$rows = $this->store->query($q, 'rows');    	
+    	
+    	$rows = $this->store->query($q, 'rows');
     	if (!is_array($rows)) return false;
     	$return = array();
     	foreach ($rows as $row) {
@@ -110,7 +161,7 @@ class RDF_Store {
     	return $return;
     	
     }
-
+    
 	/**
 	 * Save an array of fields and values for a single node by URN
 	 */
