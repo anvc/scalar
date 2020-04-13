@@ -313,45 +313,81 @@ class Version_model extends MY_Model {
     }
     
     /**
-     * Search the ARC tables for versions that have a certain predicate
+     * Search the for versions that have a certain predicate $p (and, if sent, search its value for $o
      */
-    public function get_by_predicate($book_id=0, $p='', $all_versions=false, $id_array=null) {
+    public function get_by_predicate($book_id=0, $p='', $all_versions=false, $id_array=null, $o='') {
     	
     	$ci =& get_instance();
+    	if (!is_array($p)) $p = array($p);
     	
-    	// Get all URNs in the book
-    	$book_version_urns = array();
-    	$pages = $ci->pages->get_all($book_id, null, null, true, $id_array);
-    	for ($j = 0; $j < count($pages); $j++) {
-    		$pages[$j]->versions = array($this->get_single($pages[$j]->content_id, $pages[$j]->recent_version_id, $sq='', false));
-    		for ($k = 0; $k < count($pages[$j]->versions); $k++) {
-    			$book_version_urns[] = $this->urn($pages[$j]->versions[$k]->version_id);
+    	// Check if the predicate is a "built in" field
+    	$rdf_fields = $this->config->item('rdf_fields');
+    	if (isset($p[0]) && in_array($p[0], $rdf_fields)) {  // TODO: more than one $p
+    		if (empty($o)) {
+    			// TODO: return every page in the book where there is a value
+    			die("Return all pages that have the field");
+    		} else {
+    			$field = array_search($p[0], $rdf_fields);
+    			$content = $ci->pages->get_all($book_id, null, null, true, null);
+    			for ($j = 0; $j < count($content); $j++) {
+    				$content[$j]->versions = array($this->get_single($content[$j]->content_id, $content[$j]->recent_version_id, null, false));
+    			}
+    			for ($j = count($content)-1; $j >= 0; $j--) {
+    				if (isset($content[$j]->versions[0]->{$field})) {
+    					if (!stristr($content[$j]->versions[0]->{$field}, $o)) unset($content[$j]); 
+    				} elseif (isset($content[$j]->{$field})) {
+    					if (!stristr($content[$j]->{$field}, $o)) unset($content[$j]); 
+    				} else {
+    					unset($content[$j]); 
+    				}
+    			}
     		}
+    	
+    	// Otherwise, search metadata fields
+    	} else {
+    	
+	    	// Get all URNs in the book
+	    	$book_version_urns = array();
+	    	$pages = $ci->pages->get_all($book_id, null, null, true, $id_array);
+	    	for ($j = 0; $j < count($pages); $j++) {
+	    		$pages[$j]->versions = array($this->get_single($pages[$j]->content_id, $pages[$j]->recent_version_id, $sq='', false));
+	    		for ($k = 0; $k < count($pages[$j]->versions); $k++) {
+	    			$book_version_urns[] = $this->urn($pages[$j]->versions[$k]->version_id);
+	    		}
+	    	}
+	    	
+	    	// Get all URNs that have the predicate
+	    	if (!empty($o)) {
+	    		$version_urns = $ci->rdf_store->get_urns_from_predicate_and_object($p, $o, $book_version_urns);
+	    	} else {
+	    		$version_urns = $ci->rdf_store->get_urns_from_predicate($p, $book_version_urns);
+	    	}
+	
+	    	rsort($version_urns, SORT_NATURAL);
+	    	$content = array();
+	    	foreach ($version_urns as $version_urn) {
+	    		$version_urn_arr = explode(':', $version_urn);
+	    		$version_id = (int) array_pop($version_urn_arr);
+	    		$version = $this->versions->get($version_id, null, false);  // Get without metadata
+	    		if (!isset($content[$version->content_id])) {
+	    			$row = $this->pages->get($version->content_id);
+	    			if (empty($row)) continue;
+	    			$row->versions = array();
+	    			$content[$row->content_id] = $row;
+	    		}
+	    		$content[$version->content_id]->versions[] = $version;
+	    	}
+	    	
     	}
     	
-    	// Get all URNs that have the predicate
-    	$version_urns = $ci->rdf_store->get_urns_from_predicate($p, $book_version_urns);
-
-    	rsort($version_urns, SORT_NATURAL);
-    	$content = array();
-    	foreach ($version_urns as $version_urn) {
-    		$version_urn_arr = explode(':', $version_urn);
-    		$version_id = (int) array_pop($version_urn_arr);
-    		$version = $this->versions->get($version_id, null, false);  // Get without metadata
-    		if (!isset($content[$version->content_id])) {
-    			$row = $this->pages->get($version->content_id);
-    			if (empty($row)) continue;
-    			$row->versions = array();
-    			$content[$row->content_id] = $row;
-    		}
-    		$content[$version->content_id]->versions[] = $version;
-    	}
-    	if (!$this->data['versions']) {
+    	// Reload versions with metadata
+    	if (!$all_versions) {
     		foreach ($content as $content_id => $row) {
     			 $top_version = reset($content[$content_id]->versions);
     			 $content[$content_id]->versions = array($this->versions->get($top_version->version_id, null, true));  // Get with metadata
     		}
     	}
+    	
     	return $content;
     	
     }
@@ -650,7 +686,7 @@ class Version_model extends MY_Model {
 	/**
 	 * Filter a DB result of versions based on a search query (an array of terms)
 	 */
-    public function filter_result_i($result, $sq) {
+    public function filter_result_i($result, $sq, $field=null) {
 
     	$result = (array) $result;
     	$results = array();

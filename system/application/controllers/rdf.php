@@ -165,18 +165,42 @@ class Rdf extends MY_Controller {
 		$type = $category = null;
 		$rel = RDF_Object::REL_CHILDREN_ONLY;
 		$method = (isset($_REQUEST['method']) && !empty($_REQUEST['method'])) ? trim($_REQUEST['method']) : null;
-		$value = (isset($_REQUEST['value']) && !empty($_REQUEST['value'])) ? trim($_REQUEST['value']) : null;
+		$field = (isset($_REQUEST['field']) && !empty($_REQUEST['field'])) ? trim($_REQUEST['field']) : null;
 		if (empty($method)) {
 			header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));
 			exit;
-		} elseif (empty($value)) {
+		} elseif (empty($field)) {
 			header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));
 			exit;
 		}
 		$this->load->library('RDF_Store', 'rdf_store');
 		switch ($method) {
 			case 'hasPredicate':
-				$content = $this->versions->get_by_predicate($this->data['book']->book_id, $value, $this->data['versions']);
+				$content = $this->versions->get_by_predicate($this->data['book']->book_id, $field, $this->data['versions']);
+				break;
+			case 'objectLiteralContains':
+				$value = (isset($_REQUEST['value']) && !empty($_REQUEST['value'])) ? trim($_REQUEST['value']) : null;
+				if (empty($value)) {
+					header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));
+					exit;
+				}
+				$content = $this->versions->get_by_predicate($this->data['book']->book_id, $field, $this->data['versions'], null, $value);
+				break;
+			case 'pagesDistanceFromPageInMeters':
+				$value = (isset($_REQUEST['value']) && !empty($_REQUEST['value'])) ? (int) trim($_REQUEST['value']) : null;
+				if (empty($value)) {
+					header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));
+					exit;
+				}
+				$this->load->model( 'lens_model', 'lenses' );
+				$content = $this->versions->get_by_predicate($this->data['book']->book_id, array('dcterms:spatial','dcterms:coverage'), $this->data['versions'], null);
+				$item = $this->lenses->filter_by_slug($content, $field);
+				if (!count($item)) {
+					header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));
+					exit;
+				}
+				$latlng = $this->lenses->get_latlng_from_item($item[0]);
+				$content = $this->lenses->filter_by_location($content, $latlng, $value);
 				break;
 			default:
 				header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));
@@ -190,7 +214,7 @@ class Rdf extends MY_Controller {
 						'base_uri'		=> $this->data['base_uri'],
 						'use_versions' => $this->data['use_versions'],
 						'use_versions_restriction' => ($this->editorial_is_on() && (null!==$this->data['url_params']['edition_index'] || !$this->login_is_book_admin())) ? RDF_OBJECT::USE_VERSIONS_EDITORIAL : RDF_OBJECT::USE_VERSIONS_INCLUSIVE,
-						'method'		=> __FUNCTION__.'/'.$method.'/'.$value,
+						'method'		=> __FUNCTION__.'/'.$method.'/'.$field,
 						'restrict'		=> $this->data['restrict'],
 						'rel'			=> $rel,
 						'sq'			=> $this->data['sq'],
