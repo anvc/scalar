@@ -1732,7 +1732,9 @@ window.scalarvis = { instanceCount: -1 };
 
         case "force-directed":
           if (isRequired) {
-            base.drawForceDirected();
+            needsInstantiation = base.visInstance ? base.visInstance.constructor.name != 'ForceDirectedVisualization' : true;
+            if (needsInstantiation) base.visInstance = new ForceDirectedVisualization();
+            base.visInstance.draw();
           }
           break;
 
@@ -3099,9 +3101,190 @@ window.scalarvis = { instanceCount: -1 };
       }
     }
 
+    /***********************************
+     * FORCE-DIRECTED VISUALIZATION V5 *
+     ***********************************/
+    class ForceDirectedVisualization extends AbstractVisualization {
+
+      constructor() {
+        super();
+      }
+
+      draw() {
+        super.draw();
+
+        if (base.svg != null) {
+          var links = d3.forceLink(base.links).distance(120);
+          base.force.nodes(base.abstractedSortedNodes)
+            .force('link', links)
+          var container = base.svg.selectAll('g.container');
+          this.link = container.selectAll('.link');
+          this.link = this.link.data(links, function(d) { return d.source.node.slug + '-' + d.target.node.slug; });
+          link.enter().insert('svg:line', '.node')
+            .attr('class', 'link');
+          link.exit().remove();
+          this.node = container.selectAll('g.node')
+            .data(base.force.nodes(), function(d) { return d.node.slug; });
+
+          var nodeEnter = this.node.enter().append('svg:g')
+            .attr('class', 'node')
+            /*.call(base.force.drag)*/
+            .on('touchstart', function(d) { d3.event.stopPropagation(); })
+            .on('mousedown', function(d) { d3.event.stopPropagation(); })
+            .on('click', function(d) {
+              if (d3.event.defaultPrevented) return; // ignore drag
+              d3.event.stopPropagation();
+              var index = base.selectedNodes.indexOf(d.node);
+              if (index == -1) {
+                base.selectedNodes.push(d.node);
+                if (base.options.content == "current") {
+                  base.loadNode(d.node.slug, false);
+                }
+              } else {
+                base.selectedNodes.splice(index, 1);
+                base.filter();
+                base.draw(true);
+              }
+              this.updateGraph();
+            })
+            .on("mouseover", function(d) {
+              base.rolloverNode = d.node;
+              this.updateGraph();
+            })
+            .on("mouseout", function() {
+              base.rolloverNode = null;
+              this.updateGraph();
+            });
+
+          this.node.append('svg:circle')
+            .attr('class', 'node')
+            .attr('r', '16');
+
+          // create the text labels
+          nodeEnter.append('svg:text')
+            .attr('class', 'label')
+            .attr('x', function(d) { return d.x; })
+            .attr('y', function(d) { return d.y + 21; })
+            .attr('text-anchor', 'middle')
+            .text(function(d) {
+              return ((base.rolloverNode == d.node) || (base.selectedNodes.indexOf(d.node) != -1)) ? d.node.title : d.node.shortTitle;
+            });
+
+          nodeEnter.append('svg:rect')
+            .attr('class', 'visit-button')
+            .attr('rx', '5')
+            .attr('ry', '5')
+            .attr('width', '48')
+            .attr('height', '22')
+            .style('display', 'none')
+            .on('click', function(d) {
+              d3.event.stopPropagation();
+              window.open(d.node.url, '_blank');
+            });
+
+          nodeEnter.append('svg:text')
+            .attr('class', 'visit-button')
+            .attr('text-anchor', 'middle')
+            .style('display', 'none')
+            .text('View »');
+
+          this.node.exit().remove();
+
+          //base.force.start();
+          this.updateGraph();
+        }
+      }
+
+      getHelpContent() {
+        var helpContent;
+        if (base.options.content != 'current') {
+          helpContent = "This visualization shows <b>how content is interconnected</b> in this work.<ul>";
+        } else {
+          helpContent = "This visualization shows how <b>&ldquo;" + currentNode.getDisplayTitle() + "&rdquo;</b> is connected to other content in this work.<ul>";
+        }
+        helpContent += "<li>Each dot represents a piece of content, color-coded by type.</li>" +
+          "<li>Scroll or pinch to zoom, or click and hold to drag.</li>" +
+          "<li>Click any item to add it to the current selection, and to reveal the content it's related to in turn.</li>" +
+          "<li>Click the &ldquo;View&rdquo; button of any selected item to navigate to it.</li></ul>";
+        return helpContent;
+      }
+
+      setupElement() {
+        this.hasBeenDrawn = true;
+        base.visualization.empty();
+        base.visualization.addClass('bounded');
+        base.visualization.css('height', this.size.height + 'px');
+        base.visualization.css('width', this.size.width + 'px');
+        base.visualization.css('padding', '0px');
+        base.svg = d3.select(base.visualization[0]).append('svg:svg')
+          .attr('width', this.size.width)
+          .attr('height', this.size.height);
+        var container = base.svg.append('g').attr('class', 'container');
+        base.svg.call(d3.zoom().on("zoom", function() { container.attr("transform", d3.event.transform); }));
+        base.svg.style("cursor", "move");
+
+        // once we upgrade to D3 4.0, we should implement custom x and y accessors
+        // so multiple instances don't try to change each other's positions
+
+        base.force = d3.forceSimulation(base.abstractedSortedNodes)
+          .force('link', d3.forceLink(base.links).distance(120))
+          .on('tick', function() {
+            if (base.svg != null) {
+              base.svg.selectAll('line.link')
+                .attr('x1', function(d) { return d.source.x; })
+                .attr('y1', function(d) { return d.source.y; })
+                .attr('x2', function(d) { return d.target.x; })
+                .attr('y2', function(d) { return d.target.y; })
+                .attr('visibility', function(d) { return (d.source.node.slug == 'toc' || d.target.node.slug == 'toc') ? 'hidden' : 'visible'; });
+              base.svg.selectAll('circle.node')
+                .attr('cx', function(d) { return d.x; })
+                .attr('cy', function(d) { return d.y; })
+                .attr('visibility', function(d) { return d.node.slug == 'toc' ? 'hidden' : 'visible'; });
+              base.svg.selectAll('text.label')
+                .attr('x', function(d) { return d.x; })
+                .attr('y', function(d) { return d.y + 28; });
+              base.svg.selectAll('rect.visit-button')
+                .attr('x', function(d) { return d.x - 24; })
+                .attr('y', function(d) { return d.y + 38; });
+              base.svg.selectAll('text.visit-button')
+                .attr('x', function(d) { return d.x; })
+                .attr('y', function(d) { return d.y + 53; });
+            }
+          });
+      }
+
+      updateGraph() {
+        this.link.attr('stroke-width', function(d) { return ((base.rolloverNode == d.source.node) || (base.selectedNodes.indexOf(d.source.node) != -1) || (base.rolloverNode == d.target.node) || (base.selectedNodes.indexOf(d.target.node) != -1)) ? "3" : "1"; })
+          .attr('stroke-opacity', function(d) { return ((base.rolloverNode == d.source.node) || (base.selectedNodes.indexOf(d.source.node) != -1) || (base.rolloverNode == d.target.node) || (base.selectedNodes.indexOf(d.target.node) != -1)) ? '1.0' : '0.5'; })
+          .attr('stroke', function(d) { return ((base.rolloverNode == d.source.node) || (base.selectedNodes.indexOf(d.source.node) != -1) || (base.rolloverNode == d.target.node) || (base.selectedNodes.indexOf(d.target.node) != -1)) ? base.neutralColor : '#999'; });
+
+        this.node.selectAll('.node').attr('fill', function(d) {
+          var interpolator = d3.interpolateRgb(base.highlightColorScale(d.node.type.id), d3.rgb(255, 255, 255));
+          return ((base.rolloverNode == d.node) || (base.selectedNodes.indexOf(d.node) != -1)) ? interpolator(0) : interpolator(.5);
+        });
+
+        this.node.selectAll('.label')
+          .attr('fill', function(d) { return ((base.rolloverNode == d.node) || (base.selectedNodes.indexOf(d.node) != -1)) ? "#000" : "#999"; })
+          .attr('font-weight', function(d) { return ((base.rolloverNode == d.node) || (base.selectedNodes.indexOf(d.node) != -1)) ? 'bold' : 'normal'; })
+          .text(function(d) {
+            return ((base.rolloverNode == d.node) || (base.selectedNodes.indexOf(d.node) != -1)) ? d.node.title : d.node.shortTitle;
+          });
+
+        this.node.selectAll('rect.visit-button')
+          .style('display', function(d) {
+            return (base.selectedNodes.indexOf(d.node) != -1) ? 'inherit' : 'none';
+          });
+
+        this.node.selectAll('text.visit-button')
+          .style('display', function(d) {
+            return (base.selectedNodes.indexOf(d.node) != -1) ? 'inherit' : 'none';
+          });
+      }
+    }
+
     /********************************
      * FORCE-DIRECTED VISUALIZATION *
-     ********************************/
+     ********************************
     base.drawForceDirected = function(updateOnly) {
 
       var i, j, n, o, node, targetNode, fullWidth, fullHeight,
@@ -3320,7 +3503,7 @@ window.scalarvis = { instanceCount: -1 };
 
       }
 
-    }
+    }*/
 
     /***************************
      * TAG CLOUD VISUALIZATION *
