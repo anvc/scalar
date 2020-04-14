@@ -874,9 +874,9 @@ window.scalarvis = { instanceCount: -1 };
 
       }
 
-      if ((base.options.format == "force-directed") && (base.force != null)) {
+      /*if ((base.options.format == "force-directed") && (base.force != null)) {
         base.force.start();
-      }
+      }*/
 
     };
 
@@ -3119,19 +3119,20 @@ window.scalarvis = { instanceCount: -1 };
             .force('link', links)
           var container = base.svg.selectAll('g.container');
           this.link = container.selectAll('.link');
-          this.link = this.link.data(links, function(d) { return d.source.node.slug + '-' + d.target.node.slug; });
+          /*this.link = this.link.data(links, function(d) { console.log(d); return d.source.node.slug + '-' + d.target.node.slug; });
           link.enter().insert('svg:line', '.node')
             .attr('class', 'link');
-          link.exit().remove();
+          link.exit().remove();*/
           this.node = container.selectAll('g.node')
             .data(base.force.nodes(), function(d) { return d.node.slug; });
 
-          var nodeEnter = this.node.enter().append('svg:g')
+          var nodeEnter = this.node.enter()
+
+          nodeEnter.append('svg:g')
             .attr('class', 'node')
-            /*.call(base.force.drag)*/
-            .on('touchstart', function(d) { d3.event.stopPropagation(); })
+            /*.on('touchstart', function(d) { d3.event.stopPropagation(); })
             .on('mousedown', function(d) { d3.event.stopPropagation(); })
-            .on('click', function(d) {
+            .on('click', (d) => {
               if (d3.event.defaultPrevented) return; // ignore drag
               d3.event.stopPropagation();
               var index = base.selectedNodes.indexOf(d.node);
@@ -3147,28 +3148,28 @@ window.scalarvis = { instanceCount: -1 };
               }
               this.updateGraph();
             })
-            .on("mouseover", function(d) {
+            .on("mouseover", (d) => {
               base.rolloverNode = d.node;
               this.updateGraph();
             })
-            .on("mouseout", function() {
+            .on("mouseout", () => {
               base.rolloverNode = null;
               this.updateGraph();
-            });
+            })*/;
 
-          this.node.append('svg:circle')
+          nodeEnter.append('svg:circle')
             .attr('class', 'node')
             .attr('r', '16');
 
           // create the text labels
-          nodeEnter.append('svg:text')
+          /*nodeEnter.append('svg:text')
             .attr('class', 'label')
             .attr('x', function(d) { return d.x; })
             .attr('y', function(d) { return d.y + 21; })
             .attr('text-anchor', 'middle')
             .text(function(d) {
               return ((base.rolloverNode == d.node) || (base.selectedNodes.indexOf(d.node) != -1)) ? d.node.title : d.node.shortTitle;
-            });
+            });*/
 
           nodeEnter.append('svg:rect')
             .attr('class', 'visit-button')
@@ -3254,11 +3255,14 @@ window.scalarvis = { instanceCount: -1 };
       }
 
       updateGraph() {
+        console.log('update');
+        
         this.link.attr('stroke-width', function(d) { return ((base.rolloverNode == d.source.node) || (base.selectedNodes.indexOf(d.source.node) != -1) || (base.rolloverNode == d.target.node) || (base.selectedNodes.indexOf(d.target.node) != -1)) ? "3" : "1"; })
           .attr('stroke-opacity', function(d) { return ((base.rolloverNode == d.source.node) || (base.selectedNodes.indexOf(d.source.node) != -1) || (base.rolloverNode == d.target.node) || (base.selectedNodes.indexOf(d.target.node) != -1)) ? '1.0' : '0.5'; })
           .attr('stroke', function(d) { return ((base.rolloverNode == d.source.node) || (base.selectedNodes.indexOf(d.source.node) != -1) || (base.rolloverNode == d.target.node) || (base.selectedNodes.indexOf(d.target.node) != -1)) ? base.neutralColor : '#999'; });
 
         this.node.selectAll('.node').attr('fill', function(d) {
+          console.log(d);
           var interpolator = d3.interpolateRgb(base.highlightColorScale(d.node.type.id), d3.rgb(255, 255, 255));
           return ((base.rolloverNode == d.node) || (base.selectedNodes.indexOf(d.node) != -1)) ? interpolator(0) : interpolator(.5);
         });
