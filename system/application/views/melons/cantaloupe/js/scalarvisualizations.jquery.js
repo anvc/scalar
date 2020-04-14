@@ -619,11 +619,11 @@ window.scalarvis = { instanceCount: -1 };
           base.loadSequence.push({ id: 'current', desc: "current page", relations: 'none' });
           base.loadSequence.push({ id: 'current', desc: "current page's connections", relations: 'all' });
           base.loadSequence.push({ id: 'path', desc: "paths", relations: 'path' });
-          base.loadSequence.push({ id: 'tag', desc: "tags", relations: 'tag' });
+          /*base.loadSequence.push({ id: 'tag', desc: "tags", relations: 'tag' });
           base.loadSequence.push({ id: 'media', desc: "media", relations: 'reference' });
           base.loadSequence.push({ id: 'page', desc: "pages", relations: 'none' });
           base.loadSequence.push({ id: 'annotation', desc: "annotations", relations: 'annotation' });
-          base.loadSequence.push({ id: 'reply', desc: "comments", relations: 'reply' });
+          base.loadSequence.push({ id: 'reply', desc: "comments", relations: 'reply' });*/
           break;
 
         case "current":
@@ -874,9 +874,9 @@ window.scalarvis = { instanceCount: -1 };
 
       }
 
-      /*if ((base.options.format == "force-directed") && (base.force != null)) {
-        base.force.start();
-      }*/
+      if ((base.options.format == "force-directed") && (base.force != null)) {
+        base.force.restart();
+      }
 
     };
 
@@ -3117,19 +3117,58 @@ window.scalarvis = { instanceCount: -1 };
           var links = d3.forceLink(base.links).distance(120);
           base.force.nodes(base.abstractedSortedNodes)
             .force('link', links)
-          var container = base.svg.selectAll('g.container');
-          this.link = container.selectAll('.link');
-          /*this.link = this.link.data(links, function(d) { console.log(d); return d.source.node.slug + '-' + d.target.node.slug; });
-          link.enter().insert('svg:line', '.node')
+            .force('charge', d3.forceManyBody())
+            .force('center', d3.forceCenter(this.size.width * .5, this.size.height * .5));
+          this.container = base.svg.selectAll('g.container');
+
+          this.link = this.container.selectAll('.link')
+            .data(base.links, function(d) { return d.source.node.slug + '-' + d.target.node.slug; });
+          this.link.enter().insert('svg:line', '.node')
             .attr('class', 'link');
-          link.exit().remove();*/
-          this.node = container.selectAll('g.node')
+          this.link.exit().remove();
+
+          this.node = this.container.selectAll('.node')
             .data(base.force.nodes(), function(d) { return d.node.slug; });
 
-          var nodeEnter = this.node.enter()
+          var nodeEnter = this.node.enter();
 
-          nodeEnter.append('svg:g')
+          /*nodeEnter.append('svg:g')
             .attr('class', 'node')
+            .on('touchstart', function(d) { d3.event.stopPropagation(); })
+            .on('mousedown', function(d) { d3.event.stopPropagation(); })
+            .on('click', (d) => {
+              if (d3.event.defaultPrevented) return; // ignore drag
+              d3.event.stopPropagation();
+              var index = base.selectedNodes.indexOf(d.node);
+              if (index == -1) {
+                base.selectedNodes.push(d.node);
+                if (base.options.content == "current") {
+                  base.loadNode(d.node.slug, false);
+                }
+              } else {
+                base.selectedNodes.splice(index, 1);
+                base.filter();
+                base.draw(true);
+              }
+              this.updateGraph();
+            })
+            .on("mouseover", (d) => {
+              base.rolloverNode = d.node;
+              this.updateGraph();
+            })
+            .on("mouseout", () => {
+              base.rolloverNode = null;
+              this.updateGraph();
+            });*/
+
+          nodeEnter.append('svg:circle')
+            .attr('class', 'node')
+            .call(this.dragHandling(base.force))
+            .attr('r', '16')
+            .attr('fill', function(d) {
+              var interpolator = d3.interpolateRgb(base.highlightColorScale(d.node.type.id), d3.rgb(255, 255, 255));
+              return ((base.rolloverNode == d.node) || (base.selectedNodes.indexOf(d.node) != -1)) ? interpolator(0) : interpolator(.5);
+            })
             /*.on('touchstart', function(d) { d3.event.stopPropagation(); })
             .on('mousedown', function(d) { d3.event.stopPropagation(); })
             .on('click', (d) => {
@@ -3157,19 +3196,15 @@ window.scalarvis = { instanceCount: -1 };
               this.updateGraph();
             })*/;
 
-          nodeEnter.append('svg:circle')
-            .attr('class', 'node')
-            .attr('r', '16');
-
           // create the text labels
-          /*nodeEnter.append('svg:text')
+          nodeEnter.append('svg:text')
             .attr('class', 'label')
             .attr('x', function(d) { return d.x; })
             .attr('y', function(d) { return d.y + 21; })
             .attr('text-anchor', 'middle')
             .text(function(d) {
               return ((base.rolloverNode == d.node) || (base.selectedNodes.indexOf(d.node) != -1)) ? d.node.title : d.node.shortTitle;
-            });*/
+            });
 
           nodeEnter.append('svg:rect')
             .attr('class', 'visit-button')
@@ -3191,7 +3226,7 @@ window.scalarvis = { instanceCount: -1 };
 
           this.node.exit().remove();
 
-          //base.force.start();
+          base.force.restart();
           this.updateGraph();
         }
       }
@@ -3254,32 +3289,55 @@ window.scalarvis = { instanceCount: -1 };
           });
       }
 
+      dragHandling() {
+
+        function dragstarted(d) {
+          if (!d3.event.active) base.force.alphaTarget(0.3).restart();
+          d.fx = d.x;
+          d.fy = d.y;
+        }
+
+        function dragged(d) {
+          d.fx = d3.event.x;
+          d.fy = d3.event.y;
+        }
+
+        function dragended(d) {
+          if (!d3.event.active) base.force.alphaTarget(0);
+          d.fx = null;
+          d.fy = null;
+        }
+
+        return d3.drag()
+            .on("start", dragstarted)
+            .on("drag", dragged)
+            .on("end", dragended);
+      }
+
       updateGraph() {
-        console.log('update');
-        
+
         this.link.attr('stroke-width', function(d) { return ((base.rolloverNode == d.source.node) || (base.selectedNodes.indexOf(d.source.node) != -1) || (base.rolloverNode == d.target.node) || (base.selectedNodes.indexOf(d.target.node) != -1)) ? "3" : "1"; })
           .attr('stroke-opacity', function(d) { return ((base.rolloverNode == d.source.node) || (base.selectedNodes.indexOf(d.source.node) != -1) || (base.rolloverNode == d.target.node) || (base.selectedNodes.indexOf(d.target.node) != -1)) ? '1.0' : '0.5'; })
           .attr('stroke', function(d) { return ((base.rolloverNode == d.source.node) || (base.selectedNodes.indexOf(d.source.node) != -1) || (base.rolloverNode == d.target.node) || (base.selectedNodes.indexOf(d.target.node) != -1)) ? base.neutralColor : '#999'; });
 
-        this.node.selectAll('.node').attr('fill', function(d) {
-          console.log(d);
+        this.container.selectAll('.node').attr('fill', function(d) {
           var interpolator = d3.interpolateRgb(base.highlightColorScale(d.node.type.id), d3.rgb(255, 255, 255));
           return ((base.rolloverNode == d.node) || (base.selectedNodes.indexOf(d.node) != -1)) ? interpolator(0) : interpolator(.5);
         });
 
-        this.node.selectAll('.label')
+        this.container.selectAll('.label')
           .attr('fill', function(d) { return ((base.rolloverNode == d.node) || (base.selectedNodes.indexOf(d.node) != -1)) ? "#000" : "#999"; })
           .attr('font-weight', function(d) { return ((base.rolloverNode == d.node) || (base.selectedNodes.indexOf(d.node) != -1)) ? 'bold' : 'normal'; })
           .text(function(d) {
             return ((base.rolloverNode == d.node) || (base.selectedNodes.indexOf(d.node) != -1)) ? d.node.title : d.node.shortTitle;
           });
 
-        this.node.selectAll('rect.visit-button')
+        this.container.selectAll('rect.visit-button')
           .style('display', function(d) {
             return (base.selectedNodes.indexOf(d.node) != -1) ? 'inherit' : 'none';
           });
 
-        this.node.selectAll('text.visit-button')
+        this.container.selectAll('text.visit-button')
           .style('display', function(d) {
             return (base.selectedNodes.indexOf(d.node) != -1) ? 'inherit' : 'none';
           });

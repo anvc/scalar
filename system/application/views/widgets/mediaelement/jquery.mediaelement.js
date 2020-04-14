@@ -32,9 +32,9 @@ var pendingDeferredMedia = {};
 var imagesWithAnnotations = {};
 
 // Removes whitespace from the ends of a string. Source: http://www.somacon.com/p355.php
-String.prototype.trim = function() {
+/*String.prototype.trim = function() {
 	return this.replace(/^s+|s+$/g,"");
-}
+}*/
 
 /**
  * Called by the Flash video player. Starts the timer on the appropriate media element instance
