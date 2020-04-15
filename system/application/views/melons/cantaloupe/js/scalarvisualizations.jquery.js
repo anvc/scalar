@@ -102,7 +102,7 @@ window.scalarvis = { instanceCount: -1 };
 
         // when the modal is shown, redraw the visualization
         base.$el.on('shown.bs.modal', function() {
-          base.draw(true);
+          base.draw();
           base.modalIsOpen = true;
         });
 
@@ -594,12 +594,12 @@ window.scalarvis = { instanceCount: -1 };
           base.loadNextData();
         } else {
           base.loadingDone = true;
-          base.draw(true);
+          base.draw();
         }
       } else {
         base.loadingDone = true;
         base.filter();
-        setTimeout(function() { base.draw(true); }, 0);
+        setTimeout(function() { base.draw(); }, 0);
       }
 
     };
@@ -620,10 +620,10 @@ window.scalarvis = { instanceCount: -1 };
           base.loadSequence.push({ id: 'current', desc: "current page's connections", relations: 'all' });
           base.loadSequence.push({ id: 'path', desc: "paths", relations: 'path' });
           base.loadSequence.push({ id: 'tag', desc: "tags", relations: 'tag' });
-          /*base.loadSequence.push({ id: 'media', desc: "media", relations: 'reference' });
+          base.loadSequence.push({ id: 'media', desc: "media", relations: 'reference' });
           base.loadSequence.push({ id: 'page', desc: "pages", relations: 'none' });
           base.loadSequence.push({ id: 'annotation', desc: "annotations", relations: 'annotation' });
-          base.loadSequence.push({ id: 'reply', desc: "comments", relations: 'reply' });*/
+          base.loadSequence.push({ id: 'reply', desc: "comments", relations: 'reply' });
           break;
 
         case "current":
@@ -655,7 +655,7 @@ window.scalarvis = { instanceCount: -1 };
 
     base.parseNode = function(data) {
       base.filter();
-      base.draw(true);
+      base.draw();
     }
 
     // pauses loading and drawing
@@ -802,7 +802,7 @@ window.scalarvis = { instanceCount: -1 };
       } else {
         base.hideLoadingMsg();
         base.loadingDone = true;
-        base.draw(true);
+        base.draw();
         // when content is set to 'toc', we still load everything so users can drill down as far as they want
         if ((base.options.content == 'all') || (base.options.content == 'toc')) {
           base.loadedAllContent = true;
@@ -905,7 +905,7 @@ window.scalarvis = { instanceCount: -1 };
     }
 
     base.hideLoadingMsg = function() {
-      base.loadingMsg.slideUp(400, function() { base.draw(true); });
+      base.loadingMsg.slideUp(400, function() { base.draw(); });
     }
 
 		/**
@@ -1697,7 +1697,7 @@ window.scalarvis = { instanceCount: -1 };
       }
     }
 
-    base.draw = function(isRequired) {
+    base.draw = function() {
 
       // select the current node by default
       if (base.options.content == 'current') {
@@ -1731,11 +1731,9 @@ window.scalarvis = { instanceCount: -1 };
           break;
 
         case "force-directed":
-          if (isRequired) {
-            needsInstantiation = base.visInstance ? base.visInstance.constructor.name != 'ForceDirectedVisualization' : true;
-            if (needsInstantiation) base.visInstance = new ForceDirectedVisualization();
-            base.visInstance.draw();
-          }
+          needsInstantiation = base.visInstance ? base.visInstance.constructor.name != 'ForceDirectedVisualization' : true;
+          if (needsInstantiation) base.visInstance = new ForceDirectedVisualization();
+          base.visInstance.draw();
           break;
 
         case "tagcloud":
@@ -3115,7 +3113,8 @@ window.scalarvis = { instanceCount: -1 };
 
         if (base.svg != null) {
           this.forceLink.links(base.links);
-          base.force.nodes(base.abstractedSortedNodes);
+          base.force.nodes(base.abstractedSortedNodes).alpha(.05);
+
           this.container = base.svg.selectAll('g.container');
 
           this.linkSelection = this.container.selectAll('.link')
@@ -3124,39 +3123,10 @@ window.scalarvis = { instanceCount: -1 };
             .attr('class', 'link');
           this.linkSelection.exit().remove();
 
-          this.node = this.container.selectAll('.node')
+          this.nodeSelection = this.container.selectAll('.node')
             .data(base.force.nodes(), function(d) { return d.node.slug; });
 
-          var nodeEnter = this.node.enter();
-
-          /*nodeEnter.append('svg:g')
-            .attr('class', 'node')
-            .on('touchstart', function(d) { d3.event.stopPropagation(); })
-            .on('mousedown', function(d) { d3.event.stopPropagation(); })
-            .on('click', (d) => {
-              if (d3.event.defaultPrevented) return; // ignore drag
-              d3.event.stopPropagation();
-              var index = base.selectedNodes.indexOf(d.node);
-              if (index == -1) {
-                base.selectedNodes.push(d.node);
-                if (base.options.content == "current") {
-                  base.loadNode(d.node.slug, false);
-                }
-              } else {
-                base.selectedNodes.splice(index, 1);
-                base.filter();
-                base.draw(true);
-              }
-              this.updateGraph();
-            })
-            .on("mouseover", (d) => {
-              base.rolloverNode = d.node;
-              this.updateGraph();
-            })
-            .on("mouseout", () => {
-              base.rolloverNode = null;
-              this.updateGraph();
-            });*/
+          var nodeEnter = this.nodeSelection.enter();
 
           nodeEnter.append('svg:circle')
             .attr('class', 'node')
@@ -3180,7 +3150,7 @@ window.scalarvis = { instanceCount: -1 };
               } else {
                 base.selectedNodes.splice(index, 1);
                 base.filter();
-                base.draw(true);
+                base.draw();
               }
               this.updateGraph();
             })
@@ -3221,7 +3191,7 @@ window.scalarvis = { instanceCount: -1 };
             .style('display', 'none')
             .text('View »');
 
-          this.node.exit().remove();
+          this.nodeSelection.exit().remove();
 
           base.force.restart();
           this.updateGraph();
@@ -3243,7 +3213,6 @@ window.scalarvis = { instanceCount: -1 };
       }
 
       setupElement() {
-        console.log('setup');
         this.hasBeenDrawn = true;
         base.visualization.empty();
         base.visualization.addClass('bounded');
@@ -3264,7 +3233,7 @@ window.scalarvis = { instanceCount: -1 };
 
         base.force = d3.forceSimulation()
           .force('link', this.forceLink)
-          .force('charge', d3.forceManyBody())
+          .force('charge', d3.forceManyBody().strength(-200))
           .force('center', d3.forceCenter(this.size.width * .5, this.size.height * .5))
           .on('tick', () => {
             if (base.svg != null) {
