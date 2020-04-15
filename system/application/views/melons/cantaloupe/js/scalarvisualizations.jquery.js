@@ -619,8 +619,8 @@ window.scalarvis = { instanceCount: -1 };
           base.loadSequence.push({ id: 'current', desc: "current page", relations: 'none' });
           base.loadSequence.push({ id: 'current', desc: "current page's connections", relations: 'all' });
           base.loadSequence.push({ id: 'path', desc: "paths", relations: 'path' });
-          /*base.loadSequence.push({ id: 'tag', desc: "tags", relations: 'tag' });
-          base.loadSequence.push({ id: 'media', desc: "media", relations: 'reference' });
+          base.loadSequence.push({ id: 'tag', desc: "tags", relations: 'tag' });
+          /*base.loadSequence.push({ id: 'media', desc: "media", relations: 'reference' });
           base.loadSequence.push({ id: 'page', desc: "pages", relations: 'none' });
           base.loadSequence.push({ id: 'annotation', desc: "annotations", relations: 'annotation' });
           base.loadSequence.push({ id: 'reply', desc: "comments", relations: 'reply' });*/
@@ -3114,18 +3114,15 @@ window.scalarvis = { instanceCount: -1 };
         super.draw();
 
         if (base.svg != null) {
-          var links = d3.forceLink(base.links).distance(120);
-          base.force.nodes(base.abstractedSortedNodes)
-            .force('link', links)
-            .force('charge', d3.forceManyBody())
-            .force('center', d3.forceCenter(this.size.width * .5, this.size.height * .5));
+          this.forceLink.links(base.links);
+          base.force.nodes(base.abstractedSortedNodes);
           this.container = base.svg.selectAll('g.container');
 
-          this.link = this.container.selectAll('.link')
+          this.linkSelection = this.container.selectAll('.link')
             .data(base.links, function(d) { return d.source.node.slug + '-' + d.target.node.slug; });
-          this.link.enter().insert('svg:line', '.node')
+          this.linkSelection.enter().insert('svg:line', '.node')
             .attr('class', 'link');
-          this.link.exit().remove();
+          this.linkSelection.exit().remove();
 
           this.node = this.container.selectAll('.node')
             .data(base.force.nodes(), function(d) { return d.node.slug; });
@@ -3169,7 +3166,7 @@ window.scalarvis = { instanceCount: -1 };
               var interpolator = d3.interpolateRgb(base.highlightColorScale(d.node.type.id), d3.rgb(255, 255, 255));
               return ((base.rolloverNode == d.node) || (base.selectedNodes.indexOf(d.node) != -1)) ? interpolator(0) : interpolator(.5);
             })
-            /*.on('touchstart', function(d) { d3.event.stopPropagation(); })
+            .on('touchstart', function(d) { d3.event.stopPropagation(); })
             .on('mousedown', function(d) { d3.event.stopPropagation(); })
             .on('click', (d) => {
               if (d3.event.defaultPrevented) return; // ignore drag
@@ -3194,7 +3191,7 @@ window.scalarvis = { instanceCount: -1 };
             .on("mouseout", () => {
               base.rolloverNode = null;
               this.updateGraph();
-            })*/;
+            });
 
           // create the text labels
           nodeEnter.append('svg:text')
@@ -3246,6 +3243,7 @@ window.scalarvis = { instanceCount: -1 };
       }
 
       setupElement() {
+        console.log('setup');
         this.hasBeenDrawn = true;
         base.visualization.empty();
         base.visualization.addClass('bounded');
@@ -3262,9 +3260,13 @@ window.scalarvis = { instanceCount: -1 };
         // once we upgrade to D3 4.0, we should implement custom x and y accessors
         // so multiple instances don't try to change each other's positions
 
-        base.force = d3.forceSimulation(base.abstractedSortedNodes)
-          .force('link', d3.forceLink(base.links).distance(120))
-          .on('tick', function() {
+        this.forceLink = d3.forceLink().distance(120);
+
+        base.force = d3.forceSimulation()
+          .force('link', this.forceLink)
+          .force('charge', d3.forceManyBody())
+          .force('center', d3.forceCenter(this.size.width * .5, this.size.height * .5))
+          .on('tick', () => {
             if (base.svg != null) {
               base.svg.selectAll('line.link')
                 .attr('x1', function(d) { return d.source.x; })
@@ -3291,7 +3293,7 @@ window.scalarvis = { instanceCount: -1 };
 
       dragHandling() {
 
-        function dragstarted(d) {
+        function dragStarted(d) {
           if (!d3.event.active) base.force.alphaTarget(0.3).restart();
           d.fx = d.x;
           d.fy = d.y;
@@ -3302,21 +3304,21 @@ window.scalarvis = { instanceCount: -1 };
           d.fy = d3.event.y;
         }
 
-        function dragended(d) {
+        function dragEnded(d) {
           if (!d3.event.active) base.force.alphaTarget(0);
           d.fx = null;
           d.fy = null;
         }
 
         return d3.drag()
-            .on("start", dragstarted)
+            .on("start", dragStarted)
             .on("drag", dragged)
-            .on("end", dragended);
+            .on("end", dragEnded);
       }
 
       updateGraph() {
 
-        this.link.attr('stroke-width', function(d) { return ((base.rolloverNode == d.source.node) || (base.selectedNodes.indexOf(d.source.node) != -1) || (base.rolloverNode == d.target.node) || (base.selectedNodes.indexOf(d.target.node) != -1)) ? "3" : "1"; })
+        this.linkSelection.attr('stroke-width', function(d) { return ((base.rolloverNode == d.source.node) || (base.selectedNodes.indexOf(d.source.node) != -1) || (base.rolloverNode == d.target.node) || (base.selectedNodes.indexOf(d.target.node) != -1)) ? "3" : "1"; })
           .attr('stroke-opacity', function(d) { return ((base.rolloverNode == d.source.node) || (base.selectedNodes.indexOf(d.source.node) != -1) || (base.rolloverNode == d.target.node) || (base.selectedNodes.indexOf(d.target.node) != -1)) ? '1.0' : '0.5'; })
           .attr('stroke', function(d) { return ((base.rolloverNode == d.source.node) || (base.selectedNodes.indexOf(d.source.node) != -1) || (base.rolloverNode == d.target.node) || (base.selectedNodes.indexOf(d.target.node) != -1)) ? base.neutralColor : '#999'; });
 
