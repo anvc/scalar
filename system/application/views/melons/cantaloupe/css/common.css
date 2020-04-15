@@ -1464,7 +1464,7 @@ body>.annotorious-popup{
 #lens .btn-primary {
 	font-family:'Lato', sans-serif !important;
 	margin-top:8px;
-	margin-right:5px;
+	margin-right:4px;
 	padding: 3px 8px;
 }
 #lens .dropdown-menu {
@@ -1589,4 +1589,7 @@ body>.annotorious-popup{
 }
 #latitude.form-control {
 	width:98%;
+}
+#distanceUnits {
+	margin-left:3px;
 }
