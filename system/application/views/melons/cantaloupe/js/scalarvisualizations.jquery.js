@@ -1715,38 +1715,36 @@ window.scalarvis = { instanceCount: -1 };
         case "grid":
           needsInstantiation = base.visInstance ? base.visInstance.constructor.name != 'GridVisualization' : true;
           if (needsInstantiation) base.visInstance = new GridVisualization();
-          base.visInstance.draw();
           break;
 
         case "tree":
           needsInstantiation = base.visInstance ? base.visInstance.constructor.name != 'TreeVisualization' : true;
           if (needsInstantiation) base.visInstance = new TreeVisualization();
-          base.visInstance.draw();
           break;
 
         case "radial":
           needsInstantiation = base.visInstance ? base.visInstance.constructor.name != 'RadialVisualization' : true;
           if (needsInstantiation) base.visInstance = new RadialVisualization();
-          base.visInstance.draw();
           break;
 
         case "force-directed":
           needsInstantiation = base.visInstance ? base.visInstance.constructor.name != 'ForceDirectedVisualization' : true;
           if (needsInstantiation) base.visInstance = new ForceDirectedVisualization();
-          base.visInstance.draw();
           break;
 
         case "tagcloud":
-          base.drawTagCloud();
+          needsInstantiation = base.visInstance ? base.visInstance.constructor.name != 'TagCloudVisualization' : true;
+          if (needsInstantiation) base.visInstance = new TagCloudVisualization();
           break;
 
       }
+      base.visInstance.draw();
 
     };
 
-    /*****************************
-     * ABSTRACT VISUALIZATION V5 *
-     *****************************/
+    /**************************
+     * ABSTRACT VISUALIZATION *
+     **************************/
 
     class AbstractVisualization {
       // Not a strict abstract class, contains some utitlity methods
@@ -1805,9 +1803,9 @@ window.scalarvis = { instanceCount: -1 };
 
     }
 
-    /*************************
-     * GRID VISUALIZATION V5 *
-     *************************/
+    /**********************
+     * GRID VISUALIZATION *
+     **********************/
 
     class GridVisualization extends AbstractVisualization {
 
@@ -2157,9 +2155,9 @@ window.scalarvis = { instanceCount: -1 };
        }
     }
 
-    /*************************
-     * TREE VISUALIZATION V5 *
-     *************************/
+    /**********************
+     * TREE VISUALIZATION *
+     **********************/
 
     class TreeVisualization extends AbstractVisualization {
 
@@ -2446,9 +2444,9 @@ window.scalarvis = { instanceCount: -1 };
       }
     }
 
-    /***************************
-     * RADIAL VISUALIZATION V5 *
-     ***************************/
+    /************************
+     * RADIAL VISUALIZATION *
+     ************************/
 
     class RadialVisualization extends AbstractVisualization {
 
@@ -3099,9 +3097,9 @@ window.scalarvis = { instanceCount: -1 };
       }
     }
 
-    /***********************************
-     * FORCE-DIRECTED VISUALIZATION V5 *
-     ***********************************/
+    /********************************
+     * FORCE-DIRECTED VISUALIZATION *
+     ********************************/
     class ForceDirectedVisualization extends AbstractVisualization {
 
       constructor() {
@@ -3315,253 +3313,39 @@ window.scalarvis = { instanceCount: -1 };
       }
     }
 
-    /********************************
-     * FORCE-DIRECTED VISUALIZATION *
-     ********************************
-    base.drawForceDirected = function(updateOnly) {
+    /******************************
+     * TAG CLOUD VISUALIZATION V5 *
+     ******************************/
+    class TagCloudVisualization extends AbstractVisualization {
 
-      var i, j, n, o, node, targetNode, fullWidth, fullHeight,
-        currentNode = scalarapi.model.getCurrentPageNode();
-
-      // if we're drawing from scratch, do some setup
-      if (!base.hasBeenDrawn && (base.visElement.width() > 0)) {
-
-        base.hasBeenDrawn = true;
-
-        if (base.options.content != 'current') {
-          helpContent = "This visualization shows <b>how content is interconnected</b> in this work.<ul>";
-        } else {
-          helpContent = "This visualization shows how <b>&ldquo;" + currentNode.getDisplayTitle() + "&rdquo;</b> is connected to other content in this work.<ul>";
-        }
-
-        helpContent += "<li>Each dot represents a piece of content, color-coded by type.</li>" +
-          "<li>Scroll or pinch to zoom, or click and hold to drag.</li>" +
-          "<li>Click any item to add it to the current selection, and to reveal the content it's related to in turn.</li>" +
-          "<li>Click the &ldquo;View&rdquo; button of any selected item to navigate to it.</li></ul>";
-
-        base.helpButton.attr("data-content", helpContent);
-
-        var isFullScreen = document.fullScreen || document.mozFullScreen || document.webkitIsFullScreen;
-        if (!isFullScreen) {
-          fullWidth = base.visElement.width();
-          if (window.innerWidth > 768) {
-            if (base.options.modal) {
-              fullHeight = Math.max(300, window.innerHeight * .9 - 170);
-            } else {
-              fullHeight = 568;
-            }
-          } else {
-            fullHeight = 300;
-          }
-        } else {
-          fullWidth = window.innerWidth;
-          fullHeight = window.innerHeight;
-        }
-
-        base.visualization.addClass('bounded');
-
-        base.visualization.css('height', fullHeight + 'px');
-        base.visualization.css('width', fullWidth + 'px');
-
-        base.visualization.css('padding', '0px');
-
-        base.svg = d3.select(base.visualization[0]).append('svg:svg')
-          .attr('width', fullWidth)
-          .attr('height', fullHeight);
-
-        var container = base.svg.append('g').attr('class', 'container');
-
-        var zoom = d3.behavior.zoom().center([fullWidth * .5, fullHeight * .5]).scaleExtent([.25, 7]);
-        zoom.on("zoom", function() {
-          container.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-        });
-
-        base.svg.call(zoom);
-        base.svg.style("cursor", "move");
-
-        // once we upgrade to D3 4.0, we should implement custom x and y accessors
-        // so multiple instances don't try to change each other's positions
-
-        base.force = d3.layout.force()
-          .nodes(base.abstractedSortedNodes)
-          .links(base.links)
-          .linkDistance(120)
-          .charge(-400)
-          .size([fullWidth, fullHeight])
-          .on('tick', function() {
-            if (base.svg != null) {
-
-              base.svg.selectAll('line.link')
-                .attr('x1', function(d) { return d.source.x; })
-                .attr('y1', function(d) { return d.source.y; })
-                .attr('x2', function(d) { return d.target.x; })
-                .attr('y2', function(d) { return d.target.y; })
-                .attr('visibility', function(d) { return (d.source.node.slug == 'toc' || d.target.node.slug == 'toc') ? 'hidden' : 'visible'; });
-
-              base.svg.selectAll('circle.node')
-                .attr('cx', function(d) { return d.x; })
-                .attr('cy', function(d) { return d.y; })
-                .attr('visibility', function(d) { return d.node.slug == 'toc' ? 'hidden' : 'visible'; });
-
-              base.svg.selectAll('text.label')
-                .attr('x', function(d) { return d.x; })
-                .attr('y', function(d) { return d.y + 28; });
-
-              base.svg.selectAll('rect.visit-button')
-                .attr('x', function(d) { return d.x - 24; })
-                .attr('y', function(d) { return d.y + 38; });
-
-              base.svg.selectAll('text.visit-button')
-                .attr('x', function(d) { return d.x; })
-                .attr('y', function(d) { return d.y + 53; });
-
-            }
-          });
+      constructor() {
+        super();
       }
 
-      if (base.svg != null) {
-
-        base.force.nodes(base.abstractedSortedNodes).links(base.links);
-
-        var container = base.svg.selectAll('g.container');
-        var node = container.selectAll('g.node');
-        var link = container.selectAll('.link');
-
-        link = link.data(base.force.links(), function(d) { return d.source.node.slug + '-' + d.target.node.slug; });
-
-        link.enter().insert('svg:line', '.node')
-          .attr('class', 'link');
-
-        link.exit().remove();
-
-        node = node.data(base.force.nodes(), function(d) { return d.node.slug; });
-
-        var nodeEnter = node.enter().append('svg:g')
-          .attr('class', 'node')
-          .call(base.force.drag)
-          .on('touchstart', function(d) { d3.event.stopPropagation(); })
-          .on('mousedown', function(d) { d3.event.stopPropagation(); })
-          .on('click', function(d) {
-            if (d3.event.defaultPrevented) return; // ignore drag
-            d3.event.stopPropagation();
-            var index = base.selectedNodes.indexOf(d.node);
-            if (index == -1) {
-              base.selectedNodes.push(d.node);
-              if (base.options.content == "current") {
-                base.loadNode(d.node.slug, false);
-              }
-            } else {
-              base.selectedNodes.splice(index, 1);
-              base.filter();
-              base.draw(true);
-            }
-            updateGraph();
-          })
-          .on("mouseover", function(d) {
-            base.rolloverNode = d.node;
-            updateGraph();
-          })
-          .on("mouseout", function() {
-            base.rolloverNode = null;
-            updateGraph();
-          });
-
-        node.append('svg:circle')
-          .attr('class', 'node')
-          .attr('r', '16');
-
-        // create the text labels
-        nodeEnter.append('svg:text')
-          .attr('class', 'label')
-          .attr('x', function(d) { return d.x; })
-          .attr('y', function(d) { return d.y + 21; })
-          .attr('text-anchor', 'middle')
-          .text(function(d) {
-            return ((base.rolloverNode == d.node) || (base.selectedNodes.indexOf(d.node) != -1)) ? d.node.title : d.node.shortTitle;
-          });
-
-        nodeEnter.append('svg:rect')
-          .attr('class', 'visit-button')
-          .attr('rx', '5')
-          .attr('ry', '5')
-          .attr('width', '48')
-          .attr('height', '22')
-          .style('display', 'none')
-          .on('click', function(d) {
-            d3.event.stopPropagation();
-            window.open(d.node.url, '_blank');
-          });
-
-        nodeEnter.append('svg:text')
-          .attr('class', 'visit-button')
-          .attr('text-anchor', 'middle')
-          .style('display', 'none')
-          .text('View »');
-
-        node.exit().remove();
-
-        base.force.start();
-
-        var updateGraph = function() {
-
-          link.attr('stroke-width', function(d) { return ((base.rolloverNode == d.source.node) || (base.selectedNodes.indexOf(d.source.node) != -1) || (base.rolloverNode == d.target.node) || (base.selectedNodes.indexOf(d.target.node) != -1)) ? "3" : "1"; })
-            .attr('stroke-opacity', function(d) { return ((base.rolloverNode == d.source.node) || (base.selectedNodes.indexOf(d.source.node) != -1) || (base.rolloverNode == d.target.node) || (base.selectedNodes.indexOf(d.target.node) != -1)) ? '1.0' : '0.5'; })
-            .attr('stroke', function(d) { return ((base.rolloverNode == d.source.node) || (base.selectedNodes.indexOf(d.source.node) != -1) || (base.rolloverNode == d.target.node) || (base.selectedNodes.indexOf(d.target.node) != -1)) ? base.neutralColor : '#999'; });
-
-          node.selectAll('.node').attr('fill', function(d) {
-            var interpolator = d3.interpolateRgb(base.highlightColorScale(d.node.type.id), d3.rgb(255, 255, 255));
-            return ((base.rolloverNode == d.node) || (base.selectedNodes.indexOf(d.node) != -1)) ? interpolator(0) : interpolator(.5);
-          });
-
-          node.selectAll('.label')
-            .attr('fill', function(d) { return ((base.rolloverNode == d.node) || (base.selectedNodes.indexOf(d.node) != -1)) ? "#000" : "#999"; })
-            .attr('font-weight', function(d) { return ((base.rolloverNode == d.node) || (base.selectedNodes.indexOf(d.node) != -1)) ? 'bold' : 'normal'; })
-            .text(function(d) {
-              return ((base.rolloverNode == d.node) || (base.selectedNodes.indexOf(d.node) != -1)) ? d.node.title : d.node.shortTitle;
-            });
-
-          node.selectAll('rect.visit-button')
-            .style('display', function(d) {
-              return (base.selectedNodes.indexOf(d.node) != -1) ? 'inherit' : 'none';
-            });
-
-          node.selectAll('text.visit-button')
-            .style('display', function(d) {
-              return (base.selectedNodes.indexOf(d.node) != -1) ? 'inherit' : 'none';
-            });
-
-        }
-
-        updateGraph();
-
+      draw() {
+        super.draw();
       }
 
-    }*/
+      getHelpContent() {
+        var helpContent = "This visualization shows the relative <b>prevalence of tags</b> in this work." +
+          "<ul><li>Each tag&rsquo;s title is sized and colored according to how many items it tags.</li>" +
+          "<li>Click any tag&rsquo;s title to navigate to it.</li></ul>";
+        return helpContent;
+      }
 
-    /***************************
-     * TAG CLOUD VISUALIZATION *
-     ***************************/
-    base.drawTagCloud = function(updateOnly) {
-
-      helpContent = "This visualization shows the relative <b>prevalence of tags</b> in this work." +
-        "<ul><li>Each tag&rsquo;s title is sized and colored according to how many items it tags.</li>" +
-        "<li>Click any tag&rsquo;s title to navigate to it.</li></ul>";
-
-      base.helpButton.attr("data-content", helpContent);
-
-      approot = $('link#approot').attr('href');
-      $('head').append('<link rel="stylesheet" type="text/css" href="' + approot + 'views/widgets/jQCloud/jqcloud.min.css">');
-      $.getScript(approot + 'views/widgets/jQCloud/jqcloud.min.js', function() {
-        base.visualization.addClass("tag_cloud caption_font");
-        base.visualization.jQCloud(tags, {
-          autoResize: true,
-          colors: ['#a50f15', '#cb181d', '#ef3b2c', '#fb6a4a']
+      setupElement() {
+        approot = $('link#approot').attr('href');
+        $('head').append('<link rel="stylesheet" type="text/css" href="' + approot + 'views/widgets/jQCloud/jqcloud.min.css">');
+        $.getScript(approot + 'views/widgets/jQCloud/jqcloud.min.js', function() {
+          base.visualization.addClass("tag_cloud caption_font");
+          base.visualization.jQCloud(tags, {
+            autoResize: true,
+            colors: ['#a50f15', '#cb181d', '#ef3b2c', '#fb6a4a']
+          });
         });
-      });
-      base.hasBeenDrawn = true;
+      }
     }
 
-    // Run initializer
     base.init();
 
   };
