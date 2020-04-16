@@ -23,40 +23,13 @@
       // the options via the instance, e.g. this.element
       // and this.options
 
-      // reference for content-selector callback function
-      let me = this;
-
-      //
-      /// the Lens object
-      //
-      let scalarLensObject = {
-        "urn": $('link#urn').attr('href').replace("version", "lens"),
-        "expanded": false,
-        "submitted": false,
-        "frozen": false,
-        "frozen-items": [],
-        "visualization": {
-          "type": ""
-        },
-        "components": [
-          {
-            "content-selector": {
-              "type": "",
-              "items":[],
-              "quantity": "",
-              "units": "",
-              "coordinates": ""
-            },
-          }
-        ]
-      };
-
 
 
 
       //
-      /// HTML for the Lens
-      //
+      /// HTML for Lens default state
+      // will be updated by user selections
+
       let lensHtml =
       '<div class="paragraph_wrapper">'+
         '<div class="body_copy">'+
@@ -182,9 +155,46 @@
 
 
 
-      // function to populate dropdown value
-      // handles multiple instances of dropdowns
-      $(function(){
+      // reference for content-selector callback function
+      let me = this;
+
+      //
+      /// the Lens object
+      //
+      let scalarLensObject = {
+        "urn": $('link#urn').attr('href').replace("version", "lens"),
+        "expanded": false,
+        "submitted": false,
+        "frozen": false,
+        "frozen-items": [],
+        "visualization": {
+          "type": ""
+        },
+        "components": [
+          {
+            "content-selector": {
+              //"type": "",
+              //"items":[],
+              //"quantity": "",
+              //"units": "",
+              //"coordinates": ""
+            },
+          }
+        ]
+      };
+
+
+
+
+    $(function(){
+
+
+        //*********************
+        // Store user selections
+        //*********************
+
+        // function to populate dropdown value
+        // handles multiple instances of dropdowns
 
         $(".dropdown-menu").on('click', 'li a', function(ev){
           ev.preventDefault();
@@ -192,36 +202,34 @@
           buttonValue
           $(this).parent().parent().siblings(".btn:first-child").val($(this).text());
 
+
+
           // Display icons inside visualization dropdown button
           switch($(this).text()) {
             case 'Force-Directed':
               buttonValue.prepend('<span class="dropdown-item-icon force light"></span>');
-              me.saveLens();
               break;
             case 'Grid':
               buttonValue.prepend('<span class="dropdown-item-icon grid light"></span>');
-              me.saveLens();
               break;
             case 'List':
               buttonValue.prepend('<span class="dropdown-item-icon list light"></span>');
-              me.saveLens();
               break;
             case 'Map':
               buttonValue.prepend('<span class="dropdown-item-icon map light"></span>');
-              me.saveLens();
               break;
             case 'Radial':
               buttonValue.prepend('<span class="dropdown-item-icon radial light"></span>');
-              me.saveLens();
               break;
             case 'Tree':
               buttonValue.prepend('<span class="dropdown-item-icon tree light"></span>');
-              me.saveLens();
               break;
             case 'Word Cloud':
               buttonValue.prepend('<span class="dropdown-item-icon word-cloud light"></span>');
-              me.saveLens();
               break;
+
+
+
 
             //
             // trigger content-selector
@@ -261,6 +269,8 @@
               $('#byType').val("Select item...");
 
               break;
+
+              //me.saveLens();
           }
 
 
@@ -270,6 +280,10 @@
             scalarLensObject["components"][0]["content-selector"]["type"] = $('#content-selector-button').val().split(/[_\s]/).join("-").toLowerCase();
 
             me.saveLens();
+
+            console.log(scalarLensObject);
+
+
         }); // dropdown click function
 
 
@@ -342,12 +356,15 @@
         if($("[property|='scalar:isLensOf']")){
           // convert metadata div content into a JSON object
           let metaData = JSON.parse($("[property|='scalar:isLensOf']").html());
-          console.log(metaData);
+
+          console.log(JSON.stringify(metaData));
 
           let scalarLensObject = metaData;
           console.log(scalarLensObject.visualization.type);
 
           let newButtonValue = $('#visualization-button').text(scalarLensObject.visualization.type).css({'text-transform':'capitalize'}).append(' <span class="caret"></span>');
+
+
 
           // Display icons inside visualization dropdown button
           switch(scalarLensObject.visualization.type) {
@@ -376,13 +393,13 @@
 
               $('#visualization-button').text(newButtonValue).css({'text-transform':'none'}).append(' <span class="caret"></span>');
 
-              me.saveLens();
+              //me.saveLens();
 
           }
 
-
-          /// show saved content-type
-
+          //
+          /// saved 'content-type' updates HTML
+          //
           let newContentButtonText = scalarLensObject["components"][0]["content-selector"]["content-type"];
 
           switch(scalarLensObject["components"][0]["content-selector"]["type"]){
@@ -405,6 +422,7 @@
               break;
 
             case 'items-by-type':
+
               // retrieve plural name types for selections
               if(newContentButtonText === 'page' || newContentButtonText === 'media'){
                 $('#content-selector-button').text('All ' + scalarapi.model.scalarTypes[newContentButtonText].plural).append('<span class="caret"></span>');
@@ -442,11 +460,10 @@
             default:
               //$('#content-selector-button').text('Select items...').append('<span class="caret"></span>');
 
+              console.log(scalarLensObject);
+
               me.saveLens();
           }
-
-
-          console.log(scalarLensObject);
 
 
 
