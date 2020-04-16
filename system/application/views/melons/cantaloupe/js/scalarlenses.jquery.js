@@ -155,7 +155,7 @@
 
 
 
-      // reference for content-selector callback function
+      // reference for saveLens callback function
       let me = this;
 
       //
@@ -197,9 +197,11 @@
         // handles multiple instances of dropdowns
 
         $(".dropdown-menu").on('click', 'li a', function(ev){
+
           ev.preventDefault();
+
           let buttonValue = $(this).parent().parent().siblings(".btn:first-child").html($(this).text()+' <span class="caret"></span>');
-          buttonValue
+
           $(this).parent().parent().siblings(".btn:first-child").val($(this).text());
 
 
@@ -276,6 +278,7 @@
 
             // store visualization-type value as kebab-case
             scalarLensObject["visualization"]["type"] = $('#visualization-button').val().split(/[_\s]/).join("-").toLowerCase();
+
             // store content-selector type as kebab-case
             scalarLensObject["components"][0]["content-selector"]["type"] = $('#content-selector-button').val().split(/[_\s]/).join("-").toLowerCase();
 
@@ -347,13 +350,20 @@
         });
 
 
+
+
+
+
+
       //*****************************
       //
-      /// show saved metadata values
+      //  update HTML
+      /// with saved metadata values
       //
       //*****************************
 
         if($("[property|='scalar:isLensOf']")){
+          
           // convert metadata div content into a JSON object
           let metaData = JSON.parse($("[property|='scalar:isLensOf']").html());
 
@@ -405,34 +415,35 @@
           switch(scalarLensObject["components"][0]["content-selector"]["type"]){
 
             case 'specific-items':
-              delete scalarLensObject["components"][0]["content-selector"]["content-type"];
-              delete scalarLensObject["components"][0]["content-selector"]["quantity"];
-              delete scalarLensObject["components"][0]["content-selector"]["units"];
-              delete scalarLensObject["components"][0]["content-selector"]["coordinates"];
 
-              let newItemsValue = scalarLensObject["components"][0]["content-selector"]["items"];
+                delete scalarLensObject["components"][0]["content-selector"]["content-type"];
+                delete scalarLensObject["components"][0]["content-selector"]["quantity"];
+                delete scalarLensObject["components"][0]["content-selector"]["units"];
+                delete scalarLensObject["components"][0]["content-selector"]["coordinates"];
 
-              if(newItemsValue.length <= 1){
-                $('#content-selector-button').html('&#8220;'+ newItemsValue + '&#8221;').append('<span class="caret"></span>');
-              } else if(newItemsValue.length > 1){
-                let remainingItems = newItemsValue.length - 1;
-                $('#content-selector-button').html('&#8220;'+ newItemsValue[0] + '&#8221;' + ' and ' + remainingItems + ' more...').append('<span class="caret"></span>');
-              }
+                let newItemsValue = scalarLensObject["components"][0]["content-selector"]["items"];
 
-              break;
+                if(newItemsValue.length <= 1){
+                  $('#content-selector-button').html('&#8220;'+ newItemsValue + '&#8221;').append('<span class="caret"></span>');
+                } else if(newItemsValue.length > 1){
+                  let remainingItems = newItemsValue.length - 1;
+                  $('#content-selector-button').html('&#8220;'+ newItemsValue[0] + '&#8221;' + ' and ' + remainingItems + ' more...').append('<span class="caret"></span>');
+                }
+
+                break;
 
             case 'items-by-type':
 
-              // retrieve plural name types for selections
-              if(newContentButtonText === 'page' || newContentButtonText === 'media'){
-                $('#content-selector-button').text('All ' + scalarapi.model.scalarTypes[newContentButtonText].plural).append('<span class="caret"></span>');
-              } else {
-                $('#content-selector-button').text('All ' + scalarapi.model.relationTypes[newContentButtonText].bodyPlural).append('<span class="caret"></span>');
-              }
+                // retrieve plural name types for selections
+                if(newContentButtonText === 'page' || newContentButtonText === 'media'){
+                  $('#content-selector-button').text('All ' + scalarapi.model.scalarTypes[newContentButtonText].plural).append('<span class="caret"></span>');
+                } else {
+                  $('#content-selector-button').text('All ' + scalarapi.model.relationTypes[newContentButtonText].bodyPlural).append('<span class="caret"></span>');
+                }
 
-              delete scalarLensObject["components"][0]["content-selector"]["items"];
+                delete scalarLensObject["components"][0]["content-selector"]["items"];
 
-              break;
+                break;
 
             case 'items-by-distance':
 
@@ -457,8 +468,7 @@
                 $('#content-selector-button').text('Items ≤ ' + updateByDistance + '').append('<span class="caret"></span>');
 
               break;
-            default:
-              //$('#content-selector-button').text('Select items...').append('<span class="caret"></span>');
+
 
               console.log(scalarLensObject);
 
