@@ -222,6 +222,7 @@
               buttonValue.prepend('<span class="dropdown-item-icon word-cloud light"></span>');
               me.saveLens();
               break;
+
             //
             // trigger content-selector
             //
@@ -240,7 +241,9 @@
               delete scalarLensObject["components"][0]["content-selector"]["quantity"];
               delete scalarLensObject["components"][0]["content-selector"]["units"];
               delete scalarLensObject["components"][0]["content-selector"]["coordinates"];
+
               break;
+
             case 'Items by type':
               $('#distanceQuantity, #latitude, #longitude').val("");
               $('#distanceUnits').val(" ").text("Select unit...");
@@ -251,10 +254,12 @@
               delete scalarLensObject["components"][0]["content-selector"]["coordinates"];
 
               break;
+
             case 'Items by distance':
               delete scalarLensObject["components"][0]["content-selector"]["items"];
               delete scalarLensObject["components"][0]["content-selector"]["content-type"];
               $('#byType').val("Select item...");
+
               break;
           }
 
@@ -265,7 +270,8 @@
             scalarLensObject["components"][0]["content-selector"]["type"] = $('#content-selector-button').val().split(/[_\s]/).join("-").toLowerCase();
 
             me.saveLens();
-        });
+        }); // dropdown click function
+
 
 
         //
@@ -302,8 +308,6 @@
           // coordinates
           scalarLensObject["components"][0]["content-selector"]["coordinates"] = $('#latitude').val() + ', ' + $('#longitude').val();
 
-
-
           let units = scalarLensObject["components"][0]["content-selector"]["units"];
           let abbreviateUnits;
 
@@ -329,17 +333,19 @@
         });
 
 
-
+      //*****************************
       //
       /// show saved metadata values
       //
+      //*****************************
 
         if($("[property|='scalar:isLensOf']")){
           // convert metadata div content into a JSON object
           let metaData = JSON.parse($("[property|='scalar:isLensOf']").html());
           console.log(metaData);
 
-          scalarLensObject = metaData;
+          let scalarLensObject = metaData;
+          console.log(scalarLensObject.visualization.type);
 
           let newButtonValue = $('#visualization-button').text(scalarLensObject.visualization.type).css({'text-transform':'capitalize'}).append(' <span class="caret"></span>');
 
@@ -367,7 +373,10 @@
               newButtonValue.prepend('<span class="dropdown-item-icon word-cloud light"></span>');
               break;
             default:
-              $('#visualization-button').text('Select visualization...').css({'text-transform':'none'}).append(' <span class="caret"></span>');
+
+              $('#visualization-button').text(newButtonValue).css({'text-transform':'none'}).append(' <span class="caret"></span>');
+
+              me.saveLens();
 
           }
 
@@ -431,20 +440,20 @@
 
               break;
             default:
-              $('#content-selector-button').text('Select items...').append('<span class="caret"></span>');
+              //$('#content-selector-button').text('Select items...').append('<span class="caret"></span>');
+
+              me.saveLens();
           }
 
-          //me.saveLens();
+
           console.log(scalarLensObject);
 
-        }
 
 
+        } // if statement
 
 
-
-
-      });
+      }); // IIFE
 
 
 
