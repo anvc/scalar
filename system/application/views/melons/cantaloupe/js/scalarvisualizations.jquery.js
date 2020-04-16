@@ -695,6 +695,8 @@ window.scalarvis = { instanceCount: -1 };
 
     base.loadNextData = function() {
 
+      console.log('load next data');
+
       // if we've reached the last page of the current content type, increment/reset the counters
       if (base.reachedLastPage) {
         base.loadIndex++;
@@ -712,6 +714,8 @@ window.scalarvis = { instanceCount: -1 };
       if (base.loadIndex < base.loadSequence.length) {
 
         loadInstruction = base.loadSequence[base.loadIndex];
+
+        console.log(loadInstruction);
 
         switch (loadInstruction.id) {
 
@@ -814,6 +818,8 @@ window.scalarvis = { instanceCount: -1 };
 
     base.parseData = function(json) {
 
+      console.log('parseData');
+
       if (jQuery.isEmptyObject(json) || (json == null)) {
         base.reachedLastPage = true;
       }
@@ -823,6 +829,8 @@ window.scalarvis = { instanceCount: -1 };
       }
 
       var loadInstruction = base.loadSequence[base.loadIndex];
+
+      console.log(loadInstruction);
 
       if (loadInstruction != null) {
 
@@ -866,6 +874,8 @@ window.scalarvis = { instanceCount: -1 };
         // redraw the view
         base.filter();
         base.draw();
+
+        console.log('draw');
 
         // get next chunk of data
         if (!base.loadingPaused) {
@@ -1699,6 +1709,8 @@ window.scalarvis = { instanceCount: -1 };
 
     base.draw = function() {
 
+      console.log('draw');
+
       // select the current node by default
       if (base.options.content == 'current') {
         if ((base.selectedNodes.length == 0) && !base.loadingDone) {
@@ -1708,6 +1720,8 @@ window.scalarvis = { instanceCount: -1 };
           }
         }
       }
+
+      console.log(base.options.format);
 
       var needsInstantiation;
       switch (base.options.format) {
@@ -2169,8 +2183,12 @@ window.scalarvis = { instanceCount: -1 };
       }
 
       draw() {
+        console.log('do the draw');
         super.draw();
+        console.log(base.svg);
+        console.log(base.hierarchy);
         if (base.svg != null && base.hierarchy != null) {
+          console.log('oh yeah');
           this.root = d3.hierarchy(base.hierarchy);
           this.container = base.svg.selectAll('g.container');
           // collapse all nodes except the root and its children
