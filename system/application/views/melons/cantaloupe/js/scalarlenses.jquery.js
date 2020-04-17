@@ -23,6 +23,33 @@
       // the options via the instance, e.g. this.element
       // and this.options
 
+      // reference for saveLens callback function
+      let me = this;
+
+      //
+      /// the Lens object
+      //
+      let scalarLensObject = {
+        "urn": $('link#urn').attr('href').replace("version", "lens"),
+        "expanded": false,
+        "submitted": false,
+        "frozen": false,
+        "frozen-items": [],
+        "visualization": {
+          //"type": ""
+        },
+        "components": [
+          {
+            "content-selector": {
+              //"type": "",
+              //"items":[],
+              //"quantity": "",
+              //"units": "",
+              //"coordinates": ""
+            },
+          }
+        ]
+      };
 
 
 
@@ -47,15 +74,15 @@
                   /// Visualization dropdown
                   //
                   '<div id="visualization-btn" class="btn-group"><button id="visualization-button" type="button" class="btn btn-primary btn-xs dropdown-toggle caption_font" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'+
-                    'Select visualization<span class="caret"></span></button>'+
+                    ' Select visualization <span class="caret"></span></button>'+
                     '<ul id="visualization-dropdown" class="dropdown-menu">'+
-                      '<li><a><span class="dropdown-item-icon force"></span>Force-Directed</a></li>'+
-                      '<li><a><span class="dropdown-item-icon grid"></span>Grid</a></li>'+
-                      '<li><a><span class="dropdown-item-icon list"></span>List</a></li>'+
-                      '<li><a><span class="dropdown-item-icon map"></span>Map</a></li>'+
-                      '<li><a><span class="dropdown-item-icon radial"></span>Radial</a></li>'+
-                      '<li><a><span class="dropdown-item-icon tree"></span>Tree</a></li>'+
-                      '<li><a><span class="dropdown-item-icon word-cloud"></span>Word Cloud</a></li>'+
+                    '<li><a><span class="viz-icon force"></span>Force-Directed</a></li>'+
+                    '<li><a><span class="viz-icon grid"></span>Grid</a></li>'+
+                    '<li><a><span class="viz-icon list"></span>List</a></li>'+
+                    '<li><a><span class="viz-icon map"></span>Map</a></li>'+
+                    '<li><a><span class="viz-icon radial"></span>Radial</a></li>'+
+                    '<li><a><span class="viz-icon tree"></span>Tree</a></li>'+
+                    '<li><a><span class="viz-icon word-cloud"></span>Word Cloud</a></li>'+
                     '</ul>'+
                   '</div>'+
                   //
@@ -63,7 +90,7 @@
                   //
                   '<div class="btn-group"><button id="content-selector-button" type="button" class="btn btn-primary btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'+
                       'Select items...<span class="caret"></span></button>'+
-                    '<ul class="dropdown-menu">'+
+                    '<ul id="content-dropdown" class="dropdown-menu">'+
                       '<li class="content-selector"><a>Specific items</a></li>'+
                       '<li><a data-toggle="modal" data-target="#modalByType">Items by type</a></li>'+
                       '<li><a data-toggle="modal" data-target="#modalByDistance">Items by distance</a></li>'+
@@ -87,9 +114,9 @@
             '<div class="modal-body">'+
               //'<button type="button" class="close" data-dismiss="modal">&times;</button>'+
               '<p>Select all items of this type:</p>'+
-              '<div class="btn-group"><button id="byType" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'+
+              '<div class="btn-group"><button id="byType" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">'+
                   'Select item...<span class="caret"></span></button>'+
-                '<ul class="dropdown-menu">'+
+                '<ul id="content-type-dropdown" class="dropdown-menu">'+
                   '<li><a>Annotation</a></li>'+
                   '<li><a>Comment</a></li>'+
                   '<li><a>Media</a></li>'+
@@ -123,9 +150,9 @@
                   '</div>'+
                   '<div class="col-sm-5">'+
                     '<div class="btn-group">'+
-                      '<button id="distanceUnits" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'+
+                      '<button id="distanceUnits" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">'+
                         'Select unit...<span class="caret"></span></button>'+
-                      '<ul class="dropdown-menu">'+
+                      '<ul id="distance-dropdown" class="dropdown-menu">'+
                         '<li><a>miles</a></li>'+
                         '<li><a>kilometers</a></li>'+
                       '</ul>'+
@@ -155,337 +182,238 @@
 
 
 
-      // reference for saveLens callback function
-      let me = this;
-
-      //
-      /// the Lens object
-      //
-      let scalarLensObject = {
-        "urn": $('link#urn').attr('href').replace("version", "lens"),
-        "expanded": false,
-        "submitted": false,
-        "frozen": false,
-        "frozen-items": [],
-        "visualization": {
-          "type": ""
-        },
-        "components": [
-          {
-            "content-selector": {
-              //"type": "",
-              //"items":[],
-              //"quantity": "",
-              //"units": "",
-              //"coordinates": ""
-            },
-          }
-        ]
-      };
 
 
-
-
-    $(function(){
-
-
-        //*********************
-        // Store user selections
-        //*********************
-
-        // function to populate dropdown value
-        // handles multiple instances of dropdowns
-
-        $(".dropdown-menu").on('click', 'li a', function(ev){
-
-          ev.preventDefault();
-
-          let buttonValue = $(this).parent().parent().siblings(".btn:first-child").html($(this).text()+' <span class="caret"></span>');
-
-          $(this).parent().parent().siblings(".btn:first-child").val($(this).text());
-
-
-
-          // Display icons inside visualization dropdown button
-          switch($(this).text()) {
-            case 'Force-Directed':
-              buttonValue.prepend('<span class="dropdown-item-icon force light"></span>');
-              break;
-            case 'Grid':
-              buttonValue.prepend('<span class="dropdown-item-icon grid light"></span>');
-              break;
-            case 'List':
-              buttonValue.prepend('<span class="dropdown-item-icon list light"></span>');
-              break;
-            case 'Map':
-              buttonValue.prepend('<span class="dropdown-item-icon map light"></span>');
-              break;
-            case 'Radial':
-              buttonValue.prepend('<span class="dropdown-item-icon radial light"></span>');
-              break;
-            case 'Tree':
-              buttonValue.prepend('<span class="dropdown-item-icon tree light"></span>');
-              break;
-            case 'Word Cloud':
-              buttonValue.prepend('<span class="dropdown-item-icon word-cloud light"></span>');
-              break;
-
-
-
-
-            //
-            // trigger content-selector
-            //
-            case 'Specific items':
-              $('<div></div>').content_selector({
-                changeable: true,
-                multiple: true,
-                onthefly: true,
-                msg: 'Choose items to be included in this lens.',
-                callback: me.handleAddTags
-              });
-              $('#byType').val(" ").text("Select item...");
-              $('#distanceUnits').val(" ").text("Select unit...");
-              $('#distanceQuantity, #latitude, #longitude').val("");
-              //delete scalarLensObject["components"][0]["content-selector"]["content-type"];
-              delete scalarLensObject["components"][0]["content-selector"]["quantity"];
-              delete scalarLensObject["components"][0]["content-selector"]["units"];
-              delete scalarLensObject["components"][0]["content-selector"]["coordinates"];
-
-              break;
-
-            case 'Items by type':
-              $('#distanceQuantity, #latitude, #longitude').val("");
-              $('#distanceUnits').val(" ").text("Select unit...");
-
-              delete scalarLensObject["components"][0]["content-selector"]["items"];
-              delete scalarLensObject["components"][0]["content-selector"]["quantity"];
-              delete scalarLensObject["components"][0]["content-selector"]["units"];
-              delete scalarLensObject["components"][0]["content-selector"]["coordinates"];
-
-              break;
-
-            case 'Items by distance':
-              delete scalarLensObject["components"][0]["content-selector"]["items"];
-              delete scalarLensObject["components"][0]["content-selector"]["content-type"];
-              $('#byType').val("Select item...");
-
-              break;
-
-              //me.saveLens();
-          }
-
-
-            // store visualization-type value as kebab-case
-            scalarLensObject["visualization"]["type"] = $('#visualization-button').val().split(/[_\s]/).join("-").toLowerCase();
-
-            // store content-selector type as kebab-case
-            scalarLensObject["components"][0]["content-selector"]["type"] = $('#content-selector-button').val().split(/[_\s]/).join("-").toLowerCase();
-
-            me.saveLens();
-
-            console.log(scalarLensObject);
-
-
-        }); // dropdown click function
-
+      $(document).ready(function(){
 
 
         //
-        /// store 'items by type' modal content-type
+        // Visualization buttons
         //
-        $('#typeDone').click(function(){
-          scalarLensObject["components"][0]["content-selector"]["content-type"] = $('#byType').val().split(/[_\s]/).join("-").toLowerCase();
 
-          // JSON updates content button text
-          let updateByType = scalarLensObject["components"][0]["content-selector"]["content-type"];
+        $('#visualization-dropdown li').click(function(){
+          // show selection in button text
+          $('#visualization-button').text($(this).text()).prepend('<span class="viz-icon '  + $(this).text().split(/[_\s]/).join("-").toLowerCase() + ' light"</span>').append('<span class="caret"></span>');
 
-          // retrieve plural name types for selections
-          if(updateByType === 'page' || updateByType === 'media'){
-            $('#content-selector-button').text('All ' + scalarapi.model.scalarTypes[updateByType].plural).append('<span class="caret"></span>');
-          } else {
-            $('#content-selector-button').text('All ' + scalarapi.model.relationTypes[updateByType].bodyPlural).append('<span class="caret"></span>');
-          }
+          // now store the text in the scalarOBject viz type property
+          // store visualization-type value as kebab-case
+          scalarLensObject["visualization"]["type"] = $('#visualization-button').text().split(/[_\s]/).join("-").toLowerCase();
 
           console.log(scalarLensObject);
-
-          me.saveLens();
-
-        });
-
-
-        //
-        /// store 'items by distance' values
-        //
-        $('#distanceDone').click(function(){
-          // quantity
-          scalarLensObject["components"][0]["content-selector"]["quantity"] = $('#distanceQuantity').val();
-          // units
-          scalarLensObject["components"][0]["content-selector"]["units"] = $('#distanceUnits').val();
-          // coordinates
-          scalarLensObject["components"][0]["content-selector"]["coordinates"] = $('#latitude').val() + ', ' + $('#longitude').val();
-
-          let units = scalarLensObject["components"][0]["content-selector"]["units"];
-          let abbreviateUnits;
-
-          // abbreviate units for display
-          if(units === "miles") {
-            abbreviateUnits = "mi";
-          } else if(units === "kilometers") {
-            abbreviateUnits = "km";
-          }
-
-          let quantity = scalarLensObject["components"][0]["content-selector"]["quantity"];
-          let coordinates = scalarLensObject["components"][0]["content-selector"]["coordinates"];
-
-          // JSON updates content button text
-          let updateByDistance = quantity + ' ' + abbreviateUnits + ' from ' + coordinates;
-
-          $('#content-selector-button').text('Items ≤ ' + updateByDistance + '').append('<span class="caret"></span>');
-
-          console.log(scalarLensObject);
-
           me.saveLens();
 
         });
 
 
 
+        //
+        // Content-selector
+        //
+        $('#content-dropdown li').click(function(){
 
+          // show selection in button text
+          $('#content-selector-button').text($(this).text()).append('<span class="caret"></span>');
+          let buttonText = $('#content-selector-button').text();
 
+          scalarLensObject["components"][0]["content-selector"]["type"] = buttonText.split(/[_\s]/).join("-").toLowerCase();
 
+          switch(buttonText) {
 
-      //*****************************
-      //
-      //  update HTML
-      /// with saved metadata values
-      //
-      //*****************************
-
-        if($("[property|='scalar:isLensOf']")){
-          
-          // convert metadata div content into a JSON object
-          let metaData = JSON.parse($("[property|='scalar:isLensOf']").html());
-
-          console.log(JSON.stringify(metaData));
-
-          let scalarLensObject = metaData;
-          console.log(scalarLensObject.visualization.type);
-
-          let newButtonValue = $('#visualization-button').text(scalarLensObject.visualization.type).css({'text-transform':'capitalize'}).append(' <span class="caret"></span>');
-
-
-
-          // Display icons inside visualization dropdown button
-          switch(scalarLensObject.visualization.type) {
-            case 'force-directed':
-              newButtonValue.prepend('<span class="dropdown-item-icon force light"></span>');
+              case 'Specific items':
+                // trigger content-selector
+                $('<div></div>').content_selector({
+                  changeable: true,
+                  multiple: true,
+                  onthefly: true,
+                  msg: 'Choose items to be included in this lens.',
+                  callback: me.handleAddTags
+                });
               break;
-            case 'grid':
-              newButtonValue.prepend('<span class="dropdown-item-icon grid light"></span>');
-              break;
-            case 'list':
-              newButtonValue.prepend('<span class="dropdown-item-icon list light"></span>');
-              break;
-            case 'map':
-              newButtonValue.prepend('<span class="dropdown-item-icon map light"></span>');
-              break;
-            case 'radial':
-              newButtonValue.prepend('<span class="dropdown-item-icon radial light"></span>');
-              break;
-            case 'tree':
-              newButtonValue.prepend('<span class="dropdown-item-icon tree light"></span>');
-              break;
-            case 'word-cloud':
-              newButtonValue.prepend('<span class="dropdown-item-icon word-cloud light"></span>');
-              break;
-            default:
 
-              $('#visualization-button').text(newButtonValue).css({'text-transform':'none'}).append(' <span class="caret"></span>');
+              case 'Items by type':
+                // store 'items by type' modal content
+                $('#content-type-dropdown li').click(function(){
 
-              //me.saveLens();
+                  $('#byType').text($(this).text()).append('<span class="caret"></span>');
 
+                  scalarLensObject["components"][0]["content-selector"]["content-type"] = $('#byType').text().split(/[_\s]/).join("-").toLowerCase();
+
+                });
+
+                $('#typeDone').click(function(){
+
+                  delete scalarLensObject["components"][0]["content-selector"]["items"];
+                  delete scalarLensObject["components"][0]["content-selector"]["quantity"];
+                  delete scalarLensObject["components"][0]["content-selector"]["units"];
+                  delete scalarLensObject["components"][0]["content-selector"]["coordinates"];
+
+                  let updateByType = scalarLensObject["components"][0]["content-selector"]["content-type"];
+
+                  // plural names for content-type
+                  if(updateByType === 'page' || updateByType === 'media'){
+                    $('#content-selector-button').text('All ' + scalarapi.model.scalarTypes[updateByType].plural).append('<span class="caret"></span>');
+                  } else {
+                    $('#content-selector-button').text('All ' + scalarapi.model.relationTypes[updateByType].bodyPlural).append('<span class="caret"></span>');
+                  }
+
+                  console.log(scalarLensObject);
+                  me.saveLens();
+                });
+              break;
+
+              case 'Items by distance':
+                // store 'items by distance' values
+                $('#distance-dropdown li').click(function(){
+                  $('#distanceUnits').text($(this).text()).append('<span class="caret"></span>');
+                });
+
+                $('#distanceDone').click(function(){
+                  delete scalarLensObject["components"][0]["content-selector"]["items"];
+                  delete scalarLensObject["components"][0]["content-selector"]["content-type"];
+                  $('#byType').text('Select item...');
+
+                  // quantity
+                  scalarLensObject["components"][0]["content-selector"]["quantity"] = $('#distanceQuantity').val();
+                  // units
+                  scalarLensObject["components"][0]["content-selector"]["units"] = $('#distanceUnits').text();
+                  // coordinates
+                  scalarLensObject["components"][0]["content-selector"]["coordinates"] = $('#latitude').val() + ', ' + $('#longitude').val();
+
+                  let units = scalarLensObject["components"][0]["content-selector"]["units"];
+                  let abbreviateUnits;
+
+                  // abbreviate units for display
+                  if(units === "miles") {
+                    abbreviateUnits = "mi";
+                  } else if(units === "kilometers") {
+                    abbreviateUnits = "km";
+                  }
+
+                  let quantity = scalarLensObject["components"][0]["content-selector"]["quantity"];
+                  let coordinates = scalarLensObject["components"][0]["content-selector"]["coordinates"];
+
+                  // JSON updates content button text
+                  let updateByDistance = quantity + ' ' + abbreviateUnits + ' from ' + coordinates;
+
+                  $('#content-selector-button').text('Items ≤ ' + updateByDistance + '').append('<span class="caret"></span>');
+
+
+                  console.log(scalarLensObject);
+
+                  me.saveLens();
+
+                });
+
+              break;
           }
 
-          //
-          /// saved 'content-type' updates HTML
-          //
-          let newContentButtonText = scalarLensObject["components"][0]["content-selector"]["content-type"];
+          //me.saveLens();
 
-          switch(scalarLensObject["components"][0]["content-selector"]["type"]){
-
-            case 'specific-items':
-
-                delete scalarLensObject["components"][0]["content-selector"]["content-type"];
-                delete scalarLensObject["components"][0]["content-selector"]["quantity"];
-                delete scalarLensObject["components"][0]["content-selector"]["units"];
-                delete scalarLensObject["components"][0]["content-selector"]["coordinates"];
-
-                let newItemsValue = scalarLensObject["components"][0]["content-selector"]["items"];
-
-                if(newItemsValue.length <= 1){
-                  $('#content-selector-button').html('&#8220;'+ newItemsValue + '&#8221;').append('<span class="caret"></span>');
-                } else if(newItemsValue.length > 1){
-                  let remainingItems = newItemsValue.length - 1;
-                  $('#content-selector-button').html('&#8220;'+ newItemsValue[0] + '&#8221;' + ' and ' + remainingItems + ' more...').append('<span class="caret"></span>');
-                }
-
-                break;
-
-            case 'items-by-type':
-
-                // retrieve plural name types for selections
-                if(newContentButtonText === 'page' || newContentButtonText === 'media'){
-                  $('#content-selector-button').text('All ' + scalarapi.model.scalarTypes[newContentButtonText].plural).append('<span class="caret"></span>');
-                } else {
-                  $('#content-selector-button').text('All ' + scalarapi.model.relationTypes[newContentButtonText].bodyPlural).append('<span class="caret"></span>');
-                }
-
-                delete scalarLensObject["components"][0]["content-selector"]["items"];
-
-                break;
-
-            case 'items-by-distance':
-
-                delete scalarLensObject["components"][0]["content-selector"]["items"];
-
-                let units = scalarLensObject["components"][0]["content-selector"]["units"];
-                let abbreviateUnits;
-
-                // abbreviate units for display
-                if(units === "miles") {
-                  abbreviateUnits = "mi";
-                } else if(units === "kilometers") {
-                  abbreviateUnits = "km";
-                }
-
-                let quantity = scalarLensObject["components"][0]["content-selector"]["quantity"];
-                let coordinates = scalarLensObject["components"][0]["content-selector"]["coordinates"];
-
-                // JSON updates content button text
-                let updateByDistance = quantity + ' ' + abbreviateUnits + ' from ' + coordinates;
-
-                $('#content-selector-button').text('Items ≤ ' + updateByDistance + '').append('<span class="caret"></span>');
-
-              break;
-
-
-              console.log(scalarLensObject);
-
-              me.saveLens();
-          }
+        }); // content-selection
 
 
 
-        } // if statement
+        // update html on re-load with metaData values
+        //
 
 
-      }); // IIFE
+
+        // if($("[property|='scalar:isLensOf']")){
+        //
+        //   // convert metadata div content into a JSON object
+        //   let metaData = JSON.parse($("[property|='scalar:isLensOf']").html());
+        //
+        //   console.log(JSON.stringify(metaData));
+        //
+        //   // let scalarLensObject = metaData;
+        //   // console.log(scalarLensObject);
+        //
+        //   $('#visualization-button').text(metaData["visualization"]["type"]).css({'text-transform':'capitalize'}).prepend('<span class="viz-icon '  + metaData["visualization"]["type"].split(/[_\s]/).join("-").toLowerCase() + ' light"</span>').append('<span class="caret"></span>');
+        //   //$('#content-selector-button').text(scalarLensObject["components"][0]["content-selector"]["type"]).css({'text-transform':'capitalize'}).append('<span class="caret"></span>');
+        //
+        //
+        //
+        //
+        //     /// saved 'content-type' updates HTML
+        //     //
+        //     let newContentButtonText = metaData["components"][0]["content-selector"]["content-type"];
+        //
+        //     switch(metaData["components"][0]["content-selector"]["type"]){
+        //
+        //       case 'specific-items':
+        //
+        //           delete metaData["components"][0]["content-selector"]["content-type"];
+        //           delete metaData["components"][0]["content-selector"]["quantity"];
+        //           delete metaData["components"][0]["content-selector"]["units"];
+        //           delete metaData["components"][0]["content-selector"]["coordinates"];
+        //
+        //           let newItemsValue = metaData["components"][0]["content-selector"]["items"];
+        //
+        //           if(newItemsValue.length <= 1){
+        //             $('#content-selector-button').html('&#8220;'+ newItemsValue + '&#8221;').append('<span class="caret"></span>');
+        //           } else if(newItemsValue.length > 1){
+        //             let remainingItems = newItemsValue.length - 1;
+        //             $('#content-selector-button').html('&#8220;'+ newItemsValue[0] + '&#8221;' + ' and ' + remainingItems + ' more...').append('<span class="caret"></span>');
+        //           }
+        //
+        //           break;
+        //
+        //       case 'items-by-type':
+        //
+        //           // retrieve plural name types for selections
+        //           if(newContentButtonText === 'page' || newContentButtonText === 'media'){
+        //             $('#content-selector-button').text('All ' + scalarapi.model.scalarTypes[newContentButtonText].plural).append('<span class="caret"></span>');
+        //           } else {
+        //             $('#content-selector-button').text('All ' + scalarapi.model.relationTypes[newContentButtonText].bodyPlural).append('<span class="caret"></span>');
+        //           }
+        //
+        //           delete metaData["components"][0]["content-selector"]["items"];
+        //
+        //           break;
+        //
+        //       case 'items-by-distance':
+        //
+        //           delete metaData["components"][0]["content-selector"]["items"];
+        //
+        //           let units = metaData["components"][0]["content-selector"]["units"];
+        //           let abbreviateUnits;
+        //
+        //           // abbreviate units for display
+        //           if(units === "miles") {
+        //             abbreviateUnits = "mi";
+        //           } else if(units === "kilometers") {
+        //             abbreviateUnits = "km";
+        //           }
+        //
+        //           let quantity = metaData["components"][0]["content-selector"]["quantity"];
+        //           let coordinates = metaData["components"][0]["content-selector"]["coordinates"];
+        //
+        //           // JSON updates content button text
+        //           let updateByDistance = quantity + ' ' + abbreviateUnits + ' from ' + coordinates;
+        //
+        //           $('#content-selector-button').text('Items ≤ ' + updateByDistance + '').append('<span class="caret"></span>');
+        //
+        //         break;
+        //
+        //
+        //         //console.log(scalarLensObject);
+        //
+        //         //me.saveLens();
+        //     }
+        //
+        // }
+
+
+
+  });
+
+
 
 
 
       // append html when plugin is called
       $("[property|='sioc:content']").append(lensHtml);
+
 
 
       // ajax call to post user lens selections
@@ -509,7 +437,6 @@
       }
 
 
-
       //
       /// callback for content-selector
       //
@@ -520,8 +447,11 @@
           // extract the 'slug' property of each node and put into an array;
           // this gets stored in the "items" property
           let nodeTitle = nodes.map(node => node.title);
+
           // set JSON object value
+          scalarLensObject["components"][0]["content-selector"]["type"] = $('#content-selector-button').text().split(/[_\s]/).join("-").toLowerCase();
           scalarLensObject["components"][0]["content-selector"]["items"] = nodeTitle;
+
 
           // show selections in content-selector button
 
@@ -539,14 +469,30 @@
         }
 
 
+        delete scalarLensObject["components"][0]["content-selector"]["content-type"];
+        delete scalarLensObject["components"][0]["content-selector"]["quantity"];
+        delete scalarLensObject["components"][0]["content-selector"]["units"];
+        delete scalarLensObject["components"][0]["content-selector"]["coordinates"];
+
+
       } // handleAddTags callback
 
 
 
 
-
-
     }; // init function
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

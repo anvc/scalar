@@ -1492,7 +1492,7 @@ body>.annotorious-popup{
 #visualization-btn ul li a {
 	padding:4px 15px 4px;
 }
-.dropdown-item-icon {
+.viz-icon {
 	background-repeat:no-repeat;
 	background-position:50% 50%;
 	background-size:cover;
@@ -1503,50 +1503,50 @@ body>.annotorious-popup{
 	max-width:25px;
 	margin-right:6px;
 }
-.dropdown-item-icon.light {
+.viz-icon.light {
 	margin-right:5px;
 	margin-top:1px;
 }
-.dropdown-item-icon.force {
+.viz-icon.force {
 	background-image:url(../images/icon_forcedir_dark.png);
 }
-.dropdown-item-icon.force.light {
+.force-directed.light {
 	background-image:url(../images/icon_forcedir_light.png);
 }
-.dropdown-item-icon.grid {
+.viz-icon.grid {
 	background-image:url(../images/icon_grid_dark.png);
 }
-.dropdown-item-icon.grid.light {
+.grid.light {
 	background-image:url(../images/icon_grid_light.png);
 }
-.dropdown-item-icon.list {
+.viz-icon.list {
 	background-image:url(../images/icon_list_dark.png);
 }
-.dropdown-item-icon.list.light {
+.list.light {
 	background-image:url(../images/icon_list_light.png);
 }
-.dropdown-item-icon.map {
+.viz-icon.map {
 	background-image:url(../images/icon_map_dark.png);
 }
-.dropdown-item-icon.map.light {
+.map.light {
 	background-image:url(../images/icon_map_light.png);
 }
-.dropdown-item-icon.radial {
+.viz-icon.radial {
 	background-image:url(../images/icon_radial_dark.png);
 }
-.dropdown-item-icon.radial.light {
+.radial.light {
 	background-image:url(../images/icon_radial_light.png);
 }
-.dropdown-item-icon.tree {
+.viz-icon.tree {
 	background-image:url(../images/icon_tree_dark.png);
 }
-.dropdown-item-icon.tree.light{
+.tree.light{
 	background-image:url(../images/icon_tree_light.png);
 }
-.dropdown-item-icon.word-cloud {
+.viz-icon.word-cloud {
 	background-image:url(../images/icon_wordcloud_dark.png);
 }
-.dropdown-item-icon.word-cloud.light {
+.word-cloud.light {
 	background-image:url(../images/icon_wordcloud_light.png);
 }
 #visualization-btn .btn-primary {
