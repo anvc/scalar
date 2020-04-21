@@ -1764,13 +1764,14 @@
                     }
 
                 } else if ('lens' == extension) {
+                  var div = page.bodyContent().prepend('<div></div>');
                   $.when(
                     $.getScript(views_uri+'/melons/cantaloupe/js/bootbox.min.js'),
                     $.getScript(views_uri+'/widgets/edit/jquery.content_selector_bootstrap.js'),
                     $.Deferred((deferred) => {
                       $(deferred.resolve);
                     })
-                  ).done(() => { $('<div></div>').ScalarLenses() });
+                  ).done(() => { div.ScalarLenses() });
 
                 } else if ('edit' == extension) {
                     // Nothing needed here

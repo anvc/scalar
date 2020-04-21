@@ -1549,15 +1549,16 @@ body>.annotorious-popup{
 .word-cloud.light {
 	background-image:url(../images/icon_wordcloud_light.png);
 }
-#visualization-button {
+.visualization-button, .visualization-button:hover, .visualization-button:focus {
 	background:#985da9;
 	border:1px solid #82519a;
 }
-#content-selector-button {
+
+.content-selector-button {
 	background:#3b82c0;
 	border:1px solid #457db8;
 }
-#content-selector-button .dropdown-menu li a {
+.content-selector-button .dropdown-menu li a {
 	padding:4px 10px;
 }
 .close {
