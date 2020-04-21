@@ -1458,9 +1458,6 @@ body>.annotorious-popup{
   margin-top:0;
   margin-bottom:0;
 }
-.lens-tags {
-	max-width:320px;
-}
 #lens .btn-primary {
 	font-family:'Lato', sans-serif !important;
 	margin-top:8px;
@@ -1549,12 +1546,22 @@ body>.annotorious-popup{
 .word-cloud.light {
 	background-image:url(../images/icon_wordcloud_light.png);
 }
-.visualization-button, .visualization-button:hover, .visualization-button:focus {
+.visualization-button,
+.visualization-button:hover,
+.btn-primary.visualization-button:active,
+.btn-primary.visualization-button:focus,
+.open .dropdown-toggle.btn-primary.visualization-button
+ {
 	background:#985da9;
 	border:1px solid #82519a;
 }
 
-.content-selector-button {
+.content-selector-button .btn-primary,
+.content-selector-button .btn-primary:hover,
+.content-selector-button .btn-primary:active,
+.content-selector-button .btn-primary:focus,
+.content-selector-button.open .dropdown-toggle.btn-primary
+{
 	background:#3b82c0;
 	border:1px solid #457db8;
 }
@@ -1593,4 +1600,7 @@ body>.annotorious-popup{
 }
 #distanceUnits {
 	margin-left:3px;
+}
+#distance-dropdown li {
+	margin-left:0;
 }

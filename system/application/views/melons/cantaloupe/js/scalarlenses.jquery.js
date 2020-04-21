@@ -20,15 +20,13 @@
     // get Embedded data
     ScalarLenses.prototype.getEmbeddedJson = function(){
 
-      console.log('Get Embedded JSON');
       // convert metadata div content into a JSON object
       return JSON.parse($("[property|='scalar:isLensOf']").html());
-
     }
 
     // get Default data
     ScalarLenses.prototype.getDefaultJson = function() {
-      console.log('Get default JSON');
+      //console.log('Get default JSON');
 
       // the Lens object
       return {
@@ -47,7 +45,7 @@
     ScalarLenses.prototype.buildEditorDom = function () {
 
       /// HTML for Lens default state
-      let lensHtml =
+      let lensHtml = $(
       '<div class="paragraph_wrapper">'+
         '<div class="body_copy">'+
           '<div class="row lens">'+
@@ -60,21 +58,7 @@
                   '<div class="lens-content col-xs-11">'+
                     '<h3 class="lens-title heading_font heading_weight"> Tokyo Area Commercial Networks <span class="badge">0</span></h3>' +
                   '<div class="lens-tags">'+
-                  //
-                  /// Visualization dropdown
-                  //
-                  '<div id="visualization-btn" class="btn-group"><button type="button" class="btn btn-primary btn-xs dropdown-toggle caption_font visualization-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'+
-                    ' Select visualization <span class="caret"></span></button>'+
-                    '<ul id="visualization-dropdown" class="dropdown-menu">'+
-                    '<li><a><span class="viz-icon force"></span>Force-Directed</a></li>'+
-                    '<li><a><span class="viz-icon grid"></span>Grid</a></li>'+
-                    '<li><a><span class="viz-icon list"></span>List</a></li>'+
-                    '<li><a><span class="viz-icon map"></span>Map</a></li>'+
-                    '<li><a><span class="viz-icon radial"></span>Radial</a></li>'+
-                    '<li><a><span class="viz-icon tree"></span>Tree</a></li>'+
-                    '<li><a><span class="viz-icon word-cloud"></span>Word Cloud</a></li>'+
-                    '</ul>'+
-                  '</div>'+
+
 
 
                 '</div>'+ //lens-expanded container
@@ -82,93 +66,19 @@
             '</div>'+ // lens wrapper
           '</div>'+ // row
         '</div>'+ // body copy
-      '</div>'+ // paragraph wrapper
+      '</div>' // paragraph wrapper
 
+    )
+      lensHtml.find('.lens-tags').append(this.addVisualizationButton())
+      lensHtml.append(this.addContentTypeModal());
+      lensHtml.append(this.addDistanceModal());
 
-      //
-      /// Modal for items by Type
-      //
-      '<div id="modalByType" class="modal fade caption_font" role="dialog">'+
-        '<div class="modal-dialog">'+
-          '<div class="modal-content">'+
-            '<div class="modal-body">'+
-              //'<button type="button" class="close" data-dismiss="modal">&times;</button>'+
-              '<p>Select all items of this type:</p>'+
-              '<div class="btn-group"><button id="byType" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">'+
-                  'Select item...<span class="caret"></span></button>'+
-                '<ul id="content-type-dropdown" class="dropdown-menu">'+
-                  '<li><a>Annotation</a></li>'+
-                  '<li><a>Comment</a></li>'+
-                  '<li><a>Media</a></li>'+
-                  '<li><a>Page</a></li>'+
-                  '<li><a>Path</a></li>'+
-                  '<li><a>Tag</a></li>'+
-                '</ul>'+
-              '</div>'+
-            '</div>'+ // modal body
-            '<div class="modal-footer">'+
-              '<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>'+
-              '<button id="typeDone" type="button" class="btn btn-primary" data-dismiss="modal">Done</button>'+
-          '  </div>'+
-          '</div>'+ // modal content
-        '</div>'+ // modal dialog
-      '</div>'+
-
-      //
-      // Modal for items by Distance
-      //
-      '<div id="modalByDistance" class="modal fade caption_font" role="dialog">'+
-        '<div class="modal-dialog">'+
-          '<div class="modal-content">'+
-            '<div class="modal-body">'+
-              //'<button type="button" class="close" data-dismiss="modal">&times;</button>'+
-              '<p>Add any item that is within</p>'+
-              '<div class="row">'+
-                '<div class="col-sm-10">'+
-                  '<div class="col-sm-5">'+
-                    '<input id="distanceQuantity" type="text" class="form-control" aria-label="..." placeholder="Enter distance">'+
-                  '</div>'+
-                  '<div class="col-sm-5">'+
-                    '<div class="btn-group">'+
-                      '<button id="distanceUnits" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">'+
-                        'Select unit...<span class="caret"></span></button>'+
-                      '<ul id="distance-dropdown" class="dropdown-menu">'+
-                        '<li><a>miles</a></li>'+
-                        '<li><a>kilometers</a></li>'+
-                      '</ul>'+
-                    '</div>'+ // distance dropdown
-                  '</div>'+
-                '</div>'+
-              '</div>'+ // row
-              '<p>of these coordinates:</p>'+
-              '<div class="row">'+
-                '<div class="col-sm-10">'+
-                  '<div class="col-sm-5">'+
-                    '<input id="latitude" type="text" class="form-control" aria-label="..." placeholder="Latitude (decimal)">'+
-                  '</div>'+
-                  '<div class="col-sm-5">'+
-                    '<input id="longitude" type="text" class="form-control" aria-label="..." placeholder="Longitude (decimal)">'+
-                  '</div>'+
-                '</div>'+
-              '</div>'+ // row
-            '</div>'+ // modal body
-            '<div class="modal-footer">'+
-              '<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>'+
-              '<button id="distanceDone" type="button" class="btn btn-primary" data-dismiss="modal">Done</button>'+
-          '  </div>'+
-          '</div>'+
-        '</div>'+
-      '</div>';
-
-
-      // append html when plugin is called
       $(this.element).append(lensHtml);
-
 
       this.buttonContainer = $(this.element).find('.lens-tags').eq(0);
 
-      console.log($(this.element).find('.lens-tags'));
-      console.log(this.element);
+      let me = this
+
     }
 
     // update DOM
@@ -177,61 +87,75 @@
       this.updateVisualizationButton(this.scalarLensObject.visualization);
 
         if(this.scalarLensObject.components.length == 0){
-           let button = this.addContentSelectorButton(this.buttonContainer);
-           console.log(button);
+           let button = this.addContentSelectorButton(this.buttonContainer, 0);
            this.updateContentSelectorButton(null, button);
+           this.scalarLensObject.components[0] = { "content-selector": {}}
            console.log('no compoenents');
 
         } else {
 
           this.scalarLensObject.components.forEach((component, index) => {
             let button = $(this.element).find('.content-selector-button').eq(index)
-            if(!button){
-              button = this.addContentSelectorButton(this.buttonContainer);
+            if(button.length == 0){
+              button = this.addContentSelectorButton(this.buttonContainer, index);
             }
+
             this.updateContentSelectorButton(component["content-selector"], button);
 
-            console.log('some components');
-
           });
-
         }
-
     }
 
     // add Visualization button
     ScalarLenses.prototype.addVisualizationButton = function(){
 
-        $('#visualization-dropdown li').on('click', function(){
-          // show selection in button text
-          $('.visualization-button').text($(this).text()).prepend('<span class="viz-icon '  + $(this).text().split(/[_\s]/).join("-").toLowerCase() + ' light"</span>').append('<span class="caret"></span>');
+      let element = $(
+          '<div class="btn-group"><button type="button" class="btn btn-primary btn-xs dropdown-toggle caption_font visualization-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'+
+            ' Select visualization <span class="caret"></span></button>'+
+            '<ul id="visualization-dropdown" class="dropdown-menu">'+
+            '<li><a><span class="viz-icon force"></span>Force-Directed</a></li>'+
+            '<li><a><span class="viz-icon grid"></span>Grid</a></li>'+
+            '<li><a><span class="viz-icon list"></span>List</a></li>'+
+            '<li><a><span class="viz-icon map"></span>Map</a></li>'+
+            '<li><a><span class="viz-icon radial"></span>Radial</a></li>'+
+            '<li><a><span class="viz-icon tree"></span>Tree</a></li>'+
+            '<li><a><span class="viz-icon word-cloud"></span>Word Cloud</a></li>'+
+            '</ul>'+
+          '</div>'
+        )
 
-          // now store the text in the scalarOBject viz type property
-          // store visualization-type value as kebab-case
-          scalarLensObject["visualization"]["type"] = $('#visualization-button').text().split(/[_\s]/).join("-").toLowerCase();
+      var me = this
 
-          console.log(scalarLensObject);
-          me.saveLens();
+        element.find('li').on('click', function(){
+           let visualizationObj = {
+             "type": $(this).text().split(/[_\s]/).join("-").toLowerCase()
+           }
+
+          me.scalarLensObject.visualization = visualizationObj
+          me.updateVisualizationButton(me.scalarLensObject.visualization)
+          me.saveLens()
 
         });
+        return element
     }
 
     // update Visualization button
     ScalarLenses.prototype.updateVisualizationButton = function(visualizationObj){
 
-      if(!visualizationObj) {
-          $('.visualization-button').text('Select visualization...').append('<span class="caret"></span>')
-        } else {
-          $('.visualization-button').text(this.visualizationOptions[visualizationObj.type].text).prepend('<span class="viz-icon '  + visualizationObj.type + ' light"</span>').append('<span class="caret"></span>')
-        }
+      let button = $(this.element).find('.visualization-button')
 
+      if(!visualizationObj) {
+          button.text('Select visualization...').append('<span class="caret"></span>')
+        } else {
+          button.text(this.visualizationOptions[visualizationObj.type].text).prepend('<span class="viz-icon '  + visualizationObj.type + ' light"</span>').append('<span class="caret"></span>')
+        }
     }
 
     // add Content-selector button
-    ScalarLenses.prototype.addContentSelectorButton = function(element){
+    ScalarLenses.prototype.addContentSelectorButton = function(element, componentIndex){
 
       let button = $(
-        '<div class="btn-group"><button type="button" class="btn btn-primary btn-xs dropdown-toggle content-selector-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'+
+        '<div class="btn-group content-selector-button"><button type="button" class="btn btn-primary btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'+
               'Select items...<span class="caret"></span></button>'+
             '<ul id="content-dropdown" class="dropdown-menu">'+
               '<li><a>Specific items</a></li>'+
@@ -239,145 +163,73 @@
               '<li><a data-toggle="modal" data-target="#modalByDistance">Items by distance</a></li>'+
             '</ul>'+
           '</div>'
-        ).appendTo(element);
+        ).appendTo(element)
 
-        console.log(element);
+        button.data('componentIndex', componentIndex);
 
-      button.on('click', function(event){
+        var me = this;
 
-        let buttonText = $(this).text();
+        button.find('li').on('click', function (event) {
 
-        // show selection in button text
-        //$(this).text($(this).text()).append('<span class="caret"></span>');
+          let buttonText = $(this).text();
+          console.log(event);
 
+          me.editedComponentIndex = componentIndex
 
-        // switch(buttonText) {
-        //
-        //     case 'Specific items':
-        //       // trigger content-selector
-        //       $('<div></div>').content_selector({
-        //         changeable: true,
-        //         multiple: true,
-        //         onthefly: true,
-        //         msg: 'Choose items to be included in this lens.',
-        //         callback: me.handleAddTags
-        //       });
-        //     break;
-        //
-        //     case 'Items by type':
-        //       // store 'items by type' modal content
-        //       $('#content-type-dropdown li').on('click', function(){
-        //
-        //         $('#byType').text($(this).text()).append('<span class="caret"></span>');
-        //
-        //         scalarLensObject["components"][0]["content-selector"]["content-type"] = $('#byType').text().split(/[_\s]/).join("-").toLowerCase();
-        //
-        //       });
-        //
-        //       $('#typeDone').on('click', function(){
-        //
-        //         delete scalarLensObject["components"][0]["content-selector"]["items"];
-        //         delete scalarLensObject["components"][0]["content-selector"]["quantity"];
-        //         delete scalarLensObject["components"][0]["content-selector"]["units"];
-        //         delete scalarLensObject["components"][0]["content-selector"]["coordinates"];
-        //
-        //         let updateByType = scalarLensObject["components"][0]["content-selector"]["content-type"];
-        //
-        //         // plural names for content-type
-        //         if(updateByType === 'page' || updateByType === 'media'){
-        //           $('#content-selector-button').text('All ' + scalarapi.model.scalarTypes[updateByType].plural).append('<span class="caret"></span>');
-        //         } else {
-        //           $('#content-selector-button').text('All ' + scalarapi.model.relationTypes[updateByType].bodyPlural).append('<span class="caret"></span>');
-        //         }
-        //
-        //         console.log(scalarLensObject);
-        //         me.saveLens();
-        //       });
-        //     break;
-        //
-        //     case 'Items by distance':
-        //       // store 'items by distance' values
-        //       $('#distance-dropdown li').on('click', function(){
-        //         $('#distanceUnits').text($(this).text()).append('<span class="caret"></span>');
-        //       });
-        //
-        //       $('#distanceDone').on('click', function(){
-        //         delete scalarLensObject["components"][0]["content-selector"]["items"];
-        //         delete scalarLensObject["components"][0]["content-selector"]["content-type"];
-        //         $('#byType').text('Select item...');
-        //
-        //         // quantity
-        //         scalarLensObject["components"][0]["content-selector"]["quantity"] = $('#distanceQuantity').val();
-        //         // units
-        //         scalarLensObject["components"][0]["content-selector"]["units"] = $('#distanceUnits').text();
-        //         // coordinates
-        //         scalarLensObject["components"][0]["content-selector"]["coordinates"] = $('#latitude').val() + ', ' + $('#longitude').val();
-        //
-        //         let units = scalarLensObject["components"][0]["content-selector"]["units"];
-        //         let abbreviateUnits;
-        //
-        //         // abbreviate units for display
-        //         if(units === "miles") {
-        //           abbreviateUnits = "mi";
-        //         } else if(units === "kilometers") {
-        //           abbreviateUnits = "km";
-        //         }
-        //
-        //         let quantity = scalarLensObject["components"][0]["content-selector"]["quantity"];
-        //         let coordinates = scalarLensObject["components"][0]["content-selector"]["coordinates"];
-        //
-        //         // JSON updates content button text
-        //         let updateByDistance = quantity + ' ' + abbreviateUnits + ' from ' + coordinates;
-        //
-        //         $('.content-selector-button').text('Items ≤ ' + updateByDistance + '').append('<span class="caret"></span>');
-        //
-        //
-        //         console.log(scalarLensObject);
-        //
-        //         me.saveLens();
-        //
-        //       });
-        //
-        //     break;
-        //
-        // }
+          switch(buttonText) {
+              case 'Specific items':
+                // trigger content-selector
+                $('<div></div>').content_selector({
+                  changeable: true,
+                  multiple: true,
+                  onthefly: true,
+                  msg: 'Choose items to be included in this lens.',
+                  callback: function(a){
+                    me.handleContentSelected(a)
+                  }
+                });
+              break;
 
-      }); // content-selection
+              case 'Items by type':
+              break;
 
+              case 'Items by distance':
+              break;
+
+          }
+
+        }); // content-selection
 
       return button
-
 
     }
 
     // update Content-selector button
     ScalarLenses.prototype.updateContentSelectorButton = function(contentSelectorObj, element) {
 
-
         let button = element.find('button');
 
           if(!contentSelectorObj) {
-
+            console.log('reset')
             button.text('Select items...').append('<span class="caret"></span>');
-
           }
 
           else {
 
-            let type = contentSelectorObj["type"];
+            let type = contentSelectorObj.type;
 
             switch(type){
 
               case 'specific-items':
 
-
                   let items = contentSelectorObj.items;
+                  let buttonText;
 
                   if(items.length <= 1){
-                    let buttonText = '&#8220;'+ items + '&#8221;';
-                  } else if(items.length > 1){
+                    buttonText = '&#8220;'+ items + '&#8221;';
+                  } else {
                     let remainingItems = items.length - 1;
-                    let buttonText = '&#8220;'+ items[0] + '&#8221;' + ' and ' + remainingItems + ' more...';
+                    buttonText = '&#8220;'+ items[0] + '&#8221;' + ' and ' + remainingItems + ' more...';
                   }
 
                   button.html(buttonText).append('<span class="caret"></span>');
@@ -385,9 +237,11 @@
                   break;
 
               case 'items-by-type':
+
                   let contentType = contentSelectorObj["content-type"];
 
-                  // retrieve plural name types for selections
+
+                  //retrieve plural name types for selections
                   if( contentType === 'page' || contentType === 'media'){
                     button.text('All ' + scalarapi.model.scalarTypes[contentType].plural).append('<span class="caret"></span>');
                   } else {
@@ -398,7 +252,9 @@
 
               case 'items-by-distance':
 
+
                   let units = contentSelectorObj.units;
+
                   let abbreviateUnits;
 
                   // abbreviate units for display
@@ -418,14 +274,138 @@
 
                 break;
 
-
-                //console.log(scalarLensObject);
-
-                //me.saveLens();
             }
           }
 
 
+
+    }
+
+    // add content-type modal
+    ScalarLenses.prototype.addContentTypeModal = function(){
+
+      let element = $(
+        '<div id="modalByType" class="modal fade caption_font" role="dialog">'+
+          '<div class="modal-dialog">'+
+            '<div class="modal-content">'+
+              '<div class="modal-body">'+
+                //'<button type="button" class="close" data-dismiss="modal">&times;</button>'+
+                '<p>Select all items of this type:</p>'+
+                '<div class="btn-group"><button id="byType" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">'+
+                    'Select item...<span class="caret"></span></button>'+
+                  '<ul id="content-type-dropdown" class="dropdown-menu">'+
+                    '<li><a>Annotation</a></li>'+
+                    '<li><a>Comment</a></li>'+
+                    '<li><a>Media</a></li>'+
+                    '<li><a>Page</a></li>'+
+                    '<li><a>Path</a></li>'+
+                    '<li><a>Tag</a></li>'+
+                  '</ul>'+
+                '</div>'+
+              '</div>'+ // modal body
+              '<div class="modal-footer">'+
+                '<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>'+
+                '<button type="button" class="btn btn-primary done" data-dismiss="modal">Done</button>'+
+            '  </div>'+
+            '</div>'+ // modal content
+          '</div>'+ // modal dialog
+        '</div>'
+      )
+
+      var me = this
+
+      // store 'items by type' modal content
+      element.find('li').on('click', function(){
+        $('#byType').text($(this).text()).append('<span class="caret"></span>')
+      });
+
+      element.find('.done').on('click', function(){
+        let contentSelector = {
+          "type": "items-by-type",
+          "content-type": $('#byType').text().split(/[_\s]/).join("-").toLowerCase()
+        }
+        me.scalarLensObject.components[me.editedComponentIndex]["content-selector"] = contentSelector
+        me.updateContentSelectorButton(me.scalarLensObject.components[me.editedComponentIndex]["content-selector"], $(me.element).find('.content-selector-button').eq(me.editedComponentIndex))
+        me.saveLens()
+      });
+      return element
+    }
+
+    // add Distance modal
+    ScalarLenses.prototype.addDistanceModal = function(){
+
+      let element = $(
+          // Modal for items by Distance
+          '<div id="modalByDistance" class="modal fade caption_font" role="dialog">'+
+            '<div class="modal-dialog">'+
+              '<div class="modal-content">'+
+                '<div class="modal-body">'+
+                  //'<button type="button" class="close" data-dismiss="modal">&times;</button>'+
+                  '<p>Add any item that is within</p>'+
+                  '<div class="row">'+
+                    '<div class="col-sm-10">'+
+                      '<div class="col-sm-5">'+
+                        '<input id="distanceQuantity" type="text" class="form-control" aria-label="..." placeholder="Enter distance">'+
+                      '</div>'+
+                      '<div class="col-sm-5">'+
+                        '<div class="btn-group">'+
+                          '<button id="distanceUnits" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">'+
+                            'Select unit...<span class="caret"></span></button>'+
+                          '<ul id="distance-dropdown" class="dropdown-menu">'+
+                            '<li><a>miles</a></li>'+
+                            '<li><a>kilometers</a></li>'+
+                          '</ul>'+
+                        '</div>'+ // distance dropdown
+                      '</div>'+
+                    '</div>'+
+                  '</div>'+ // row
+                  '<p>of these coordinates:</p>'+
+                  '<div class="row">'+
+                    '<div class="col-sm-10">'+
+                      '<div class="col-sm-5">'+
+                        '<input id="latitude" type="text" class="form-control" aria-label="..." placeholder="Latitude (decimal)">'+
+                      '</div>'+
+                      '<div class="col-sm-5">'+
+                        '<input id="longitude" type="text" class="form-control" aria-label="..." placeholder="Longitude (decimal)">'+
+                      '</div>'+
+                    '</div>'+
+                  '</div>'+ // row
+                '</div>'+ // modal body
+                '<div class="modal-footer">'+
+                  '<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>'+
+                  '<button id="distanceDone" type="button" class="btn btn-primary done" data-dismiss="modal">Done</button>'+
+              '  </div>'+
+              '</div>'+
+            '</div>'+
+          '</div>'
+        )
+
+        var me = this
+
+        element.find('li').on('click', function(){
+          $('#distanceUnits').text($(this).text()).append('<span class="caret"></span>')
+        });
+
+        // $('#distance-dropdown li a').on('click', function(){
+        //   $('#distanceUnits').text($(this).text()).append('<span class="caret"></span>');
+        // });
+
+
+        element.find('.done').on('click', function(){
+          let contentSelector = {
+            "type":"items-by-distance",
+            "quantity": $('#distanceQuantity').val(),
+            "units": $('#distanceUnits').text(),
+            "coordinates": $('#latitude').val() + ', ' + $('#longitude').val()
+          }
+
+          me.scalarLensObject.components[me.editedComponentIndex]["content-selector"] = contentSelector
+          me.updateContentSelectorButton(me.scalarLensObject.components[me.editedComponentIndex]["content-selector"], $(me.element).find('.content-selector-button').eq(me.editedComponentIndex))
+          me.saveLens();
+
+        });
+
+        return element
 
     }
 
@@ -479,7 +459,7 @@
 
       }
 
-    //  this.scalarLensObject = this.getEmbeddedJson();
+      this.scalarLensObject = this.getEmbeddedJson();
 
       if(!this.scalarLensObject) {
         this.scalarLensObject = this.getDefaultJson();
@@ -588,7 +568,7 @@
         type: "POST",
         dataType: 'json',
         contentType: 'application/json',
-        data: JSON.stringify(scalarLensObject),
+        data: JSON.stringify(this.scalarLensObject),
         async: true,
         context: this,
         success: function success(data) {
@@ -601,31 +581,22 @@
     }
 
     // callback for content-selector
-    ScalarLenses.prototype.handleAddTags = function(nodes) {
+    ScalarLenses.prototype.handleContentSelected = function(nodes) {
+
       if (nodes && nodes.length != 0) {
         //console.log(nodes);
 
         // extract the 'slug' property of each node and put into an array;
         // this gets stored in the "items" property
-        let nodeTitle = nodes.map(node => node.title);
+        let nodeTitles = nodes.map(node => node.title);
+        console.log(nodeTitles)
 
         // set JSON object value
-        scalarLensObject["components"][0]["content-selector"]["type"] = $('#content-selector-button').text().split(/[_\s]/).join("-").toLowerCase();
-        scalarLensObject["components"][0]["content-selector"]["items"] = nodeTitle;
+        this.scalarLensObject.components[this.editedComponentIndex]["content-selector"].type = 'specific-items';
+        this.scalarLensObject.components[this.editedComponentIndex]["content-selector"].items = nodeTitles;
 
-
-        // show selections in content-selector button
-
-        if(nodeTitle.length <= 1){
-          $('#content-selector-button').html('&#8220;'+ nodeTitle + '&#8221;').append('<span class="caret"></span>');
-        } else if(nodeTitle.length > 1){
-          let remainingItems = nodeTitle.length - 1;
-          $('#content-selector-button').html('&#8220;'+ nodeTitle[0] + '&#8221;' + ' and ' + remainingItems + ' more...').append('<span class="caret"></span>');
-        }
-
-        console.log(scalarLensObject);
-
-        me.saveLens();
+        this.updateEditorDom();
+        this.saveLens();
 
       }
     }
