@@ -185,12 +185,13 @@
                 '<div class="btn-group"><button id="byType" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">'+
                     'Select item...<span class="caret"></span></button>'+
                   '<ul id="content-type-dropdown" class="dropdown-menu">'+
-                    '<li><a>Annotation</a></li>'+
-                    '<li><a>Comment</a></li>'+
-                    '<li><a>Media</a></li>'+
+                    '<li><a>All content</a></li>'+
                     '<li><a>Page</a></li>'+
+                    '<li><a>Media</a></li>'+
                     '<li><a>Path</a></li>'+
                     '<li><a>Tag</a></li>'+
+                    '<li><a>Annotation</a></li>'+
+                    '<li><a>Comment</a></li>'+
                   '</ul>'+
                 '</div>'+
               '</div>'+ // modal body
@@ -424,16 +425,19 @@
                   break;
 
               case 'items-by-type':
-
                   let contentType = contentSelectorObj["content-type"];
-
-                  //retrieve plural name types for selections
-                  if( contentType === 'page' || contentType === 'media'){
+                  switch (contentType) {
+                    case 'all-content':
+                    button.text('All content').append('<span class="caret"></span>');
+                    break;
+                    case 'page':
+                    case 'media':
                     button.text('All ' + scalarapi.model.scalarTypes[contentType].plural).append('<span class="caret"></span>');
-                  } else {
+                    break;
+                    default:
                     button.text('All ' + scalarapi.model.relationTypes[contentType].bodyPlural).append('<span class="caret"></span>');
+                    break;
                   }
-
                   break;
 
               case 'items-by-distance':
