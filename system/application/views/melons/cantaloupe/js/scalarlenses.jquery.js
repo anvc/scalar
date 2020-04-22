@@ -148,9 +148,7 @@
     // update DOM
     ScalarLenses.prototype.updateEditorDom = function(){
 
-      if (!this.scalarLensObject.title) {
-        $(this.element).find('.lens-title').text('(Untitled Lens)');
-      }
+      $(this.element).find('.lens-title').text(scalarapi.model.getCurrentPageNode().current.title);
 
       this.updateVisualizationButton(this.scalarLensObject.visualization);
 
