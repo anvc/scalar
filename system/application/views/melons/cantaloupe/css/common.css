@@ -1474,7 +1474,9 @@ body>.annotorious-popup{
   margin-left:5px;
 }
 #lens .badge {
-  float:right;
+  position: absolute;
+	top: 10px;
+	right: 10px;
   padding: 5px 10px;
   font-size:14px;
   font-weight:200;

@@ -119,7 +119,8 @@
                     '<span class="lens-icon"></span>'+
                   '</div>'+
                   '<div class="lens-content col-xs-11">'+
-                    '<h3 class="lens-title heading_font heading_weight">(Untitled lens) <span class="badge">0</span></h3>' +
+                    '<h3 class="lens-title heading_font heading_weight">(Untitled lens)</h3>' +
+                    '<div class="badge">0</div>'+
                   '<div class="lens-tags">'+
 
 
