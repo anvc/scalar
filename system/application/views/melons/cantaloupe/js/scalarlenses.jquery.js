@@ -95,7 +95,6 @@
       // the Lens object
       return {
         "urn": $('link#urn').attr('href').replace("version", "lens"),
-        "expanded": false,
         "submitted": false,
         "frozen": false,
         "frozen-items": [],
@@ -478,7 +477,7 @@
         		return;
       	  };
           console.log('lens results:');
-          console.log(data);
+          console.log(JSON.stringify(data));
         },
         error: function error(response) {
     	     console.log('There was an error attempting to communicate with the server.');
