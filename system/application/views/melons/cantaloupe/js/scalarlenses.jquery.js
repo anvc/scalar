@@ -119,7 +119,7 @@
                     '<span class="lens-icon"></span>'+
                   '</div>'+
                   '<div class="lens-content col-xs-11">'+
-                    '<h3 class="lens-title heading_font heading_weight"> Tokyo Area Commercial Networks <span class="badge">0</span></h3>' +
+                    '<h3 class="lens-title heading_font heading_weight">(Untitled lens) <span class="badge">0</span></h3>' +
                   '<div class="lens-tags">'+
 
 
@@ -147,25 +147,29 @@
     // update DOM
     ScalarLenses.prototype.updateEditorDom = function(){
 
+      if (!this.scalarLensObject.title) {
+        $(this.element).find('.lens-title').text('(Untitled Lens)');
+      }
+
       this.updateVisualizationButton(this.scalarLensObject.visualization);
 
-        if(this.scalarLensObject.components.length == 0){
-           let button = this.addContentSelectorButton(this.buttonContainer, 0);
-           this.updateContentSelectorButton(null, button);
-           this.scalarLensObject.components[0] = { "content-selector": {}, "modifiers": []}
+      if(this.scalarLensObject.components.length == 0){
+         let button = this.addContentSelectorButton(this.buttonContainer, 0);
+         this.updateContentSelectorButton(null, button);
+         this.scalarLensObject.components[0] = { "content-selector": {}, "modifiers": []}
 
-        } else {
+      } else {
 
-          this.scalarLensObject.components.forEach((component, index) => {
-            let button = $(this.element).find('.content-selector-button').eq(index)
-            if(button.length == 0){
-              button = this.addContentSelectorButton(this.buttonContainer, index);
-            }
+        this.scalarLensObject.components.forEach((component, index) => {
+          let button = $(this.element).find('.content-selector-button').eq(index)
+          if(button.length == 0){
+            button = this.addContentSelectorButton(this.buttonContainer, index);
+          }
 
-            this.updateContentSelectorButton(component["content-selector"], button);
+          this.updateContentSelectorButton(component["content-selector"], button);
 
-          });
-        }
+        });
+      }
     }
 
     // add content-type modal
