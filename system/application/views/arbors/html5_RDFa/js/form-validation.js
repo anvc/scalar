@@ -258,7 +258,8 @@ function send_form($form, additional_values, success, redirect_url) {
 		}
 	}
   
-  if (values['iiif-url'] && values['iiif-url'] === "on") { // if user indicates the url is a iiif manifest
+  // if user indicates the url is a iiif manifest
+  if (values['iiif-url'] && values['iiif-url'] === "on" && values['scalar:url'].indexOf('?iiif-manifest=1') === -1) {
     values['scalar:url'] = values['scalar:url'].concat('?iiif-manifest=1');
   } 
 
