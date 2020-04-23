@@ -8,7 +8,7 @@
 
     const pluginName = 'ScalarLenses', defaults = {};
 
-    function ScalarLenses( element, options) {
+    function ScalarLenses(element, options) {
         this.element = element;
         this.options = $.extend( {}, defaults, options);
         this._defaults = defaults;
@@ -109,66 +109,88 @@
 
       /// HTML for Lens default state
       let lensHtml = $(
-      '<div class="paragraph_wrapper">'+
-        '<div class="body_copy">'+
-          '<div class="row lens">'+
-            '<div id="lens">'+
-              '<div class="col-xs-12">'+
-                '<div class="lens-expand-container" data-toggle="collapse" data-target="">'+
-                  '<div class="lens-icon-wrapper col-xs-1">'+
-                    '<span class="lens-icon"></span>'+
-                  '</div>'+
-                  '<div class="lens-content col-xs-11">'+
-                    '<h3 class="lens-title heading_font heading_weight">(Untitled lens)</h3>' +
-                    '<div class="badge">0</div>'+
-                  '<div class="lens-tags">'+
+        '<div class="paragraph_wrapper">'+
+          '<div class="body_copy">'+
+            '<div class="row lens">'+
+              '<div class="lens-editor">'+
+                '<div class="col-xs-12">'+
+                  '<div class="lens-expand-container" data-toggle="collapse" data-target="">'+
+                    '<div class="lens-icon-wrapper col-xs-1">'+
+                      '<span class="lens-icon"></span>'+
+                    '</div>'+
+                    '<div class="lens-content col-xs-11">'+
+                      '<h3 class="lens-title heading_font heading_weight">(Untitled lens)</h3>' +
+                      '<div class="badge">0</div>'+
+                    '<div class="lens-tags">'+
+                  '</div>'+ //lens-expanded container
+                '</div>'+ // col-12 wrapper
+              '</div>'+ // lens wrapper
+            '</div>'+ // row
+          '</div>'+ // body copy
+        '</div>' // paragraph wrapper
+      );
 
-
-
-                '</div>'+ //lens-expanded container
-              '</div>'+ // col-12 wrapper
-            '</div>'+ // lens wrapper
-          '</div>'+ // row
-        '</div>'+ // body copy
-      '</div>' // paragraph wrapper
-
-    )
-      lensHtml.find('.lens-tags').append(this.addVisualizationButton())
+      lensHtml.find('.lens-tags').append(this.addVisualizationButton());
       lensHtml.append(this.addContentTypeModal());
       lensHtml.append(this.addDistanceModal());
-
       $(this.element).append(lensHtml);
-
       this.buttonContainer = $(this.element).find('.lens-tags').eq(0);
-
-      let me = this
-
     }
 
     // update DOM
     ScalarLenses.prototype.updateEditorDom = function(){
-
       $(this.element).find('.lens-title').text(scalarapi.model.getCurrentPageNode().current.title);
-
       this.updateVisualizationButton(this.scalarLensObject.visualization);
 
       if(this.scalarLensObject.components.length == 0){
-         let button = this.addContentSelectorButton(this.buttonContainer, 0);
+         let componentContainer = this.getComponentContainer(0);
+         let button = this.addContentSelectorButton(componentContainer, 0);
          this.updateContentSelectorButton(null, button);
          this.scalarLensObject.components[0] = { "content-selector": {}, "modifiers": []}
 
       } else {
+        this.scalarLensObject.components.forEach((component, componentIndex) => {
+          let componentContainer = this.getComponentContainer(componentIndex);
 
-        this.scalarLensObject.components.forEach((component, index) => {
-          let button = $(this.element).find('.content-selector-button').eq(index)
-          if(button.length == 0){
-            button = this.addContentSelectorButton(this.buttonContainer, index);
-          }
-
+          // content selector button
+          let button = componentContainer.find('.content-selector-button')
+          if (button.length == 0) button = this.addContentSelectorButton(componentContainer, componentIndex);
           this.updateContentSelectorButton(component["content-selector"], button);
 
+          component.modifiers.forEach((modifier, modifierIndex) => {
+            switch (modifier.type) {
+
+              case 'filter':
+              button = componentContainer.find('.filter-button').eq(modifierIndex);
+              if (button.length == 0) button = this.addFilterButton(this.buttonContainer, componentIndex, modifierIndex);
+              this.updateFilterButton(component["content-selector"], button);
+              break;
+
+              case 'sort':
+              break;
+
+            }
+          })
+
+          // plus button
+          button = $(this.buttonContainer).find('.plus-button').eq(componentIndex);
+          if (button.length == 0) this.addPlusButton(this.buttonContainer, componentIndex);
         });
       }
+    }
+
+    // looks for a container component div for the component with the given index;
+    // creates one if it can't find it
+    ScalarLenses.prototype.getComponentContainer = function(componentIndex) {
+      let componentContainer = this.buttonContainer.find('.component-container').eq(componentIndex);
+      if (componentContainer.length == 0) {
+        if (componentIndex == 0) {
+          componentContainer = $('<div class="component-container"></div>').appendTo(this.buttonContainer);
+        } else {
+          componentContainer = this.buttonContainer.find('.component-container').eq(componentIndex-1).after('<div class="component-container"></div>');
+        }
+      }
+      return componentContainer;
     }
 
     // add content-type modal
@@ -465,6 +487,106 @@
 
 
 
+    }
+
+    ScalarLenses.prototype.addFilterButton = function(componentContainer, componentIndex, modifierIndex){
+      let button = $(
+        '<div class="btn-group filter-button"><button type="button" class="btn btn-primary btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'+
+          'Filter items...<span class="caret"></span></button>'+
+          '<ul id="content-dropdown" class="dropdown-menu">'+
+            '<li><a data-toggle="modal" data-target="#modalFilterByType">By type...</a></li>'+
+            '<li><a data-toggle="modal" data-target="#modalFilterByContent">By content...</a></li>'+
+            '<li><a data-toggle="modal" data-target="#modalFilterByContent">By relationship...</a></li>'+
+            '<li><a data-toggle="modal" data-target="#modalFilterByContent">By distance...</a></li>'+
+            '<li><a data-toggle="modal" data-target="#modalFilterByContent">By quantity...</a></li>'+
+            '<li><a data-toggle="modal" data-target="#modalFilterByContent">By metadata...</a></li>'+
+            '<li><a data-toggle="modal" data-target="#modalFilterByContent">By visit date...</a></li>'+
+            '<li role="separator" class="divider"></li>'+
+            '<li><a data-toggle="modal" data-target="#modalFilterDelete">Delete</a></li>'+
+          '</ul>'+
+        '</div>'
+      );
+      button.data({
+        'componentIndex': componentIndex,
+        'modifierIndex': modifierIndex
+      });
+      if (modifierIndex == 0) {
+        componentContainer.find('.content-selector-button').after(button);
+      } else {
+        componentContainer.find('.filter-button').eq(modifierIndex-1).after(button);
+      }
+      var me = this;
+      button.find('li').on('click', function (event) {
+        let buttonText = $(this).text();
+        me.editedComponentIndex = parseInt($(this).parent().parent().data('componentIndex'));
+        switch(buttonText) {
+            case 'By type...':
+            break;
+
+            case 'By content...':
+            break;
+
+            case 'By relationship...':
+            break;
+
+            case 'By distance...':
+            break;
+
+            case 'By quantity...':
+            break;
+
+            case 'By metadata...':
+            break;
+
+            case 'By visit date...':
+            break;
+
+            case 'Delete':
+            break;
+        }
+      });
+      return button;
+    }
+
+    ScalarLenses.prototype.updateFilterButton = function(filterObj, element) {
+
+    }
+
+    ScalarLenses.prototype.addPlusButton = function(componentContainer, componentIndex) {
+      let button = $(
+        '<div class="btn-group plus-button"><button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'+
+          '<span class="plus-icon"></span></button>'+
+          '<ul id="content-dropdown" class="dropdown-menu">'+
+            '<li><a>Add content</a></li>'+
+            '<li><a>Add filter</a></li>'+
+            '<li><a>Add sort</a></li>'+
+          '</ul>'+
+        '</div>'
+      );
+      let modifierCount = this.scalarLensObject.components[componentIndex].modifiers.length;
+      if (modifierCount == 0) {
+        componentContainer.find('.content-selector-button').after(button);
+      } else {
+        componentContainer.find('.filter-button').eq(modifierCount-1).after(button);
+      }
+      button.data('componentIndex', componentIndex);
+      var me = this;
+      button.find('li').on('click', function (event) {
+        let buttonText = $(this).text();
+        let componentIndex = parseInt($(this).parent().parent().data('componentIndex'));
+        switch(buttonText) {
+          case 'Add content':
+          break;
+          case 'Add filter':
+          me.scalarLensObject.components[componentIndex].modifiers.push({"type": "filter"});
+          me.updateEditorDom();
+          break;
+          case 'Add sort':
+          me.scalarLensObject.components[componentIndex].modifiers.push({"type": "sort"});
+          me.updateEditorDom();
+          break;
+        }
+      });
     }
 
     ScalarLenses.prototype.getLensResults = function() {

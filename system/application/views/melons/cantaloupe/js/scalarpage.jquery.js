@@ -1715,7 +1715,8 @@
             },
 
             addLens: function() {
-              var div = page.bodyContent().prepend('<div></div>');
+              var div = $('<div></div>');
+              page.bodyContent().prepend(div);
               $.when(
                 $.getScript(views_uri+'/melons/cantaloupe/js/bootbox.min.js'),
                 $.getScript(views_uri+'/widgets/edit/jquery.content_selector_bootstrap.js'),

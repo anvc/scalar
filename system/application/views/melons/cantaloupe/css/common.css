@@ -1421,7 +1421,7 @@ body>.annotorious-popup{
 .row.lens {
 	margin:0;
 }
-#lens .col-xs-12 {
+.lens-editor .col-xs-12 {
   padding:0;
   background:#dddddd;
   border-radius:10px;
@@ -1456,24 +1456,24 @@ body>.annotorious-popup{
 }
 .body_copy .lens-title {
   margin-top:0;
-  margin-bottom:0;
+  margin-bottom: 1px;
 }
-#lens .btn-primary {
+.lens-editor .btn-primary {
 	font-family:'Lato', sans-serif !important;
-	margin-top:8px;
+	margin-top: 4px;
 	margin-right:4px;
 	padding: 3px 8px;
 }
-#lens .dropdown-menu {
+.lens-editor .dropdown-menu {
 	border:1px solid #dddddd;
 }
-.paragraph_wrapper #lens ul li {
+.paragraph_wrapper .lens-editor ul li {
   margin-left:0;
 }
-#lens .btn .caret {
+.lens-editor .btn .caret {
   margin-left:5px;
 }
-#lens .badge {
+.lens-editor .badge {
   position: absolute;
 	top: 10px;
 	right: 10px;
@@ -1488,16 +1488,32 @@ body>.annotorious-popup{
 .dropdown-menu li a {
 	cursor:pointer;
 }
-#visualization-btn ul li a {
+/*#visualization-btn ul li a {
 	padding:4px 15px 4px;
+}*/
+.component-container { display: inline-block; }
+.lens-editor .plus-button {
+	margin-top: 4px;
+}
+.lens-editor .btn .plus-icon {
+	background-repeat:no-repeat;
+	background-position:50% 50%;
+	background-size:cover;
+	display: inline-block;
+	float:left;
+	width: 14px;
+  height: 14px;
+  margin: 4px 0;
+	max-width:25px;
+	background-image:url(../images/icon_plus.png);
 }
 .viz-icon {
 	background-repeat:no-repeat;
 	background-position:50% 50%;
 	background-size:cover;
 	float:left;
-	width: 15px;
-  height: 15px;
+	width: 14px;
+  height: 14px;
   margin-top: 3px;
 	max-width:25px;
 	margin-right:6px;
@@ -1567,7 +1583,16 @@ body>.annotorious-popup{
 	background:#3b82c0;
 	border:1px solid #457db8;
 }
-.content-selector-button .dropdown-menu li a {
+.filter-button .btn-primary,
+.filter-button .btn-primary:hover,
+.filter-button .btn-primary:active,
+.filter-button .btn-primary:focus,
+.filter-button.open .dropdown-toggle.btn-primary
+{
+	background:#f08c4e;
+	border:1px solid #d87c43;
+}
+.content-selector-button .dropdown-menu li a, .filter-button .dropdown-menu li a {
 	padding:4px 10px;
 }
 .close {
