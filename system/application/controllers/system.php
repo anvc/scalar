@@ -116,6 +116,7 @@ class System extends MY_Controller {
 	
 	public function lenses() {
 		
+		if (!$this->can_save_lenses()) die ('{"error":"Lenses table (scalar_db_rel_grouped) is not installed"}');
 		$version_id = (isset($_REQUEST['version_id'])) ? (int) $_REQUEST['version_id'] : 0;
 		$book_id = (isset($_REQUEST['book_id'])) ? (int) $_REQUEST['book_id'] : 0;
 		
