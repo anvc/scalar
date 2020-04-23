@@ -133,6 +133,7 @@
       lensHtml.find('.lens-tags').append(this.addVisualizationButton());
       lensHtml.append(this.addContentTypeModal());
       lensHtml.append(this.addDistanceModal());
+      lensHtml.append(this.addFilterModal());
       $(this.element).append(lensHtml);
       this.buttonContainer = $(this.element).find('.lens-tags').eq(0);
     }
@@ -317,6 +318,67 @@
 
     }
 
+    // add Fliter modal
+    ScalarLenses.prototype.addFilterModal = function(){
+
+      let element = $(
+        '<div id="filterModal" class="modal fade caption_font" role="dialog">'+
+          '<div class="modal-dialog">'+
+            '<div class="modal-content">'+
+              '<div class="modal-body">'+
+                '<h4>Configure filter</h4>'+
+                '<div class="filter-modal-container" style="min-height:150px;">'+
+                  '<p class="filter-text">Filler text...Select a filter</p>'+
+                  '<div class="filter-counters">'+
+                    '<div class="left-badge">'+
+                      '<span class="counter">80</span>'+
+                      '<span class="filter-arrow"></span>'+
+                    '</div>'+
+                    '<div class="right-badge">'+
+                      '<span class="filter-arrow"></span>'+
+                      '<span class="counter">20</span>'+
+                    '</div>'+
+                  '</div>'+
+
+                '</div>'+
+              '</div>'+ // modal body
+              '<div class="modal-footer">'+
+                '<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>'+
+                '<button type="button" class="btn btn-primary done" data-dismiss="modal">Done</button>'+
+            '  </div>'+
+            '</div>'+ // modal content
+          '</div>'+ // modal dialog
+        '</div>'
+      )
+
+      var me = this
+
+
+      $('#filterModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget) // Button that triggered the modal
+        var recipient = button.data('whatever') // Extract info from data-* attributes
+        // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+        // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+        var modal = $(this)
+        modal.find('.filter-text').text(button)
+        modal.find('.modal-body input').val(recipient)
+      })
+
+
+
+      element.find('.done').on('click', function(){
+        // // let contentSelector = {
+        // //   "type": "items-by-type",
+        // //   "content-type": $('#byType').text().split(/[_\s]/).join("-").toLowerCase()
+        // // }
+        // me.scalarLensObject.components[me.editedComponentIndex]["content-selector"] = contentSelector
+        // me.updateFilterButton(me.scalarLensObject.components[me.editedComponentIndex]["content-selector"], $(me.element).find('.content-selector-button').eq(me.editedComponentIndex))
+        // me.saveLens(me.getLensResults)
+      });
+      return element
+
+    }
+
     // add Visualization button
     ScalarLenses.prototype.addVisualizationButton = function(){
 
@@ -494,13 +556,13 @@
         '<div class="btn-group filter-button"><button type="button" class="btn btn-primary btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'+
           'Filter items...<span class="caret"></span></button>'+
           '<ul id="content-dropdown" class="dropdown-menu">'+
-            '<li><a data-toggle="modal" data-target="#modalFilterByType">By type...</a></li>'+
-            '<li><a data-toggle="modal" data-target="#modalFilterByContent">By content...</a></li>'+
-            '<li><a data-toggle="modal" data-target="#modalFilterByContent">By relationship...</a></li>'+
-            '<li><a data-toggle="modal" data-target="#modalFilterByContent">By distance...</a></li>'+
-            '<li><a data-toggle="modal" data-target="#modalFilterByContent">By quantity...</a></li>'+
-            '<li><a data-toggle="modal" data-target="#modalFilterByContent">By metadata...</a></li>'+
-            '<li><a data-toggle="modal" data-target="#modalFilterByContent">By visit date...</a></li>'+
+            '<li><a data-toggle="modal" data-id="#modalFilterByType" data-target="#filterModal">By type...</a></li>'+
+            '<li><a data-toggle="modal" data-id="#modalFilterByContent" data-target="#filterModal">By content...</a></li>'+
+            '<li><a data-toggle="modal" data-id="#modalFilterByContent" data-target="#filterModal">By relationship...</a></li>'+
+            '<li><a data-toggle="modal" data-id="#modalFilterByContent" data-target="#filterModal">By distance...</a></li>'+
+            '<li><a data-toggle="modal" data-id="#modalFilterByContent" data-target="#filterModal">By quantity...</a></li>'+
+            '<li><a data-toggle="modal" data-id="#modalFilterByContent" data-target="#filterModal">By metadata...</a></li>'+
+            '<li><a data-toggle="modal" data-id="#modalFilterByContent" data-target="#filterModal">By visit date...</a></li>'+
             '<li role="separator" class="divider"></li>'+
             '<li><a data-toggle="modal" data-target="#modalFilterDelete">Delete</a></li>'+
           '</ul>'+
@@ -551,6 +613,7 @@
     ScalarLenses.prototype.updateFilterButton = function(filterObj, element) {
 
     }
+
 
     ScalarLenses.prototype.addPlusButton = function(componentContainer, componentIndex) {
       let button = $(

@@ -1488,9 +1488,6 @@ body>.annotorious-popup{
 .dropdown-menu li a {
 	cursor:pointer;
 }
-/*#visualization-btn ul li a {
-	padding:4px 15px 4px;
-}*/
 .component-container { display: inline-block; }
 .lens-editor .plus-button {
 	margin-top: 4px;
@@ -1630,4 +1627,54 @@ body>.annotorious-popup{
 }
 #distance-dropdown li {
 	margin-left:0;
+}
+
+.lens-editor .modal-dialog h2,
+.lens-editor .modal-dialog h3,
+.lens-editor .dialog h3,
+.lens-editor .modal-dialog h4,
+.lens-editor .dialog h4,
+.lens-editor .dialog h5 {
+	display: block;
+}
+
+.filter-modal-container {
+	border:3px solid lightgrey;
+	padding:15px 25px;
+	max-width: 400px;
+	margin: 40px auto;
+	text-align:center;
+
+}
+.filter-counters .left-badge,
+.filter-counters .right-badge,
+.filter-counters .filter-arrow  {
+	position:absolute;
+}
+.filter-counters .left-badge {
+	left:20px;
+}
+.filter-counters .right-badge {
+	right:20px;
+}
+.filter-counters .counter {
+	padding: 3px 7px;
+  font-size: 14px;
+  font-weight: 200;
+  border:1px solid lightgrey;
+	border-radius: 10px;
+}
+.filter-arrow {
+	background-image:url(../images/arrow_right@2x.png);
+	background-size:cover;
+	background-repeat:no-repeat;
+	background-position:50% 50%;
+	width:50px;
+	height:20px;
+}
+.left-badge .filter-arrow {
+	left:30px;
+}
+.right-badge .filter-arrow {
+	left:-50px;
 }
