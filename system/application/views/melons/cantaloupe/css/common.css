@@ -1644,6 +1644,7 @@ body>.annotorious-popup{
 	max-width: 400px;
 	margin: 40px auto;
 	text-align:center;
+	min-height:150px;
 
 }
 .filter-counters .left-badge,
