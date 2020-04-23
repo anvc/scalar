@@ -1714,16 +1714,18 @@
                 }
             },
 
-            addLens: function() {
-              var div = $('<div></div>');
-              page.bodyContent().prepend(div);
-              $.when(
-                $.getScript(views_uri+'/melons/cantaloupe/js/bootbox.min.js'),
-                $.getScript(views_uri+'/widgets/edit/jquery.content_selector_bootstrap.js'),
-                $.Deferred((deferred) => {
-                  $(deferred.resolve);
-                })
-              ).done(() => { div.ScalarLenses() });
+            addLensEditor: function() {
+              if ($('.page-lens-editor').length == 0) {
+                var div = $('<div class="page-lens-editor"></div>');
+                page.bodyContent().prepend(div);
+                $.when(
+                  $.getScript(views_uri+'/melons/cantaloupe/js/bootbox.min.js'),
+                  $.getScript(views_uri+'/widgets/edit/jquery.content_selector_bootstrap.js'),
+                  $.Deferred((deferred) => {
+                    $(deferred.resolve);
+                  })
+                ).done(() => { div.ScalarLenses() });
+              }
             },
 
             addMediaElements: function() {
@@ -1776,7 +1778,7 @@
                     }
 
                 } else if ('lens' == extension) {
-                  this.addLens();
+                  this.addLensEditor();
 
                 } else if ('edit' == extension) {
                     // Nothing needed here
@@ -3323,14 +3325,14 @@
                             showTags: false
                         });
                     }
-                    if ($("[property|='scalar:isLensOf']")) {
-                      page.addLens();
-                    }
                     page.addTKLabels();
                     page.addColophon();
                     if (viewType != 'edit') {
                         page.addContext();
                         page.allowAnyClickToDismissPopovers();
+                    }
+                    if ($("[property|='scalar:isLensOf']").length > 0 && viewType == 'plain') {
+                      page.addLensEditor();
                     }
                     break;
 
