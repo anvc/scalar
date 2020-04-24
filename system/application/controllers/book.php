@@ -132,7 +132,7 @@ class Book extends MY_Controller {
 							  		'max_recurses' => $this->max_recursions,
 									'tklabeldata'  => $this->data['tklabels'],
 									'tklabels' 	   => RDF_Object::TKLABELS_ALL,
-								    'lens_recurses'=> 0,
+									'lens_recurses'=> (($this->can_save_lenses()) ? 0 : RDF_Object::LENSES_NONE),
 									'is_book_admin'=> $this->login_is_book_admin()
 								 );
 				$index = $this->rdf_object->index($settings);

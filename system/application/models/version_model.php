@@ -82,7 +82,7 @@ class Version_model extends MY_Model {
   				$unset = true;
   			} elseif ($am_in_book && $this->data['mode'] != 'editing') {
   				$unset = true;
-  			} elseif (!$am_in_book && !$am_in_api && 'author' != strtolower($this->data['user_level']) && 'editor' != strtolower($this->data['user_level'])) {
+  			} elseif (!$am_in_book && !$am_in_api && isset($this->data['user_level']) && 'author' != strtolower($this->data['user_level']) && 'editor' != strtolower($this->data['user_level'])) {
   				$unset = true;	
   			}
   			if ($unset) {

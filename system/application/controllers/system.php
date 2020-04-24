@@ -116,6 +116,7 @@ class System extends MY_Controller {
 	
 	public function lenses() {
 		
+		if (!$this->can_save_lenses()) die ('{"error":"Lenses table (scalar_db_rel_grouped) is not installed"}');
 		$version_id = (isset($_REQUEST['version_id'])) ? (int) $_REQUEST['version_id'] : 0;
 		$book_id = (isset($_REQUEST['book_id'])) ? (int) $_REQUEST['book_id'] : 0;
 		
@@ -904,7 +905,7 @@ class System extends MY_Controller {
 					if (!$this->can_edition()) die ('{"error":"Editions are not active"}');
 					if (!isset($this->data['book']->editions[$edition_index])) die ('{"error":"Invalid edition index"}');
 					foreach ($this->data['book']->editions[$edition_index]['pages'] as $version_id) {
-						$version = $this->versions->get($version_id);
+						$version = $this->versions->get($version_id, null, false);
 						if (!empty($version) && isset($version->editorial_state) && isset($this->data['content'][$version->editorial_state])) $this->data['content'][$version->editorial_state]++;
 						if (!empty($version) && isset($version->usage_rights) && !empty($version->usage_rights)) $this->data['content']['usagerights']++;
 					}
@@ -915,7 +916,7 @@ class System extends MY_Controller {
 							$this->data['content']['hidden']++;
 							continue;
 						}
-						$version = $this->versions->get_single($content[$j]->content_id, $content[$j]->recent_version_id);
+						$version = $this->versions->get_single($content[$j]->content_id, $content[$j]->recent_version_id, null, false);
 						if (!empty($version) && isset($version->editorial_state) && isset($this->data['content'][$version->editorial_state])) $this->data['content'][$version->editorial_state]++;
 						if (!empty($version) && isset($version->usage_rights) && !empty($version->usage_rights)) $this->data['content']['usagerights']++;
 					}
@@ -1142,7 +1143,7 @@ class System extends MY_Controller {
 				if (is_int($version_id)) {  // Change a single page to a state
 					$this->load->model('page_model', 'pages');
 					$this->load->model('version_model', 'versions');
-					$version = $this->versions->get($version_id);
+					$version = $this->versions->get($version_id, null, false);
 					if (empty($version)) die ("{'error':'Could not find version'}");
 					$this->data['book'] = $this->books->get_by_content_id($version->content_id);
 					$this->set_user_book_perms();
@@ -1157,7 +1158,7 @@ class System extends MY_Controller {
 					$this->load->model('version_model', 'versions');
 					foreach ($version_id as $id) {
 						$id = (int) $id;
-						$version = $this->versions->get($id);
+						$version = $this->versions->get($id, null, false);
 						if (empty($version)) die ("{'error':'Could not find version'}");
 						$this->data['book'] = $this->books->get_by_content_id($version->content_id);
 						$this->set_user_book_perms();
