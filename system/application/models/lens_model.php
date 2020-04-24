@@ -111,54 +111,66 @@ class Lens_model extends MY_Model {
 		$contents = array();
 
 		foreach ($json['components'] as $component) {
-			foreach ($component['modifiers'] as $modifier) {
-				switch ($modifier['type']) {
-					case "filter":
-						switch ($modifier['subtype']) {
-							case "metadata":
-								$field = trim($modifier['metadata-field']);
-								$value = trim($modifier['content']);
-								$content = $CI->versions->get_by_predicate($book_id, $field, false, null, $value);
-								$contents = $this->combine_by_operator($contents, $content, $operator);
-								break;
-							case "distance":
-								$from_arr = $this->get_pages_from_content_selector($component['content-selector']);
-								$distance_in_meters = $modifier['quantity'];
-								$items = $CI->versions->get_by_predicate($book_id, array('dcterms:spatial','dcterms:coverage'));
-								foreach ($from_arr as $from) {
-									$content = array();
-									$item = $this->filter_by_slug($items, $from);
-									if (!empty($item)) {
-										$latlng = $this->get_latlng_from_item($item[0]);
-										$content = $this->filter_by_location($items, $latlng, $distance_in_meters);
-									}
+			if (!isset($component['modifiers']) || empty($component['modifiers'])) {
+				$content = $this->get_pages_from_content_selector($component['content-selector']);
+				for ($j = 0; $j < count($content); $j++) {
+					$content[$j]->versions = array();
+					$content[$j]->versions[] = $CI->versions->get_single($content[$j]->content_id, $content[$j]->recent_version_id, null, false);
+				}
+				$contents = $this->combine_by_operator($contents, $content, $operator);
+			} else {
+				foreach ($component['modifiers'] as $modifier) {
+					switch ($modifier['type']) {
+						case "filter":
+							switch ($modifier['subtype']) {
+								case "metadata":
+									$field = trim($modifier['metadata-field']);
+									$value = trim($modifier['content']);
+									$content = $CI->versions->get_by_predicate($book_id, $field, false, null, $value);
+									$content = $this->filter_by_content_selector($content, $component);
 									$contents = $this->combine_by_operator($contents, $content, $operator);
-								}
-								break;
-							case "relationship":
-								$from_arr = $this->get_pages_from_content_selector($component['content-selector']);
-								foreach ($from_arr as $from) {
-									$page = $CI->pages->get_by_slug($book_id, $from, true);
-									$version = $CI->versions->get_single($page->content_id, $page->recent_version_id, null, false);
-									$types = $modifier['content-types'];
-									$content = array();
-									foreach ($types as $type) {
-										$type_p = $type.'s';
-										if ($type_p== 'replys') $type_p= 'replies';
-										if (!isset($CI->$type_p) || 'object'!=gettype($CI->$type_p)) $CI->load->model($type.'_model',$type_p);
-										$items = $CI->$type_p->get_children($version->version_id, '', '', true, null);
-										foreach ($items as $item) {
-											$page = $CI->pages->get($item->child_content_id);
-											$page->versions = array();
-											$page->versions[] = $CI->versions->get_single($page->content_id, $page->recent_version_id, null, true);
-											$content[] = $page;
+									break;
+								case "distance":
+									$from_arr = $this->get_pages_from_content_selector($component['content-selector']);
+									$distance_in_meters = $modifier['quantity'];
+									$items = $CI->versions->get_by_predicate($book_id, array('dcterms:spatial','dcterms:coverage'));
+									foreach ($from_arr as $from) {
+										$content = array();
+										$item = $this->filter_by_slug($items, $from);
+										if (!empty($item)) {
+											$latlng = $this->get_latlng_from_item($item[0]);
+											$content = $this->filter_by_location($items, $latlng, $distance_in_meters);
 										}
+										$contents = $this->combine_by_operator($contents, $content, $operator);
 									}
-									$contents = $this->combine_by_operator($contents, $content, $operator);
-								}
-								break;
-						}
-						break;
+									break;
+								case "relationship":
+									$from_arr = $this->get_pages_from_content_selector($component['content-selector']);
+									foreach ($from_arr as $from) {
+										$page = $CI->pages->get_by_slug($book_id, $from, true);
+										if (empty($page)) continue;
+										$version = $CI->versions->get_single($page->content_id, $page->recent_version_id, null, false);
+										if (empty($version)) continue;
+										$types = $modifier['content-types'];
+										$content = array();
+										foreach ($types as $type) {
+											$type_p = $type.'s';
+											if ($type_p== 'replys') $type_p= 'replies';
+											if (!isset($CI->$type_p) || 'object'!=gettype($CI->$type_p)) $CI->load->model($type.'_model',$type_p);
+											$items = $CI->$type_p->get_children($version->version_id, '', '', true, null);
+											foreach ($items as $item) {
+												$page = $CI->pages->get($item->child_content_id);
+												$page->versions = array();
+												$page->versions[] = $CI->versions->get_single($page->content_id, $page->recent_version_id, null, true);
+												$content[] = $page;
+											}
+										}
+										$contents = $this->combine_by_operator($contents, $content, $operator);
+									}
+									break;
+							}
+							break;
+					}
 				}
 			}
 		}
@@ -278,11 +290,64 @@ class Lens_model extends MY_Model {
     }
     
     public function get_pages_from_content_selector($json) {
-    	
-    	if (isset($json['items'])) {
+
+    	if (isset($json['items']) && !empty($json['items'])) {
     		return $json['items'];
+    	} elseif (isset($json['type']) && 'items-by-type' == $json['type']) {
+    		$content_type = $json['content-type'];
+    		$type = $category = null;
+    		switch ($content_type) {
+    			case 'all':
+    			case 'content':
+    				$model = 'pages';
+    				break;
+    			case 'page':
+    			case 'composite':
+    				$model = 'pages';
+    				$type = 'composite';
+    				break;
+    			case 'file':
+    			case 'media':
+    				$model = 'pages';
+    				$type = 'media';
+    				break;
+    			case 'review':
+    			case 'commentary':
+    			case 'term':
+    				$model = 'pages';
+    				$category = $class;
+    				break;
+    			case 'annotation':
+    			case 'reply':
+    			case 'tag':
+    			case 'path':
+    			case 'reference':
+    				$this->load->helper('inflector');
+    				$this->load->model($content_type.'_model', plural($content_type));
+    				$model = plural($content_type);
+    				break;
+    		}
+    		$content = $this->$model->get_all($this->data['book']->book_id, $type, $category, true, null);
+    		return $content;
     	}
+    	
     	return array();
+    	
+    }
+    
+    public function filter_by_content_selector($content, $component) {
+    	
+    	if (isset($component['content-selector']) && empty($component['content-selector']['items'])) {
+    		$content_type = $component['content-selector']['content-type'];
+    		if ('all' != $content_type) {
+	    		if ('page' == $content_type) $content_type = 'composite';
+	    		foreach ($content as $key => $row) {
+	    			if ($row->type != $content_type) unset($content[$key]);
+	    		}
+    		}
+    	}
+    	
+    	return $content;
     	
     }
 
