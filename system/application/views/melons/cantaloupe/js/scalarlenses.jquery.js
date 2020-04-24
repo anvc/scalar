@@ -1,7 +1,5 @@
 /*!
  * Scalar Lens plugin
- * Author: Michael Morgan
- * Licensed under the MIT license
  */
 
 ;(function ( $, window, document, undefined ) {
@@ -157,6 +155,7 @@
           let button = componentContainer.find('.content-selector-button')
           if (button.length == 0) button = this.addContentSelectorButton(componentContainer, componentIndex);
           this.updateContentSelectorButton(component["content-selector"], button);
+
 
           component.modifiers.forEach((modifier, modifierIndex) => {
             switch (modifier.type) {
@@ -331,12 +330,12 @@
                   '<p class="filter-text">Filler text...Select a filter</p>'+
                   '<div class="filter-counters">'+
                     '<div class="left-badge">'+
-                      '<span class="counter">80</span>'+
+                      '<span class="counter">0</span>'+
                       '<span class="filter-arrow"></span>'+
                     '</div>'+
                     '<div class="right-badge">'+
                       '<span class="filter-arrow"></span>'+
-                      '<span class="counter">20</span>'+
+                      '<span class="counter">0</span>'+
                     '</div>'+
                   '</div>'+
                 '</div>'+
@@ -352,29 +351,23 @@
 
       var me = this
 
+      console.log(me)
 
-      $('#filterModal').on('show.bs.modal', function (event) {
-        let button = $(event.relatedTarget) // Button that triggered the modal
-        console.log(button);
-        var recipient = button.data('whatever') // Extract info from data-* attributes
-        // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
-        // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
-        let modal = $(this);
-        console.log(modal);
-        modal.find('.filter-text').text(button)
-        modal.find('.modal-body input').val(recipient)
-      })
+    //let filterButton =  me.addFilterButton('.filter-button');
+    //
+
+
 
 
 
       element.find('.done').on('click', function(){
-        let filterType = {
-          "type": "items-by-type",
-          "subtype": $('#byType').text().split(/[_\s]/).join("-").toLowerCase()
-        }
-        me.scalarLensObject.components[me.editedComponentIndex].modifiers = filterType
-        //me.updateFilterButton(me.scalarLensObject.components[me.editedComponentIndex]["content-selector"], $(me.element).find('.content-selector-button').eq(me.editedComponentIndex))
-        me.saveLens(me.getLensResults)
+        // let filterType = {
+        //   "type": "items-by-type",
+        //   "subtype": $('#byType').text().split(/[_\s]/).join("-").toLowerCase()
+        // }
+        // //me.scalarLensObject.components[me.editedComponentIndex].modifiers = filterType
+        // //me.updateFilterButton(me.scalarLensObject.components[me.editedComponentIndex]["content-selector"], $(me.element).find('.content-selector-button').eq(me.editedComponentIndex))
+        // //me.saveLens(me.getLensResults)
       });
       return element
 
@@ -578,13 +571,18 @@
       } else {
         componentContainer.find('.filter-button').eq(modifierIndex-1).after(button);
       }
+
       var me = this;
+      console.log(me)
       button.find('li').on('click', function (event) {
         let buttonText = $(this).text();
-        $('.filter-text').text($(this).text());
+
+        $('.filter-text').text('Filter ' + $(this).text());
+
         me.editedComponentIndex = parseInt($(this).parent().parent().data('componentIndex'));
         switch(buttonText) {
             case 'By type...':
+
             break;
 
             case 'By content...':
@@ -717,7 +715,6 @@
 
       }
     }
-
 
 
 

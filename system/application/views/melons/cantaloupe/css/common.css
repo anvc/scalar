@@ -1666,12 +1666,12 @@ body>.annotorious-popup{
 	border-radius: 10px;
 }
 .filter-arrow {
-	background-image:url(../images/arrow_right@2x.png);
-	background-size:cover;
+	background-image:url(../images/right_arrow.png);
+	background-size:100%;
 	background-repeat:no-repeat;
 	background-position:50% 50%;
 	width:50px;
-	height:20px;
+	height:25px;
 }
 .left-badge .filter-arrow {
 	left:30px;
