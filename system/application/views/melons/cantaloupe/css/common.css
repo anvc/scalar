@@ -1694,3 +1694,15 @@ body>.annotorious-popup{
 	max-width:245px;
 	margin:0 auto;
 }
+.filter-modal-container .filter-button {
+    position: absolute;
+    top: 70px;
+    left: 0;
+    right: 0;
+    width: fit-content;
+    margin: 0 auto;
+    text-align: center;
+}
+.filter-modal-container .filter-button .btn .caret {
+	margin-left:3px;
+}

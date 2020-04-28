@@ -107,25 +107,25 @@
 
       /// HTML for Lens default state
       let lensHtml = $(
-        '<div class="paragraph_wrapper">'+
-          '<div class="body_copy">'+
-            '<div class="row lens">'+
-              '<div class="lens-editor">'+
-                '<div class="col-xs-12">'+
-                  '<div class="lens-expand-container" data-toggle="collapse" data-target="">'+
-                    '<div class="lens-icon-wrapper col-xs-1">'+
-                      '<span class="lens-icon"></span>'+
-                    '</div>'+
-                    '<div class="lens-content col-xs-11">'+
-                      '<h3 class="lens-title heading_font heading_weight">(Untitled lens)</h3>' +
-                      '<div class="badge">0</div>'+
-                    '<div class="lens-tags">'+
-                  '</div>'+ //lens-expanded container
-                '</div>'+ // col-12 wrapper
-              '</div>'+ // lens wrapper
-            '</div>'+ // row
-          '</div>'+ // body copy
-        '</div>' // paragraph wrapper
+         `<div class="paragraph_wrapper">
+           <div class="body_copy">
+             <div class="row lens">
+               <div class="lens-editor">
+                 <div class="col-xs-12">
+                   <div class="lens-expand-container" data-toggle="collapse" data-target="">
+                     <div class="lens-icon-wrapper col-xs-1">
+                       <span class="lens-icon"></span>
+                     </div>
+                     <div class="lens-content col-xs-11">
+                       <h3 class="lens-title heading_font heading_weight">(Untitled lens)</h3>
+                       <div class="badge">0</div>
+                     <div class="lens-tags">
+                   </div>
+                 </div>
+               </div>
+             </div>
+           </div>
+         </div>`
       );
 
       lensHtml.find('.lens-tags').append(this.addVisualizationButton());
@@ -253,49 +253,47 @@
     ScalarLenses.prototype.addDistanceModal = function(){
 
       let element = $(
-          // Modal for items by Distance
-          '<div id="modalByDistance" class="modal fade caption_font" role="dialog">'+
-            '<div class="modal-dialog">'+
-              '<div class="modal-content">'+
-                '<div class="modal-body">'+
-                  //'<button type="button" class="close" data-dismiss="modal">&times;</button>'+
-                  '<p>Add any item that is within</p>'+
-                  '<div class="row">'+
-                    '<div class="col-sm-10">'+
-                      '<div class="col-sm-5">'+
-                        '<input id="distanceQuantity" type="text" class="form-control" aria-label="..." placeholder="Enter distance">'+
-                      '</div>'+
-                      '<div class="col-sm-5">'+
-                        '<div class="btn-group">'+
-                          '<button id="distanceUnits" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">'+
-                            'Select unit...<span class="caret"></span></button>'+
-                          '<ul id="distance-dropdown" class="dropdown-menu">'+
-                            '<li><a>miles</a></li>'+
-                            '<li><a>kilometers</a></li>'+
-                          '</ul>'+
-                        '</div>'+ // distance dropdown
-                      '</div>'+
-                    '</div>'+
-                  '</div>'+ // row
-                  '<p>of these coordinates:</p>'+
-                  '<div class="row">'+
-                    '<div class="col-sm-10">'+
-                      '<div class="col-sm-5">'+
-                        '<input id="latitude" type="text" class="form-control" aria-label="..." placeholder="Latitude (decimal)">'+
-                      '</div>'+
-                      '<div class="col-sm-5">'+
-                        '<input id="longitude" type="text" class="form-control" aria-label="..." placeholder="Longitude (decimal)">'+
-                      '</div>'+
-                    '</div>'+
-                  '</div>'+ // row
-                '</div>'+ // modal body
-                '<div class="modal-footer">'+
-                  '<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>'+
-                  '<button id="distanceDone" type="button" class="btn btn-primary done" data-dismiss="modal">Done</button>'+
-              '  </div>'+
-              '</div>'+
-            '</div>'+
-          '</div>'
+           `<div id="modalByDistance" class="modal fade caption_font" role="dialog">
+             <div class="modal-dialog">
+               <div class="modal-content">
+                 <div class="modal-body">
+                   <p>Add any item that is within</p>
+                   <div class="row">
+                     <div class="col-sm-10">
+                       <div class="col-sm-5">
+                         <input id="distanceQuantity" type="text" class="form-control" aria-label="..." placeholder="Enter distance">
+                       </div>
+                       <div class="col-sm-5">
+                         <div class="btn-group">
+                           <button id="distanceUnits" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">'+
+                             Select unit...<span class="caret"></span></button>
+                           <ul id="distance-dropdown" class="dropdown-menu">
+                             <li><a>miles</a></li>
+                             <li><a>kilometers</a></li>
+                           </ul>
+                         </div>
+                       </div>
+                     </div>
+                   </div>
+                   <p>of these coordinates:</p>
+                   <div class="row">
+                     <div class="col-sm-10">
+                       <div class="col-sm-5">
+                         <input id="latitude" type="text" class="form-control" aria-label="..." placeholder="Latitude (decimal)">
+                       </div>
+                       <div class="col-sm-5">
+                         <input id="longitude" type="text" class="form-control" aria-label="..." placeholder="Longitude (decimal)">
+                       </div>
+                     </div>
+                   </div>
+                 </div>
+                 <div class="modal-footer">
+                   <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                   <button id="distanceDone" type="button" class="btn btn-primary done" data-dismiss="modal">Done</button>
+                 </div>
+               </div>
+             </div>
+           </div>`
         )
 
         var me = this
@@ -333,16 +331,16 @@
                   <h4 class="heading_font">Configure filter</h4>
                   <div class="filter-modal-container">
                     <p>Allow any item through that</p>
-                    <div class="btn-group"><button id="" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
+                    <div class="btn-group"><button id="isOrIsNot" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
                         is a<span class="caret"></span></button>
-                      <ul id="content-type-dropdown" class="dropdown-menu">
+                      <ul class="dropdown-menu isOrNot">
                         <li><a>is a</a></li>
                         <li><a>is not a</a></li>
                       </ul>
                     </div>
                     <div class="btn-group"><button id="filterByType" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
                         Select type(s)<span class="caret"></span></button>
-                      <ul id="filter-by-type-dropdown" class="dropdown-menu">
+                      <ul class="dropdown-menu filter-by-type-dropdown">
                         <li><a>All content</a></li>
                         <li><a>Page</a></li>
                         <li><a>Media</a></li>
@@ -376,12 +374,27 @@
 
         var me = this
 
-        // store 'items by type' modal content
-        element.find('filter-by-type-dropdown li').on('click', function(){
+        // store 'Filter by Type' modal content
+        element.find('.isOrNot li').on('click', function(){
+          $('#isOrIsNot').text($(this).text()).append('<span class="caret"></span>')
+        });
+        element.find('.filter-by-type-dropdown li').on('click', function(){
           $('#filterByType').text($(this).text()).append('<span class="caret"></span>')
         });
 
+        // add filter button
+        let componentContainer = $('.filter-modal-container')
+        element.find('.filter-modal-container').prepend(me.addFilterButton(componentContainer))
+
+        element.find('.filter-button .dropdown-menu li').on('click', function(){
+          element.modal('hide')
+        });
+
+        element.find('.filter-button .btn').text('Filter by type').append('<span class="caret"></span>')
+
+
         element.find('.done').on('click', function(){
+
           // let contentSelector = {
           //   "type": "items-by-type",
           //   "content-type": $('#byType').text().split(/[_\s]/).join("-").toLowerCase()
@@ -407,7 +420,7 @@
                     <div class="row">
                       <div class="btn-group"><button id="filterByContent" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
                           includes<span class="caret"></span></button>
-                        <ul id="content-type-dropdown" class="dropdown-menu">
+                        <ul class="dropdown-menu filter-by-content">
                           <li><a>includes</a></li>
                           <li><a>does not include</a></li>
                         </ul>
@@ -438,6 +451,28 @@
           </div>
 
           `)
+
+          var me = this
+
+          // store 'Filter by Type' modal content
+          element.find('.filter-by-content li').on('click', function(){
+            $('#filterByContent').text($(this).text()).append('<span class="caret"></span>')
+          });
+
+          // add filter button
+          let componentContainer = $('.filter-modal-container')
+          element.find('.filter-modal-container').prepend(me.addFilterButton(componentContainer))
+
+          element.find('.filter-button .dropdown-menu li').on('click', function(){
+            element.modal('hide')
+          });
+          element.find('.filter-button .btn').text('Filter by content').append('<span class="caret"></span>')
+
+
+
+
+
+
           return element
 
       }
@@ -451,9 +486,9 @@
                   <h4 class="heading_font">Configure filter</h4>
                   <div class="filter-modal-container">
                   <p>Add any item that is an</p>
-                    <div class="btn-group"><button id="filterByRelationship" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
+                    <div class="btn-group"><button id="filterByRelationshipType" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
                         Select type..<span class="caret"></span></button>
-                      <ul id="content-type-dropdown" class="dropdown-menu">
+                      <ul class="dropdown-menu relationship-type-dropdown">
                         <li><a>All types</a></li>
                         <li><a>annotation</a></li>
                         <li><a>comment</a></li>
@@ -464,7 +499,7 @@
                     </div>
                     <div class="btn-group"><button id="filterByRelationship" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
                         Select relationship...<span class="caret"></span></button>
-                      <ul id="content-type-dropdown" class="dropdown-menu">
+                      <ul class="dropdown-menu relationship-dropdown">
                         <li><a>(any relationship)</a></li>
                         <li><a>parent</a></li>
                         <li><a>child</a></li>
@@ -491,6 +526,27 @@
             </div>
           </div>
           `)
+
+          var me = this
+
+          // store 'Filter by Relationship' modal content
+          element.find('.relationship-type-dropdown li').on('click', function(){
+            $('#filterByRelationshipType').text($(this).text()).append('<span class="caret"></span>')
+          });
+          element.find('.relationship-dropdown li').on('click', function(){
+            $('#filterByRelationship').text($(this).text()).append('<span class="caret"></span>')
+          });
+
+          // add filter button
+          let componentContainer = $('.filter-modal-container')
+          element.find('.filter-modal-container').prepend(me.addFilterButton(componentContainer))
+          // hides previous modal
+          element.find('.filter-button .dropdown-menu li').on('click', function(){
+            element.modal('hide')
+          });
+          element.find('.filter-button .btn').text('Filter by relationship').append('<span class="caret"></span>')
+
+
           return element
       }
       // filter By Distance modal
@@ -506,9 +562,9 @@
                      <div class="row filterByDistance">
                        <input id="" type="text" class="form-control" aria-label="..." placeholder="Enter distance" style="max-width:120px;float:left;">
                        <div class="btn-group">
-                         <button id="" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
+                         <button id="filterByDistance" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
                            Select unit...<span class="caret"></span></button>
-                         <ul id="distance-dropdown" class="dropdown-menu">
+                         <ul class="dropdown-menu distance-dropdown">
                            <li><a>miles</a></li>
                            <li><a>kilometers</a></li>
                          </ul>
@@ -534,6 +590,24 @@
             </div>
           </div>
           `)
+
+          var me = this
+          // store 'Filter by Distance' modal content
+          element.find('.distance-dropdown li').on('click', function(){
+            $('#filterByDistance').text($(this).text()).append('<span class="caret"></span>')
+          });
+
+
+          // add filter button
+          let componentContainer = $('.filter-modal-container')
+          element.find('.filter-modal-container').prepend(me.addFilterButton(componentContainer))
+
+          // hides previous modal
+          element.find('.filter-button .dropdown-menu li').on('click', function(){
+            element.modal('hide')
+          });
+          element.find('.filter-button .btn').text('Filter by distance').append('<span class="caret"></span>')
+
         return element
 
       }
@@ -571,6 +645,23 @@
             </div>
           </div>
           `)
+
+          var me = this
+
+          // add filter button
+          let componentContainer = $('.filter-modal-container')
+          element.find('.filter-modal-container').prepend(me.addFilterButton(componentContainer))
+
+          // hides previous modal
+          element.find('.filter-button .dropdown-menu li').on('click', function(){
+            element.modal('hide')
+          });
+          element.find('.filter-button .btn').text('Filter by quantity').append('<span class="caret"></span>')
+
+
+
+
+
         return element
 
       }
@@ -585,9 +676,9 @@
                   <div class="filter-modal-container">
                   <p>Allow any item through that</p>
                     <div class="row">
-                      <div class="btn-group"><button id="filterByContent" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
+                      <div class="btn-group"><button id="includeOrNot" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
                           includes<span class="caret"></span></button>
-                        <ul id="content-type-dropdown" class="dropdown-menu">
+                        <ul class="dropdown-menu includeOrNot-dropdown">
                           <li><a>includes</a></li>
                           <li><a>does not include</a></li>
                         </ul>
@@ -599,17 +690,17 @@
                     </div>
                     <div class="row" style="margin-top:10px;">
                     <span style="margin-left:10px;vertical-align:middle;"> in this metadata field</span>
-                      <div class="btn-group"><button id="filterByContent" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
+                      <div class="btn-group"><button id="metaDataSource" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
                           Select field...<span class="caret"></span></button>
-                        <ul id="content-type-dropdown" class="dropdown-menu">
+                        <ul class="dropdown-menu metaDataSource">
                           <li><a>Item 1</a></li>
                           <li><a>Item 2</a></li>
                         </ul>
                       </div>
                       <div class="row" style="margin-top:10px;">
-                      <div class="btn-group"><button id="filterByContent" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
+                      <div class="btn-group"><button id="role" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
                           Select field...<span class="caret"></span></button>
-                        <ul id="content-type-dropdown" class="dropdown-menu">
+                        <ul class="dropdown-menu role-dropdown">
                           <li><a>Item 1</a></li>
                           <li><a>Item 2</a></li>
                         </ul>
@@ -635,6 +726,30 @@
             </div>
           </div>
           `)
+
+          var me = this
+
+          element.find('.includeOrNot-dropdown li').on('click', function(){
+            $('#includeOrNot').text($(this).text()).append('<span class="caret"></span>')
+          });
+          element.find('.metaDataSource li').on('click', function(){
+            $('#metaDataSource').text($(this).text()).append('<span class="caret"></span>')
+          });
+          element.find('.role-dropdown li').on('click', function(){
+            $('#role').text($(this).text()).append('<span class="caret"></span>')
+          });
+
+
+          // add filter button
+          let componentContainer = $('.filter-modal-container')
+          element.find('.filter-modal-container').prepend(me.addFilterButton(componentContainer))
+
+          // hides previous modal
+          element.find('.filter-button .dropdown-menu li').on('click', function(){
+            element.modal('hide')
+          });
+          element.find('.filter-button .btn').text('Filter by metadata').append('<span class="caret"></span>')
+
         return element
 
       }
@@ -651,9 +766,9 @@
                      <div class="row limitRow">
                        <input id="" type="text" class="form-control" aria-label="..." placeholder="Enter quantity" style="max-width:120px;float:left;">
                        <div class="btn-group">
-                         <button id="" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
+                         <button id="distanceFilter" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
                            Select unit...<span class="caret"></span></button>
-                         <ul id="distance-dropdown" class="dropdown-menu">
+                         <ul class="dropdown-menu distance-dropdown">
                            <li><a>hours</a></li>
                            <li><a>minutes</a></li>
                          </ul>
@@ -662,9 +777,9 @@
                       <div class="row limitRow" style="margin-top:10px;">
                       <span>of</span>
                        <div class="btn-group">
-                         <button id="" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
+                         <button id="timeFilter" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
                            now<span class="caret"></span></button>
-                         <ul id="distance-dropdown" class="dropdown-menu">
+                         <ul class="dropdown-menu time-dropdown">
                            <li><a>Item 1</a></li>
                            <li><a>Item 2</a></li>
                          </ul>
@@ -691,6 +806,27 @@
             </div>
           </div>
           `)
+
+          var me = this
+
+          element.find('.distance-dropdown li').on('click', function(){
+            $('#distanceFilter').text($(this).text()).append('<span class="caret"></span>')
+          });
+          element.find('.time-dropdown li').on('click', function(){
+            $('#timeFilter').text($(this).text()).append('<span class="caret"></span>')
+          });
+
+
+          // add filter button
+          let componentContainer = $('.filter-modal-container')
+          element.find('.filter-modal-container').prepend(me.addFilterButton(componentContainer))
+
+          // hides previous modal
+          element.find('.filter-button .dropdown-menu li').on('click', function(){
+            element.modal('hide')
+          });
+          element.find('.filter-button .btn').text('Filter by visit date').append('<span class="caret"></span>')
+
         return element
 
       }
@@ -905,19 +1041,10 @@
 
       var me = this;
 
-      let filterModalContent;
-
-
 
       button.find('li').on('click', function (event) {
 
         let buttonText = $(this).text();
-
-
-
-        $('.filter-text').text('Filter ' + $(this).text());
-
-
 
         me.editedComponentIndex = parseInt($(this).parent().parent().data('componentIndex'));
 
@@ -960,7 +1087,31 @@
         button.text('Filter items...').append('<span class="caret"></span>');
       } else {
 
-        let filterType;
+        let type = filterObj.subtype;
+
+        switch(type) {
+
+            case 'type':
+            break;
+
+            case 'content':
+            break;
+
+            case 'relationship':
+            break;
+
+            case 'distance':
+            break;
+
+            case 'quantity':
+            break;
+
+            case 'metadata':
+            break;
+
+            case 'visit date':
+            break;
+        }
       }
   };
 
