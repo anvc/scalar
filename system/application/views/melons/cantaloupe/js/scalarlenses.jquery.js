@@ -359,9 +359,9 @@
 
     var me = this
 
-    let componentContainer = $('.filter-modal-content')
-    element.find('.filter-modal-content').prepend(me.addFilterButton(componentContainer))
-    element.find('filter-button .btn').text('Hello')
+    let componentContainer = $('.filter-modal-container')
+    element.find('.filter-modal-container').prepend(me.addFilterButton(componentContainer))
+
 
     // saves values
     element.find('.done').on('click', function(){
@@ -597,8 +597,8 @@
         });
 
         // add filter button
-        let componentContainer = $('.filter-modal-content')
-        element.find('.filter-modal-content').prepend(me.addFilterButton(componentContainer))
+        // let componentContainer = $('.filter-modal-content')
+        // element.find('.filter-modal-content').prepend(me.addFilterButton(componentContainer))
 
         // closes current modal if another selection is made
         // element.find('.filter-button .dropdown-menu li').on('click', function(){
@@ -651,10 +651,6 @@
 
 
 
-
-          element.find('.filter-button .btn').text('Filter by content').append('<span class="caret"></span>')
-
-
           return element
 
       }
@@ -702,7 +698,7 @@
           // element.find('.filter-button .dropdown-menu li').on('click', function(){
           //   element.modal('hide')
           // });
-          //element.find('.filter-button .btn').text('Filter by relationship').append('<span class="caret"></span>')
+
 
 
           return element
