@@ -325,3 +325,5 @@ div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }
     padding-right: 20px;
     box-sizing: content-box;
 }
+
+.mirador-window header { padding:0px }
