@@ -722,10 +722,11 @@ class Book_model extends MY_Model {
 				if (false === $storage->transferTo($array['slug'])) {
 					throw new Exception('The destination folder already exists or the source folder doesn\'t exist.');
 				}
-
+				
 				// Update hard URLs in version contet + thumbnail and background fields
-				$old = confirm_slash(base_url()).confirm_slash($slug);
-				$new = confirm_slash(base_url()).confirm_slash($array['slug']);
+				$media_url = $this->config->item('media_url') ? $this->config->item('media_url') : base_url();
+				$old = confirm_slash($media_url).confirm_slash($slug);
+				$new = confirm_slash($media_url).confirm_slash($array['slug']);
 				// List of versions for this book
 				$this->db->select($this->versions_table.'.version_id');
 				$this->db->from($this->versions_table);
@@ -749,12 +750,18 @@ class Book_model extends MY_Model {
 					$result = $query->result();
 					foreach ($result as $row) $book_page_ids[] = $row->content_id;
 				}
+				
 				// Run the rewrites
-				$query = $this->db->query("UPDATE ".$dbprefix.$this->versions_table." SET content = replace(content, ".$this->db->escape($old).", ".$this->db->escape($new).") WHERE version_id IN (".implode(',',$book_version_ids).")");
-				$query = $this->db->query("UPDATE ".$dbprefix.$this->pages_table." SET thumbnail = replace(thumbnail, ".$this->db->escape($old).", ".$this->db->escape($new).") WHERE content_id IN (".implode(',',$book_page_ids).")");
-				$query = $this->db->query("UPDATE ".$dbprefix.$this->pages_table." SET background = replace(background, ".$this->db->escape($old).", ".$this->db->escape($new).") WHERE content_id IN (".implode(',',$book_page_ids).")");
-			}
+				$replace_old_new = $this->db->escape($old).', '.$this->db->escape($new);
+				$query = $this->db->query("UPDATE ".$dbprefix.$this->versions_table." SET content = REPLACE(content, $replace_old_new), url = REPLACE(url, $replace_old_new) WHERE version_id IN (".implode(',',$book_version_ids).")");
+				$query = $this->db->query("UPDATE ".$dbprefix.$this->pages_table." SET thumbnail = REPLACE(thumbnail, $replace_old_new), background = REPLACE(background, $replace_old_new), banner = REPLACE(banner, $replace_old_new) WHERE content_id IN (".implode(',',$book_page_ids).")");
+				$query = $this->db->query("UPDATE ".$dbprefix.$this->books_table." SET thumbnail = REPLACE(thumbnail, $replace_old_new), publisher_thumbnail = REPLACE(publisher_thumbnail, $replace_old_new) WHERE book_id = $book_id");
 
+				// Preserve the book property rewrites
+				unset($array['thumbnail']);
+				unset($array['publisher_thumbnail']); 
+			}
+			
 	    }
 
 		// File -- save thumbnail

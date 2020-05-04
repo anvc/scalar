@@ -255,7 +255,7 @@ class User_model extends MY_Model {
     public function get_by_email_and_reset_string($email='', $reset_string='') {
 
     	if (empty($email) || empty($reset_string)) return false;
-    	
+
     	$this->db->select('*');
     	$this->db->from($this->users_table);
     	$this->db->where($this->users_table.'.email', $email);
@@ -268,7 +268,6 @@ class User_model extends MY_Model {
     }
 
     public function get_by_fullname($fullname='') {
-
      	$this->db->select('*');
     	$this->db->from($this->users_table);
     	$this->db->where('fullname', $fullname);
@@ -277,6 +276,19 @@ class User_model extends MY_Model {
     	return $query->result();  	// Could be more than one
 
     }
+
+		public function get_by_name_or_email($sq='', $limit=NULL) {
+			$this->db->select('user_id, fullname, email');
+			$this->db->from($this->users_table);
+			$this->db->like('fullname', $sq);
+			$this->db->or_like('email', $sq);
+			if ($limit){
+				$this->db->limit($limit);
+			}
+			$query = $this->db->get();
+			if ($query->num_rows == 0) return false;
+    	return $query->result();  	// Could be more than one
+		}
 
     public function email_exists_for_different_user($email='', $user_id=0) {
 
@@ -475,7 +487,7 @@ class User_model extends MY_Model {
 		// ReCAPTCHA version 2
 		$recaptcha2_site_key = $this->config->item('recaptcha2_site_key');
 		$recaptcha2_secret_key = $this->config->item('recaptcha2_secret_key');
-		if (empty($recaptcha2_site_key)||empty($recaptcha2_secret_key)) $recaptcha2_site_key = $recaptcha2_secret_key = null;	    	
+		if (empty($recaptcha2_site_key)||empty($recaptcha2_secret_key)) $recaptcha2_site_key = $recaptcha2_secret_key = null;
     	// Choose one or the other
     	if (!empty($recaptcha2_site_key)) {
     		require_once(APPPATH.'libraries/recaptcha2/autoload.php');
@@ -487,7 +499,7 @@ class User_model extends MY_Model {
 		if (empty($array['password'])) throw new Exception('Password is a required field');
 		if (empty($array['password_2'])) throw new Exception('Confirm password is a required field');
 		if ($array['password'] != $array['password_2']) throw new Exception('Password and confirm password do not match');
-		
+
 		if (!empty($recaptcha2_site_key)) {
 			if (!isset($_POST['g-recaptcha-response'])) throw new Exception('Invalid ReCAPTCHA form field');
 			$recaptcha = new \ReCaptcha\ReCaptcha($recaptcha2_secret_key);
@@ -507,7 +519,7 @@ class User_model extends MY_Model {
 			$resp = recaptcha_check_answer($recaptcha_private_key, $_SERVER["REMOTE_ADDR"], $array["recaptcha_challenge_field"], $array["recaptcha_response_field"]);
 			if (!$resp->is_valid) throw new Exception ('Incorrect CAPTCHA value');
 		}
-		
+
 		return $this->add($array);
 
     }

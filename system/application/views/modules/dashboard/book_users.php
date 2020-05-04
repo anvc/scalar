@@ -20,34 +20,6 @@
     		$('.table_wrapper').height(Math.max(200, $(window).height() - ($('.table_wrapper').offset().top + 72))+'px'); // magic number to get list height right
 		}
 
-		function add_book_user(book_id) {
-			if ('undefined'==typeof(book_id) || book_id==0) return alert('Please select a book');
-			var prev_text = $('#connect_book_user_link').html();
-			//$('#connect_book_user_link').html('Loading...');
-			$.get('api/get_system_users', function(data) {
-				$('.select_box').remove();
-				var $div = $('<div class="select_box"><h4 class="dialog_title">Add a user (admin)</h4>Connect a user by clicking their name below<br />(New accounts are added by system administrators)<br clear="both" /><br /><div id="user_list" style="height:200px;overflow:auto;line-height:150%;"></div><br /><a class="generic_button large" href="javascript:;" onclick="$(this).parent().remove();" style="float:right;">Cancel</a></div>');
-				$('body').append($div);
-				$user_list = $div.find('#user_list');
-				for (var j = 0; j < data.length; j++) {
-					var fullname = (data[j].fullname.length > 0) ? data[j].fullname : '(Missing name)';
-					var $link = $('<div><a href="javascript:;" title="'+data[j].user_id+'">'+fullname+'</a></div>');
-					$user_list.append($link);
-
-				}
-				$div.css('left', ((parseInt($(window).width())/2) - ($div.width()/2) + 'px') );
-				$div.css('top', ((parseInt($(window).height())/2) - ($div.height()/2) + parseInt($(window).scrollTop()) + 'px') );
-				$div.show();
-				$('#connect_book_user_link').html(prev_text);
-				$div.find('a').on('click', function() {
-					var $clicked = $(this);
-					var user_id = parseInt($clicked.attr('title'));
-					$.get('api/save_user_books', {id:user_id, selected_ids:[book_id], list_in_index:0}, function() {
-						window.location.reload();
-					});
-				});
-			});
-		}
 		function remove_book_user(book_id, user_id) {
 			if ('undefined'==typeof(book_id) || book_id==0) return alert('Please select a book');
 			if ('undefined'==typeof(user_id) || user_id==0) return alert('Invalid user ID');
@@ -55,6 +27,22 @@
 				window.location.reload();
 			});
 		}
+
+		function debounce(func, wait, immediate) {
+	        let timeout;
+	        return function() {
+		        let context = this, args = arguments;
+		        const later = function() {
+			        timeout = null;
+			        if (!immediate) func.apply(context, args);
+		        };
+		        const callNow = immediate && !timeout;
+		        clearTimeout(timeout);
+		        timeout = setTimeout(later, wait);
+		        if (callNow) func.apply(context, args);
+	        };
+        };
+		
 		function request_book_user(book_id) {
 				var $div = $('<div class="select_box"><h4 class="dialog_title">Add a user</h4>To connect a user to your book, first search for them by their full name.<br clear="both" /><br /><form><input class="generic_text_input" style="float:left;" type="text" name="fullname" value="Full name" /><input class="generic_button" style="float:left; margin-left:8px;" type="submit" value="Search" /><br clear="both" /></form><div class="results" style="padding-top:16px;padding-bottom:10px;"></div><a class="generic_button large" href="javascript:;" onclick="$(this).parent().remove();" style="float:right;font-size:larger;">Cancel</a></div>');
 				$div.find('input:first').on('focus', function() {if ($(this).val() == 'Full name') $(this).val('');});
@@ -93,6 +81,73 @@
 				$div.show();
 
 		}
+
+		function add_book_users(book_id) {
+		  let bookUserIDs = Array.prototype.map
+			  .call(document.querySelectorAll("[property='id']"), row => row.innerHTML);
+	      const showEmail = <?php echo $this->config->item('show_email_in_search') ? 'true' : 'false'; ?>;
+
+		  let $div = $('<div class="select_box add_book_user_select_box"><h4 class="dialog_title">Add a user</h4>To connect a user to your book, first search for them by their name or email.<br clear="both" /><br /><form><input class="generic_text_input" style="float:left;" type="text" name="searchValue" value="" /><br clear="both" /></form><div class="results" style="padding-top:16px;padding-bottom:10px;"></div><a class="generic_button large" href="javascript:;" onclick="window.location.reload();" style="float:right;font-size:larger;">Close</a></div>');
+		  $('body').append($div);
+
+			$(document).on('mouseup', function (e) { // if the user clicks away from the dialog, reload the page.
+                if ($(e.target).parents(".add_book_user_select_box").length === 0 && !($(e.target).hasClass("add_book_user_select_box"))) {
+                    window.location.reload();
+                }
+            });
+
+			$div.find('.generic_text_input').on('keyup', debounce(function() {
+				let sq = this.value;
+				if (sq.trim() !== "" && sq.trim().length > 1) { // dont search on empty, nor just spaces, nor anything less than 2 chars
+					$.get('api/get_system_users_by_name_or_email', {sq:sq}, function(data) {
+						if (!data.length) {
+							$div.find('.results').html('No users were found.');
+							return false;
+						}
+						$div.find('.results').html('<div style="padding-bottom:10px;">Please select a user below to link them to your book:</div>');
+						data.forEach( (u)=> {
+							let row = $('<div style="padding-bottom:.68em;"></div>');
+							let link = $('<a href="javascript:void(null);">'+u.fullname+'</a>');
+							row.append(link);
+							link.data('user_id', u.user_id);
+							if (showEmail) {
+								let email = $('<span>  --  '+u.email+'</span>');
+								row.append(email);
+							}
+							$div.find('.results').append(row);
+							row.append("<span class='animator'></span>");
+							if (bookUserIDs.indexOf(u.user_id) >= 0) {
+								row.find('.animator').addClass('check');
+							}
+						});
+						$div.find('a').on('click', function() {
+							let user_id = parseInt($(this).data('user_id'));
+							let item = $(this);
+							 if (!item.hasClass('generic_button') && bookUserIDs.indexOf(String(user_id)) < 0){
+								item.parent().find('.animator').addClass('spinner');
+								$.get('api/save_user_books', {id:user_id, selected_ids:[book_id], list_in_index:0}, function() {
+									setTimeout(function() {
+										item.parent().find('.animator').removeClass('spinner');
+										item.parent().find('.animator').addClass('check');
+										bookUserIDs.push(String(user_id));
+									}, 500);
+								});
+							}
+							return false;
+						});
+					});
+				}
+				else if ($div.find('.results').length > 0) {
+					 $div.find('.results').html('');
+				}
+				return false;
+			}, 350));
+
+			$div.css('left', ((parseInt($(window).width())/2) - ($div.width()/2) + 'px') );
+			$div.css('top', ((parseInt($(window).height())/2) - ($div.height()/2) + parseInt($(window).scrollTop()) + 'px') );
+			$div.show();
+		}
+
 		function user_get_contributions(user_id, the_link) {
 			var $the_link = $(the_link);
 			var book_id = $('select[name="book_id"] :selected').val();
@@ -158,7 +213,7 @@
 	else:
 ?>
 		<div class="table_wrapper">
-		<table cellspacing="0" cellpadding="0" style="width:100%;" class="tablesorter">
+		<table cellspacing="0" cellpadding="0" style="width:100%;" class="tablesorter" id="user-table">
 		<thead>
 			<tr class="head">
 				<th></th>
@@ -196,7 +251,7 @@
 		</div>
 		<div style="padding:20px 0 6px 0">
 			<? if (!empty($book) && $login_is_super): ?>
-			<a class="generic_button large" title="Super admin feature" href="javascript:void(null);" onclick="add_book_user(<?=$book->book_id?>);" id="connect_book_user_link">Add a user (admin)</a>
+			<a class="generic_button large" title="Super admin feature" href="javascript:void(null);" onclick="add_book_users(<?=$book->book_id?>);" id="connect_book_user_link">Add a user (admin)</a>
 			<? endif ?>
 			<a class="generic_button large" href="javascript:void(null);" onclick="request_book_user(<?=$book->book_id?>)" id="request_book_user_link">Add a user</a>
 		</div>
