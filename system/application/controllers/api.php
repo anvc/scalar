@@ -500,6 +500,13 @@ Class Api extends CI_Controller {
 		$save['slug'] =@ $this->data['scalar:slug'];
 		$arr = explode('#', $this->data['rdf:type']);  // Avoid E_STRICT pass by reference warning
 		$save['type'] = strtolower(array_pop($arr));
+		
+		if (strpos($this->data['scalar:url'], '?iiif-manifest=1') > -1){
+			$thumb = $this->_get_IIIF_metadata($this->data['scalar:url']);
+			if($thumb){
+				$this->data['scalar:thumbnail'] = $thumb;
+			}
+		}
 
 		foreach($this->content_metadata as $idx){
 			if(isset($this->data['scalar:metadata:'.$idx])) $save[$idx] = $this->data['scalar:metadata:'.$idx];  // TODO: remove me after migration
@@ -525,6 +532,13 @@ Class Api extends CI_Controller {
 		$save['id'] = $ver->content_id;
 		$arr = explode('#', $this->data['rdf:type']);  // Avoid E_STRICT pass by reference warning
 		$save['type'] =@ strtolower(array_pop($arr));
+		
+		if (strpos($this->data['scalar:url'], '?iiif-manifest=1') > -1){
+			$thumb = $this->_get_IIIF_metadata($this->data['scalar:url']);
+			if($thumb){
+				$this->data['scalar:thumbnail'] = $thumb;
+			}
+		}
 
 		foreach($this->content_metadata as $idx){
 			 if(isset($this->data['scalar:metadata:'.$idx])) $save[$idx] = $this->data['scalar:metadata:'.$idx];  // TODO: remove me after migration
@@ -537,6 +551,25 @@ Class Api extends CI_Controller {
 		if(isset($save['slug']) && empty($save['slug'])) unset($save['slug']);
 
 		return $save;
+	}
+	
+	/**
+	* _get_IIIF_metadata takes IIIF manifest url, and returns thumbnail url if one is defined
+	* @return string
+	*/
+	private function _get_IIIF_metadata($url=''){
+		if ($url !== ''){
+			$ch = curl_init();
+			curl_setopt($ch, CURLOPT_URL, $url);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+			$response = curl_exec($ch);
+			curl_close($ch);
+			$response_json = json_decode($response, true);
+			if ($response_json['thumbnail']){
+				return $response_json['thumbnail']['@id'];
+			}
+		}
+		return false;
 	}
 
 	/**
