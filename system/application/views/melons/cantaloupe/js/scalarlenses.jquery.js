@@ -132,13 +132,6 @@
       lensHtml.append(this.addContentTypeModal());
       lensHtml.append(this.addDistanceModal());
       lensHtml.append(this.addFilterModal());
-      // lensHtml.append(this.addFilterModalByType());
-      // lensHtml.append(this.addFilterModalByContent());
-      // lensHtml.append(this.addRelationshipFilterForm());
-      // lensHtml.append(this.addDistanceFilterForm());
-      // lensHtml.append(this.addQuantityFilterForm());
-      // lensHtml.append(this.addMetadataFilterForm());
-      // lensHtml.append(this.addVisitDateFilterForm());
       $(this.element).append(lensHtml);
       this.buttonContainer = $(this.element).find('.lens-tags').eq(0);
     }
@@ -478,41 +471,40 @@
             break;
 
             case 'relationship':
-              let relationshipContentTypes = filterObj["content-types"][0];
-              let relationshipType = filterObj.relationship;
-              let pluralContent = scalarapi.model.scalarTypes[relationshipContentTypes].plural;
-              buttonText = `items  `;
+              let relationshipContentTypes = filterObj["content-types"];
+              console.log(relationshipContentTypes);
 
+              let relationshipType = filterObj.relationship;
 
               if(relationshipContentTypes == 'all-types' && relationshipType == 'parent') {
-                buttonText += 'that are parents of';
+                buttonText = 'that are parents of';
               }
               if(relationshipContentTypes == 'all-types' && relationshipType == 'child') {
-                buttonText += 'that are children of';
+                buttonText = 'that are children of';
               }
               if(relationshipContentTypes == 'path' && relationshipType == 'parent') {
-                buttonText += 'that contain';
+                buttonText = 'that contain';
               }
               if(relationshipContentTypes == 'path' && relationshipType == 'child') {
-                buttonText += 'that are contained by';
+                buttonText = 'that are contained by';
               }
               if(relationshipContentTypes == 'tag' && relationshipType == 'parent') {
-                buttonText += 'that tag ';
+                buttonText = 'that tag ';
               }
               if(relationshipContentTypes == 'tag' && relationshipType == 'child') {
-                buttonText += 'that are tagged by ';
+                buttonText = 'that are tagged by ';
               }
               if(relationshipContentTypes == 'annotation' && relationshipType == 'parent') {
-                buttonText += 'that annotate ';
+                buttonText = 'that annotate ';
               }
               if(relationshipContentTypes == 'annotation' && relationshipType == 'child') {
-                buttonText += 'that are annotated by';
+                buttonText = 'that are annotated by';
               }
               if(relationshipContentTypes == 'comment' && relationshipType == 'parent') {
-                buttonText += 'that comment on';
+                buttonText = 'that comment on';
               }
               if(relationshipContentTypes == 'comment' && relationshipType == 'child') {
-                buttonText += 'that are commented on by';
+                buttonText = 'that are commented on by';
               }
 
             break;
@@ -765,8 +757,8 @@
             filterObj = {
               "type":"filter",
               "subtype":"relationship",
-              "content-types": [$('#relationship-content-button').text().split(/[_\s]/).join("-").toLowerCase()],
-              "relationship": $('#relationship-type-button').text()
+              "content-types": [$('#relationship-content-button').data('option').value],
+              "relationship": $('#relationship-type-button').data('option').value
             }
           break;
           case 'distance':
@@ -1030,7 +1022,7 @@
 
       let element = $(`
         <div class="filterByRelationship">
-          <p>Add any item that is an</p>
+          <p>Add any items that are</p>
           <div class="btn-group"><button type="button" id="relationship-content-button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
               Select type..<span class="caret"></span></button>
             <ul id="relationship-content-list" class="dropdown-menu"></ul>
@@ -1048,7 +1040,6 @@
         let me = this;
         let onClick = function() { me.updateRelationshipFilterForm(); };
 
-
         this.populateDropdown($('#relationship-content-button'), $('#relationship-content-list'), filterObj['content-types'], onClick,
           '<li><a></a></li>',
           [
@@ -1059,15 +1050,12 @@
             {label: "comment", value: "comment"}
           ]);
 
-
           this.populateDropdown($('#relationship-type-button'), $('#relationship-type-list'), filterObj.relationship, onClick,
             '<li><a></a></li>',
             [
-              {label: "parent", value: "parent"},
-              {label: "child", value: "child"}
+              {label: "parents", value: "parent"},
+              {label: "children", value: "child"}
             ]);
-
-
 
         return element
     }
@@ -1100,34 +1088,34 @@
       // update human-readable-text
       let humanReadableText = $('.human-readable-relationship');
 
-      if(relationshipContent == '(all types)' && relationshipType == 'parent') {
+      if(relationshipContent == '(all types)' && relationshipType == 'parents') {
         humanReadableText.text('that are parents of');
       }
-      if(relationshipContent == '(all types)' && relationshipType == 'child') {
+      if(relationshipContent == '(all types)' && relationshipType == 'children') {
         humanReadableText.text('that are children of');
       }
-      if(relationshipContent == 'path' && relationshipType == 'parent') {
+      if(relationshipContent == 'path' && relationshipType == 'parents') {
         humanReadableText.text('that contain');
       }
-      if(relationshipContent == 'path' && relationshipType == 'child') {
+      if(relationshipContent == 'path' && relationshipType == 'children') {
         humanReadableText.text('that are contained by');
       }
-      if(relationshipContent == 'tag' && relationshipType == 'parent') {
+      if(relationshipContent == 'tag' && relationshipType == 'parents') {
         humanReadableText.text('that tag');
       }
-      if(relationshipContent == 'tag' && relationshipType == 'child') {
+      if(relationshipContent == 'tag' && relationshipType == 'children') {
         humanReadableText.text('that are tagged by');
       }
-      if(relationshipContent == 'annotation' && relationshipType == 'parent') {
+      if(relationshipContent == 'annotation' && relationshipType == 'parents') {
         humanReadableText.text('that annotates');
       }
-      if(relationshipContent == 'annotation' && relationshipType == 'child') {
+      if(relationshipContent == 'annotation' && relationshipType == 'children') {
         humanReadableText.text('that are annotated by');
       }
-      if(relationshipContent == 'comment' && relationshipType == 'parent') {
+      if(relationshipContent == 'comment' && relationshipType == 'parents') {
         humanReadableText.text('that comment on');
       }
-      if(relationshipContent == 'comment' && relationshipType == 'child') {
+      if(relationshipContent == 'comment' && relationshipType == 'children') {
         humanReadableText.text('that are commented on');
       }
 
@@ -1137,45 +1125,60 @@
 
     }
 
-    // filter modal by distance
-    ScalarLenses.prototype.addDistanceFilterForm = function(){
+    // add distance filter form
+    ScalarLenses.prototype.addDistanceFilterForm = function(container, filterObj){
+
+      container.empty();
+
       let element = $(`
         <div class="filterByDistance">
           <p>Add any item that is within</p>
            <div class="row filterByDistance">
-             <input type="text" class="form-control filterDistanceQuantity" aria-label="..." placeholder="Enter distance" style="max-width:120px;float:left;">
+             <input type="text" id="distanceFilterQuantity" class="form-control" aria-label="..." placeholder="Enter distance" style="max-width:120px;float:left;">
              <div class="btn-group">
-               <button type="button" class="btn btn-default btn-md dropdown-toggle filterDistanceUnits" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
+               <button type="button" id="distance-units-button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
                  Select unit...<span class="caret"></span></button>
-               <ul class="dropdown-menu distance-dropdown">
-                 <li><a>miles</a></li>
-                 <li><a>kilometers</a></li>
-               </ul>
+               <ul id="distance-units-dropdown" class="dropdown-menu"></ul>
              </div>
            </div>
         </div>
-        `)
+        `).appendTo(container);
 
-        var me = this
-        // store 'Filter by Distance' modal content
-        element.find('.distance-dropdown li').on('click', function(){
-          $('.filterDistanceUnits').text($(this).text()).append('<span class="caret"></span>')
-        });
+        if (!filterObj) filterObj = this.getDefaultFilter('distance');
+        let me = this;
+        let onClick = function() { me.updateDistanceFilterForm(); };
+
+        $('#distanceFilterQuantity').val(filterObj.quantity)
+
+        this.populateDropdown($('#distance-units-button'), $('#distance-units-dropdown'), filterObj.units, onClick,
+          '<li><a></a></li>',
+          [
+            {label: "miles", value: "miles"},
+            {label: "kilometers", value: "kilometers"}
+          ]);
 
 
-        // // add filter button
-        // let componentContainer = $('.filter-modal-container')
-        // element.find('.filter-modal-container').prepend(me.addFilterButton(componentContainer))
+        return element
 
-        // hides previous modal
-        // element.find('.filter-button .dropdown-menu li').on('click', function(){
-        //   element.modal('hide')
-        // });
-        element.find('.filter-button .btn').text('Filter by distance').append('<span class="caret"></span>')
 
-      return element
 
     }
+    // update distance filter form
+    ScalarLenses.prototype.updateDistanceFilterForm = function(){
+
+      let option;
+
+      // update distance units menu
+      let distanceUnitsButton = $('#distance-units-button');
+      option = distanceUnitsButton.data('option');
+      if (!option) { // if nothing selected yet, create a placeholder option
+        option = {label: 'Select unit(s)', value: null};
+      }
+      distanceUnitsButton.text(option.label).append('<span class="caret"></span>');
+      let relationshipContent = distanceUnitsButton.text();
+
+    }
+
     // filter modal by quantity
     ScalarLenses.prototype.addQuantityFilterForm = function(){
       let element = $(`
