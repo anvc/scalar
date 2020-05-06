@@ -481,7 +481,14 @@ class Lens_model extends MY_Model {
     		
     	// Check RDF fields
     	} else {
-    		
+    		$ns = $this->config->item('namespaces');
+    		$arr = explode(':', $field);
+    		$prefix = $arr[0];
+    		$name =@ $arr[1];
+    		$base = (array_key_exists($prefix, $ns)) ? $ns[$prefix] : '';
+    		$uri = $base.$name;
+    		usort($contents, array(new LensRDFCmpClosure($uri, $dir), "call"));
+    		return $contents;
     	}
     	
     }
@@ -514,6 +521,30 @@ class LensFieldCmpClosure {
 	
 	function call( $a, $b ) {
 		return lens_field_cmp($a, $b, $this->meta, $this->dir);
+	}
+}
+
+function lens_rdf_cmp($a, $b, $meta, $dir='asc') {
+	$name_a = (isset($a->versions[0]->rdf[$meta])) ? $a->versions[0]->rdf[$meta][0]['value'] : '';
+	$name_b = (isset($b->versions[0]->rdf[$meta])) ? $b->versions[0]->rdf[$meta][0]['value'] : '';
+	if ('desc' == $dir) {
+		return strcasecmp($name_b, $name_a);
+	} else {
+		return strcasecmp($name_a, $name_b);
+	}
+}
+
+class LensRDFCmpClosure{
+	private $meta;
+	private $dir;
+	
+	function __construct( $meta, $dir ) {
+		$this->meta = $meta;
+		$this->dir = $dir;
+	}
+	
+	function call( $a, $b ) {
+		return lens_rdf_cmp($a, $b, $this->meta, $this->dir);
 	}
 }
 ?>
