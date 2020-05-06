@@ -478,6 +478,7 @@
             break;
 
             case 'relationship':
+            //buttonText = filterObj
             break;
 
             case 'distance':
@@ -728,8 +729,8 @@
             filterObj = {
               "type":"filter",
               "subtype":"relationship",
-              "content-types": [$('.relationship-content-type').text().split(/[_\s]/).join("-").toLowerCase()],
-              "relationship": $('.relationship-type').text()
+              "content-types": [$('#relationship-content-button').text().split(/[_\s]/).join("-").toLowerCase()],
+              "relationship": $('#relationship-type-button').text()
             }
           break;
           case 'distance':
@@ -782,7 +783,7 @@
 
         case 'relationship':
         this.addRelationshipFilterForm(modalContainer, filterObj);
-        this.updateContentFilterForm();
+        this.updateRelationshipFilterForm();
         break;
 
         case 'distance':
@@ -987,54 +988,77 @@
     }
 
     // filter modal by relationship
-    ScalarLenses.prototype.addRelationshipFilterForm = function(){
+    ScalarLenses.prototype.addRelationshipFilterForm = function(container, filterObj){
+
+      container.empty();
       let element = $(`
         <div class="filterByRelationship">
           <p>Add any item that is an</p>
-          <div class="btn-group"><button type="button" class="btn btn-default btn-md dropdown-toggle relationship-content-type" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
+          <div class="btn-group"><button type="button" id="relationship-content-button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
               Select type..<span class="caret"></span></button>
-            <ul class="dropdown-menu relationship-type-dropdown">
-              <li><a>All types</a></li>
-              <li><a>annotation</a></li>
-              <li><a>comment</a></li>
-              <li><a>commentary</a></li>
-              <li><a>path</a></li>
-              <li><a>tag</a></li>
-            </ul>
+            <ul id="relationship-content-list" class="dropdown-menu"></ul>
           </div>
-          <div class="btn-group"><button type="button" class="btn btn-default btn-md dropdown-toggle relationship-type" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
+          <div class="btn-group"><button id="relationship-type-button" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
               Select relationship...<span class="caret"></span></button>
-            <ul class="dropdown-menu relationship-dropdown">
-              <li><a>(any relationship)</a></li>
-              <li><a>parent</a></li>
-              <li><a>child</a></li>
-            </ul>
+            <ul id="relationship-type-list" class="dropdown-menu"></ul>
           </div>
           <p>(i.e. annotates) any of these (n) items</p>
         </div>
 
-        `)
+        `).appendTo(container);
 
-        var me = this
-
-        // store 'Filter by Relationship' modal content
-        element.find('.relationship-type-dropdown li').on('click', function(){
-          $('.relationship-content-type').text($(this).text()).append('<span class="caret"></span>')
-        });
-        element.find('.relationship-dropdown li').on('click', function(){
-          $('.relationship-type').text($(this).text()).append('<span class="caret"></span>')
-        });
+        if (!filterObj) filterObj = this.getDefaultFilter('relationship');
+        let me = this;
+        let onClick = function() { me.updateRelationshipFilterForm(); };
 
 
-        // hides previous modal
-        // element.find('.filter-button .dropdown-menu li').on('click', function(){
-        //   element.modal('hide')
-        // });
+        this.populateDropdown($('#relationship-content-button'), $('#relationship-content-list'), filterObj['content-types'], onClick,
+          '<li><a></a></li>',
+          [
+            {label: "pages", value: "page"},
+            {label: "media files", value: "media"},
+            {label: "paths", value: "path"},
+            {label: "tags", value: "tag"},
+            {label: "annotations", value: "annotation"},
+            {label: "comments", value: "comment"}
+          ]);
 
+
+          this.populateDropdown($('#relationship-type-button'), $('#relationship-type-list'), filterObj.relationship, onClick,
+            '<li><a></a></li>',
+            [
+              {label: "parent", value: "parent"},
+              {label: "child", value: "child"}
+            ]);
 
 
         return element
     }
+
+    ScalarLenses.prototype.updateRelationshipFilterForm = function (){
+
+      let option;
+
+      // update relationship content type menu
+      let relationshipContentButton = $('#relationship-content-button');
+      option = relationshipContentButton.data('option');
+      if (!option) { // if nothing selected yet, create a placeholder option
+        option = {label: 'Select type(s)', value: null};
+      }
+      relationshipContentButton.text(option.label).append('<span class="caret"></span>');
+
+
+      // update relationship type menuf
+      let relationshipTypeButton = $('#relationship-type-button');
+      option = relationshipTypeButton.data('option');
+      if (!option) { // if nothing selected yet, pull the option from the first item
+        option = $('#relationship-type-list').find('li').eq(0).data('option');
+        relationshipTypeButton.data('option', option);
+      }
+      relationshipTypeButton.text(option.label).append('<span class="caret"></span>');
+
+    }
+
     // filter modal by distance
     ScalarLenses.prototype.addDistanceFilterForm = function(){
       let element = $(`
