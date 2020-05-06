@@ -510,6 +510,15 @@
             break;
 
             case 'distance':
+              let distanceQuantity = filterObj.quantity;
+              let distanceUnits = filterObj.units;
+              if(distanceUnits == 'miles'){
+                distanceUnits = 'mi.';
+              }
+              if(distanceUnits == 'kilometers'){
+                distanceUnits = 'km.'
+              }
+              buttonText = `items ≤ ${distanceQuantity} ${distanceUnits} from`;
             break;
 
             case 'quantity':
@@ -765,8 +774,8 @@
             filterObj = {
               "type":"filter",
               "subtype":"distance",
-              "quantity": $('.filterDistanceQuantity').val(),
-              "units": $('.filterDistanceUnits').text()
+              "quantity": $('#distanceFilterQuantity').val(),
+              "units": $('#distance-units-button').data('option').value
             }
           break;
           case 'quantity':
@@ -1107,7 +1116,7 @@
         humanReadableText.text('that are tagged by');
       }
       if(relationshipContent == 'annotation' && relationshipType == 'parents') {
-        humanReadableText.text('that annotates');
+        humanReadableText.text('that annotate');
       }
       if(relationshipContent == 'annotation' && relationshipType == 'children') {
         humanReadableText.text('that are annotated by');
@@ -1116,7 +1125,7 @@
         humanReadableText.text('that comment on');
       }
       if(relationshipContent == 'comment' && relationshipType == 'children') {
-        humanReadableText.text('that are commented on');
+        humanReadableText.text('that are commented on by');
       }
 
 
@@ -1132,15 +1141,16 @@
 
       let element = $(`
         <div class="filterByDistance">
-          <p>Add any item that is within</p>
+          <p>Add any items that are within</p>
            <div class="row filterByDistance">
-             <input type="text" id="distanceFilterQuantity" class="form-control" aria-label="..." placeholder="Enter distance" style="max-width:120px;float:left;">
-             <div class="btn-group">
+             <input type="text" id="distanceFilterQuantity" class="form-control" aria-label="..." placeholder="Enter distance" style="max-width:115px;float:left;">
+             <div class="btn-group" style="min-width:109px;">
                <button type="button" id="distance-units-button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
                  Select unit...<span class="caret"></span></button>
                <ul id="distance-units-dropdown" class="dropdown-menu"></ul>
              </div>
            </div>
+           <p class="quantity-description">of these <span class="filter-quantity base ">0</span> items</p>
         </div>
         `).appendTo(container);
 
@@ -1157,10 +1167,7 @@
             {label: "kilometers", value: "kilometers"}
           ]);
 
-
         return element
-
-
 
     }
     // update distance filter form
@@ -1175,7 +1182,6 @@
         option = {label: 'Select unit(s)', value: null};
       }
       distanceUnitsButton.text(option.label).append('<span class="caret"></span>');
-      let relationshipContent = distanceUnitsButton.text();
 
     }
 
