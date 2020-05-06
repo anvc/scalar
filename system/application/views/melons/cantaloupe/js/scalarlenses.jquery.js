@@ -472,8 +472,6 @@
 
             case 'relationship':
               let relationshipContentTypes = filterObj["content-types"];
-              console.log(relationshipContentTypes);
-
               let relationshipType = filterObj.relationship;
 
               if(relationshipContentTypes == 'all-types' && relationshipType == 'parent') {
@@ -522,6 +520,8 @@
             break;
 
             case 'quantity':
+              let quantity = filterObj.quantity;
+              buttonText = `no more than ${quantity}`;
             break;
 
             case 'metadata':
@@ -782,7 +782,7 @@
             filterObj = {
               "type":"filter",
               "subtype":"quantity",
-              "quantity":$('.filterQuantityValue').val()
+              "quantity":$('#filterQuantityValue').val()
             }
           break;
           case 'metadata':
@@ -846,7 +846,7 @@
       }
     }
 
-    // get default filter
+    // get default filter state
     ScalarLenses.prototype.getDefaultFilter = function(type){
 
       switch(type){
@@ -907,7 +907,7 @@
       return filterObj
 
     }
-
+    // add type filter form
     ScalarLenses.prototype.addTypeFilterForm = function(container, filterObj){
 
       container.empty();
@@ -953,7 +953,7 @@
 
       return element;
     }
-
+    // update type filter form
     ScalarLenses.prototype.updateTypeFilterForm = function() {
       let option;
 
@@ -975,7 +975,7 @@
       contentTypeButton.text(option.label).append('<span class="caret"></span>');
     }
 
-    // filter modal by content
+    // add content filter
     ScalarLenses.prototype.addContentFilterForm = function(container, filterObj) {
 
       container.empty();
@@ -1012,7 +1012,7 @@
 
       return element;
     }
-
+    // update content filter
     ScalarLenses.prototype.updateContentFilterForm = function() {
       // update operator menu
       let operatorButton = $('#operator-button');
@@ -1024,11 +1024,10 @@
       operatorButton.text(option.label).append('<span class="caret"></span>');
     }
 
-    // filter modal by relationship
+    // add relationship filter
     ScalarLenses.prototype.addRelationshipFilterForm = function(container, filterObj){
 
       container.empty();
-
       let element = $(`
         <div class="filterByRelationship">
           <p>Add any items that are</p>
@@ -1068,7 +1067,7 @@
 
         return element
     }
-
+    // update relationship filter
     ScalarLenses.prototype.updateRelationshipFilterForm = function (){
 
       let option;
@@ -1138,7 +1137,6 @@
     ScalarLenses.prototype.addDistanceFilterForm = function(container, filterObj){
 
       container.empty();
-
       let element = $(`
         <div class="filterByDistance">
           <p>Add any items that are within</p>
@@ -1185,35 +1183,32 @@
 
     }
 
-    // filter modal by quantity
-    ScalarLenses.prototype.addQuantityFilterForm = function(){
+    // add quantity filter
+    ScalarLenses.prototype.addQuantityFilterForm = function(container, filterObj){
+
+      container.empty();
       let element = $(`
         <div class="filterByQuantity">
           <p>Allow no more than</p>
           <div class="row" style="max-width:175px;margin:0 auto;">
-           <input type="text" class="form-control filterQuantityValue" aria-label="..." placeholder="Enter quantity" style="max-width:118px;float:left;">
+           <input id="filterQuantityValue" type="text" class="form-control" aria-label="..." placeholder="Enter quantity" style="max-width:118px;float:left;">
            <span style="vertical-align:middle"> items</span>
           </div>
         </div>
-        `)
+        `).appendTo(container);
 
-        var me = this
+        if (!filterObj) filterObj = this.getDefaultFilter('quantity');
+        let me = this;
+        let onClick = function() { me.updateQuantityFilterForm(); };
 
-        // add filter button
-        // let componentContainer = $('.filter-modal-container')
-        // element.find('.filter-modal-container').prepend(me.addFilterButton(componentContainer))
-
-        // hides previous modal
-        // element.find('.filter-button .dropdown-menu li').on('click', function(){
-        //   element.modal('hide')
-        // });
-        // element.find('.filter-button .btn').text('Filter by quantity').append('<span class="caret"></span>')
-
-
-
+        $('#filterQuantityValue').val(filterObj.quantity)
 
 
       return element
+
+    }
+    // update quantity filter
+    ScalarLenses.prototype.updateQuantityFilterForm = function(){
 
     }
     // filter modal by metadata
