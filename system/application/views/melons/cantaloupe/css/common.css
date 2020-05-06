@@ -1706,3 +1706,6 @@ body>.annotorious-popup{
 .filter-modal-container .filter-button .btn .caret {
 	margin-left:3px;
 }
+#human-readable-text span {
+	vertical-align: baseline;
+}

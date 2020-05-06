@@ -449,36 +449,72 @@
         switch(filterObj.subtype) {
 
             case 'type':
-            let contentTypes = filterObj["content-types"];
-            buttonText = 'that are ';
-            if (filterObj.operator == 'exclusive') {
-              buttonText += 'not ';
-            }
-            contentTypes.forEach((contentType, index) => {
-              if (contentTypes.length > 2) {
-                if (index > 0 && index < contentTypes.length - 2) {
-                  buttonText += ', ';
-                }
-                if (index == contentTypes.length - 1) {
-                  buttonText += 'or ';
-                }
+              let contentTypes = filterObj["content-types"];
+              buttonText = 'that are ';
+              if (filterObj.operator == 'exclusive') {
+                buttonText += 'not ';
               }
-              buttonText += scalarapi.model.scalarTypes[contentType].plural;
-            });
+              contentTypes.forEach((contentType, index) => {
+                if (contentTypes.length > 2) {
+                  if (index > 0 && index < contentTypes.length - 2) {
+                    buttonText += ', ';
+                  }
+                  if (index == contentTypes.length - 1) {
+                    buttonText += 'or ';
+                  }
+                }
+                buttonText += scalarapi.model.scalarTypes[contentType].plural;
+              });
             break;
 
             case 'content':
-            buttonText = 'that ';
-            if (filterObj.operator == 'exclusive') {
-              buttonText += 'don’t include “';
-            } else if (filterObj.operator == 'inclusive') {
-              buttonText += 'include “';
-            }
-            buttonText += filterObj.content + '”';
+              buttonText = 'that ';
+              if (filterObj.operator == 'exclusive') {
+                buttonText += 'don’t include “';
+              } else if (filterObj.operator == 'inclusive') {
+                buttonText += 'include “';
+              }
+              buttonText += filterObj.content + '”';
             break;
 
             case 'relationship':
-            //buttonText = filterObj
+              let relationshipContentTypes = filterObj["content-types"][0];
+              let relationshipType = filterObj.relationship;
+              let pluralContent = scalarapi.model.scalarTypes[relationshipContentTypes].plural;
+              buttonText = `items  `;
+
+
+              if(relationshipContentTypes == '(all types)' && relationshipType == 'parent') {
+                buttonText += 'that are parents of ';
+              }
+              if(relationshipContentTypes == '(all types)' && relationshipType == 'child') {
+                buttonText += 'that are children of ';
+              }
+              if(relationshipContentTypes == 'path' && relationshipType == 'parent') {
+                buttonText += 'that contain ';
+              }
+              if(relationshipContentTypes == 'path' && relationshipType == 'child') {
+                buttonText += 'contained by ';
+              }
+              if(relationshipContentTypes == 'tag' && relationshipType == 'parent') {
+                buttonText += 'that tag ';
+              }
+              if(relationshipContentTypes == 'tag' && relationshipType == 'child') {
+                buttonText += 'tagged by ';
+              }
+              if(relationshipContentTypes == 'annotation' && relationshipType == 'parent') {
+                buttonText += 'that annotate ';
+              }
+              if(relationshipContentTypes == 'annotation' && relationshipType == 'child') {
+                buttonText += 'annotated by ';
+              }
+              if(relationshipContentTypes == 'comment' && relationshipType == 'parent') {
+                buttonText += 'that commented on ';
+              }
+              if(relationshipContentTypes == 'comment' && relationshipType == 'child') {
+                buttonText += 'comment on by ';
+              }
+
             break;
 
             case 'distance':
@@ -991,6 +1027,7 @@
     ScalarLenses.prototype.addRelationshipFilterForm = function(container, filterObj){
 
       container.empty();
+
       let element = $(`
         <div class="filterByRelationship">
           <p>Add any item that is an</p>
@@ -1002,7 +1039,7 @@
               Select relationship...<span class="caret"></span></button>
             <ul id="relationship-type-list" class="dropdown-menu"></ul>
           </div>
-          <p>(i.e. annotates) any of these (n) items</p>
+          <p id="human-readable-text">(i.e. <span class="human-readable-relationship"></span>) any of these <span class="relationship-quantity"></span> items</p>
         </div>
 
         `).appendTo(container);
@@ -1015,12 +1052,11 @@
         this.populateDropdown($('#relationship-content-button'), $('#relationship-content-list'), filterObj['content-types'], onClick,
           '<li><a></a></li>',
           [
-            {label: "pages", value: "page"},
-            {label: "media files", value: "media"},
-            {label: "paths", value: "path"},
-            {label: "tags", value: "tag"},
-            {label: "annotations", value: "annotation"},
-            {label: "comments", value: "comment"}
+            {label: "(all types)", value: "all-types"},
+            {label: "path", value: "path"},
+            {label: "tag", value: "tag"},
+            {label: "annotation", value: "annotation"},
+            {label: "comment", value: "comment"}
           ]);
 
 
@@ -1030,6 +1066,7 @@
               {label: "parent", value: "parent"},
               {label: "child", value: "child"}
             ]);
+
 
 
         return element
@@ -1046,9 +1083,10 @@
         option = {label: 'Select type(s)', value: null};
       }
       relationshipContentButton.text(option.label).append('<span class="caret"></span>');
+      let relationshipContent = relationshipContentButton.text();
 
 
-      // update relationship type menuf
+      // update relationship type menu
       let relationshipTypeButton = $('#relationship-type-button');
       option = relationshipTypeButton.data('option');
       if (!option) { // if nothing selected yet, pull the option from the first item
@@ -1056,6 +1094,46 @@
         relationshipTypeButton.data('option', option);
       }
       relationshipTypeButton.text(option.label).append('<span class="caret"></span>');
+      let relationshipType = relationshipTypeButton.text()
+
+
+      // update human-readable-text
+      let humanReadableText = $('.human-readable-relationship');
+
+      if(relationshipContent == '(all types)' && relationshipType == 'parent') {
+        humanReadableText.text('is a parent of ');
+      }
+      if(relationshipContent == '(all types)' && relationshipType == 'child') {
+        humanReadableText.text('is a child of ');
+      }
+      if(relationshipContent == 'path' && relationshipType == 'parent') {
+        humanReadableText.text('is a path that contains ');
+      }
+      if(relationshipContent == 'path' && relationshipType == 'child') {
+        humanReadableText.text('is contained by ');
+      }
+      if(relationshipContent == 'tag' && relationshipType == 'parent') {
+        humanReadableText.text('is a tag of ');
+      }
+      if(relationshipContent == 'tag' && relationshipType == 'child') {
+        humanReadableText.text('is tagged by ');
+      }
+      if(relationshipContent == 'annotation' && relationshipType == 'parent') {
+        humanReadableText.text('annotates ');
+      }
+      if(relationshipContent == 'annotation' && relationshipType == 'child') {
+        humanReadableText.text('is annotated by ');
+      }
+      if(relationshipContent == 'comment' && relationshipType == 'parent') {
+        humanReadableText.text('is commented on by ');
+      }
+      if(relationshipContent == 'comment' && relationshipType == 'child') {
+        humanReadableText.text('is a comment on ');
+      }
+
+
+
+
 
     }
 
