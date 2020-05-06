@@ -151,6 +151,14 @@ Class Api extends CI_Controller {
 			$this->_output_error(StatusCodes::HTTP_UNAUTHORIZED);
 		}
 
+                // if the content is a iiif resource, try to get the thumbnail
+		if (strpos($this->data['scalar:url'], '?iiif-manifest=1') > -1){
+			$thumb = $this->_get_IIIF_metadata($this->data['scalar:url']);
+			if($thumb){
+				$this->data['scalar:thumbnail'] = $thumb;
+			}
+		}
+
 		//save the content entry
 		$save_content = $this->_array_remap_content();
 		$this->data['content_id'] = $this->pages->create($save_content);
@@ -203,6 +211,14 @@ Class Api extends CI_Controller {
 
 		//parse data
 		$this->_load_update_data();
+
+                // if the content is a iiif resource, try to get the thumbnail
+		if (strpos($this->data['scalar:url'], '?iiif-manifest=1') > -1){
+			$thumb = $this->_get_IIIF_metadata($this->data['scalar:url']);
+			if($thumb){
+				$this->data['scalar:thumbnail'] = $thumb;
+			}
+		}
 
 		//validate and save the content entry
 		$save_content = $this->_array_remap_content_update();
@@ -501,13 +517,6 @@ Class Api extends CI_Controller {
 		$arr = explode('#', $this->data['rdf:type']);  // Avoid E_STRICT pass by reference warning
 		$save['type'] = strtolower(array_pop($arr));
 		
-		if (strpos($this->data['scalar:url'], '?iiif-manifest=1') > -1){
-			$thumb = $this->_get_IIIF_metadata($this->data['scalar:url']);
-			if($thumb){
-				$this->data['scalar:thumbnail'] = $thumb;
-			}
-		}
-
 		foreach($this->content_metadata as $idx){
 			if(isset($this->data['scalar:metadata:'.$idx])) $save[$idx] = $this->data['scalar:metadata:'.$idx];  // TODO: remove me after migration
 			if(isset($this->data['scalar:'.$idx])) {
@@ -533,13 +542,6 @@ Class Api extends CI_Controller {
 		$arr = explode('#', $this->data['rdf:type']);  // Avoid E_STRICT pass by reference warning
 		$save['type'] =@ strtolower(array_pop($arr));
 		
-		if (strpos($this->data['scalar:url'], '?iiif-manifest=1') > -1){
-			$thumb = $this->_get_IIIF_metadata($this->data['scalar:url']);
-			if($thumb){
-				$this->data['scalar:thumbnail'] = $thumb;
-			}
-		}
-
 		foreach($this->content_metadata as $idx){
 			 if(isset($this->data['scalar:metadata:'.$idx])) $save[$idx] = $this->data['scalar:metadata:'.$idx];  // TODO: remove me after migration
 			 if(isset($this->data['scalar:'.$idx])) {
