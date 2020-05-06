@@ -484,35 +484,35 @@
               buttonText = `items  `;
 
 
-              if(relationshipContentTypes == '(all types)' && relationshipType == 'parent') {
-                buttonText += 'that are parents of ';
+              if(relationshipContentTypes == 'all-types' && relationshipType == 'parent') {
+                buttonText += 'that are parents of';
               }
-              if(relationshipContentTypes == '(all types)' && relationshipType == 'child') {
-                buttonText += 'that are children of ';
+              if(relationshipContentTypes == 'all-types' && relationshipType == 'child') {
+                buttonText += 'that are children of';
               }
               if(relationshipContentTypes == 'path' && relationshipType == 'parent') {
-                buttonText += 'that contain ';
+                buttonText += 'that contain';
               }
               if(relationshipContentTypes == 'path' && relationshipType == 'child') {
-                buttonText += 'contained by ';
+                buttonText += 'that are contained by';
               }
               if(relationshipContentTypes == 'tag' && relationshipType == 'parent') {
                 buttonText += 'that tag ';
               }
               if(relationshipContentTypes == 'tag' && relationshipType == 'child') {
-                buttonText += 'tagged by ';
+                buttonText += 'that are tagged by ';
               }
               if(relationshipContentTypes == 'annotation' && relationshipType == 'parent') {
                 buttonText += 'that annotate ';
               }
               if(relationshipContentTypes == 'annotation' && relationshipType == 'child') {
-                buttonText += 'annotated by ';
+                buttonText += 'that are annotated by';
               }
               if(relationshipContentTypes == 'comment' && relationshipType == 'parent') {
-                buttonText += 'that commented on ';
+                buttonText += 'that comment on';
               }
               if(relationshipContentTypes == 'comment' && relationshipType == 'child') {
-                buttonText += 'comment on by ';
+                buttonText += 'that are commented on by';
               }
 
             break;
@@ -1101,34 +1101,34 @@
       let humanReadableText = $('.human-readable-relationship');
 
       if(relationshipContent == '(all types)' && relationshipType == 'parent') {
-        humanReadableText.text('is a parent of ');
+        humanReadableText.text('that are parents of');
       }
       if(relationshipContent == '(all types)' && relationshipType == 'child') {
-        humanReadableText.text('is a child of ');
+        humanReadableText.text('that are children of');
       }
       if(relationshipContent == 'path' && relationshipType == 'parent') {
-        humanReadableText.text('is a path that contains ');
+        humanReadableText.text('that contain');
       }
       if(relationshipContent == 'path' && relationshipType == 'child') {
-        humanReadableText.text('is contained by ');
+        humanReadableText.text('that are contained by');
       }
       if(relationshipContent == 'tag' && relationshipType == 'parent') {
-        humanReadableText.text('is a tag of ');
+        humanReadableText.text('that tag');
       }
       if(relationshipContent == 'tag' && relationshipType == 'child') {
-        humanReadableText.text('is tagged by ');
+        humanReadableText.text('that are tagged by');
       }
       if(relationshipContent == 'annotation' && relationshipType == 'parent') {
-        humanReadableText.text('annotates ');
+        humanReadableText.text('that annotates');
       }
       if(relationshipContent == 'annotation' && relationshipType == 'child') {
-        humanReadableText.text('is annotated by ');
+        humanReadableText.text('that are annotated by');
       }
       if(relationshipContent == 'comment' && relationshipType == 'parent') {
-        humanReadableText.text('is commented on by ');
+        humanReadableText.text('that comment on');
       }
       if(relationshipContent == 'comment' && relationshipType == 'child') {
-        humanReadableText.text('is a comment on ');
+        humanReadableText.text('that are commented on');
       }
 
 
