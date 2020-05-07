@@ -109,21 +109,17 @@ class Lens_model extends MY_Model {
 		if (empty($book_id)) throw new Exception("Invalud Book ID");
 		$operator = 'and';
 		$contents = array();
+		$has_used_filter = false;
 
 		foreach ($json['components'] as $component) {
-			if (!isset($component['modifiers']) || empty($component['modifiers'])) {
-				$content = $this->get_pages_from_content_selector($component['content-selector']);
-				for ($j = 0; $j < count($content); $j++) {
-					$content[$j]->versions = array();
-					$content[$j]->versions[] = $CI->versions->get_single($content[$j]->content_id, $content[$j]->recent_version_id, null, false);
-				}
-				$contents = $this->combine_by_operator($contents, $content, $operator);
-			} else {
+			// Modifiers that get content
+			if (isset($component['modifiers'])) {
 				foreach ($component['modifiers'] as $modifier) {
 					switch ($modifier['type']) {
 						case "filter":
 							switch ($modifier['subtype']) {
 								case "metadata":
+									$has_used_filter = true;
 									$field = trim($modifier['metadata-field']);
 									$value = trim($modifier['content']);
 									$content = $CI->versions->get_by_predicate($book_id, $field, false, null, $value);
@@ -131,12 +127,13 @@ class Lens_model extends MY_Model {
 									$contents = $this->combine_by_operator($contents, $content, $operator);
 									break;
 								case "distance":
-									$from_arr = $this->get_pages_from_content_selector($component['content-selector']);
+									$has_used_filter = true;
+									$from_arr = $this->get_pages_from_content_selector($component['content-selector'], $book_id);
 									$distance_in_meters = $modifier['quantity'];
 									$items = $CI->versions->get_by_predicate($book_id, array('dcterms:spatial','dcterms:coverage'));
 									foreach ($from_arr as $from) {
 										$content = array();
-										$item = $this->filter_by_slug($items, $from);
+										$item = $this->filter_by_slug($items, $from->slug);
 										if (!empty($item)) {
 											$latlng = $this->get_latlng_from_item($item[0]);
 											$content = $this->filter_by_location($items, $latlng, $distance_in_meters);
@@ -145,10 +142,9 @@ class Lens_model extends MY_Model {
 									}
 									break;
 								case "relationship":
-									$from_arr = $this->get_pages_from_content_selector($component['content-selector']);
-									foreach ($from_arr as $from) {
-										$page = $CI->pages->get_by_slug($book_id, $from, true);
-										if (empty($page)) continue;
+									$has_used_filter = true;
+									$from_arr = $this->get_pages_from_content_selector($component['content-selector'], $book_id);
+									foreach ($from_arr as $page) {
 										$version = $CI->versions->get_single($page->content_id, $page->recent_version_id, null, false);
 										if (empty($version)) continue;
 										$types = $modifier['content-types'];
@@ -168,8 +164,70 @@ class Lens_model extends MY_Model {
 										$contents = $this->combine_by_operator($contents, $content, $operator);
 									}
 									break;
+								case "content-type":
+									$has_used_filter = true;
+									$operator = (isset($modifier['operator']) && 'exclusive'==$modifier['operator']) ? 'exclusive' : 'inclusive';
+									$types = $modifier['content-types'];
+									switch ($operator) {
+										case 'exclusive':
+											$all = $this->get_pages_of_type('all-content', $book_id);
+											foreach ($types as $type) {  // Subtract content from each type
+												$content = $this->get_pages_of_type($type, $book_id);
+												$all = $this->subtract_content($all, $content);
+											}
+											foreach ($all as $key => $row) {
+												$all[$key]->versions = array();
+												$all[$key]->versions[] = $CI->versions->get_single($row->content_id, $row->recent_version_id, null, true);
+											}
+											$contents = $this->combine_by_operator($contents, $all, 'and');
+											break;
+										default:  // Inclusive
+											foreach ($types as $type) {
+												$content = $this->get_pages_of_type($type, $book_id);
+												foreach ($content as $key => $row) {
+													$content[$key]->versions = array();
+													$content[$key]->versions[] = $CI->versions->get_single($row->content_id, $row->recent_version_id, null, true);
+												}
+												$contents = $this->combine_by_operator($contents, $content, 'and');
+											}
+										}
+									break;
 							}
 							break;
+					}
+				}
+			}
+			// If there were no modifiers that get content, revert to the content selector
+			if (!$has_used_filter && isset($component['content-selector'])) {
+				$content = $this->get_pages_from_content_selector($component['content-selector'], $book_id);
+				for ($j = 0; $j < count($content); $j++) {
+					$content[$j]->versions = array();
+					$content[$j]->versions[] = $CI->versions->get_single($content[$j]->content_id, $content[$j]->recent_version_id, null, true);
+				}
+				$contents = $this->combine_by_operator($contents, $content, $operator);
+			}
+			// Modifiers that sort
+			if (isset($component['modifiers'])) {
+				foreach ($component['modifiers'] as $modifier) {
+					switch ($modifier['type']) {
+						case "sort":
+							$field = $modifier['metadata-field'];
+							$direction = ('descending' == $modifier['sort-order']) ? 'desc' : 'asc';
+							$contents = $this->sort_by_predicate($contents, $field, $direction);
+							break;
+					}
+				}
+			}
+			// Modifiers that filter content
+			if (isset($component['modifiers'])) {
+				foreach ($component['modifiers'] as $modifier) {
+					if (isset($modifier['subtype'])) {
+						switch ($modifier['subtype']) {
+							case "quantity":
+								$quantity = (int) $modifier['quantity'];
+								$contents = array_slice($contents, 0, $quantity);
+								break;
+						}
 					}
 				}
 			}
@@ -289,15 +347,61 @@ class Lens_model extends MY_Model {
     	
     }
     
-    public function get_pages_from_content_selector($json) {
+    public function get_pages_of_type($content_type, $book_id=0) {
+    	
+    	$type = $category = null;
+    	switch ($content_type) {
+    		case 'all-content':
+    		case 'content':
+    			$model = 'pages';
+    			break;
+    		case 'page':
+    		case 'composite':
+    			$model = 'pages';
+    			$type = 'composite';
+    			break;
+    		case 'file':
+    		case 'media':
+    			$model = 'pages';
+    			$type = 'media';
+    			break;
+    		case 'review':
+    		case 'commentary':
+    		case 'term':
+    			$model = 'pages';
+    			$category = $class;
+    			break;
+    		case 'annotation':
+    		case 'reply':
+    		case 'tag':
+    		case 'path':
+    		case 'reference':
+    			$this->load->helper('inflector');
+    			$this->load->model($content_type.'_model', plural($content_type));
+    			$model = plural($content_type);
+    			break;
+    	}
+    	$content = $this->$model->get_all($this->data['book']->book_id, $type, $category, true, null);
+    	return $content;
+    	
+    }
+    
+    public function get_pages_from_content_selector($json, $book_id=0) {
 
     	if (isset($json['items']) && !empty($json['items'])) {
-    		return $json['items'];
+    		$CI =& get_instance();
+    		$content = array();
+    		foreach ($json['items'] as $item) {
+    			$row = 	$CI->pages->get_by_slug($book_id, $item, true);
+    			if (!empty($row)) $content[] = $row;
+    		}
+    		return $content;
+    		
     	} elseif (isset($json['type']) && 'items-by-type' == $json['type']) {
     		$content_type = $json['content-type'];
     		$type = $category = null;
     		switch ($content_type) {
-    			case 'all':
+    			case 'all-content':
     			case 'content':
     				$model = 'pages';
     				break;
@@ -329,6 +433,7 @@ class Lens_model extends MY_Model {
     		}
     		$content = $this->$model->get_all($this->data['book']->book_id, $type, $category, true, null);
     		return $content;
+    		
     	}
     	
     	return array();
@@ -339,7 +444,7 @@ class Lens_model extends MY_Model {
     	
     	if (isset($component['content-selector']) && empty($component['content-selector']['items'])) {
     		$content_type = $component['content-selector']['content-type'];
-    		if ('all' != $content_type) {
+    		if ('all-content' != $content_type) {
 	    		if ('page' == $content_type) $content_type = 'composite';
 	    		foreach ($content as $key => $row) {
 	    			if ($row->type != $content_type) unset($content[$key]);
@@ -350,6 +455,96 @@ class Lens_model extends MY_Model {
     	return $content;
     	
     }
+    
+    public function subtract_content($all, $subtract) {
+    	
+    	foreach ($subtract as $subtract_row) {
+    		foreach ($all as $all_key => $all_row) {
+    			if ($all_row->content_id == $subtract_row->content_id) {
+    				unset($all[$all_key]);
+    				break;
+    			}
+    		}
+    	}
+    	return $all;
+    	
+    }
+    
+    public function sort_by_predicate($contents, $field, $dir='asc') {
+    	
+    	// Check "built-in" fields
+    	$rdf_fields = $this->config->item('rdf_fields');
+    	if (in_array($field, $rdf_fields)) {
+    		$name = array_search($field, $rdf_fields);
+    		usort($contents, array(new LensFieldCmpClosure($name, $dir), "call"));
+    		return $contents;
+    		
+    	// Check RDF fields
+    	} else {
+    		$ns = $this->config->item('namespaces');
+    		$arr = explode(':', $field);
+    		$prefix = $arr[0];
+    		$name =@ $arr[1];
+    		$base = (array_key_exists($prefix, $ns)) ? $ns[$prefix] : '';
+    		$uri = $base.$name;
+    		usort($contents, array(new LensRDFCmpClosure($uri, $dir), "call"));
+    		return $contents;
+    	}
+    	
+    }
 
+}
+
+/**
+ * Sorting functions that can be passed variables
+ * https://stackoverflow.com/questions/8230538/pass-extra-parameters-to-usort-callback
+ */
+
+function lens_field_cmp($a, $b, $meta, $dir='asc') {
+	$name_a = $a->versions[0]->{$meta};
+	$name_b = $b->versions[0]->{$meta};
+	if ('desc' == $dir) {
+		return strcasecmp($name_b, $name_a);
+	} else {
+		return strcasecmp($name_a, $name_b);
+	}
+}
+
+class LensFieldCmpClosure {
+	private $meta;
+	private $dir;
+	
+	function __construct( $meta, $dir ) {
+		$this->meta = $meta;
+		$this->dir = $dir;
+	}
+	
+	function call( $a, $b ) {
+		return lens_field_cmp($a, $b, $this->meta, $this->dir);
+	}
+}
+
+function lens_rdf_cmp($a, $b, $meta, $dir='asc') {
+	$name_a = (isset($a->versions[0]->rdf[$meta])) ? $a->versions[0]->rdf[$meta][0]['value'] : '';
+	$name_b = (isset($b->versions[0]->rdf[$meta])) ? $b->versions[0]->rdf[$meta][0]['value'] : '';
+	if ('desc' == $dir) {
+		return strcasecmp($name_b, $name_a);
+	} else {
+		return strcasecmp($name_a, $name_b);
+	}
+}
+
+class LensRDFCmpClosure{
+	private $meta;
+	private $dir;
+	
+	function __construct( $meta, $dir ) {
+		$this->meta = $meta;
+		$this->dir = $dir;
+	}
+	
+	function call( $a, $b ) {
+		return lens_rdf_cmp($a, $b, $this->meta, $this->dir);
+	}
 }
 ?>
