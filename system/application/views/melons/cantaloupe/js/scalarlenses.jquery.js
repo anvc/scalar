@@ -1193,7 +1193,7 @@
           <p>Allow no more than</p>
           <div class="row" style="max-width:175px;margin:0 auto;">
 
-           <input id="filterQuantityValue" type="number" min="0" max="5" required class="form-control" aria-label="..." placeholder="Enter quantity" style="max-width:118px;float:left;">
+           <input id="filterQuantityValue" type="text" required class="form-control" aria-label="..." placeholder="Enter quantity" style="max-width:118px;float:left;">
            <span style="vertical-align:middle"> items</span>
           </div>
         </div>
@@ -1214,7 +1214,20 @@
     // update quantity filter
     ScalarLenses.prototype.updateQuantityFilterForm = function(){
 
+      let quantityInput = document.getElementById('filterQuantityValue');
 
+      quantityInput.addEventListener('keyup', function(){
+        var text = quantityInput.value;
+        console.log('New text is "' + text + '"');
+
+        if(isNaN(text) || text < 1 || text > 5) {
+          alert('please enter a number btwn 0 and 5');
+        }
+
+        // if($('#distanceFilterQuantity').val() == " "){
+        //   $(this).css({'pointer-events':'none'});
+        // }
+      });
 
 
 
