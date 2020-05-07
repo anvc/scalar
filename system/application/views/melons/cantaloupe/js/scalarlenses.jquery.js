@@ -525,9 +525,18 @@
             break;
 
             case 'metadata':
+              let metadataContent = filterObj.content;
+              let metadataProperty = filterObj["metadata-field"]
+              buttonText = `that include "${metadataContent}" in ${metadataProperty}`
             break;
 
-            case 'visit date':
+            case 'visit-date':
+              let visitDateQuantity = filterObj.quantity;
+              let visitDateUnits = filterObj.units;
+              let visitDate = filterObj.datetime;
+
+              buttonText = `visited ≤ ${visitDateQuantity} ${visitDateUnits} before ${visitDate}`;
+
             break;
         }
         button.text(buttonText).append('<span class="caret"></span>');
@@ -641,7 +650,7 @@
                    <div class="row">
                      <div class="col-sm-10">
                        <div class="col-sm-5">
-                         <input id="distanceQuantity" type="number" class="form-control" aria-label="..." placeholder="Enter distance">
+                         <input id="distanceQuantity" type="text" class="form-control" aria-label="..." placeholder="Enter distance">
                        </div>
                        <div class="col-sm-5">
                          <div class="btn-group">
@@ -659,10 +668,10 @@
                    <div class="row">
                      <div class="col-sm-10">
                        <div class="col-sm-5">
-                         <input id="latitude" type="number"class="form-control" aria-label="..." placeholder="Latitude (decimal)">
+                         <input id="latitude" type="text"class="form-control" aria-label="..." placeholder="Latitude (decimal)">
                        </div>
                        <div class="col-sm-5">
-                         <input id="longitude" type="number" class="form-control" aria-label="..." placeholder="Longitude (decimal)">
+                         <input id="longitude" type="text" class="form-control" aria-label="..." placeholder="Longitude (decimal)">
                        </div>
                      </div>
                    </div>
@@ -787,8 +796,30 @@
             }
           break;
           case 'metadata':
+
+          let ontologyValue = $('#ontology-button').data('option').value;
+          let propertyValue = $('#property-button').data('option').value;
+
+            filterObj = {
+              "type":"filter",
+              "subtype":"metadata",
+              "operator":$('#operator-button').data('option').value,
+              "content":$('#metadata-content').val(),
+              "metadata-field":`${ontologyValue} : ${propertyValue}`
+            }
+
           break;
-          case 'visitdata':
+          case 'visit-date':
+
+            filterObj = {
+              "type":"filter",
+              "subtype": "visit-date",
+              "quantity":$('#visitdate-quantity').val(),
+              "units":$('#units-button').data('option').value,
+              "datetime": $('#date-input').val()
+            }
+
+
           break;
         }
 
@@ -839,7 +870,7 @@
         this.updateMetadataFilterForm();
         break;
 
-        case 'visitdate':
+        case 'visit-date':
         this.addVisitDateFilterForm(modalContainer, filterObj);
         this.updateVisitDateFilterForm();
         break;
@@ -1184,7 +1215,7 @@
 
     }
 
-    // add quantity filter
+    // add quantity filter form
     ScalarLenses.prototype.addQuantityFilterForm = function(container, filterObj){
 
       container.empty();
@@ -1192,7 +1223,6 @@
         <div class="filterByQuantity">
           <p>Allow no more than</p>
           <div class="row" style="max-width:175px;margin:0 auto;">
-
            <input id="filterQuantityValue" type="text" required class="form-control" aria-label="..." placeholder="Enter quantity" style="max-width:118px;float:left;">
            <span style="vertical-align:middle"> items</span>
           </div>
@@ -1205,13 +1235,10 @@
 
         $('#filterQuantityValue').val(filterObj.quantity)
 
-
-
-
       return element
 
     }
-    // update quantity filter
+    // update quantity filter form
     ScalarLenses.prototype.updateQuantityFilterForm = function(){
 
       let quantityInput = document.getElementById('filterQuantityValue');
@@ -1222,136 +1249,204 @@
 
         if(isNaN(text) || text < 1 || text > 5) {
           alert('please enter a number btwn 0 and 5');
+          $('#filterByQuantity').find('.done').css({'pointer-events':'none'})
+
         }
 
         // if($('#distanceFilterQuantity').val() == " "){
         //   $(this).css({'pointer-events':'none'});
         // }
+
       });
 
-
-
     }
-    // filter modal by metadata
-    ScalarLenses.prototype.addMetadataFilterForm = function(){
+
+    // add metadata filter form
+    ScalarLenses.prototype.addMetadataFilterForm = function(container, filterObj){
+
+      container.empty();
       let element = $(`
-      <div class="filterByMetadata">
-        <p>Allow any item through that</p>
-          <div class="row">
-            <div class="btn-group"><button type="button" class="btn btn-default btn-md dropdown-toggle includeOrNot" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
-                includes<span class="caret"></span></button>
-              <ul class="dropdown-menu includeOrNot-dropdown">
-                <li><a>includes</a></li>
-                <li><a>does not include</a></li>
-              </ul>
-              <span style="margin-left:10px;vertical-align:middle;"> this text:</span>
+        <div class="filterByMetadata">
+          <p>Allow any item through that</p>
+            <div class="row">
+              <div class="btn-group"><button type="button" id="operator-button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
+                  includes<span class="caret"></span></button>
+                <ul id="operator-list" class="dropdown-menu"></ul>
+                <span style="margin-left:10px;vertical-align:middle;"> this text:</span>
+              </div>
             </div>
-          </div>
-          <div class="row">
-            <input type="text" class="form-control metadataContent" aria-label="..." placeholder="Enter text" style="max-width:215px;margin:10px auto 0;">
-          </div>
-          <div class="row" style="margin-top:10px;">
-          <span style="margin-left:10px;vertical-align:middle;"> in this metadata field</span>
-            <div class="btn-group"><button id="metaDataSource" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
-                Select field...<span class="caret"></span></button>
-              <ul class="dropdown-menu metaDataSource">
-                <li><a>Item 1</a></li>
-                <li><a>Item 2</a></li>
-              </ul>
+            <div class="row">
+              <input type="text" id="metadata-content" class="form-control metadataContent" aria-label="..." placeholder="Enter text" style="max-width:215px;margin:10px auto 0;">
             </div>
             <div class="row" style="margin-top:10px;">
-            <div class="btn-group"><button id="role" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
-                Select field...<span class="caret"></span></button>
-              <ul class="dropdown-menu role-dropdown">
-                <li><a>Item 1</a></li>
-                <li><a>Item 2</a></li>
-              </ul>
+            <span style="margin-left:10px;vertical-align:middle;"> in this metadata field</span>
+              <div class="btn-group"><button id="ontology-button" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
+                  Select field...<span class="caret"></span></button>
+                <ul id="ontology-list" class="dropdown-menu"></ul>
+              </div>
+              <div class="row" style="margin-top:10px;">
+              <div class="btn-group"><button id="property-button" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
+                  Select field...<span class="caret"></span></button>
+                <ul id="property-list" class="dropdown-menu"></ul>
+              </div>
+
             </div>
-          </div>
-       </div>
+         </div>
+        `).appendTo(container);
 
-        `)
+        if (!filterObj) filterObj = this.getDefaultFilter('metadata');
+        let me = this;
+        let onClick = function() { me.updateMetadataFilterForm(); };
 
-        var me = this
+        // operator dropdown
+        this.populateDropdown($('#operator-button'), $('#operator-list'), filterObj.operator, onClick,
+          '<li><a></a></li>',
+          [
+            {label: "includes", value: "inclusive"},
+            {label: "does not include", value: "exclusive"}
+          ]);
 
-        element.find('.includeOrNot-dropdown li').on('click', function(){
-          $('.includeOrNot').text($(this).text()).append('<span class="caret"></span>')
-        });
-        element.find('.metaDataSource li').on('click', function(){
-          $('#metaDataSource').text($(this).text()).append('<span class="caret"></span>')
-        });
-        element.find('.role-dropdown li').on('click', function(){
-          $('#role').text($(this).text()).append('<span class="caret"></span>')
-        });
+        // ontology dropdown
+        this.populateDropdown($('#ontology-button'), $('#ontology-list'), filterObj.operator, onClick,
+          '<li><a></a></li>',
+          [
 
+            // list will be dynamic
+            {label: "item1", value: "item1"},
+            {label: "item2", value: "item2"}
 
-        // add filter button
-        let componentContainer = $('.filter-modal-container')
-        element.find('.filter-modal-container').prepend(me.addFilterButton(componentContainer))
-
-        // hides previous modal
-        // element.find('.filter-button .dropdown-menu li').on('click', function(){
-        //   element.modal('hide')
-        // });
-        //element.find('.filter-button .btn').text('Filter by metadata').append('<span class="caret"></span>')
+          ]);
+        // property dropdown
+        this.populateDropdown($('#property-button'), $('#property-list'), filterObj.operator, onClick,
+          '<li><a></a></li>',
+          [
+            // list will be dynamic
+            {label: "propertyItem1", value: "propertyItem1"},
+            {label: "propertyItem2", value: "propertyItem2"}
+          ]);
 
       return element
 
     }
-    // filter modal by visitdate
-    ScalarLenses.prototype.addVisitDateFilterForm = function(){
+    // update metadata filter form
+    ScalarLenses.prototype.updateMetadataFilterForm = function(){
+
+      let option;
+
+      // update operator menu
+      let operatorButton = $('#operator-button');
+      option = operatorButton.data('option');
+      if (!option) { // if nothing selected yet, pull the option from the first item
+        option = $('#operator-list').find('li').eq(0).data('option');
+        operatorButton.data('option', option);
+      }
+      operatorButton.text(option.label).append('<span class="caret"></span>');
+
+      // update ontology button
+      let ontologyButton = $('#ontology-button');
+      option = ontologyButton.data('option');
+      if (!option) { // if nothing selected yet, pull the option from the first item
+        option = $('#ontology-list').find('li').eq(0).data('option');
+        ontologyButton.data('option', option);
+      }
+      ontologyButton.text(option.label).append('<span class="caret"></span>');
+
+      // update property button
+      let propertyButton = $('#property-button');
+      option = propertyButton.data('option');
+      if (!option) { // if nothing selected yet, pull the option from the first item
+        option = $('#property-list').find('li').eq(0).data('option');
+        propertyButton.data('option', option);
+      }
+      propertyButton.text(option.label).append('<span class="caret"></span>');
+
+
+    }
+
+    // add visitdate filter form
+    ScalarLenses.prototype.addVisitDateFilterForm = function(container, filterObj){
+
+      container.empty();
       let element = $(`
         <div class="filterByVisitDate">
           <p>Allow any item through that was visited within</p>
-           <div class="row limitRow">
-             <input id="" type="text" class="form-control" aria-label="..." placeholder="Enter quantity" style="max-width:120px;float:left;">
-             <div class="btn-group">
-               <button id="distanceFilter" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
+           <div class="row" style="max-widtH:210px;margin:0 auto;">
+             <input id="visitdate-quantity" type="text" class="form-control" aria-label="..." placeholder="Enter quantity" style="max-width:120px;float:left;">
+             <div class="btn-group" style="min-width:83px;">
+               <button id="units-button" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
                  Select unit...<span class="caret"></span></button>
-               <ul class="dropdown-menu distance-dropdown">
-                 <li><a>hours</a></li>
-                 <li><a>minutes</a></li>
-               </ul>
+               <ul id="units-list" class="dropdown-menu"></ul>
              </div>
             </div>
             <div class="row limitRow" style="margin-top:10px;">
             <span>of</span>
              <div class="btn-group">
-               <button id="timeFilter" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
+               <button id="date-button" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
                  now<span class="caret"></span></button>
-               <ul class="dropdown-menu time-dropdown">
-                 <li><a>Item 1</a></li>
-                 <li><a>Item 2</a></li>
-               </ul>
+               <ul id="date-list" class="dropdown-menu"></ul>
              </div>
-             <input id="" type="datetime-local" class="form-control" aria-label="..." placeholder="Enter date and time" style="max-width:200px;margin:10px auto 0">
+             <input id="date-input" type="datetime-local" class="form-control" aria-label="..." placeholder="Enter date: mm/dd/yyyy" style="max-width:200px;margin:10px auto 0">
            </div>
         </div>
-        `)
-
-        var me = this
-
-        element.find('.distance-dropdown li').on('click', function(){
-          $('#distanceFilter').text($(this).text()).append('<span class="caret"></span>')
-        });
-        element.find('.time-dropdown li').on('click', function(){
-          $('#timeFilter').text($(this).text()).append('<span class="caret"></span>')
-        });
+        `).appendTo(container);
 
 
-        // add filter button
-        let componentContainer = $('.filter-modal-container')
-        element.find('.filter-modal-container').prepend(me.addFilterButton(componentContainer))
+        if (!filterObj) filterObj = this.getDefaultFilter('visit-date');
+        let me = this;
+        let onClick = function() { me.updateVisitDateFilterForm(); };
 
-        // hides previous modal
-        // element.find('.filter-button .dropdown-menu li').on('click', function(){
-        //   element.modal('hide')
-        // });
-        //element.find('.filter-button .btn').text('Filter by visit date').append('<span class="caret"></span>')
+
+        $('#visitdate-quantity').val(filterObj.quantity)
+        $('#date-input').val(filterObj.datetime);
+
+        // units dropdown
+        this.populateDropdown($('#units-button'), $('#units-list'), filterObj.operator, onClick,
+          '<li><a></a></li>',
+          [
+            {label: "hours", value: "hours"},
+            {label: "days", value: "days"},
+            {label: "weeks", value: "weeks"},
+            {label: "years", value: "years"}
+          ]);
+
+        // date dropdown
+        this.populateDropdown($('#date-button'), $('#date-list'), filterObj.operator, onClick,
+          '<li><a></a></li>',
+          [
+            {label: "now(continuous)", value: "now"},
+            {label: "specific date", value: "date"}
+
+          ]);
 
       return element
 
     }
+    // update visitdate filter form
+    ScalarLenses.prototype.updateVisitDateFilterForm = function() {
+
+      let option;
+
+      // update units button
+      let unitsButton = $('#units-button');
+      option = unitsButton.data('option');
+      if (!option) { // if nothing selected yet, pull the option from the first item
+        option = $('#units-list').find('li').eq(0).data('option');
+        unitsButton.data('option', option);
+      }
+      unitsButton.text(option.label).append('<span class="caret"></span>');
+
+      // update date button
+      let dateButton = $('#date-button');
+      option = dateButton.data('option');
+      if (!option) { // if nothing selected yet, pull the option from the first item
+        option = $('#date-list').find('li').eq(0).data('option');
+        dateButton.data('option', option);
+      }
+      dateButton.text(option.label).append('<span class="caret"></span>');
+
+
+    }
+
 
     ScalarLenses.prototype.populateDropdown = function(buttonElement, listElement, currentData, onClick, markup, options) {
       options.forEach(option => {
