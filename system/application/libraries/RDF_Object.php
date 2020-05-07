@@ -994,7 +994,7 @@ class RDF_Object {
 			if ($settings['use_versions_restriction'] == self::USE_VERSIONS_INCLUSIVE && null!==$settings['use_versions'] && !isset($settings['use_versions'][$annotation->parent_content_id])) {
 				$settings['use_versions'][$annotation->parent_content_id] = $annotation->parent_version_id;
 			}
-			if ($settings['use_versions_restriction'] >= self::USE_VERSIONS_EXCLUSIVE && $settings['use_versions'][$annotation->parent_content_id] != $annotation->parent_version_id) {
+			if ($settings['use_versions_restriction'] >= self::USE_VERSIONS_EXCLUSIVE && null!==$settings['use_versions'] && $settings['use_versions'][$annotation->parent_content_id] != $annotation->parent_version_id) {
 				// Don't do anything
 			} else {
 				++$settings['num_recurses'];
@@ -1052,7 +1052,7 @@ class RDF_Object {
 			if ($settings['use_versions_restriction'] == self::USE_VERSIONS_INCLUSIVE && null!==$settings['use_versions'] && !isset($settings['use_versions'][$annotation->child_content_id])) {
 				$settings['use_versions'][$annotation->child_content_id] = $annotation->child_version_id;
 			}
-			if ($settings['use_versions_restriction'] >= self::USE_VERSIONS_EXCLUSIVE && $settings['use_versions'][$annotation->child_content_id] != $annotation->child_version_id) {
+			if ($settings['use_versions_restriction'] >= self::USE_VERSIONS_EXCLUSIVE && null!==$settings['use_versions'] && $settings['use_versions'][$annotation->child_content_id] != $annotation->child_version_id) {
 				// Don't do anything
 			} else {
 				++$settings['num_recurses'];
