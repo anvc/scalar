@@ -641,11 +641,11 @@
                    <div class="row">
                      <div class="col-sm-10">
                        <div class="col-sm-5">
-                         <input id="distanceQuantity" type="text" class="form-control" aria-label="..." placeholder="Enter distance">
+                         <input id="distanceQuantity" type="number" class="form-control" aria-label="..." placeholder="Enter distance">
                        </div>
                        <div class="col-sm-5">
                          <div class="btn-group">
-                           <button id="distanceUnits" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">'+
+                           <button id="distanceUnits" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
                              Select unit...<span class="caret"></span></button>
                            <ul id="distance-dropdown" class="dropdown-menu">
                              <li><a>miles</a></li>
@@ -659,10 +659,10 @@
                    <div class="row">
                      <div class="col-sm-10">
                        <div class="col-sm-5">
-                         <input id="latitude" type="text" class="form-control" aria-label="..." placeholder="Latitude (decimal)">
+                         <input id="latitude" type="number"class="form-control" aria-label="..." placeholder="Latitude (decimal)">
                        </div>
                        <div class="col-sm-5">
-                         <input id="longitude" type="text" class="form-control" aria-label="..." placeholder="Longitude (decimal)">
+                         <input id="longitude" type="number" class="form-control" aria-label="..." placeholder="Longitude (decimal)">
                        </div>
                      </div>
                    </div>
@@ -777,6 +777,7 @@
               "quantity": $('#distanceFilterQuantity').val(),
               "units": $('#distance-units-button').data('option').value
             }
+
           break;
           case 'quantity':
             filterObj = {
@@ -1191,7 +1192,8 @@
         <div class="filterByQuantity">
           <p>Allow no more than</p>
           <div class="row" style="max-width:175px;margin:0 auto;">
-           <input id="filterQuantityValue" type="text" class="form-control" aria-label="..." placeholder="Enter quantity" style="max-width:118px;float:left;">
+
+           <input id="filterQuantityValue" type="number" min="0" max="5" required class="form-control" aria-label="..." placeholder="Enter quantity" style="max-width:118px;float:left;">
            <span style="vertical-align:middle"> items</span>
           </div>
         </div>
@@ -1204,11 +1206,17 @@
         $('#filterQuantityValue').val(filterObj.quantity)
 
 
+
+
       return element
 
     }
     // update quantity filter
     ScalarLenses.prototype.updateQuantityFilterForm = function(){
+
+
+
+
 
     }
     // filter modal by metadata

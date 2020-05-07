@@ -1646,8 +1646,11 @@ body>.annotorious-popup{
 	text-align:center;
 	min-height:150px;
 }
-.filter-modal-container span {
+/* .filter-modal-container span {
 	vertical-align:middle;
+} */
+#filterQuantityValue .error {
+	border:1px solid red;
 }
 .limitRow {
 	max-width: 245px;
@@ -1691,7 +1694,7 @@ body>.annotorious-popup{
 	margin-left:0 !important;
 }
 .filterByDistance {
-	max-width:245px;
+	max-width:242px;
 	margin:0 auto;
 }
 .filter-modal-container .filter-button {
@@ -1706,6 +1709,6 @@ body>.annotorious-popup{
 .filter-modal-container .filter-button .btn .caret {
 	margin-left:3px;
 }
-#human-readable-text span {
+span.base {
 	vertical-align: baseline;
 }
