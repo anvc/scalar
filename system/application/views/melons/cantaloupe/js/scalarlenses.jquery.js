@@ -945,6 +945,7 @@
       return filterObj
 
     }
+
     // add type filter form
     ScalarLenses.prototype.addTypeFilterForm = function(container, filterObj){
 
@@ -991,6 +992,7 @@
 
       return element;
     }
+
     // update type filter form
     ScalarLenses.prototype.updateTypeFilterForm = function() {
       let option;
@@ -1050,6 +1052,7 @@
 
       return element;
     }
+
     // update content filter
     ScalarLenses.prototype.updateContentFilterForm = function() {
       // update operator menu
@@ -1106,6 +1109,7 @@
 
         return element
     }
+
     // update relationship filter
     ScalarLenses.prototype.updateRelationshipFilterForm = function (){
 
@@ -1207,6 +1211,7 @@
         return element
 
     }
+
     // update distance filter form
     ScalarLenses.prototype.updateDistanceFilterForm = function(){
 
@@ -1245,6 +1250,7 @@
       return element
 
     }
+
     // update quantity filter form
     ScalarLenses.prototype.updateQuantityFilterForm = function(){
 
@@ -1314,27 +1320,25 @@
         $('#metadata-content').val(filterObj.content)
 
         // ontology dropdown
-        this.populateDropdown($('#ontology-button'), $('#ontology-list'), filterObj.operator, onClick,
+        this.populateDropdown($('#ontology-button'), $('#ontology-list'), filterObj["metadata-field"], onClick,
           '<li><a></a></li>',
           [
-
             // list will be dynamic
-            {label: "item1", value: "item1"},
-            {label: "item2", value: "item2"}
+            {label: "Dublin Core", value: "dublin-core"}
 
           ]);
         // property dropdown
-        this.populateDropdown($('#property-button'), $('#property-list'), filterObj.operator, onClick,
+        this.populateDropdown($('#property-button'), $('#property-list'), filterObj["metadata-field"], onClick,
           '<li><a></a></li>',
           [
             // list will be dynamic
-            {label: "propertyItem1", value: "propertyItem1"},
-            {label: "propertyItem2", value: "propertyItem2"}
+            {label: "temporal", value: "temporal"}
           ]);
 
       return element
 
     }
+
     // update metadata filter form
     ScalarLenses.prototype.updateMetadataFilterForm = function(){
 
@@ -1353,8 +1357,7 @@
       let ontologyButton = $('#ontology-button');
       option = ontologyButton.data('option');
       if (!option) { // if nothing selected yet, pull the option from the first item
-        option = $('#ontology-list').find('li').eq(0).data('option');
-        ontologyButton.data('option', option);
+        option = {label: 'Select ontology', value: null};
       }
       ontologyButton.text(option.label).append('<span class="caret"></span>');
 
@@ -1362,8 +1365,7 @@
       let propertyButton = $('#property-button');
       option = propertyButton.data('option');
       if (!option) { // if nothing selected yet, pull the option from the first item
-        option = $('#property-list').find('li').eq(0).data('option');
-        propertyButton.data('option', option);
+        option = {label: 'Select property', value: null};
       }
       propertyButton.text(option.label).append('<span class="caret"></span>');
 
@@ -1435,6 +1437,7 @@
       return element
 
     }
+
     // update visitdate filter form
     ScalarLenses.prototype.updateVisitDateFilterForm = function() {
 
