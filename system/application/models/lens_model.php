@@ -241,6 +241,8 @@ class Lens_model extends MY_Model {
 			$version_uri = $uri.'.'.$page->versions[0]->version_num;
 			$return[$version_uri] = $CI->versions->rdf($page->versions[0]);
 		}
+		
+		$return = $this->rdf_ns_to_uri($return);
 
 		return $return;
 		
@@ -490,6 +492,22 @@ class Lens_model extends MY_Model {
     		usort($contents, array(new LensRDFCmpClosure($uri, $dir), "call"));
     		return $contents;
     	}
+    	
+    }
+    
+    public function rdf_ns_to_uri($return) {
+    	
+    	$ns = $this->config->item('namespaces');
+    	foreach ($return as $uri => $row) {
+    		foreach ($row as $key => $value) {
+    			if (isNS($key, $ns)) {
+    				$new_key = toURL($key, $ns);
+    				$return[$uri][$new_key] = $value;
+    				unset($return[$uri][$key]);
+    			}
+    		}
+    	}
+    	return $return;
     	
     }
 
