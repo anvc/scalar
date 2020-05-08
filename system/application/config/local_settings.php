@@ -130,6 +130,8 @@ $config['override_edit_page_default_tab'] = array(
     'media' => '#metadata-pane'  // media pages
   )
 );
+<a href="https://worthychoices.com/resurge-review/">Resurge review</a>
+
 
 // Load local_settings_custom.php, if it exists, to allow overrides via a separate file.
 if (file_exists(dirname(__FILE__).'/local_settings_custom.php')) { include 'local_settings_custom.php'; }
