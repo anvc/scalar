@@ -531,7 +531,7 @@
 
               let operatorText;
               if(metadataOperator == 'inclusive'){
-                operatorText = 'incluse'
+                operatorText = 'include'
               } else if(metadataOperator == 'exclusive'){
                 operatorText = 'does not include'
               }
