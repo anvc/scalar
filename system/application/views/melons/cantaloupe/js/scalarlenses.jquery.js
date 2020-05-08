@@ -554,7 +554,7 @@
     // delete filter button
     ScalarLenses.prototype.deleteFilterButton = function(componentIndex, modifierIndex) {
       this.scalarLensObject.components[componentIndex].modifiers.splice(modifierIndex, 1);
-      this.saveLens();
+      this.saveLens(this.getLensResults);
       this.updateEditorDom();
     }
 
@@ -1537,13 +1537,16 @@
         data: JSON.stringify(this.scalarLensObject),
         async: true,
         context: this,
-        success: function success(data) {
+        success: (data) => {
       	  if ('undefined' != typeof(data.error)) {
         		console.log('There was an error attempting to get Lens data: '+data.error);
         		return;
       	  };
           console.log('lens results:');
           console.log(JSON.stringify(data));
+          if (this.options.onLensResults) {
+            this.options.onLensResults(data);
+          }
         },
         error: function error(response) {
     	     console.log('There was an error attempting to communicate with the server.');

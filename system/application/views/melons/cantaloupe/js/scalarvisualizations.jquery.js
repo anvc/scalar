@@ -23,52 +23,52 @@
 
     $.scalarvis = function( el, options ){
 
-        // To avoid scope issues, use 'base' instead of 'this'
-        // to reference this class from internal events and functions.
-        var base = this;
+      // To avoid scope issues, use 'base' instead of 'this'
+      // to reference this class from internal events and functions.
+      var base = this;
 
-        // Access to jQuery and DOM versions of element
-        base.$el = $( el );
-        base.el = el;
+      // Access to jQuery and DOM versions of element
+      base.$el = $( el );
+      base.el = el;
 
-        base.visStarted = false;
-		base.resultsPerPage = 50;
-		base.loadedAllContent = false;
-		base.canonicalTypeOrder = [ "path", "page", "comment", "tag", "annotation", "media" ];
-		base.canonicalRelationOrder = [
-			{type:'path', direction:'outgoing'},
-			{type:'path', direction:'incoming'},
-			{type:'tag', direction:'outgoing'},
-			{type:'tag', direction:'incoming'},
-			{type:'annotation', direction:'outgoing'},
-			{type:'annotation', direction:'incoming'},
-			{type:'reference', direction:'outgoing'},
-			{type:'reference', direction:'incoming'},
-			{type:'comment', direction:'outgoing'},
-			{type:'comment', direction:'incoming'}
-		];
-		base.neutralColor = "#dddddd";
-		base.VisualizationContent = {
-			"all": "All content",
-			"toc": "Table of contents",
-			"page": "All pages",
-			"path": "All paths",
-			"tag": "All tags",
-			"annotation": "All annotations",
-			"media": "All media",
-			"comment": "All comments",
-			"current": "Current page"
-		}
-		base.popoverTemplate = '<div class="popover vis-help caption_font" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>';
-		base.currentNode = scalarapi.model.getCurrentPageNode();
-		base.modalIsOpen = false;
-		base.instanceId = 'scalarvis-' + window.scalarvis.instanceCount++;
+      base.visStarted = false;
+  		base.resultsPerPage = 50;
+  		base.loadedAllContent = false;
+  		base.canonicalTypeOrder = [ "path", "page", "comment", "tag", "annotation", "media" ];
+  		base.canonicalRelationOrder = [
+  			{type:'path', direction:'outgoing'},
+  			{type:'path', direction:'incoming'},
+  			{type:'tag', direction:'outgoing'},
+  			{type:'tag', direction:'incoming'},
+  			{type:'annotation', direction:'outgoing'},
+  			{type:'annotation', direction:'incoming'},
+  			{type:'reference', direction:'outgoing'},
+  			{type:'reference', direction:'incoming'},
+  			{type:'comment', direction:'outgoing'},
+  			{type:'comment', direction:'incoming'}
+  		];
+  		base.neutralColor = "#dddddd";
+  		base.VisualizationContent = {
+  			"all": "All content",
+  			"toc": "Table of contents",
+  			"page": "All pages",
+  			"path": "All paths",
+  			"tag": "All tags",
+  			"annotation": "All annotations",
+  			"media": "All media",
+  			"comment": "All comments",
+  			"current": "Current page"
+  		}
+  		base.popoverTemplate = '<div class="popover vis-help caption_font" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>';
+  		base.currentNode = scalarapi.model.getCurrentPageNode();
+  		base.modalIsOpen = false;
+  		base.instanceId = 'scalarvis-' + window.scalarvis.instanceCount++;
 
-        // one-time setup
-        base.init = function(){
+      // one-time setup
+      base.init = function(){
 
-            // replace undefined options with defaults...
-            base.setOptions( $.extend( {}, $.scalarvis.defaultOptions, options ) );
+      // replace undefined options with defaults...
+      base.setOptions( $.extend( {}, $.scalarvis.defaultOptions, options ) );
 
 			if (base.currentNode != null) {
 				base.processNode(base.currentNode);
@@ -151,17 +151,17 @@
 					controls_html += '<option value="' + prop + '">' + base.VisualizationContent[ prop ] + '</option>';
 				}
 				controls_html += 	'</select> ' +
-									'<select class="vis-relations-control form-control">' +
-										'<option value="all">All relationships</option>' +
-										'<option value="parents-children">Parents and children</option>' +
-										'<option value="none">No relationships</option>' +
-									'</select> ' +
-									'<select class="vis-format-control form-control">' +
-										'<option value="grid">Grid format</option>' +
-										'<option value="tree">Tree format</option>' +
-										'<option value="radial">Radial format</option>' +
-										'<option value="force-directed">Force-directed format</option>' +
-									'</select>';
+					'<select class="vis-relations-control form-control">' +
+						'<option value="all">All relationships</option>' +
+						'<option value="parents-children">Parents and children</option>' +
+						'<option value="none">No relationships</option>' +
+					'</select> ' +
+					'<select class="vis-format-control form-control">' +
+						'<option value="grid">Grid format</option>' +
+						'<option value="tree">Tree format</option>' +
+						'<option value="radial">Radial format</option>' +
+						'<option value="force-directed">Force-directed format</option>' +
+					'</select>';
 				base.controls.append( controls_html );
 
 				base.visElement.find( ".vis-content-control" ).on('change',  base.onContentSelect );
@@ -241,24 +241,24 @@
 				}
 			} );
 
-        };
+      };
 
-        base.enterFullScreen = function() {
-      		page.isFullScreen = true; // a hack, but if we don't do this then Safari tries to reload the media before it recieves the full screen event that tells it not to reload the media
-         	if ('function'==typeof(base.visualization[0].webkitRequestFullscreen)) {
-         		base.visualization[0].webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
-        	} else if ('function'==typeof(base.visualization[0].mozRequestFullScreen)) {
-        		base.visualization[0].mozRequestFullScreen();
-        	} else if ('function'==typeof(base.visualization[0].msRequestFullscreen)) {
-        		base.visualization[0].msRequestFullscreen();
-        	} else if ('function'==typeof(base.visualization[0].requestFullscreen)) {
-        		base.visualization[0].requestFullscreen(); // standard
-        	} else {
-        		alert('Full screen is not supported in this version of your browser. Please update your browser and try again.');
-        	}
-        }
+      base.enterFullScreen = function() {
+    		page.isFullScreen = true; // a hack, but if we don't do this then Safari tries to reload the media before it recieves the full screen event that tells it not to reload the media
+       	if ('function'==typeof(base.visualization[0].webkitRequestFullscreen)) {
+       		base.visualization[0].webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+      	} else if ('function'==typeof(base.visualization[0].mozRequestFullScreen)) {
+      		base.visualization[0].mozRequestFullScreen();
+      	} else if ('function'==typeof(base.visualization[0].msRequestFullscreen)) {
+      		base.visualization[0].msRequestFullscreen();
+      	} else if ('function'==typeof(base.visualization[0].requestFullscreen)) {
+      		base.visualization[0].requestFullscreen(); // standard
+      	} else {
+      		alert('Full screen is not supported in this version of your browser. Please update your browser and try again.');
+      	}
+      }
 
-        base.onContentSelect = function() {
+      base.onContentSelect = function() {
 			var contentValue = $( this ).val();
 			var relationsValue = base.visElement.find( ".vis-relations-control" ).val();
 			base.options.content = contentValue;
@@ -1021,7 +1021,6 @@
         n = base.options.items.length;
         for (i=0; i<n; i++) {
           node = scalarapi.getNode(base.options.items[i]);
-          console.log(node);
           if (node) {
             base.contentNodes.push(node);
           }
