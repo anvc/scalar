@@ -1396,14 +1396,14 @@
                <ul id="visitdate-units-list" class="dropdown-menu"></ul>
              </div>
             </div>
-            <div class="row limitRow" style="margin-top:10px;">
+            <div class="row limitRow" style="margin-top:10px;max-width:280px;">
             <span>before</span>
              <div class="btn-group">
                <button id="date-button" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
                  now<span class="caret"></span></button>
                <ul id="date-list" class="dropdown-menu"></ul>
              </div>
-             <input id="visitdate-input" type="datetime-local" class="form-control" aria-label="..." placeholder="Enter date: mm/dd/yyyy">
+             <input id="visitdate-input" type="datetime-local" class="form-control" aria-label="..." placeholder="Enter date: mm/dd/yyyy hh:mm am/pm">
            </div>
         </div>
         `).appendTo(container);

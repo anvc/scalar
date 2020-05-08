@@ -1719,5 +1719,12 @@ span.base {
 	max-width:115px;float:left;
 }
 #visitdate-input {
-	max-width:245px;margin:10px auto 0;
+	max-width:280px;margin:10px auto 0;
 }
+
+/* input[type="datetime-local"]:before{
+    content: 'Enter date: ';
+    color: #000;
+    text-align: center;
+    float:left;
+} */
