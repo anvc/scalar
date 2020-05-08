@@ -291,10 +291,11 @@
 			base.visualize();
         }
 
-        base.deriveRelationsFromContent = function(content) {
+    base.deriveRelationsFromContent = function(content) {
 			switch ( base.options.relations ) {
 
 				case "all":
+        case "specific":
 				base.options.relations = "all";
 				break;
 
@@ -318,40 +319,40 @@
 				break;
 
 			}
-        }
+    }
 
-        base.onFormatSelect = function() {
+    base.onFormatSelect = function() {
 			base.options.format = base.visElement.find( ".vis-format-control" ).val();
 			base.visualize();
-        }
+    }
 
-        base.setOptions = function( options ) {
-        	if ( options.content == "reply" ) {
-        		options.content = "comment";
-        	}
-        	base.options = options;
-        	if ( base.controls != null ) {
- 				base.updateControls();
-        	}
-      	};
+    base.setOptions = function( options ) {
+    	if ( options.content == "reply" ) {
+    		options.content = "comment";
+    	}
+    	base.options = options;
+    	if ( base.controls != null ) {
+			base.updateControls();
+    	}
+  	};
 
-       	base.updateControls = function() {
-       		base.visElement.find( ".vis-content-control" ).val( base.options.content );
-       		switch ( base.options.relations ) {
+   	base.updateControls = function() {
+   		base.visElement.find( ".vis-content-control" ).val( base.options.content );
+   		switch ( base.options.relations ) {
 
-       			case "all":
-       			case "none":
-       			case "toc":
-       			base.visElement.find( ".vis-relations-control" ).val( base.options.relations );
-       			break;
+   			case "all":
+   			case "none":
+   			case "toc":
+   			base.visElement.find( ".vis-relations-control" ).val( base.options.relations );
+   			break;
 
-       			default:
-       			base.visElement.find( ".vis-relations-control" ).val( "parents-children" );
-       			break;
+   			default:
+   			base.visElement.find( ".vis-relations-control" ).val( "parents-children" );
+   			break;
 
-       		}
-       		base.visElement.find( ".vis-format-control" ).val( base.options.format );
-       	}
+   		}
+   		base.visElement.find( ".vis-format-control" ).val( base.options.format );
+   	}
 
 		// color scheme generated at http://colorbrewer2.org
 		base.highlightColorScale = function( d, t, n ) {
@@ -629,6 +630,11 @@
 				base.loadSequence.push( { id: 'reply', desc: "comments", relations: 'reply' } );
 				break;
 
+        case "specific":
+        base.filter();
+        base.draw();
+        break;
+
 				case "current":
 				base.loadSequence.push( { id: 'current', desc: "current page", relations: base.options.relations } );
 				break;
@@ -664,41 +670,41 @@
 		}
 
         // pauses loading and drawing
-        base.pause = function() {
+    base.pause = function() {
 			base.loadingPaused = !base.loadingDone;
 			base.drawingPaused = true;
-        };
+    };
 
         // resumes loading and drawing
-        base.resume = function() {
+    base.resume = function() {
 			base.drawingPaused = false;
 			if ( base.loadingPaused ) {
 				base.loadingPaused = false;
 				base.loadNextData();
 			}
-        };
+    };
 
-        // shows a modal containing the visualization of the given type
-        base.showModal = function( options ) {
+    // shows a modal containing the visualization of the given type
+    base.showModal = function( options ) {
 
-        	// enforce modal
-        	options.modal = true;
+    	// enforce modal
+    	options.modal = true;
 
-        	// if the vis has never been started or if any options have changed, then start it
-        	if ( !base.visStarted || (( base.options.content != options.content ) || ( base.options.relations != options.relations ) || ( base.options.format != options.format ))) {
-	            base.setOptions( $.extend( {}, base.options, options ) );
-	            base.visualize();
+    	// if the vis has never been started or if any options have changed, then start it
+    	if ( !base.visStarted || (( base.options.content != options.content ) || ( base.options.relations != options.relations ) || ( base.options.format != options.format ))) {
+          base.setOptions( $.extend( {}, base.options, options ) );
+          base.visualize();
 
-       		// otherwise, resume it
-        	} else {
-        		base.resume();
-        	}
+   		// otherwise, resume it
+    	} else {
+    		base.resume();
+    	}
 
 			base.$el.modal();
 
-        }
+    }
 
-        base.loadNextData = function() {
+    base.loadNextData = function() {
 
 			// if we've reached the last page of the current content type, increment/reset the counters
 			if ( base.reachedLastPage ) {
@@ -817,7 +823,7 @@
 
         };
 
-        base.parseData = function( json ) {
+    base.parseData = function( json ) {
 
 			if ( jQuery.isEmptyObject( json ) || ( json == null ) ) {
 				base.reachedLastPage = true;
@@ -855,7 +861,7 @@
 				// if a count was found, store it
 				if ( count != null ) {
 					base.typeCounts[ loadInstruction.id ] = count;
-					
+
 					// if the count is less than the point at which we'd start our next load, then
 					// we've reached the last page of data for this item type
 					//if ( count < (( base.pageIndex + 1 ) * base.resultsPerPage )) {
@@ -883,7 +889,7 @@
 				base.force.start();
 			}
 
-        };
+    };
 
 		base.showLoadingMsg = function() {
 			base.loadingMsg.slideDown();
@@ -1009,6 +1015,47 @@
 					base.maxConnections = Math.max( base.maxConnections, node.connectionCount );
 				}
 				break;
+
+        case "specific":
+        base.contentNodes = [];
+        n = base.options.items.length;
+        for (i=0; i<n; i++) {
+          node = scalarapi.getNode(base.options.items[i]);
+          console.log(node);
+          if (node) {
+            base.contentNodes.push(node);
+          }
+        }
+
+				// get relationships for each node
+				n = base.contentNodes.length;
+				for ( i = 0; i < n; i++ ) {
+					node = base.contentNodes[ i ];
+					relNodes = [];
+					rels = [];
+					if ( base.options.relations == "all" ) {
+						relNodes = node.getRelatedNodes( null, "both" );
+						rels = node.getRelations( null, "both" );
+            relNodes.forEach((relNode, index) => {
+              if (base.options.items.indexOf(relNode.slug) != -1) {
+                base.relatedNodes.push(relNode);
+    						base.relations.push(rels[index]);
+              }
+            });
+					} else if ( base.options.relations != "none" ) {
+						relNodes = node.getRelatedNodes( base.options.relations, "both" );
+						rels = node.getRelations( base.options.relations, "both" );
+            relNodes.forEach((relNode, index) => {
+              if (base.options.items.indexOf(relNode.slug) != -1) {
+                base.relatedNodes.push(relNode);
+    						base.relations.push(rels[index]);
+              }
+            });
+					}
+					node.connectionCount = rels.length;
+					base.maxConnections = Math.max( base.maxConnections, node.connectionCount );
+				}
+        break;
 
 				case "toc":
 				base.contentNodes = [];
