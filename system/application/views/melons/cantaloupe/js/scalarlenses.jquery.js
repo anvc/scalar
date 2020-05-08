@@ -525,9 +525,17 @@
             break;
 
             case 'metadata':
+              let metadataOperator = filterObj.operator;
               let metadataContent = filterObj.content;
               let metadataProperty = filterObj["metadata-field"]
-              buttonText = `that include "${metadataContent}" in ${metadataProperty}`
+
+              let operatorText;
+              if(metadataOperator == 'inclusive'){
+                operatorText = 'incluse'
+              } else if(metadataOperator == 'exclusive'){
+                operatorText = 'does not include'
+              }
+              buttonText = `that ${operatorText} "${metadataContent}" in ${metadataProperty}`;
             break;
 
             case 'visit-date':
@@ -543,6 +551,7 @@
       }
     }
 
+    // delete filter button
     ScalarLenses.prototype.deleteFilterButton = function(componentIndex, modifierIndex) {
       this.scalarLensObject.components[componentIndex].modifiers.splice(modifierIndex, 1);
       this.saveLens();
@@ -711,7 +720,7 @@
 
     // add filter Modal
     // sets default state for all filter modals
-    // handles Done click event for all filters
+    // handles done click event for all filters
     ScalarLenses.prototype.addFilterModal = function(){
       let element = $(
         `<div id="filterModal" class="modal fade caption_font" role="dialog">
@@ -1471,7 +1480,7 @@
 
     }
 
-
+    // populate a dropdown
     ScalarLenses.prototype.populateDropdown = function(buttonElement, listElement, currentData, onClick, markup, options) {
       options.forEach(option => {
         let listItem;
