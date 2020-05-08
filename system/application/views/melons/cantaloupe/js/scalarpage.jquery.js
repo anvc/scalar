@@ -1726,6 +1726,58 @@
                   })
                 ).done(() => { div.ScalarLenses() });
               }
+              var lensObject = this.getEmbeddedJson();
+              this.getLensResults(lensObject, function(data) {
+                scalarapi.parsePagesByType(data.items);
+                var slugs = [];
+                for (var url in data.items) {
+                  if (scalarapi.model.nodesByURL[url] != null) {
+                    slugs.push(scalarapi.model.nodesByURL[url].slug);
+                  }
+                }
+                var visOptions = {
+                    modal: false,
+                    content: 'specific',
+                    relations: 'path',
+                    items: slugs,
+                    format: lensObject.visualization.type
+                };
+                var visualization = $('<div class="visualization"></div>').appendTo(page.bodyContent());
+                visualization.scalarvis(visOptions);
+              });
+            },
+
+            getEmbeddedJson: function(){
+              if ($("[property|='scalar:isLensOf']").length > 0) {
+                return JSON.parse($("[property|='scalar:isLensOf']").html());
+              } else {
+                return null;
+              }
+            },
+
+            getLensResults: function(lensObject, handleSuccess) {
+              lensObject.book_urn = 'urn:scalar:book:' + $('link#book_id').attr('href');
+              let url = $('link#approot').attr('href').replace('application/','') + 'lenses';
+              $.ajax({
+                url: url,
+                type: "POST",
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify(lensObject),
+                async: true,
+                context: this,
+                success: function success(data) {
+              	  if ('undefined' != typeof(data.error)) {
+                		console.log('There was an error attempting to get Lens data: '+data.error);
+                		return;
+              	  };
+                  handleSuccess(data);
+                },
+                error: function error(response) {
+            	     console.log('There was an error attempting to communicate with the server.');
+            	     console.log(response);
+                }
+              });
             },
 
             addMediaElements: function() {
