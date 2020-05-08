@@ -720,9 +720,7 @@
               <div class="modal-body">
                 <h4 class="heading_font">Configure filter</h4>
                 <div class="filter-modal-container">
-
                   <div class="filter-modal-content"></div>
-
                   <div class="filter-counters">
                     <div class="left-badge">
                       <span class="counter">0</span>
@@ -786,7 +784,6 @@
               "quantity": $('#distanceFilterQuantity').val(),
               "units": $('#distance-units-button').data('option').value
             }
-
           break;
           case 'quantity':
             filterObj = {
@@ -805,18 +802,27 @@
               "subtype":"metadata",
               "operator":$('#operator-button').data('option').value,
               "content":$('#metadata-content').val(),
-              "metadata-field":`${ontologyValue} : ${propertyValue}`
+              "metadata-field":`${ontologyValue}:${propertyValue}`
             }
 
           break;
           case 'visit-date':
 
+            let dateTimeValue;
+            let dateButton = $('#date-button').data('option').value;
+            let dateTimeInput = $('#visitdate-input').val();
+            if(dateButton == 'now') {
+              dateTimeValue = dateButton;
+            } else if (dateButton == 'date') {
+              dateTimeValue = dateTimeInput;
+            }
+
             filterObj = {
               "type":"filter",
               "subtype": "visit-date",
               "quantity":$('#visitdate-quantity').val(),
-              "units":$('#units-button').data('option').value,
-              "datetime": $('#date-input').val()
+              "units":$('#visitdate-units-button').data('option').value,
+              "datetime": dateTimeValue
             }
 
 
@@ -1093,6 +1099,7 @@
           this.populateDropdown($('#relationship-type-button'), $('#relationship-type-list'), filterObj.relationship, onClick,
             '<li><a></a></li>',
             [
+              {label: "(any relationship)", value: "any-relationship"},
               {label: "parents", value: "parent"},
               {label: "children", value: "child"}
             ]);
@@ -1241,23 +1248,21 @@
     // update quantity filter form
     ScalarLenses.prototype.updateQuantityFilterForm = function(){
 
-      let quantityInput = document.getElementById('filterQuantityValue');
-
-      quantityInput.addEventListener('keyup', function(){
-        var text = quantityInput.value;
-        console.log('New text is "' + text + '"');
-
-        if(isNaN(text) || text < 1 || text > 5) {
-          alert('please enter a number btwn 0 and 5');
-          $('#filterByQuantity').find('.done').css({'pointer-events':'none'})
-
-        }
-
-        // if($('#distanceFilterQuantity').val() == " "){
-        //   $(this).css({'pointer-events':'none'});
-        // }
-
-      });
+      // let quantityInput = document.getElementById('filterQuantityValue');
+      //
+      // quantityInput.addEventListener('keyup', function(){
+      //   var text = quantityInput.value;
+      //   //console.log('New text is "' + text + '"');
+      //
+      //   if(isNaN(text) || text < 1 || text > 5) {
+      //     //alert('please enter a number btwn 0 and 5');
+      //     $('#filterByQuantity').find('.done').css({'pointer-events':'none'})
+      //
+      //   }
+      //   // if($('#distanceFilterQuantity').val() == " "){
+      //   //   $(this).css({'pointer-events':'none'});
+      //   // }
+      // });
 
     }
 
@@ -1276,7 +1281,7 @@
               </div>
             </div>
             <div class="row">
-              <input type="text" id="metadata-content" class="form-control metadataContent" aria-label="..." placeholder="Enter text" style="max-width:215px;margin:10px auto 0;">
+              <input type="text" id="metadata-content" type="number" min="0" max="5" class="form-control metadataContent" aria-label="..." placeholder="Enter text">
             </div>
             <div class="row" style="margin-top:10px;">
             <span style="margin-left:10px;vertical-align:middle;"> in this metadata field</span>
@@ -1289,7 +1294,6 @@
                   Select field...<span class="caret"></span></button>
                 <ul id="property-list" class="dropdown-menu"></ul>
               </div>
-
             </div>
          </div>
         `).appendTo(container);
@@ -1305,6 +1309,9 @@
             {label: "includes", value: "inclusive"},
             {label: "does not include", value: "exclusive"}
           ]);
+
+        // save metadata content value
+        $('#metadata-content').val(filterObj.content)
 
         // ontology dropdown
         this.populateDropdown($('#ontology-button'), $('#ontology-list'), filterObj.operator, onClick,
@@ -1369,23 +1376,23 @@
       container.empty();
       let element = $(`
         <div class="filterByVisitDate">
-          <p>Allow any item through that was visited within</p>
+          <p>Allow any items through that were visited up to</p>
            <div class="row" style="max-widtH:210px;margin:0 auto;">
-             <input id="visitdate-quantity" type="text" class="form-control" aria-label="..." placeholder="Enter quantity" style="max-width:120px;float:left;">
+             <input id="visitdate-quantity" class="form-control" aria-label="..." placeholder="Enter quantity">
              <div class="btn-group" style="min-width:83px;">
-               <button id="units-button" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
+               <button id="visitdate-units-button" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
                  Select unit...<span class="caret"></span></button>
-               <ul id="units-list" class="dropdown-menu"></ul>
+               <ul id="visitdate-units-list" class="dropdown-menu"></ul>
              </div>
             </div>
             <div class="row limitRow" style="margin-top:10px;">
-            <span>of</span>
+            <span>before</span>
              <div class="btn-group">
                <button id="date-button" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
                  now<span class="caret"></span></button>
                <ul id="date-list" class="dropdown-menu"></ul>
              </div>
-             <input id="date-input" type="datetime-local" class="form-control" aria-label="..." placeholder="Enter date: mm/dd/yyyy" style="max-width:200px;margin:10px auto 0">
+             <input id="visitdate-input" type="datetime-local" class="form-control" aria-label="..." placeholder="Enter date: mm/dd/yyyy">
            </div>
         </div>
         `).appendTo(container);
@@ -1397,10 +1404,17 @@
 
 
         $('#visitdate-quantity').val(filterObj.quantity)
-        $('#date-input').val(filterObj.datetime);
+        $('#visitdate-input').val(filterObj.datetime);
+
+
+        if(filterObj.datetime == 'date'){
+          $('#visitdate-input').css({'display':'block'});
+        } else {
+          $('#visitdate-input').css({'display':'none'});
+        }
 
         // units dropdown
-        this.populateDropdown($('#units-button'), $('#units-list'), filterObj.operator, onClick,
+        this.populateDropdown($('#visitdate-units-button'), $('#visitdate-units-list'), filterObj.operator, onClick,
           '<li><a></a></li>',
           [
             {label: "hours", value: "hours"},
@@ -1413,7 +1427,7 @@
         this.populateDropdown($('#date-button'), $('#date-list'), filterObj.operator, onClick,
           '<li><a></a></li>',
           [
-            {label: "now(continuous)", value: "now"},
+            {label: "now", value: "now"},
             {label: "specific date", value: "date"}
 
           ]);
@@ -1427,13 +1441,14 @@
       let option;
 
       // update units button
-      let unitsButton = $('#units-button');
+      let unitsButton = $('#visitdate-units-button');
       option = unitsButton.data('option');
       if (!option) { // if nothing selected yet, pull the option from the first item
-        option = $('#units-list').find('li').eq(0).data('option');
+        option = $('#visitdate-units-list').find('li').eq(0).data('option');
         unitsButton.data('option', option);
       }
       unitsButton.text(option.label).append('<span class="caret"></span>');
+
 
       // update date button
       let dateButton = $('#date-button');
@@ -1444,6 +1459,12 @@
       }
       dateButton.text(option.label).append('<span class="caret"></span>');
 
+      let visitdateInput = $('#visitdate-input');
+      if(dateButton.text() == 'specific date'){
+        visitdateInput.css({'display':'block'});
+      } else {
+        visitdateInput.css({'display':'none'});
+      }
 
     }
 

@@ -1712,3 +1712,12 @@ body>.annotorious-popup{
 span.base {
 	vertical-align: baseline;
 }
+#metadata-content {
+	max-width:215px;margin:10px auto 0;
+}
+#visitdate-quantity {
+	max-width:115px;float:left;
+}
+#visitdate-input {
+	max-width:235px;margin:10px auto 0;
+}
