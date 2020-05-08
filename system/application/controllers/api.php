@@ -150,12 +150,14 @@ Class Api extends CI_Controller {
 		if (!$this->users->is_a($this->user->relationship,'commentator')) {
 			$this->_output_error(StatusCodes::HTTP_UNAUTHORIZED);
 		}
-
-                // if the content is a iiif resource, try to get the thumbnail
+		
+        // if the content is a iiif resource, try to get the thumbnail
 		if (strpos($this->data['scalar:url'], '?iiif-manifest=1') > -1){
-			$thumb = $this->_get_IIIF_metadata($this->data['scalar:url']);
-			if($thumb){
-				$this->data['scalar:thumbnail'] = $thumb;
+			$iiif_metadata_array = $this->_get_IIIF_metadata($this->data['scalar:url']);
+			if($iiif_metadata_array !== false){
+				foreach ($iiif_metadata_array as $key => $value){ 
+					$this->data[$key] = $value;
+				}	
 			}
 		}
 
@@ -212,11 +214,12 @@ Class Api extends CI_Controller {
 		//parse data
 		$this->_load_update_data();
 
-                // if the content is a iiif resource, try to get the thumbnail
 		if (strpos($this->data['scalar:url'], '?iiif-manifest=1') > -1){
-			$thumb = $this->_get_IIIF_metadata($this->data['scalar:url']);
-			if($thumb){
-				$this->data['scalar:thumbnail'] = $thumb;
+			$iiif_metadata_array = $this->_get_IIIF_metadata($this->data['scalar:url']);
+			if($iiif_metadata_array){
+				foreach ($iiif_metadata_array as $key => $value){
+					$this->data[$key] = $value;
+				}	
 			}
 		}
 
@@ -557,9 +560,19 @@ Class Api extends CI_Controller {
 	
 	/**
 	* _get_IIIF_metadata takes IIIF manifest url, and returns thumbnail url if one is defined
-	* @return string
+	* @return array
 	*/
 	private function _get_IIIF_metadata($url=''){
+		$dc_check_fields = [
+			'abstract', 'accessRights', 'accrualMethod', 'accrualPeriodicity',
+			'accrualPolicy', 'alternative', 'audience', 'available', 'bibliographicCitation',
+			'conformsTo', 'contributor', 'coverage', 'creator', 'date', 'dateAccepted',
+			'dateCopyrighted', 'dateSubmitted', 'educationLevel', 'extent', 'format',
+			'hasFormat', 'identifier', 'instructionalMethod', 'isFormatOf', 'isRequiredBy',
+			'issued', 'language', 'mediator', 'medium', 'modified', 'provenance',
+			'relation', 'requires', 'rights', 'rightsHolder', 'source', 'spatial',
+			'subject', 'temporal', 'type', 'valid'
+		];
 		if ($url !== ''){
 			$ch = curl_init();
 			curl_setopt($ch, CURLOPT_URL, $url);
@@ -567,9 +580,22 @@ Class Api extends CI_Controller {
 			$response = curl_exec($ch);
 			curl_close($ch);
 			$response_json = json_decode($response, true);
-			if ($response_json['thumbnail']){
-				return $response_json['thumbnail']['@id'];
+			$return_array = [];
+			if (isset($response_json['thumbnail'])){
+				$return_array['scalar:thumbnail'] = $response_json['thumbnail']['@id'];
 			}
+			if (isset($response_json['license'])) {
+				$return_array['dcterms:license'] = $response_json['license'];
+			}
+			if (isset($response_json['metadata'])) {
+				foreach ($response_json['metadata'] as $obj) {
+					if (in_array($obj['label'], $dc_check_fields)) {
+						$label = 'dcterms:' . $obj['label'];
+						$return_array[$label] = $obj['value'];
+					}
+				}
+			}
+			return $return_array;
 		}
 		return false;
 	}
