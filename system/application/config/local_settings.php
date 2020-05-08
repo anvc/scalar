@@ -45,7 +45,7 @@ $config['recaptcha2_secret_key'] = (getenv('SCALAR_RECAPTCHA2_SECRET_KEY') ? get
 
 // Register key (leave blank if no register key required, e.g., array())
 // One of the strings placed in this array will be required in order for new users to register
-$config['register_key'] = array();
+$config['register_key'] = array('my key');
 
 // Max login attempts (e.g., 10) and the penalty wait time in seconds (e.g., 120)
 $config['max_login_attempts'] = 6;
