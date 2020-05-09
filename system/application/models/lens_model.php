@@ -237,8 +237,10 @@ class Lens_model extends MY_Model {
 		if (empty($contents)) return $return;
 		foreach ($contents as $content_id => $page) {
 			$uri = $prefix.'/'.$page->slug;
-			$return[$uri] = $CI->pages->rdf($page);
 			$version_uri = $uri.'.'.$page->versions[0]->version_num;
+			$page->has_version = $version_uri;
+			$page->versions[0]->version_of = $uri;
+			$return[$uri] = $CI->pages->rdf($page);
 			$return[$version_uri] = $CI->versions->rdf($page->versions[0]);
 		}
 		
