@@ -1735,7 +1735,7 @@
               } else {
                 visualization.empty();
               }
-              scalarapi.parsePagesByType([lensObject.items]);
+              scalarapi.parsePagesByType(lensObject.items);
               var slugs = [];
               for (var url in lensObject.items) {
                 if (scalarapi.model.nodesByURL[url] != null) {
