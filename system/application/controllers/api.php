@@ -573,6 +573,7 @@ Class Api extends CI_Controller {
 			'relation', 'requires', 'rights', 'rightsHolder', 'source', 'spatial',
 			'subject', 'temporal', 'type', 'valid'
 		];
+		$formated_check_fields = array_combine($dc_check_fields, array_map('strtolower', $dc_check_fields));
 		if ($url !== ''){
 			$ch = curl_init();
 			curl_setopt($ch, CURLOPT_URL, $url);
@@ -589,8 +590,10 @@ Class Api extends CI_Controller {
 			}
 			if (isset($response_json['metadata'])) {
 				foreach ($response_json['metadata'] as $obj) {
-					if (in_array($obj['label'], $dc_check_fields)) {
-						$label = 'dcterms:' . $obj['label'];
+					$formated_label = strtolower(str_replace(' ', '', $obj['label']));
+					$key = array_search($formated_label, $formated_check_fields);
+					if($key) {
+						$label = 'dcterms:' . $key;
 						$return_array[$label] = $obj['value'];
 					}
 				}
