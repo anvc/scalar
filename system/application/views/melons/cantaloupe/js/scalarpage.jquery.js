@@ -1720,6 +1720,11 @@
                 page.bodyContent().prepend(div);
                 $.when(
                   $.getScript(views_uri+'/melons/cantaloupe/js/bootbox.min.js'),
+                  $("<link/>", {
+                     rel: "stylesheet",
+                     type: "text/css",
+                     href: views_uri+"/widgets/edit/content_selector.css"
+                  }).appendTo("head"),
                   $.getScript(views_uri+'/widgets/edit/jquery.content_selector_bootstrap.js'),
                   $.Deferred((deferred) => {
                     $(deferred.resolve);
@@ -1735,7 +1740,6 @@
               } else {
                 visualization.empty();
               }
-              scalarapi.parsePagesByType(lensObject.items);
               var slugs = [];
               for (var url in lensObject.items) {
                 if (scalarapi.model.nodesByURL[url] != null) {
