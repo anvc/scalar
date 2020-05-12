@@ -138,7 +138,7 @@
          this.scalarLensObject.components[0] = { "content-selector": {}, "modifiers": []}
 
       } else {
-        console.log(this.scalarLensObject);
+        console.log(JSON.stringify(this.scalarLensObject));
         this.scalarLensObject.components.forEach((component, componentIndex) => {
           let componentContainer = this.getComponentContainer(componentIndex);
 
@@ -466,38 +466,18 @@
             case 'relationship':
               let relationshipContentTypes = filterObj["content-types"];
               let relationshipType = filterObj.relationship;
-
-              if(relationshipContentTypes == 'all-types' && relationshipType == 'parent') {
-                buttonText = 'that are parents of';
+              let relationshipDescriptors = {
+                'all-types': {'parent': 'are parents of', 'child': 'children of', 'any-relationship':'are related to'},
+                'path': {'parent': 'contain', 'child': 'contained by', 'any-relationship':'contain or are contained by'},
+                'tag': {'parent': 'tag', 'child': 'tagged by', 'any-relationship':'tag or are tagged by'},
+                'annotation': {'parent': 'annotate', 'child': 'annotated by', 'any-relationship':'annotate or are annotated by'},
+                'comment': {'parent': 'comment on', 'child': 'commented on by', 'any-relationship':'comment on or are commented on by'}
               }
-              if(relationshipContentTypes == 'all-types' && relationshipType == 'child') {
-                buttonText = 'that are children of';
+              buttonText = 'that';
+              if (relationshipType == 'child' && relationshipContentTypes != 'any-relationship') {
+                buttonText += ' are';
               }
-              if(relationshipContentTypes == 'path' && relationshipType == 'parent') {
-                buttonText = 'that contain';
-              }
-              if(relationshipContentTypes == 'path' && relationshipType == 'child') {
-                buttonText = 'that are contained by';
-              }
-              if(relationshipContentTypes == 'tag' && relationshipType == 'parent') {
-                buttonText = 'that tag ';
-              }
-              if(relationshipContentTypes == 'tag' && relationshipType == 'child') {
-                buttonText = 'that are tagged by ';
-              }
-              if(relationshipContentTypes == 'annotation' && relationshipType == 'parent') {
-                buttonText = 'that annotate ';
-              }
-              if(relationshipContentTypes == 'annotation' && relationshipType == 'child') {
-                buttonText = 'that are annotated by';
-              }
-              if(relationshipContentTypes == 'comment' && relationshipType == 'parent') {
-                buttonText = 'that comment on';
-              }
-              if(relationshipContentTypes == 'comment' && relationshipType == 'child') {
-                buttonText = 'that are commented on by';
-              }
-
+              buttonText += ' ' + relationshipDescriptors[relationshipContentTypes][relationshipType];
             break;
 
             case 'distance':
