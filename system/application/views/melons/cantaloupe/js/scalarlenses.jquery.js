@@ -17,14 +17,6 @@
 
     // Init
     ScalarLenses.prototype.init = function (){
-      // You already have access to the DOM element and
-      // the options via the instance, e.g. this.element
-      // and this.options
-
-
-      // reference for saveLens callback function
-      let me = this;
-
       this.visualizationOptions = {
           'force-directed': {
                 id: 1,
@@ -62,7 +54,6 @@
                 text:'Word Cloud'
 
               }
-
       }
 
       this.scalarLensObject = this.getEmbeddedJson();
@@ -72,7 +63,6 @@
       this.getLensResults();
       this.buildEditorDom();
       this.updateEditorDom();
-
     }
 
     // get Embedded data
@@ -315,36 +305,39 @@
             switch(type){
 
               case 'specific-items':
-
-                  let items = contentSelectorObj.items;
-                  let buttonText;
-
-                  if(items.length <= 1){
-                    buttonText = '&#8220;'+ items + '&#8221;';
-                  } else {
-                    let remainingItems = items.length - 1;
-                    buttonText = '&#8220;'+ items[0] + '&#8221;' + ' and ' + remainingItems + ' more...';
-                  }
-
-                  button.html(buttonText).append('<span class="caret"></span>');
-
-                  break;
+                let items = contentSelectorObj.items;
+                if (items.length > 0) {
+                  scalarapi.loadNode(items[0], true, () => {
+                    let node = scalarapi.getNode(items[0]);
+                    console.log(node.current.title);
+                    let buttonText = '&#8220;'+ node.current.title + '&#8221;';
+                    if (items.length > 1) {
+                      let remainingItems = items.length - 1;
+                      buttonText += ' and ' + remainingItems + ' more...';
+                    }
+                    console.log(buttonText);
+                    button.html(buttonText).append('<span class="caret"></span>');
+                  });
+                } else {
+                  button.html('[no items selected]').append('<span class="caret"></span>');
+                }
+                break;
 
               case 'items-by-type':
-                  let contentType = contentSelectorObj["content-type"];
-                  switch (contentType) {
-                    case 'all-content':
-                    button.text('All content').append('<span class="caret"></span>');
-                    break;
-                    case 'page':
-                    case 'media':
-                    button.text('All ' + scalarapi.model.scalarTypes[contentType].plural).append('<span class="caret"></span>');
-                    break;
-                    default:
-                    button.text('All ' + scalarapi.model.relationTypes[contentType].bodyPlural).append('<span class="caret"></span>');
-                    break;
-                  }
+                let contentType = contentSelectorObj["content-type"];
+                switch (contentType) {
+                  case 'all-content':
+                  button.text('All content').append('<span class="caret"></span>');
                   break;
+                  case 'page':
+                  case 'media':
+                  button.text('All ' + scalarapi.model.scalarTypes[contentType].plural).append('<span class="caret"></span>');
+                  break;
+                  default:
+                  button.text('All ' + scalarapi.model.relationTypes[contentType].bodyPlural).append('<span class="caret"></span>');
+                  break;
+                }
+                break;
 
               case 'items-by-distance':
                   let units = contentSelectorObj.units;
@@ -1544,6 +1537,7 @@
       	  };
           console.log('lens results:');
           console.log(JSON.stringify(data));
+          scalarapi.parsePagesByType(data.items);
           if (this.options.onLensResults) {
             this.options.onLensResults(data);
           }
@@ -1575,21 +1569,12 @@
 
     // callback for content-selector
     ScalarLenses.prototype.handleContentSelected = function(nodes){
-
       if (nodes && nodes.length != 0) {
-        //console.log(nodes);
-
-        // extract the 'slug' property of each node and put into an array;
-        // this gets stored in the "items" property
-        let nodeTitles = nodes.map(node => node.title);
-
-        // set JSON object value
+        let nodeTitles = nodes.map(node => node.slug);
         this.scalarLensObject.components[this.editedComponentIndex]["content-selector"].type = 'specific-items';
         this.scalarLensObject.components[this.editedComponentIndex]["content-selector"].items = nodeTitles;
-
         this.updateEditorDom();
         this.saveLens(this.getLensResults);
-
       }
     }
 
