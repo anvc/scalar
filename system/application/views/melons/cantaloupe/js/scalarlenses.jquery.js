@@ -17,44 +17,7 @@
 
     // Init
     ScalarLenses.prototype.init = function (){
-      this.visualizationOptions = {
-          'force-directed': {
-                id: 1,
-                text:'Force-Directed',
-                //iconDark:'../images/icon_forcedir_dark.png',
-                iconLight:'light'
-              },
-              'grid': {
-                id: 2,
-                text:'Grid'
 
-              },
-              'list':{
-                id: 3,
-                text:'List'
-
-              },
-              'map':{
-                id: 4,
-                text:'Map'
-
-              },
-              'radial':{
-                id: 5,
-                text:'Radial'
-
-              },
-            'tree':  {
-                id: 6,
-                text:'Tree'
-
-              },
-              'word-cloud':{
-                id: 7,
-                text:'Word Cloud'
-
-              }
-      }
 
       this.scalarLensObject = this.getEmbeddedJson();
       if(!this.scalarLensObject) {
@@ -330,7 +293,7 @@
                       let remainingItems = items.length - 1;
                       buttonText += ' and ' + remainingItems + ' more...';
                     }
-                    console.log(buttonText);
+                    //console.log(buttonText);
                     button.html(buttonText).append('<span class="caret"></span>');
                   });
                 } else {
@@ -1606,7 +1569,12 @@
 
         switch(type){
           case 'alphabetical':
-          sortObj = {};
+            sortObj = {
+              "type": "sort",
+              "sort-type": "alphabetical",
+              "metadata-field": "dcterms:title",
+              "sort-order": "ascending"
+            };
           break;
           case 'creation-date':
           sortObj = {};
@@ -1649,7 +1617,7 @@
       switch(type) {
 
         case 'alphabetical':
-        this.addAlphabeticalSortForm(modalContainer, filterObj);
+        this.addAlphabeticalSortForm(modalContainer, sortObj);
         this.updateAlphabeticalSortForm();
         break;
 
@@ -1749,6 +1717,59 @@
     }
 
     ScalarLenses.prototype.addAlphabeticalSortForm = function(modalContainer, sortObj) {
+      modalContainer.empty();
+      let element = $(`
+        <div class="">
+        <span>Sort by</span>
+          <div class="btn-group">
+            <button id="sort-content-button" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Select item...<span class="caret"></span>
+            </button>
+            <ul id="sort-content-list" class="dropdown-menu"></ul>
+          </div>
+          <div class="btn-group">
+            <button id="sort-title-button" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Select item...<span class="caret"></span>
+            </button>
+            <ul id="sort-title-list" class="dropdown-menu"></ul>
+          </div>
+          <span>in</span>
+          <div class="btn-group">
+            <button id="sort-order-button" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Select order...<span class="caret"></span>
+            </button>
+            <ul id="sort-order-list" class="dropdown-menu"></ul>
+          </div>
+          <span>alphabetical order</span>
+        </div>
+      `).appendTo(modalContainer);
+
+      if (!sortObj) sortObj = this.getDefaultSort('alphabetical');
+      let me = this;
+      let onClick = function() { me.updateAlphabeticalSortForm() };
+
+      this.populateDropdown($('#sort-content-button'), $('#sort-content-list'), sortObj["metadata-field"], onClick,
+        '<li><a></a></li>',
+        [
+          {label: "item-a", value: "item-a"},
+          {label: "item-b", value: "item-b"}
+        ]);
+
+      this.populateDropdown($('#sort-title-button'), $('#sort-title-list'), sortObj['metadata-field'], onClick,
+        '<li><a></a></li>',
+        [
+          {label: "item-c", value: "item-c"},
+          {label: "item-d", value: "item-d"}
+        ]);
+
+      this.populateDropdown($('#sort-order-button'), $('#sort-order-list'), sortObj['sort-order'], onClick,
+        '<li><a></a></li>',
+        [
+          {label: "ascending", value: "ascending"},
+          {label: "descending", value: "descending"}
+        ]);
+
+      return element;
 
     }
 
