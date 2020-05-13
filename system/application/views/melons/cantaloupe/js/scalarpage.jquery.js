@@ -1746,14 +1746,16 @@
                   slugs.push(scalarapi.model.nodesByURL[url].slug);
                 }
               }
-              var visOptions = {
-                  modal: false,
-                  content: 'specific',
-                  relations: 'path',
-                  items: slugs,
-                  format: lensObject.visualization.type
-              };
-              visualization.scalarvis(visOptions);
+              if (lensObject.visualization) {
+                var visOptions = {
+                    modal: false,
+                    content: 'specific',
+                    relations: 'path',
+                    items: slugs,
+                    format: lensObject.visualization.type
+                };
+                visualization.scalarvis(visOptions);
+              }
             },
 
             addMediaElements: function() {
