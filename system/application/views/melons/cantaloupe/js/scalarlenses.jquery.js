@@ -151,7 +151,12 @@
             switch (modifier.type) {
 
               case 'filter':
-              button = componentContainer.find('.filter-button').eq(modifierIndex);
+              button = componentContainer.find('.modifier-button').eq(modifierIndex);
+              // if this isn't a filter button, remove it
+              if (!button.hasClass('filter-button')) {
+                button.remove();
+                button = [];
+              }
               if (button.length == 0) {
                 button = this.addFilterButton(this.buttonContainer, componentIndex, modifierIndex);
               }
@@ -159,6 +164,16 @@
               break;
 
               case 'sort':
+              button = componentContainer.find('.modifier-button').eq(modifierIndex);
+              // if this isn't a sort button, remove it
+              if (!button.hasClass('sort-button')) {
+                button.remove();
+                button = [];
+              }
+              if (button.length == 0) {
+                button = this.addSortButton(this.buttonContainer, componentIndex, modifierIndex);
+              }
+              this.updateSortButton(modifier, button);
               break;
 
             }
@@ -378,7 +393,7 @@
       if (modifierIndex == 0) {
         componentContainer.find('.content-selector-button').after(button);
       } else {
-        componentContainer.find('.filter-button').eq(modifierIndex-1).after(button);
+        componentContainer.find('.modifier-button').eq(modifierIndex-1).after(button);
       }
 
       button.data({
@@ -526,6 +541,112 @@
 
     // delete filter button
     ScalarLenses.prototype.deleteFilterButton = function(componentIndex, modifierIndex) {
+      this.scalarLensObject.components[componentIndex].modifiers.splice(modifierIndex, 1);
+      this.saveLens(this.getLensResults);
+      this.updateEditorDom();
+    }
+
+    // add filter button
+    ScalarLenses.prototype.addSortButton = function(componentContainer, componentIndex, modifierIndex){
+      let button = $(
+        `<div class="btn-group sort-button modifier-button"><button type="button" class="btn btn-primary btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Sort items...<span class="caret"></span></button>
+          <ul class="dropdown-menu sort-type-list"></ul>
+        </div>`
+      );
+
+      // position button in dom
+      if (modifierIndex == 0) {
+        componentContainer.find('.content-selector-button').after(button);
+      } else {
+        componentContainer.find('.modifier-button').eq(modifierIndex-1).after(button);
+      }
+
+      button.data({
+        'componentIndex': componentIndex,
+        'modifierIndex': modifierIndex
+      });
+
+      let me = this;
+      let onClick = function(evt) {
+        let option = $(evt.target).parent().data('option');
+        let button = $(evt.target).parent().parent().parent();
+        me.editedComponentIndex = parseInt(button.data('componentIndex'));
+        me.editedModifierIndex = parseInt(button.data('modifierIndex'));
+        if (option.value == 'delete') {
+          me.deleteSortButton(me.editedComponentIndex, me.editedModifierIndex);
+        } else {
+          let sortObj = me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex];
+          me.updateSortModal(option.value, sortObj);
+        }
+      }
+
+      this.populateDropdown(button, button.find('.sort-type-list'), null, onClick,
+        '<li><a data-toggle="modal" data-target="#sortModal"></a></li>',
+        [
+          {label: "A-Z", value: "alphabetical"},
+          {label: "Date created", value: "creation-date"},
+          {label: "Date last modified", value: "edit-date"},
+          {label: "Distance", value: "distance"},
+          {label: "Item type", value: "type"},
+          {label: "Relationship count", value: "relationship-count"},
+          {label: "String match count", value: "match-count"},
+          {label: "Visit date", value: "visit-date"},
+          {label: "separator", value: "separator"},
+          {label: "Delete", value: "delete"}
+        ]);
+
+      return button;
+    }
+
+    // update sort button
+    ScalarLenses.prototype.updateSortButton = function(sortObj, element, componentIndex, modifierIndex){
+
+      let button = element.find('button');
+
+      button.data({
+        'componentIndex': componentIndex,
+        'modifierIndex': modifierIndex
+      });
+
+      if(!sortObj) {
+        button.text('Sort items...').append('<span class="caret"></span>');
+
+      } else {
+        let buttonText = 'Sort items...';
+        switch(sortObj.subtype) {
+
+            case 'alphabetical':
+            break;
+
+            case 'creation-date':
+            break;
+
+            case 'edit-date':
+            break;
+
+            case 'distance':
+            break;
+
+            case 'type':
+            break;
+
+            case 'relationship-count':
+            break;
+
+            case 'match-count':
+            break;
+
+            case 'visit-date':
+            break;
+
+        }
+        button.text(buttonText).append('<span class="caret"></span>');
+      }
+    }
+
+    // delete sort button
+    ScalarLenses.prototype.deleteSortButton = function(componentIndex, modifierIndex) {
       this.scalarLensObject.components[componentIndex].modifiers.splice(modifierIndex, 1);
       this.saveLens(this.getLensResults);
       this.updateEditorDom();
@@ -691,7 +812,7 @@
 
     }
 
-    // add filter Modal
+    // add filter modal
     // sets default state for all filter modals
     // handles done click event for all filters
     ScalarLenses.prototype.addFilterModal = function(){
@@ -812,14 +933,14 @@
         }
 
         me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex] = filterObj;
-        me.updateFilterButton(me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex], $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.filter-button').eq(me.editedModifierIndex))
+        me.updateFilterButton(me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex], $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-button').eq(me.editedModifierIndex))
         me.saveLens(me.getLensResults);
       });
 
       return element;
     }
 
-    // update Filter modal
+    // update filter modal
     ScalarLenses.prototype.updateFilterModal = function(type, filterObj){
 
       if(!filterObj) filterObj = this.getDefaultFilter(type);
@@ -1450,6 +1571,244 @@
       } else {
         visitdateInput.css({'display':'none'});
       }
+
+    }
+
+    // add sort modal
+    // sets default state for all sort modals
+    // handles done click event for all sorts
+    ScalarLenses.prototype.addSortModal = function(){
+      let element = $(
+        `<div id="sortModal" class="modal fade caption_font" role="dialog">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-body">
+                <h4 class="heading_font">Configure filter</h4>
+                <div class="sort-modal-container">
+                  <div class="sort-modal-content"></div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary done" data-dismiss="modal">Done</button>
+              </div>
+            </div>
+          </div>
+        </div>`
+      )
+
+      var me = this;
+
+      // saves values
+      element.find('.done').on('click', function(){
+
+        let type = $('.sort-modal-content').data('sortType')
+
+        switch(type){
+          case 'alphabetical':
+          sortObj = {};
+          break;
+          case 'creation-date':
+          sortObj = {};
+          break;
+          case 'edit-date':
+          sortObj = {};
+          break;
+          case 'distance':
+          sortObj = {};
+          break;
+          case 'type':
+          sortObj = {};
+          break;
+          case 'relationship-count':
+          sortObj = {};
+          break;
+          case 'match-count':
+          sortObj = {};
+          break;
+          case 'visit-date':
+          sortObj = {};
+          break;
+        }
+
+        me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex] = filterObj;
+        me.updateSortButton(me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex], $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-button').eq(me.editedModifierIndex))
+        me.saveLens(me.getLensResults);
+      });
+
+      return element;
+    }
+
+    // update sort modal
+    ScalarLenses.prototype.updateSortModal = function(type, sortObj){
+
+      if(!sortObj) sortObj = this.getDefaultSort(type);
+      let modalContainer = $('.sort-modal-content');
+      modalContainer.data('sortType', type);
+
+      switch(type) {
+
+        case 'alphabetical':
+        this.addAlphabeticalSortForm(modalContainer, filterObj);
+        this.updateAlphabeticalSortForm();
+        break;
+
+        case 'creation-date':
+        this.addCreationDateSortForm(modalContainer, filterObj);
+        this.updateCreationDateSortForm();
+        break;
+
+        case 'edit-date':
+        this.addEditDateSortForm(modalContainer, filterObj);
+        this.updateEditDateSortForm();
+        break;
+
+        case 'distance':
+        this.addDistanceSortForm(modalContainer, filterObj);
+        this.updateDistanceSortForm();
+        break;
+
+        case 'type':
+        this.addTypeSortForm(modalContainer, filterObj);
+        this.updateTypeSortForm();
+        break;
+
+        case 'relationship-count':
+        this.addRelationshipCountSortForm(modalContainer, filterObj);
+        this.updateRelationshipCountSortForm();
+        break;
+
+        case 'match-count':
+        this.addMatchCountSortForm(modalContainer, filterObj);
+        this.updateMatchCountSortForm();
+        break;
+
+        case 'visit-date':
+        this.addVisitDateSortForm(modalContainer, filterObj);
+        this.updateVisitDateSortForm();
+        break;
+
+      }
+    }
+
+    // get default sort state
+    ScalarLenses.prototype.getDefaultSort = function(type){
+
+      switch(type){
+        case 'alphabetical':
+          sortObj = {
+          	"type": "sort",
+            "subtype": "alphabetical"
+          }
+        break;
+        case 'creation-date':
+          sortObj = {
+          	"type": "filter",
+            "subtype": "creation-date"
+          }
+        break;
+        case 'edit-date':
+          sortObj = {
+          	"type": "filter",
+            "subtype": "edit-date"
+          }
+        break;
+        case 'distance':
+          sortObj = {
+          	"type": "filter",
+            "subtype": "distance"
+          }
+        break;
+        case 'type':
+          sortObj = {
+          	"type": "filter",
+            "subtype": "type"
+          }
+        break;
+        case 'relationship-count':
+          sortObj = {
+            "type":"filter",
+            "subtype":"relationship-count"
+          }
+        break;
+        case 'match-count':
+          sortObj = {
+            "type":"filter",
+            "subtype":"match-count"
+          }
+        break;
+        case 'visit-date':
+          sortObj = {
+            "type":"filter",
+            "subtype":"visit-date"
+          }
+        break;
+      }
+      return sortObj;
+
+    }
+
+    ScalarLenses.prototype.addAlphabeticalSortForm = function(modalContainer, sortObj) {
+
+    }
+
+    ScalarLenses.prototype.updateAlphabeticalSortForm = function() {
+
+    }
+
+    ScalarLenses.prototype.addCreationDateSortForm = function(modalContainer, sortObj) {
+
+    }
+
+    ScalarLenses.prototype.updateCreationDateSortForm = function() {
+
+    }
+
+    ScalarLenses.prototype.addEditDateSortForm = function(modalContainer, sortObj) {
+
+    }
+
+    ScalarLenses.prototype.updateEditDateSortForm = function() {
+
+    }
+
+    ScalarLenses.prototype.addDistanceSortForm = function(modalContainer, sortObj) {
+
+    }
+
+    ScalarLenses.prototype.updateDistanceSortForm = function() {
+
+    }
+
+    ScalarLenses.prototype.addTypeSortForm = function(modalContainer, sortObj) {
+
+    }
+
+    ScalarLenses.prototype.updateTypeSortForm = function() {
+
+    }
+
+    ScalarLenses.prototype.addRelationshipCountSortForm = function(modalContainer, sortObj) {
+
+    }
+
+    ScalarLenses.prototype.updateRelationshipCountSortForm = function() {
+
+    }
+
+    ScalarLenses.prototype.addMatchCountSortForm = function(modalContainer, sortObj) {
+
+    }
+
+    ScalarLenses.prototype.updateMatchCountSortForm = function() {
+
+    }
+
+    ScalarLenses.prototype.addVisitDateSortForm = function(modalContainer, sortObj) {
+
+    }
+
+    ScalarLenses.prototype.updateVisitDateSortForm = function() {
 
     }
 

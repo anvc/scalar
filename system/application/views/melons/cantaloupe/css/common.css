@@ -1589,6 +1589,15 @@ body>.annotorious-popup{
 	background:#f08c4e;
 	border:1px solid #d87c43;
 }
+.sort-button .btn-primary,
+.sort-button .btn-primary:hover,
+.sort-button .btn-primary:active,
+.sort-button .btn-primary:focus,
+.sort-button.open .dropdown-toggle.btn-primary
+{
+	background:#5cb85c;
+	border:1px solid #4ca34c;
+}
 /* .content-selector-button .dropdown-menu li a, .filter-button .dropdown-menu li a {
 	padding:4px 10px;
 } */
