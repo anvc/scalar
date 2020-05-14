@@ -18,6 +18,45 @@
     // Init
     ScalarLenses.prototype.init = function (){
 
+      this.visualizationOptions = {
+          'force-directed': {
+                id: 1,
+                text:'Force-Directed',
+                //iconDark:'../images/icon_forcedir_dark.png',
+                iconLight:'light'
+              },
+              'grid': {
+                id: 2,
+                text:'Grid'
+
+              },
+              'list':{
+                id: 3,
+                text:'List'
+
+              },
+              'map':{
+                id: 4,
+                text:'Map'
+
+              },
+              'radial':{
+                id: 5,
+                text:'Radial'
+
+              },
+            'tree':  {
+                id: 6,
+                text:'Tree'
+
+              },
+              'word-cloud':{
+                id: 7,
+                text:'Word Cloud'
+
+              }
+      }
+
 
       this.scalarLensObject = this.getEmbeddedJson();
       if(!this.scalarLensObject) {
@@ -49,7 +88,9 @@
         "submitted": false,
         "frozen": false,
         "frozen-items": [],
-        "visualization": null,
+        "visualization": {
+          "type": null
+          },
         "components": []
       };
 
@@ -85,6 +126,7 @@
       lensHtml.append(this.addContentTypeModal());
       lensHtml.append(this.addDistanceModal());
       lensHtml.append(this.addFilterModal());
+      lensHtml.append(this.addSortModal());
       $(this.element).append(lensHtml);
       this.buttonContainer = $(this.element).find('.lens-tags').eq(0);
     }
@@ -208,7 +250,7 @@
 
       let button = $(this.element).find('.visualization-button')
 
-      if(!visualizationObj) {
+      if(!visualizationObj.type) {
           button.text('Select visualization...').append('<span class="caret"></span>')
         } else {
           button.text(this.visualizationOptions[visualizationObj.type].text).prepend('<span class="viz-icon '  + visualizationObj.type + ' light"</span>').append('<span class="caret"></span>')
@@ -559,6 +601,8 @@
           {label: "Delete", value: "delete"}
         ]);
 
+        $( ".sort-type-list li:nth-child(5) a" ).removeAttr("data-target");
+
       return button;
     }
 
@@ -577,30 +621,56 @@
 
       } else {
         let buttonText = 'Sort items...';
-        switch(sortObj.subtype) {
+
+        const upArrow = '↑';
+        const downArrow = '↓';
+
+        let sortOrder = sortObj["sort-order"]
+
+        function displaySortArrows(){
+          if(sortOrder === 'ascending') {
+             sortOrder = upArrow;
+          } else if(sortOrder === 'descending') {
+             sortOrder = downArrow;
+          }
+        }
+
+        switch(sortObj["sort-type"]) {
 
             case 'alphabetical':
+              let metadataField = sortObj["metadata-field"]
+              displaySortArrows();
+              buttonText = `by ${metadataField} ${sortOrder}`;
             break;
-
             case 'creation-date':
+              displaySortArrows();
+              buttonText = `by creation date ${sortOrder}`;
             break;
-
             case 'edit-date':
+              displaySortArrows();
+              buttonText = `by last modification date ${sortOrder}`;
             break;
-
             case 'distance':
+              displaySortArrows();
+              let distanceContent = sortObj.content;
+              buttonText = `by distance from ${distanceContent} ${sortOrder}`;
             break;
-
             case 'type':
+              buttonText = 'by type';
             break;
-
             case 'relationship-count':
+              displaySortArrows();
+              buttonText = `by relationship count ${sortOrder}`;
             break;
-
             case 'match-count':
+              let matchContent = sortObj.content;
+              let matchMetadata = sortObj["metadata-field"];
+              displaySortArrows();
+              buttonText = `by matches of ${matchContent} in ${matchMetadata} ${sortOrder}`;
             break;
-
             case 'visit-date':
+              displaySortArrows();
+              buttonText = `by visit date ${sortOrder}`;
             break;
 
         }
@@ -1546,7 +1616,7 @@
           <div class="modal-dialog">
             <div class="modal-content">
               <div class="modal-body">
-                <h4 class="heading_font">Configure filter</h4>
+                <h4 class="heading_font">Configure sort</h4>
                 <div class="sort-modal-container">
                   <div class="sort-modal-content"></div>
                 </div>
@@ -1569,37 +1639,81 @@
 
         switch(type){
           case 'alphabetical':
+
+            const sortOntologyValue = $('#sort-ontology-button').data('option').value;
+            const sortPropertyValue = $('#sort-property-button').data('option').value;
+
             sortObj = {
               "type": "sort",
               "sort-type": "alphabetical",
-              "metadata-field": "dcterms:title",
-              "sort-order": "ascending"
+              "metadata-field":`${sortOntologyValue}:${sortPropertyValue}`,
+              "sort-order": $('#sort-alph-button').data('option').value
             };
+
           break;
           case 'creation-date':
-          sortObj = {};
+            sortObj = {
+              "type": "sort",
+              "sort-type": "creation-date",
+              "sort-order": $('#sort-creation-date-button').data('option').value
+            };
           break;
           case 'edit-date':
-          sortObj = {};
+            sortObj = {
+              "type": "sort",
+              "sort-type": "edit-date",
+              "sort-order": $('#sort-edit-date-button').data('option').value
+            };
           break;
           case 'distance':
-          sortObj = {};
+
+            const latitude = $('#latitude.sort').val();
+            const longitude = $('#longitude.sort').val();
+
+            sortObj = {
+              "type": "sort",
+              "sort-type": "distance",
+  	          "content": `${latitude}, ${longitude}`,
+              "sort-order": $('#sort-distance-button').data('option').value
+            };
+
           break;
           case 'type':
-          sortObj = {};
+            sortObj = {
+              "type": "sort",
+              "sort-type": "type"
+            };
           break;
           case 'relationship-count':
-          sortObj = {};
+            sortObj = {
+              "type": "sort",
+              "sort-type": "relationship-count",
+              "sort-order": $('#sort-relationship-button').data('option').value
+            };
           break;
           case 'match-count':
-          sortObj = {};
+
+          const matchOntologyValue = $('#match-ontology-button').data('option').value;
+          const matchPropertyValue = $('#match-property-button').data('option').value;
+
+            sortObj = {
+              "type": "sort",
+              "sort-type": "match-count",
+              "sort-order": $('#sort-match-button').data('option').value,
+              "metadata-field": `${matchOntologyValue}:${matchPropertyValue}`,
+	            "content": $('#match-count-content').val()
+            };
           break;
           case 'visit-date':
-          sortObj = {};
+            sortObj = {
+              "type": "sort",
+              "sort-type": "visit-date",
+              "sort-order": $('#sort-visit-date-button').data('option').value
+            };
           break;
         }
 
-        me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex] = filterObj;
+        me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex] = sortObj;
         me.updateSortButton(me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex], $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-button').eq(me.editedModifierIndex))
         me.saveLens(me.getLensResults);
       });
@@ -1622,37 +1736,37 @@
         break;
 
         case 'creation-date':
-        this.addCreationDateSortForm(modalContainer, filterObj);
+        this.addCreationDateSortForm(modalContainer, sortObj);
         this.updateCreationDateSortForm();
         break;
 
         case 'edit-date':
-        this.addEditDateSortForm(modalContainer, filterObj);
+        this.addEditDateSortForm(modalContainer, sortObj);
         this.updateEditDateSortForm();
         break;
 
         case 'distance':
-        this.addDistanceSortForm(modalContainer, filterObj);
+        this.addDistanceSortForm(modalContainer, sortObj);
         this.updateDistanceSortForm();
         break;
 
         case 'type':
-        this.addTypeSortForm(modalContainer, filterObj);
-        this.updateTypeSortForm();
+        //this.addTypeSortForm(modalContainer, sortObj);
+        //this.updateTypeSortForm();
         break;
 
         case 'relationship-count':
-        this.addRelationshipCountSortForm(modalContainer, filterObj);
+        this.addRelationshipCountSortForm(modalContainer, sortObj);
         this.updateRelationshipCountSortForm();
         break;
 
         case 'match-count':
-        this.addMatchCountSortForm(modalContainer, filterObj);
+        this.addMatchCountSortForm(modalContainer, sortObj);
         this.updateMatchCountSortForm();
         break;
 
         case 'visit-date':
-        this.addVisitDateSortForm(modalContainer, filterObj);
+        this.addVisitDateSortForm(modalContainer, sortObj);
         this.updateVisitDateSortForm();
         break;
 
@@ -1717,52 +1831,56 @@
     }
 
     ScalarLenses.prototype.addAlphabeticalSortForm = function(modalContainer, sortObj) {
+
       modalContainer.empty();
       let element = $(`
-        <div class="">
-        <span>Sort by</span>
+        <div class="row">
+          <span>Sort by</span>
           <div class="btn-group">
-            <button id="sort-content-button" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <button id="sort-ontology-button" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               Select item...<span class="caret"></span>
             </button>
-            <ul id="sort-content-list" class="dropdown-menu"></ul>
+            <ul id="sort-ontology-list" class="dropdown-menu"></ul>
           </div>
           <div class="btn-group">
-            <button id="sort-title-button" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <button id="sort-property-button" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               Select item...<span class="caret"></span>
             </button>
-            <ul id="sort-title-list" class="dropdown-menu"></ul>
+            <ul id="sort-property-list" class="dropdown-menu"></ul>
           </div>
           <span>in</span>
-          <div class="btn-group">
-            <button id="sort-order-button" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Select order...<span class="caret"></span>
-            </button>
-            <ul id="sort-order-list" class="dropdown-menu"></ul>
           </div>
-          <span>alphabetical order</span>
-        </div>
+          <div class="row" style="margin-top:10px;">
+            <div class="btn-group">
+              <button id="sort-alph-button" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Select order...<span class="caret"></span>
+              </button>
+              <ul id="sort-order-list" class="dropdown-menu"></ul>
+            </div>
+            <span>alphabetical order</span>
+          </div>
+
       `).appendTo(modalContainer);
 
       if (!sortObj) sortObj = this.getDefaultSort('alphabetical');
       let me = this;
-      let onClick = function() { me.updateAlphabeticalSortForm() };
+      let onClick = function() { me.updateAlphabeticalSortForm(); };
 
-      this.populateDropdown($('#sort-content-button'), $('#sort-content-list'), sortObj["metadata-field"], onClick,
+      this.populateDropdown($('#sort-ontology-button'), $('#sort-ontology-list'), sortObj["metadata-field"], onClick,
         '<li><a></a></li>',
         [
           {label: "item-a", value: "item-a"},
           {label: "item-b", value: "item-b"}
         ]);
 
-      this.populateDropdown($('#sort-title-button'), $('#sort-title-list'), sortObj['metadata-field'], onClick,
+      this.populateDropdown($('#sort-property-button'), $('#sort-property-list'), sortObj['metadata-field'], onClick,
         '<li><a></a></li>',
         [
           {label: "item-c", value: "item-c"},
           {label: "item-d", value: "item-d"}
         ]);
 
-      this.populateDropdown($('#sort-order-button'), $('#sort-order-list'), sortObj['sort-order'], onClick,
+      this.populateDropdown($('#sort-alph-button'), $('#sort-order-list'), sortObj['sort-order'], onClick,
         '<li><a></a></li>',
         [
           {label: "ascending", value: "ascending"},
@@ -1774,34 +1892,176 @@
     }
 
     ScalarLenses.prototype.updateAlphabeticalSortForm = function() {
+      let option;
+
+      // update ontology button
+      let ontologyButton = $('#sort-ontology-button');
+      option = ontologyButton.data('option');
+      if (!option) { // if nothing selected yet, pull the option from the first item
+        option = {label: 'Select item...', value: null};
+      }
+      ontologyButton.text(option.label).append('<span class="caret"></span>');
+
+      // update property button
+      let propertyButton = $('#sort-property-button');
+      option = propertyButton.data('option');
+      if (!option) { // if nothing selected yet, create a placeholder option
+        option = {label: 'Select item...', value: null};
+      }
+      propertyButton.text(option.label).append('<span class="caret"></span>');
+
+      // update sort order button
+      let sortOrderButton = $('#sort-alph-button');
+      option = sortOrderButton.data('option');
+      if (!option) { // if nothing selected yet, create a placeholder option
+        option = $('#sort-order-list').find('li').eq(0).data('option');
+        sortOrderButton.data('option', option);
+      }
+      sortOrderButton.text(option.label).append('<span class="caret"></span>');
 
     }
 
     ScalarLenses.prototype.addCreationDateSortForm = function(modalContainer, sortObj) {
+      modalContainer.empty();
+      let element = $(`
+        <div class="row">
+          <span>Sort by creation date in </span>
+          <div class="btn-group">
+            <button id="sort-creation-date-button" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Select order...<span class="caret"></span>
+            </button>
+            <ul id="sort-order-list" class="dropdown-menu"></ul>
+          </div>
+          </span> order</span>
+        </div>
+
+      `).appendTo(modalContainer);
+
+      if (!sortObj) sortObj = this.getDefaultSort('creation-date');
+      let me = this;
+      let onClick = function() { me.updateCreationDateSortForm(); };
+
+      this.populateDropdown($('#sort-creation-date-button'), $('#sort-order-list'), sortObj['sort-order'], onClick,
+        '<li><a></a></li>',
+        [
+          {label: "ascending", value: "ascending"},
+          {label: "descending", value: "descending"}
+        ]);
+
+      return element;
 
     }
 
     ScalarLenses.prototype.updateCreationDateSortForm = function() {
+      let option;
+
+      let sortOrderButton = $('#sort-creation-date-button');
+      option = sortOrderButton.data('option');
+      if (!option) { // if nothing selected yet, create a placeholder option
+        option = $('#sort-order-list').find('li').eq(0).data('option');
+        sortOrderButton.data('option', option);
+      }
+      sortOrderButton.text(option.label).append('<span class="caret"></span>');
 
     }
 
     ScalarLenses.prototype.addEditDateSortForm = function(modalContainer, sortObj) {
+      modalContainer.empty();
+      let element = $(`
+        <div class="row">
+          <span>Sort by creation date in </span>
+          <div class="btn-group">
+            <button id="sort-edit-date-button" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Select order...<span class="caret"></span>
+            </button>
+            <ul id="sort-order-list" class="dropdown-menu"></ul>
+          </div>
+          </span> order</span>
+        </div>
+
+      `).appendTo(modalContainer);
+
+      if (!sortObj) sortObj = this.getDefaultSort('edit-date');
+      let me = this;
+      let onClick = function() { me.updateEditDateSortForm(); };
+
+      this.populateDropdown($('#sort-edit-date-button'), $('#sort-order-list'), sortObj['sort-order'], onClick,
+        '<li><a></a></li>',
+        [
+          {label: "ascending", value: "ascending"},
+          {label: "descending", value: "descending"}
+        ]);
+
+      return element;
 
     }
 
     ScalarLenses.prototype.updateEditDateSortForm = function() {
+      let option;
+
+      let sortOrderButton = $('#sort-edit-date-button');
+      option = sortOrderButton.data('option');
+      if (!option) { // if nothing selected yet, create a placeholder option
+        option = $('#sort-order-list').find('li').eq(0).data('option');
+        sortOrderButton.data('option', option);
+      }
+      sortOrderButton.text(option.label).append('<span class="caret"></span>');
 
     }
 
     ScalarLenses.prototype.addDistanceSortForm = function(modalContainer, sortObj) {
+      modalContainer.empty();
+      let element = $(`
+        <div class="row">
+          <span>Sort by distance from these coordinates: </span>
+        </div>
+        <div class="row" style="margin:10px 0;">
+          <input id="latitude" type="text"class="form-control sort" aria-label="..." placeholder="Latitude (decimal)">
+          <input id="longitude" type="text" class="form-control sort" aria-label="..." placeholder="Longitude (decimal)">
+        </div>
+        <div class="row">
+        <span>in </span>
+          <div class="btn-group">
+            <button id="sort-distance-button" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Select order...<span class="caret"></span>
+            </button>
+            <ul id="sort-order-list" class="dropdown-menu"></ul>
+          </div>
+          </span> order</span>
+        </div>
+
+      `).appendTo(modalContainer);
+
+      if (!sortObj) sortObj = this.getDefaultSort('distance');
+      let me = this;
+      let onClick = function() { me.updateDistanceSortForm(); };
+
+      this.populateDropdown($('#sort-distance-button'), $('#sort-order-list'), sortObj['sort-order'], onClick,
+        '<li><a></a></li>',
+        [
+          {label: "ascending", value: "ascending"},
+          {label: "descending", value: "descending"}
+        ]);
+
+      return element;
 
     }
 
     ScalarLenses.prototype.updateDistanceSortForm = function() {
+      let option;
+
+      let sortOrderButton = $('#sort-distance-button');
+      option = sortOrderButton.data('option');
+      if (!option) { // if nothing selected yet, create a placeholder option
+        option = $('#sort-order-list').find('li').eq(0).data('option');
+        sortOrderButton.data('option', option);
+      }
+      sortOrderButton.text(option.label).append('<span class="caret"></span>');
 
     }
 
     ScalarLenses.prototype.addTypeSortForm = function(modalContainer, sortObj) {
+      modalContainer.empty();
 
     }
 
@@ -1810,26 +2070,195 @@
     }
 
     ScalarLenses.prototype.addRelationshipCountSortForm = function(modalContainer, sortObj) {
+      modalContainer.empty();
+      let element = $(`
+        <div class="row">
+          <span>Sort by relationship count in </span>
+          <div class="btn-group">
+            <button id="sort-relationship-button" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Select order...<span class="caret"></span>
+            </button>
+            <ul id="sort-order-list" class="dropdown-menu"></ul>
+          </div>
+          </span> order</span>
+        </div>
+
+      `).appendTo(modalContainer);
+
+      if (!sortObj) sortObj = this.getDefaultSort('relationship-count');
+      let me = this;
+      let onClick = function() { me.updateRelationshipCountSortForm(); };
+
+      this.populateDropdown($('#sort-relationship-button'), $('#sort-order-list'), sortObj['sort-order'], onClick,
+        '<li><a></a></li>',
+        [
+          {label: "ascending", value: "ascending"},
+          {label: "descending", value: "descending"}
+        ]);
+
+      return element;
 
     }
 
     ScalarLenses.prototype.updateRelationshipCountSortForm = function() {
+      let option;
+
+      let sortOrderButton = $('#sort-relationship-button');
+      option = sortOrderButton.data('option');
+      if (!option) { // if nothing selected yet, create a placeholder option
+        option = $('#sort-order-list').find('li').eq(0).data('option');
+        sortOrderButton.data('option', option);
+      }
+      sortOrderButton.text(option.label).append('<span class="caret"></span>');
 
     }
 
     ScalarLenses.prototype.addMatchCountSortForm = function(modalContainer, sortObj) {
+      modalContainer.empty();
+      let element = $(`
+        <div class="match-count-sort-form">
+          <div class="row">
+            <span>Sort by string match count </span>
+          </div>
+          <div class="row">
+            <span style="float:left;margin-right:5px;"> of this text </span>
+            <input id="match-count-content" type="text" class="form-control" placeholder="Enter text" style="max-width:225px;">
+          </div>
+          <div class="row">
+            <span>with the </span>
+            <div class="btn-group">
+              <button id="match-ontology-button" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Select item...<span class="caret"></span>
+              </button>
+              <ul id="match-ontology-list" class="dropdown-menu"></ul>
+            </div>
+            <div class="btn-group">
+              <button id="match-property-button" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Select item...<span class="caret"></span>
+              </button>
+              <ul id="match-property-list" class="dropdown-menu"></ul>
+            </div>
+            <span> field </span>
+          </div>
+          <div class="row">
+            <span>in </span>
+            <div class="btn-group">
+              <button id="sort-match-button" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Select order...<span class="caret"></span>
+              </button>
+              <ul id="sort-order-list" class="dropdown-menu"></ul>
+            </div>
+            </span> order</span>
+          </div>
+        </div>
+
+      `).appendTo(modalContainer);
+
+      if (!sortObj) sortObj = this.getDefaultSort('match-count');
+      let me = this;
+      let onClick = function() { me.updateMatchCountSortForm(); };
+
+
+      $('#match-count-content').val(sortObj.content);
+
+
+      this.populateDropdown($('#match-ontology-button'), $('#match-ontology-list'), sortObj["metadata-field"], onClick,
+        '<li><a></a></li>',
+        [
+          {label: "item-a", value: "item-a"},
+          {label: "item-b", value: "item-b"}
+        ]);
+
+      this.populateDropdown($('#match-property-button'), $('#match-property-list'), sortObj['metadata-field'], onClick,
+        '<li><a></a></li>',
+        [
+          {label: "item-c", value: "item-c"},
+          {label: "item-d", value: "item-d"}
+        ]);
+
+      this.populateDropdown($('#sort-match-button'), $('#sort-order-list'), sortObj['sort-order'], onClick,
+        '<li><a></a></li>',
+        [
+          {label: "ascending", value: "ascending"},
+          {label: "descending", value: "descending"}
+        ]);
+
+      return element;
 
     }
 
     ScalarLenses.prototype.updateMatchCountSortForm = function() {
 
+      let option;
+
+      // update buttons
+      let buttonOne = $('#match-ontology-button');
+      option = buttonOne.data('option');
+      if (!option) { // if nothing selected yet, pull the option from the first item
+        option = {label: 'Select item...', value: null};
+      }
+      buttonOne.text(option.label).append('<span class="caret"></span>');
+
+
+      let buttonTwo = $('#match-property-button');
+      option = buttonTwo.data('option');
+      if (!option) { // if nothing selected yet, create a placeholder option
+        option = {label: 'Select item...', value: null};
+      }
+      buttonTwo.text(option.label).append('<span class="caret"></span>');
+
+
+      let sortOrderButton = $('#sort-match-button');
+      option = sortOrderButton.data('option');
+      if (!option) { // if nothing selected yet, create a placeholder option
+        option = $('#sort-order-list').find('li').eq(0).data('option');
+        sortOrderButton.data('option', option);
+      }
+      sortOrderButton.text(option.label).append('<span class="caret"></span>');
+
     }
 
     ScalarLenses.prototype.addVisitDateSortForm = function(modalContainer, sortObj) {
+      modalContainer.empty();
+      let element = $(`
+        <div class="row">
+          <span>Sort by visit date in </span>
+          <div class="btn-group">
+            <button id="sort-visit-date-button" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Select order...<span class="caret"></span>
+            </button>
+            <ul id="sort-order-list" class="dropdown-menu"></ul>
+          </div>
+          </span> order</span>
+        </div>
+
+      `).appendTo(modalContainer);
+
+      if (!sortObj) sortObj = this.getDefaultSort('visit-date');
+      let me = this;
+      let onClick = function() { me.updateVisitDateSortForm(); };
+
+      this.populateDropdown($('#sort-visit-date-button'), $('#sort-order-list'), sortObj['sort-order'], onClick,
+        '<li><a></a></li>',
+        [
+          {label: "ascending", value: "ascending"},
+          {label: "descending", value: "descending"}
+        ]);
+
+      return element;
 
     }
 
     ScalarLenses.prototype.updateVisitDateSortForm = function() {
+      let option;
+
+      let sortOrderButton = $('#sort-visit-date-button');
+      option = sortOrderButton.data('option');
+      if (!option) { // if nothing selected yet, create a placeholder option
+        option = $('#sort-order-list').find('li').eq(0).data('option');
+        sortOrderButton.data('option', option);
+      }
+      sortOrderButton.text(option.label).append('<span class="caret"></span>');
 
     }
 

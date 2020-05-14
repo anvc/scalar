@@ -1628,12 +1628,15 @@ body>.annotorious-popup{
 #distanceInput.form-control {
 	width:97%;
 }
+#distanceQuantity {
+	max-width:150px;
+	float:left;
+	margin-right:3px;
+}
 #latitude.form-control {
 	width:98%;
 }
-#distanceUnits {
-	margin-left:3px;
-}
+
 #distance-dropdown li {
 	margin-left:0;
 }
@@ -1737,3 +1740,23 @@ span.base {
     text-align: center;
     float:left;
 } */
+#sortModal .modal-dialog {
+	max-width:500px;
+	margin:30px auto;
+}
+#sortModal .row {
+	margin:0;
+}
+.sort-modal-content {
+	margin:20px 0;
+}
+#latitude, #longitude {
+	max-width:150px
+}
+#latitude {
+	float:left;
+	margin-right:3px;
+}
+.match-count-sort-form .row {
+	margin:13px 0 !important;
+}
