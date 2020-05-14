@@ -584,10 +584,25 @@
           let sortObj = me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex];
           me.updateSortModal(option.value, sortObj);
         }
+        // save by type value on click instead of opening modal
+        if(option.value == 'type'){
+          $(evt.target).removeAttr("data-target data-toggle");
+
+          sortObj = {
+            "type": "sort",
+            "sort-type": "type"
+          };
+
+          me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex] = sortObj;
+          me.updateSortButton(me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex], $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-button').eq(me.editedModifierIndex))
+          me.saveLens(me.getLensResults);
+        }
+
       }
 
+
       this.populateDropdown(button, button.find('.sort-type-list'), null, onClick,
-        '<li><a data-toggle="modal" data-target="#sortModal"></a></li>',
+        `<li><a data-toggle="modal" data-target="#sortModal"></a></li>`,
         [
           {label: "A-Z", value: "alphabetical"},
           {label: "Date created", value: "creation-date"},
@@ -601,18 +616,6 @@
           {label: "Delete", value: "delete"}
         ]);
 
-        // remove modal for by type sort
-        $( ".sort-type-list li:nth-child(5) a" ).removeAttr("data-target");
-        // save by type value on click and update sort button
-        button.find('li:nth-child(5)').on('click', function(){
-           let sortObj = {
-             "type": "sort",
-             "sort-type": $(this).data('option').value
-           }
-          me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex] = sortObj;
-          me.updateSortButton(me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex], $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-button').eq(me.editedModifierIndex))
-          me.saveLens(me.getLensResults);
-        });
 
       return button;
 
@@ -622,6 +625,8 @@
     ScalarLenses.prototype.updateSortButton = function(sortObj, element, componentIndex, modifierIndex){
 
       let button = element.find('button');
+
+      let me = this;
 
       button.data({
         'componentIndex': componentIndex,
@@ -650,9 +655,13 @@
         switch(sortObj["sort-type"]) {
 
             case 'alphabetical':
-              let metadataField = sortObj["metadata-field"]
+              let metadataField = sortObj["metadata-field"];
+              let displayProperty;
+              if (metadataField.indexOf(':') !== -1) {
+                displayProperty = metadataField.split(':')[1];
+              }
               displaySortArrows();
-              buttonText = `by ${metadataField} ${sortOrder}`;
+              buttonText = `by ${displayProperty} ${sortOrder}`;
             break;
             case 'creation-date':
               displaySortArrows();
@@ -677,8 +686,12 @@
             case 'match-count':
               let matchContent = sortObj.content;
               let matchMetadata = sortObj["metadata-field"];
+              let displayMatchProperty;
+              if (matchMetadata.indexOf(':') !== -1) {
+                displayMatchProperty = matchMetadata.split(':')[1];
+              }
               displaySortArrows();
-              buttonText = `by matches of ${matchContent} in ${matchMetadata} ${sortOrder}`;
+              buttonText = `by matches of ${matchContent} in ${displayMatchProperty} ${sortOrder}`;
             break;
             case 'visit-date':
               displaySortArrows();
@@ -1685,7 +1698,7 @@
             sortObj = {
               "type": "sort",
               "sort-type": "distance",
-  	          "content": `${latitude}, ${longitude}`,
+  	          "content": `${latitude},${longitude}`,
               "sort-order": $('#sort-distance-button').data('option').value
             };
 
@@ -1765,7 +1778,6 @@
         case 'type':
         //this.addTypeSortForm(modalContainer, sortObj);
         //this.updateTypeSortForm();
-
         break;
 
         case 'relationship-count':
@@ -2049,12 +2061,26 @@
       let me = this;
       let onClick = function() { me.updateDistanceSortForm(); };
 
+
       this.populateDropdown($('#sort-distance-button'), $('#sort-order-list'), sortObj['sort-order'], onClick,
         '<li><a></a></li>',
         [
           {label: "ascending", value: "ascending"},
           {label: "descending", value: "descending"}
         ]);
+
+
+        // store coordinate input values
+        if(sortObj && sortObj.content){
+          var x = sortObj.content;
+          var y = x.split(',');
+
+          let latitude = y[0];
+          let longitude = y[1];
+
+          $('#latitude.form-control.sort').val(latitude);
+          $('#longitude.form-control.sort').val(longitude);
+        }
 
       return element;
 
@@ -2070,15 +2096,6 @@
         sortOrderButton.data('option', option);
       }
       sortOrderButton.text(option.label).append('<span class="caret"></span>');
-
-    }
-
-    ScalarLenses.prototype.addTypeSortForm = function(modalContainer, sortObj) {
-        modalContainer.empty();
-
-    }
-
-    ScalarLenses.prototype.updateTypeSortForm = function() {
 
     }
 
@@ -2170,6 +2187,7 @@
       if (!sortObj) sortObj = this.getDefaultSort('match-count');
       let me = this;
       let onClick = function() { me.updateMatchCountSortForm(); };
+
 
 
       $('#match-count-content').val(sortObj.content);
