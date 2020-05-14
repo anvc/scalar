@@ -604,6 +604,7 @@
         $( ".sort-type-list li:nth-child(5) a" ).removeAttr("data-target");
 
       return button;
+
     }
 
     // update sort button
@@ -1753,6 +1754,7 @@
         case 'type':
         //this.addTypeSortForm(modalContainer, sortObj);
         //this.updateTypeSortForm();
+
         break;
 
         case 'relationship-count':
@@ -2061,7 +2063,7 @@
     }
 
     ScalarLenses.prototype.addTypeSortForm = function(modalContainer, sortObj) {
-      modalContainer.empty();
+        modalContainer.empty();
 
     }
 
