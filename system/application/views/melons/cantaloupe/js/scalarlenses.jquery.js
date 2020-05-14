@@ -904,7 +904,7 @@
           case 'type':
             filterObj = {
               "type": "filter",
-              "subtype": "type",
+              "subtype": "content-type",
               "operator": $('#operator-button').data('option').value,
               "content-types": [$('#content-type-button').data('option').value]
             }
