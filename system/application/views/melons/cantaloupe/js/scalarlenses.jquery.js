@@ -601,7 +601,18 @@
           {label: "Delete", value: "delete"}
         ]);
 
+        // remove modal for by type sort
         $( ".sort-type-list li:nth-child(5) a" ).removeAttr("data-target");
+        // save by type value on click and update sort button
+        button.find('li:nth-child(5)').on('click', function(){
+           let sortObj = {
+             "type": "sort",
+             "sort-type": $(this).data('option').value
+           }
+          me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex] = sortObj;
+          me.updateSortButton(me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex], $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-button').eq(me.editedModifierIndex))
+          me.saveLens(me.getLensResults);
+        });
 
       return button;
 
