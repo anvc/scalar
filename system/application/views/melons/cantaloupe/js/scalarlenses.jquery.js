@@ -19,42 +19,54 @@
     ScalarLenses.prototype.init = function (){
 
       this.visualizationOptions = {
-          'force-directed': {
-                id: 1,
-                text:'Force-Directed',
-                //iconDark:'../images/icon_forcedir_dark.png',
-                iconLight:'light'
-              },
-              'grid': {
-                id: 2,
-                text:'Grid'
+        'force-directed': {
+              id: 1,
+              text:'Force-Directed',
+              //iconDark:'../images/icon_forcedir_dark.png',
+              iconLight:'light'
+            },
+            'grid': {
+              id: 2,
+              text:'Grid'
 
-              },
-              'list':{
-                id: 3,
-                text:'List'
+            },
+            'list':{
+              id: 3,
+              text:'List'
 
-              },
-              'map':{
-                id: 4,
-                text:'Map'
+            },
+            'map':{
+              id: 4,
+              text:'Map'
 
-              },
-              'radial':{
-                id: 5,
-                text:'Radial'
+            },
+            'radial':{
+              id: 5,
+              text:'Radial'
 
-              },
-            'tree':  {
-                id: 6,
-                text:'Tree'
+            },
+          'tree':  {
+              id: 6,
+              text:'Tree'
 
-              },
-              'word-cloud':{
-                id: 7,
-                text:'Word Cloud'
+            },
+            'word-cloud':{
+              id: 7,
+              text:'Word Cloud'
 
-              }
+            }
+      }
+
+      this.ontologyOptions = {
+        "dcterms":"Dublin Core",
+        "art":"Artstor",
+        "iptc":"IPTC",
+        "bibo":"BIBO",
+        "id3":"ID3",
+        "dwc":"Darwin Core",
+        "vra":"VRA Ontology",
+        "cp":"Common Place",
+        "gpano": "gpano"
       }
 
 
@@ -62,6 +74,7 @@
       if(!this.scalarLensObject) {
         this.scalarLensObject = this.getDefaultJson();
       }
+      this.getOntologyData();
       this.getLensResults();
       this.buildEditorDom();
       this.updateEditorDom();
@@ -2194,18 +2207,12 @@
 
 
       this.populateDropdown($('#match-ontology-button'), $('#match-ontology-list'), sortObj["metadata-field"], onClick,
-        '<li><a></a></li>',
-        [
-          {label: "item-a", value: "item-a"},
-          {label: "item-b", value: "item-b"}
-        ]);
+        '<li><a></a></li>', this.createOntologyList()
+      );
 
       this.populateDropdown($('#match-property-button'), $('#match-property-list'), sortObj['metadata-field'], onClick,
-        '<li><a></a></li>',
-        [
-          {label: "item-c", value: "item-c"},
-          {label: "item-d", value: "item-d"}
-        ]);
+        '<li><a></a></li>', this.createPropertyList()
+      );
 
       this.populateDropdown($('#sort-match-button'), $('#sort-order-list'), sortObj['sort-order'], onClick,
         '<li><a></a></li>',
@@ -2355,8 +2362,8 @@
         		console.log('There was an error attempting to get Lens data: '+data.error);
         		return;
       	  };
-          console.log('lens results:');
-          console.log(JSON.stringify(data));
+          //console.log('lens results:');
+          //console.log(JSON.stringify(data));
           scalarapi.parsePagesByType(data.items);
           if (this.options.onLensResults) {
             this.options.onLensResults(data);
@@ -2397,6 +2404,64 @@
         this.saveLens(this.getLensResults);
       }
     }
+
+
+    // get ontology data
+     ScalarLenses.prototype.getOntologyData = function() {
+
+       let me = this;
+
+       $.ajax({
+         url: 'http://localhost/scalar/system/ontologies',
+         type: "GET",
+         dataType: 'json',
+         contentType: 'application/json',
+         async: true,
+         context: this,
+         success: function(response){
+           me.ontologyData = response;
+         },
+         error: function error(response) {
+     	     console.log('There was an error attempting to communicate with the server.');
+     	     console.log(response);
+         }
+       });
+    };
+
+    // creat ontology list
+     ScalarLenses.prototype.createOntologyList = function(){
+
+       ontologyArray = [];
+       //console.log(this.ontologyData)
+       for (let [key, value] of Object.entries(this.ontologyData)) {
+         ontologyArray.push({
+           label: this.ontologyOptions[key], value: key
+         });
+       }
+       return ontologyArray;
+     };
+
+     // creat property list
+     ScalarLenses.prototype.createPropertyList = function(){
+
+       propertyArray = [];
+       //console.log(this.ontologyData)
+
+       for (let [key, value] of Object.entries(this.ontologyData)) {
+         propertyArray.push({
+           label: this.ontologyOptions[value], value: key
+         });
+       }
+       return ontologyArray;
+     };
+
+
+
+
+
+
+
+
 
     // plugin wrapper around the constructor,
     // to prevent against multiple instantiations
