@@ -20,42 +20,35 @@
 
       this.visualizationOptions = {
         'force-directed': {
-              id: 1,
-              text:'Force-Directed',
-              //iconDark:'../images/icon_forcedir_dark.png',
-              iconLight:'light'
-            },
-            'grid': {
-              id: 2,
-              text:'Grid'
-
-            },
-            'list':{
-              id: 3,
-              text:'List'
-
-            },
-            'map':{
-              id: 4,
-              text:'Map'
-
-            },
-            'radial':{
-              id: 5,
-              text:'Radial'
-
-            },
-          'tree':  {
-              id: 6,
-              text:'Tree'
-
-            },
-            'word-cloud':{
-              id: 7,
-              text:'Word Cloud'
-
-            }
-      }
+          id: 1,
+          text:'Force-Directed',
+          iconLight:'light'
+        },
+        'grid': {
+          id: 2,
+          text:'Grid'
+        },
+        'list':{
+          id: 3,
+          text:'List'
+        },
+        'map':{
+          id: 4,
+          text:'Map'
+        },
+        'radial':{
+          id: 5,
+          text:'Radial'
+        },
+      'tree':  {
+          id: 6,
+          text:'Tree'
+        },
+        'word-cloud':{
+          id: 7,
+          text:'Word Cloud'
+        }
+      };
 
       this.ontologyOptions = {
         "dcterms":"Dublin Core",
@@ -67,6 +60,17 @@
         "vra":"VRA Ontology",
         "cp":"Common Place",
         "gpano": "gpano"
+      };
+      this.ontologyProperties = {
+        "dcterms":[],
+        "art":[],
+        "iptc":[],
+        "bibo":[],
+        "id3":[],
+        "dwc":[],
+        "vra":[],
+        "cp":[],
+        "gpano":[]
       }
 
 
@@ -1465,14 +1469,14 @@
             </div>
             <div class="row" style="margin-top:10px;">
             <span style="margin-left:10px;vertical-align:middle;"> in this metadata field</span>
-              <div class="btn-group"><button id="ontology-button" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
+              <div class="btn-group"><button id="metadata-ontology-button" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
                   Select field...<span class="caret"></span></button>
-                <ul id="ontology-list" class="dropdown-menu"></ul>
+                <ul id="metadata-ontology-list" class="dropdown-menu"></ul>
               </div>
               <div class="row" style="margin-top:10px;">
-              <div class="btn-group"><button id="property-button" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
+              <div class="btn-group"><button id="metadata-property-button" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
                   Select field...<span class="caret"></span></button>
-                <ul id="property-list" class="dropdown-menu"></ul>
+                <ul id="metadata-property-list" class="dropdown-menu"></ul>
               </div>
             </div>
          </div>
@@ -1494,20 +1498,10 @@
         $('#metadata-content').val(filterObj.content)
 
         // ontology dropdown
-        this.populateDropdown($('#ontology-button'), $('#ontology-list'), filterObj["metadata-field"], onClick,
-          '<li><a></a></li>',
-          [
-            // list will be dynamic
-            {label: "Dublin Core", value: "dublin-core"}
+        this.populateDropdown($('#metadata-ontology-button'), $('#metadata-ontology-list'), filterObj["metadata-field"], onClick,
+          '<li><a></a></li>', this.createOntologyList()
+        );
 
-          ]);
-        // property dropdown
-        this.populateDropdown($('#property-button'), $('#property-list'), filterObj["metadata-field"], onClick,
-          '<li><a></a></li>',
-          [
-            // list will be dynamic
-            {label: "temporal", value: "temporal"}
-          ]);
 
       return element
 
@@ -1528,7 +1522,7 @@
       operatorButton.text(option.label).append('<span class="caret"></span>');
 
       // update ontology button
-      let ontologyButton = $('#ontology-button');
+      let ontologyButton = $('#metadata-ontology-button');
       option = ontologyButton.data('option');
       if (!option) { // if nothing selected yet, pull the option from the first item
         option = {label: 'Select ontology', value: null};
@@ -1536,12 +1530,27 @@
       ontologyButton.text(option.label).append('<span class="caret"></span>');
 
       // update property button
-      let propertyButton = $('#property-button');
+      let propertyButton = $('#metadata-property-button');
       option = propertyButton.data('option');
       if (!option) { // if nothing selected yet, pull the option from the first item
         option = {label: 'Select property', value: null};
       }
       propertyButton.text(option.label).append('<span class="caret"></span>');
+
+
+
+
+      // populate property dropdown when ontology is selected
+      let getButtonData = $('#metadata-ontology-button').data('option');
+      let ontologyName;
+      if(getButtonData){
+        ontologyName = getButtonData.value;
+      }
+      let me = this;
+      let onClick = function() { me.updateMetadataFilterForm(); };
+      this.populateDropdown($('#metadata-property-button'), $('#metadata-property-list'), null, onClick,
+        '<li><a></a></li>', this.createPropertyList(ontologyName)
+      );
 
 
     }
@@ -1905,18 +1914,9 @@
       let onClick = function() { me.updateAlphabeticalSortForm(); };
 
       this.populateDropdown($('#sort-ontology-button'), $('#sort-ontology-list'), sortObj["metadata-field"], onClick,
-        '<li><a></a></li>',
-        [
-          {label: "item-a", value: "item-a"},
-          {label: "item-b", value: "item-b"}
-        ]);
+        '<li><a></a></li>', this.createOntologyList()
+        );
 
-      this.populateDropdown($('#sort-property-button'), $('#sort-property-list'), sortObj['metadata-field'], onClick,
-        '<li><a></a></li>',
-        [
-          {label: "item-c", value: "item-c"},
-          {label: "item-d", value: "item-d"}
-        ]);
 
       this.populateDropdown($('#sort-alph-button'), $('#sort-order-list'), sortObj['sort-order'], onClick,
         '<li><a></a></li>',
@@ -1956,6 +1956,18 @@
         sortOrderButton.data('option', option);
       }
       sortOrderButton.text(option.label).append('<span class="caret"></span>');
+
+      // populate property dropdown when ontology is selected
+      let getButtonData = $('#sort-ontology-button').data('option');
+      let ontologyName;
+      if(getButtonData){
+        ontologyName = getButtonData.value;
+      }
+      let me = this;
+      let onClick = function() { me.updateAlphabeticalSortForm(); };
+      this.populateDropdown($('#sort-property-button'), $('#sort-property-list'), null, onClick,
+        '<li><a></a></li>', this.createPropertyList(ontologyName)
+      );
 
     }
 
@@ -2000,7 +2012,6 @@
         sortOrderButton.data('option', option);
       }
       sortOrderButton.text(option.label).append('<span class="caret"></span>');
-
     }
 
     ScalarLenses.prototype.addEditDateSortForm = function(modalContainer, sortObj) {
@@ -2201,18 +2212,12 @@
       let me = this;
       let onClick = function() { me.updateMatchCountSortForm(); };
 
-
-
       $('#match-count-content').val(sortObj.content);
-
 
       this.populateDropdown($('#match-ontology-button'), $('#match-ontology-list'), sortObj["metadata-field"], onClick,
         '<li><a></a></li>', this.createOntologyList()
       );
 
-      this.populateDropdown($('#match-property-button'), $('#match-property-list'), sortObj['metadata-field'], onClick,
-        '<li><a></a></li>', this.createPropertyList()
-      );
 
       this.populateDropdown($('#sort-match-button'), $('#sort-order-list'), sortObj['sort-order'], onClick,
         '<li><a></a></li>',
@@ -2229,7 +2234,7 @@
 
       let option;
 
-      // update buttons
+      // update ontology button
       let buttonOne = $('#match-ontology-button');
       option = buttonOne.data('option');
       if (!option) { // if nothing selected yet, pull the option from the first item
@@ -2238,6 +2243,7 @@
       buttonOne.text(option.label).append('<span class="caret"></span>');
 
 
+      // update property button
       let buttonTwo = $('#match-property-button');
       option = buttonTwo.data('option');
       if (!option) { // if nothing selected yet, create a placeholder option
@@ -2245,7 +2251,7 @@
       }
       buttonTwo.text(option.label).append('<span class="caret"></span>');
 
-
+      // update sort order
       let sortOrderButton = $('#sort-match-button');
       option = sortOrderButton.data('option');
       if (!option) { // if nothing selected yet, create a placeholder option
@@ -2253,6 +2259,19 @@
         sortOrderButton.data('option', option);
       }
       sortOrderButton.text(option.label).append('<span class="caret"></span>');
+
+
+      // populate property dropdown when ontology is selected
+      let getButtonData = $('#match-ontology-button').data('option');
+      let ontologyName;
+      if(getButtonData){
+        ontologyName = getButtonData.value;
+      }
+      let me = this;
+      let onClick = function() { me.updateMatchCountSortForm(); };
+      this.populateDropdown($('#match-property-button'), $('#match-property-list'), null, onClick,
+        '<li><a></a></li>', this.createPropertyList(ontologyName)
+      );
 
     }
 
@@ -2302,6 +2321,7 @@
 
     // populate a dropdown
     ScalarLenses.prototype.populateDropdown = function(buttonElement, listElement, currentData, onClick, markup, options) {
+      listElement.empty();
       options.forEach(option => {
         let listItem;
         switch (option.value) {
@@ -2320,6 +2340,7 @@
           this.getInnermostChild(listItem).text(option.label);
           listItem.data('option', option).on('click', function(evt){
             buttonElement.data('option', $(this).data('option'));
+            //console.log(buttonElement.data('option'))
             onClick(evt);
           });
           if (currentData) {
@@ -2410,7 +2431,6 @@
      ScalarLenses.prototype.getOntologyData = function() {
 
        let me = this;
-
        $.ajax({
          url: 'http://localhost/scalar/system/ontologies',
          type: "GET",
@@ -2425,34 +2445,40 @@
      	     console.log('There was an error attempting to communicate with the server.');
      	     console.log(response);
          }
-       });
-    };
+       })
+     };
 
     // creat ontology list
      ScalarLenses.prototype.createOntologyList = function(){
-
        ontologyArray = [];
        //console.log(this.ontologyData)
        for (let [key, value] of Object.entries(this.ontologyData)) {
          ontologyArray.push({
-           label: this.ontologyOptions[key], value: key
+           label: this.ontologyOptions[key],
+           value: key
          });
        }
        return ontologyArray;
      };
 
-     // creat property list
-     ScalarLenses.prototype.createPropertyList = function(){
-
+    // creat property list
+     ScalarLenses.prototype.createPropertyList = function(ontologyName){
        propertyArray = [];
-       //console.log(this.ontologyData)
-
-       for (let [key, value] of Object.entries(this.ontologyData)) {
+       // null check
+       if(!ontologyName) {
          propertyArray.push({
-           label: this.ontologyOptions[value], value: key
+           label: 'No ontology selected',
+           value: null
          });
-       }
-       return ontologyArray;
+       } else {
+           this.ontologyData[ontologyName].forEach(element =>  {
+            propertyArray.push({
+              label: element,
+              value: element
+            });
+          });
+        }
+       return propertyArray;
      };
 
 
