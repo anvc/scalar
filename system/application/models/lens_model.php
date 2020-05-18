@@ -148,17 +148,28 @@ class Lens_model extends MY_Model {
 										$version = $CI->versions->get_single($page->content_id, $page->recent_version_id, null, false);
 										if (empty($version)) continue;
 										$types = $modifier['content-types'];
+										$parent_or_child = (isset($modifier['relationship']) && 'parent'==$modifier['relationship']) ? 'parent' : 'child';
 										$content = array();
 										foreach ($types as $type) {
 											$type_p = $type.'s';
 											if ($type_p== 'replys') $type_p= 'replies';
 											if (!isset($CI->$type_p) || 'object'!=gettype($CI->$type_p)) $CI->load->model($type.'_model',$type_p);
-											$items = $CI->$type_p->get_children($version->version_id, '', '', true, null);
-											foreach ($items as $item) {
-												$page = $CI->pages->get($item->child_content_id);
-												$page->versions = array();
-												$page->versions[] = $CI->versions->get_single($page->content_id, $page->recent_version_id, null, true);
-												$content[] = $page;
+											if ('child' == $parent_or_child) {
+												$items = $CI->$type_p->get_children($version->version_id, '', '', true, null);
+												foreach ($items as $item) {
+													$page = $CI->pages->get($item->child_content_id);
+													$page->versions = array();
+													$page->versions[] = $CI->versions->get_single($page->content_id, $page->recent_version_id, null, true);
+													$content[] = $page;
+												}
+											} else {
+												$items = $CI->$type_p->get_parents($version->version_id, '', '', true, null);
+												foreach ($items as $item) {
+													$page = $CI->pages->get($item->parent_content_id);
+													$page->versions = array();
+													$page->versions[] = $CI->versions->get_single($page->content_id, $page->recent_version_id, null, true);
+													$content[] = $page;
+												}
 											}
 										}
 										$contents = $this->combine_by_operator($contents, $content, $operator);
@@ -343,10 +354,11 @@ class Lens_model extends MY_Model {
     public function combine_by_operator($contents, $content, $operator) {
     	
     	switch ($operator) {
-    		case "and":
+    		case "and":  // exclusive
+    			// TODO
     			return array_merge($contents, $content);
-    		default:  // or
-    			// TODO: "or" operator
+    		default:  // inclusive
+    			return array_merge($contents, $content);
     	}
     	
     }
