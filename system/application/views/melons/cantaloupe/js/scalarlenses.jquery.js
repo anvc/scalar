@@ -61,21 +61,17 @@
         "cp":"Common Place",
         "gpano": "gpano"
       };
-      this.ontologyProperties = {
-        "dcterms":[],
-        "art":[],
-        "iptc":[],
-        "bibo":[],
-        "id3":[],
-        "dwc":[],
-        "vra":[],
-        "cp":[],
-        "gpano":[]
-      }
 
+      this.relationshipDescriptors = {
+        'all-types': {'parent': 'are parents of', 'child': 'children of', 'any-relationship':'are related to'},
+        'path': {'parent': 'contain', 'child': 'contained by', 'any-relationship':'contain or are contained by'},
+        'tag': {'parent': 'tag', 'child': 'tagged by', 'any-relationship':'tag or are tagged by'},
+        'annotation': {'parent': 'annotate', 'child': 'annotated by', 'any-relationship':'annotate or are annotated by'},
+        'comment': {'parent': 'comment on', 'child': 'commented on by', 'any-relationship':'comment on or are commented on by'}
+      };
 
       this.scalarLensObject = this.getEmbeddedJson();
-      if(!this.scalarLensObject) {
+      if (!this.scalarLensObject) {
         this.scalarLensObject = this.getDefaultJson();
       }
       this.getOntologyData();
@@ -471,7 +467,7 @@
         let buttonText = 'Filter items...';
         switch(filterObj.subtype) {
 
-            case 'type':
+            case 'content-type':
               let contentTypes = filterObj["content-types"];
               buttonText = 'that are ';
               if (filterObj.operator == 'exclusive') {
@@ -503,18 +499,11 @@
             case 'relationship':
               let relationshipContentTypes = filterObj["content-types"];
               let relationshipType = filterObj.relationship;
-              let relationshipDescriptors = {
-                'all-types': {'parent': 'are parents of', 'child': 'children of', 'any-relationship':'are related to'},
-                'path': {'parent': 'contain', 'child': 'contained by', 'any-relationship':'contain or are contained by'},
-                'tag': {'parent': 'tag', 'child': 'tagged by', 'any-relationship':'tag or are tagged by'},
-                'annotation': {'parent': 'annotate', 'child': 'annotated by', 'any-relationship':'annotate or are annotated by'},
-                'comment': {'parent': 'comment on', 'child': 'commented on by', 'any-relationship':'comment on or are commented on by'}
-              }
               buttonText = 'that';
               if (relationshipType == 'child' && relationshipContentTypes != 'any-relationship') {
                 buttonText += ' are';
               }
-              buttonText += ' ' + relationshipDescriptors[relationshipContentTypes][relationshipType];
+              buttonText += ' ' + this.relationshipDescriptors[relationshipContentTypes][relationshipType];
             break;
 
             case 'distance':
@@ -545,7 +534,7 @@
               } else if(metadataOperator == 'exclusive'){
                 operatorText = 'does not include'
               }
-              buttonText = `that ${operatorText} "${metadataContent}" in ${metadataProperty}`;
+              buttonText = `that ${operatorText} "${metadataContent}" in ${metadataProperty.split(':')[1]}`;
             break;
 
             case 'visit-date':
@@ -972,8 +961,8 @@
           break;
           case 'metadata':
 
-          let ontologyValue = $('#ontology-button').data('option').value;
-          let propertyValue = $('#property-button').data('option').value;
+          let ontologyValue = $('#metadata-ontology-button').data('option').value;
+          let propertyValue = $('#metadata-property-button').data('option').value;
 
             filterObj = {
               "type":"filter",
@@ -1018,9 +1007,19 @@
     // update filter modal
     ScalarLenses.prototype.updateFilterModal = function(type, filterObj){
 
-      if(!filterObj) filterObj = this.getDefaultFilter(type);
+      let needsNewFilter = false;
+      if (!filterObj) {
+        needsNewFilter = true;
+      } else if (filterObj.subtype != type) {
+        needsNewFilter = true;
+      }
+      if (needsNewFilter) filterObj = this.getDefaultFilter(type);
+
       let modalContainer = $('.filter-modal-content');
       modalContainer.data('filterType', type);
+
+      if (filterObj.subtype != type) {
+      }
 
       switch(type) {
 
@@ -1051,7 +1050,7 @@
 
         case 'metadata':
         this.addMetadataFilterForm(modalContainer, filterObj);
-        this.updateMetadataFilterForm();
+        this.updateMetadataFilterForm(filterObj);
         break;
 
         case 'visit-date':
@@ -1064,7 +1063,6 @@
 
     // get default filter state
     ScalarLenses.prototype.getDefaultFilter = function(type){
-
       switch(type){
         case 'type':
           filterObj = {
@@ -1108,8 +1106,8 @@
         case 'metadata':
           filterObj = {
             "type":"filter",
-            "subtype":"metadata"
-
+            "subtype":"metadata",
+            "metadata-field": ":"
           }
         break;
         case 'visitdate':
@@ -1118,10 +1116,8 @@
             "subtype":"visit-date"
           }
         break;
-
       }
-      return filterObj
-
+      return filterObj;
     }
 
     // add type filter form
@@ -1146,7 +1142,6 @@
         </div>
       `).appendTo(container);
 
-      if (!filterObj) filterObj = this.getDefaultFilter('type');
       let me = this;
       let onClick = function() { me.updateTypeFilterForm(); };
 
@@ -1215,7 +1210,6 @@
         </div>
       `).appendTo(container);
 
-      if (!filterObj) filterObj = this.getDefaultFilter('content');
       let me = this;
       let onClick = function() { me.updateContentFilterForm(); };
 
@@ -1258,34 +1252,32 @@
               Select relationship...<span class="caret"></span></button>
             <ul id="relationship-type-list" class="dropdown-menu"></ul>
           </div>
-          <p id="human-readable-text">(i.e. <span class="human-readable-relationship"></span>) any of these <span class="relationship-quantity"></span> items</p>
+          <p id="human-readable-text">(<span class="human-readable-relationship"></span>) any of these <span class="relationship-quantity"></span> items</p>
         </div>
+      `).appendTo(container);
 
-        `).appendTo(container);
+      let me = this;
+      let onClick = function() { me.updateRelationshipFilterForm(); };
 
-        if (!filterObj) filterObj = this.getDefaultFilter('relationship');
-        let me = this;
-        let onClick = function() { me.updateRelationshipFilterForm(); };
+      this.populateDropdown($('#relationship-content-button'), $('#relationship-content-list'), filterObj['content-types'], onClick,
+        '<li><a></a></li>',
+        [
+          {label: "(all types)", value: "all-types"},
+          {label: "path", value: "path"},
+          {label: "tag", value: "tag"},
+          {label: "annotation", value: "annotation"},
+          {label: "comment", value: "comment"}
+        ]);
 
-        this.populateDropdown($('#relationship-content-button'), $('#relationship-content-list'), filterObj['content-types'], onClick,
-          '<li><a></a></li>',
-          [
-            {label: "(all types)", value: "all-types"},
-            {label: "path", value: "path"},
-            {label: "tag", value: "tag"},
-            {label: "annotation", value: "annotation"},
-            {label: "comment", value: "comment"}
-          ]);
+      this.populateDropdown($('#relationship-type-button'), $('#relationship-type-list'), filterObj.relationship, onClick,
+        '<li><a></a></li>',
+        [
+          {label: "(any relationship)", value: "any-relationship"},
+          {label: "parents", value: "parent"},
+          {label: "children", value: "child"}
+        ]);
 
-          this.populateDropdown($('#relationship-type-button'), $('#relationship-type-list'), filterObj.relationship, onClick,
-            '<li><a></a></li>',
-            [
-              {label: "(any relationship)", value: "any-relationship"},
-              {label: "parents", value: "parent"},
-              {label: "children", value: "child"}
-            ]);
-
-        return element
+      return element;
     }
 
     // update relationship filter
@@ -1300,8 +1292,7 @@
         option = {label: 'Select type(s)', value: null};
       }
       relationshipContentButton.text(option.label).append('<span class="caret"></span>');
-      let relationshipContent = relationshipContentButton.text();
-
+      let relationshipContent = option.value;
 
       // update relationship type menu
       let relationshipTypeButton = $('#relationship-type-button');
@@ -1311,47 +1302,13 @@
         relationshipTypeButton.data('option', option);
       }
       relationshipTypeButton.text(option.label).append('<span class="caret"></span>');
-      let relationshipType = relationshipTypeButton.text()
+      let relationshipType = option.value;
 
-
-      // update human-readable-text
-      let humanReadableText = $('.human-readable-relationship');
-
-      if(relationshipContent == '(all types)' && relationshipType == 'parents') {
-        humanReadableText.text('that are parents of');
+      if (relationshipContent) {
+        $('.human-readable-relationship').text('i.e. ' + this.relationshipDescriptors[relationshipContent][relationshipType]);
+      } else {
+        $('.human-readable-relationship').text('no relationship selected');
       }
-      if(relationshipContent == '(all types)' && relationshipType == 'children') {
-        humanReadableText.text('that are children of');
-      }
-      if(relationshipContent == 'path' && relationshipType == 'parents') {
-        humanReadableText.text('that contain');
-      }
-      if(relationshipContent == 'path' && relationshipType == 'children') {
-        humanReadableText.text('that are contained by');
-      }
-      if(relationshipContent == 'tag' && relationshipType == 'parents') {
-        humanReadableText.text('that tag');
-      }
-      if(relationshipContent == 'tag' && relationshipType == 'children') {
-        humanReadableText.text('that are tagged by');
-      }
-      if(relationshipContent == 'annotation' && relationshipType == 'parents') {
-        humanReadableText.text('that annotate');
-      }
-      if(relationshipContent == 'annotation' && relationshipType == 'children') {
-        humanReadableText.text('that are annotated by');
-      }
-      if(relationshipContent == 'comment' && relationshipType == 'parents') {
-        humanReadableText.text('that comment on');
-      }
-      if(relationshipContent == 'comment' && relationshipType == 'children') {
-        humanReadableText.text('that are commented on by');
-      }
-
-
-
-
-
     }
 
     // add distance filter form
@@ -1373,7 +1330,6 @@
         </div>
         `).appendTo(container);
 
-        if (!filterObj) filterObj = this.getDefaultFilter('distance');
         let me = this;
         let onClick = function() { me.updateDistanceFilterForm(); };
 
@@ -1419,7 +1375,6 @@
         </div>
         `).appendTo(container);
 
-        if (!filterObj) filterObj = this.getDefaultFilter('quantity');
         let me = this;
         let onClick = function() { me.updateQuantityFilterForm(); };
 
@@ -1468,7 +1423,7 @@
               <input type="text" id="metadata-content" type="number" min="0" max="5" class="form-control metadataContent" aria-label="..." placeholder="Enter text">
             </div>
             <div class="row" style="margin-top:10px;">
-            <span style="margin-left:10px;vertical-align:middle;"> in this metadata field</span>
+            <span style="margin-left:10px;vertical-align:middle;"> in this metadata field: </span>
               <div class="btn-group"><button id="metadata-ontology-button" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
                   Select field...<span class="caret"></span></button>
                 <ul id="metadata-ontology-list" class="dropdown-menu"></ul>
@@ -1480,35 +1435,32 @@
               </div>
             </div>
          </div>
-        `).appendTo(container);
+      `).appendTo(container);
 
-        if (!filterObj) filterObj = this.getDefaultFilter('metadata');
-        let me = this;
-        let onClick = function() { me.updateMetadataFilterForm(); };
+      let me = this;
+      let onClick = function() { me.updateMetadataFilterForm(); };
 
-        // operator dropdown
-        this.populateDropdown($('#operator-button'), $('#operator-list'), filterObj.operator, onClick,
-          '<li><a></a></li>',
-          [
-            {label: "includes", value: "inclusive"},
-            {label: "does not include", value: "exclusive"}
-          ]);
+      // operator dropdown
+      this.populateDropdown($('#operator-button'), $('#operator-list'), filterObj.operator, onClick,
+        '<li><a></a></li>',
+        [
+          {label: "includes", value: "inclusive"},
+          {label: "does not include", value: "exclusive"}
+        ]);
 
-        // save metadata content value
-        $('#metadata-content').val(filterObj.content)
+      // save metadata content value
+      $('#metadata-content').val(filterObj.content)
 
-        // ontology dropdown
-        this.populateDropdown($('#metadata-ontology-button'), $('#metadata-ontology-list'), filterObj["metadata-field"], onClick,
-          '<li><a></a></li>', this.createOntologyList()
-        );
+      // ontology dropdown
+      this.populateDropdown($('#metadata-ontology-button'), $('#metadata-ontology-list'), filterObj["metadata-field"].split(':')[0], onClick,
+        '<li><a></a></li>', this.createOntologyList()
+      );
 
-
-      return element
-
+      return element;
     }
 
     // update metadata filter form
-    ScalarLenses.prototype.updateMetadataFilterForm = function(){
+    ScalarLenses.prototype.updateMetadataFilterForm = function(filterObj) {
 
       let option;
 
@@ -1531,28 +1483,29 @@
 
       // update property button
       let propertyButton = $('#metadata-property-button');
+      if (filterObj) {
+        let propertyName = filterObj['metadata-field'].split(':')[1];
+        if (propertyName != '') {
+          propertyButton.data('option', {label:propertyName, value:propertyName});
+        }
+      }
       option = propertyButton.data('option');
       if (!option) { // if nothing selected yet, pull the option from the first item
         option = {label: 'Select property', value: null};
       }
       propertyButton.text(option.label).append('<span class="caret"></span>');
 
-
-
-
       // populate property dropdown when ontology is selected
-      let getButtonData = $('#metadata-ontology-button').data('option');
+      let ontologyOption = $('#metadata-ontology-button').data('option');
       let ontologyName;
-      if(getButtonData){
-        ontologyName = getButtonData.value;
+      if (ontologyOption) {
+        ontologyName = ontologyOption.value;
       }
       let me = this;
       let onClick = function() { me.updateMetadataFilterForm(); };
       this.populateDropdown($('#metadata-property-button'), $('#metadata-property-list'), null, onClick,
         '<li><a></a></li>', this.createPropertyList(ontologyName)
       );
-
-
     }
 
     // add visitdate filter form
@@ -1580,42 +1533,38 @@
              <input id="visitdate-input" type="datetime-local" class="form-control" aria-label="..." placeholder="Enter date: mm/dd/yyyy hh:mm am/pm">
            </div>
         </div>
-        `).appendTo(container);
+      `).appendTo(container);
 
+      let me = this;
+      let onClick = function() { me.updateVisitDateFilterForm(); };
 
-        if (!filterObj) filterObj = this.getDefaultFilter('visit-date');
-        let me = this;
-        let onClick = function() { me.updateVisitDateFilterForm(); };
+      $('#visitdate-quantity').val(filterObj.quantity)
+      $('#visitdate-input').val(filterObj.datetime);
 
+      if(filterObj.datetime == 'date'){
+        $('#visitdate-input').css({'display':'block'});
+      } else {
+        $('#visitdate-input').css({'display':'none'});
+      }
 
-        $('#visitdate-quantity').val(filterObj.quantity)
-        $('#visitdate-input').val(filterObj.datetime);
+      // units dropdown
+      this.populateDropdown($('#visitdate-units-button'), $('#visitdate-units-list'), filterObj.operator, onClick,
+        '<li><a></a></li>',
+        [
+          {label: "hours", value: "hours"},
+          {label: "days", value: "days"},
+          {label: "weeks", value: "weeks"},
+          {label: "years", value: "years"}
+        ]);
 
+      // date dropdown
+      this.populateDropdown($('#date-button'), $('#date-list'), filterObj.operator, onClick,
+        '<li><a></a></li>',
+        [
+          {label: "now", value: "now"},
+          {label: "specific date", value: "date"}
 
-        if(filterObj.datetime == 'date'){
-          $('#visitdate-input').css({'display':'block'});
-        } else {
-          $('#visitdate-input').css({'display':'none'});
-        }
-
-        // units dropdown
-        this.populateDropdown($('#visitdate-units-button'), $('#visitdate-units-list'), filterObj.operator, onClick,
-          '<li><a></a></li>',
-          [
-            {label: "hours", value: "hours"},
-            {label: "days", value: "days"},
-            {label: "weeks", value: "weeks"},
-            {label: "years", value: "years"}
-          ]);
-
-        // date dropdown
-        this.populateDropdown($('#date-button'), $('#date-list'), filterObj.operator, onClick,
-          '<li><a></a></li>',
-          [
-            {label: "now", value: "now"},
-            {label: "specific date", value: "date"}
-
-          ]);
+        ]);
 
       return element
 
@@ -2085,7 +2034,6 @@
       let me = this;
       let onClick = function() { me.updateDistanceSortForm(); };
 
-
       this.populateDropdown($('#sort-distance-button'), $('#sort-order-list'), sortObj['sort-order'], onClick,
         '<li><a></a></li>',
         [
@@ -2093,21 +2041,19 @@
           {label: "descending", value: "descending"}
         ]);
 
+      // store coordinate input values
+      if(sortObj && sortObj.content){
+        var x = sortObj.content;
+        var y = x.split(',');
 
-        // store coordinate input values
-        if(sortObj && sortObj.content){
-          var x = sortObj.content;
-          var y = x.split(',');
+        let latitude = y[0];
+        let longitude = y[1];
 
-          let latitude = y[0];
-          let longitude = y[1];
-
-          $('#latitude.form-control.sort').val(latitude);
-          $('#longitude.form-control.sort').val(longitude);
-        }
+        $('#latitude.form-control.sort').val(latitude);
+        $('#longitude.form-control.sort').val(longitude);
+      }
 
       return element;
-
     }
 
     ScalarLenses.prototype.updateDistanceSortForm = function() {
