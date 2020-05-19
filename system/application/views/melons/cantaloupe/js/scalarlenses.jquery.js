@@ -2430,11 +2430,15 @@
     // get ontology data
      ScalarLenses.prototype.getOntologyData = function() {
 
-       this.baseURL = $('link#parent').attr('href');
        let me = this;
 
+       let baseURL = $('link#parent').attr('href');
+       let splitURL = baseURL.split("/");
+       splitURL.splice(4,0, "system/ontologies");
+       let newURL = splitURL.join('/')
+
        $.ajax({
-         url: this.baseURL + 'system/ontologies',
+         url: newURL,
          type: "GET",
          dataType: 'json',
          contentType: 'application/json',
@@ -2482,10 +2486,6 @@
         }
        return propertyArray;
      };
-
-
-
-
 
 
 
