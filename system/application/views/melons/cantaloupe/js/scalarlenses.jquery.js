@@ -59,7 +59,10 @@
         "dwc":"Darwin Core",
         "vra":"VRA Ontology",
         "cp":"Common Place",
-        "gpano": "gpano"
+        "gpano": "gpano",
+        "scalar": "Scalar",
+        "sioc": "SIOC",
+        "rdf": "RDF"
       };
 
       this.relationshipDescriptors = {
@@ -2494,15 +2497,11 @@
 
      ScalarLenses.prototype.handleOntologyData = function(response) {
        this.ontologyData = response;
-       /*'dcterms:title': node.current.title,
-       'dcterms.description': node.current.description,
-       'sioc:content': node.current.content,
-       'rdf:type': node.baseType,
-       'scalar:urn': node.current.urn,
-       'scalar:url': node.current.sourceFile,
-       'scalar:default_view': node.current.defaultView,
-       'scalar:continue_to_content_id': node.current.continueTo,
-       'scalar:sort_number': node.current.sortNumber*/
+       this.ontologyData.dcterms.unshift('description');
+       this.ontologyData.dcterms.unshift('title');
+       this.ontologyData.sioc = ['content'];
+       this.ontologyData.rdf = ['type'];
+       this.ontologyData.scalar = ['urn','url','default_view','continut_to_content_id','sort_number'];
      }
 
     // creat ontology list
