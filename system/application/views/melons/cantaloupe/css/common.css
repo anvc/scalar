@@ -1464,6 +1464,9 @@ body>.annotorious-popup{
 	margin-right:4px;
 	padding: 3px 8px;
 }
+.lens-editor .btn-default {
+	margin-top: 4px;
+}
 .lens-editor .dropdown-menu {
 	border:1px solid #dddddd;
 }
@@ -1494,7 +1497,7 @@ body>.annotorious-popup{
 .component-container.inline {
 	display: inline-block;
 }
-.lens-editor .plus-button {
+.lens-editor .plus-button-group {
 	margin-top: 4px;
 }
 .lens-editor .btn .plus-icon {
@@ -1568,44 +1571,54 @@ body>.annotorious-popup{
 }
 .visualization-button,
 .visualization-button:hover,
-.btn-primary.visualization-button:active,
-.btn-primary.visualization-button:focus,
+.visualization-button:active,
+.visualization-button:focus,
 .open .dropdown-toggle.btn-primary.visualization-button
- {
+{
 	background:#985da9;
 	border:1px solid #82519a;
 }
 
-.content-selector-button .btn-primary,
-.content-selector-button .btn-primary:hover,
-.content-selector-button .btn-primary:active,
-.content-selector-button .btn-primary:focus,
-.content-selector-button.open .dropdown-toggle.btn-primary
+.operation-button,
+.operation-button:hover,
+.operation-button:active,
+.operation-button:focus,
+.open .dropdown-toggle.btn-primary.operation-button
+{
+ background:#7f7f7f;
+ border:1px solid #717171;
+}
+
+.content-selector-button,
+.content-selector-button:hover,
+.content-selector-button:active,
+.content-selector-button:focus,
+.open .dropdown-toggle.btn-primary.content-selector-button
 {
 	background:#3b82c0;
 	border:1px solid #457db8;
 }
-.filter-button .btn-primary,
-.filter-button .btn-primary:hover,
-.filter-button .btn-primary:active,
-.filter-button .btn-primary:focus,
-.filter-button.open .dropdown-toggle.btn-primary
+
+.filter-button,
+.filter-button:hover,
+.filter-button:active,
+.filter-button:focus,
+.open .dropdown-toggle.btn-primary.filter-button
 {
 	background:#f08c4e;
 	border:1px solid #d87c43;
 }
-.sort-button .btn-primary,
-.sort-button .btn-primary:hover,
-.sort-button .btn-primary:active,
-.sort-button .btn-primary:focus,
-.sort-button.open .dropdown-toggle.btn-primary
+
+.sort-button,
+.sort-button:hover,
+.sort-button:active,
+.sort-button:focus,
+.open .dropdown-toggle.btn-primary.sort-button
 {
 	background:#5cb85c;
 	border:1px solid #4ca34c;
 }
-/* .content-selector-button .dropdown-menu li a, .filter-button .dropdown-menu li a {
-	padding:4px 10px;
-} */
+
 .close {
 	font-size:0px;
 }

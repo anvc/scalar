@@ -102,8 +102,9 @@
         "frozen": false,
         "frozen-items": [],
         "visualization": {
-          "type": null
-          },
+          "type": null,
+          "options": {}
+        },
         "components": []
       };
 
@@ -161,7 +162,7 @@
           let componentContainer = this.getComponentContainer(componentIndex);
 
           // content selector button
-          let button = componentContainer.find('.content-selector-button');
+          let button = componentContainer.find('.content-selector-btn-group');
           if (button.length == 0) button = this.addContentSelectorButton(componentContainer, componentIndex);
           this.updateContentSelectorButton(component["content-selector"], button);
 
@@ -169,9 +170,9 @@
             switch (modifier.type) {
 
               case 'filter':
-              button = componentContainer.find('.modifier-button').eq(modifierIndex);
+              button = componentContainer.find('.modifier-btn-group').eq(modifierIndex);
               // if this isn't a filter button, remove it
-              if (!button.hasClass('filter-button')) {
+              if (!button.hasClass('filter-btn-group')) {
                 button.remove();
                 button = [];
               }
@@ -182,9 +183,9 @@
               break;
 
               case 'sort':
-              button = componentContainer.find('.modifier-button').eq(modifierIndex);
+              button = componentContainer.find('.modifier-btn-group').eq(modifierIndex);
               // if this isn't a sort button, remove it
-              if (!button.hasClass('sort-button')) {
+              if (!button.hasClass('sort-btn-group')) {
                 button.remove();
                 button = [];
               }
@@ -198,21 +199,26 @@
           })
 
           // remove extra modifier buttons
-          componentContainer.find('.modifier-button').each(function(index) {
+          componentContainer.find('.modifier-btn-group').each(function(index) {
             if (index >= component.modifiers.length) {
               $(this).remove();
             }
           });
 
           // plus button
-          button = componentContainer.find('.plus-button');
+          button = componentContainer.find('.plus-btn-group');
           if (button.length == 0) this.addPlusButton(componentContainer, componentIndex);
         });
 
+        let componentContainers = this.buttonContainer.find('.component-container');
         if (this.scalarLensObject.components.length == 1) {
-          this.buttonContainer.find('.component-container').addClass('inline');
+          componentContainers.addClass('inline');
+          this.buttonContainer.find('.operation-btn-group').remove();
         } else {
-          this.buttonContainer.find('.component-container').removeClass('inline');
+          componentContainers.removeClass('inline');
+          button = this.buttonContainer.find('.operation-btn-group');
+          if (button.length == 0) componentContainers.eq(0).before(this.addOperatorButton());
+          this.updateOperatorButton(this.scalarLensObject.visualization);
         }
       }
     }
@@ -234,104 +240,120 @@
 
     // add visualization button
     ScalarLenses.prototype.addVisualizationButton = function(){
-
       let element = $(
-           `<div class="btn-group"><button type="button" class="btn btn-primary btn-xs dropdown-toggle caption_font visualization-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Select visualization <span class="caret"></span></button>
-             <ul id="visualization-dropdown" class="dropdown-menu">
-             <li><a><span class="viz-icon force"></span>Force-Directed</a></li>
-             <li><a><span class="viz-icon grid"></span>Grid</a></li>
-             <li><a><span class="viz-icon list"></span>List</a></li>
-             <li><a><span class="viz-icon map"></span>Map</a></li>
-             <li><a><span class="viz-icon radial"></span>Radial</a></li>
-             <li><a><span class="viz-icon tree"></span>Tree</a></li>
-             <li><a><span class="viz-icon word-cloud"></span>Word Cloud</a></li>
-             </ul>
-           </div>`
-        )
-
-      var me = this
-
-        element.find('li').on('click', function(){
-           let visualizationObj = {
-             "type": $(this).text().split(/[_\s]/).join("-").toLowerCase()
-           }
-
-          me.scalarLensObject.visualization = visualizationObj
-          me.updateVisualizationButton(me.scalarLensObject.visualization)
-          me.saveLens(me.getLensResults);
-
-        });
-        return element
+         `<div class="visualization-btn-group btn-group"><button type="button" class="btn btn-primary btn-xs dropdown-toggle caption_font visualization-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Select visualization <span class="caret"></span></button>
+           <ul id="visualization-dropdown" class="dropdown-menu">
+           <li><a><span class="viz-icon force"></span>Force-Directed</a></li>
+           <li><a><span class="viz-icon grid"></span>Grid</a></li>
+           <li><a><span class="viz-icon list"></span>List</a></li>
+           <li><a><span class="viz-icon map"></span>Map</a></li>
+           <li><a><span class="viz-icon radial"></span>Radial</a></li>
+           <li><a><span class="viz-icon tree"></span>Tree</a></li>
+           <li><a><span class="viz-icon word-cloud"></span>Word Cloud</a></li>
+           </ul>
+         </div>`
+      )
+      var me = this;
+      element.find('li').on('click', function(){
+        me.scalarLensObject.visualization.type = $(this).text().split(/[_\s]/).join("-").toLowerCase();
+        me.updateVisualizationButton(me.scalarLensObject.visualization);
+        me.saveLens(me.getLensResults);
+      });
+      return element;
     }
 
     // update visualization button
     ScalarLenses.prototype.updateVisualizationButton = function(visualizationObj){
-
       let button = $(this.element).find('.visualization-button')
-
       if(!visualizationObj.type) {
-          button.text('Select visualization...').append('<span class="caret"></span>')
-        } else {
-          button.text(this.visualizationOptions[visualizationObj.type].text).prepend('<span class="viz-icon '  + visualizationObj.type + ' light"</span>').append('<span class="caret"></span>')
+        button.text('Select visualization...').append('<span class="caret"></span>')
+      } else {
+        button.text(this.visualizationOptions[visualizationObj.type].text).prepend('<span class="viz-icon '  + visualizationObj.type + ' light"</span>').append('<span class="caret"></span>')
+      }
+    }
+
+    // add operator button
+    ScalarLenses.prototype.addOperatorButton = function(){
+      let button = $(
+        `<div class="operation-btn-group btn-group">
+          <button type="button" class="btn btn-primary btn-xs dropdown-toggle caption_font operation-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+          <ul class="dropdown-menu operation-dropdown"></ul>
+        </div>`
+      );
+
+      let me = this;
+      let onClick = function(evt) {
+        let option = $(evt.target).parent().data('option');
+        me.scalarLensObject.visualization.options.operation = option.value;
+        me.updateOperatorButton(me.scalarLensObject.visualization);
+      }
+      this.populateDropdown(button, button.find('ul'), null, onClick,
+        '<li><a></a></li>',
+        [
+          {label: "the combination of", value: "or"},
+          {label: "the intersection of", value: "and"}
+        ]);
+
+      return button;
+    }
+
+    // update operator button
+    ScalarLenses.prototype.updateOperatorButton = function(visualizationObj) {
+      let me = this;
+      $(this.element).find('.operation-dropdown > li').each(function() {
+        let option = $(this).data('option');
+        if (visualizationObj.options.operation == option.value) {
+          $(me.element).find('.operation-button').text(option.label).append('<span class="caret"></span>');
         }
+      })
     }
 
     // add content-selector button
     ScalarLenses.prototype.addContentSelectorButton = function(element, componentIndex){
+      let buttonGroup = $(
+       `<div class="content-selector-btn-group btn-group"><button type="button" class="btn btn-primary btn-xs dropdown-toggle content-selector-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+             Select items...<span class="caret"></span></button>
+           <ul class="dropdown-menu content-selector-dropdown"></ul>
+        </div>`
+      ).appendTo(element)
+      buttonGroup.data('componentIndex', componentIndex);
+      var me = this;
+      let onClick = function (evt) {
+        let option = $(evt.target).parent().data('option');
+        console.log(option);
+        me.editedComponentIndex = componentIndex;
+        if (option.value == 'specific-items') {
+          $('<div></div>').content_selector({
+            changeable: true,
+            multiple: true,
+            onthefly: true,
+            msg: 'Choose items to be included in this lens.',
+            callback: function(a){
+              me.handleContentSelected(a)
+            }
+          });
+        }
+      };
 
-      let button = $(
-         `<div class="btn-group content-selector-button"><button type="button" class="btn btn-primary btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-               Select items...<span class="caret"></span></button>
-             <ul id="content-dropdown" class="dropdown-menu">
-               <li><a>Specific items</a></li>
-               <li><a data-toggle="modal" data-target="#modalByType">Items by type</a></li>
-               <li><a data-toggle="modal" data-target="#modalByDistance">Items by distance</a></li>
-             </ul>
-          </div>`
-        ).appendTo(element)
+      this.populateDropdown(buttonGroup.find('.content-selector-button'), buttonGroup.find('.content-selector-dropdown'), null, onClick,
+        [
+          '<li><a></a></li>',
+          '<li><a data-toggle="modal" data-target="#modalByType"></a></li>',
+          '<li><a data-toggle="modal" data-target="#modalByDistance"></a></li>'
+        ],
+        [
+          {label: "Specific items...", value: "specific-items"},
+          {label: "Items by type...", value: "items-by-type"},
+          {label: "Items by distance...", value: "items-by-distance"}
+        ]);
 
-        button.data('componentIndex', componentIndex);
-
-        var me = this;
-
-        button.find('li').on('click', function (event) {
-
-          let buttonText = $(this).text();
-
-          me.editedComponentIndex = componentIndex
-
-          switch(buttonText) {
-              case 'Specific items':
-                // trigger content-selector
-                $('<div></div>').content_selector({
-                  changeable: true,
-                  multiple: true,
-                  onthefly: true,
-                  msg: 'Choose items to be included in this lens.',
-                  callback: function(a){
-                    me.handleContentSelected(a)
-                  }
-                });
-              break;
-
-              case 'Items by type':
-              break;
-
-              case 'Items by distance':
-              break;
-
-          }
-
-        }); // content-selection
-
-      return button
-
+      return buttonGroup;
     }
 
     // update content-selector button
     ScalarLenses.prototype.updateContentSelectorButton = function(contentSelectorObj, element){
-      let button = element.find('button');
+      let button = element.find('button'); // the element are being passed is actually a btn-group, the button is inside
       let buttonText = 'Select items...';
       if (contentSelectorObj) {
         let type = contentSelectorObj.type;
@@ -400,7 +422,7 @@
     // add filter button
     ScalarLenses.prototype.addFilterButton = function(componentContainer, componentIndex, modifierIndex){
       let button = $(
-        `<div class="btn-group filter-button modifier-button"><button type="button" class="btn btn-primary btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        `<div class="modifier-btn-group filter-btn-group btn-group"><button type="button" class="btn btn-primary btn-xs dropdown-toggle filter-button modifier-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Filter items...<span class="caret"></span></button>
           <ul class="dropdown-menu filter-type-list"></ul>
         </div>`
@@ -408,9 +430,9 @@
 
       // position button in dom
       if (modifierIndex == 0) {
-        componentContainer.find('.content-selector-button').after(button);
+        componentContainer.find('.content-selector-btn-group').after(button);
       } else {
-        componentContainer.find('.modifier-button').eq(modifierIndex-1).after(button);
+        componentContainer.find('.modifier-btn-group').eq(modifierIndex-1).after(button);
       }
 
       button.data({
@@ -559,7 +581,7 @@
     // add filter button
     ScalarLenses.prototype.addSortButton = function(componentContainer, componentIndex, modifierIndex){
       let button = $(
-        `<div class="btn-group sort-button modifier-button"><button type="button" class="btn btn-primary btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        `<div class="modifier-btn-group sort-btn-group btn-group"><button type="button" class="btn btn-primary btn-xs dropdown-toggle sort-button modifier-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Sort items...<span class="caret"></span></button>
           <ul class="dropdown-menu sort-type-list"></ul>
         </div>`
@@ -567,9 +589,9 @@
 
       // position button in dom
       if (modifierIndex == 0) {
-        componentContainer.find('.content-selector-button').after(button);
+        componentContainer.find('.content-selector-btn-group').after(button);
       } else {
-        componentContainer.find('.modifier-button').eq(modifierIndex-1).after(button);
+        componentContainer.find('.modifier-btn-group').eq(modifierIndex-1).after(button);
       }
 
       button.data({
@@ -599,7 +621,7 @@
           };
 
           me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex] = sortObj;
-          me.updateSortButton(me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex], $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-button').eq(me.editedModifierIndex))
+          me.updateSortButton(me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex], $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-btn-group').eq(me.editedModifierIndex))
           me.saveLens(me.getLensResults);
         }
 
@@ -717,9 +739,8 @@
 
     // add Plus button
     ScalarLenses.prototype.addPlusButton = function(componentContainer, componentIndex){
-      console.log('add plus');
       let button = $(
-         `<div class="btn-group plus-button"><button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+         `<div class="btn-group plus-btn-group"><button type="button" class="btn btn-default btn-xs plus-btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
            <span class="plus-icon"></span></button>
            <ul id="content-dropdown" class="dropdown-menu">
              <li><a>Add content</a></li>
@@ -730,9 +751,9 @@
       );
       let modifierCount = this.scalarLensObject.components[componentIndex].modifiers.length;
       if (modifierCount == 0) {
-        componentContainer.find('.content-selector-button').after(button);
+        componentContainer.find('.content-selector-btn-group').after(button);
       } else {
-        componentContainer.find('.filter-button').eq(modifierCount-1).after(button);
+        componentContainer.find('.filter-btn-group').eq(modifierCount-1).after(button);
       }
       button.data('componentIndex', componentIndex);
       var me = this;
@@ -742,6 +763,12 @@
         switch(buttonText) {
           case 'Add content':
           me.scalarLensObject.components.splice(componentIndex + 1, 0, { "content-selector": {}, "modifiers": []});
+          if (!me.scalarLensObject.visualization.options) {
+            me.scalarLensObject.visualization.options = {};
+          }
+          if (!me.scalarLensObject.visualization.options.operation) {
+            me.scalarLensObject.visualization.options.operation = 'or';
+          }
           me.updateEditorDom();
           break;
           case 'Add filter':
@@ -795,13 +822,12 @@
       });
 
       element.find('.done').on('click', function(){
-
         let contentSelector = {
           "type": "items-by-type",
           "content-type": $('#byType').text().split(/[_\s]/).join("-").toLowerCase()
         }
         me.scalarLensObject.components[me.editedComponentIndex]["content-selector"] = contentSelector
-        me.updateContentSelectorButton(me.scalarLensObject.components[me.editedComponentIndex]["content-selector"], $(me.element).find('.content-selector-button').eq(me.editedComponentIndex))
+        me.updateContentSelectorButton(me.scalarLensObject.components[me.editedComponentIndex]["content-selector"], $(me.element).find('.content-selector-btn-group').eq(me.editedComponentIndex))
         me.saveLens(me.getLensResults)
       });
       return element
@@ -867,11 +893,9 @@
             "units": $('#distanceUnits').text(),
             "coordinates": $('#latitude').val() + ', ' + $('#longitude').val()
           }
-
           me.scalarLensObject.components[me.editedComponentIndex]["content-selector"] = contentSelector
-          me.updateContentSelectorButton(me.scalarLensObject.components[me.editedComponentIndex]["content-selector"], $(me.element).find('.content-selector-button').eq(me.editedComponentIndex))
+          me.updateContentSelectorButton(me.scalarLensObject.components[me.editedComponentIndex]["content-selector"], $(me.element).find('.content-selector-btn-group').eq(me.editedComponentIndex))
           me.saveLens(me.getLensResults);
-
         });
 
         return element
@@ -913,8 +937,8 @@
 
       var me = this;
 
-      let componentContainer = $('.filter-modal-container')
-      element.find('.filter-modal-container').prepend(me.addFilterButton(componentContainer))
+      //let componentContainer = $('.filter-modal-container')
+      //element.find('.filter-modal-container').prepend(me.addFilterButton(componentContainer))
 
       // saves values
       element.find('.done').on('click', function(){
@@ -999,7 +1023,7 @@
         }
 
         me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex] = filterObj;
-        me.updateFilterButton(me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex], $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-button').eq(me.editedModifierIndex))
+        me.updateFilterButton(me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex], $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-btn-group').eq(me.editedModifierIndex))
         me.saveLens(me.getLensResults);
       });
 
@@ -1712,7 +1736,7 @@
         }
 
         me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex] = sortObj;
-        me.updateSortButton(me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex], $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-button').eq(me.editedModifierIndex))
+        me.updateSortButton(me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex], $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-btn-group').eq(me.editedModifierIndex))
         me.saveLens(me.getLensResults);
       });
 
@@ -2270,7 +2294,7 @@
     // populate a dropdown
     ScalarLenses.prototype.populateDropdown = function(buttonElement, listElement, currentData, onClick, markup, options) {
       listElement.empty();
-      options.forEach(option => {
+      options.forEach((option, index) => {
         let listItem;
         switch (option.value) {
 
@@ -2284,15 +2308,18 @@
           break;
 
           default:
-          listItem = $(markup).appendTo(listElement);
+          if (Array.isArray(markup)) {
+            listItem = $(markup[index]).appendTo(listElement);
+          } else {
+            listItem = $(markup).appendTo(listElement);
+          }
           this.getInnermostChild(listItem).text(option.label);
           listItem.data('option', option).on('click', function(evt){
             buttonElement.data('option', $(this).data('option'));
-            //console.log(buttonElement.data('option'))
             onClick(evt);
           });
           if (currentData) {
-            if (typeof(currentData) == 'array') {
+            if (Array.isArray(currentData)) {
               if (currentData.indexOf(option.value) != -1) {
                 buttonElement.data('option', option);
               }
