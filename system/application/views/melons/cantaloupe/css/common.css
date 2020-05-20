@@ -1488,7 +1488,12 @@ body>.annotorious-popup{
 .dropdown-menu li a {
 	cursor:pointer;
 }
-.component-container { display: inline-block; }
+.component-container {
+	margin-right: 4px;
+}
+.component-container.inline {
+	display: inline-block;
+}
 .lens-editor .plus-button {
 	margin-top: 4px;
 }

@@ -156,12 +156,12 @@
          this.scalarLensObject.components[0] = { "content-selector": {}, "modifiers": []}
 
       } else {
-        console.log(JSON.stringify(this.scalarLensObject));
+        console.log(JSON.stringify(this.scalarLensObject, null, 2));
         this.scalarLensObject.components.forEach((component, componentIndex) => {
           let componentContainer = this.getComponentContainer(componentIndex);
 
           // content selector button
-          let button = componentContainer.find('.content-selector-button')
+          let button = componentContainer.find('.content-selector-button');
           if (button.length == 0) button = this.addContentSelectorButton(componentContainer, componentIndex);
           this.updateContentSelectorButton(component["content-selector"], button);
 
@@ -176,7 +176,7 @@
                 button = [];
               }
               if (button.length == 0) {
-                button = this.addFilterButton(this.buttonContainer, componentIndex, modifierIndex);
+                button = this.addFilterButton(componentContainer, componentIndex, modifierIndex);
               }
               this.updateFilterButton(modifier, button);
               break;
@@ -189,7 +189,7 @@
                 button = [];
               }
               if (button.length == 0) {
-                button = this.addSortButton(this.buttonContainer, componentIndex, modifierIndex);
+                button = this.addSortButton(componentContainer, componentIndex, modifierIndex);
               }
               this.updateSortButton(modifier, button);
               break;
@@ -205,9 +205,15 @@
           });
 
           // plus button
-          button = $(this.buttonContainer).find('.plus-button').eq(componentIndex);
-          if (button.length == 0) this.addPlusButton(this.buttonContainer, componentIndex);
+          button = componentContainer.find('.plus-button');
+          if (button.length == 0) this.addPlusButton(componentContainer, componentIndex);
         });
+
+        if (this.scalarLensObject.components.length == 1) {
+          this.buttonContainer.find('.component-container').addClass('inline');
+        } else {
+          this.buttonContainer.find('.component-container').removeClass('inline');
+        }
       }
     }
 
@@ -217,9 +223,10 @@
       let componentContainer = this.buttonContainer.find('.component-container').eq(componentIndex);
       if (componentContainer.length == 0) {
         if (componentIndex == 0) {
-          componentContainer = $('<div class="component-container"></div>').appendTo(this.buttonContainer);
+          componentContainer = $('<div class="component-container inline"></div>').appendTo(this.buttonContainer);
         } else {
-          componentContainer = this.buttonContainer.find('.component-container').eq(componentIndex-1).after('<div class="component-container"></div>');
+          componentContainer = $('<div class="component-container inline"></div>');
+          this.buttonContainer.find('.component-container').eq(componentIndex-1).after(componentContainer);
         }
       }
       return componentContainer;
@@ -324,78 +331,70 @@
 
     // update content-selector button
     ScalarLenses.prototype.updateContentSelectorButton = function(contentSelectorObj, element){
+      let button = element.find('button');
+      let buttonText = 'Select items...';
+      if (contentSelectorObj) {
+        let type = contentSelectorObj.type;
+        switch(type){
 
-        let button = element.find('button');
-
-          if(!contentSelectorObj) {
-            button.text('Select items...').append('<span class="caret"></span>');
-          }
-
-          else {
-
-            let type = contentSelectorObj.type;
-
-            switch(type){
-
-              case 'specific-items':
-                let items = contentSelectorObj.items;
-                if (items.length > 0) {
-                  scalarapi.loadNode(items[0], true, () => {
-                    let node = scalarapi.getNode(items[0]);
-                    console.log(node.current.title);
-                    let buttonText = '&#8220;'+ node.current.title + '&#8221;';
-                    if (items.length > 1) {
-                      let remainingItems = items.length - 1;
-                      buttonText += ' and ' + remainingItems + ' more...';
-                    }
-                    //console.log(buttonText);
-                    button.html(buttonText).append('<span class="caret"></span>');
-                  });
-                } else {
-                  button.html('[no items selected]').append('<span class="caret"></span>');
-                }
-                break;
-
-              case 'items-by-type':
-                let contentType = contentSelectorObj["content-type"];
-                switch (contentType) {
-                  case 'all-content':
-                  button.text('All content').append('<span class="caret"></span>');
-                  break;
-                  case 'page':
-                  case 'media':
-                  button.text('All ' + scalarapi.model.scalarTypes[contentType].plural).append('<span class="caret"></span>');
-                  break;
-                  default:
-                  button.text('All ' + scalarapi.model.relationTypes[contentType].bodyPlural).append('<span class="caret"></span>');
-                  break;
-                }
-                break;
-
-              case 'items-by-distance':
-                  let units = contentSelectorObj.units;
-                  let abbreviateUnits;
-
-                  // abbreviate units for display
-                  if(units === "miles") {
-                    abbreviateUnits = "mi";
-                  } else if(units === "kilometers") {
-                    abbreviateUnits = "km";
-                  }
-
-                  let quantity = contentSelectorObj.quantity;
-                  let coordinates = contentSelectorObj.coordinates;
-
-                  // JSON updates content button text
-                  let updateByDistance = quantity + ' ' + abbreviateUnits + ' from ' + coordinates;
-
-                  button.text('Items ≤ ' + updateByDistance + '').append('<span class="caret"></span>');
-
-                break;
-
+          case 'specific-items':
+            let handleNode = function() {
+              let node = scalarapi.getNode(items[0]);
+              buttonText = '&#8220;'+ node.current.title + '&#8221;';
+              if (items.length > 1) {
+                let remainingItems = items.length - 1;
+                buttonText += ' and ' + remainingItems + ' more...';
+              }
+              button.html(buttonText).append('<span class="caret"></span>');
             }
-          }
+            let items = contentSelectorObj.items;
+            if (items.length > 0) {
+              buttonText = button.text(); // prevents flickering text while we wait for the node to be retrieved
+              if (scalarapi.loadNode(items[0], true, handleNode) == 'loaded') handleNode();
+            } else {
+              buttonText = '[no items selected]';
+            }
+            break;
 
+          case 'items-by-type':
+            let contentType = contentSelectorObj["content-type"];
+            switch (contentType) {
+              case 'all-content':
+              buttonText = 'All content';
+              break;
+              case 'page':
+              case 'media':
+              buttonText = 'All ' + scalarapi.model.scalarTypes[contentType].plural;
+              break;
+              default:
+              buttonText = 'All ' + scalarapi.model.relationTypes[contentType].bodyPlural;
+              break;
+            }
+            break;
+
+          case 'items-by-distance':
+            let units = contentSelectorObj.units;
+            let abbreviateUnits;
+
+            // abbreviate units for display
+            if(units === "miles") {
+              abbreviateUnits = "mi";
+            } else if(units === "kilometers") {
+              abbreviateUnits = "km";
+            }
+
+            let quantity = contentSelectorObj.quantity;
+            let coordinates = contentSelectorObj.coordinates;
+
+            // JSON updates content button text
+            let updateByDistance = quantity + ' ' + abbreviateUnits + ' from ' + coordinates;
+
+            buttonText = 'Items ≤ ' + updateByDistance;
+            break;
+
+        }
+      }
+      button.text(buttonText).append('<span class="caret"></span>');
     }
 
     // add filter button
@@ -718,6 +717,7 @@
 
     // add Plus button
     ScalarLenses.prototype.addPlusButton = function(componentContainer, componentIndex){
+      console.log('add plus');
       let button = $(
          `<div class="btn-group plus-button"><button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
            <span class="plus-icon"></span></button>
@@ -741,6 +741,8 @@
         let componentIndex = parseInt($(this).parent().parent().data('componentIndex'));
         switch(buttonText) {
           case 'Add content':
+          me.scalarLensObject.components.splice(componentIndex + 1, 0, { "content-selector": {}, "modifiers": []});
+          me.updateEditorDom();
           break;
           case 'Add filter':
           me.scalarLensObject.components[componentIndex].modifiers.push({"type": "filter"});
