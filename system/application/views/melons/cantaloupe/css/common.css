@@ -1484,6 +1484,11 @@ body>.annotorious-popup{
   font-size:14px;
   font-weight:200;
   background:#3b82c0;
+	min-width: 24px;
+	height: 24px;
+}
+.lens-editor .spinner {
+	margin: 6px;
 }
 .dropdown-menu {
 	min-width:152px;

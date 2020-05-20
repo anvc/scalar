@@ -73,6 +73,24 @@
         'comment': {'parent': 'comment on', 'child': 'commented on by', 'any-relationship':'comment on or are commented on by'}
       };
 
+      var spinner_options = {
+        lines: 10, // The number of lines to draw
+        length: 2, // The length of each line
+        width: 1, // The line thickness
+        radius: 2, // The radius of the inner circle
+        rotate: 0, // The rotation offset
+        color: '#fff', // #rgb or #rrggbb
+        speed: 1, // Rounds per second
+        trail: 60, // Afterglow percentage
+        shadow: false, // Whether to render a shadow
+        hwaccel: false, // Whether to use hardware acceleration
+        className: 'spinner', // The CSS class to assign to the spinner
+        zIndex: 2e9, // The z-index (defaults to 2000000000)
+        top: '50%', // Top position relative to parent in px
+        right: '50%' // Left position relative to parent in px
+      };
+      this.spinner = new Spinner(spinner_options).spin();
+
       this.scalarLensObject = this.getEmbeddedJson();
       if (!this.scalarLensObject) {
         this.scalarLensObject = this.getDefaultJson();
@@ -85,7 +103,6 @@
 
     // get Embedded data
     ScalarLenses.prototype.getEmbeddedJson = function(){
-
       // convert metadata div content into a JSON object
       if ($("[property|='scalar:isLensOf']").length > 0) {
         return JSON.parse($("[property|='scalar:isLensOf']").html());
@@ -96,8 +113,6 @@
 
     // get Default data
     ScalarLenses.prototype.getDefaultJson = function(){
-      //console.log('Get default JSON');
-
       // the Lens object
       return {
         "urn": $('link#urn').attr('href').replace("version", "lens"),
@@ -110,7 +125,6 @@
         },
         "components": []
       };
-
     }
 
     // build DOM
@@ -129,7 +143,7 @@
                      </div>
                      <div class="lens-content col-xs-11">
                        <h3 class="lens-title heading_font heading_weight">(Untitled lens)</h3>
-                       <div class="badge">0</div>
+                       <div class="badge"></div>
                      <div class="lens-tags">
                    </div>
                  </div>
@@ -145,6 +159,7 @@
       lensHtml.append(this.addFilterModal());
       lensHtml.append(this.addSortModal());
       $(this.element).append(lensHtml);
+      this.updateBadge(-1);
       this.buttonContainer = $(this.element).find('.lens-tags').eq(0);
     }
 
@@ -2409,8 +2424,17 @@
       return target.end();
     }
 
+    ScalarLenses.prototype.updateBadge = function(count) {
+      if (count == -1) {
+        $(this.element).find('.badge').empty().append(this.spinner.el);
+      } else {
+        $(this.element).find('.badge').text(count);
+      }
+    }
+
     // get Lens results
     ScalarLenses.prototype.getLensResults = function(){
+      this.updateBadge(-1);
       this.scalarLensObject.book_urn = 'urn:scalar:book:' + $('link#book_id').attr('href');
       let url = $('link#approot').attr('href').replace('application/','') + 'lenses';
       $.ajax({
@@ -2426,9 +2450,8 @@
         		console.log('There was an error attempting to get Lens data: '+data.error);
         		return;
       	  };
-          //console.log('lens results:');
-          //console.log(JSON.stringify(data));
           scalarapi.parsePagesByType(data.items);
+          this.updateBadge(Object.values(data.items).length);
           if (this.options.onLensResults) {
             this.options.onLensResults(data);
           }
@@ -2442,6 +2465,7 @@
 
     // ajax call to post user lens selections
     ScalarLenses.prototype.saveLens = function(successHandler){
+      console.log(JSON.stringify(this.scalarLensObject, null, 2));
       this.baseURL = $('link#parent').attr('href');
       $.ajax({
         url: this.baseURL + "api/relate",
@@ -2468,7 +2492,6 @@
         this.saveLens(this.getLensResults);
       }
     }
-
 
     // get ontology data
      ScalarLenses.prototype.getOntologyData = function() {
@@ -2536,10 +2559,6 @@
         }
        return propertyArray;
      };
-
-
-
-
 
     // plugin wrapper around the constructor,
     // to prevent against multiple instantiations
