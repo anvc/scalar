@@ -91,6 +91,12 @@
       };
       this.spinner = new Spinner(spinner_options).spin();
 
+      this.userLevel = 'unknown';
+      if ($('link#user_level').length > 0) {
+        this.userLevel = $('link#user_level').attr('href');
+      }
+      console.log(this.userLevel);
+
       this.scalarLensObject = this.getEmbeddedJson();
       if (!this.scalarLensObject) {
         this.scalarLensObject = this.getDefaultJson();
