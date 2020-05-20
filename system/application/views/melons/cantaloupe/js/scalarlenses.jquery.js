@@ -210,6 +210,14 @@
           if (button.length == 0) this.addPlusButton(componentContainer, componentIndex);
         });
 
+        // remove extra content selections
+        let me = this;
+        this.buttonContainer.find('.component-container').each(function(index) {
+          if (index >= me.scalarLensObject.components.length) {
+            $(this).remove();
+          }
+        });
+
         let componentContainers = this.buttonContainer.find('.component-container');
         if (this.scalarLensObject.components.length == 1) {
           componentContainers.addClass('inline');
@@ -318,7 +326,7 @@
         </div>`
       ).appendTo(element)
       buttonGroup.data('componentIndex', componentIndex);
-      var me = this;
+      /*var me = this;
       let onClick = function (evt) {
         let option = $(evt.target).parent().data('option');
         console.log(option);
@@ -346,13 +354,59 @@
           {label: "Specific items...", value: "specific-items"},
           {label: "Items by type...", value: "items-by-type"},
           {label: "Items by distance...", value: "items-by-distance"}
-        ]);
+        ]);*/
 
       return buttonGroup;
     }
 
     // update content-selector button
     ScalarLenses.prototype.updateContentSelectorButton = function(contentSelectorObj, element){
+
+      var me = this;
+      let onClick = function (evt) {
+        let buttonGroup = $(evt.target).parent().parent().parent();
+        let componentIndex = buttonGroup.data('componentIndex');
+        let option = $(evt.target).parent().data('option');
+        me.editedComponentIndex = componentIndex;
+        switch (option.value) {
+
+          case 'specific-items':
+          $('<div></div>').content_selector({
+            changeable: true,
+            multiple: true,
+            onthefly: true,
+            msg: 'Choose items to be included in this lens.',
+            callback: function(a){
+              me.handleContentSelected(a)
+            }
+          });
+          break;
+
+          case 'delete':
+          me.deleteContentSelectorButton(componentIndex);
+          break;
+        }
+      };
+
+      let options = [
+        {label: "Specific items...", value: "specific-items"},
+        {label: "Items by type...", value: "items-by-type"},
+        {label: "Items by distance...", value: "items-by-distance"}
+      ];
+      let markup = [
+        '<li><a></a></li>',
+        '<li><a data-toggle="modal" data-target="#modalByType"></a></li>',
+        '<li><a data-toggle="modal" data-target="#modalByDistance"></a></li>'
+      ];
+      if (this.scalarLensObject.components.length > 1) {
+        options.push({label: "separator", value: "separator"});
+        options.push({label: "Delete", value: "delete"});
+        markup.push('<li><a></a></li>');
+        markup.push('<li><a></a></li>');
+      }
+
+      this.populateDropdown(element.find('.content-selector-button'), element.find('.content-selector-dropdown'), null, onClick, markup, options);
+
       let button = element.find('button'); // the element are being passed is actually a btn-group, the button is inside
       let buttonText = 'Select items...';
       if (contentSelectorObj) {
@@ -417,6 +471,13 @@
         }
       }
       button.text(buttonText).append('<span class="caret"></span>');
+    }
+
+    // delete content selector button
+    ScalarLenses.prototype.deleteContentSelectorButton = function(componentIndex) {
+      this.scalarLensObject.components.splice(componentIndex, 1);
+      this.saveLens(this.getLensResults);
+      this.updateEditorDom();
     }
 
     // add filter button
@@ -753,7 +814,7 @@
       if (modifierCount == 0) {
         componentContainer.find('.content-selector-btn-group').after(button);
       } else {
-        componentContainer.find('.filter-btn-group').eq(modifierCount-1).after(button);
+        componentContainer.find('.modifier-btn-group').eq(modifierCount-1).after(button);
       }
       button.data('componentIndex', componentIndex);
       var me = this;
@@ -761,6 +822,7 @@
         let buttonText = $(this).text();
         let componentIndex = parseInt($(this).parent().parent().data('componentIndex'));
         switch(buttonText) {
+
           case 'Add content':
           me.scalarLensObject.components.splice(componentIndex + 1, 0, { "content-selector": {}, "modifiers": []});
           if (!me.scalarLensObject.visualization.options) {
@@ -771,14 +833,17 @@
           }
           me.updateEditorDom();
           break;
+
           case 'Add filter':
           me.scalarLensObject.components[componentIndex].modifiers.push({"type": "filter"});
           me.updateEditorDom();
           break;
+
           case 'Add sort':
           me.scalarLensObject.components[componentIndex].modifiers.push({"type": "sort"});
           me.updateEditorDom();
           break;
+
         }
       });
     }
@@ -2419,15 +2484,26 @@
          contentType: 'application/json',
          async: true,
          context: this,
-         success: function(response){
-           me.ontologyData = response;
-         },
+         success: this.handleOntologyData,
          error: function error(response) {
      	     console.log('There was an error attempting to communicate with the server.');
      	     console.log(response);
          }
        })
      };
+
+     ScalarLenses.prototype.handleOntologyData = function(response) {
+       this.ontologyData = response;
+       /*'dcterms:title': node.current.title,
+       'dcterms.description': node.current.description,
+       'sioc:content': node.current.content,
+       'rdf:type': node.baseType,
+       'scalar:urn': node.current.urn,
+       'scalar:url': node.current.sourceFile,
+       'scalar:default_view': node.current.defaultView,
+       'scalar:continue_to_content_id': node.current.continueTo,
+       'scalar:sort_number': node.current.sortNumber*/
+     }
 
     // creat ontology list
      ScalarLenses.prototype.createOntologyList = function(){
