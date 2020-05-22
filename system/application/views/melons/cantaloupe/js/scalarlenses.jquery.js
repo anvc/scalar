@@ -2467,19 +2467,22 @@
       let me = this;
 
       let userLevel = this.userLevel;
-      userLevel = 'scalar:Reader';
+      //userLevel = 'scalar:Reader';
       //console.log(userLevel);
 
       let menuOptions = [];
 
+      menuOptions.push(
+        {label: "Freeze", value: 'freeze'},
+        {label: "Duplicate Lens", value: "duplicate-lens"},
+        {label: "Export to CSV", value: "export-lens"},
+        {label: "Delete Lens", value: "delete-lens"}
+      )
+
       switch(userLevel){
         case 'scalar:Author':
-          menuOptions.push(
+          menuOptions.unshift(
             {label: "Make public", value: "make-public"},
-            {label: "Freeze", value: 'freeze'},
-            {label: "Duplicate Lens", value: "duplicate-lens"},
-            {label: "Export to CSV", value: "export-lens"},
-            {label: "Delete Lens", value: "delete-lens"}
           )
           if(me.scalarLensObject.public === true){
             menuOptions[0];
@@ -2494,13 +2497,6 @@
           }
         break;
         case 'scalar:Reader':
-          menuOptions.push(
-            {label: "Freeze", value: 'freeze'},
-            {label: "Submit lens to authors...", value: "submit-lens"},
-            {label: "Duplicate Lens", value: "duplicate-lens"},
-            {label: "Export to CSV", value: "export-lens"},
-            {label: "Delete Lens", value: "delete-lens"}
-          )
           if(me.scalarLensObject.frozen === true){
             menuOptions[0].delete;
             menuOptions[0] = {label: "Unfreeze", value: "unfreeze"}
