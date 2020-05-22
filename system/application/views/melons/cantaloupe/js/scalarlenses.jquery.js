@@ -2474,6 +2474,8 @@
 
       menuOptions.push(
         {label: "Freeze", value: 'freeze'},
+        {label: "Create path from lens", value: 'create-path'},
+        {label: "Create tag from lens", value: 'create-tag'},
         {label: "Duplicate Lens", value: "duplicate-lens"},
         {label: "Export to CSV", value: "export-lens"},
         {label: "Delete Lens", value: "delete-lens"}
@@ -2487,9 +2489,6 @@
           if(me.scalarLensObject.public === true){
             menuOptions[0];
             menuOptions[0] = {label: "Make private", value: "make-private"}
-            // menuOptions.unshift(
-            //   {label: "Make private", value: "make-private"},
-            // )
           }
           if(me.scalarLensObject.frozen === true){
             menuOptions[1].delete;
@@ -2507,6 +2506,7 @@
 
       let onClick = function(evt) {
         let option = $(evt.target).parent().data('option');
+        console.log(option.value)
 
         switch(option.value){
           case 'make-public':
