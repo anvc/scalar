@@ -326,6 +326,8 @@
         let option = $(evt.target).parent().data('option');
         me.scalarLensObject.visualization.options.operation = option.value;
         me.updateOperatorButton(me.scalarLensObject.visualization);
+        me.saveLens(this.getLensResults);
+        me.updateEditorDom();
       }
       this.populateDropdown(button, button.find('ul'), null, onClick,
         '<li><a></a></li>',
