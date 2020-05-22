@@ -122,6 +122,7 @@
       return {
         "urn": $('link#urn').attr('href').replace("version", "lens"),
         "submitted": false,
+        "public": false,
         "frozen": false,
         "frozen-items": [],
         "visualization": {
@@ -165,6 +166,7 @@
       lensHtml.append(this.addSortModal());
       $(this.element).append(lensHtml);
       this.updateBadge(-1);
+      lensHtml.find('.lens-content').append(this.addOptionsMenu());
       this.buttonContainer = $(this.element).find('.lens-tags').eq(0);
     }
 
@@ -252,6 +254,12 @@
           this.updateOperatorButton(this.scalarLensObject.visualization);
         }
       }
+
+
+
+      this.updateOptionsMenu();
+
+
     }
 
     // looks for a container component div for the component with the given index;
@@ -2436,6 +2444,122 @@
         $(this.element).find('.badge').text(count);
       }
     }
+
+    ScalarLenses.prototype.addOptionsMenu = function() {
+
+      let button = $(
+        `<div class="options-menu">
+          <div class="btn-group">
+            <button  type="button" class="btn btn-default btn-md dropdown-toggle option-menu-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <span class="ellipsis"></span>
+            </button>
+            <ul class="dropdown-menu option-menu-list"></ul>
+          </div>
+        </div>`
+      );
+
+        return button;
+    }
+
+
+    ScalarLenses.prototype.updateOptionsMenu = function() {
+
+      let me = this;
+
+      let userLevel = this.userLevel;
+      userLevel = 'scalar:Reader';
+      //console.log(userLevel);
+
+      let menuOptions = [];
+
+      switch(userLevel){
+        case 'scalar:Author':
+          menuOptions.push(
+            {label: "Make public", value: "make-public"},
+            {label: "Freeze", value: 'freeze'},
+            {label: "Duplicate Lens", value: "duplicate-lens"},
+            {label: "Export to CSV", value: "export-lens"},
+            {label: "Delete Lens", value: "delete-lens"}
+          )
+          if(me.scalarLensObject.public === true){
+            menuOptions[0];
+            menuOptions[0] = {label: "Make private", value: "make-private"}
+            // menuOptions.unshift(
+            //   {label: "Make private", value: "make-private"},
+            // )
+          }
+          if(me.scalarLensObject.frozen === true){
+            menuOptions[1].delete;
+            menuOptions[1] = {label: "Unfreeze", value: "unfreeze"}
+          }
+        break;
+        case 'scalar:Reader':
+          menuOptions.push(
+            {label: "Freeze", value: 'freeze'},
+            {label: "Submit lens to authors...", value: "submit-lens"},
+            {label: "Duplicate Lens", value: "duplicate-lens"},
+            {label: "Export to CSV", value: "export-lens"},
+            {label: "Delete Lens", value: "delete-lens"}
+          )
+          if(me.scalarLensObject.frozen === true){
+            menuOptions[0].delete;
+            menuOptions[0] = {label: "Unfreeze", value: "unfreeze"}
+          }
+        break;
+
+      }
+
+      let onClick = function(evt) {
+        let option = $(evt.target).parent().data('option');
+
+        switch(option.value){
+          case 'make-public':
+            me.scalarLensObject.public = true;
+            $(menuOptions).find('li').text()
+          break;
+          case 'make-private':
+            me.scalarLensObject.public = false;
+          break;
+          case 'freeze':
+            me.scalarLensObject.frozen = true;
+          break;
+          case 'unfreeze':
+            me.scalarLensObject.frozen = false;
+          break;
+          case 'submit-lens':
+            // modal
+          break;
+          case 'duplicate-lens':
+            // modal
+          break;
+          case 'export-lens':
+            // modal
+          break;
+          case 'delete-lens':
+          break;
+
+        }
+
+        me.saveLens(me.getLensResults);
+        me.updateOptionsMenu();
+
+      };
+
+
+
+
+
+      this.populateDropdown($(this.element).find('.option-menu-button'), $(this.element).find('.option-menu-list'), null, onClick,
+        '<li><a></a></li>', menuOptions);
+
+
+    }
+
+
+    ScalarLenses.prototype.deleteOptionsMenu = function() {
+
+    }
+
 
     // get Lens results
     ScalarLenses.prototype.getLensResults = function(){

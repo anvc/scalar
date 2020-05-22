@@ -1486,6 +1486,7 @@ body>.annotorious-popup{
   background:#3b82c0;
 	min-width: 24px;
 	height: 24px;
+	border-radius:20px;
 }
 .lens-editor .spinner {
 	margin: 6px;
@@ -1782,4 +1783,20 @@ span.base {
 }
 .match-count-sort-form .row {
 	margin:13px 0 !important;
+}
+
+.options-menu {
+	float:right;
+}
+.option-menu-button {
+	padding: 3px 4px;
+}
+.ellipsis {
+	background:url(../images/ellipsis.png);
+	background-repeat:no-repeat;
+	background-size:100%;
+	background-position: 50% 50%;
+	width:15px;
+	height:15px;
+	float:right;
 }
