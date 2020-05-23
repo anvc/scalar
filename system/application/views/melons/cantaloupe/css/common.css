@@ -1476,6 +1476,17 @@ body>.annotorious-popup{
 .lens-editor .btn .caret {
   margin-left:5px;
 }
+.lens-editor .snowflake {
+	position:absolute;
+	top:6px;
+	right:50px;
+	background:url(../images/snowflake.png);
+  background-repeat:no-repeat;
+  background-size:100%;
+  background-position:50% 50%;
+  width:32px;
+  height:32px;
+}
 .lens-editor .badge {
   position: absolute;
 	top: 10px;

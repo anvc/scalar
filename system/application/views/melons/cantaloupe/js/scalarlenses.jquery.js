@@ -149,6 +149,7 @@
                      </div>
                      <div class="lens-content col-xs-11">
                        <h3 class="lens-title heading_font heading_weight">(Untitled lens)</h3>
+                       <div class="snowflake"></div>
                        <div class="badge"></div>
                      <div class="lens-tags">
                    </div>
@@ -166,7 +167,8 @@
       lensHtml.append(this.addSortModal());
       $(this.element).append(lensHtml);
       this.updateBadge(-1);
-      lensHtml.find('.lens-content').append(this.addOptionsMenu());
+      lensHtml.find('.lens-content').append(this.addOptionsMenu())
+      lensHtml.append(this.addOkModal());
       this.buttonContainer = $(this.element).find('.lens-tags').eq(0);
     }
 
@@ -260,6 +262,15 @@
       this.updateOptionsMenu();
 
 
+      let snowflake = $(this.element).find('.snowflake');
+
+      if(this.scalarLensObject.frozen === true) {
+        $(snowflake).show();
+      } else {
+        $(snowflake).hide();
+      }
+
+
     }
 
     // looks for a container component div for the component with the given index;
@@ -326,8 +337,6 @@
         let option = $(evt.target).parent().data('option');
         me.scalarLensObject.visualization.options.operation = option.value;
         me.updateOperatorButton(me.scalarLensObject.visualization);
-        me.saveLens(this.getLensResults);
-        me.updateEditorDom();
       }
       this.populateDropdown(button, button.find('ul'), null, onClick,
         '<li><a></a></li>',
@@ -2520,15 +2529,24 @@
           break;
           case 'freeze':
             me.scalarLensObject.frozen = true;
+            $('.snowflake').show()
           break;
           case 'unfreeze':
             me.scalarLensObject.frozen = false;
+            $('.snowflake').hide()
           break;
           case 'submit-lens':
             // modal
+
+          break;
+          case 'create-path':
+            me.showModal('Are you sure you want to create a path?', function(){console.log()});
+          break;
+          case 'create-tag':
+            me.showModal('Are you sure you want to create a tag?', function(){console.log()});
           break;
           case 'duplicate-lens':
-            // modal
+            me.showModal('Are you sure you want to duplicate this lens?', function(){console.log()});
           break;
           case 'export-lens':
             // modal
@@ -2554,9 +2572,51 @@
     }
 
 
-    ScalarLenses.prototype.deleteOptionsMenu = function() {
+    ScalarLenses.prototype.deleteOptionsMenu = function() {}
+
+
+
+    ScalarLenses.prototype.addOkModal = function() {
+      let element = $(
+        `<div class="modal fade caption_font okModal" role="dialog">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-body">
+                <h4 class="heading_font">Confirm</h4>
+                <div class="ok-modal-container">
+                  <div class="ok-modal-content"><p>Are you sure?</p></div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary done-ok" data-dismiss="modal">Ok</button>
+              </div>
+            </div>
+          </div>
+        </div>`
+      )
+
+      var me = this;
+
+      return element;
 
     }
+
+    ScalarLenses.prototype.showModal = function(message, okHandler){
+      $(this.element).find('.okModal').modal('toggle');
+      $('.ok-modal-content p').text(message);
+
+      $(this.element).find('.done-ok').on('click', function(){
+          okHandler();
+      });
+    }
+
+
+
+
+
+
+
 
 
     // get Lens results
