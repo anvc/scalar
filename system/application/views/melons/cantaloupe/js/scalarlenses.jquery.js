@@ -2611,14 +2611,6 @@
       });
     }
 
-
-
-
-
-
-
-
-
     // get Lens results
     ScalarLenses.prototype.getLensResults = function(){
       this.updateBadge(-1);
@@ -2638,7 +2630,13 @@
         		return;
       	  };
           scalarapi.parsePagesByType(data.items);
-          this.updateBadge(Object.values(data.items).length);
+          let nodeCount = 0;
+          Object.values(data.items).forEach(item => {
+            if (this.itemIsNode(item)) {
+              nodeCount++;
+            }
+          })
+          this.updateBadge(nodeCount);
           if (this.options.onLensResults) {
             this.options.onLensResults(data);
           }
@@ -2648,6 +2646,10 @@
     	     console.log(response);
         }
       });
+    }
+
+    ScalarLenses.prototype.itemIsNode = function(item) {
+      return item['http://open.vocab.org/terms/versionnumber'] ? false : true;
     }
 
     // ajax call to post user lens selections
