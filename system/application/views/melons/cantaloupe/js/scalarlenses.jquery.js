@@ -89,19 +89,42 @@
         top: '50%', // Top position relative to parent in px
         right: '50%' // Left position relative to parent in px
       };
-      this.spinner = new Spinner(spinner_options).spin();
+      this.lightSpinner = new Spinner(spinner_options).spin();
+
+      spinner_options = {
+        lines: 10, // The number of lines to draw
+        length: 2, // The length of each line
+        width: 1, // The line thickness
+        radius: 2, // The radius of the inner circle
+        rotate: 0, // The rotation offset
+        color: '#666', // #rgb or #rrggbb
+        speed: 1, // Rounds per second
+        trail: 60, // Afterglow percentage
+        shadow: false, // Whether to render a shadow
+        hwaccel: false, // Whether to use hardware acceleration
+        className: 'spinner', // The CSS class to assign to the spinner
+        zIndex: 2e9, // The z-index (defaults to 2000000000)
+        top: '50%', // Top position relative to parent in px
+        right: '50%' // Left position relative to parent in px
+      };
+      this.darkSpinner = new Spinner(spinner_options).spin();
 
       this.userLevel = 'unknown';
       if ($('link#user_level').length > 0) {
         this.userLevel = $('link#user_level').attr('href');
+      }
+      this.user = 'unknown';
+      if ($('link#logged_in').length > 0) {
+        this.user = $('link#logged_in').attr('href');
       }
 
       this.scalarLensObject = this.getEmbeddedJson();
       if (!this.scalarLensObject) {
         this.scalarLensObject = this.getDefaultJson();
       }
+      this.checkSavePrivileges();
       this.getOntologyData();
-      this.getLensResults();
+      this.getLensResults(this.scalarLensObject, this.options.onLensResults);
       this.buildEditorDom();
       this.updateEditorDom();
     }
@@ -166,10 +189,11 @@
       lensHtml.append(this.addFilterModal());
       lensHtml.append(this.addSortModal());
       $(this.element).append(lensHtml);
-      this.updateBadge(-1);
       lensHtml.find('.lens-content').append(this.addOptionsMenu())
       lensHtml.append(this.addOkModal());
       this.buttonContainer = $(this.element).find('.lens-tags').eq(0);
+      this.primaryBadge = lensHtml.find('.badge');
+      this.updateBadge(this.primaryBadge, -1, 'light');
     }
 
     // update DOM
@@ -308,7 +332,7 @@
       element.find('li').on('click', function(){
         me.scalarLensObject.visualization.type = $(this).text().split(/[_\s]/).join("-").toLowerCase();
         me.updateVisualizationButton(me.scalarLensObject.visualization);
-        me.saveLens(me.getLensResults);
+        me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
       });
       return element;
     }
@@ -337,6 +361,7 @@
         let option = $(evt.target).parent().data('option');
         me.scalarLensObject.visualization.options.operation = option.value;
         me.updateOperatorButton(me.scalarLensObject.visualization);
+        me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
       }
       this.populateDropdown(button, button.find('ul'), null, onClick,
         '<li><a></a></li>',
@@ -518,7 +543,10 @@
     // delete content selector button
     ScalarLenses.prototype.deleteContentSelectorButton = function(componentIndex) {
       this.scalarLensObject.components.splice(componentIndex, 1);
-      this.saveLens(this.getLensResults);
+      if (this.scalarLensObject.components.length < 2) {
+        delete this.scalarLensObject.visualization.options.operation;
+      }
+      this.saveLens(() => this.getLensResults(this.scalarLensObject, this.options.onLensResults));
       this.updateEditorDom();
     }
 
@@ -560,7 +588,7 @@
       this.populateDropdown(button, button.find('.filter-type-list'), null, onClick,
         '<li><a data-toggle="modal" data-target="#filterModal"></a></li>',
         [
-          {label: "Filter by type...", value: "type"},
+          {label: "Filter by type...", value: "content-type"},
           {label: "Filter by content...", value: "content"},
           {label: "Filter by relationship...", value: "relationship"},
           {label: "Filter by distance...", value: "distance"},
@@ -677,7 +705,7 @@
     // delete filter button
     ScalarLenses.prototype.deleteFilterButton = function(componentIndex, modifierIndex) {
       this.scalarLensObject.components[componentIndex].modifiers.splice(modifierIndex, 1);
-      this.saveLens(this.getLensResults);
+      this.saveLens(() => this.getLensResults(this.scalarLensObject, this.options.onLensResults));
       this.updateEditorDom();
     }
 
@@ -725,7 +753,7 @@
 
           me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex] = sortObj;
           me.updateSortButton(me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex], $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-btn-group').eq(me.editedModifierIndex))
-          me.saveLens(me.getLensResults);
+          me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
         }
 
       }
@@ -836,7 +864,7 @@
     // delete sort button
     ScalarLenses.prototype.deleteSortButton = function(componentIndex, modifierIndex) {
       this.scalarLensObject.components[componentIndex].modifiers.splice(modifierIndex, 1);
-      this.saveLens(this.getLensResults);
+      this.saveLens(() => this.getLensResults(this.scalarLensObject, this.options.onLensResults));
       this.updateEditorDom();
     }
 
@@ -935,7 +963,7 @@
         }
         me.scalarLensObject.components[me.editedComponentIndex]["content-selector"] = contentSelector
         me.updateContentSelectorButton(me.scalarLensObject.components[me.editedComponentIndex]["content-selector"], $(me.element).find('.content-selector-btn-group').eq(me.editedComponentIndex))
-        me.saveLens(me.getLensResults)
+        me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults))
       });
       return element
     }
@@ -1002,7 +1030,7 @@
           }
           me.scalarLensObject.components[me.editedComponentIndex]["content-selector"] = contentSelector
           me.updateContentSelectorButton(me.scalarLensObject.components[me.editedComponentIndex]["content-selector"], $(me.element).find('.content-selector-btn-group').eq(me.editedComponentIndex))
-          me.saveLens(me.getLensResults);
+          me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
         });
 
         return element
@@ -1049,114 +1077,112 @@
 
       // saves values
       element.find('.done').on('click', function(){
-
-        let type = $('.filter-modal-content').data('filterType')
-
-        switch(type){
-          case 'type':
-            filterObj = {
-              "type": "filter",
-              "subtype": "content-type",
-              "operator": $('#operator-button').data('option').value,
-              "content-types": [$('#content-type-button').data('option').value]
-            }
-          break;
-          case 'content':
-            filterObj = {
-              "type": "filter",
-              "subtype": "content",
-              "operator": $('#operator-button').data('option').value,
-              "content": $('#content-input').val()
-            }
-          break;
-          case 'relationship':
-            filterObj = {
-              "type":"filter",
-              "subtype":"relationship",
-              "content-types": [$('#relationship-content-button').data('option').value],
-              "relationship": $('#relationship-type-button').data('option').value
-            }
-          break;
-          case 'distance':
-            filterObj = {
-              "type":"filter",
-              "subtype":"distance",
-              "quantity": $('#distanceFilterQuantity').val(),
-              "units": $('#distance-units-button').data('option').value
-            }
-          break;
-          case 'quantity':
-            filterObj = {
-              "type":"filter",
-              "subtype":"quantity",
-              "quantity":$('#filterQuantityValue').val()
-            }
-          break;
-          case 'metadata':
-
-          let ontologyValue = $('#metadata-ontology-button').data('option').value;
-          let propertyValue = $('#metadata-property-button').data('option').value;
-
-            filterObj = {
-              "type":"filter",
-              "subtype":"metadata",
-              "operator":$('#operator-button').data('option').value,
-              "content":$('#metadata-content').val(),
-              "metadata-field":`${ontologyValue}:${propertyValue}`
-            }
-
-          break;
-          case 'visit-date':
-
-            let dateTimeValue;
-            let dateButton = $('#date-button').data('option').value;
-            let dateTimeInput = $('#visitdate-input').val();
-            if(dateButton == 'now') {
-              dateTimeValue = dateButton;
-            } else if (dateButton == 'date') {
-              dateTimeValue = dateTimeInput;
-            }
-
-            filterObj = {
-              "type":"filter",
-              "subtype": "visit-date",
-              "quantity":$('#visitdate-quantity').val(),
-              "units":$('#visitdate-units-button').data('option').value,
-              "datetime": dateTimeValue
-            }
-
-
-          break;
-        }
-
-        me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex] = filterObj;
+        me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex] = me.buildFilterData();
         me.updateFilterButton(me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex], $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-btn-group').eq(me.editedModifierIndex))
-        me.saveLens(me.getLensResults);
+        me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
       });
 
       return element;
     }
 
+    ScalarLenses.prototype.buildFilterData = function() {
+      let subtype = $('.filter-modal-content').data('filterType')
+      let filterObj;
+      switch(subtype){
+        case 'content-type':
+          filterObj = {
+            "type": "filter",
+            "subtype": "content-type",
+            "operator": $('#operator-button').data('option').value,
+            "content-types": [$('#content-type-button').data('option').value]
+          }
+        break;
+        case 'content':
+          filterObj = {
+            "type": "filter",
+            "subtype": "content",
+            "operator": $('#operator-button').data('option').value,
+            "content": $('#content-input').val()
+          }
+        break;
+        case 'relationship':
+          filterObj = {
+            "type":"filter",
+            "subtype":"relationship",
+            "content-types": [$('#relationship-content-button').data('option').value],
+            "relationship": $('#relationship-type-button').data('option').value
+          }
+        break;
+        case 'distance':
+          filterObj = {
+            "type":"filter",
+            "subtype":"distance",
+            "quantity": $('#distanceFilterQuantity').val(),
+            "units": $('#distance-units-button').data('option').value
+          }
+        break;
+        case 'quantity':
+          filterObj = {
+            "type":"filter",
+            "subtype":"quantity",
+            "quantity":$('#filterQuantityValue').val()
+          }
+        break;
+        case 'metadata':
+
+        let ontologyValue = $('#metadata-ontology-button').data('option').value;
+        let propertyValue = $('#metadata-property-button').data('option').value;
+
+          filterObj = {
+            "type":"filter",
+            "subtype":"metadata",
+            "operator":$('#operator-button').data('option').value,
+            "content":$('#metadata-content').val(),
+            "metadata-field":`${ontologyValue}:${propertyValue}`
+          }
+
+        break;
+        case 'visit-date':
+
+          let dateTimeValue;
+          let dateButton = $('#date-button').data('option').value;
+          let dateTimeInput = $('#visitdate-input').val();
+          if(dateButton == 'now') {
+            dateTimeValue = dateButton;
+          } else if (dateButton == 'date') {
+            dateTimeValue = dateTimeInput;
+          }
+
+          filterObj = {
+            "type":"filter",
+            "subtype": "visit-date",
+            "quantity":$('#visitdate-quantity').val(),
+            "units":$('#visitdate-units-button').data('option').value,
+            "datetime": dateTimeValue
+          }
+
+        break;
+      }
+      return filterObj;
+    }
+
     // update filter modal
-    ScalarLenses.prototype.updateFilterModal = function(type, filterObj){
+    ScalarLenses.prototype.updateFilterModal = function(subtype, filterObj){
 
       let needsNewFilter = false;
       if (!filterObj) {
         needsNewFilter = true;
-      } else if (filterObj.subtype != type) {
+      } else if (filterObj.subtype != subtype) {
         needsNewFilter = true;
       }
-      if (needsNewFilter) filterObj = this.getDefaultFilter(type);
+      if (needsNewFilter) filterObj = this.getDefaultFilter(subtype);
 
       let modalContainer = $('.filter-modal-content');
-      modalContainer.data('filterType', type);
+      modalContainer.data('filterType', subtype);
 
-      if (filterObj.subtype != type) {
-      }
+      switch(subtype) {
 
-      switch(type) {
-
-        case 'type':
+        case 'content-type':
         this.addTypeFilterForm(modalContainer, filterObj);
         this.updateTypeFilterForm();
         break;
@@ -1194,13 +1220,55 @@
       }
     }
 
+    // generate copies of the current lens in states prior to and following
+    // the filter being edited, which is passed in as a parameter
+    ScalarLenses.prototype.updateFilterModalBadges = function(filterObj) {
+
+      // make a copy of the current lens
+      let tempLensObj = JSON.parse(JSON.stringify(this.scalarLensObject));
+
+      // remove all other components from it except the one being edited
+      let n = tempLensObj.components.length;
+      for (let i=n-1; i>=0; i--) {
+        if (i != this.editedComponentIndex) {
+          tempLensObj.components.splice(i, 1);
+        }
+      }
+      let component = tempLensObj.components[0];
+
+      // make a copy of it that includes all modifiers prior to the current filter
+      tempLensObj.components[0].modifiers.splice(this.editedModifierIndex);
+      let preFilterLensObj = JSON.parse(JSON.stringify(tempLensObj));
+
+      // make another copy of it that includes the current filter
+      tempLensObj.components[0].modifiers.push(filterObj);
+      let postFilterLensObj = JSON.parse(JSON.stringify(tempLensObj));
+
+      // get the results from both and post
+      let leftBadge = $('#filterModal .left-badge .counter');
+      this.updateBadge(leftBadge, -1, 'dark');
+      this.getLensResults(preFilterLensObj, (data) => {
+        let nodeCount = this.getNodeCount(data);
+        this.updateBadge(leftBadge, nodeCount, 'dark');
+        $('.filter-pre-quantity').text(nodeCount);
+      });
+      let rightBadge = $('#filterModal .right-badge .counter');
+      this.updateBadge(rightBadge, -1, 'dark');
+      this.getLensResults(postFilterLensObj, (data) => {
+        let nodeCount = this.getNodeCount(data);
+        this.updateBadge(rightBadge, nodeCount, 'dark');
+        $('.filter-post-quantity').text(nodeCount);
+      });
+    }
+
     // get default filter state
-    ScalarLenses.prototype.getDefaultFilter = function(type){
-      switch(type){
-        case 'type':
+    ScalarLenses.prototype.getDefaultFilter = function(subtype){
+      let filterObj;
+      switch(subtype){
+        case 'content-type':
           filterObj = {
           	"type": "filter",
-            "subtype": "type",
+            "subtype": subtype,
             "operator": "inclusive",
             "content-types": []
           }
@@ -1208,7 +1276,7 @@
         case 'content':
           filterObj = {
           	"type": "filter",
-            "subtype": "content",
+            "subtype": subtype,
             "operator": "inclusive",
             "content": ""
           }
@@ -1216,7 +1284,7 @@
         case 'relationship':
           filterObj = {
           	"type": "filter",
-            "subtype": "relationship",
+            "subtype": subtype,
             "content-types": [],
             "relationship": "child"
           }
@@ -1224,7 +1292,7 @@
         case 'distance':
           filterObj = {
           	"type": "filter",
-            "subtype": "distance",
+            "subtype": subtype,
             "quantity": 5,
             "units": "kilometers"
           }
@@ -1232,21 +1300,21 @@
         case 'quantity':
           filterObj = {
           	"type": "filter",
-            "subtype": "quantity",
+            "subtype": subtype,
             "quantity": 5
           }
         break;
         case 'metadata':
           filterObj = {
             "type":"filter",
-            "subtype":"metadata",
+            "subtype": subtype,
             "metadata-field": ":"
           }
         break;
-        case 'visitdate':
+        case 'visit-date':
           filterObj = {
             "type":"filter",
-            "subtype":"visit-date"
+            "subtype": subtype
           }
         break;
       }
@@ -1301,11 +1369,10 @@
 
     // update type filter form
     ScalarLenses.prototype.updateTypeFilterForm = function() {
-      let option;
 
       // update operator menu
       let operatorButton = $('#operator-button');
-      option = operatorButton.data('option');
+      let option = operatorButton.data('option');
       if (!option) { // if nothing selected yet, pull the option from the first item
         option = $('#operator-list').find('li').eq(0).data('option');
         operatorButton.data('option', option);
@@ -1317,8 +1384,11 @@
       option = contentTypeButton.data('option');
       if (!option) { // if nothing selected yet, create a placeholder option
         option = {label: 'Select type(s)', value: null};
+        contentTypeButton.data('option', option);
       }
       contentTypeButton.text(option.label).append('<span class="caret"></span>');
+
+      this.updateFilterModalBadges(this.buildFilterData());
     }
 
     // add content filter
@@ -1353,7 +1423,7 @@
           {label: "don’t include", value: "exclusive"}
         ]);
 
-      $('#content-input').val(filterObj.content);
+      $('#content-input').val(filterObj.content).on('change', onClick);
 
       return element;
     }
@@ -1368,6 +1438,8 @@
         operatorButton.data('option', option);
       }
       operatorButton.text(option.label).append('<span class="caret"></span>');
+
+      this.updateFilterModalBadges(this.buildFilterData());
     }
 
     // add relationship filter
@@ -1385,7 +1457,7 @@
               Select relationship...<span class="caret"></span></button>
             <ul id="relationship-type-list" class="dropdown-menu"></ul>
           </div>
-          <p id="human-readable-text">(<span class="human-readable-relationship"></span>) any of these <span class="relationship-quantity"></span> items</p>
+          <p id="human-readable-text">(<span class="human-readable-relationship"></span>) any of these <span class="filter-pre-quantity">0</span> items</p>
         </div>
       `).appendTo(container);
 
@@ -1423,6 +1495,7 @@
       option = relationshipContentButton.data('option');
       if (!option) { // if nothing selected yet, create a placeholder option
         option = {label: 'Select type(s)', value: null};
+        relationshipContentButton.data('option', option);
       }
       relationshipContentButton.text(option.label).append('<span class="caret"></span>');
       let relationshipContent = option.value;
@@ -1442,6 +1515,8 @@
       } else {
         $('.human-readable-relationship').text('no relationship selected');
       }
+
+      this.updateFilterModalBadges(this.buildFilterData());
     }
 
     // add distance filter form
@@ -1459,14 +1534,14 @@
                <ul id="distance-units-dropdown" class="dropdown-menu"></ul>
              </div>
            </div>
-           <p class="quantity-description">of these <span class="filter-quantity base ">0</span> items</p>
+           <p class="quantity-description">of these <span class="filter-pre-quantity">0</span> items</p>
         </div>
         `).appendTo(container);
 
         let me = this;
         let onClick = function() { me.updateDistanceFilterForm(); };
 
-        $('#distanceFilterQuantity').val(filterObj.quantity)
+        $('#distanceFilterQuantity').val(filterObj.quantity).on('change', onClick);
 
         this.populateDropdown($('#distance-units-button'), $('#distance-units-dropdown'), filterObj.units, onClick,
           '<li><a></a></li>',
@@ -1475,28 +1550,27 @@
             {label: "kilometers", value: "kilometers"}
           ]);
 
-        return element
+        return element;
 
     }
 
     // update distance filter form
     ScalarLenses.prototype.updateDistanceFilterForm = function(){
 
-      let option;
-
       // update distance units menu
       let distanceUnitsButton = $('#distance-units-button');
-      option = distanceUnitsButton.data('option');
+      let option = distanceUnitsButton.data('option');
       if (!option) { // if nothing selected yet, create a placeholder option
         option = {label: 'Select unit(s)', value: null};
+        distanceUnitsButton.data('option', option);
       }
       distanceUnitsButton.text(option.label).append('<span class="caret"></span>');
 
+      this.updateFilterModalBadges(this.buildFilterData());
     }
 
     // add quantity filter form
     ScalarLenses.prototype.addQuantityFilterForm = function(container, filterObj){
-
       container.empty();
       let element = $(`
         <div class="filterByQuantity">
@@ -1506,15 +1580,14 @@
            <span style="vertical-align:middle"> items</span>
           </div>
         </div>
-        `).appendTo(container);
+      `).appendTo(container);
 
-        let me = this;
-        let onClick = function() { me.updateQuantityFilterForm(); };
+      let me = this;
+      let onChange = function() { me.updateQuantityFilterForm(); };
 
-        $('#filterQuantityValue').val(filterObj.quantity)
+      $('#filterQuantityValue').val(filterObj.quantity).on('change', onChange);
 
-      return element
-
+      return element;
     }
 
     // update quantity filter form
@@ -1536,6 +1609,7 @@
       //   // }
       // });
 
+      this.updateFilterModalBadges(this.buildFilterData());
     }
 
     // add metadata filter form
@@ -1582,7 +1656,7 @@
         ]);
 
       // save metadata content value
-      $('#metadata-content').val(filterObj.content)
+      $('#metadata-content').val(filterObj.content).on('change', onClick);
 
       // ontology dropdown
       this.populateDropdown($('#metadata-ontology-button'), $('#metadata-ontology-list'), filterObj["metadata-field"].split(':')[0], onClick,
@@ -1611,7 +1685,8 @@
       option = ontologyButton.data('option');
       if (!option) { // if nothing selected yet, pull the option from the first item
         option = {label: 'Select ontology', value: null};
-      }
+        ontologyButton.data('option', option);
+    }
       ontologyButton.text(option.label).append('<span class="caret"></span>');
 
       // update property button
@@ -1625,6 +1700,7 @@
       option = propertyButton.data('option');
       if (!option) { // if nothing selected yet, pull the option from the first item
         option = {label: 'Select property', value: null};
+        propertyButton.data('option', option);
       }
       propertyButton.text(option.label).append('<span class="caret"></span>');
 
@@ -1639,6 +1715,8 @@
       this.populateDropdown($('#metadata-property-button'), $('#metadata-property-list'), null, onClick,
         '<li><a></a></li>', this.createPropertyList(ontologyName)
       );
+
+      this.updateFilterModalBadges(this.buildFilterData());
     }
 
     // add visitdate filter form
@@ -1671,8 +1749,8 @@
       let me = this;
       let onClick = function() { me.updateVisitDateFilterForm(); };
 
-      $('#visitdate-quantity').val(filterObj.quantity)
-      $('#visitdate-input').val(filterObj.datetime);
+      $('#visitdate-quantity').val(filterObj.quantity).on('change', onClick);
+      $('#visitdate-input').val(filterObj.datetime).on('change', onClick);
 
       if(filterObj.datetime == 'date'){
         $('#visitdate-input').css({'display':'block'});
@@ -1717,7 +1795,6 @@
       }
       unitsButton.text(option.label).append('<span class="caret"></span>');
 
-
       // update date button
       let dateButton = $('#date-button');
       option = dateButton.data('option');
@@ -1734,6 +1811,7 @@
         visitdateInput.css({'display':'none'});
       }
 
+      this.updateFilterModalBadges(this.buildFilterData());
     }
 
     // add sort modal
@@ -1844,7 +1922,7 @@
 
         me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex] = sortObj;
         me.updateSortButton(me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex], $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-btn-group').eq(me.editedModifierIndex))
-        me.saveLens(me.getLensResults);
+        me.saveLens(() => me.getLensResults(me.options.onLensResults));
       });
 
       return element;
@@ -2448,11 +2526,17 @@
       return target.end();
     }
 
-    ScalarLenses.prototype.updateBadge = function(count) {
-      if (count == -1) {
-        $(this.element).find('.badge').empty().append(this.spinner.el);
-      } else {
-        $(this.element).find('.badge').text(count);
+    ScalarLenses.prototype.updateBadge = function(element, count, style) {
+      if (element) {
+        let spinner = this.darkSpinner;
+        if (style == 'light') {
+          spinner = this.lightSpinner;
+        }
+        if (count == -1) {
+          element.empty().append(spinner.el);
+        } else {
+          element.text(count);
+        }
       }
     }
 
@@ -2517,7 +2601,6 @@
 
       let onClick = function(evt) {
         let option = $(evt.target).parent().data('option');
-        console.log(option.value)
 
         switch(option.value){
           case 'make-public':
@@ -2556,7 +2639,7 @@
 
         }
 
-        me.saveLens(me.getLensResults);
+        me.saveLens(() => me.getLensResults(me.options.onLensResults));
         me.updateOptionsMenu();
 
       };
@@ -2570,11 +2653,6 @@
 
 
     }
-
-
-    ScalarLenses.prototype.deleteOptionsMenu = function() {}
-
-
 
     ScalarLenses.prototype.addOkModal = function() {
       let element = $(
@@ -2612,16 +2690,16 @@
     }
 
     // get Lens results
-    ScalarLenses.prototype.getLensResults = function(){
-      this.updateBadge(-1);
-      this.scalarLensObject.book_urn = 'urn:scalar:book:' + $('link#book_id').attr('href');
+    ScalarLenses.prototype.getLensResults = function(lensObject, success){
+      this.updateBadge(this.primaryBadge, -1, 'light');
+      lensObject.book_urn = 'urn:scalar:book:' + $('link#book_id').attr('href');
       let url = $('link#approot').attr('href').replace('application/','') + 'lenses';
       $.ajax({
         url: url,
         type: "POST",
         dataType: 'json',
         contentType: 'application/json',
-        data: JSON.stringify(this.scalarLensObject),
+        data: JSON.stringify(lensObject),
         async: true,
         context: this,
         success: (data) => {
@@ -2630,15 +2708,9 @@
         		return;
       	  };
           scalarapi.parsePagesByType(data.items);
-          let nodeCount = 0;
-          Object.values(data.items).forEach(item => {
-            if (this.itemIsNode(item)) {
-              nodeCount++;
-            }
-          })
-          this.updateBadge(nodeCount);
-          if (this.options.onLensResults) {
-            this.options.onLensResults(data);
+          this.updateBadge(this.primaryBadge, this.getNodeCount(data), 'light');
+          if (success) {
+            success(data);
           }
         },
         error: function error(response) {
@@ -2648,8 +2720,26 @@
       });
     }
 
-    ScalarLenses.prototype.itemIsNode = function(item) {
-      return item['http://open.vocab.org/terms/versionnumber'] ? false : true;
+    ScalarLenses.prototype.getNodeCount = function(lensObj) {
+      let nodeCount = 0;
+      Object.values(lensObj.items).forEach(item => {
+        if (item['http://open.vocab.org/terms/versionnumber']) {
+          nodeCount++;
+        }
+      })
+      return nodeCount;
+    }
+
+    ScalarLenses.prototype.checkSavePrivileges = function() {
+      this.canSave = false;
+      if (this.userLevel == 'scalar:Author') {
+        this.canSave = true; // temporary; should disallow editing of reader lenses
+      } else if (this.userLevel == 'unknown') {
+        let currentPage = scalarapi.model.getCurrentPageNode();
+        if (this.user == currentPage.author) {
+          this.canSave = true;
+        }
+      }
     }
 
     // ajax call to post user lens selections
@@ -2678,7 +2768,7 @@
         this.scalarLensObject.components[this.editedComponentIndex]["content-selector"].type = 'specific-items';
         this.scalarLensObject.components[this.editedComponentIndex]["content-selector"].items = nodeTitles;
         this.updateEditorDom();
-        this.saveLens(this.getLensResults);
+        this.saveLens(() => this.getLensResults(this.scalarLensObject, this.options.onLensResults));
       }
     }
 
