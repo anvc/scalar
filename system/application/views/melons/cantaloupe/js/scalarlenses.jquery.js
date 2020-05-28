@@ -1049,35 +1049,7 @@
     // sets default state for all filter modals
     // handles done click event for all filters
     ScalarLenses.prototype.addFilterModal = function(){
-      // let element = $(
-      //   `<div id="filterModal" class="modal fade caption_font" role="dialog">
-      //     <div class="modal-dialog">
-      //       <div class="modal-content">
-      //         <div class="modal-body">
-      //           <h4 class="heading_font">Configure filter</h4>
-      //           <div class="filter-modal-container">
-      //             <div class="filter-modal-content"></div>
-      //             <div class="filter-counters">
-      //               <div class="left-badge">
-      //                 <span class="counter">0</span>
-      //                 <span class="filter-arrow"></span>
-      //               </div>
-      //               <div class="right-badge">
-      //                 <span class="filter-arrow"></span>
-      //                 <span class="counter">0</span>
-      //               </div>
-      //             </div>
-      //           </div>
-      //         </div>
-      //         <div class="modal-footer">
-      //           <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-      //           <button type="button" class="btn btn-primary done" data-dismiss="modal">Done</button>
-      //         </div>
-      //       </div>
-      //     </div>
-      //   </div>`
-      // )
-
+      
       let element = $(
         `<div id="filterModal" class="modal fade caption_font" role="dialog">
           <div class="modal-dialog">
