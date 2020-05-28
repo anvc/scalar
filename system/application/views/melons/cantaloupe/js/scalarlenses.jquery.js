@@ -171,9 +171,17 @@
                        <span class="lens-icon"></span>
                      </div>
                      <div class="lens-content col-xs-11">
-                       <h3 class="lens-title heading_font heading_weight">(Untitled lens)</h3>
-                       <div class="snowflake"></div>
-                       <div class="badge"></div>
+                      <div class="row" style="margin:0;">
+                        <div class="lens-header col-xs-12 no-bg">
+                           <h3 class="lens-title heading_font heading_weight col-xs-10">(Untitled lens)</h3>
+                           <div class="col-xs-2 no-padding">
+                              <div>
+                                <span class="pull-right badge"></span>
+                                <span class="pull-right snowflake"></span>
+                              </div>
+                           </div>
+                         </div>
+                       </div>
                      <div class="lens-tags">
                    </div>
                  </div>
@@ -1041,23 +1049,56 @@
     // sets default state for all filter modals
     // handles done click event for all filters
     ScalarLenses.prototype.addFilterModal = function(){
+      // let element = $(
+      //   `<div id="filterModal" class="modal fade caption_font" role="dialog">
+      //     <div class="modal-dialog">
+      //       <div class="modal-content">
+      //         <div class="modal-body">
+      //           <h4 class="heading_font">Configure filter</h4>
+      //           <div class="filter-modal-container">
+      //             <div class="filter-modal-content"></div>
+      //             <div class="filter-counters">
+      //               <div class="left-badge">
+      //                 <span class="counter">0</span>
+      //                 <span class="filter-arrow"></span>
+      //               </div>
+      //               <div class="right-badge">
+      //                 <span class="filter-arrow"></span>
+      //                 <span class="counter">0</span>
+      //               </div>
+      //             </div>
+      //           </div>
+      //         </div>
+      //         <div class="modal-footer">
+      //           <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+      //           <button type="button" class="btn btn-primary done" data-dismiss="modal">Done</button>
+      //         </div>
+      //       </div>
+      //     </div>
+      //   </div>`
+      // )
+
       let element = $(
         `<div id="filterModal" class="modal fade caption_font" role="dialog">
           <div class="modal-dialog">
             <div class="modal-content">
               <div class="modal-body">
                 <h4 class="heading_font">Configure filter</h4>
-                <div class="filter-modal-container">
-                  <div class="filter-modal-content"></div>
-                  <div class="filter-counters">
-                    <div class="left-badge">
-                      <span class="counter">0</span>
-                      <span class="filter-arrow"></span>
+                <div class="row">
+                  <div class="filter-modal-container col-xs-12">
+                    <div class="left-badge col-xs-1 no-padding">
+                      <span class="counter pull-right">0</span>
                     </div>
-                    <div class="right-badge">
-                      <span class="filter-arrow"></span>
-                      <span class="counter">0</span>
+                    <div class="col-xs-1 no-padding">
+                      <div class="filter-arrow"></div>
                     </div>
+                    <div class="filter-modal-content col-xs-8"></div>
+                      <div class="right-badge col-xs-1 no-padding">
+                        <div class="filter-arrow pull-left"></div>
+                      </div>
+                      <div class="col-xs-1 no-padding">
+                        <span class="counter">0</span>
+                      </div>
                   </div>
                 </div>
               </div>
@@ -1069,6 +1110,16 @@
           </div>
         </div>`
       )
+
+
+      // <div class="left-badge col-xs-2 no-padding">
+      //   <div class="col-xs-1">
+      //     <span class="counter">0</span>
+      //   </div>
+      //   <div class="col-xs-1">
+      //     <div class="filter-arrow pull-right"></div>
+      //   </div>
+      // </div>
 
       var me = this;
 
