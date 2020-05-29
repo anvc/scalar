@@ -442,6 +442,7 @@
         let buttonGroup = $(evt.target).parent().parent().parent();
         let componentIndex = buttonGroup.data('componentIndex');
         let option = $(evt.target).parent().data('option');
+
         me.editedComponentIndex = componentIndex;
         switch (option.value) {
 
@@ -462,6 +463,9 @@
           break;
         }
 
+        // add/remove active class
+        $(evt.target).parent().parent().find( 'li.active' ).removeClass( 'active' );
+        $(evt.target).parent().addClass( 'active' );
 
       };
 
@@ -1074,17 +1078,17 @@
                 <div class="row">
                   <div class="filter-modal-container col-xs-12">
                     <div class="left-badge col-xs-1 no-padding">
-                      <span class="counter pull-right">0</span>
+                      <div class="counter pull-right">0</div>
                     </div>
                     <div class="col-xs-1 no-padding">
                       <div class="filter-arrow"></div>
                     </div>
                     <div class="filter-modal-content col-xs-8"></div>
-                      <div class="right-badge col-xs-1 no-padding">
+                      <div class="col-xs-1 no-padding">
                         <div class="filter-arrow pull-left"></div>
                       </div>
-                      <div class="col-xs-1 no-padding">
-                        <span class="counter">0</span>
+                      <div class="right-badge col-xs-1 no-padding">
+                        <div class="counter pull-left">0</div>
                       </div>
                   </div>
                 </div>
