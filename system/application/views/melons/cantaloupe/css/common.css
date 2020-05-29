@@ -1801,11 +1801,29 @@ span.base {
 	background:none;
 	color:#333;
 }
-
 .lens-editor .dropdown-menu li.active a::after {
 	content: '✓';
 	background:transparent;
 	padding-left:8px;
 }
 
-.lens-editor .drop.down
+#duplicate-copy-prompt {
+	display:none;
+	padding:15px;
+	margin:10px 0;
+	background:#fcf8e5;
+	border:1px solid #f7eedc;
+	border-radius:3px;
+}
+#duplicate-copy-prompt.show-lens-prompt {
+	display:inline-block;
+}
+#duplicate-copy-prompt p {
+	color:#bb995d;
+	margin-bottom:0;
+}
+#duplicate-copy-prompt .row {
+	display: flex;
+  align-items: center;
+  justify-content: center;
+}

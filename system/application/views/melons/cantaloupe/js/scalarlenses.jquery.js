@@ -199,6 +199,7 @@
       $(this.element).append(lensHtml);
       lensHtml.find('.lens-content').append(this.addOptionsMenu())
       lensHtml.append(this.addOkModal());
+      lensHtml.find('.lens-editor').append(this.addDuplicateCopyPrompt());
       this.buttonContainer = $(this.element).find('.lens-tags').eq(0);
       this.primaryBadge = lensHtml.find('.badge');
       this.updateBadge(this.primaryBadge, -1, 'light');
@@ -2618,8 +2619,8 @@
       let me = this;
 
       let userLevel = this.userLevel;
-      userLevel = 'scalar:Reader';
-      console.log(userLevel);
+      //userLevel = 'scalar:Reader';
+      //console.log(userLevel);
 
       let menuOptions = [];
 
@@ -2744,6 +2745,39 @@
           okHandler();
       });
     }
+
+    // duplicate copy prompt
+    ScalarLenses.prototype.addDuplicateCopyPrompt = function(){
+      let element = $(`
+        <div id="duplicate-copy-prompt">
+          <div class="row">
+            <div class="col-xs-10">
+              <p class="caption_font"><strong>You have made edits to this lens which has not been saved, since you are not its owner.</strong>
+              Would you like to save these changes to your own copy of the lens?</p>
+            </div>
+            <div class="col-xs-2">
+              <button type="button" class="btn btn-default save">Save</button>
+            </div>
+          </div>
+        </div>
+      `)
+
+      var me = this;
+
+      //this.userLevel = 'scalar:author';
+      //console.log(this.userLevel)
+
+      if(this.userLevel === 'scalar:reader' && this.canSave === false) {
+        element.addClass('show-lens-prompt');
+      }
+
+      $(element).find('.save').on('click', function(){
+          // save lens edits, create copy
+      });
+
+      return element;
+    }
+
 
     // get Lens results
     ScalarLenses.prototype.getLensResults = function(lensObject, success){
