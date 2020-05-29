@@ -2763,19 +2763,20 @@
       `)
 
       var me = this;
+      // this.userLevel = 'scalar:reader';
+      // console.log(this.userLevel)
 
-      //this.userLevel = 'scalar:author';
-      //console.log(this.userLevel)
-
-      if(this.userLevel === 'scalar:reader' && this.canSave === false) {
-        element.addClass('show-lens-prompt');
-      }
-
+      // save create copy of lens
       $(element).find('.save').on('click', function(){
-          // save lens edits, create copy
+          console.log('save a copy of this lens')
       });
 
       return element;
+    }
+
+    ScalarLenses.prototype.showDuplicateCopyPrompt = function(){
+
+
     }
 
 
@@ -2836,19 +2837,24 @@
     ScalarLenses.prototype.saveLens = function(successHandler){
       console.log(JSON.stringify(this.scalarLensObject, null, 2));
       this.baseURL = $('link#parent').attr('href');
-      $.ajax({
-        url: this.baseURL + "api/relate",
-        type: "POST",
-        dataType: 'json',
-        contentType: 'application/json',
-        data: JSON.stringify(this.scalarLensObject),
-        async: true,
-        context: this,
-        success: successHandler,
-        error: function error(response) {
-          console.log(response);
+
+      if(this.canSave === true){
+          $.ajax({
+            url: this.baseURL + "api/relate",
+            type: "POST",
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify(this.scalarLensObject),
+            async: true,
+            context: this,
+            success: successHandler,
+            error: function error(response) {
+              console.log(response);
+            }
+          });
+        } else {
+          $('#duplicate-copy-prompt').addClass('show-lens-prompt');
         }
-      });
     }
 
     // callback for content-selector
