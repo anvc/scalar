@@ -461,6 +461,8 @@
           me.deleteContentSelectorButton(componentIndex);
           break;
         }
+
+
       };
 
       let options = [
@@ -580,6 +582,7 @@
       });
 
       let me = this;
+
       let onClick = function(evt) {
         let option = $(evt.target).parent().data('option');
         let button = $(evt.target).parent().parent().parent();
@@ -591,7 +594,12 @@
           let filterObj = me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex];
           me.updateFilterModal(option.value, filterObj);
         }
+        // add/remove active class
+        $( evt.target ).parent().parent().find( 'li.active' ).removeClass( 'active' );
+        $( evt.target ).parent().addClass( 'active' );
+
       }
+
 
       this.populateDropdown(button, button.find('.filter-type-list'), null, onClick,
         '<li><a data-toggle="modal" data-target="#filterModal"></a></li>',
@@ -717,7 +725,7 @@
       this.updateEditorDom();
     }
 
-    // add filter button
+    // add sort button
     ScalarLenses.prototype.addSortButton = function(componentContainer, componentIndex, modifierIndex){
       let button = $(
         `<div class="modifier-btn-group sort-btn-group btn-group"><button type="button" class="btn btn-primary btn-xs dropdown-toggle sort-button modifier-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -750,8 +758,15 @@
           let sortObj = me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex];
           me.updateSortModal(option.value, sortObj);
         }
-        // save by type value on click instead of opening modal
+
+        // add/remove active class
+        $(evt.target).parent().parent().find( 'li.active' ).removeClass( 'active' );
+        $(evt.target).parent().addClass( 'active' );
+
+
+        // save by type value on click
         if(option.value == 'type'){
+          // stop modal
           $(evt.target).removeAttr("data-target data-toggle");
 
           sortObj = {
@@ -1049,7 +1064,7 @@
     // sets default state for all filter modals
     // handles done click event for all filters
     ScalarLenses.prototype.addFilterModal = function(){
-      
+
       let element = $(
         `<div id="filterModal" class="modal fade caption_font" role="dialog">
           <div class="modal-dialog">
@@ -1082,16 +1097,6 @@
           </div>
         </div>`
       )
-
-
-      // <div class="left-badge col-xs-2 no-padding">
-      //   <div class="col-xs-1">
-      //     <span class="counter">0</span>
-      //   </div>
-      //   <div class="col-xs-1">
-      //     <div class="filter-arrow pull-right"></div>
-      //   </div>
-      // </div>
 
       var me = this;
 
@@ -1350,7 +1355,7 @@
       container.empty();
       let element = $(`
         <div class="filterByType">
-          <p>Allow any items through that</p>
+          <p class="filter-text-desc">Allow any items through that</p>
           <div class="btn-group">
             <button id="operator-button" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               is a<span class="caret"></span>
@@ -1420,7 +1425,7 @@
       container.empty();
       let element = $(`
         <div class="filterByContent">
-          <p>Allow any items through that</p>
+          <p class="filter-text-desc">Allow any items through that</p>
           <div class="row">
             <div class="btn-group">
               <button id="operator-button" type="button" class="btn btn-default btn-md dropdown-toggle content-operator" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -1471,7 +1476,7 @@
       container.empty();
       let element = $(`
         <div class="filterByRelationship">
-          <p>Add any items that are</p>
+          <p class="filter-text-desc">Add any items that are</p>
           <div class="btn-group"><button type="button" id="relationship-content-button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
               Select type..<span class="caret"></span></button>
             <ul id="relationship-content-list" class="dropdown-menu"></ul>
@@ -1548,7 +1553,7 @@
       container.empty();
       let element = $(`
         <div class="filterByDistance">
-          <p>Add any items that are within</p>
+          <p class="filter-text-desc">Add any items that are within</p>
            <div class="row filterByDistance">
              <input type="text" id="distanceFilterQuantity" class="form-control" aria-label="..." placeholder="Enter distance" style="max-width:115px;float:left;">
              <div class="btn-group" style="min-width:109px;">
@@ -1597,7 +1602,7 @@
       container.empty();
       let element = $(`
         <div class="filterByQuantity">
-          <p>Allow no more than</p>
+          <p class="filter-text-desc">Allow no more than</p>
           <div class="row" style="max-width:175px;margin:0 auto;">
            <input id="filterQuantityValue" type="text" required class="form-control" aria-label="..." placeholder="Enter quantity" style="max-width:118px;float:left;">
            <span style="vertical-align:middle"> items</span>
@@ -1641,7 +1646,7 @@
       container.empty();
       let element = $(`
         <div class="filterByMetadata">
-          <p>Allow any item through that</p>
+          <p class="filter-text-desc">Allow any item through that</p>
             <div class="row">
               <div class="btn-group"><button type="button" id="operator-button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
                   includes<span class="caret"></span></button>
@@ -1748,7 +1753,7 @@
       container.empty();
       let element = $(`
         <div class="filterByVisitDate">
-          <p>Allow any items through that were visited up to</p>
+          <p class="filter-text-desc">Allow any items through that were visited up to</p>
            <div class="row" style="max-widtH:210px;margin:0 auto;">
              <input id="visitdate-quantity" class="form-control" aria-label="..." placeholder="Enter quantity">
              <div class="btn-group" style="min-width:83px;">
@@ -2585,8 +2590,8 @@
       let me = this;
 
       let userLevel = this.userLevel;
-      //userLevel = 'scalar:Reader';
-      //console.log(userLevel);
+      userLevel = 'scalar:Reader';
+      console.log(userLevel);
 
       let menuOptions = [];
 

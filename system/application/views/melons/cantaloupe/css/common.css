@@ -1700,9 +1700,9 @@ body>.annotorious-popup{
 	border:3px solid lightgrey;
 	padding:15px;
 }
-/* .filter-modal-container span {
-	vertical-align:middle;
-} */
+.filter-text-desc {
+	margin-top:0 !important;
+}
 #filterQuantityValue .error {
 	border:1px solid red;
 }
@@ -1796,3 +1796,16 @@ span.base {
 	height:15px;
 	float:right;
 }
+
+.lens-editor .dropdown-menu li.active a {
+	background:none;
+	color:#333;
+}
+
+.lens-editor .dropdown-menu li.active a::after {
+	content: '✓';
+	background:transparent;
+	padding-left:8px;
+}
+
+.lens-editor .drop.down
