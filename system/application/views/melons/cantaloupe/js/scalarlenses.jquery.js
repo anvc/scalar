@@ -632,6 +632,16 @@
         'modifierIndex': modifierIndex
       });
 
+      // on reload, add active class to dropdown list item
+      let list = element.find('.dropdown-menu li');
+      for(let i = 0; i < 7; i++){
+        let listItemValue = $(list[i]).data('option').value;
+        if(listItemValue == filterObj.subtype){
+          $(list[i]).addClass('active');
+        }
+      }
+
+
       if(!filterObj) {
         button.text('Filter items...').append('<span class="caret"></span>');
 
@@ -817,6 +827,15 @@
         'componentIndex': componentIndex,
         'modifierIndex': modifierIndex
       });
+
+      // on reload, add active class to dropdown list item
+      let list = element.find('.dropdown-menu li');
+      for(let i = 0; i < 7; i++){
+        let listItemValue = $(list[i]).data('option').value;
+        if(listItemValue == sortObj["sort-type"]){
+          $(list[i]).addClass('active');
+        }
+      }
 
       if(!sortObj) {
         button.text('Sort items...').append('<span class="caret"></span>');
@@ -1094,7 +1113,7 @@
                 </div>
               </div>
               <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-default cancel" data-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-primary done" data-dismiss="modal">Done</button>
               </div>
             </div>
@@ -1107,11 +1126,16 @@
       //let componentContainer = $('.filter-modal-container')
       //element.find('.filter-modal-container').prepend(me.addFilterButton(componentContainer))
 
-      // saves values
+      // done click handler
       element.find('.done').on('click', function(){
         me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex] = me.buildFilterData();
         me.updateFilterButton(me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex], $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-btn-group').eq(me.editedModifierIndex))
         me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
+      });
+      // cancel click handler
+      element.find('.cancel').on('click', function(){
+        let currentButton = $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-btn-group').eq(me.editedModifierIndex);
+        $(currentButton).find('.dropdown-menu li.active').removeClass('active');
       });
 
       return element;
