@@ -1481,9 +1481,8 @@ body>.annotorious-popup{
   background-repeat:no-repeat;
   background-size:100%;
   background-position:50% 50%;
-  width:25px;
-  height:25px;
-
+  width:24px;
+  height:24px;
 	margin-right:3px;
 }
 .lens-editor .badge {
