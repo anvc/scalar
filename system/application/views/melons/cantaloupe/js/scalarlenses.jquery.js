@@ -200,6 +200,7 @@
       lensHtml.find('.lens-content').append(this.addOptionsMenu())
       lensHtml.append(this.addOkModal());
       lensHtml.find('.lens-editor').append(this.addDuplicateCopyPrompt());
+      lensHtml.append(this.duplicateLensForCurrentUser())
       this.buttonContainer = $(this.element).find('.lens-tags').eq(0);
       this.primaryBadge = lensHtml.find('.badge');
       this.updateBadge(this.primaryBadge, -1, 'light');
@@ -2756,27 +2757,46 @@
               Would you like to save these changes to your own copy of the lens?</p>
             </div>
             <div class="col-xs-2">
-              <button type="button" class="btn btn-default save">Save</button>
+              <button type="button" class="btn btn-default pull-right save">Save</button>
             </div>
           </div>
         </div>
       `)
 
       var me = this;
-      // this.userLevel = 'scalar:reader';
-      // console.log(this.userLevel)
 
       // save create copy of lens
       $(element).find('.save').on('click', function(){
-          console.log('save a copy of this lens')
+          me.duplicateLensForCurrentUser();
       });
 
       return element;
     }
 
-    ScalarLenses.prototype.showDuplicateCopyPrompt = function(){
+    ScalarLenses.prototype.duplicateLensForCurrentUser = function(){
 
+      let element = $(
+        `<div id="duplicateConfirm" class="modal fade caption_font" role="dialog">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-body">
+                <h4 class="heading_font">Duplicate lens created</h4>
+                <div class="ok-modal-container">
+                  <div class="ok-modal-content"><p>The duplicate lens has been created, and is now private to you.</p></div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-primary ok" data-dismiss="modal">Ok</button>
+              </div>
+            </div>
+          </div>
+        </div>`
+      )
 
+      var me = this;
+      $('#duplicateConfirm').modal('toggle')
+
+      return element;
     }
 
 
@@ -2837,7 +2857,7 @@
     ScalarLenses.prototype.saveLens = function(successHandler){
       console.log(JSON.stringify(this.scalarLensObject, null, 2));
       this.baseURL = $('link#parent').attr('href');
-
+      this.canSave = false;
       if(this.canSave === true){
           $.ajax({
             url: this.baseURL + "api/relate",

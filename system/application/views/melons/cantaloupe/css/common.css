@@ -1809,7 +1809,7 @@ span.base {
 
 #duplicate-copy-prompt {
 	display:none;
-	padding:15px;
+	padding:20px;
 	margin:10px 0;
 	background:#fcf8e5;
 	border:1px solid #f7eedc;
@@ -1819,11 +1819,16 @@ span.base {
 	display:inline-block;
 }
 #duplicate-copy-prompt p {
+	font-size: 14px;
 	color:#bb995d;
+	line-height: 17px;
 	margin-bottom:0;
 }
 #duplicate-copy-prompt .row {
 	display: flex;
   align-items: center;
   justify-content: center;
+}
+#duplicate-copy-prompt .save {
+	margin-top:0;
 }
