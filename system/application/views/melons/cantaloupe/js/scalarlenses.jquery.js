@@ -2857,7 +2857,6 @@
     ScalarLenses.prototype.saveLens = function(successHandler){
       console.log(JSON.stringify(this.scalarLensObject, null, 2));
       this.baseURL = $('link#parent').attr('href');
-      this.canSave = false;
       if(this.canSave === true){
           $.ajax({
             url: this.baseURL + "api/relate",
