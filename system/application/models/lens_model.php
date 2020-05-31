@@ -257,7 +257,7 @@ class Lens_model extends MY_Model {
 		}
 		
 		$return = $this->rdf_ns_to_uri($return);
-		$return = $this->add_relationships($return);
+		$return = $this->add_relationships($return, $book_id);
 
 		return $return;
 		
@@ -527,11 +527,12 @@ class Lens_model extends MY_Model {
     	
     }
     
-    public function add_relationships($return) {
+    public function add_relationships($return, $book_id=0) {
     	
     	$CI =& get_instance();
     	$CI->load->library( 'RDF_Object', 'rdf_object' );
     	$num = 1;
+    	$book = $CI->books->get($book_id, false);
 
     	foreach ($return as $uri => $fields) {
     		// get parent version ID
@@ -539,6 +540,20 @@ class Lens_model extends MY_Model {
     		$urn = $return[$uri]['http://scalar.usc.edu/2012/01/scalar-ns#urn'][0]['value'];
     		$arr = explode(':', $urn);
     		$version_id = (int) array_pop($arr);
+    		// get references
+    		$types = $CI->config->item('ref');
+    		foreach ($types as $type_p) {
+    			$type = rtrim($type_p, "s");
+    			if (!isset($CI->$type_p) || 'object'!=gettype($CI->$type_p)) $CI->load->model($type.'_model',$type_p);
+    			$items = $CI->$type_p->get_children($version_id, '', '', true, null);
+    			foreach ($items as $item) {
+    				if (!isset($return[$uri]['http://purl.org/dc/terms/references'])) $return[$uri]['http://purl.org/dc/terms/references'] = array();
+    				$return[$uri]['http://purl.org/dc/terms/references'][] = array(
+    					'type' => 'uri',
+    					'value' => base_url().$book->slug.'/'.$item->child_content_slug
+    				);
+    			}
+    		}
     		// get children
     		$types = $CI->config->item('rel');
     		foreach ($types as $type_p) {
@@ -561,7 +576,7 @@ class Lens_model extends MY_Model {
     					)),
     					'http://www.openannotation.org/ns/hasTarget' => array(array(
     						'type' => 'uri',
-    						'value' => base_url().$item->child_content_slug.'.'.$item->child_version_num.$append
+    						'value' => base_url().$book->slug.'/'.$item->child_content_slug.'.'.$item->child_version_num.$append
     					)),
     					'http://www.w3.org/1999/02/22-rdf-syntax-ns#type' => array(array(
     						'type' => 'uri',
