@@ -107,11 +107,12 @@ class Lens_model extends MY_Model {
 		if (!isset($CI->pages) || 'object'!=gettype($CI->pages)) $CI->load->model('page_model','pages');
 		if (!isset($CI->versions) || 'object'!=gettype($CI->versions)) $CI->load->model('version_model','versions');
 		if (empty($book_id)) throw new Exception("Invalud Book ID");
-		$operator = 'and';  // TODO: from header
+		$how_to_combine = $this->get_operation_from_visualization($json['visualization']);
 		$contents = array();
 		$has_used_filter = false;
 
 		foreach ($json['components'] as $component) {
+			$content = array();
 			// Modifiers that get content
 			if (isset($component['modifiers'])) {
 				foreach ($component['modifiers'] as $modifier) {
@@ -122,9 +123,23 @@ class Lens_model extends MY_Model {
 									$has_used_filter = true;
 									$field = trim($modifier['metadata-field']);
 									$value = trim($modifier['content']);
-									$content = $CI->versions->get_by_predicate($book_id, $field, false, null, $value);
-									$content = $this->filter_by_content_selector($content, $component);
-									$contents = $this->combine_by_operator($contents, $content, $operator);
+									$operator = (isset($modifier['operator']) && 'exclusive'==$modifier['operator']) ? 'exclusive' : 'inclusive';
+									switch ($operator) {
+										case 'exclusive':
+											$content = (!empty($content)) ? $content : $this->get_pages_from_content_selector($component['content-selector'], $book_id);
+											$to_subtract = $CI->versions->get_by_predicate($book_id, $field, false, null, $value);
+											$content = $this->subtract_content($content, $to_subtract);
+											$content = $this->do_versions($content);
+											break;
+										case 'inclusive':
+											$content_with_predicate = $CI->versions->get_by_predicate($book_id, $field, false, null, $value);
+											if (!empty($content)) {
+												$content = $this->combine_items($content, $content_with_predicate, 'and');
+											} else {
+												$content = $this->filter_by_content_selector($content_with_predicate, $component);
+											}
+											break;
+									}
 									break;
 								case "distance":
 									$has_used_filter = true;
@@ -138,18 +153,17 @@ class Lens_model extends MY_Model {
 											$latlng = $this->get_latlng_from_item($item[0]);
 											$content = $this->filter_by_location($items, $latlng, $distance_in_meters);
 										}
-										$contents = $this->combine_by_operator($contents, $content, $operator);
 									}
 									break;
 								case "relationship":
 									$has_used_filter = true;
-									$from_arr = $this->get_pages_from_content_selector($component['content-selector'], $book_id);
+									$from_arr = (!empty($content)) ? $content : $this->get_pages_from_content_selector($component['content-selector'], $book_id);
+									$content = array();
 									foreach ($from_arr as $page) {
 										$version = $CI->versions->get_single($page->content_id, $page->recent_version_id, null, false);
 										if (empty($version)) continue;
 										$types = $modifier['content-types'];
 										$parent_or_child = (isset($modifier['relationship']) && 'parent'==$modifier['relationship']) ? 'parent' : 'child';
-										$content = array();
 										foreach ($types as $type) {
 											$type_p = $type.'s';
 											if ($type_p== 'replys') $type_p= 'replies';
@@ -172,7 +186,6 @@ class Lens_model extends MY_Model {
 												}
 											}
 										}
-										$contents = $this->combine_by_operator($contents, $content, $operator);
 									}
 									break;
 								case "content-type":
@@ -181,25 +194,18 @@ class Lens_model extends MY_Model {
 									$types = $modifier['content-types'];
 									switch ($operator) {
 										case 'exclusive':
-											$all = $this->get_pages_of_type('all-content', $book_id);
-											foreach ($types as $type) {  // Subtract content from each type
-												$content = $this->get_pages_of_type($type, $book_id);
-												$all = $this->subtract_content($all, $content);
+											$content = (!empty($content)) ? $content : $this->get_pages_from_content_selector($component['content-selector'], $book_id);
+											foreach ($types as $type) {
+												$to_subtract = $this->get_pages_of_type($type, $book_id);
+												$content = $this->subtract_content($content, $to_subtract);
 											}
-											foreach ($all as $key => $row) {
-												$all[$key]->versions = array();
-												$all[$key]->versions[] = $CI->versions->get_single($row->content_id, $row->recent_version_id, null, true);
-											}
-											$contents = $this->combine_by_operator($contents, $all, 'and');
+											$content = $this->do_versions($content);
 											break;
 										case 'inclusive':
 											foreach ($types as $type) {
 												$content = $this->get_pages_of_type($type, $book_id);
-												foreach ($content as $key => $row) {
-													$content[$key]->versions = array();
-													$content[$key]->versions[] = $CI->versions->get_single($row->content_id, $row->recent_version_id, null, true);
-												}
-												$contents = $this->combine_by_operator($contents, $content, 'and');
+												$content = $this->do_versions($content);
+												// TODO: multiple filters
 											}
 											break;
 										}
@@ -216,8 +222,14 @@ class Lens_model extends MY_Model {
 					$content[$j]->versions = array();
 					$content[$j]->versions[] = $CI->versions->get_single($content[$j]->content_id, $content[$j]->recent_version_id, null, true);
 				}
-				$contents = $this->combine_by_operator($contents, $content, $operator);
 			}
+			// Combine content that has been gathered
+			$contents[] = $content;
+		}
+		
+		$contents = $this->combine_contents($contents, $how_to_combine);
+		
+		foreach ($json['components'] as $component) {
 			// Modifiers that sort
 			if (isset($component['modifiers'])) {
 				foreach ($component['modifiers'] as $modifier) {
@@ -296,6 +308,18 @@ class Lens_model extends MY_Model {
 
     }
     
+    public function do_versions($items) {
+    	
+    	$CI =& get_instance();
+    	foreach ($items as $key => $row) {
+    		if (isset($row->versions)) continue;
+    		$items[$key]->versions = array();
+    		$items[$key]->versions[] = $CI->versions->get_single($row->content_id, $row->recent_version_id, null, false);
+    	}
+    	return $items;
+    	
+    }
+    
     public function filter_by_location($items, $location, $distance_in_meters) {
     	
     	$arr = explode(',',$location);
@@ -330,6 +354,61 @@ class Lens_model extends MY_Model {
     	
     }
     
+    public function get_operation_from_visualization($json) {
+    	
+    	$return = 'or';
+    	if (isset($json['options']) && isset($json['options']['operation'])) $return = $json['options']['operation'];
+    	return $return;
+    	
+    }
+    
+    public function combine_items($contents, $content, $operator) {
+    	
+    	switch ($operator) {
+    		case "and":
+    			$keys_to_remove = array();
+    			foreach ($contents as $key => $row) {
+    				$exists = false;
+    				foreach ($content as $content_key => $content_row) {
+    					if ($content_row->content_id == $row->content_id) {
+    						$exists = true;
+    						break;
+    					}
+    				}
+    				if (!$exists) {
+    					$keys_to_remove[] = $key;
+    				}
+    			}
+    			foreach ($keys_to_remove as $key) {
+    				unset($contents[$key]);
+    			}
+    			return $contents;
+    		default:  // or
+    			return array_merge($contents, $content);
+    	}
+    	
+    }
+    
+    public function combine_contents($contents, $operator) {
+    	
+    	$return = array();
+    	switch ($operator) {
+    		case "and":
+    			if (!isset($contents[0])) return $return;
+    			$return = $contents[0];
+				for ($j = 1; $j < count($contents); $j++) {
+					$return = $this->combine_items($return, $contents[$j], 'and');
+				}
+				break;
+    		default:  // or
+    			foreach ($contents as $items) {
+    				$return = array_merge($return, $items);
+    			}
+    	}
+    	return $return;
+    	
+    }
+    
     public function get_latlng_from_item($item) {
     	
     	$latlng = false;
@@ -350,18 +429,6 @@ class Lens_model extends MY_Model {
     		$latlng = $coverage;
     	}
     	return $latlng;
-    	
-    }
-    
-    public function combine_by_operator($contents, $content, $operator) {
-    	
-    	switch ($operator) {
-    		case "and":  // exclusive
-    			// TODO
-    			return array_merge($contents, $content);
-    		default:  // inclusive
-    			return array_merge($contents, $content);
-    	}
     	
     }
     
@@ -414,6 +481,14 @@ class Lens_model extends MY_Model {
     			if (!empty($row)) $content[] = $row;
     		}
     		return $content;
+    	
+    	} elseif (isset($json['type']) && 'items-by-distance' == $json['type']) {
+    		$CI =& get_instance();
+    		$distance_in_meters = $json['quantity'];
+    		$latlng = $json['coordinates'];
+    		$items = $CI->versions->get_by_predicate($book_id, array('dcterms:spatial','dcterms:coverage'));
+    		$content = $this->filter_by_location($items, $latlng, $distance_in_meters);
+    		return $content;
     		
     	} elseif (isset($json['type']) && 'items-by-type' == $json['type']) {
     		$content_type = $json['content-type'];
@@ -459,6 +534,8 @@ class Lens_model extends MY_Model {
     }
     
     public function filter_by_content_selector($content, $component) {
+    	
+    	// TODO: this only filters pages, media not relationship types
     	
     	if (isset($component['content-selector']) && empty($component['content-selector']['items'])) {
     		$content_type = $component['content-selector']['content-type'];
