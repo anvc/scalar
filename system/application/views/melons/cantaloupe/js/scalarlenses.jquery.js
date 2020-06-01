@@ -118,6 +118,8 @@
         this.userId = $('link#logged_in').attr('href');
       }
 
+
+
       this.scalarLensObject = this.getEmbeddedJson();
       if (!this.scalarLensObject) {
         this.scalarLensObject = this.getDefaultJson();
@@ -291,17 +293,22 @@
         }
       }
 
-
-
+      // update options menu
       this.updateOptionsMenu();
 
-
+      // hide/show snowflake
       let snowflake = $(this.element).find('.snowflake');
-
       if(this.scalarLensObject.frozen === true) {
         $(snowflake).show();
       } else {
         $(snowflake).hide();
+      }
+
+      // if not logged in
+      // buttons can't be clicked
+      let lensButtons = $(this.element).find('.lens-tags .btn-group, .option-menu-button');
+      if(this.userId == 'unknown'){
+        lensButtons.css({'pointer-events':'none'})
       }
 
 
