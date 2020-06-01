@@ -641,8 +641,10 @@
         if(listItemValue == filterObj.subtype){
           $(list[i]).addClass('active');
         }
+        if(listItemValue == 'delete'){
+          $(list[i]).removeClass('active');
+        }
       }
-
 
       if(!filterObj) {
         button.text('Filter items...').append('<span class="caret"></span>');
@@ -836,6 +838,9 @@
         let listItemValue = $(list[i]).data('option').value;
         if(listItemValue == sortObj["sort-type"]){
           $(list[i]).addClass('active');
+        }
+        if(listItemValue == 'delete'){
+          $(list[i]).removeClass('active');
         }
       }
 
@@ -1703,7 +1708,7 @@
       `).appendTo(container);
 
       let me = this;
-      let onClick = function() { me.updateMetadataFilterForm(); };
+      let onClick = function() { me.updateMetadataFilterForm();};
 
       // operator dropdown
       this.populateDropdown($('#operator-button'), $('#operator-list'), filterObj.operator, onClick,
@@ -1744,7 +1749,7 @@
       if (!option) { // if nothing selected yet, pull the option from the first item
         option = {label: 'Select ontology', value: null};
         ontologyButton.data('option', option);
-    }
+      }
       ontologyButton.text(option.label).append('<span class="caret"></span>');
 
       // update property button
@@ -1762,11 +1767,17 @@
       }
       propertyButton.text(option.label).append('<span class="caret"></span>');
 
+
+
       // populate property dropdown when ontology is selected
       let ontologyOption = $('#metadata-ontology-button').data('option');
       let ontologyName;
       if (ontologyOption) {
         ontologyName = ontologyOption.value;
+      }
+      // reset property if new ontology selected
+      if($(ontologyOption.value).change()){
+        propertyButton.data('option').label = 'Select property';
       }
       let me = this;
       let onClick = function() { me.updateMetadataFilterForm(); };
@@ -1774,7 +1785,10 @@
         '<li><a></a></li>', this.createPropertyList(ontologyName)
       );
 
+
+
       this.updateFilterModalBadges(this.buildFilterData());
+
     }
 
     // add visitdate filter form
@@ -2154,17 +2168,17 @@
       let ontologyButton = $('#sort-ontology-button');
       option = ontologyButton.data('option');
       if (!option) { // if nothing selected yet, pull the option from the first item
-        option = {label: 'Select item...', value: null};
+        option = {label: 'Select ontology...', value: null};
       }
       ontologyButton.text(option.label).append('<span class="caret"></span>');
 
       // update property button
       let propertyButton = $('#sort-property-button');
-      option = propertyButton.data('option');
-      if (!option) { // if nothing selected yet, create a placeholder option
-        option = {label: 'Select item...', value: null};
+      let propertyButtonOption = propertyButton.data('option');
+      if (!propertyButtonOption) { // if nothing selected yet, create a placeholder option
+        propertyButtonOption = {label: 'Select property...', value: null};
       }
-      propertyButton.text(option.label).append('<span class="caret"></span>');
+      propertyButton.text(propertyButtonOption.label).append('<span class="caret"></span>');
 
       // update sort order button
       let sortOrderButton = $('#sort-alph-button');
@@ -2181,6 +2195,14 @@
       if(getButtonData){
         ontologyName = getButtonData.value;
       }
+
+      // reset property if new ontology selected
+      if(getButtonData && propertyButtonOption) {
+        if($(getButtonData.value).change()){
+          propertyButtonOption.label = 'Select property';
+        }
+      }
+
       let me = this;
       let onClick = function() { me.updateAlphabeticalSortForm(); };
       this.populateDropdown($('#sort-property-button'), $('#sort-property-list'), null, onClick,
@@ -2433,7 +2455,6 @@
         '<li><a></a></li>', this.createOntologyList()
       );
 
-
       this.populateDropdown($('#sort-match-button'), $('#sort-order-list'), sortObj['sort-order'], onClick,
         '<li><a></a></li>',
         [
@@ -2453,18 +2474,18 @@
       let buttonOne = $('#match-ontology-button');
       option = buttonOne.data('option');
       if (!option) { // if nothing selected yet, pull the option from the first item
-        option = {label: 'Select item...', value: null};
+        option = {label: 'Select ontology...', value: null};
       }
       buttonOne.text(option.label).append('<span class="caret"></span>');
 
 
       // update property button
-      let buttonTwo = $('#match-property-button');
-      option = buttonTwo.data('option');
-      if (!option) { // if nothing selected yet, create a placeholder option
-        option = {label: 'Select item...', value: null};
+      let propertyButton = $('#match-property-button');
+      propertyButtonOption = propertyButton.data('option');
+      if (!propertyButtonOption) { // if nothing selected yet, create a placeholder option
+        propertyButtonOption = {label: 'Select property...', value: null};
       }
-      buttonTwo.text(option.label).append('<span class="caret"></span>');
+      propertyButton.text(propertyButtonOption.label).append('<span class="caret"></span>');
 
       // update sort order
       let sortOrderButton = $('#sort-match-button');
@@ -2482,6 +2503,14 @@
       if(getButtonData){
         ontologyName = getButtonData.value;
       }
+
+      // reset property if new ontology selected
+      if(getButtonData && propertyButtonOption) {
+        if($(getButtonData.value).change()){
+          propertyButtonOption.label = 'Select property';
+        }
+      }
+
       let me = this;
       let onClick = function() { me.updateMatchCountSortForm(); };
       this.populateDropdown($('#match-property-button'), $('#match-property-list'), null, onClick,
@@ -2598,6 +2627,7 @@
       }
     }
 
+    // add options menu
     ScalarLenses.prototype.addOptionsMenu = function() {
 
       let button = $(
@@ -2610,19 +2640,19 @@
           </div>
         </div>`
       );
-
+      // hide if user not logged in
+      if(this.userId == 'unknown'){
+        $(button).hide();
+      } else {
         return button;
+      }
     }
 
-
+    // update options menu
     ScalarLenses.prototype.updateOptionsMenu = function() {
 
       let me = this;
-
       let userLevel = this.userLevel;
-      //userLevel = 'scalar:Reader';
-      //console.log(userLevel);
-
       let menuOptions = [];
 
       menuOptions.push(
@@ -2702,16 +2732,11 @@
 
       };
 
-
-
-
-
       this.populateDropdown($(this.element).find('.option-menu-button'), $(this.element).find('.option-menu-list'), null, onClick,
         '<li><a></a></li>', menuOptions);
-
-
     }
 
+    // ok modal
     ScalarLenses.prototype.addOkModal = function() {
       let element = $(
         `<div class="modal fade caption_font okModal" role="dialog">
@@ -2737,7 +2762,7 @@
       return element;
 
     }
-
+    // show ok modal
     ScalarLenses.prototype.showModal = function(message, okHandler){
       $(this.element).find('.okModal').modal('toggle');
       $('.ok-modal-content p').text(message);
@@ -2773,6 +2798,7 @@
       return element;
     }
 
+    // duplicate lens
     ScalarLenses.prototype.duplicateLensForCurrentUser = function(){
 
       let element = $(
