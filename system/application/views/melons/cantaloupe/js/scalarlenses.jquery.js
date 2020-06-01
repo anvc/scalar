@@ -113,9 +113,9 @@
       if ($('link#user_level').length > 0) {
         this.userLevel = $('link#user_level').attr('href');
       }
-      this.user = 'unknown';
+      this.userId = 'unknown';
       if ($('link#logged_in').length > 0) {
-        this.user = $('link#logged_in').attr('href');
+        this.userId = $('link#logged_in').attr('href');
       }
 
       this.scalarLensObject = this.getEmbeddedJson();
@@ -2843,11 +2843,16 @@
 
     ScalarLenses.prototype.checkSavePrivileges = function() {
       this.canSave = false;
-      if (this.userLevel == 'scalar:Author') {
-        this.canSave = true; // temporary; should disallow editing of reader lenses
-      } else if (this.userLevel == 'unknown') {
-        let currentPage = scalarapi.model.getCurrentPageNode();
-        if (this.user == currentPage.author) {
+      let currentPage = scalarapi.model.getCurrentPageNode();
+      if (this.userLevel == 'scalar:Author') { // author
+        // authors can't edit reader lenses
+        this.canSave = this.scalarLensObject.userLevel != 'scalar:Reader';
+      } else if (this.user_level == 'scalar:Reader') { // reader added to the book
+        if (this.userId == currentPage.author) {
+          this.canSave = true;
+        }
+      } else if (this.userId != 'unknown' && this.user_level == 'unknown') { // reader not added to the book
+        if (this.userId == currentPage.author) {
           this.canSave = true;
         }
       }
@@ -2856,24 +2861,25 @@
     // ajax call to post user lens selections
     ScalarLenses.prototype.saveLens = function(successHandler){
       console.log(JSON.stringify(this.scalarLensObject, null, 2));
+      this.scalarLensObject.user_level = this.userLevel;
       this.baseURL = $('link#parent').attr('href');
-      if(this.canSave === true){
-          $.ajax({
-            url: this.baseURL + "api/relate",
-            type: "POST",
-            dataType: 'json',
-            contentType: 'application/json',
-            data: JSON.stringify(this.scalarLensObject),
-            async: true,
-            context: this,
-            success: successHandler,
-            error: function error(response) {
-              console.log(response);
-            }
-          });
-        } else {
-          $('#duplicate-copy-prompt').addClass('show-lens-prompt');
-        }
+      if (this.canSave == true) {
+        $.ajax({
+          url: this.baseURL + "api/relate",
+          type: "POST",
+          dataType: 'json',
+          contentType: 'application/json',
+          data: JSON.stringify(this.scalarLensObject),
+          async: true,
+          context: this,
+          success: successHandler,
+          error: function error(response) {
+            console.log(response);
+          }
+        });
+      } else {
+        $('#duplicate-copy-prompt').addClass('show-lens-prompt');
+      }
     }
 
     // callback for content-selector
