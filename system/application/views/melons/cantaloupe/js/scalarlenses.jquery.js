@@ -2918,7 +2918,7 @@
        this.ontologyData.dcterms.unshift('title');
        this.ontologyData.sioc = ['content'];
        this.ontologyData.rdf = ['type'];
-       this.ontologyData.scalar = ['urn','url','default_view','continut_to_content_id','sort_number'];
+       this.ontologyData.scalar = ['urn','url','default_view','continue_to_content_id','sort_number'];
      }
 
     // creat ontology list
