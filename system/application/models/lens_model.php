@@ -107,7 +107,7 @@ class Lens_model extends MY_Model {
 		if (!isset($CI->pages) || 'object'!=gettype($CI->pages)) $CI->load->model('page_model','pages');
 		if (!isset($CI->versions) || 'object'!=gettype($CI->versions)) $CI->load->model('version_model','versions');
 		if (empty($book_id)) throw new Exception("Invalud Book ID");
-		$operator = 'and';
+		$operator = 'and';  // TODO: from header
 		$contents = array();
 		$has_used_filter = false;
 
@@ -192,7 +192,7 @@ class Lens_model extends MY_Model {
 											}
 											$contents = $this->combine_by_operator($contents, $all, 'and');
 											break;
-										default:  // Inclusive
+										case 'inclusive':
 											foreach ($types as $type) {
 												$content = $this->get_pages_of_type($type, $book_id);
 												foreach ($content as $key => $row) {
@@ -201,6 +201,7 @@ class Lens_model extends MY_Model {
 												}
 												$contents = $this->combine_by_operator($contents, $content, 'and');
 											}
+											break;
 										}
 									break;
 							}
@@ -256,6 +257,7 @@ class Lens_model extends MY_Model {
 		}
 		
 		$return = $this->rdf_ns_to_uri($return);
+		$return = $this->add_relationships($return, $book_id);
 
 		return $return;
 		
@@ -521,6 +523,71 @@ class Lens_model extends MY_Model {
     			}
     		}
     	}
+    	return $return;
+    	
+    }
+    
+    public function add_relationships($return, $book_id=0) {
+    	
+    	$CI =& get_instance();
+    	$CI->load->library( 'RDF_Object', 'rdf_object' );
+    	$num = 1;
+    	$book = $CI->books->get($book_id, false);
+
+    	foreach ($return as $uri => $fields) {
+    		// get parent version ID
+    		if (!isset($return[$uri]['http://purl.org/dc/terms/isVersionOf'])) continue;
+    		$urn = $return[$uri]['http://scalar.usc.edu/2012/01/scalar-ns#urn'][0]['value'];
+    		$arr = explode(':', $urn);
+    		$version_id = (int) array_pop($arr);
+    		// get references
+    		$types = $CI->config->item('ref');
+    		foreach ($types as $type_p) {
+    			$type = rtrim($type_p, "s");
+    			if (!isset($CI->$type_p) || 'object'!=gettype($CI->$type_p)) $CI->load->model($type.'_model',$type_p);
+    			$items = $CI->$type_p->get_children($version_id, '', '', true, null);
+    			foreach ($items as $item) {
+    				if (!isset($return[$uri]['http://purl.org/dc/terms/references'])) $return[$uri]['http://purl.org/dc/terms/references'] = array();
+    				$return[$uri]['http://purl.org/dc/terms/references'][] = array(
+    					'type' => 'uri',
+    					'value' => base_url().$book->slug.'/'.$item->child_content_slug
+    				);
+    			}
+    		}
+    		// get children
+    		$types = $CI->config->item('rel');
+    		foreach ($types as $type_p) {
+    			$type = rtrim($type_p, "s");
+    			if ($type == 'replie') $type = 'reply';
+    			if (!isset($CI->$type_p) || 'object'!=gettype($CI->$type_p)) $CI->load->model($type.'_model',$type_p);
+    			$items = $CI->$type_p->get_children($version_id, '', '', true, null);
+    			foreach ($items as $item) {
+    				$rel_uri = 'urn:scalar:'.$type.':'.$item->parent_version_id.':'.$item->child_version_id.':'.$num;
+    				$append = $CI->rdf_object->annotation_append($item);
+    				$num++;
+    				$node = array(
+    					'http://scalar.usc.edu/2012/01/scalar-ns#urn' => array(array(
+    						'type' => 'uri',
+    						'value' => $rel_uri
+    					)),
+    					'http://www.openannotation.org/ns/hasBody' => array(array(
+    						'type' => 'uri',
+    						'value' => $uri
+    					)),
+    					'http://www.openannotation.org/ns/hasTarget' => array(array(
+    						'type' => 'uri',
+    						'value' => base_url().$book->slug.'/'.$item->child_content_slug.'.'.$item->child_version_num.$append
+    					)),
+    					'http://www.w3.org/1999/02/22-rdf-syntax-ns#type' => array(array(
+    						'type' => 'uri',
+    						'value' => 'http://www.openannotation.org/ns/Annotation'
+    					)),
+    				);
+    				$return[$rel_uri] = $node;
+    			}
+    		}
+    	}
+
     	return $return;
     	
     }
