@@ -306,7 +306,7 @@
 
       // if not logged in
       // buttons can't be clicked
-      let lensButtons = $(this.element).find('.lens-tags .btn-group, .option-menu-button');
+      let lensButtons = $(this.element).find('.lens-editor .btn');
       if(this.userId == 'unknown'){
         lensButtons.addClass('disabled');
       }

@@ -1505,10 +1505,10 @@ body>.annotorious-popup{
 .lens-editor .spinner {
 	margin: 6px;
 }
-.lens-editor .disabled {
+/* .lens-editor .disabled {
 	pointer-events:none;
 	cursor:default;
-}
+} */
 .dropdown-menu {
 	min-width:152px;
 }
@@ -1600,6 +1600,7 @@ body>.annotorious-popup{
 }
 .visualization-button,
 .visualization-button:hover,
+.visualization-button.disabled:hover,
 .visualization-button:active,
 .visualization-button:focus,
 .open .dropdown-toggle.btn-primary.visualization-button
@@ -1610,6 +1611,7 @@ body>.annotorious-popup{
 
 .operation-button,
 .operation-button:hover,
+.operation-button.disabled:hover,
 .operation-button:active,
 .operation-button:focus,
 .open .dropdown-toggle.btn-primary.operation-button
@@ -1620,6 +1622,7 @@ body>.annotorious-popup{
 
 .content-selector-button,
 .content-selector-button:hover,
+.content-selector-button.disabled:hover,
 .content-selector-button:active,
 .content-selector-button:focus,
 .open .dropdown-toggle.btn-primary.content-selector-button
@@ -1630,6 +1633,7 @@ body>.annotorious-popup{
 
 .filter-button,
 .filter-button:hover,
+.filter-button.disabled:hover,
 .filter-button:active,
 .filter-button:focus,
 .open .dropdown-toggle.btn-primary.filter-button
@@ -1640,6 +1644,7 @@ body>.annotorious-popup{
 
 .sort-button,
 .sort-button:hover,
+.sort-button.disabled:hover,
 .sort-button:active,
 .sort-button:focus,
 .open .dropdown-toggle.btn-primary.sort-button
