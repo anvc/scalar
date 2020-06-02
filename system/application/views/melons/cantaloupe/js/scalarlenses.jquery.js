@@ -2995,37 +2995,35 @@
        return ontologyArray;
      };
 
-    // creat property list
-     ScalarLenses.prototype.createPropertyList = function(ontologyName){
-       propertyArray = [];
-       // null check
-       if(!ontologyName) {
-         propertyArray.push({
-           label: 'No ontology selected',
-           value: null
-         });
-       } else {
-           this.ontologyData[ontologyName].forEach(element =>  {
-            propertyArray.push({
-              label: element,
-              value: element
-            });
+    // create property list
+    ScalarLenses.prototype.createPropertyList = function(ontologyName){
+      propertyArray = [];
+      // null check
+      if(!ontologyName) {
+        propertyArray.push({
+         label: 'No ontology selected',
+         value: null
+        });
+      } else {
+        this.ontologyData[ontologyName].forEach(element =>  {
+          propertyArray.push({
+            label: element,
+            value: element
           });
-        }
-       return propertyArray;
-     };
+        });
+      }
+      return propertyArray;
+    };
 
     // plugin wrapper around the constructor,
     // to prevent against multiple instantiations
     $.fn[pluginName] = function ( options ) {
-        return this.each(function () {
-            if (!$.data(this, 'plugin_' + pluginName)) {
-                $.data(this, 'plugin_' + pluginName,
-                new ScalarLenses( this, options ));
-            }
-        });
+      return this.each(function () {
+        if (!$.data(this, 'plugin_' + pluginName)) {
+          $.data(this, 'plugin_' + pluginName,
+          new ScalarLenses( this, options ));
+        }
+      });
     }
-
-
 
 })( jQuery, window, document );
