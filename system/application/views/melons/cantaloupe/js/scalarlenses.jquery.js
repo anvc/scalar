@@ -65,12 +65,28 @@
         "rdf": "RDF"
       };
 
-      this.relationshipDescriptors = {
+      this.exclusiveRelationshipDescriptors = { // describe the related items as their own set
         'all-types': {'parent': 'are parents of', 'child': 'children of', 'any-relationship':'are related to'},
         'path': {'parent': 'contain', 'child': 'contained by', 'any-relationship':'contain or are contained by'},
         'tag': {'parent': 'tag', 'child': 'tagged by', 'any-relationship':'tag or are tagged by'},
         'annotation': {'parent': 'annotate', 'child': 'annotated by', 'any-relationship':'annotate or are annotated by'},
         'comment': {'parent': 'comment on', 'child': 'commented on by', 'any-relationship':'comment on or are commented on by'}
+      };
+
+      this.inclusivePluralRelationshipDescriptors = { // describe the related items as added to an existing plural set
+        'all-types': {'parent': 'and their parents', 'child': 'and their children', 'any-relationship':'and any related item'},
+        'path': {'parent': 'and their containing paths', 'child': 'and their path contents', 'any-relationship':'and their path relations'},
+        'tag': {'parent': 'and their tags', 'child': 'and the items they tag', 'any-relationship':'and their tag relations'},
+        'annotation': {'parent': 'and their annotations', 'child': 'and the items they annotate', 'any-relationship':'and their annotation relations'},
+        'comment': {'parent': 'and their comments', 'child': 'and the items they comment on', 'any-relationship':'and their comment relations'}
+      };
+
+      this.inclusiveSingularRelationshipDescriptors = { // describe the related items as added to an existing single item
+        'all-types': {'parent': 'and its parents', 'child': 'and its children', 'any-relationship':'and any related item'},
+        'path': {'parent': 'and its containing paths', 'child': 'and its path contents', 'any-relationship':'and its path relations'},
+        'tag': {'parent': 'and its tags', 'child': 'and the items it tags', 'any-relationship':'and its tag relations'},
+        'annotation': {'parent': 'and its annotations', 'child': 'and the items it annotates', 'any-relationship':'and its annotation relations'},
+        'comment': {'parent': 'and its comments', 'child': 'and the items it comments on', 'any-relationship':'and its comment relations'}
       };
 
       var spinner_options = {
@@ -218,9 +234,10 @@
          let button = this.addContentSelectorButton(componentContainer, 0);
          this.updateContentSelectorButton(null, button);
          this.scalarLensObject.components[0] = { "content-selector": {}, "modifiers": []}
+         button = componentContainer.find('.plus-btn-group');
+         if (button.length == 0) this.addPlusButton(componentContainer, 0);
 
       } else {
-        console.log(JSON.stringify(this.scalarLensObject, null, 2));
         this.scalarLensObject.components.forEach((component, componentIndex) => {
           let componentContainer = this.getComponentContainer(componentIndex);
 
@@ -242,7 +259,7 @@
               if (button.length == 0) {
                 button = this.addFilterButton(componentContainer, componentIndex, modifierIndex);
               }
-              this.updateFilterButton(modifier, button);
+              this.updateFilterButton(modifier, button, componentIndex);
               break;
 
               case 'sort':
@@ -376,7 +393,7 @@
       let me = this;
       let onClick = function(evt) {
         let option = $(evt.target).parent().data('option');
-        me.scalarLensObject.visualization.options.operation = option.value;
+        me.scalarLensObject.visualization.options = { "operation": option.value };
         me.updateOperatorButton(me.scalarLensObject.visualization);
         me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
       }
@@ -692,11 +709,13 @@
             case 'relationship':
               let relationshipContentTypes = filterObj["content-types"];
               let relationshipType = filterObj.relationship;
-              buttonText = 'that';
-              if (relationshipType == 'child' && relationshipContentTypes != 'any-relationship') {
-                buttonText += ' are';
+              let relationshipDescriptors = this.inclusivePluralRelationshipDescriptors;
+              if (this.scalarLensObject.components[componentIndex]['content-selector'].type == 'specific-items') {
+                if (this.scalarLensObject.components[componentIndex]['content-selector'].items.length == 1) {
+                  relationshipDescriptors = this.inclusiveSingularRelationshipDescriptors;
+                }
               }
-              buttonText += ' ' + this.relationshipDescriptors[relationshipContentTypes][relationshipType];
+              buttonText = relationshipDescriptors[relationshipContentTypes][relationshipType];
             break;
 
             case 'distance':
@@ -1143,7 +1162,7 @@
       // done click handler
       element.find('.done').on('click', function(){
         me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex] = me.buildFilterData();
-        me.updateFilterButton(me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex], $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-btn-group').eq(me.editedModifierIndex))
+        me.updateFilterButton(me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex], $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-btn-group').eq(me.editedModifierIndex), me.editedComponentIndex)
         me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
       });
       // cancel click handler
@@ -1581,7 +1600,7 @@
       let relationshipType = option.value;
 
       if (relationshipContent) {
-        $('.human-readable-relationship').text('i.e. ' + this.relationshipDescriptors[relationshipContent][relationshipType]);
+        $('.human-readable-relationship').text('i.e. ' + this.exclusiveRelationshipDescriptors[relationshipContent][relationshipType]);
       } else {
         $('.human-readable-relationship').text('no relationship selected');
       }
