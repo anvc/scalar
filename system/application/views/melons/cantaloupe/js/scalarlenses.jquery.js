@@ -308,7 +308,7 @@
       // buttons can't be clicked
       let lensButtons = $(this.element).find('.lens-tags .btn-group, .option-menu-button');
       if(this.userId == 'unknown'){
-        lensButtons.css({'pointer-events':'none'})
+        lensButtons.addClass('disabled');
       }
 
 
@@ -1785,7 +1785,10 @@
       // reset property if new ontology selected
       if($(ontologyOption.value).change()){
         propertyButton.data('option').label = 'Select property';
+      } else {
+        propertyButton.text(option.label).append('<span class="caret"></span>');
       }
+
       let me = this;
       let onClick = function() { me.updateMetadataFilterForm(); };
       this.populateDropdown($('#metadata-property-button'), $('#metadata-property-list'), null, onClick,

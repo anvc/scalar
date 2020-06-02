@@ -1483,7 +1483,6 @@ body>.annotorious-popup{
   background-position:50% 50%;
   width:25px;
   height:25px;
-
 	margin-right:3px;
 }
 .lens-editor .badge {
@@ -1505,6 +1504,10 @@ body>.annotorious-popup{
 }
 .lens-editor .spinner {
 	margin: 6px;
+}
+.lens-editor .disabled {
+	pointer-events:none;
+	cursor:default;
 }
 .dropdown-menu {
 	min-width:152px;
