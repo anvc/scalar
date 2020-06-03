@@ -2723,6 +2723,7 @@
       let onClick = function(evt) {
 
         let option = $(evt.target).parent().data('option');
+        let lensButtons = $(me.element).find('.lens-tags .btn');
 
         switch(option.value){
           case 'make-public':
@@ -2737,7 +2738,7 @@
             $('.snowflake').show()
 
             if(me.scalarLensObject.frozen == true){
-              $(me.element).find('.lens-tags .btn').addClass('disabled');
+              lensButtons.addClass('disabled');
             }
             // if frozen update lens object frozen-items
             var slugs = [];
