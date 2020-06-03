@@ -1603,6 +1603,7 @@ body>.annotorious-popup{
 .visualization-button.disabled:hover,
 .visualization-button:active,
 .visualization-button:focus,
+.visualization-button.disabled:focus,
 .open .dropdown-toggle.btn-primary.visualization-button
 {
 	background:#985da9;
@@ -1614,6 +1615,7 @@ body>.annotorious-popup{
 .operation-button.disabled:hover,
 .operation-button:active,
 .operation-button:focus,
+.operation-button.disabled:focus,
 .open .dropdown-toggle.btn-primary.operation-button
 {
  background:#7f7f7f;
@@ -1625,6 +1627,7 @@ body>.annotorious-popup{
 .content-selector-button.disabled:hover,
 .content-selector-button:active,
 .content-selector-button:focus,
+.content-selector-button.disabled:focus,
 .open .dropdown-toggle.btn-primary.content-selector-button
 {
 	background:#3b82c0;
@@ -1636,6 +1639,7 @@ body>.annotorious-popup{
 .filter-button.disabled:hover,
 .filter-button:active,
 .filter-button:focus,
+.filter-button.disabled:focus,
 .open .dropdown-toggle.btn-primary.filter-button
 {
 	background:#f08c4e;
@@ -1647,6 +1651,7 @@ body>.annotorious-popup{
 .sort-button.disabled:hover,
 .sort-button:active,
 .sort-button:focus,
+.sort-button.disabled:focus,
 .open .dropdown-toggle.btn-primary.sort-button
 {
 	background:#5cb85c;
