@@ -324,7 +324,7 @@
       // if not logged in
       // buttons can't be clicked
       let lensButtons = $(this.element).find('.lens-editor .btn');
-      if(this.userId == 'unknown'){
+      if(this.userId == 'unknown' || this.scalarLensObject.frozen === true){
         lensButtons.addClass('disabled');
       }
 
@@ -2730,6 +2730,22 @@
           case 'freeze':
             me.scalarLensObject.frozen = true;
             $('.snowflake').show()
+
+            let lensButtons = $(me.element).find('.lens-editor .btn');
+            if(me.scalarLensObject.frozen == true){
+              lensButtons.addClass('disabled');
+            }
+
+            // if frozen update lens object frozen-items
+            var slugs = [];
+            for (var url in this.scalarapi.model.nodesByURL) {
+              if (scalarapi.model.nodesByURL[url] != null) {
+                slugs.push(scalarapi.model.nodesByURL[url].slug);
+                me.scalarLensObject["frozen-items"] = slugs;
+                //console.log(this.scalarapi.model.nodesByURL[url])
+              }
+            }
+
           break;
           case 'unfreeze':
             me.scalarLensObject.frozen = false;
