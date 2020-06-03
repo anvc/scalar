@@ -153,6 +153,12 @@ svg {
 	font-weight: normal;
 }
 
+.vis-control-header {
+	font-size: 14px;
+	display: inline-block;
+	margin-right: 5px;
+}
+
 rect.visit-button {
 	fill: #026697;
 	cursor: pointer;

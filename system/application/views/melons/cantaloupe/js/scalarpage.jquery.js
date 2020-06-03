@@ -1749,10 +1749,8 @@
               if (lensObject.visualization) {
                 var visOptions = {
                     modal: false,
-                    content: 'specific',
-                    relations: 'path',
-                    items: slugs,
-                    format: lensObject.visualization.type
+                    content: 'lens',
+                    lens: lensObject
                 };
                 visualization.scalarvis(visOptions);
               }

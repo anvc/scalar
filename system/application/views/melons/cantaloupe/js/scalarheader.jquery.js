@@ -591,9 +591,22 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 switch ( $( this ).attr( 'data-vistype' ) ) {
 
                     case "visconnections":
-                    options.content = 'all';
-                    options.relations = 'all';
-                    options.format = 'force-directed';
+                    options.content = 'lens';
+                    options.lens = {
+                      "visualization": {
+                        "type": "force-directed",
+                        "options": {}
+                      },
+                      "components": [
+                        {
+                          "content-selector": {
+                            "type": "items-by-type",
+                            "content-type": "all-content"
+                          },
+                          "modifiers": []
+                        }
+                      ]
+                    }
                     break;
 
                     case "vistoc":
