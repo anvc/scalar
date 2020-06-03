@@ -162,12 +162,20 @@ class Lens_model extends MY_Model {
 										$version = $CI->versions->get_single($page->content_id, $page->recent_version_id, null, false);
 										if (empty($version)) continue;
 										$types = $modifier['content-types'];
-										$parent_or_child = (isset($modifier['relationship']) && 'parent'==$modifier['relationship']) ? 'parent' : 'child';
+										if (isset($types[0]) && 'all-types' == $types[0]) {
+											$types = $CI->config->item('rel');
+											for ($j = 0; $j < count($types); $j++) {
+												$type = rtrim($types[$j], "s");
+												if ($type == 'replie') $type = 'reply';
+												$types[$j] = $type;
+											}
+										}
+										$parent_or_child = $modifier['relationship'];
 										foreach ($types as $type) {
 											$type_p = $type.'s';
 											if ($type_p== 'replys') $type_p= 'replies';
 											if (!isset($CI->$type_p) || 'object'!=gettype($CI->$type_p)) $CI->load->model($type.'_model',$type_p);
-											if ('child' == $parent_or_child) {
+											if ('any-relationship' == $parent_or_child || 'child' == $parent_or_child) {
 												$items = $CI->$type_p->get_children($version->version_id, '', '', true, null);
 												foreach ($items as $item) {
 													$page = $CI->pages->get($item->child_content_id);
@@ -175,7 +183,8 @@ class Lens_model extends MY_Model {
 													$page->versions[] = $CI->versions->get_single($page->content_id, $page->recent_version_id, null, true);
 													$content[] = $page;
 												}
-											} else {
+											}
+											if ('any-relationship' == $parent_or_child || 'parent' == $parent_or_child) {
 												$items = $CI->$type_p->get_parents($version->version_id, '', '', true, null);
 												foreach ($items as $item) {
 													$page = $CI->pages->get($item->parent_content_id);
