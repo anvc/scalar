@@ -158,7 +158,6 @@ class Lens_model extends MY_Model {
 								case "relationship":
 									$has_used_filter = true;
 									$from_arr = (!empty($content)) ? $content : $this->get_pages_from_content_selector($component['content-selector'], $book_id);
-									$content = array();
 									foreach ($from_arr as $page) {
 										$version = $CI->versions->get_single($page->content_id, $page->recent_version_id, null, false);
 										if (empty($version)) continue;
@@ -390,7 +389,7 @@ class Lens_model extends MY_Model {
     }
     
     public function combine_contents($contents, $operator) {
-    	
+
     	$return = array();
     	switch ($operator) {
     		case "and":
