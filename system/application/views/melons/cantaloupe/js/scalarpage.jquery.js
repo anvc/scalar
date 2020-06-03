@@ -518,7 +518,6 @@
 
             addMediaElementForLink: function(link, parent, height, baseOptions) {
 
-            	console.log(link);
                 var inline = link.hasClass('inline'),
                     size = link.attr('data-size'),
                     align = link.attr('data-align');

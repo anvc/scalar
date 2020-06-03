@@ -126,7 +126,7 @@ window.scalarvis = { instanceCount: -1 };
 
         // when the modal is shown, redraw the visualization
         base.$el.on('shown.bs.modal', function() {
-          base.draw(true);
+          base.draw();
           base.modalIsOpen = true;
         });
 
@@ -948,7 +948,263 @@ window.scalarvis = { instanceCount: -1 };
             result = scalarapi.loadPagesByType(loadInstruction.id, true, base.parseData, null, depth, references, relations, start, base.resultsPerPage, false, false);
             break;
 
+      }
+      base.visElement.find(".vis-format-control").val(base.options.format);
+    }
+
+    // color scheme generated at http://colorbrewer2.org
+    base.highlightColorScale = function(d, t, n) {
+
+      if (t == null) {
+        t = "noun";
+      }
+
+      if (n == null) {
+        n = this.neutralColor;
+      }
+
+      // base colors
+      var color;
+      switch (d) {
+
+        case "page":
+          color = "#ff7f00";
+          break;
+
+        case "path":
+          color = "#377eb8";
+          break;
+
+        case "comment":
+        case "reply":
+          var componentToHex = function(c) {
+            var hex = c.toString(16);
+            return hex.length == 1 ? "0" + hex : hex;
+          }
+          color = d3.rgb("#ffff33").darker();
+          color = "#" + componentToHex(color.r) + componentToHex(color.g) + componentToHex(color.b);
+          break;
+
+        case "annotation":
+          color = "#984ea3";
+          break;
+
+        case "tag":
+          color = "#e41a1c";
+          break;
+
+        case "media":
+        case "reference":
+          color = "#4daf4a";
+          break;
+
+        default:
+          color = n;
+          break;
+
+      }
+
+      // "noun" colors are used to describe what things are, "verb" colors
+      // are used to types of relationships between things. Not all content
+      // types (i.e. "nouns") have corresponding relationship types ("verbs"),
+      // so we mute them to gray if the verb form is what we care about.
+      // "Path" describes both an item and a relationship; "page" does not.
+      switch (t) {
+
+        // pass through the noun color
+        case "noun":
+          return color;
+          break;
+
+        // pass through only selected noun colors, neutralize the others
+        case "verb":
+          switch (d) {
+
+            case "path":
+            case "comment":
+            case "annotation":
+            case "tag":
+            case "reference":
+              return color;
+              break;
+
+            default:
+              return n;
+              break;
+
+          }
+          break;
+
+      }
+
+    }
+
+    // pop-up that shows information about the selected node
+    base.nodeInfoBox = function(d) {
+
+      var i, n, description, relatedNodes, itemCount, itemName, itemType, type, direction, relationType;
+
+      var str = '<div class="arrow"></div><div class="content"><p><strong>';
+      str += d.getDisplayTitle(true);
+      str += '</strong></p>';
+
+      n = base.canonicalRelationOrder.length;
+      for (i = 0; i < n; i++) {
+        type = base.canonicalRelationOrder[i].type;
+        direction = base.canonicalRelationOrder[i].direction;
+        (direction == 'incoming') ? itemType = 'body' : itemType = 'target';
+        relationType = scalarapi.model.relationTypes[type];
+        description = relationType[direction];
+        relatedNodes = d.getRelatedNodes(type, direction);
+        itemCount = relatedNodes.length;
+        (itemCount > 1) ? itemName = relationType[itemType + 'Plural'] : itemName = relationType[itemType];
+        if (itemCount > 0) str += '<p style="color:' + d3.rgb(base.neutralColor).brighter(1.5) + ';">' + description + ' ' + itemCount + ' ' + itemName + '</p>';
+      }
+
+      if (base.rolloverNode != null) {
+        if ((base.rolloverNode.url != d.url) || (base.selectedNodes.indexOf(d) != -1) || isMobile) {
+          str += '<a href="' + d.url + '" target="_blank" class="btn btn-primary btn-xs" role="button">Visit &raquo;</a>';
         }
+      } else {
+        str += '<a href="' + d.url + '" target="_blank" class="btn btn-primary btn-xs" role="button">Visit &raquo;</a>';
+      }
+
+      str += '</div></div>';
+
+      return str;
+    }
+
+    // Source: https://github.com/Caged/d3-tip
+    // Gets the screen coordinates of a shape
+    //
+    // Given a shape on the screen, will return an SVGPoint for the directions
+    // n(north), s(south), e(east), w(west), ne(northeast), se(southeast), nw(northwest),
+    // sw(southwest).
+    //
+    //    +-+-+
+    //    |   |
+    //    +   +
+    //    |   |
+    //    +-+-+
+    //
+    // Returns an Object {n, s, e, w, nw, sw, ne, se}
+    base.getScreenBBox = function(target) {
+
+      var targetel = target /*|| d3.event.target*/;
+
+      while ('undefined' === typeof targetel.getScreenCTM && 'undefined' === targetel.parentNode) {
+        targetel = targetel.parentNode;
+      }
+
+      var svg = base.getSVGNode(base.svg)
+      var point = svg.createSVGPoint()
+
+      var bbox = {},
+        matrix = targetel.getScreenCTM(),
+        //tbbox = targetel.getBBox(),
+        tbbox = targetel.getBoundingClientRect(),
+        width = tbbox.width,
+        height = tbbox.height,
+        x = tbbox.left,
+        y = tbbox.top;
+
+      point.x = x;
+      point.y = y;
+      bbox.nw = point.matrixTransform(matrix);
+      point.x += width;
+      bbox.ne = point.matrixTransform(matrix);
+      point.y += height;
+      bbox.se = point.matrixTransform(matrix);
+      point.x -= width;
+      bbox.sw = point.matrixTransform(matrix);
+      point.y -= height / 2;
+      bbox.w = point.matrixTransform(matrix);
+      point.x += width;
+      bbox.e = point.matrixTransform(matrix);
+      point.x -= width / 2;
+      point.y -= height / 2;
+      bbox.n = point.matrixTransform(matrix);
+      point.y += height;
+      bbox.s = point.matrixTransform(matrix);
+
+      bbox.bbox = tbbox;
+
+      return bbox;
+    }
+
+    // Source: https://github.com/Caged/d3-tip
+    base.getSVGNode = function(el) {
+      el = el.node();
+      if (el.tagName.toLowerCase() === 'svg') {
+        return el;
+      }
+      return el.ownerSVGElement;
+    }
+
+    // boots/reboots the visualization with the current options
+    base.visualize = function() {
+
+      base.clear();
+
+      base.loadIndex = -1;
+      base.loadingPaused = false;
+      base.loadingDone = false;
+      base.drawingPaused = false;
+      base.visStarted = true;
+      base.pageIndex = 0;
+      base.reachedLastPage = true;
+      base.typeCounts = {};
+      base.maxNodesPerType = 0;
+      base.startTime = new Date();
+      base.loadingMsgShown = false;
+      base.contentNodes = [];
+      base.activeNodes = [];
+      base.rolloverNode = null;
+      base.relations = [];
+      base.links = [];
+      base.linksBySlug = {};
+      base.relatedNodes = [];
+      base.sortedNodes = [];
+      base.nodesBySlug = {};
+      base.svg = null;
+      base.selectedNodes = [base.currentNode];
+      base.loadSequence = null;
+      base.maxConnections = 0;
+      base.hierarchy = null;
+      base.selectedHierarchyNodes = null;
+      base.processedNodesForHierarchy = [];
+      base.visInstance = null;
+
+      base.visualization.css('height', '');
+
+      if (base.options.modal) {
+        base.visualization.removeClass('bounded');
+        base.visElement.find('.loadingMsg').addClass('bounded');
+        base.visElement.find('.vis_footer').addClass('bounded');
+
+      } else if (base.options.widget) {
+        base.visElement.addClass('vis_widget');
+      } else {
+        base.visElement.addClass('page_margins');
+      }
+
+      if (!base.loadedAllContent) {
+        console.log('all content not loaded');
+        base.buildLoadSequence();
+        if (base.loadSequence.length > 0) {
+          console.log('load sequence not exhausted');
+          base.loadNextData();
+        } else {
+          console.log('load sequence exhausted');
+          base.loadingDone = true;
+          base.draw();
+        }
+      } else {
+        console.log('all content loaded');
+        base.loadingDone = true;
+        base.filter();
+        setTimeout(function() { base.draw(); }, 0);
+      }
 
         //console.log( "load next data: " + loadInstruction.id + ' ' + start + ' ' + end );
 
@@ -1071,7 +1327,7 @@ window.scalarvis = { instanceCount: -1 };
     }
 
     base.hideLoadingMsg = function() {
-      base.loadingMsg.slideUp(400, function() { base.draw(true); });
+      base.loadingMsg.slideUp(400, function() { base.draw(); });
     }
 
 		/**
@@ -1741,23 +1997,22 @@ window.scalarvis = { instanceCount: -1 };
 
     }
 
-		/**
-		 * Returns true if the given hierarchy node has the candidate hierarchy node as an ancestor.
-		 */
+		// Returns true if the given hierarchy node has the candidate hierarchy node as an ancestor.
     base.hasHierarchyNodeAsAncestor = function(self, candidate) {
-      while ((self.parent != null) && (self.parent != candidate)) {
+      var okToLog = false;
+      while (self.parent && self.parent !== candidate) {
         self = self.parent;
       }
-      return ((self.parent == candidate) && (candidate != null));
+      return (self.parent === candidate && candidate !== null);
     }
 
     base.parentIdForHierarchyNode = function(d) {
       var parentId;
       if (d.parent != null) {
-        if (d.parent.node == null) {
-          parentId = d.parent.title;
+        if (d.parent.data.node == null) {
+          parentId = d.parent.data.title;
         } else {
-          parentId = d.parent.node.slug;
+          parentId = d.parent.data.node.slug;
         }
       }
       return parentId;
@@ -1765,8 +2020,8 @@ window.scalarvis = { instanceCount: -1 };
 
     base.isHierarchyNodeMaximized = function(d) {
       var isMaximized = (d.children != null);
-      if (d.node != null) {
-        if (d.node.parentsOfMaximizedInstances.indexOf(base.parentIdForHierarchyNode(d)) != -1) {
+      if (d.data.node != null) {
+        if (d.data.node.parentsOfMaximizedInstances.indexOf(base.parentIdForHierarchyNode(d)) != -1) {
           isMaximized = true;
         } else {
           isMaximized = false;
@@ -1817,15 +2072,6 @@ window.scalarvis = { instanceCount: -1 };
           base.links.splice(index, 1);
         }
       }
-
-			/*console.log( '----' );
-			var link
-			n = base.links.length;
-			for ( i = 0; i < n; i++ ) {
-				link = base.links[ i ];
-				console.log( link.source.slug + ' - ' + link.target.slug );
-			}*/
-
     }
 
     base.typeSort = function(a, b) {
@@ -1898,7 +2144,7 @@ window.scalarvis = { instanceCount: -1 };
       }
       base.visualization.empty();
 
-      switch (base.getFormat()) {
+      switch (base.options.format) {
 
         case "force-directed":
           if (base.force != null) {
@@ -1911,7 +2157,7 @@ window.scalarvis = { instanceCount: -1 };
       }
     }
 
-    base.draw = function(isRequired) {
+    base.draw = function() {
 
       // select the current node by default
       if (base.options.content == 'current') {
@@ -1923,1444 +2169,1500 @@ window.scalarvis = { instanceCount: -1 };
         }
       }
 
-      switch (base.getFormat()) {
+      var needsInstantiation;
+      switch (base.options.format) {
 
         case "grid":
-          base.drawGrid();
+          needsInstantiation = base.visInstance ? base.visInstance.constructor.name != 'GridVisualization' : true;
+          if (needsInstantiation) base.visInstance = new GridVisualization();
           break;
 
         case "tree":
-          base.drawTree();
+          needsInstantiation = base.visInstance ? base.visInstance.constructor.name != 'TreeVisualization' : true;
+          if (needsInstantiation) base.visInstance = new TreeVisualization();
           break;
 
         case "radial":
-          base.drawRadial();
+          needsInstantiation = base.visInstance ? base.visInstance.constructor.name != 'RadialVisualization' : true;
+          if (needsInstantiation) base.visInstance = new RadialVisualization();
           break;
 
         case "force-directed":
-          if (isRequired) {
-            base.drawForceDirected();
-          }
+          needsInstantiation = base.visInstance ? base.visInstance.constructor.name != 'ForceDirectedVisualization' : true;
+          if (needsInstantiation) base.visInstance = new ForceDirectedVisualization();
           break;
 
         case "tagcloud":
-          base.drawTagCloud();
-          break;
-
-        case "map":
-          base.drawMap();
-          break;
-
-        case "word-cloud":
-          base.drawWordCloud();
+          needsInstantiation = base.visInstance ? base.visInstance.constructor.name != 'TagCloudVisualization' : true;
+          if (needsInstantiation) base.visInstance = new TagCloudVisualization();
           break;
 
       }
+      base.visInstance.draw();
 
     };
+
+    /**************************
+     * ABSTRACT VISUALIZATION *
+     **************************/
+
+    class AbstractVisualization {
+      // Not a strict abstract class, contains some utitlity methods
+      // and a guide for creating new visualizations
+
+      // call using super() to do needed init
+      constructor() {
+        this.hasBeenDrawn = false;
+        this.size = {width:0, height:0};
+      }
+
+      // no need to call directly
+      updateSize() {
+        var isFullScreenNow = document.fullScreen || document.mozFullScreen || document.webkitIsFullScreen;
+        this.size.width = base.visElement.width();
+        if (!isFullScreenNow) {
+          if (window.innerWidth > 768) {
+            if (base.options.modal) {
+              this.size.height = Math.max(300, window.innerHeight * .9 - 170);
+            } else {
+              this.size.height = 568;
+            }
+          } else {
+            this.size.height = 300;
+          }
+        } else {
+          this.size.height = window.innerHeight;
+        }
+        if (this.isFullScreen != isFullScreenNow) {
+          this.hasBeenDrawn = false;
+        }
+        this.isFullScreen = isFullScreenNow;
+      }
+
+      // call using super.draw() from your draw method
+      draw() {
+        this.updateSize();
+        if (!this.hasBeenDrawn && base.visElement.width() > 0) {
+          base.helpButton.attr('data-content', this.getHelpContent());
+          this.setupElement();
+          this.hasBeenDrawn = true;
+        }
+      }
+
+      // override with your own version that returns HTML
+      // to insert in the "About this visualization" popover
+      getHelpContent() {
+        return 'This is sample help content.';
+      }
+
+      // overrider with your own version that sets up the
+      // base.visualization element
+      setupElement() {
+        // set up the element
+      }
+
+    }
 
     /**********************
      * GRID VISUALIZATION *
      **********************/
-    base.drawGrid = function(updateOnly) {
 
-      var i, j, k, n, o, helpContent,
-        colWidth = 36,
-        boxSize = 36,
-        currentNode = scalarapi.model.getCurrentPageNode();
+    class GridVisualization extends AbstractVisualization {
 
-      // if we're drawing from scratch, do some setup
-      if (!base.hasBeenDrawn && (base.visElement.width() > 0)) {
+       constructor() {
+         console.log('grid constructor');
+         super();
+         this.colWidth = 36;
+         this.boxSize = 36;
+         this.currentNode = scalarapi.model.getCurrentPageNode();
+       }
 
-        base.hasBeenDrawn = true;
+       draw() {
+         super.draw();
+         if (base.svg != null) {
+           this.itemsPerRow = Math.floor(this.size.width / this.colWidth);
+           this.colScale = d3.scaleLinear([0, this.itemsPerRow], [0, this.itemsPerRow * this.colWidth]);
+           var unitWidth = Math.max(this.colScale(1) - this.colScale(0), 36);
+           var rowCount = Math.ceil(base.sortedNodes.length / this.itemsPerRow);
+           var visHeight = rowCount * 46;
+           this.rowScale = d3.scaleLinear([0, rowCount], [0, visHeight]);
+           var unitHeight = this.rowScale(1) - this.rowScale(0);
+           var fullHeight = unitHeight * rowCount + 20;
+           var maxNodeChars = unitWidth / 7;
+           var node;
+           base.svg.attr('height', fullHeight);
 
-        if (base.options.content != 'current') {
-          helpContent = "This visualization shows <b>how content is interconnected</b> in this work.<ul>";
-        } else {
-          helpContent = "This visualization shows how <b>&ldquo;" + currentNode.getDisplayTitle() + "&rdquo;</b> is connected to other content in this work.<ul>";
-        }
+           //this.box = this.gridBoxLayer.selectAll('.rowBox');
 
-        helpContent += "<li>Each box represents a piece of content, color-coded by type.</li>" +
-          "<li>The darker the box, the more connections it has to other content (relative to the other boxes).</li>" +
-          "<li>Each line represents a connection, color-coded by type.</li>" +
-          "<li>You can roll over the boxes to browse connections, or click to add more content to the current selection.</li>" +
-          "<li>Click the &ldquo;View&rdquo; button of any selected item to navigate to it.</li></ul>";
+           var tocNode = scalarapi.model.getMainMenuNode();
+           var gridNodes = base.sortedNodes.concat();
+           var index = gridNodes.indexOf(tocNode);
+           if (index != -1) {
+             gridNodes.splice(index, 1);
+           }
 
-        base.helpButton.attr("data-content", helpContent);
+           this.box = this.gridBoxLayer.selectAll('.rowBox')
+             .data(gridNodes, (d) => { return d.type.id + '-' + d.slug; })
+             .join(
+               enter => enter.append('svg:rect')
+                 .each(function(d) { d.svgTarget = this; })
+                 .attr('class', 'rowBox')
+                 .attr('x', (d, i) => { d[base.instanceId].x = this.colScale(i % this.itemsPerRow) + 0.5; return d[base.instanceId].x; })
+                 .attr('y', (d, i) => { d[base.instanceId].y = this.rowScale(Math.floor(i / this.itemsPerRow) + 1) - this.boxSize + 0.5; return d[base.instanceId].y; })
+                 .attr('width', this.boxSize)
+                 .attr('height', this.boxSize)
+                 .attr('stroke', '#000')
+                 .style('cursor', 'pointer')
+                 .attr('stroke-opacity', '.2')
+                 .attr('fill-opacity', this.calculateOpacity)
+                 .attr('fill', function(d) {
+                   return base.highlightColorScale(d.type.singular);
+                 })
+                 .on("click", (d) => {
+                   var index = base.selectedNodes.indexOf(d);
+                   if (index == -1) {
+                     base.selectedNodes.push(d);
+                   } else {
+                     base.selectedNodes.splice(index, 1);
+                   }
+                   this.updateGraph();
+                   return true;
+                 })
+                 .on("mouseover", (d) => {
+                   if (!isMobile) {
+                     base.rolloverNode = d;
+                     this.updateGraph();
+                   }
+                 })
+                 .on("mouseout", (d) => {
+                   if (!isMobile) {
+                     base.rolloverNode = null;
+                     this.updateGraph();
+                   }
+                 })
+             );
 
-        base.visualization.removeClass('bounded');
+           if (((base.options.content == "path") || (base.options.content == "all")) && ((base.options.relations == "path") || (base.options.relations == "all"))) {
 
-        var isFullScreen = document.fullScreen || document.mozFullScreen || document.webkitIsFullScreen;
-        var fullWidth;
-        if (!isFullScreen) {
-          fullWidth = base.visElement.width();
-        } else {
-          fullWidth = window.innerWidth;
-        }
+             // path vis line function
+             this.line = d3.line()
+               .x((d) => {
+                 return d[base.instanceId].x + (this.boxSize * .5);
+               })
+               .y((d) => {
+                 return d[base.instanceId].y + (this.boxSize * .5);
+               })
+               .curve(d3.curveCatmullRom.alpha(0.5));
 
-        base.visualization.css('width', base.visElement.width() - 20); // accounts for padding
+             var typedNodes = scalarapi.model.getNodesWithProperty('dominantScalarType', 'path', 'alphabetical');
 
-        base.svg = d3.select(base.visualization[0]).append('svg:svg').attr('width', fullWidth);
+             // build array of path contents
+             n = typedNodes.length;
+             var pathRelations;
+             var allPathContents = [];
+             var pathContents;
+             for (i = 0; i < n; i++) {
+               node = typedNodes[i];
+               pathContents = node.getRelatedNodes('path', 'outgoing');
+               pathContents.unshift(node);
+               allPathContents.push(pathContents);
+             }
 
-        this.gridBoxLayer = base.svg.append('svg:g')
-          .attr('width', fullWidth)
-          .attr('height', fullHeight);
+             var pathGroups = this.gridPathLayer.selectAll('g.pathGroup')
+               .data(allPathContents, function(d) { return d[0].slug; });
 
-        this.gridPathLayer = base.svg.append('svg:g')
-          .attr('width', fullWidth)
-          .attr('height', fullHeight);
+             // create a container group for each path vis
+             var groupEnter = pathGroups.enter().append('g')
+               .attr('width', this.size.width)
+               .attr('height', base.svg.attr('height'))
+               .attr('class', 'pathGroup')
+               .attr('visibility', 'hidden')
+               .attr('pointer-events', 'none');
 
-        this.gridLinkLayer = base.svg.append('svg:g')
-          .attr('width', fullWidth)
-          .attr('height', fullHeight);
+             // add the path to the group
+             groupEnter.append('path')
+               .attr('class', 'pathLink')
+               .attr('stroke', function(d) {
+                 return base.highlightColorScale("path", "verb");
+               })
+               .attr('stroke-dasharray', '5,2')
+               .attr('d', this.line);
 
-      }
+             // add the path's dots to the group
+             groupEnter.selectAll('circle.pathDot')
+               .data(function(d) { return d; })
+               .enter().append('circle')
+               .attr('fill', function(d) {
+                 return base.highlightColorScale("path", "verb");
+               })
+               .attr('class', 'pathDot')
+               .attr('cx', (d) => {
+                 return d[base.instanceId].x + (this.boxSize * .5);
+               })
+               .attr('cy', (d) => {
+                 return d[base.instanceId].y + (this.boxSize * .5);
+               })
+               .attr('r', function(d, i) { return (i == 0) ? 5 : 3; });
 
-      if (base.svg != null) {
+             // add the step numbers to the group
+             groupEnter.selectAll('text.pathDotText')
+               .data(function(d) { return d; })
+               .enter().append('text')
+               .attr('fill', function(d) {
+                 return base.highlightColorScale("path", "verb");
+               })
+               .attr('class', 'pathDotText')
+               .attr('dx', function(d) {
+                 return d[base.instanceId].x + 3;
+               })
+               .attr('dy', function(d) {
+                 return d[base.instanceId].y + this.boxSize - 3;
+               })
+               .text(function(d, i) { return (i == 0) ? '' : i; });
 
-        var itemsPerRow = Math.floor(base.svg.attr('width') / colWidth);
+           }
 
-        var colScale = d3.scale.linear()
-          .domain([0, itemsPerRow])
-          .range([0, itemsPerRow * colWidth]);
+           this.redrawGrid();
+           this.updateGraph();
+         }
+       }
 
-        var unitWidth = Math.max(colScale(1) - colScale(0), 36);
+       getHelpContent() {
+         var helpContent;
+         if (base.options.content != 'current') {
+           helpContent = "This visualization shows <b>how content is interconnected</b> in this work.<ul>";
+         } else {
+           helpContent = "This visualization shows how <b>&ldquo;" + currentNode.getDisplayTitle() + "&rdquo;</b> is connected to other content in this work.<ul>";
+         }
+         helpContent += "<li>Each box represents a piece of content, color-coded by type.</li>" +
+           "<li>The darker the box, the more connections it has to other content (relative to the other boxes).</li>" +
+           "<li>Each line represents a connection, color-coded by type.</li>" +
+           "<li>You can roll over the boxes to browse connections, or click to add more content to the current selection.</li>" +
+           "<li>Click the &ldquo;View&rdquo; button of any selected item to navigate to it.</li></ul>";
+         return helpContent;
+       }
 
-        var rowCount = Math.ceil(base.sortedNodes.length / itemsPerRow);
-        var visWidth = base.visElement.width();
-        var visHeight = rowCount * 46;
-        var rowScale = d3.scale.linear()
-          .domain([0, rowCount])
-          .range([0, visHeight]);
-        var unitHeight = rowScale(1) - rowScale(0);
-        var fullHeight = unitHeight * rowCount + 20;
-        var maxNodeChars = unitWidth / 7;
-        var node;
+       setupElement() {
+         base.visualization.empty();
+         base.visualization.removeClass('bounded');
+         base.visualization.css('width', base.visElement.width() - 20); // accounts for padding
+         base.svg = d3.select(base.visualization[0]).append('svg:svg').attr('width', this.size.width);
+         this.gridBoxLayer = base.svg.append('svg:g')
+           .attr('width', this.size.width)
+           .attr('height', this.size.height);
+         this.gridPathLayer = base.svg.append('svg:g')
+           .attr('width', this.size.width)
+           .attr('height', this.size.height);
+         this.gridLinkLayer = base.svg.append('svg:g')
+           .attr('width', this.size.width)
+           .attr('height', this.size.height);
+       }
 
-        base.svg.attr('height', fullHeight);
+       calculateOpacity(d) {
+         var val = 0;
+         if (base.maxConnections > 0) {
+           if (d.outgoingRelations) {
+             val = d.outgoingRelations.length;
+           }
+           if (d.incomingRelations) {
+             val += d.incomingRelations.length;
+           }
+           val += 1;
+           val /= base.maxConnections;
+           val *= .75;
+         } else {
+           val = .1;
+         }
+         val += .1;
+         return val;
+       }
 
-        var box = base.gridBoxLayer.selectAll('.rowBox');
+       redrawGrid() {
+         this.box.sort(base.typeSort)
+           .attr('fill', (d) => { return (base.rolloverNode == d) ? d3.rgb(base.highlightColorScale(d.type.singular)).darker() : base.highlightColorScale(d.type.singular); })
+           .attr('fill-opacity', this.calculateOpacity)
+           .attr('x', (d, i) => { d[base.instanceId].x = this.colScale(i % this.itemsPerRow) + 0.5; return d[base.instanceId].x; })
+           .attr('y', (d, i) => { d[base.instanceId].y = this.rowScale(Math.floor(i / this.itemsPerRow) + 1) - this.boxSize + 0.5; return d[base.instanceId].y; });
 
-        var tocNode = scalarapi.model.getMainMenuNode();
-        var gridNodes = base.sortedNodes.concat();
-        var index = gridNodes.indexOf(tocNode);
-        if (index != -1) {
-          gridNodes.splice(index, 1);
-        }
+         this.gridPathLayer.selectAll('path').attr('d', this.line);
+         this.gridPathLayer.selectAll('circle.pathDot')
+           .attr('cx', (d) => {
+             return d[base.instanceId].x + (this.boxSize * .5);
+           })
+           .attr('cy', (d) => {
+             return d[base.instanceId].y + (this.boxSize * .5);
+           });
+         this.gridPathLayer.selectAll('text.pathDotText')
+           .attr('dx', (d) => {
+             return d[base.instanceId].x + 3;
+           })
+           .attr('dy', (d) => {
+             return d[base.instanceId].y + this.boxSize - 3;
+           });
 
-        box = box.data(gridNodes, function(d) { return d.type.id + '-' + d.slug; });
+         var visPos = base.visualization.position();
 
-        // draw squares
-        var selection = box.enter().append('svg:rect')
-          .each(function(d) { d.svgTarget = this; })
-          .attr('class', 'rowBox')
-          .attr('x', function(d, i) { d[base.instanceId].x = colScale(i % itemsPerRow) + 0.5; return d[base.instanceId].x; })
-          .attr('y', function(d, i) { d[base.instanceId].y = rowScale(Math.floor(i / itemsPerRow) + 1) - boxSize + 0.5; return d[base.instanceId].y; })
-          .attr('width', boxSize)
-          .attr('height', boxSize)
-          .attr('stroke', '#000')
-          .style('cursor', 'pointer')
-          .attr('stroke-opacity', '.2')
-          .attr('fill-opacity', function(d) {
-            var val = 0;
-            if (base.maxConnections > 0) {
-              if (d.outgoingRelations) {
-                val = d.outgoingRelations.length;
-              }
-              if (d.incomingRelations) {
-                val += d.incomingRelations.length;
-              }
-              val += 1;
-              val /= base.maxConnections;
-              val *= .75;
-            } else {
-              val = .1;
-            }
-            val += .1;
-            return val;
-          })
-          .attr('fill', function(d) {
-            return base.highlightColorScale(d.type.singular);
-          })
-          .on("click", function(d) {
-            var index = base.selectedNodes.indexOf(d);
-            if (index == -1) {
-              base.selectedNodes.push(d);
-            } else {
-              base.selectedNodes.splice(index, 1);
-            }
-            updateGraph();
-            return true;
-          });
+         d3.select(base.visualization[0]).selectAll('div.info_box')
+           .style('left', (d) => { return (d[base.instanceId].x + visPos.left + (this.boxSize * .5)) + 'px'; })
+           .style('top', (d) => { return (d[base.instanceId].y + visPos.top + this.boxSize + 5) + 'px'; });
 
-        if (!isMobile) {
-          selection
-            .on("mouseover", function(d) {
-              base.rolloverNode = d;
-              updateGraph();
-            })
-            .on("mouseout", function(d) {
-              base.rolloverNode = null;
-              updateGraph();
-            });
-        }
+         this.gridLinkLayer.selectAll('line.connection')
+           .attr('x1', (d) => { return d.body[base.instanceId].x + (this.boxSize * .5); })
+           .attr('y1', (d) => { return d.body[base.instanceId].y + (this.boxSize * .5); })
+           .attr('x2', (d) => { return d.target[base.instanceId].x + (this.boxSize * .5); })
+           .attr('y2', (d) => { return d.target[base.instanceId].y + (this.boxSize * .5); });
+         this.gridLinkLayer.selectAll('circle.connectionDot')
+           .attr('cx', (d) => { return d.node[base.instanceId].x + (this.boxSize * .5); })
+           .attr('cy', (d) => { return d.node[base.instanceId].y + (this.boxSize * .5); });
+       }
 
-        var linkGroup, linkEnter, infoBoxes;
+       updateGraph() {
+         base.updateActiveNodes();
+         this.box.attr('fill', function(d) { return (base.rolloverNode == d) ? d3.rgb(base.highlightColorScale(d.type.singular)).darker() : base.highlightColorScale(d.type.singular); });
+         var infoBox = d3.select(base.visualization[0]).selectAll('div.info_box');
 
-        var redrawGrid = function() {
+         // turn on/off path lines
+         this.gridPathLayer.selectAll('g.pathGroup')
+           .attr('visibility', function(d) {
+             return ((base.activeNodes.indexOf(d[0]) != -1)) ? 'visible' : 'hidden';
+           });
 
-          box.sort(base.typeSort)
-            .attr('fill', function(d) { return (base.rolloverNode == d) ? d3.rgb(base.highlightColorScale(d.type.singular)).darker() : base.highlightColorScale(d.type.singular); })
-            .attr('x', function(d, i) { d[base.instanceId].x = colScale(i % itemsPerRow) + 0.5; return d[base.instanceId].x; })
-            .attr('y', function(d, i) { d[base.instanceId].y = rowScale(Math.floor(i / itemsPerRow) + 1) - boxSize + 0.5; return d[base.instanceId].y; });
+         infoBox = infoBox.data(base.activeNodes, function(d) { return d.slug; });
 
-          base.gridPathLayer.selectAll('path').attr('d', line);
-          base.gridPathLayer.selectAll('circle.pathDot')
-            .attr('cx', function(d) {
-              return d[base.instanceId].x + (boxSize * .5);
-            })
-            .attr('cy', function(d) {
-              return d[base.instanceId].y + (boxSize * .5);
-            });
-          base.gridPathLayer.selectAll('text.pathDotText')
-            .attr('dx', function(d) {
-              return d[base.instanceId].x + 3;
-            })
-            .attr('dy', function(d) {
-              return d[base.instanceId].y + boxSize - 3;
-            });
+         var visPos = base.visualization.position();
 
-          var visPos = base.visualization.position();
+         infoBox.enter().append('div')
+           .attr('class', 'info_box')
+           .style('left', (d) => { return (d[base.instanceId].x + visPos.left + (this.boxSize * .5)) + 'px'; })
+           .style('top', (d) => { return (d[base.instanceId].y + visPos.top + this.boxSize + 5) + 'px'; });
 
-          d3.select(base.visualization[0]).selectAll('div.info_box')
-            .style('left', function(d) { return (d[base.instanceId].x + visPos.left + (boxSize * .5)) + 'px'; })
-            .style('top', function(d) { return (d[base.instanceId].y + visPos.top + boxSize + 5) + 'px'; });
+         infoBox.style('left', (d) => { return (d[base.instanceId].x + visPos.left + (this.boxSize * .5)) + 'px'; })
+           .style('top', (d) => { return (d[base.instanceId].y + visPos.top + this.boxSize + 5) + 'px'; })
+           .html(base.nodeInfoBox);
 
-          base.gridLinkLayer.selectAll('line.connection')
-            .attr('x1', function(d) { return d.body[base.instanceId].x + (boxSize * .5); })
-            .attr('y1', function(d) { return d.body[base.instanceId].y + (boxSize * .5); })
-            .attr('x2', function(d) { return d.target[base.instanceId].x + (boxSize * .5); })
-            .attr('y2', function(d) { return d.target[base.instanceId].y + (boxSize * .5); });
-          base.gridLinkLayer.selectAll('circle.connectionDot')
-            .attr('cx', function(d) {
-              return d.node[base.instanceId].x + (boxSize * .5);
-            })
-            .attr('cy', function(d) {
-              return d.node[base.instanceId].y + (boxSize * .5);
-            });
-        }
+         infoBox.exit().remove();
 
-        var updateGraph = function() {
+         // connections
+         var linkGroup = this.gridLinkLayer.selectAll('g.linkGroup')
+           .data(base.activeNodes);
 
-          base.updateActiveNodes();
+         // create a container group for each node's connections
+         var linkEnter = linkGroup
+           .enter().append('g')
+           .attr('width', this.size.width)
+           .attr('height', base.svg.attr('height'))
+           .attr('class', 'linkGroup')
+           .attr('pointer-events', 'none');
 
-          box.attr('fill', function(d) { return (base.rolloverNode == d) ? d3.rgb(base.highlightColorScale(d.type.singular)).darker() : base.highlightColorScale(d.type.singular); });
+         linkGroup.exit().remove();
 
-          //}
+         // draw connection lines
+         linkEnter.selectAll('line.connection')
+           .data(function(d) {
+             var relationArr = [];
+             var relations = d.outgoingRelations.concat(d.incomingRelations);
+             var relation;
+             var i;
+             var n = relations.length;
+             for (i = 0; i < n; i++) {
+               relation = relations[i];
+               if (relation.type.id == base.options.relations || base.options.relations == "all") {
+                 if (relation.type.id != 'path' && base.sortedNodes.indexOf(relation.body) != -1 && base.sortedNodes.indexOf(relation.target) != -1) {
+                   if (!relation.body.scalarTypes.toc) {
+                     relationArr.push(relations[i]);
+                   }
+                 }
+               }
+             }
+             return relationArr;
+           })
+           .enter().append('line')
+             .attr('class', 'connection')
+             .attr('x1', (d) => { return d.body[base.instanceId].x + (this.boxSize * .5); })
+             .attr('y1', (d) => { return d.body[base.instanceId].y + (this.boxSize * .5); })
+             .attr('x2', (d) => { return d.target[base.instanceId].x + (this.boxSize * .5); })
+             .attr('y2', (d) => { return d.target[base.instanceId].y + (this.boxSize * .5); })
+             .attr('stroke-width', 1)
+             .attr('stroke-dasharray', '1,2')
+             .attr('stroke', function(d) { return base.highlightColorScale((d.type.id == 'reference') ? 'media' : d.type.id); });
 
-          var infoBox = d3.select(base.visualization[0]).selectAll('div.info_box');
-
-          // turn on/off path lines
-          base.gridPathLayer.selectAll('g.pathGroup')
-            .attr('visibility', function(d) {
-              return ((base.activeNodes.indexOf(d[0]) != -1)) ? 'visible' : 'hidden';
-            });
-
-          infoBox = infoBox.data(base.activeNodes, function(d) { return d.slug; });
-
-          var visPos = base.visualization.position();
-
-          infoBox.enter().append('div')
-            .attr('class', 'info_box')
-            .style('left', function(d) { return (d[base.instanceId].x + visPos.left + (boxSize * .5)) + 'px'; })
-            .style('top', function(d) { return (d[base.instanceId].y + visPos.top + boxSize + 5) + 'px'; });
-
-          infoBox.style('left', function(d) { return (d[base.instanceId].x + visPos.left + (boxSize * .5)) + 'px'; })
-            .style('top', function(d) { return (d[base.instanceId].y + visPos.top + boxSize + 5) + 'px'; })
-            .html(base.nodeInfoBox);
-
-          infoBox.exit().remove();
-
-          // connections
-          linkGroup = base.gridLinkLayer.selectAll('g.linkGroup')
-            .data(base.activeNodes);
-
-          // create a container group for each node's connections
-          linkEnter = linkGroup
-            .enter().append('g')
-            .attr('width', visWidth)
-            .attr('height', base.svg.attr('height'))
-            .attr('class', 'linkGroup')
-            .attr('pointer-events', 'none');
-
-          linkGroup.exit().remove();
-
-          // draw connection lines
-          linkEnter.selectAll('line.connection')
-            .data(function(d) {
-              var relationArr = [];
-              var relations = d.outgoingRelations.concat(d.incomingRelations);
-              var relation;
-              var i;
-              var n = relations.length;
-              for (i = 0; i < n; i++) {
-                relation = relations[i];
-                if ((relation.type.id == base.options.relations) || (base.options.relations == "all")) {
-                  if ((relation.type.id != 'path') && (base.sortedNodes.indexOf(relation.body) != -1) && (base.sortedNodes.indexOf(relation.target) != -1)) {
-                    relationArr.push(relations[i]);
-                  }
-                }
-              }
-              return relationArr;
-            })
-            .enter().append('line')
-            .attr('class', 'connection')
-            .attr('x1', function(d) { return d.body[base.instanceId].x + (boxSize * .5); })
-            .attr('y1', function(d) { return d.body[base.instanceId].y + (boxSize * .5); })
-            .attr('x2', function(d) { return d.target[base.instanceId].x + (boxSize * .5); })
-            .attr('y2', function(d) { return d.target[base.instanceId].y + (boxSize * .5); })
-            .attr('stroke-width', 1)
-            .attr('stroke-dasharray', '1,2')
-            .attr('stroke', function(d) { return base.highlightColorScale((d.type.id == 'reference') ? 'media' : d.type.id); });
-
-          // draw connection dots
-          linkEnter.selectAll('circle.connectionDot')
-            .data(function(d) {
-              var nodeArr = [];
-              var relations = d.outgoingRelations.concat(d.incomingRelations);
-              var relation;
-              var i;
-              var n = relations.length;
-              for (i = 0; i < n; i++) {
-                relation = relations[i];
-                if ((relation.type.id == base.options.relations) || (base.options.relations == "all")) {
-                  if ((relation.type.id != 'path') && (base.sortedNodes.indexOf(relation.body) != -1) && (base.sortedNodes.indexOf(relation.target) != -1)) {
-                    nodeArr.push({ role: 'body', node: relation.body, type: relation.type });
-                    nodeArr.push({ role: 'target', node: relation.target, type: relation.type });
-                  }
-                }
-              }
-              return nodeArr;
-            })
-            .enter().append('circle')
-            .attr('fill', function(d) { return base.highlightColorScale((d.type.id == 'reference') ? 'media' : d.type.id); })
-            .attr('class', 'connectionDot')
-            .attr('cx', function(d) {
-              return d.node[base.instanceId].x + (boxSize * .5);
-            })
-            .attr('cy', function(d) {
-              return d.node[base.instanceId].y + (boxSize * .5);
-            })
-            .attr('r', function(d, i) { return (d.role == 'body') ? 5 : 3; });
-
-        }
-
-        if (((base.options.content == "path") || (base.options.content == "all")) && ((base.options.relations == "path") || (base.options.relations == "all"))) {
-
-          // path vis line function
-          var line = d3.svg.line()
-            .x(function(d) {
-              return d[base.instanceId].x + (boxSize * .5);
-            })
-            .y(function(d) {
-              return d[base.instanceId].y + (boxSize * .5);
-            })
-            .interpolate('cardinal');
-
-          typedNodes = scalarapi.model.getNodesWithProperty('dominantScalarType', 'path', 'alphabetical');
-
-          // build array of path contents
-          n = typedNodes.length;
-          var pathRelations;
-          var allPathContents = [];
-          var pathContents;
-          for (i = 0; i < n; i++) {
-            node = typedNodes[i];
-            pathContents = node.getRelatedNodes('path', 'outgoing');
-            pathContents.unshift(node);
-            allPathContents.push(pathContents);
-          }
-
-          var pathGroups = base.gridPathLayer.selectAll('g.pathGroup')
-            .data(allPathContents, function(d) { return d[0].slug; });
-
-          // create a container group for each path vis
-          var groupEnter = pathGroups.enter().append('g')
-            .attr('width', visWidth)
-            .attr('height', base.svg.attr('height'))
-            .attr('class', 'pathGroup')
-            .attr('visibility', 'hidden')
-            .attr('pointer-events', 'none');
-
-          // add the path to the group
-          groupEnter.append('path')
-            .attr('class', 'pathLink')
-            .attr('stroke', function(d) {
-              return base.highlightColorScale("path", "verb");
-            })
-            .attr('stroke-dasharray', '5,2')
-            .attr('d', line);
-
-          // add the path's dots to the group
-          groupEnter.selectAll('circle.pathDot')
-            .data(function(d) { return d; })
-            .enter().append('circle')
-            .attr('fill', function(d) {
-              return base.highlightColorScale("path", "verb");
-            })
-            .attr('class', 'pathDot')
-            .attr('cx', function(d) {
-              return d[base.instanceId].x + (boxSize * .5);
-            })
-            .attr('cy', function(d) {
-              return d[base.instanceId].y + (boxSize * .5);
-            })
-            .attr('r', function(d, i) { return (i == 0) ? 5 : 3; });
-
-          // add the step numbers to the group
-          groupEnter.selectAll('text.pathDotText')
-            .data(function(d) { return d; })
-            .enter().append('text')
-            .attr('fill', function(d) {
-              return base.highlightColorScale("path", "verb");
-            })
-            .attr('class', 'pathDotText')
-            .attr('dx', function(d) {
-              return d[base.instanceId].x + 3;
-            })
-            .attr('dy', function(d) {
-              return d[base.instanceId].y + boxSize - 3;
-            })
-            .text(function(d, i) { return (i == 0) ? '' : i; });
-
-        }
-
-        redrawGrid();
-        updateGraph();
-      }
+         // draw connection dots
+         linkEnter.selectAll('circle.connectionDot')
+           .data(function(d) {
+             var nodeArr = [];
+             var relations = d.outgoingRelations.concat(d.incomingRelations);
+             var relation;
+             var i;
+             var n = relations.length;
+             for (i = 0; i < n; i++) {
+               relation = relations[i];
+               if ((relation.type.id == base.options.relations) || (base.options.relations == "all")) {
+                 if ((relation.type.id != 'path') && (base.sortedNodes.indexOf(relation.body) != -1) && (base.sortedNodes.indexOf(relation.target) != -1)) {
+                   if (!relation.body.scalarTypes.toc) {
+                     nodeArr.push({ role: 'body', node: relation.body, type: relation.type });
+                     nodeArr.push({ role: 'target', node: relation.target, type: relation.type });
+                   }
+                 }
+               }
+             }
+             return nodeArr;
+           })
+           .enter().append('circle')
+           .attr('fill', function(d) { return base.highlightColorScale((d.type.id == 'reference') ? 'media' : d.type.id); })
+           .attr('class', 'connectionDot')
+           .attr('cx', (d) => { return d.node[base.instanceId].x + (this.boxSize * .5); })
+           .attr('cy', (d) => { return d.node[base.instanceId].y + (this.boxSize * .5); })
+           .attr('r', (d, i) => { return (d.role == 'body') ? 5 : 3; });
+       }
     }
 
     /**********************
      * TREE VISUALIZATION *
      **********************/
-    base.drawTree = function(updateOnly) {
 
-      var i, j, k, n, o, columnWidth, fullHeight, fullWidth,
-        currentNode = scalarapi.model.getCurrentPageNode()
-      firstRun = false;
+    class TreeVisualization extends AbstractVisualization {
 
-      var isFullScreen = document.fullScreen || document.mozFullScreen || document.webkitIsFullScreen;
-      if (!isFullScreen) {
-        fullWidth = base.visElement.width();
-        if (window.innerWidth > 768) {
-          if (base.options.modal) {
-            fullHeight = Math.max(300, window.innerHeight * .9 - 170);
-          } else {
-            fullHeight = 568;
-          }
-        } else {
-          fullHeight = 300;
-        }
-      } else {
-        fullWidth = window.innerWidth;
-        fullHeight = window.innerHeight;
+      constructor() {
+        super();
+        this.columnWidth = window.innerWidth > 768 ? 180 : 90;
+        this.container = null;
+        this.root = null;
       }
 
-      // if we're drawing from scratch, do some setup
-      if (!base.hasBeenDrawn && (base.visElement.width() > 0)) {
+      draw() {
+        console.log('do the draw');
+        super.draw();
+        console.log(base.svg);
+        console.log(base.hierarchy);
+        if (base.svg != null && base.hierarchy != null) {
+          console.log('oh yeah');
+          this.root = d3.hierarchy(base.hierarchy);
+          this.container = base.svg.selectAll('g.container');
+          // collapse all nodes except the root and its children
+          this.branchExpand(this.root);
+          if (this.root.children != null) {
+            this.root.children.forEach((d) => {
+              this.branchExpand(d);
+              if (d.children != null) {
+                d.children.forEach((d) => { this.branchCollapseAll(d); });
+              }
+            });
+          }
+          this.branchConformAll(this.root);
+          this.pathUpdate(this.root, true);
+        }
+      }
 
-        base.hasBeenDrawn = true;
-        firstRun = true;
-
+      getHelpContent() {
+        var helpContent;
         if (base.options.content != 'current') {
           helpContent = "This visualization shows <b>how content is interconnected</b> in this work.<ul>";
         } else {
           helpContent = "This visualization shows how <b>&ldquo;" + currentNode.getDisplayTitle() + "&rdquo;</b> is connected to other content in this work.<ul>";
         }
-
         helpContent += "<li>Each circle represents a piece of content, color-coded by type.</li>" +
           "<li>Click and hold to drag.</li>" +
           "<li>Click any filled circle to reveal its connections; click again to hide them.</li>" +
           "<li>Click the name of any item to navigate to it.</li></ul>";
+        return helpContent;
+      }
 
-        base.helpButton.attr("data-content", helpContent);
-
+      setupElement() {
+        base.visualization.empty();
         base.visualization.addClass('bounded');
-
-        base.visualization.css('height', fullHeight + 'px');
-        base.visualization.css('width', fullWidth + 'px');
-
-
-        // create visualization base element
+        base.visualization.css('height', this.size.height + 'px');
+        base.visualization.css('width', this.size.width + 'px');
         base.svg = d3.select(base.visualization[0]).append('svg:svg')
-          .attr('width', fullWidth - 2)
-          .attr('height', fullHeight - 2);
-
+          .attr('width', this.size.width - 2)
+          .attr('height', this.size.height - 2);
         var container = base.svg.append("g").attr('class', 'container');
-
-        var zoom = d3.behavior.zoom().scaleExtent([.25, 7])
-        zoom.on("zoom", function() {
-          container.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-        });
-
-        base.svg.call(zoom);
+        base.svg.call(d3.zoom().on("zoom", function() { container.attr("transform", d3.event.transform); }));
         base.svg.style("cursor", "move");
-
-        base.tree = d3.layout.cluster().nodeSize([30, fullHeight]);
-
-        base.diagonal = d3.svg.diagonal()
-          .projection(function(d) { return [d.y, d.x]; });
-
+        base.tree = d3.cluster().nodeSize([30, this.size.height]);
+        base.diagonal = d3.linkHorizontal()
+          .x(function(d) { return d.y; })
+          .y(function(d) { return d.x; });
       }
 
-      function logChildren(hierarchyNode) {
-        console.log(hierarchyNode);
-        if (hierarchyNode.children != null) {
-          console.log(hierarchyNode.title + " has " + hierarchyNode.children.length + " children.");
-          for (var child in hierarchyNode.children) {
-            logChildren(hierarchyNode.children[child]);
+      branchCollapse(d) {
+        var parentId = base.parentIdForHierarchyNode(d);
+        if (d.children != null) {
+          d._children = d.children;
+          d.children = null;
+        }
+        if (d.data.node != null) {
+          var index = d.data.node.parentsOfMaximizedInstances.indexOf(parentId);
+          if (index != -1) {
+            d.data.node.parentsOfMaximizedInstances.splice(index, 1);
           }
-        } else {
-          console.log(hierarchyNode.title + " has no children.");
         }
       }
 
-      if ((base.svg != null) && (base.hierarchy != null)) {
-
-        if (window.innerWidth > 768) {
-          columnWidth = 180;
-        } else {
-          columnWidth = 90;
+      branchExpand(d) {
+        var parentId = base.parentIdForHierarchyNode(d);
+        if (d._children != null) {
+          d.children = d._children;
+          d._children = null;
         }
+        if (d.data.node != null) {
+          if (d.data.node.parentsOfMaximizedInstances.indexOf(parentId) == -1) {
+            d.data.node.parentsOfMaximizedInstances.push(parentId);
+          }
+        }
+      }
 
-        var container = base.svg.selectAll('g.container');
+      // toggle children
+      branchToggle(d) {
+        if (base.isHierarchyNodeMaximized(d)) {
+          this.branchCollapse(d);
+        } else {
+          this.branchExpand(d);
+        }
+      }
 
-        function branchCollapse(d) {
-          var parentId = base.parentIdForHierarchyNode(d);
+      // makes sure node's data matches its state
+      branchConform(d) {
+        if (!base.isHierarchyNodeMaximized(d)) {
           if (d.children != null) {
             d._children = d.children;
             d.children = null;
           }
-          if (d.node != null) {
-            var index = d.node.parentsOfMaximizedInstances.indexOf(parentId);
-            if (index != -1) {
-              d.node.parentsOfMaximizedInstances.splice(index, 1);
-            }
-          }
-        }
-
-        function branchExpand(d) {
-          var parentId = base.parentIdForHierarchyNode(d);
-          if (d._children != null) {
+        } else {
+          if (d.children == null) {
             d.children = d._children;
             d._children = null;
           }
-          if (d.node != null) {
-            if (d.node.parentsOfMaximizedInstances.indexOf(parentId) == -1) {
-              d.node.parentsOfMaximizedInstances.push(parentId);
-            }
-          }
         }
-
-        // toggle children
-        function branchToggle(d) {
-          if (base.isHierarchyNodeMaximized(d)) {
-            branchCollapse(d);
-          } else {
-            branchExpand(d);
-          }
-        }
-
-        // makes sure node's data matches its state
-        function branchConform(d) {
-          if (!base.isHierarchyNodeMaximized(d)) {
-            if (d.children != null) {
-              d._children = d.children;
-              d.children = null;
-            }
-          } else {
-            if (d.children == null) {
-              d.children = d._children;
-              d._children = null;
-            }
-          }
-        }
-
-        function branchConformAll(d) {
-          if (d.children != null) {
-            d.children.forEach(branchConformAll);
-          }
-          branchConform(d);
-        }
-
-        function branchCollapseAll(d) {
-          if (d.children != null) {
-            d._children = d.children;
-            d.children = null;
-          }
-          if (d._children != null) {
-            d._children.forEach(branchCollapseAll);
-          }
-        }
-
-        // collapse all nodes except the root and its children
-        branchExpand(base.hierarchy);
-        if (base.hierarchy.children != null) {
-          base.hierarchy.children.forEach(function(d) {
-            branchExpand(d);
-            if (d.children != null) {
-              d.children.forEach(branchCollapseAll);
-            }
-          });
-        }
-        branchConformAll(base.hierarchy);
-
-        function pathUpdate(source, instantaneous) {
-
-          var duration = instantaneous ? 0 : d3.event && d3.event.altKey ? 5000 : 500;
-
-          // Compute the new tree layout.
-          var nodes = base.tree.nodes(base.hierarchy).reverse();
-
-          //base.hierarchy.x0 = fullHeight * .5;
-          //base.hierarchy.y0 = 0;
-
-          // Normalize for fixed-depth.
-          nodes.forEach(function(d) {
-            d.x += (fullHeight * .5);
-            d.y = (d.depth + 1) * columnWidth;
-          });
-
-          // Update the nodes…
-          var treevis_node = container.selectAll("g.node")
-            .data(nodes, function(d, i) {
-              var self = (d.node == null) ? d.title : d.node.slug;
-              var parent = (d.parent == null) ? 'none' : (d.parent.node == null) ? d.parent.title : d.parent.node.title;
-              var id = self + '-' + parent + '-' + d.depth;
-              if (d.localIndex != null) {
-                id += '-' + d.localIndex;
-              }
-              return id;
-            });
-
-          // Enter any new nodes at the parent's previous position.
-          var nodeEnter = treevis_node.enter().append("svg:g")
-            .attr("class", "node")
-            .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; });
-
-          nodeEnter.append("svg:circle")
-            .attr("r", 1e-6)
-            .style("fill", function(d) { return d._children ? d3.hsl(base.highlightColorScale(d.type, "noun", '#777')).brighter(1.5) : "#fff"; })
-            .style("stroke", function(d) { return base.highlightColorScale(d.type, "noun", '#777') })
-            .on('touchstart', function(d) { d3.event.stopPropagation(); })
-            .on('mousedown', function(d) { d3.event.stopPropagation(); })
-            .on("click", function(d) {
-              if (d3.event.defaultPrevented) return; // ignore drag
-              branchToggle(d);
-              pathUpdate(d);
-              if (base.isHierarchyNodeMaximized(d)) {
-                if (base.options.content == "current") {
-                  setTimeout(function() { base.loadNode(d.node.slug, false, 2); }, 500);
-                }
-              }
-            });
-
-          nodeEnter.append("svg:text")
-            .attr("x", function(d) { return d.children || d._children ? -14 : 14; })
-            .attr("dy", ".35em")
-            .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
-            .text(function(d) { return d.title; })
-            .style("fill-opacity", 1e-6)
-            .on('touchstart', function(d) { d3.event.stopPropagation(); })
-            .on('mousedown', function(d) { d3.event.stopPropagation(); })
-            .on('click', function(d) {
-              if (d3.event.defaultPrevented) return; // ignore drag
-              d3.event.stopPropagation();
-              window.open(d.node.url, '_blank');
-            });
-
-          // Transition nodes to their new position.
-          var nodeUpdate = treevis_node.transition()
-            .duration(duration)
-            .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
-
-          nodeUpdate.select("circle")
-            .attr("r", 8)
-            .style("fill", function(d) { return d._children ? d3.hsl(base.highlightColorScale(d.type, "noun", '#777')).brighter(1.5) : "#fff"; });
-
-          nodeUpdate.select("text")
-            .style("fill-opacity", 1);
-
-          // Transition exiting nodes to the parent's new position.
-          var nodeExit = treevis_node.exit().transition()
-            .duration(duration)
-            .attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
-            .remove();
-
-          nodeExit.select("circle")
-            .attr("r", 1e-6);
-
-          nodeExit.select("text")
-            .style("fill-opacity", 1e-6);
-
-          // Update the links…
-          var treevis_link = container.selectAll("path.clusterlink")
-            .data(base.tree.links(nodes), function(d, i) {
-              var source = (d.source.node == null) ? d.source.title : d.source.node.slug;
-              var target = (d.target.node == null) ? d.target.title : d.target.node.slug;
-              return source + '-' + target + '-' + d.source.depth + '-' + d.target.localIndex;
-            });
-
-          // Enter any new links at the parent's previous position.
-          treevis_link.enter().insert("svg:path", "g")
-            .attr("class", "clusterlink")
-            .attr("d", function(d) {
-              var o;
-              if (source.x0 != null) {
-                o = { x: source.x0, y: source.y0 };
-              } else {
-                o = { x: 0, y: 0 };
-              }
-              return base.diagonal({ source: o, target: o });
-            })
-            .transition()
-            .duration(duration)
-            .attr("d", base.diagonal);
-
-          // Transition links to their new position.
-          treevis_link.transition()
-            .duration(duration)
-            .attr("d", base.diagonal);
-
-          // Transition exiting nodes to the parent's new position.
-          treevis_link.exit().transition()
-            .duration(duration)
-            .attr("d", function(d) {
-              var o = { x: source.x, y: source.y };
-              return base.diagonal({ source: o, target: o });
-            })
-            .remove();
-
-          // Stash the old positions for transition.
-          nodes.forEach(function(d) {
-            d.x0 = d.x;
-            d.y0 = d.y;
-          });
-        }
-
-        pathUpdate(base.hierarchy, true);
-
       }
 
+      branchConformAll(d) {
+        if (d.children != null) {
+          d.children.forEach((d) => { this.branchConformAll(d); });
+        }
+        this.branchConform(d);
+      }
+
+      branchCollapseAll(d) {
+        if (d.children != null) {
+          d._children = d.children;
+          d.children = null;
+        }
+        if (d._children != null) {
+          d._children.forEach((d) => { this.branchCollapseAll(d); });
+        }
+      }
+
+      pathUpdate(root, instantaneous) {
+        var duration = instantaneous ? 0 : d3.event && d3.event.altKey ? 5000 : 500;
+
+        var nodes = root.descendants();
+        base.tree(root);
+
+        // Normalize for fixed-depth.
+        nodes.forEach((d) => {
+          d.x += (this.size.height * .5);
+          d.y = (d.depth + 1) * this.columnWidth;
+        });
+
+        // Update the nodes…
+        var treevis_node = this.container.selectAll("g.node")
+          .data(nodes, function(d, i) {
+            var self = (d.node == null) ? d.data.title : d.data.node.slug;
+            var parent = (d.parent == null) ? 'none' : (d.parent.data.node == null) ? d.parent.data.title : d.parent.data.node.title;
+            var id = self + '-' + parent + '-' + d.depth;
+            if (d.data.localIndex != null) {
+              id += '-' + d.data.localIndex;
+            }
+            return id;
+          });
+
+        // Enter any new nodes at the parent's previous position.
+        var nodeEnter = treevis_node.enter().append("svg:g")
+          .attr("class", "node")
+          .attr("transform", (d) => {
+            var source;
+            if (this.lastToggledNode) {
+              source = this.lastToggledNode;
+            } else if (d.parent) {
+              source = d.parent;
+            } else {
+              source = d;
+            }
+            return "translate(" + source.y0 + "," + source.x0 + ")";
+          });
+
+        nodeEnter.append("svg:circle")
+          .attr("r", 1e-6)
+          .style("fill", function(d) { return d._children ? d3.hsl(base.highlightColorScale(d.data.type, "noun", '#777')).brighter(1.5) : "#fff"; })
+          .style("stroke", function(d) { return base.highlightColorScale(d.data.type, "noun", '#777') })
+          .on('touchstart', function(d) { d3.event.stopPropagation(); })
+          .on('mousedown', function(d) { d3.event.stopPropagation(); })
+          .on("click", (d) => {
+            this.lastToggledNode = d;
+            if (d3.event.defaultPrevented) return; // ignore drag
+            this.branchToggle(d);
+            this.pathUpdate(this.root);
+            if (base.isHierarchyNodeMaximized(d)) {
+              if (base.options.content == "current") {
+                setTimeout(function() { base.loadNode(d.data.node.slug, false, 2); }, 500);
+              }
+            }
+          });
+
+        nodeEnter.append("svg:text")
+          .attr("x", function(d) { return d.children || d._children ? -14 : 14; })
+          .attr("dy", ".35em")
+          .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
+          .text(function(d) { return d.data.title; })
+          .style("fill-opacity", 1e-6)
+          .on('touchstart', function(d) { d3.event.stopPropagation(); })
+          .on('mousedown', function(d) { d3.event.stopPropagation(); })
+          .on('click', function(d) {
+            if (d3.event.defaultPrevented) return; // ignore drag
+            d3.event.stopPropagation();
+            window.open(d.data.node.url, '_blank');
+          });
+
+        // Transition nodes to their new position.
+        var nodeUpdate = treevis_node.merge(nodeEnter).transition()
+          .duration(duration)
+          .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
+
+        nodeUpdate.selectAll("circle")
+          .attr("r", 8)
+          .style("fill", function(d) { return d._children ? d3.hsl(base.highlightColorScale(d.data.type, "noun", '#777')).brighter(1.5) : "#fff"; });
+
+        nodeUpdate.selectAll("text")
+          .style("fill-opacity", 1);
+
+        // Transition exiting nodes to the parent's new position.
+        var nodeExit = treevis_node.exit().transition()
+          .duration(duration)
+          .attr("transform", function(d) {
+            var source = d.parent;
+            if (d.parent) {
+              while (base.isHierarchyNodeMaximized(source) && source.parent) {
+                source = source.parent;
+              }
+              return "translate(" + source.y + "," + source.x + ")";
+            } else {
+              return "translate(" + d.y + "," + d.x + ")";
+            }
+          })
+          .remove();
+
+        nodeExit.selectAll("circle")
+          .attr("r", 1e-6);
+
+        nodeExit.selectAll("text")
+          .style("fill-opacity", 1e-6);
+
+        // Update the links…
+        var treevis_link = this.container.selectAll("path.clusterlink")
+          .data(root.links(nodes), function(d, i) {
+            var source = (d.source.data.node == null) ? d.source.data.title : d.source.data.node.slug;
+            var target = (d.target.data.node == null) ? d.target.data.title : d.target.data.node.slug;
+            return source + '-' + target + '-' + d.source.depth + '-' + d.target.data.localIndex;
+          });
+
+        // Enter any new links at the parent's previous position.
+        var linkEnter = treevis_link.enter().insert("svg:path", "g")
+          .attr("class", "clusterlink")
+          .attr("d", (d) => {
+            var source;
+            if (this.lastToggledNode) {
+              source = this.lastToggledNode;
+            } else {
+              source = d.source;
+            }
+            var o;
+            o = {x:source.x, y:source.y};
+            return base.diagonal({ source: o, target: o });
+          })
+          .transition()
+          .duration(duration)
+          .attr("d", base.diagonal);
+
+        // Transition links to their new position.
+        treevis_link.merge(linkEnter).transition()
+          .duration(duration)
+          .attr("d", base.diagonal);
+
+        // Transition exiting nodes to the parent's new position.
+        treevis_link.exit().transition()
+          .duration(duration)
+          .attr("d", function(d) {
+            var source = d.source;
+            while (base.isHierarchyNodeMaximized(source) && source.parent) {
+              source = source.parent;
+            }
+            var o = { x: source.x, y: source.y };
+            return base.diagonal({ source: o, target: o });
+          })
+          .remove();
+
+        // Stash the old positions for transition.
+        nodes.forEach(function(d) {
+          d.x0 = d.x;
+          d.y0 = d.y;
+        });
+      }
     }
 
     /************************
      * RADIAL VISUALIZATION *
      ************************/
-    base.drawRadial = function(updateOnly) {
 
-      var vis, rollover, fullWidth, fullHeight,
-        currentNode = scalarapi.model.getCurrentPageNode(),
-        minChordAngle = .02,
-        maximizedNode = null,
-        highlightedNode = null;
+    class RadialVisualization extends AbstractVisualization {
 
-      base.visualization.empty();
-
-      var isFullScreen = document.fullScreen || document.mozFullScreen || document.webkitIsFullScreen;
-      if (!isFullScreen) {
-        fullWidth = base.visElement.width();
-        if (window.innerWidth > 768) {
-          if (base.options.modal) {
-            fullHeight = Math.max(300, window.innerHeight * .9 - 170);
-          } else {
-            fullHeight = 568;
-          }
-        } else {
-          fullHeight = 300;
-        }
-      } else {
-        fullWidth = window.innerWidth;
-        fullHeight = window.innerHeight;
+      constructor() {
+        super();
+        this.currentNode = null;
+        this.minChordAngle = .02;
+        this.maximizedNode = null;
+        this.highlightedNode = null;
+        this.currentNode = scalarapi.model.getCurrentPageNode();
       }
 
-      base.visualization.css('min-height', fullHeight + 'px');
+      draw() {
+        this.hasBeenDrawn = false; // vis overdraws itself if we don't do this; need to investigate
+        super.draw();
 
-      if (((base.options.content == 'all') || (base.options.content == 'current')) && (currentNode != null)) {
-        helpContent = "This visualization shows how <b>&ldquo;" + currentNode.getDisplayTitle() + "&rdquo;</b> is connected to other content in this work.<ul>";
-      } else {
-        helpContent = "This visualization shows <b>how content is interconnected</b> in this work.<ul>";
-      }
+        // setup rollover caption
+        this.rollover = $('<div class="rollover caption_font">Test</div>').appendTo(base.visualization);
+        base.visualization.on('mousemove', (e) => {
+          this.rollover.css('left', (e.pageX - $(base.visualization).offset().left + parseInt($(base.visualization).parent().parent().css('padding-left')) + 10) + 'px');
+          this.rollover.css('top', (e.pageY - $(base.visualization).parent().parent().offset().top) + 15 + 'px');
+        })
 
-      helpContent += "<li>Each inner arc represents a connection, color-coded by type.</li>" +
-        "<li>Roll over the visualization to browse connections.</li>" +
-        "<li>Click to add more content to the current selection.</li>" +
-        "<li>To explore a group of connections in more detail, click its outer arc to expand the contents.</li>" +
-        "<li>Click the name of any item to navigate to it.</li></ul>";
+        if (base.svg != null) {
+          this.myModPercentage = 1;		// relative value of the farthest descendants maximized item
+          this.otherModPercentage = 1;		// relative value of the farthest descendants of the not-maximized item
+          this.r = (Math.min(this.size.width, this.size.height) - 70) * .5;
+          this.size.width < this.size.height ? this.r -= 120 : this.r -= 60;
+          var radiusMod = 1.55;
+          this.textRadiusOffset = 10;
 
-      base.helpButton.attr("data-content", helpContent);
+          // arc generator
+          this.arcs = d3.arc()
+            .startAngle((d) => { return d.x0 - (Math.PI * .5); })
+            .endAngle((d) => { return d.x1 - (Math.PI * .5); })
+            .innerRadius((d) => { return (this.r * radiusMod) - Math.sqrt(d.y0); })
+            .outerRadius((d) => { return (this.r * radiusMod) - Math.sqrt(d.y1); });
 
-      base.visualization.removeClass('bounded');
+          // note: d3.hierarchy takes each node of base.hierarchy and sets it
+          // as the 'data' property of a new node that takes the old node's place in a recreated hierarchy
+          // bear this in mind when translating between base.[whatever] items and root.descendants() items,
+          // as the former will lack that additional level of abstraction
+          this.root = d3.hierarchy(base.hierarchy)
+            .sum((d) => { return this.sumHierarchy(d); })
+            .sort();
 
-      // rollover label
-      rollover = $('<div class="rollover caption_font">Test</div>').appendTo(base.visualization);
-      base.visualization.on('mousemove', function(e) {
-        rollover.css('left', (e.pageX - $(this).offset().left + parseInt($(this).parent().parent().css('padding-left')) + 10) + 'px');
-        rollover.css('top', (e.pageY - $(this).parent().parent().offset().top) + 15 + 'px');
-      })
+          // layout which drives the arc display
+          d3.partition().size([Math.PI * 2, this.r * this.r])(this.root);
 
-      // create visualization base element
-      base.svg = d3.select(base.visualization[0]).append('svg:svg')
-        .attr('width', fullWidth)
-        .attr('height', fullHeight);
-
-      vis = base.svg.append("g")
-        .attr("transform", "translate(" + fullWidth / 2 + "," + fullHeight / 2 + ")")
-        .attr("class", "radialvis");
-
-      // create canvas
-      var canvas = vis.append('svg:rect')
-        .attr('width', fullWidth)
-        .attr('height', fullHeight)
-        .attr('class', 'viscanvas');
-
-      this.radialBaseLayer = base.svg.append('svg:g')
-        .attr('width', fullWidth)
-        .attr('height', fullHeight);
-
-      base.hasBeenDrawn = true;
-
-      if (base.svg != null) {
-
-        var myModPercentage = 1;		// relative value of the farthest descendants maximized item
-        var otherModPercentage = 1;		// relative value of the farthest descendants of the not-maximized item
-
-        var r = (Math.min(fullWidth, fullHeight) - 70) * .5;
-        if (fullWidth < fullHeight) {
-          r -= 120;
-        } else {
-          r -= 60;
-        }
-        var radiusMod = 1.55;
-        var textRadiusOffset = 10;
-        var arcOffset = 0;
-
-        // arc generator
-        var arcs = d3.svg.arc()
-          .startAngle(function(d) {
-            return d.x - (Math.PI * .5) + arcOffset;
-          })
-          .endAngle(function(d) { return d.x + d.dx - (Math.PI * .5) + arcOffset; })
-          .innerRadius(function(d) { return (r * radiusMod) - Math.sqrt(d.y); })
-          .outerRadius(function(d) { return (r * radiusMod) - Math.sqrt(d.y + d.dy); });
-
-        // layout which drives the arc display
-        var partition = d3.layout.partition()
-          .sort(null)
-          .size([Math.PI * 2, r * r])
-
-          // returns the relative value for a given node d
-          .value(function(d) {
-
-            // if a node is currently maximized, then
-            if (maximizedNode) {
-
-              // if the maximized node is a top-level node, and this node is a bottom-level node, then
-              if ((maximizedNode.children != null) && (d.depth >= 2) && (d.children == null)) {
-
-                // if the maximized node is an ancestor of this node, then return its maximized value
-                if (base.hasHierarchyNodeAsAncestor(d, maximizedNode)) {
-                  return myModPercentage;
-
-                  // otherwise, return its minimized value
-                } else {
-                  return otherModPercentage;
-                }
-
-                // otherwise, just return the standard value
-              } else {
-                return 1;
-              }
-
-              // return the standard value
-            } else {
-              return 1;
-            }
-          });
-
-        // create the arcs
-        vis = vis.data([base.hierarchy]);
-        var path = vis.selectAll('path');
-        path = path.data(partition.nodes);
-
-        path.enter().append('svg:path')
-          .attr('class', 'ring')
-          .attr('d', arcs)
-          .style("stroke-width", function(d) { return (d.dx > minChordAngle) ? 1 : 0; })
-          .style("stroke", 'white')
-          .attr('cursor', 'pointer')
-          .attr("display", function(d) { return d.depth ? null : "none"; })
-          .style('fill', function(d, i) { return base.neutralColor; })
-          .each(function(d) { d.centroid = arcs.centroid(d); })
-          .each(stash)
-
-          // roll over a node
-          .on('mouseover', function(d) {
-            highlightedNode = d;
-            updateHighlights(d);
-          })
-
-          // roll off of a node
-          .on('mouseout', function(d) {
-            if (highlightedNode == d) {
-              highlightedNode = null;
-              updateHighlights(d);
-            }
-          })
-
-          // double-click a node
-          .on("dblclick", function(d) {
-            if (d.node) {
-              window.open(d.node.url, '_blank');
-            }
-          })
-
-          // click on a node
-          .on('click', function(d) {
-
-            var dx = arcs.centroid(d)[0];
-            var dy = arcs.centroid(d)[1];
-            var hw = fullWidth * .5;
-
-            //if ( d != nodeForCurrentContent ) {
-
-            // if the node was maximized, normalize it
-            if (maximizedNode == d) {
-
-              maximizedNode = null;
-
-              // return the vis to its normalized state
-              path.data(partition.nodes).transition()
-                .duration(1000)
-                .style("stroke-width", function(d) {
-                  return (d.dx > minChordAngle) ? 1 : 0;
+          this.vis.selectAll('path.ring')
+            .data(this.root.descendants())
+            .join(
+              enter => enter.append('svg:path')
+                .attr('class', 'ring')
+                .attr('d', this.arcs)
+                .style('stroke-width', (d) => { return this.calculateRingStroke(d); })
+                .style('stroke', 'white')
+                .attr('cursor', 'pointer')
+                .attr('display', function(d) { return d.depth ? null : "none"; })
+                .style('fill', function() { return base.neutralColor; })
+                .each(this.stash)
+                .on('mouseover', (d) => {
+                  this.highlightedNode = d;
+                  this.updateHighlights(d);
                 })
-                .attrTween('d', arcTween);
-              vis.selectAll('path.chord').transition()
-                .duration(1000)
-                .attr('display', function(d) { return (d.source.dx > minChordAngle) ? null : 'none'; })
-                .attrTween('d', chordTween);
-              vis.selectAll('text.typeLabel').transition()
-                .duration(1000)
-                .attrTween('dx', textDxTween)
-                .attrTween('text-anchor', textAnchorTween)
-                .attrTween('transform', textTransformTween);
-              vis.selectAll('text.selectedLabel').transition()
-                .duration(1000)
-                .attr('dx', function(d) {
-                  if (arcs.centroid(d)[0] < 0) {
-                    return -(fullWidth * .5) + 120;
-                  } else {
-                    return (fullWidth * .5) - 120;
+                .on('mouseout', function(d) {
+                  if (this.highlightedNode == d) {
+                    this.highlightedNode = null;
+                    this.updateHighlights(d);
                   }
                 })
-                .attr('dy', function(d) { return arcs.centroid(d)[1] + 4; })
-                .attr('text-anchor', function(d) {
-                  if (arcs.centroid(d)[0] < 0) {
-                    return 'end';
-                  } else {
-                    return null;
+                .on('dblclick', function(d) {
+                  if (d.data.node) {
+                    window.open(d.data.node.url, '_blank');
                   }
                 })
-                .each('end', function(d) { updateSelectedLabels() });
-              vis.selectAll('polyline.selectedPointer').transition()
-                .duration(1000)
-                .attr('points', getPointerPoints);
+                .on('click', (d) => {
+                  var dx = this.arcs.centroid(d)[0];
+                  var dy = this.arcs.centroid(d)[1];
+                  var hw = this.size.width * .5;
 
-            } else {
+                  // if the node was maximized, normalize it
+                  if (this.maximizedNode == d) {
+                    this.maximizedNode = null;
+                    this.root.sum((d) => { return this.sumHierarchy(d); }).sort();
+                    d3.partition().size([Math.PI * 2, this.r * this.r])(this.root);
+                    this.transitionRings();
+                    this.transitionChords();
+                    this.transitionTypeLabels();
+                    this.transitionSelectedLabels();
+                    this.transitionSelectedPointers();
 
-              // if the node has children, then maximize it and transition the vis to its maximized state
-              if (d.children != null) {
-
-                var numChildren = d.descendantCount;
-                var curPercentage = numChildren / base.sortedNodes.length;
-                var targetPercentage = Math.min(.75, (numChildren * 15) / 360);
-
-                if (targetPercentage > curPercentage) {
-
-                  maximizedNode = d;
-
-                  // set the relative values of the farthest descendants of the maximized and non-maximized nodes
-                  myModPercentage = targetPercentage / curPercentage;
-                  otherModPercentage = (1 - targetPercentage) / (1 - curPercentage);
-
-                  path.data(partition.nodes).transition()
-                    .duration(1000)
-                    .style("stroke-width", function(d) {
-                      if (d.parent != null) {
-                        if ((d.parent.type == "current") || (d.type == "current")) {
-                          return 10;
-                        } else {
-                          return (d.dx > minChordAngle) ? 1 : 0;
-                        }
-                      } else {
-                        return (d.dx > minChordAngle) ? 1 : 0;
-                      }
-                    })
-                    .attrTween('d', arcTween);
-                  vis.selectAll('path.chord').transition()
-                    .duration(1000)
-                    .attr('display', function(d) { return ((d.source.dx > minChordAngle) || (d.target.dx > minChordAngle)) ? null : 'none'; })
-                    .attrTween('d', chordTween);
-                  vis.selectAll('text.typeLabel').transition()
-                    .duration(1000)
-                    .attrTween('dx', textDxTween)
-                    .attrTween('text-anchor', textAnchorTween)
-                    .attrTween('transform', textTransformTween);
-                  vis.selectAll('text.selectedLabel').transition()
-                    .duration(1000)
-                    .attr('dx', function(d) {
-                      if (arcs.centroid(d)[0] < 0) {
-                        return -(fullWidth * .5) + 120;
-                      } else {
-                        return (fullWidth * .5) - 120;
-                      }
-                    })
-                    .attr('dy', function(d) { return arcs.centroid(d)[1] + 4; })
-                    .attr('text-anchor', function(d) {
-                      if (arcs.centroid(d)[0] < 0) {
-                        return 'end';
-                      } else {
-                        return null;
-                      }
-                    })
-                    .each('end', function(d) { updateSelectedLabels() });
-                  vis.selectAll('polyline.selectedPointer').transition()
-                    .duration(1000)
-                    .attr('points', getPointerPoints);
-
-                }
-
-              } else {
-                toggleNodeSelected(d);
-              }
-            }
-            //}
-          });
-
-        path.exit().remove();
-
-        function getPointerPoints(d) {
-          var dx = arcs.centroid(d)[0];
-          var dy = arcs.centroid(d)[1];
-          var hw = fullWidth * .5;
-          if (arcs.centroid(d)[0] < 0) {
-            return ((d.textWidth + 5) - hw) + ',' + dy + ' ' + ((d.textWidth + 5) - hw) + ',' + dy + ' ' + dx + ',' + dy;
-          } else {
-            return (hw - (d.textWidth + 5)) + ',' + dy + ' ' + (hw - (d.textWidth + 5)) + ',' + dy + ' ' + dx + ',' + dy;
-          }
-        }
-
-				/**
-				 * Selects the given node data.
-				 */
-        function toggleNodeSelected(d) {
-          var index;
-          index = base.selectedNodes.indexOf(d.node);
-          if (index == -1) {
-            base.selectedNodes.push(d.node);
-            index = base.selectedHierarchyNodes.indexOf(d);
-            if (index == -1) {
-              base.selectedHierarchyNodes.push(d);
-            }
-          } else {
-            base.selectedNodes.splice(index, 1);
-            index = base.selectedHierarchyNodes.indexOf(d);
-            if (index != -1) {
-              base.selectedHierarchyNodes.splice(index, 1);
-            }
-          }
-          updateSelectedLabels();
-          updateHighlights(d);
-        }
-
-				/**
-				 * Updates the display of labels for selected nodes.
-				 */
-        function updateSelectedLabels() {
-
-          var selectedLabels = vis.selectAll('text.selectedLabel').data(base.selectedHierarchyNodes);
-
-          var r = (Math.min(fullWidth, fullHeight) - 70) * .5;
-          var labelCharCount = Math.round(((((fullWidth - (r * 2)) - 70) - 70) / 120) * 15);
-
-          selectedLabels.enter().append('svg:text')
-            .attr('class', 'selectedLabel')
-            .attr('dx', function(d) {
-              var title = base.getShortenedString(d.node.getDisplayTitle(true), labelCharCount);
-              if (arcs.centroid(d)[0] < 0) {
-                return -(fullWidth * .5) + ((title.length / 15) * 70);
-              } else {
-                return (fullWidth * .5) - ((title.length / 15) * 70);
-              }
-            })
-            .attr('dy', function(d) {
-              return arcs.centroid(d)[1] + 4;
-            })
-            .attr('fill', '#000')
-            .attr('font-weight', 'bold')
-            .attr('text-anchor', function(d) {
-              if (arcs.centroid(d)[0] < 0) {
-                return 'end';
-              } else {
-                return null;
-              }
-            })
-            .on("click", function(d) {
-              if (d.node) {
-                window.open(d.node.url, '_blank');
-              }
-            })
-            .text(function(d) { return base.getShortenedString(d.node.getDisplayTitle(true), labelCharCount); })
-            .each(function(d) { d.textWidth = this.getComputedTextLength(); });
-
-          selectedLabels.exit().remove();
-
-          selectedLabels.attr('dx', function(d) {
-            var title = base.getShortenedString(d.node.getDisplayTitle(true), labelCharCount);
-            if (arcs.centroid(d)[0] < 0) {
-              return -(fullWidth * .5);
-            } else {
-              return (fullWidth * .5);
-            }
-          })
-            .attr('dy', function(d) {
-              return arcs.centroid(d)[1] + 4;
-            })
-            .attr('text-anchor', function(d) {
-              if (arcs.centroid(d)[0] < 0) {
-                return null;
-              } else {
-                return 'end';
-              }
-            })
-            .text(function(d) { return base.getShortenedString(d.node.getDisplayTitle(true), labelCharCount); });
-
-          var selectedPointers = vis.selectAll('polyline.selectedPointer').data(base.selectedHierarchyNodes);
-
-          selectedPointers.enter().append('svg:polyline')
-            .attr('class', 'selectedPointer')
-            .attr('points', getPointerPoints)
-            .attr('stroke', '#444')
-            .attr('stroke-width', 1);
-
-          selectedPointers.exit().remove();
-
-          selectedPointers.attr('points', getPointerPoints);
-
-        }
-
-				/**
-				 * Update the highlight elements.
-				 */
-        function updateHighlights(d) {
-
-          // show the rollover label if this item has no children, i.e. is a single content item, not a parent
-          if (highlightedNode && d.showsTitle) {
-            rollover.html(d.title);
-            rollover.css('display', 'block');
-
-            // otherwise, hide the rollover label
-          } else {
-            rollover.css('display', 'none');
-          }
-
-          // darken the arcs of the rolled-over node and its descendants
-          vis.selectAll('path.ring')
-            .data(partition.nodes)
-            .style('stroke-width', function(d) {
-              if (d.parent != null) {
-                if ((d.parent.type == "current") || (d.type == "current")) {
-                  return 5;
-                } else {
-                  return (d.dx > minChordAngle) ? 1 : 0;
-                }
-              } else {
-                return (d.dx > minChordAngle) ? 1 : 0;
-              }
-            })
-            .style('fill', function(d) {
-
-              var color = base.neutralColor,
-                okToHighlight = true;
-
-              // if the item isn't the root, then
-              if (d.parent != null) {
-
-                // if it's representing the current content, then make it white
-                if (d.type == "current") {
-                  if ((d.children == null) || (!base.options.local && (d.children == null))) {
-                    color = "#000000";
                   } else {
-                    color = "#ffffff";
+                    // if the node has children, then maximize it and transition the vis to its maximized state
+                    if (d.children != null) {
+                      var numChildren = d.data.descendantCount;
+                      var curPercentage = numChildren / base.sortedNodes.length;
+                      var targetPercentage = Math.min(.75, (numChildren * 15) / 360);
+                      if (targetPercentage > curPercentage) {
+                        this.maximizedNode = d;
+
+                        // set the relative values of the farthest descendants of the maximized and non-maximized nodes
+                        this.myModPercentage = targetPercentage / curPercentage;
+                        this.otherModPercentage = (1 - targetPercentage) / (1 - curPercentage);
+
+                        this.root.sum((d) => { return this.sumHierarchy(d); }).sort();
+                        d3.partition().size([Math.PI * 2, this.r * this.r])(this.root);
+                        this.transitionRings();
+                        this.transitionChords();
+                        this.transitionTypeLabels();
+                        this.transitionSelectedLabels();
+                        this.transitionSelectedPointers();
+                      }
+                    } else {
+                      this.toggleNodeSelected(d);
+                    }
                   }
+                })
+            )
 
-                  // if the mouse is over the arc and it's not representing an individual item, then color it by noun
-                } else if (d == highlightedNode) {
+          this.calculateChords();
 
-                  if (d.children != null) {
-                    color = base.highlightColorScale(d.type, "noun");
-                  } else {
-                    color = base.neutralColor;
-                  }
+          this.ribbon = d3.ribbon()
+            .startAngle(function(d) { return d.x0 - (Math.PI * .5); })
+            .endAngle(function(d) { return d.x1 - (Math.PI * .5); })
+            .radius(function(d) { return (this.r * radiusMod) - Math.sqrt(d.y1); });
 
-                  // if we got an actual color, then don't darken it when highlighted
-                  if (color != base.neutralColor) {
-                    okToHighlight = false;
-                  }
-                }
-              }
-              return (
-                ((d == highlightedNode) ||
-                  (base.hasHierarchyNodeAsAncestor(d, highlightedNode)) ||
-                  ((base.selectedNodes.indexOf(d.node) != -1) && (d.node != null) /*&& (d == nodeForCurrentContent)*/)) &&
-                okToHighlight)
-                ? d3.rgb(color).darker()
-                : color;
-            })
+          // create the chords
+          this.vis.selectAll('path.chord')
+            .data(this.links)
+            .join(
+              enter => enter.append('svg:path')
+                .attr('class', 'chord')
+                .attr('d', (d) => { return this.ribbon(d); })
+                .attr('opacity', .25)
+                .attr('display', (d) => { return this.calculateChordDisplay(d); })
+                .attr('fill', (d) => { return base.highlightColorScale(d.type); })
+                .each(this.stashChord),
+              exit => exit.remove()
+            );
 
-          // darken the chords connected to the rolled-over node
-          vis.selectAll('path.chord')
-            .attr('opacity', function(d) {
+          if (base.hierarchy.children != null) {
 
-              // chord is connected to a selected node
-              if (
-                (base.selectedNodes.indexOf(d.source.node) != -1) ||
-                (base.selectedNodes.indexOf(d.target.node) != -1)
-              ) {
-                return .9;
-
-                // chord is connected to a rolled over node
-              } else if (
-                (
-                  (d.source == highlightedNode) ||
-                  (d.target == highlightedNode) ||
-                  base.hasHierarchyNodeAsAncestor(d.source, highlightedNode)
-                ) || (
-                  base.hasHierarchyNodeAsAncestor(d.target, highlightedNode)
-                )
-              ) {
-                return .9;
-
-                // chord isn't connected to anything selected or rolled over
-              } else {
-                return .25;
-              }
-
-            })
-            .attr('fill', function(d) {
-              return (
-                (d.source == highlightedNode) ||
-                (d.target == highlightedNode) ||
-                base.hasHierarchyNodeAsAncestor(d.source, highlightedNode) ||
-                base.hasHierarchyNodeAsAncestor(d.target, highlightedNode) ||
-                (base.selectedNodes.indexOf(d.source.node) != -1) ||
-                (base.selectedNodes.indexOf(d.target.node) != -1)
+            // create the type labels
+            var labels = this.vis.selectAll('text.typeLabel')
+              .data(this.root.children)
+              .join(
+                enter => enter.append('svg:text')
+                  .attr('class', 'typeLabel')
+                  .attr('dx', (d) => { return this.calculateTextDx(d); })
+                  .attr('dy', '.35em')
+                  .attr('fill', '#666')
+                  .attr('text-anchor', (d) => { return this.calculateTextAnchor(d); })
+                  .attr('transform', (d) => { return this.calculateTextTransform(d); })
+                  .text((d) => { return d.data.title; }),
+                exit => exit.remove()
               )
-                ? base.highlightColorScale(d.type, "verb")
-                : base.neutralColor;
-            });
+          }
+
+          this.updateSelectedLabels();
+          this.updateHighlights();
         }
+      }
 
-        var parent;
-        var linkedNodes = [];
-        var srcNode;
-        var destNode;
-        var candidateRelatedNodes;
-        var relatedNodes;
-        var index;
-        var links = [];
+      getHelpContent() {
+        var helpContent;
+        if (((base.options.content == 'all') || (base.options.content == 'current')) && (this.currentNode != null)) {
+          helpContent = "This visualization shows how <b>&ldquo;" + this.currentNode.getDisplayTitle() + "&rdquo;</b> is connected to other content in this work.<ul>";
+        } else {
+          helpContent = "This visualization shows <b>how content is interconnected</b> in this work.<ul>";
+        }
+        helpContent += "<li>Each inner arc represents a connection, color-coded by type.</li>" +
+          "<li>Roll over the visualization to browse connections.</li>" +
+          "<li>Click to add more content to the current selection.</li>" +
+          "<li>To explore a group of connections in more detail, click its outer arc to expand the contents.</li>" +
+          "<li>Click the name of any item to navigate to it.</li></ul>";
+        return helpContent;
+      }
 
-        var linkSpecs = [
-          { type: 'reference', direction: 'incoming' },
-          { type: 'annotation', direction: 'outgoing' },
-          { type: 'tag', direction: 'outgoing' },
-          { type: 'comment', direction: 'outgoing' },
-          { type: 'path', direction: 'outgoing' },
-        ];
+      setupElement() {
+        base.visualization.empty();
+        base.visualization.removeClass('bounded');
+        base.svg = d3.select(base.visualization[0]).append('svg:svg')
+          .attr('width', this.size.width)
+          .attr('height', this.size.height);
+        this.vis = base.svg.append("g")
+          .attr("transform", "translate(" + this.size.width / 2 + "," + this.size.height / 2 + ")")
+          .attr("class", "radialvis");
+        this.vis.append('svg:rect')
+          .attr('width', this.size.width)
+          .attr('height', this.size.height)
+          .attr('class', 'viscanvas');
+        this.radialBaseLayer = base.svg.append('svg:g')
+          .attr('width', this.size.width)
+          .attr('height', this.size.height);
+      }
 
-        var link;
-        n = base.links.length;
-        for (i = 0; i < n; i++) {
-          link = base.links[i];
-          links.push({
-            source: base.abstractedNodesBySlug[link.source.node.slug],
-            target: base.abstractedNodesBySlug[link.target.node.slug],
-            type: link.type.id
+      transitionRings() {
+        this.vis.selectAll('path.ring').transition()
+          .duration(1000)
+          .style("stroke-width", (d) => { return this.calculateRingStroke(d); })
+          .attrTween('d', (d) => { return this.arcTween(d); });
+      }
+
+      transitionChords() {
+        this.vis.selectAll('path.chord').transition()
+          .duration(1000)
+          .attr('display', (d) => { return this.calculateChordDisplay(d); })
+          .attrTween('d', (d) => { return this.chordTween(d); });
+      }
+
+      transitionTypeLabels() {
+        this.vis.selectAll('text.typeLabel').transition()
+          .duration(1000)
+          .attrTween('dx', (d) => { return this.textDxTween(d); })
+          .attrTween('text-anchor', (d) => { return this.textAnchorTween(d); })
+          .attrTween('transform', (d) => { return this.textTransformTween(d); });
+      }
+
+      transitionSelectedLabels() {
+        this.vis.selectAll('text.selectedLabel').transition()
+          .duration(1000)
+          .attr('dx', (d) => {
+            if (this.arcs.centroid(d)[0] < 0) {
+              return -(this.size.width * .5);
+            } else {
+              return (this.size.width * .5);
+            }
           })
+          .attr('dy', (d) => { return this.arcs.centroid(d)[1] + 4; })
+          .attrTween('text-anchor', (d) => { return this.selectedTextAnchorTween(d); });
+      }
+
+      transitionSelectedPointers() {
+        this.vis.selectAll('polyline.selectedPointer').transition()
+          .duration(1000)
+          .attr('points', (d) => { return this.getPointerPoints(d); });
+      }
+
+      getPointerPoints(d) {
+        var dx = this.arcs.centroid(d)[0];
+        var dy = this.arcs.centroid(d)[1];
+        var hw = this.size.width * .5;
+        if (this.arcs.centroid(d)[0] < 0) {
+          return ((d.textWidth + 5) - hw) + ',' + dy + ' ' + ((d.textWidth + 5) - hw) + ',' + dy + ' ' + dx + ',' + dy;
+        } else {
+          return (hw - (d.textWidth + 5)) + ',' + dy + ' ' + (hw - (d.textWidth + 5)) + ',' + dy + ' ' + dx + ',' + dy;
+        }
+      }
+
+      toggleNodeSelected(d) {
+        var index;
+        index = base.selectedNodes.indexOf(d.data);
+        if (index == -1) {
+          base.selectedNodes.push(d.data);
+          index = base.selectedHierarchyNodes.indexOf(d.data);
+          if (index == -1) {
+            base.selectedHierarchyNodes.push(d.data);
+          }
+        } else {
+          base.selectedNodes.splice(index, 1);
+          index = base.selectedHierarchyNodes.indexOf(d.data);
+          if (index != -1) {
+            base.selectedHierarchyNodes.splice(index, 1);
+          }
+        }
+        this.updateSelectedLabels();
+        this.updateHighlights(d);
+      }
+
+      updateSelectedLabels() {
+        var labelCharCount = Math.round(((((this.size.width - (this.r * 2)) - 70) - 70) / 120) * 15);
+
+        // create a local version of selectedHierarchyNodes that
+        // includes arc coordinates
+        this.selectedHierarchyNodes = [];
+        var descendant, index;
+        var descendants = this.root.descendants();
+        var n = descendants.length;
+        for (var i=0; i<n; i++) {
+          descendant = descendants[i];
+          index = base.selectedHierarchyNodes.indexOf(descendant.data);
+          if (index != -1) {
+            this.selectedHierarchyNodes.push(descendant);
+          }
         }
 
-        // chord generator
-        var chords = d3.svg.chord()
-          .startAngle(function(d) { return d.x - (Math.PI * .5) + arcOffset; })
-          .endAngle(function(d) { return d.x + d.dx - (Math.PI * .5) + arcOffset; })
-          .radius(function(d) { return (r * radiusMod) - Math.sqrt(d.y + d.dy); });
+        this.vis.selectAll('text.selectedLabel')
+          .data(this.selectedHierarchyNodes)
+          .join(
+            enter => enter.append('svg:text')
+              .attr('class', 'selectedLabel')
+              .attr('dx', (d) => {
+                if (this.arcs.centroid(d)[0] < 0) {
+                  return -(this.size.width * .5);
+                } else {
+                  return (this.size.width * .5);
+                }
+              })
+              .attr('dy', (d) => {
+                return this.arcs.centroid(d)[1] + 4;
+              })
+              .attr('text-anchor', (d) => {
+                if (this.arcs.centroid(d)[0] < 0) {
+                  return null;
+                } else {
+                  return 'end';
+                }
+              })
+              .text((d) => { return base.getShortenedString(d.data.node.getDisplayTitle(true), labelCharCount); })
+              .attr('fill', '#000')
+              .attr('font-weight', 'bold')
+              .on("click", (d) => {
+                if (d.data.node) {
+                  window.open(d.data.node.url, '_blank');
+                }
+              })
+              .each(function(d) { d.textWidth = this.getComputedTextLength(); }),
+            update => update
+              .attr('dx', (d) => {
+                var title = base.getShortenedString(d.data.node.getDisplayTitle(true), labelCharCount);
+                if (this.arcs.centroid(d)[0] < 0) {
+                  return -(this.size.width * .5);
+                } else {
+                  return (this.size.width * .5);
+                }
+              })
+              .attr('dy', (d) => {
+                return this.arcs.centroid(d)[1] + 4;
+              })
+              .text((d) => { return base.getShortenedString(d.data.node.getDisplayTitle(true), labelCharCount); })
+              .attr('text-anchor', (d) => {
+                if (this.arcs.centroid(d)[0] < 0) {
+                  return null;
+                } else {
+                  return 'end';
+                }
+              })
+              .each(function(d) { d.textWidth = this.getComputedTextLength(); }),
+            exit => exit.remove()
+          );
 
-        // create the chords
-        var chordvis = vis.selectAll('path.chord').data(links);
+        this.vis.selectAll('polyline.selectedPointer')
+          .data(this.selectedHierarchyNodes)
+          .join(
+            enter => enter.append('svg:polyline')
+              .attr('class', 'selectedPointer')
+              .attr('points', (d) => { return this.getPointerPoints(d); })
+              .attr('stroke', '#444')
+              .attr('stroke-width', 1),
+            update => update
+              .attr('points', (d) => { return this.getPointerPoints(d); }),
+            exit => exit.remove()
+          )
+      }
 
-        chordvis.enter().append('svg:path')
-          .attr('class', 'chord')
-          .attr('d', function(d) { return chords(d); })
-          .attr('opacity', .25)
-          .attr('display', function(d) { return ((d.source.dx > minChordAngle) || (d.target.dx > minChordAngle)) ? null : 'none'; })
-          .attr('fill', function(d) { return base.highlightColorScale(d.type.id); })
-          .each(stashChord);
+      updateHighlights(d) {
 
-        chordvis.exit().remove();
+        // show the rollover label if this item has no children, i.e. is a single content item, not a parent
+        if (this.highlightedNode && d.data.showsTitle) {
+          this.rollover.html(d.data.title);
+          this.rollover.css('display', 'block');
 
-        if (base.hierarchy.children != null) {
+          // otherwise, hide the rollover label
+        } else {
+          this.rollover.css('display', 'none');
+        }
 
-          // create the type labels
-          var labels = vis.selectAll('text.typeLabel').data(base.hierarchy.children);
-
-          labels.enter().append('svg:text')
-            .attr('class', 'typeLabel')
-            .attr('dx', function(d) {
-              d.angle = (((d.x + (d.dx * .5) + arcOffset) / (Math.PI * 2)) * 360 - 180);
-              d.isFlipped = ((d.angle > 90) || (d.angle < -90));
-              return d.isFlipped ? -10 : 10;
-            })
-            .attr('dy', '.35em')
-            .attr('fill', '#666')
-            .attr('text-anchor', function(d) {
-              return d.isFlipped ? 'end' : null;
-            })
-            .attr('transform', function(d) {
-              d.amount = r + textRadiusOffset;
-              if (d.isFlipped) {
-                d.angle += 180;
-                d.amount *= -1;
+        // darken the arcs of the rolled-over node and its descendants
+        this.vis.selectAll('path.ring')
+          //.data(partition.nodes)
+          .style('stroke-width', (d) => {
+            if (d.parent != null) {
+              if ((d.parent.data.type == "current") || (d.data.type == "current")) {
+                return 5;
+              } else {
+                return (Math.abs(d.x1 - d.x0) > this.minChordAngle) ? 1 : 0;
               }
-              return 'rotate(' + d.angle + ') translate(' + d.amount + ',0) ';
-            })
-            .text(function(d) { return d.title; });
+            } else {
+              return (Math.abs(d.x1 - d.x0) > this.minChordAngle) ? 1 : 0;
+            }
+          })
+          .style('fill', (d) => {
 
-          labels.exit().remove();
+            var color = base.neutralColor,
+              okToHighlight = true;
 
-        }
+            // if the item isn't the root, then
+            if (d.parent != null) {
 
-        updateSelectedLabels();
-        updateHighlights();
+              // if it's representing the current content, then make it white
+              if (d.data.type == "current") {
+                if ((d.children == null) || (!base.options.local && (d.children == null))) {
+                  color = "#000000";
+                } else {
+                  color = "#ffffff";
+                }
+
+                // if the mouse is over the arc and it's not representing an individual item, then color it by noun
+              } else if (d == this.highlightedNode) {
+
+                if (d.children != null) {
+                  color = base.highlightColorScale(d.data.type, "noun");
+                } else {
+                  color = base.neutralColor;
+                }
+
+                // if we got an actual color, then don't darken it when highlighted
+                if (color != base.neutralColor) {
+                  okToHighlight = false;
+                }
+              }
+            }
+            return (
+              ((d == this.highlightedNode) ||
+                (base.hasHierarchyNodeAsAncestor(d.data, this.highlightedNode !== null ? this.highlightedNode.data : null)) ||
+                ((base.selectedNodes.indexOf(d.data.node) != -1) && (d.data.node != null) /*&& (d == nodeForCurrentContent)*/)) &&
+              okToHighlight)
+              ? d3.rgb(color).darker()
+              : color;
+          })
+
+        // darken the chords connected to the rolled-over node
+        this.vis.selectAll('path.chord')
+          .attr('opacity', (d) => {
+            // chord is connected to a selected node
+            if (
+              (base.selectedNodes.indexOf(d.source.data.node) != -1) ||
+              (base.selectedNodes.indexOf(d.target.data.node) != -1)
+            ) {
+              return .9;
+
+              // chord is connected to a rolled over node
+            } else if (
+              (
+                (d.source == this.highlightedNode) ||
+                (d.target == this.highlightedNode) ||
+                base.hasHierarchyNodeAsAncestor(d.source.data, this.highlightedNode ? this.highlightedNode.data : null)
+              ) || (
+                base.hasHierarchyNodeAsAncestor(d.target.data, this.highlightedNode ? this.highlightedNode.data : null)
+              )
+            ) {
+              return .9;
+
+              // chord isn't connected to anything selected or rolled over
+            } else {
+              return .25;
+            }
+
+          })
+          .attr('fill', (d) => {
+            return (
+              (d.source == this.highlightedNode) ||
+              (d.target == this.highlightedNode) ||
+              base.hasHierarchyNodeAsAncestor(d.source.data, this.highlightedNode ? this.highlightedNode.data : null) ||
+              base.hasHierarchyNodeAsAncestor(d.target.data, this.highlightedNode ? this.highlightedNode.data : null) ||
+              (base.selectedNodes.indexOf(d.source.data.node) != -1) ||
+              (base.selectedNodes.indexOf(d.target.data.node) != -1)
+            )
+              ? base.highlightColorScale(d.type, "verb")
+              : base.neutralColor;
+          });
       }
 
       // store current arc data for use in transitions
-      function stash(d) {
-        d.x0 = d.x;
-        d.dx0 = d.dx;
+      stash(d) {
+        d.x0_s = d.x0;
+        d.x1_s = d.x1;
       }
 
       // store current chord data for use in transitions
-      function stashChord(d) {
-        d.source0 = { x: d.source.x, dx: d.source.dx };
-        d.target0 = { x: d.target.x, dx: d.target.dx };
+      stashChord(d) {
+        d.source_s = { x0: d.source.x0, x1: d.source.x1 };
+        d.target_s = { x0: d.target.x0, x1: d.target.x1 };
+      }
+
+      sumHierarchy(d) {
+        if (this.maximizedNode) {
+          // if the maximized node is a top-level node, and this node is a bottom-level node, then
+          if ((this.maximizedNode.children != null) && (d.parent ? (d.parent.parent ? true : false) : false) && (d.children == null)) {
+            // if the maximized node is an ancestor of this node, then return its maximized value
+            if (base.hasHierarchyNodeAsAncestor(d, this.maximizedNode.data)) {
+              return this.myModPercentage;
+              // otherwise, return its minimized value
+            } else {
+              return this.otherModPercentage;
+            }
+            // otherwise, just return the standard value
+          } else {
+            return d.children ? 0 : 1;
+          }
+          // return the standard value
+        } else {
+          return d.children ? 0 : 1;
+        }
       }
 
       // interpolates between path data for two arcs
-      function arcTween(a) {
-        var i = d3.interpolate({ x: a.x0, dx: a.dx0 }, a);
-        return function(t) {
+      arcTween(a) {
+        var i = d3.interpolate({ x0: a.x0_s, x1: a.x1_s }, a);
+        return (t) => {
           var b = i(t);
-          a.x0 = b.x;
-          a.dx0 = b.dx;
-          return arcs(b);
+          a.x0_s = b.x0;
+          a.x1_s = b.x1;
+          return this.arcs(b);
         };
       }
 
       // interpolates between path data for two chords
-      function chordTween(a) {
-        var i = d3.interpolate({ source: { x: a.source0.x, dx: a.source0.dx }, target: { x: a.target0.x, dx: a.target0.dx } }, a);
-        return function(t) {
+      chordTween(a) {
+        var i = d3.interpolate({ source: { x0: a.source_s.x0, x1: a.source_s.x1 }, target: { x0: a.target_s.x0, x1: a.target_s.x1 } }, a);
+        return (t) => {
           var b = i(t);
-          a.source0 = { x: b.source.x, dx: b.source.dx };
-          a.target0 = { x: b.target.x, dx: b.target.dx };
-          return chords(b);
+          a.source_s = { x0: b.source.x0, x1: b.source.x1 };
+          a.target_s = { x0: b.target.x0, x1: b.target.x1 };
+          return this.ribbon(b);
         };
       }
 
+      calculateChords() {
+        this.links = [];
+
+        // recreate the abstractedNodesBySlug locally since the global
+        // version doesn't include the arc coordinates
+        this.abstractedNodesBySlug = {};
+        var descendant;
+        var descendants = this.root.descendants();
+        var n = descendants.length;
+        for (var i=0; i<n; i++) {
+          descendant = descendants[i];
+          if (descendant.data.node) {
+            this.abstractedNodesBySlug[descendant.data.node.slug] = descendant;
+          }
+        }
+
+        var link, localLink;
+        n = base.links.length;
+        for (i = 0; i < n; i++) {
+          link = base.links[i];
+          localLink = {
+            source: this.abstractedNodesBySlug[link.source.node.slug],
+            target: this.abstractedNodesBySlug[link.target.node.slug],
+            type: link.type.id
+          };
+          // this prevents toc links from being added, since their source node is null
+          if (localLink.source && localLink.target) {
+            this.links.push(localLink);
+          }
+        }
+      }
+
+      calculateRingStroke(d) {
+        if (d.parent != null) {
+          if ((d.parent.type == "current") || (d.type == "current")) {
+            return 10;
+          } else {
+            return (d.x1 > this.minChordAngle) ? 1 : 0;
+          }
+        } else {
+          return (d.x1 > this.minChordAngle) ? 1 : 0;
+        }
+      }
+
+      calculateChordDisplay(d) {
+        return ((Math.abs(d.source.x1 - d.source.x0) > this.minChordAngle) || (Math.abs(d.target.x1 - d.target.x0) > this.minChordAngle)) ? null : 'none';
+      }
+
+      calculateTextAngleOrientation(d) {
+        d.angle = (((d.x0 + ((d.x1 - d.x0) * .5)) / (Math.PI * 2)) * 360 - 180);
+        d.isFlipped = (d.angle > 90 || d.angle < -90);
+      }
+
       // calculates the position of a type label
-      function calcTextDx(d) {
-        d.angle = (((d.x + (d.dx * .5)) / (Math.PI * 2)) * 360 - 180);
-        d.isFlipped = ((d.angle > 90) || (d.angle < -90));
+      calculateTextDx(d) {
+        this.calculateTextAngleOrientation(d);
         return d.isFlipped ? -10 : 10;
       }
 
       // calculates the anchor point of a type label
-      function calcTextAnchor(d) {
-        d.angle = (((d.x + (d.dx * .5)) / (Math.PI * 2)) * 360 - 180);
-        d.isFlipped = ((d.angle > 90) || (d.angle < -90));
+      calculateTextAnchor(d) {
+        this.calculateTextAngleOrientation(d);
         return d.isFlipped ? 'end' : null;
       }
 
       // calculates the transform (rotation) of a type label
-      function calcTextTransform(d) {
-        d.angle = (((d.x + (d.dx * .5)) / (Math.PI * 2)) * 360 - 180);
-        d.isFlipped = ((d.angle > 90) || (d.angle < -90));
-        d.amount = r + textRadiusOffset;
+      calculateTextTransform(d) {
+        this.calculateTextAngleOrientation(d);
+        d.amount = this.r + this.textRadiusOffset;
+        var angleProxy = d.angle;
+        var amountProxy = d.amount;
         if (d.isFlipped) {
-          d.angle += 180;
-          d.amount *= -1;
+          angleProxy += 180;
+          amountProxy *= -1;
         }
-        return 'rotate(' + d.angle + ') translate(' + d.amount + ',0) ';
+        return 'rotate(' + angleProxy + ') translate(' + amountProxy + ',0) ';
       }
 
       // interpolates between position data for two type labels
-      function textDxTween(a) {
-        var i = d3.interpolate({ x: a.x0, dx: a.dx0 }, a);
-        return function(t) {
+      textDxTween(a) {
+        var i = d3.interpolate({ x0: a.x0_s, x1: a.x1_s }, a);
+        return (t) => {
           var b = i(t);
-          a.x0 = b.x;
-          a.dx0 = b.dx;
-          return calcTextDx(b);
+          a.x0_s = b.x0;
+          a.x1_s = b.x1;
+          return this.calculateTextDx(b);
         };
       }
 
       // interpolates between anchor point data for two type labels
-      function textAnchorTween(a) {
-        var i = d3.interpolate({ x: a.x0, dx: a.dx0 }, a);
-        return function(t) {
+      textAnchorTween(a) {
+        var i = d3.interpolate({ x0: a.x0_s, x1: a.x1_s }, a);
+        return (t) => {
           var b = i(t);
-          a.x0 = b.x;
-          a.dx0 = b.dx;
-          return calcTextAnchor(b);
+          a.x0_s = b.x0;
+          a.x1_s = b.x1;
+          return this.calculateTextAnchor(b);
         };
       }
 
       // interpolates between transform data for two type labels
-      function textTransformTween(a) {
-        var i = d3.interpolate({ x: a.x0, dx: a.dx0 }, a);
-        return function(t) {
+      textTransformTween(a) {
+        var i = d3.interpolate({ x0: a.x0_s, x1: a.x1_s }, a);
+        return (t) => {
           var b = i(t);
-          a.x0 = b.x;
-          a.dx0 = b.dx;
-          return calcTextTransform(b);
+          a.x0_s = b.x0;
+          a.x1_s = b.x1;
+          return this.calculateTextTransform(b);
         };
+      }
+
+      // interpolates anchor for the selected text label
+      selectedTextAnchorTween(d) {
+        var i = d3.interpolate({ x0: d.x0_s, x1: d.x1_s }, d);
+        return (t) => {
+          var angle;
+          if (t < .5) {
+            angle = (((d.x0_s + ((d.x1_s - d.x0_s) * .5)) / (Math.PI * 2)) * 360 - 180);
+          } else {
+            angle = (((d.x0 + ((d.x1 - d.x0) * .5)) / (Math.PI * 2)) * 360 - 180);
+          }
+          var isFlipped = (angle > 90 || angle < -90);
+          if (isFlipped) {
+            return null;
+          } else {
+            return 'end';
+          }
+        }
       }
     }
 
     /********************************
      * FORCE-DIRECTED VISUALIZATION *
      ********************************/
-    base.drawForceDirected = function(updateOnly) {
+    class ForceDirectedVisualization extends AbstractVisualization {
 
-      var i, j, n, o, node, targetNode, fullWidth, fullHeight,
-        currentNode = scalarapi.model.getCurrentPageNode();
+      constructor() {
+        super();
+      }
 
-      // if we're drawing from scratch, do some setup
-      if (!base.hasBeenDrawn && (base.visElement.width() > 0)) {
+      draw() {
+        super.draw();
 
-        base.hasBeenDrawn = true;
+        if (base.svg != null) {
+          this.forceLink.links(base.links);
+          base.force.nodes(base.abstractedSortedNodes).alpha(.05);
 
+          this.container = base.svg.selectAll('g.container');
+
+          this.linkSelection = this.container.selectAll('.link')
+            .data(base.links, function(d) { return d.source.node.slug + '-' + d.target.node.slug; });
+          this.linkSelection.enter().insert('svg:line', '.node')
+            .attr('class', 'link');
+          this.linkSelection.exit().remove();
+
+          this.nodeSelection = this.container.selectAll('.node')
+            .data(base.force.nodes(), function(d) { return d.node.slug; });
+
+          var nodeEnter = this.nodeSelection.enter();
+
+          nodeEnter.append('svg:circle')
+            .attr('class', 'node')
+            .call(this.dragHandling(base.force))
+            .attr('r', '16')
+            .attr('fill', function(d) {
+              var interpolator = d3.interpolateRgb(base.highlightColorScale(d.node.type.id), d3.rgb(255, 255, 255));
+              return ((base.rolloverNode == d.node) || (base.selectedNodes.indexOf(d.node) != -1)) ? interpolator(0) : interpolator(.5);
+            })
+            .on('touchstart', function(d) { d3.event.stopPropagation(); })
+            .on('mousedown', function(d) { d3.event.stopPropagation(); })
+            .on('click', (d) => {
+              if (d3.event.defaultPrevented) return; // ignore drag
+              d3.event.stopPropagation();
+              var index = base.selectedNodes.indexOf(d.node);
+              if (index == -1) {
+                base.selectedNodes.push(d.node);
+                if (base.options.content == "current") {
+                  base.loadNode(d.node.slug, false);
+                }
+              } else {
+                base.selectedNodes.splice(index, 1);
+                base.filter();
+                base.draw();
+              }
+              this.updateGraph();
+            })
+            .on("mouseover", (d) => {
+              base.rolloverNode = d.node;
+              this.updateGraph();
+            })
+            .on("mouseout", () => {
+              base.rolloverNode = null;
+              this.updateGraph();
+            });
+
+          // create the text labels
+          nodeEnter.append('svg:text')
+            .attr('class', 'label')
+            .attr('x', function(d) { return d.x; })
+            .attr('y', function(d) { return d.y + 21; })
+            .attr('text-anchor', 'middle')
+            .text(function(d) {
+              return ((base.rolloverNode == d.node) || (base.selectedNodes.indexOf(d.node) != -1)) ? d.node.title : d.node.shortTitle;
+            });
+
+          nodeEnter.append('svg:rect')
+            .attr('class', 'visit-button')
+            .attr('rx', '5')
+            .attr('ry', '5')
+            .attr('width', '48')
+            .attr('height', '22')
+            .style('display', 'none')
+            .on('click', function(d) {
+              d3.event.stopPropagation();
+              window.open(d.node.url, '_blank');
+            });
+
+          nodeEnter.append('svg:text')
+            .attr('class', 'visit-button')
+            .attr('text-anchor', 'middle')
+            .style('display', 'none')
+            .text('View »');
+
+          this.nodeSelection.exit().remove();
+
+          base.force.restart();
+          this.updateGraph();
+        }
+      }
+
+      getHelpContent() {
+        var helpContent;
         if (base.options.content != 'current') {
           helpContent = "This visualization shows <b>how content is interconnected</b> in this work.<ul>";
         } else {
@@ -3371,230 +3673,145 @@ window.scalarvis = { instanceCount: -1 };
           "<li>Scroll or pinch to zoom, or click and hold to drag.</li>" +
           "<li>Click any item to add it to the current selection, and to reveal the content it's related to in turn.</li>" +
           "<li>Click the &ldquo;View&rdquo; button of any selected item to navigate to it.</li></ul>";
+        return helpContent;
+      }
 
-        base.helpButton.attr("data-content", helpContent);
-
-        var isFullScreen = document.fullScreen || document.mozFullScreen || document.webkitIsFullScreen;
-        if (!isFullScreen) {
-          fullWidth = base.visElement.width();
-          if (window.innerWidth > 768) {
-            if (base.options.modal) {
-              fullHeight = Math.max(300, window.innerHeight * .9 - 170);
-            } else {
-              fullHeight = 568;
-            }
-          } else {
-            fullHeight = 300;
-          }
-        } else {
-          fullWidth = window.innerWidth;
-          fullHeight = window.innerHeight;
-        }
-
+      setupElement() {
+        this.hasBeenDrawn = true;
+        base.visualization.empty();
         base.visualization.addClass('bounded');
-
-        base.visualization.css('height', fullHeight + 'px');
-        base.visualization.css('width', fullWidth + 'px');
-
+        base.visualization.css('height', this.size.height + 'px');
+        base.visualization.css('width', this.size.width + 'px');
         base.visualization.css('padding', '0px');
-
         base.svg = d3.select(base.visualization[0]).append('svg:svg')
-          .attr('width', fullWidth)
-          .attr('height', fullHeight);
-
+          .attr('width', this.size.width)
+          .attr('height', this.size.height);
         var container = base.svg.append('g').attr('class', 'container');
-
-        var zoom = d3.behavior.zoom().center([fullWidth * .5, fullHeight * .5]).scaleExtent([.25, 7]);
-        zoom.on("zoom", function() {
-          container.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-        });
-
-        base.svg.call(zoom);
+        base.svg.call(d3.zoom().on("zoom", function() { container.attr("transform", d3.event.transform); }));
         base.svg.style("cursor", "move");
 
         // once we upgrade to D3 4.0, we should implement custom x and y accessors
         // so multiple instances don't try to change each other's positions
 
-        base.force = d3.layout.force()
-          .nodes(base.abstractedSortedNodes)
-          .links(base.links)
-          .linkDistance(120)
-          .charge(-400)
-          .size([fullWidth, fullHeight])
-          .on('tick', function() {
-            if (base.svg != null) {
+        this.forceLink = d3.forceLink().distance(120);
 
+        base.force = d3.forceSimulation()
+          .force('link', this.forceLink)
+          .force('charge', d3.forceManyBody().strength(-200))
+          .force('center', d3.forceCenter(this.size.width * .5, this.size.height * .5))
+          .on('tick', () => {
+            if (base.svg != null) {
               base.svg.selectAll('line.link')
                 .attr('x1', function(d) { return d.source.x; })
                 .attr('y1', function(d) { return d.source.y; })
                 .attr('x2', function(d) { return d.target.x; })
                 .attr('y2', function(d) { return d.target.y; })
                 .attr('visibility', function(d) { return (d.source.node.slug == 'toc' || d.target.node.slug == 'toc') ? 'hidden' : 'visible'; });
-
               base.svg.selectAll('circle.node')
                 .attr('cx', function(d) { return d.x; })
                 .attr('cy', function(d) { return d.y; })
                 .attr('visibility', function(d) { return d.node.slug == 'toc' ? 'hidden' : 'visible'; });
-
               base.svg.selectAll('text.label')
                 .attr('x', function(d) { return d.x; })
                 .attr('y', function(d) { return d.y + 28; });
-
               base.svg.selectAll('rect.visit-button')
                 .attr('x', function(d) { return d.x - 24; })
                 .attr('y', function(d) { return d.y + 38; });
-
               base.svg.selectAll('text.visit-button')
                 .attr('x', function(d) { return d.x; })
                 .attr('y', function(d) { return d.y + 53; });
-
             }
           });
       }
 
-      if (base.svg != null) {
+      dragHandling() {
 
-        base.force.nodes(base.abstractedSortedNodes).links(base.links);
+        function dragStarted(d) {
+          if (!d3.event.active) base.force.alphaTarget(0.3).restart();
+          d.fx = d.x;
+          d.fy = d.y;
+        }
 
-        var container = base.svg.selectAll('g.container');
-        var node = container.selectAll('g.node');
-        var link = container.selectAll('.link');
+        function dragged(d) {
+          d.fx = d3.event.x;
+          d.fy = d3.event.y;
+        }
 
-        link = link.data(base.force.links(), function(d) { return d.source.node.slug + '-' + d.target.node.slug; });
+        function dragEnded(d) {
+          if (!d3.event.active) base.force.alphaTarget(0);
+          d.fx = null;
+          d.fy = null;
+        }
 
-        link.enter().insert('svg:line', '.node')
-          .attr('class', 'link');
+        return d3.drag()
+            .on("start", dragStarted)
+            .on("drag", dragged)
+            .on("end", dragEnded);
+      }
 
-        link.exit().remove();
+      updateGraph() {
 
-        node = node.data(base.force.nodes(), function(d) { return d.node.slug; });
+        this.linkSelection.attr('stroke-width', function(d) { return ((base.rolloverNode == d.source.node) || (base.selectedNodes.indexOf(d.source.node) != -1) || (base.rolloverNode == d.target.node) || (base.selectedNodes.indexOf(d.target.node) != -1)) ? "3" : "1"; })
+          .attr('stroke-opacity', function(d) { return ((base.rolloverNode == d.source.node) || (base.selectedNodes.indexOf(d.source.node) != -1) || (base.rolloverNode == d.target.node) || (base.selectedNodes.indexOf(d.target.node) != -1)) ? '1.0' : '0.5'; })
+          .attr('stroke', function(d) { return ((base.rolloverNode == d.source.node) || (base.selectedNodes.indexOf(d.source.node) != -1) || (base.rolloverNode == d.target.node) || (base.selectedNodes.indexOf(d.target.node) != -1)) ? base.neutralColor : '#999'; });
 
-        var nodeEnter = node.enter().append('svg:g')
-          .attr('class', 'node')
-          .call(base.force.drag)
-          .on('touchstart', function(d) { d3.event.stopPropagation(); })
-          .on('mousedown', function(d) { d3.event.stopPropagation(); })
-          .on('click', function(d) {
-            if (d3.event.defaultPrevented) return; // ignore drag
-            d3.event.stopPropagation();
-            var index = base.selectedNodes.indexOf(d.node);
-            if (index == -1) {
-              base.selectedNodes.push(d.node);
-              if (base.options.content == "current") {
-                base.loadNode(d.node.slug, false);
-              }
-            } else {
-              base.selectedNodes.splice(index, 1);
-              base.filter();
-              base.draw(true);
-            }
-            updateGraph();
-          })
-          .on("mouseover", function(d) {
-            base.rolloverNode = d.node;
-            updateGraph();
-          })
-          .on("mouseout", function() {
-            base.rolloverNode = null;
-            updateGraph();
-          });
+        this.container.selectAll('.node').attr('fill', function(d) {
+          var interpolator = d3.interpolateRgb(base.highlightColorScale(d.node.type.id), d3.rgb(255, 255, 255));
+          return ((base.rolloverNode == d.node) || (base.selectedNodes.indexOf(d.node) != -1)) ? interpolator(0) : interpolator(.5);
+        });
 
-        node.append('svg:circle')
-          .attr('class', 'node')
-          .attr('r', '16');
-
-        // create the text labels
-        nodeEnter.append('svg:text')
-          .attr('class', 'label')
-          .attr('x', function(d) { return d.x; })
-          .attr('y', function(d) { return d.y + 21; })
-          .attr('text-anchor', 'middle')
+        this.container.selectAll('.label')
+          .attr('fill', function(d) { return ((base.rolloverNode == d.node) || (base.selectedNodes.indexOf(d.node) != -1)) ? "#000" : "#999"; })
+          .attr('font-weight', function(d) { return ((base.rolloverNode == d.node) || (base.selectedNodes.indexOf(d.node) != -1)) ? 'bold' : 'normal'; })
           .text(function(d) {
             return ((base.rolloverNode == d.node) || (base.selectedNodes.indexOf(d.node) != -1)) ? d.node.title : d.node.shortTitle;
           });
 
-        nodeEnter.append('svg:rect')
-          .attr('class', 'visit-button')
-          .attr('rx', '5')
-          .attr('ry', '5')
-          .attr('width', '48')
-          .attr('height', '22')
-          .style('display', 'none')
-          .on('click', function(d) {
-            d3.event.stopPropagation();
-            window.open(d.node.url, '_blank');
+        this.container.selectAll('rect.visit-button')
+          .style('display', function(d) {
+            return (base.selectedNodes.indexOf(d.node) != -1) ? 'inherit' : 'none';
           });
 
-        nodeEnter.append('svg:text')
-          .attr('class', 'visit-button')
-          .attr('text-anchor', 'middle')
-          .style('display', 'none')
-          .text('View »');
-
-        node.exit().remove();
-
-        base.force.start();
-
-        var updateGraph = function() {
-
-          link.attr('stroke-width', function(d) { return ((base.rolloverNode == d.source.node) || (base.selectedNodes.indexOf(d.source.node) != -1) || (base.rolloverNode == d.target.node) || (base.selectedNodes.indexOf(d.target.node) != -1)) ? "3" : "1"; })
-            .attr('stroke-opacity', function(d) { return ((base.rolloverNode == d.source.node) || (base.selectedNodes.indexOf(d.source.node) != -1) || (base.rolloverNode == d.target.node) || (base.selectedNodes.indexOf(d.target.node) != -1)) ? '1.0' : '0.5'; })
-            .attr('stroke', function(d) { return ((base.rolloverNode == d.source.node) || (base.selectedNodes.indexOf(d.source.node) != -1) || (base.rolloverNode == d.target.node) || (base.selectedNodes.indexOf(d.target.node) != -1)) ? base.neutralColor : '#999'; });
-
-          node.selectAll('.node').attr('fill', function(d) {
-            var interpolator = d3.interpolateRgb(base.highlightColorScale(d.node.type.id), d3.rgb(255, 255, 255));
-            return ((base.rolloverNode == d.node) || (base.selectedNodes.indexOf(d.node) != -1)) ? interpolator(0) : interpolator(.5);
+        this.container.selectAll('text.visit-button')
+          .style('display', function(d) {
+            return (base.selectedNodes.indexOf(d.node) != -1) ? 'inherit' : 'none';
           });
+      }
+    }
 
-          node.selectAll('.label')
-            .attr('fill', function(d) { return ((base.rolloverNode == d.node) || (base.selectedNodes.indexOf(d.node) != -1)) ? "#000" : "#999"; })
-            .attr('font-weight', function(d) { return ((base.rolloverNode == d.node) || (base.selectedNodes.indexOf(d.node) != -1)) ? 'bold' : 'normal'; })
-            .text(function(d) {
-              return ((base.rolloverNode == d.node) || (base.selectedNodes.indexOf(d.node) != -1)) ? d.node.title : d.node.shortTitle;
-            });
+    /******************************
+     * TAG CLOUD VISUALIZATION V5 *
+     ******************************/
+    class TagCloudVisualization extends AbstractVisualization {
 
-          node.selectAll('rect.visit-button')
-            .style('display', function(d) {
-              return (base.selectedNodes.indexOf(d.node) != -1) ? 'inherit' : 'none';
-            });
-
-          node.selectAll('text.visit-button')
-            .style('display', function(d) {
-              return (base.selectedNodes.indexOf(d.node) != -1) ? 'inherit' : 'none';
-            });
-
-        }
-
-        updateGraph();
-
+      constructor() {
+        super();
       }
 
-    }
+      draw() {
+        super.draw();
+      }
 
-    /***************************
-     * TAG CLOUD VISUALIZATION *
-     ***************************/
-    base.drawTagCloud = function(updateOnly) {
+      getHelpContent() {
+        var helpContent = "This visualization shows the relative <b>prevalence of tags</b> in this work." +
+          "<ul><li>Each tag&rsquo;s title is sized and colored according to how many items it tags.</li>" +
+          "<li>Click any tag&rsquo;s title to navigate to it.</li></ul>";
+        return helpContent;
+      }
 
-      helpContent = "This visualization shows the relative <b>prevalence of tags</b> in this work." +
-        "<ul><li>Each tag&rsquo;s title is sized and colored according to how many items it tags.</li>" +
-        "<li>Click any tag&rsquo;s title to navigate to it.</li></ul>";
-
-      base.helpButton.attr("data-content", helpContent);
-
-      approot = $('link#approot').attr('href');
-      $('head').append('<link rel="stylesheet" type="text/css" href="' + approot + 'views/widgets/jQCloud/jqcloud.min.css">');
-      $.getScript(approot + 'views/widgets/jQCloud/jqcloud.min.js', function() {
-        base.visualization.addClass("tag_cloud caption_font");
-        base.visualization.jQCloud(tags, {
-          autoResize: true,
-          colors: ['#a50f15', '#cb181d', '#ef3b2c', '#fb6a4a']
+      setupElement() {
+        approot = $('link#approot').attr('href');
+        $('head').append('<link rel="stylesheet" type="text/css" href="' + approot + 'views/widgets/jQCloud/jqcloud.min.css">');
+        $.getScript(approot + 'views/widgets/jQCloud/jqcloud.min.js', function() {
+          base.visualization.addClass("tag_cloud caption_font");
+          base.visualization.jQCloud(tags, {
+            autoResize: true,
+            colors: ['#a50f15', '#cb181d', '#ef3b2c', '#fb6a4a']
+          });
         });
-      });
-      base.hasBeenDrawn = true;
+      }
     }
 
-    // Run initializer
     base.init();
 
   };
