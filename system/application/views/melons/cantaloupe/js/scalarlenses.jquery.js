@@ -324,8 +324,12 @@
       // if not logged in
       // buttons can't be clicked
       let lensButtons = $(this.element).find('.lens-editor .btn');
-      if(this.userId == 'unknown' || this.scalarLensObject.frozen === true){
+      if(this.userId == 'unknown'){
         lensButtons.addClass('disabled');
+      }
+      // load frozen lens if frozen is true
+      if(this.scalarLensObject.frozen === true){
+        $(this.element).find('.lens-tags .btn').addClass('disabled');
       }
 
 
@@ -2717,6 +2721,7 @@
       }
 
       let onClick = function(evt) {
+
         let option = $(evt.target).parent().data('option');
 
         switch(option.value){
@@ -2731,25 +2736,30 @@
             me.scalarLensObject.frozen = true;
             $('.snowflake').show()
 
-            let lensButtons = $(me.element).find('.lens-editor .btn');
             if(me.scalarLensObject.frozen == true){
-              lensButtons.addClass('disabled');
+              $(me.element).find('.lens-tags .btn').addClass('disabled');
             }
-
             // if frozen update lens object frozen-items
             var slugs = [];
             for (var url in this.scalarapi.model.nodesByURL) {
-              if (scalarapi.model.nodesByURL[url] != null) {
-                slugs.push(scalarapi.model.nodesByURL[url].slug);
+              const nodesURL = scalarapi.model.nodesByURL[url];
+              if (nodesURL != null) {
+                if(nodesURL.slug === "" || nodesURL.slug === 'toc' || nodesURL.slug.includes('users/')){
+                  continue;
+                }
+                slugs.push(nodesURL.slug);
                 me.scalarLensObject["frozen-items"] = slugs;
-                //console.log(this.scalarapi.model.nodesByURL[url])
+                //console.log(nodesURL)
               }
             }
-
           break;
           case 'unfreeze':
             me.scalarLensObject.frozen = false;
             $('.snowflake').hide()
+            if(me.scalarLensObject.frozen == false){
+              lensButtons.removeClass('disabled');
+            }
+            me.scalarLensObject["frozen-items"] = [];
           break;
           case 'submit-lens':
             // modal
