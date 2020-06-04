@@ -1923,6 +1923,21 @@ window.scalarvis = { instanceCount: -1 };
           if (needsInstantiation) base.visInstance = new TagCloudVisualization();
           break;
 
+        case "map":
+          needsInstantiation = base.visInstance ? base.visInstance.constructor.name != 'MapVisualization' : true;
+          if (needsInstantiation) base.visInstance = new MapVisualization();
+          break;
+
+        case "word-cloud":
+          needsInstantiation = base.visInstance ? base.visInstance.constructor.name != 'WordCloudVisualization' : true;
+          if (needsInstantiation) base.visInstance = new WordCloudVisualization();
+          break;
+
+        case "list":
+          needsInstantiation = base.visInstance ? base.visInstance.constructor.name != 'ListVisualization' : true;
+          if (needsInstantiation) base.visInstance = new ListVisualization();
+          break;
+
       }
       base.visInstance.draw();
 
@@ -1996,7 +2011,6 @@ window.scalarvis = { instanceCount: -1 };
     class GridVisualization extends AbstractVisualization {
 
        constructor() {
-         console.log('grid constructor');
          super();
          this.colWidth = 36;
          this.boxSize = 36;
@@ -2356,12 +2370,8 @@ window.scalarvis = { instanceCount: -1 };
       }
 
       draw() {
-        console.log('do the draw');
         super.draw();
-        console.log(base.svg);
-        console.log(base.hierarchy);
         if (base.svg != null && base.hierarchy != null) {
-          console.log('oh yeah');
           this.root = d3.hierarchy(base.hierarchy);
           this.container = base.svg.selectAll('g.container');
           // collapse all nodes except the root and its children
@@ -3512,9 +3522,9 @@ window.scalarvis = { instanceCount: -1 };
       }
     }
 
-    /******************************
-     * TAG CLOUD VISUALIZATION V5 *
-     ******************************/
+    /***************************
+     * TAG CLOUD VISUALIZATION *
+     ***************************/
     class TagCloudVisualization extends AbstractVisualization {
 
       constructor() {
@@ -3542,6 +3552,102 @@ window.scalarvis = { instanceCount: -1 };
             colors: ['#a50f15', '#cb181d', '#ef3b2c', '#fb6a4a']
           });
         });
+      }
+    }
+
+    /*********************
+     * MAP VISUALIZATION *
+     *********************/
+    class MapVisualization extends AbstractVisualization {
+
+      constructor() {
+        super();
+        // init any special properties needed for this visualization here
+      }
+
+      draw() {
+        // this updates the dimensions of the vis based on window size, etc.
+        // and calls setupElement if the vis was just created
+        super.draw();
+
+        // add additional code here to render the vis
+        // base.hierarchy is an object containing a hierarchy of known nodes, organized by type
+        // base.sortedNodes is an array of all known nodes
+      }
+
+      getHelpContent() {
+        return "Some info about this visualization"; // see other vis classes for examples
+      }
+
+      // one-time visualization setup
+      setupElement() {
+        this.hasBeenDrawn = true;
+        base.visualization.empty(); // empty the element where this vis is to be shown
+        base.visualization.append('Map visualization');
+      }
+    }
+
+    /*********************
+     * MAP VISUALIZATION *
+     *********************/
+    class WordCloudVisualization extends AbstractVisualization {
+
+      constructor() {
+        super();
+        // init any special properties needed for this visualization here
+      }
+
+      draw() {
+        // this updates the dimensions of the vis based on window size, etc.
+        // and calls setupElement if the vis was just created
+        super.draw();
+
+        // add additional code here to render the vis
+        // base.hierarchy is an object containing a hierarchy of known nodes, organized by type
+        // base.sortedNodes is an array of all known nodes
+      }
+
+      getHelpContent() {
+        return "Some info about this visualization"; // see other vis classes for examples
+      }
+
+      // one-time visualization setup
+      setupElement() {
+        this.hasBeenDrawn = true;
+        base.visualization.empty(); // empty the element where this vis is to be shown
+        base.visualization.append('Word cloud visualization');
+      }
+    }
+
+    /**********************
+     * LIST VISUALIZATION *
+     **********************/
+    class ListVisualization extends AbstractVisualization {
+
+      constructor() {
+        super();
+        // init any special properties needed for this visualization here
+      }
+
+      draw() {
+        // this updates the dimensions of the vis based on window size, etc.
+        // and calls setupElement if the vis was just created
+        super.draw();
+
+        // add additional code here to render the vis
+        // base.hierarchy is an object containing a hierarchy of known nodes, organized by type
+        // base.sortedNodes is an array of all known nodes
+      }
+
+      getHelpContent() {
+        return "Some info about this visualization"; // see other vis classes for examples
+      }
+
+      // one-time visualization setup
+      setupElement() {
+        this.hasBeenDrawn = true;
+        base.visualization.empty(); // empty the element where this vis is to be shown
+        base.visualization.append('List visualization');
       }
     }
 
