@@ -382,10 +382,16 @@ window.scalarvis = { instanceCount: -1 };
       	  };
           base.options.lens = data;
           scalarapi.parsePagesByType(data.items);
+          console.log(data.items);
           if (success) {
             success(data);
           }
-          base.visualize();
+          if (!base.visStarted) {
+            base.visualize();
+          } else {
+            base.filter();
+            base.draw();
+          }
         },
         error: function error(response) {
     	     console.log('There was an error attempting to communicate with the server.');
@@ -435,6 +441,8 @@ window.scalarvis = { instanceCount: -1 };
         base.updateControls();
       }
       if (base.options.lens) {
+        delete(base.options.format);
+        delete(base.options.relations);
         base.getLensResults();
       }
       console.log(base.options);
@@ -947,292 +955,10 @@ window.scalarvis = { instanceCount: -1 };
             end = start + this.resultsPerPage;
             result = scalarapi.loadPagesByType(loadInstruction.id, true, base.parseData, null, depth, references, relations, start, base.resultsPerPage, false, false);
             break;
-
-      }
-      base.visElement.find(".vis-format-control").val(base.options.format);
-    }
-
-    // color scheme generated at http://colorbrewer2.org
-    base.highlightColorScale = function(d, t, n) {
-
-      if (t == null) {
-        t = "noun";
-      }
-
-      if (n == null) {
-        n = this.neutralColor;
-      }
-
-      // base colors
-      var color;
-      switch (d) {
-
-        case "page":
-          color = "#ff7f00";
-          break;
-
-        case "path":
-          color = "#377eb8";
-          break;
-
-        case "comment":
-        case "reply":
-          var componentToHex = function(c) {
-            var hex = c.toString(16);
-            return hex.length == 1 ? "0" + hex : hex;
-          }
-          color = d3.rgb("#ffff33").darker();
-          color = "#" + componentToHex(color.r) + componentToHex(color.g) + componentToHex(color.b);
-          break;
-
-        case "annotation":
-          color = "#984ea3";
-          break;
-
-        case "tag":
-          color = "#e41a1c";
-          break;
-
-        case "media":
-        case "reference":
-          color = "#4daf4a";
-          break;
-
-        default:
-          color = n;
-          break;
-
-      }
-
-      // "noun" colors are used to describe what things are, "verb" colors
-      // are used to types of relationships between things. Not all content
-      // types (i.e. "nouns") have corresponding relationship types ("verbs"),
-      // so we mute them to gray if the verb form is what we care about.
-      // "Path" describes both an item and a relationship; "page" does not.
-      switch (t) {
-
-        // pass through the noun color
-        case "noun":
-          return color;
-          break;
-
-        // pass through only selected noun colors, neutralize the others
-        case "verb":
-          switch (d) {
-
-            case "path":
-            case "comment":
-            case "annotation":
-            case "tag":
-            case "reference":
-              return color;
-              break;
-
-            default:
-              return n;
-              break;
-
-          }
-          break;
-
-      }
-
-    }
-
-    // pop-up that shows information about the selected node
-    base.nodeInfoBox = function(d) {
-
-      var i, n, description, relatedNodes, itemCount, itemName, itemType, type, direction, relationType;
-
-      var str = '<div class="arrow"></div><div class="content"><p><strong>';
-      str += d.getDisplayTitle(true);
-      str += '</strong></p>';
-
-      n = base.canonicalRelationOrder.length;
-      for (i = 0; i < n; i++) {
-        type = base.canonicalRelationOrder[i].type;
-        direction = base.canonicalRelationOrder[i].direction;
-        (direction == 'incoming') ? itemType = 'body' : itemType = 'target';
-        relationType = scalarapi.model.relationTypes[type];
-        description = relationType[direction];
-        relatedNodes = d.getRelatedNodes(type, direction);
-        itemCount = relatedNodes.length;
-        (itemCount > 1) ? itemName = relationType[itemType + 'Plural'] : itemName = relationType[itemType];
-        if (itemCount > 0) str += '<p style="color:' + d3.rgb(base.neutralColor).brighter(1.5) + ';">' + description + ' ' + itemCount + ' ' + itemName + '</p>';
-      }
-
-      if (base.rolloverNode != null) {
-        if ((base.rolloverNode.url != d.url) || (base.selectedNodes.indexOf(d) != -1) || isMobile) {
-          str += '<a href="' + d.url + '" target="_blank" class="btn btn-primary btn-xs" role="button">Visit &raquo;</a>';
-        }
-      } else {
-        str += '<a href="' + d.url + '" target="_blank" class="btn btn-primary btn-xs" role="button">Visit &raquo;</a>';
-      }
-
-      str += '</div></div>';
-
-      return str;
-    }
-
-    // Source: https://github.com/Caged/d3-tip
-    // Gets the screen coordinates of a shape
-    //
-    // Given a shape on the screen, will return an SVGPoint for the directions
-    // n(north), s(south), e(east), w(west), ne(northeast), se(southeast), nw(northwest),
-    // sw(southwest).
-    //
-    //    +-+-+
-    //    |   |
-    //    +   +
-    //    |   |
-    //    +-+-+
-    //
-    // Returns an Object {n, s, e, w, nw, sw, ne, se}
-    base.getScreenBBox = function(target) {
-
-      var targetel = target /*|| d3.event.target*/;
-
-      while ('undefined' === typeof targetel.getScreenCTM && 'undefined' === targetel.parentNode) {
-        targetel = targetel.parentNode;
-      }
-
-      var svg = base.getSVGNode(base.svg)
-      var point = svg.createSVGPoint()
-
-      var bbox = {},
-        matrix = targetel.getScreenCTM(),
-        //tbbox = targetel.getBBox(),
-        tbbox = targetel.getBoundingClientRect(),
-        width = tbbox.width,
-        height = tbbox.height,
-        x = tbbox.left,
-        y = tbbox.top;
-
-      point.x = x;
-      point.y = y;
-      bbox.nw = point.matrixTransform(matrix);
-      point.x += width;
-      bbox.ne = point.matrixTransform(matrix);
-      point.y += height;
-      bbox.se = point.matrixTransform(matrix);
-      point.x -= width;
-      bbox.sw = point.matrixTransform(matrix);
-      point.y -= height / 2;
-      bbox.w = point.matrixTransform(matrix);
-      point.x += width;
-      bbox.e = point.matrixTransform(matrix);
-      point.x -= width / 2;
-      point.y -= height / 2;
-      bbox.n = point.matrixTransform(matrix);
-      point.y += height;
-      bbox.s = point.matrixTransform(matrix);
-
-      bbox.bbox = tbbox;
-
-      return bbox;
-    }
-
-    // Source: https://github.com/Caged/d3-tip
-    base.getSVGNode = function(el) {
-      el = el.node();
-      if (el.tagName.toLowerCase() === 'svg') {
-        return el;
-      }
-      return el.ownerSVGElement;
-    }
-
-    // boots/reboots the visualization with the current options
-    base.visualize = function() {
-
-      base.clear();
-
-      base.loadIndex = -1;
-      base.loadingPaused = false;
-      base.loadingDone = false;
-      base.drawingPaused = false;
-      base.visStarted = true;
-      base.pageIndex = 0;
-      base.reachedLastPage = true;
-      base.typeCounts = {};
-      base.maxNodesPerType = 0;
-      base.startTime = new Date();
-      base.loadingMsgShown = false;
-      base.contentNodes = [];
-      base.activeNodes = [];
-      base.rolloverNode = null;
-      base.relations = [];
-      base.links = [];
-      base.linksBySlug = {};
-      base.relatedNodes = [];
-      base.sortedNodes = [];
-      base.nodesBySlug = {};
-      base.svg = null;
-      base.selectedNodes = [base.currentNode];
-      base.loadSequence = null;
-      base.maxConnections = 0;
-      base.hierarchy = null;
-      base.selectedHierarchyNodes = null;
-      base.processedNodesForHierarchy = [];
-      base.visInstance = null;
-
-      base.visualization.css('height', '');
-
-      if (base.options.modal) {
-        base.visualization.removeClass('bounded');
-        base.visElement.find('.loadingMsg').addClass('bounded');
-        base.visElement.find('.vis_footer').addClass('bounded');
-
-      } else if (base.options.widget) {
-        base.visElement.addClass('vis_widget');
-      } else {
-        base.visElement.addClass('page_margins');
-      }
-
-      if (!base.loadedAllContent) {
-        console.log('all content not loaded');
-        base.buildLoadSequence();
-        if (base.loadSequence.length > 0) {
-          console.log('load sequence not exhausted');
-          base.loadNextData();
-        } else {
-          console.log('load sequence exhausted');
-          base.loadingDone = true;
-          base.draw();
-        }
-      } else {
-        console.log('all content loaded');
-        base.loadingDone = true;
-        base.filter();
-        setTimeout(function() { base.draw(); }, 0);
-      }
-
-        //console.log( "load next data: " + loadInstruction.id + ' ' + start + ' ' + end );
-
-        base.updateLoadingMsg(
-          loadInstruction.desc,
-          ((base.loadIndex + 1) / (base.loadSequence.length + 1)) * 100,
-          (start == -1) ? -1 : start + 1,
-          end,
-          base.typeCounts[loadInstruction.id]
-        );
-
-        if (result == 'loaded') {
-          base.parseData();
-        }
-
-        // otherwise, hide the loading message
-      } else {
-        base.hideLoadingMsg();
-        base.loadingDone = true;
-        base.draw(true);
-        // when content is set to 'toc', we still load everything so users can drill down as far as they want
-        if ((base.options.content == 'all') || (base.options.content == 'toc')) {
-          base.loadedAllContent = true;
-          $('body').trigger('visLoadedAllContent');
         }
       }
-
-    };
+      base.visElement.find(".vis-format-control").val(base.getFormat());
+    }
 
     base.parseData = function(json) {
 
@@ -2144,7 +1870,7 @@ window.scalarvis = { instanceCount: -1 };
       }
       base.visualization.empty();
 
-      switch (base.options.format) {
+      switch (base.getFormat()) {
 
         case "force-directed":
           if (base.force != null) {
@@ -2170,7 +1896,7 @@ window.scalarvis = { instanceCount: -1 };
       }
 
       var needsInstantiation;
-      switch (base.options.format) {
+      switch (base.getFormat()) {
 
         case "grid":
           needsInstantiation = base.visInstance ? base.visInstance.constructor.name != 'GridVisualization' : true;
@@ -3578,6 +3304,8 @@ window.scalarvis = { instanceCount: -1 };
           this.forceLink.links(base.links);
           base.force.nodes(base.abstractedSortedNodes).alpha(.05);
 
+          console.log('nodes: '+Object.values(base.abstractedSortedNodes).length);
+
           this.container = base.svg.selectAll('g.container');
 
           this.linkSelection = this.container.selectAll('.link')
@@ -3586,19 +3314,12 @@ window.scalarvis = { instanceCount: -1 };
             .attr('class', 'link');
           this.linkSelection.exit().remove();
 
-          this.nodeSelection = this.container.selectAll('.node')
+          this.nodeSelection = this.container.selectAll('g.node')
             .data(base.force.nodes(), function(d) { return d.node.slug; });
 
-          var nodeEnter = this.nodeSelection.enter();
-
-          nodeEnter.append('svg:circle')
+          var nodeEnter = this.nodeSelection.enter().append('svg:g')
             .attr('class', 'node')
             .call(this.dragHandling(base.force))
-            .attr('r', '16')
-            .attr('fill', function(d) {
-              var interpolator = d3.interpolateRgb(base.highlightColorScale(d.node.type.id), d3.rgb(255, 255, 255));
-              return ((base.rolloverNode == d.node) || (base.selectedNodes.indexOf(d.node) != -1)) ? interpolator(0) : interpolator(.5);
-            })
             .on('touchstart', function(d) { d3.event.stopPropagation(); })
             .on('mousedown', function(d) { d3.event.stopPropagation(); })
             .on('click', (d) => {
@@ -3624,6 +3345,14 @@ window.scalarvis = { instanceCount: -1 };
             .on("mouseout", () => {
               base.rolloverNode = null;
               this.updateGraph();
+            });
+
+          nodeEnter.append('svg:circle')
+            .attr('class', 'node')
+            .attr('r', '16')
+            .attr('fill', function(d) {
+              var interpolator = d3.interpolateRgb(base.highlightColorScale(d.node.type.id), d3.rgb(255, 255, 255));
+              return ((base.rolloverNode == d.node) || (base.selectedNodes.indexOf(d.node) != -1)) ? interpolator(0) : interpolator(.5);
             });
 
           // create the text labels
@@ -3697,7 +3426,8 @@ window.scalarvis = { instanceCount: -1 };
 
         base.force = d3.forceSimulation()
           .force('link', this.forceLink)
-          .force('charge', d3.forceManyBody().strength(-200))
+          .force('collision', d3.forceCollide(16))
+          .force('charge', d3.forceManyBody().strength(-200).distanceMax(100))
           .force('center', d3.forceCenter(this.size.width * .5, this.size.height * .5))
           .on('tick', () => {
             if (base.svg != null) {
@@ -3707,10 +3437,13 @@ window.scalarvis = { instanceCount: -1 };
                 .attr('x2', function(d) { return d.target.x; })
                 .attr('y2', function(d) { return d.target.y; })
                 .attr('visibility', function(d) { return (d.source.node.slug == 'toc' || d.target.node.slug == 'toc') ? 'hidden' : 'visible'; });
+              base.svg.selectAll('g.node')
+                .attr('x', function(d) { return d.x; })
+                .attr('y', function(d) { return d.y; })
+                .attr('visibility', function(d) { return d.node.slug == 'toc' ? 'hidden' : 'visible'; });
               base.svg.selectAll('circle.node')
                 .attr('cx', function(d) { return d.x; })
-                .attr('cy', function(d) { return d.y; })
-                .attr('visibility', function(d) { return d.node.slug == 'toc' ? 'hidden' : 'visible'; });
+                .attr('cy', function(d) { return d.y; });
               base.svg.selectAll('text.label')
                 .attr('x', function(d) { return d.x; })
                 .attr('y', function(d) { return d.y + 28; });
@@ -3744,9 +3477,9 @@ window.scalarvis = { instanceCount: -1 };
         }
 
         return d3.drag()
-            .on("start", dragStarted)
-            .on("drag", dragged)
-            .on("end", dragEnded);
+          .on("start", dragStarted)
+          .on("drag", dragged)
+          .on("end", dragEnded);
       }
 
       updateGraph() {
@@ -3755,7 +3488,7 @@ window.scalarvis = { instanceCount: -1 };
           .attr('stroke-opacity', function(d) { return ((base.rolloverNode == d.source.node) || (base.selectedNodes.indexOf(d.source.node) != -1) || (base.rolloverNode == d.target.node) || (base.selectedNodes.indexOf(d.target.node) != -1)) ? '1.0' : '0.5'; })
           .attr('stroke', function(d) { return ((base.rolloverNode == d.source.node) || (base.selectedNodes.indexOf(d.source.node) != -1) || (base.rolloverNode == d.target.node) || (base.selectedNodes.indexOf(d.target.node) != -1)) ? base.neutralColor : '#999'; });
 
-        this.container.selectAll('.node').attr('fill', function(d) {
+        this.container.selectAll('circle.node').attr('fill', function(d) {
           var interpolator = d3.interpolateRgb(base.highlightColorScale(d.node.type.id), d3.rgb(255, 255, 255));
           return ((base.rolloverNode == d.node) || (base.selectedNodes.indexOf(d.node) != -1)) ? interpolator(0) : interpolator(.5);
         });
