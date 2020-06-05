@@ -518,7 +518,6 @@
 
             addMediaElementForLink: function(link, parent, height, baseOptions) {
 
-            	console.log(link);
                 var inline = link.hasClass('inline'),
                     size = link.attr('data-size'),
                     align = link.attr('data-align');
@@ -1749,10 +1748,8 @@
               if (lensObject.visualization) {
                 var visOptions = {
                     modal: false,
-                    content: 'specific',
-                    relations: 'path',
-                    items: slugs,
-                    format: lensObject.visualization.type
+                    content: 'lens',
+                    lens: lensObject
                 };
                 visualization.scalarvis(visOptions);
               }

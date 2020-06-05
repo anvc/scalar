@@ -609,7 +609,7 @@ $(window).ready(function() {
 		  }},
 
 		  {load: [widgets_uri+'/spinner/spin.min.js',
-		          widgets_uri+'/d3/d3.min.js'], complete:function() {
+		          widgets_uri+'/d3/d3.v5.min.js'], complete:function() {
 
 		        var currentNode = scalarapi.model.getCurrentPageNode();
 		        var extension = scalarapi.getFileExtension( window.location.href );
