@@ -493,9 +493,7 @@
           break;
         }
 
-        // add/remove active class
-        $(evt.target).parent().parent().find( 'li.active' ).removeClass( 'active' );
-        $(evt.target).parent().addClass( 'active' );
+
 
       };
 
@@ -629,8 +627,10 @@
           me.updateFilterModal(option.value, filterObj);
         }
         // add/remove active class
-        $( evt.target ).parent().parent().find( 'li.active' ).removeClass( 'active' );
+        button.find('li.active').removeClass( 'active' );
         $( evt.target ).parent().addClass( 'active' );
+
+
 
       }
 
@@ -688,12 +688,12 @@
                 buttonText += 'not ';
               }
               contentTypes.forEach((contentType, index) => {
-                if (contentTypes.length > 2) {
-                  if (index > 0 && index < contentTypes.length - 2) {
+                if (contentTypes.length > 1) {
+                  if (index > 0 && index < contentTypes.length - 1) {
                     buttonText += ', ';
                   }
                   if (index == contentTypes.length - 1) {
-                    buttonText += 'or ';
+                    buttonText += ', or ';
                   }
                 }
                 buttonText += scalarapi.model.scalarTypes[contentType].plural;
@@ -1172,7 +1172,7 @@
       // cancel click handler
       element.find('.cancel').on('click', function(){
         let currentButton = $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-btn-group').eq(me.editedModifierIndex);
-        $(currentButton).find('.dropdown-menu li.active').removeClass('active');
+        $(currentButton).find('.filter-type-list li.active').removeClass('active');
       });
 
       return element;
@@ -1187,7 +1187,7 @@
             "type": "filter",
             "subtype": "content-type",
             "operator": $('#operator-button').data('option').value,
-            "content-types": [$('#content-type-button').data('option').value]
+            "content-types": $('#content-type-button').data('option').value
           }
         break;
         case 'content':
@@ -1437,7 +1437,25 @@
       `).appendTo(container);
 
       let me = this;
-      let onClick = function() { me.updateTypeFilterForm(); };
+      let onClick = function(evt) { me.updateTypeFilterForm(); };
+
+      // allow multiple selections
+      let multipleSelects = function(evt){
+        $(evt.currentTarget).toggleClass('active');
+        let typeFilterArray = [];
+        $('#content-type-list li.active').each(function(items){
+           typeFilterArray.push($(this).data('option').value)
+           if(items > 0){
+             $('#content-type-button').text('(Multiple selections)').append('<span class="caret"></span>');
+           } else if (items <= 0){
+             $('#content-type-button').text($('#content-type-list li.active').data('option').label).append('<span class="caret"></span>')
+           }
+
+        });
+        $('#content-type-button').data('option', { value: typeFilterArray });
+        //console.log(typeFilterArray);
+      }
+
 
       this.populateDropdown($('#operator-button'), $('#operator-list'), filterObj.operator, onClick,
         '<li><a></a></li>',
@@ -1446,7 +1464,7 @@
           {label: "are not", value: "exclusive"}
         ]);
 
-      this.populateDropdown($('#content-type-button'), $('#content-type-list'), filterObj['content-types'], onClick,
+      this.populateDropdown($('#content-type-button'), $('#content-type-list'), filterObj['content-types'], multipleSelects,
         '<li><a></a></li>',
         [
           {label: "pages", value: "page"},
@@ -1480,6 +1498,7 @@
         contentTypeButton.data('option', option);
       }
       contentTypeButton.text(option.label).append('<span class="caret"></span>');
+
 
       this.updateFilterModalBadges(this.buildFilterData());
     }
@@ -1934,7 +1953,7 @@
                 </div>
               </div>
               <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-default cancel" data-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-primary done" data-dismiss="modal">Done</button>
               </div>
             </div>
@@ -1951,17 +1970,14 @@
 
         switch(type){
           case 'alphabetical':
-
             const sortOntologyValue = $('#sort-ontology-button').data('option').value;
             const sortPropertyValue = $('#sort-property-button').data('option').value;
-
             sortObj = {
               "type": "sort",
               "sort-type": "alphabetical",
               "metadata-field":`${sortOntologyValue}:${sortPropertyValue}`,
               "sort-order": $('#sort-alph-button').data('option').value
             };
-
           break;
           case 'creation-date':
             sortObj = {
@@ -1978,17 +1994,14 @@
             };
           break;
           case 'distance':
-
             const latitude = $('#latitude.sort').val();
             const longitude = $('#longitude.sort').val();
-
             sortObj = {
               "type": "sort",
               "sort-type": "distance",
   	          "content": `${latitude},${longitude}`,
               "sort-order": $('#sort-distance-button').data('option').value
             };
-
           break;
           case 'type':
             sortObj = {
@@ -2004,10 +2017,8 @@
             };
           break;
           case 'match-count':
-
-          const matchOntologyValue = $('#match-ontology-button').data('option').value;
-          const matchPropertyValue = $('#match-property-button').data('option').value;
-
+            const matchOntologyValue = $('#match-ontology-button').data('option').value;
+            const matchPropertyValue = $('#match-property-button').data('option').value;
             sortObj = {
               "type": "sort",
               "sort-type": "match-count",
@@ -2028,6 +2039,12 @@
         me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex] = sortObj;
         me.updateSortButton(me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex], $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-btn-group').eq(me.editedModifierIndex))
         me.saveLens(() => me.getLensResults(me.options.onLensResults));
+      });
+
+      // cancel click handler
+      element.find('.cancel').on('click', function(){
+        let currentButton = $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-btn-group').eq(me.editedModifierIndex);
+        $(currentButton).find('.dropdown-menu li.active').removeClass('active');
       });
 
       return element;
