@@ -1442,6 +1442,7 @@
       // allow multiple selections
       let multipleSelects = function(evt){
         $(evt.currentTarget).toggleClass('active');
+        evt.currentTarget.toggleAttribute("hello")
         let typeFilterArray = [];
         $('#content-type-list li.active').each(function(items){
            typeFilterArray.push($(this).data('option').value)
@@ -1450,11 +1451,10 @@
            } else if (items <= 0){
              $('#content-type-button').text($('#content-type-list li.active').data('option').label).append('<span class="caret"></span>')
            }
-
         });
         $('#content-type-button').data('option', { value: typeFilterArray });
-        //console.log(typeFilterArray);
       }
+
 
 
       this.populateDropdown($('#operator-button'), $('#operator-list'), filterObj.operator, onClick,
@@ -1481,6 +1481,8 @@
     // update type filter form
     ScalarLenses.prototype.updateTypeFilterForm = function() {
 
+      let me = this;
+
       // update operator menu
       let operatorButton = $('#operator-button');
       let option = operatorButton.data('option');
@@ -1493,11 +1495,29 @@
       // update content type menu
       let contentTypeButton = $('#content-type-button');
       option = contentTypeButton.data('option');
+      //let contentOptionValue = contentTypeButton.data('option').value;
       if (!option) { // if nothing selected yet, create a placeholder option
         option = {label: 'Select type(s)', value: null};
         contentTypeButton.data('option', option);
       }
       contentTypeButton.text(option.label).append('<span class="caret"></span>');
+
+
+      let currentTypes = me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex]["content-types"];
+      let contentTypeList = $('#content-type-list li');
+
+      if(currentTypes){
+        currentTypes.forEach(item => {
+          for(let i = 0; i < contentTypeList.length; i++){
+            if(item.substring(0,3) === $(contentTypeList[i]).text().substring(0,3)){
+              $(contentTypeList[i]).addClass('active');
+            }
+          }
+          if(item.length > 2){
+            contentTypeButton.text('(Multiple selections)').append('<span class="caret"></span>');
+          }
+        })
+      }
 
 
       this.updateFilterModalBadges(this.buildFilterData());
