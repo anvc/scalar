@@ -161,6 +161,8 @@ class Lens_model extends MY_Model {
 									foreach ($from_arr as $page) {
 										$version = $CI->versions->get_single($page->content_id, $page->recent_version_id, null, false);
 										if (empty($version)) continue;
+										$page->versions = array($version);
+										$content[] = $page;
 										$types = $modifier['content-types'];
 										if (isset($types[0]) && 'all-types' == $types[0]) {
 											$types = $CI->config->item('rel');
