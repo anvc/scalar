@@ -1450,20 +1450,10 @@
         let typeFilterArray = [];
         $('#content-type-list li.active').each(function(items){
            typeFilterArray.push($(this).data('option').value)
-           if(items > 0){
-             $('#content-type-button').text('(Multiple selections)').append('<span class="caret"></span>');
-           } else if(items < 1){
-             $('#content-type-button').text($('#content-type-list li.active').data('option').label).append('<span class="caret"></span>')
-           }
         });
-
         $('#content-type-button').data('option', { value: typeFilterArray });
 
-        // let activeLi = $('#content-type-list li.active');
-        // for(let i = 0; i < activeLi.length; i++){
-        //   console.log($(activeLi[i]))
-        // }
-
+        me.updateTypeFilterForm();
 
       }
 
@@ -1475,6 +1465,8 @@
           {label: "are not", value: "exclusive"}
         ]);
 
+
+
       this.populateDropdown($('#content-type-button'), $('#content-type-list'), filterObj['content-types'], multipleSelects,
         '<li><a></a></li>',
         [
@@ -1485,6 +1477,25 @@
           {label: "annotations", value: "annotation"},
           {label: "comments", value: "comment"}
         ]);
+
+
+        let contentList = $('#content-type-list li');
+        let contentArray = filterObj["content-types"];
+        contentList.each(function(i, item)  {
+          console.log($(item).data('option').value)
+          if(contentArray.indexOf($(item).data('option').value) != -1 ){
+            $(contentList[i]).addClass('active');
+          }
+        })
+
+        if(contentArray.length == 1){
+          $('#content-type-list li').each(function(){
+            if($(this).data('option').value == contentArray[0]) {
+              $('#content-type-button').text($(this).data('option').label).append('<span class="caret"></span>');
+            }
+          })
+        }
+
 
       return element;
     }
@@ -1506,29 +1517,24 @@
       // update content type menu
       let contentTypeButton = $('#content-type-button');
       option = contentTypeButton.data('option');
-      //let contentOptionValue = contentTypeButton.data('option').value;
       if (!option) { // if nothing selected yet, create a placeholder option
         option = {label: 'Select type(s)', value: null};
         contentTypeButton.data('option', option);
       }
-      contentTypeButton.text(option.label).append('<span class="caret"></span>');
 
 
-      let currentTypes = me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex]["content-types"];
-      let contentTypeList = $('#content-type-list li');
-
-      if(currentTypes){
-        currentTypes.forEach(item => {
-          for(let i = 0; i < contentTypeList.length; i++){
-            if(item === $(contentTypeList[i]).data('option').value){
-              $(contentTypeList[i]).addClass('active');
-            }
-          }
-        })
-        if(currentTypes.length > 1){
+      let contentTypeList = $('#content-type-list li.active');
+        if(contentTypeList.length > 1){
           contentTypeButton.text('(Multiple selections)').append('<span class="caret"></span>');
+        } else if(contentTypeList.length == 0){
+          contentTypeButton.text('Select type(s)').append('<span class="caret"></span>');
+        } else {
+          $('#content-type-list li').each(function(){
+            if($(this).data('option').value == option.value[0]) {
+              contentTypeButton.text($(this).data('option').label).append('<span class="caret"></span>');
+            }
+          })
         }
-      }
 
 
       this.updateFilterModalBadges(this.buildFilterData());
