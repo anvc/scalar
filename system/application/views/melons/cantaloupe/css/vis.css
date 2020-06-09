@@ -1,2 +1,5 @@
 
 #vis {}
+
+.WordCloud-Element {float:left; margin:5px 10px 5px 10px; padding-left:16px; position:relative;}
+.WordCloud-Dot {position:absolute; left:0px; top:8px; width:8px; height:8px; border-radius:4px; background-color:#aaaaaa;}
