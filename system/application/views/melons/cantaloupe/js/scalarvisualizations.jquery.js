@@ -3604,8 +3604,8 @@ window.scalarvis = { instanceCount: -1 };
         
         base.visualization.empty();
         // Customizable variables
-    	var min_font_size = 12;
-    	var max_font_size = 26;
+    	var min_font_size = 13;
+    	var max_font_size = 36;
     	// Other variables
     	var middle_font_size = min_font_size + ((max_font_size - min_font_size) / 2);
         var max_all = null;
@@ -3618,6 +3618,14 @@ window.scalarvis = { instanceCount: -1 };
         	if (null == max_all || all > max_all) max_all = all;
         	if (null == min_all || all < min_all) min_all = all;
         	var $el = $('<div class="WordCloud-Element" data-incoming="'+incoming+'" data-outgoing="'+outgoing+'" data-all="'+all+'"><a href="'+base.sortedNodes[j].url+'">'+base.sortedNodes[j].getDisplayTitle()+'</a></div>').appendTo(base.visualization);
+        	var $dot = $('<div class="WordCloud-Dot"></div>').prependTo($el);
+        	var color = '#ff7f00';  // page
+        	if ('undefined' != typeof(base.sortedNodes[j].scalarTypes.media)) color = '#4daf4a';
+        	if ('undefined' != typeof(base.sortedNodes[j].scalarTypes.reply)) color = '#666666';
+        	if ('undefined' != typeof(base.sortedNodes[j].scalarTypes.tag)) color = '#e41a1c';
+        	if ('undefined' != typeof(base.sortedNodes[j].scalarTypes.annotation)) color = '#984ea3';
+        	if ('undefined' != typeof(base.sortedNodes[j].scalarTypes.path)) color = '#377eb8';
+        	$dot.css('background-color', color);
         };
         var middle_all = min_all + ((max_all - min_all) / 2);
         // Set the font size for each
@@ -3628,7 +3636,7 @@ window.scalarvis = { instanceCount: -1 };
         	var ratio = (diff / (max_all - min_all));
         	var fontSize = middle_font_size + ((max_font_size - min_font_size) * ratio);
         	$this.css('font-size', fontSize + 'px');
-        }).css('float', 'left').css('padding', '5px 10px 5px 10px');
+        });
         // Alphabetize
         base.visualization.find('.WordCloud-Element').sort(function(a,b) {
         	return $(a).text().toUpperCase().localeCompare($(b).text().toUpperCase());
@@ -3644,7 +3652,7 @@ window.scalarvis = { instanceCount: -1 };
       setupElement() {
         this.hasBeenDrawn = true;
         base.visualization.empty(); // empty the element where this vis is to be shown
-        base.visualization.append('Word cloud visualization');
+        $('head').append('<link rel="stylesheet" type="text/css" href="' + $('link#approot').attr('href') + 'views/melons/cantaloupe/css/vis.css">');
       }
     }
 
