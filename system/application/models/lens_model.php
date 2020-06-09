@@ -144,14 +144,14 @@ class Lens_model extends MY_Model {
 								case "distance":
 									$has_used_filter = true;
 									$from_arr = $this->get_pages_from_content_selector($component['content-selector'], $book_id);
-									$distance_in_meters = $modifier['quantity'];
+									$distance_in_meters = $this->get_distance_in_meters($modifier['quantity'], $modifier['units']);
 									$items = $CI->versions->get_by_predicate($book_id, array('dcterms:spatial','dcterms:coverage'));
 									foreach ($from_arr as $from) {
-										$content = array();
 										$item = $this->filter_by_slug($items, $from->slug);
 										if (!empty($item)) {
 											$latlng = $this->get_latlng_from_item($item[0]);
-											$content = $this->filter_by_location($items, $latlng, $distance_in_meters);
+											$content_by_location = $this->filter_by_location($items, $latlng, $distance_in_meters);
+											$content = (!empty($content)) ? $this->combine_items($content, $content_by_location, 'or') : $content_by_location;
 										}
 									}
 									break;
@@ -331,7 +331,7 @@ class Lens_model extends MY_Model {
     }
     
     public function filter_by_location($items, $location, $distance_in_meters) {
-    	
+
     	$arr = explode(',',$location);
     	$loc_lat = trim($arr[0]);
     	$loc_lng = trim($arr[1]);
@@ -369,6 +369,21 @@ class Lens_model extends MY_Model {
     	$return = 'or';
     	if (isset($json['options']) && isset($json['options']['operation'])) $return = $json['options']['operation'];
     	return $return;
+    	
+    }
+    
+    public function get_distance_in_meters($quantity, $units) {
+    	
+    	switch ($units) {
+    		case 'kilometers':
+    			return $quantity * 1000;
+    			break;
+    		case 'miles':
+    			return $quantity * 1609.344;
+    			break;
+    		default: // meters
+    			return $quantity;
+    	}
     	
     }
     
