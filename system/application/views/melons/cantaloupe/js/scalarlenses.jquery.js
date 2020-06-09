@@ -692,8 +692,13 @@
                   if (index > 0 && index < contentTypes.length - 1) {
                     buttonText += ', ';
                   }
-                  if (index == contentTypes.length - 1) {
+                  if (index == contentTypes.length - 1 && contentTypes.length >= 3) {
                     buttonText += ', or ';
+                  }
+                }
+                if(contentTypes.length == 2){
+                  if (index > 0 && index == contentTypes.length - 1) {
+                    buttonText += ' or ';
                   }
                 }
                 buttonText += scalarapi.model.scalarTypes[contentType].plural;
@@ -1172,7 +1177,7 @@
       // cancel click handler
       element.find('.cancel').on('click', function(){
         let currentButton = $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-btn-group').eq(me.editedModifierIndex);
-        $(currentButton).find('.filter-type-list li.active').removeClass('active');
+        //$(currentButton).find('.filter-type-list li.active').removeClass('active');
       });
 
       return element;
@@ -1437,24 +1442,30 @@
       `).appendTo(container);
 
       let me = this;
-      let onClick = function(evt) { me.updateTypeFilterForm(); };
+      let onClick = function(evt) {me.updateTypeFilterForm();};
 
       // allow multiple selections
       let multipleSelects = function(evt){
         $(evt.currentTarget).toggleClass('active');
-        evt.currentTarget.toggleAttribute("hello")
         let typeFilterArray = [];
         $('#content-type-list li.active').each(function(items){
            typeFilterArray.push($(this).data('option').value)
            if(items > 0){
              $('#content-type-button').text('(Multiple selections)').append('<span class="caret"></span>');
-           } else if (items <= 0){
+           } else if(items < 1){
              $('#content-type-button').text($('#content-type-list li.active').data('option').label).append('<span class="caret"></span>')
            }
         });
-        $('#content-type-button').data('option', { value: typeFilterArray });
-      }
 
+        $('#content-type-button').data('option', { value: typeFilterArray });
+
+        // let activeLi = $('#content-type-list li.active');
+        // for(let i = 0; i < activeLi.length; i++){
+        //   console.log($(activeLi[i]))
+        // }
+
+
+      }
 
 
       this.populateDropdown($('#operator-button'), $('#operator-list'), filterObj.operator, onClick,
@@ -1509,14 +1520,14 @@
       if(currentTypes){
         currentTypes.forEach(item => {
           for(let i = 0; i < contentTypeList.length; i++){
-            if(item.substring(0,3) === $(contentTypeList[i]).text().substring(0,3)){
+            if(item === $(contentTypeList[i]).data('option').value){
               $(contentTypeList[i]).addClass('active');
             }
           }
-          if(item.length > 2){
-            contentTypeButton.text('(Multiple selections)').append('<span class="caret"></span>');
-          }
         })
+        if(currentTypes.length > 1){
+          contentTypeButton.text('(Multiple selections)').append('<span class="caret"></span>');
+        }
       }
 
 
