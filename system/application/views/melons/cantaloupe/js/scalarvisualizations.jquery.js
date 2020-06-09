@@ -3588,7 +3588,7 @@ window.scalarvis = { instanceCount: -1 };
     }
 
     /*********************
-     * MAP VISUALIZATION *
+     * WORD CLOUD VISUALIZATION *
      *********************/
     class WordCloudVisualization extends AbstractVisualization {
 
