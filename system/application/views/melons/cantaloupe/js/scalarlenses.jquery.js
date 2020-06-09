@@ -1049,6 +1049,13 @@
           "type": "items-by-type",
           "content-type": $('#byType').text().split(/[_\s]/).join("-").toLowerCase()
         }
+        let contentSelections = me.scalarLensObject.components[me.editedComponentIndex]["content-selector"]
+        delete contentSelections.quantity;
+        delete contentSelections.units;
+        delete contentSelections.coordinates;
+        document.getElementById('distanceForm').reset();
+        $('#distanceUnits').text('Select unit...').append('<span class="caret"></span>');
+
         me.scalarLensObject.components[me.editedComponentIndex]["content-selector"] = contentSelector
         me.updateContentSelectorButton(me.scalarLensObject.components[me.editedComponentIndex]["content-selector"], $(me.element).find('.content-selector-btn-group').eq(me.editedComponentIndex))
         me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults))
@@ -1065,11 +1072,10 @@
                <div class="modal-content">
                  <div class="modal-body">
                    <p>Add any item that is within</p>
+                   <form id="distanceForm">
                    <div class="row">
                      <div class="col-sm-10">
-                       <div class="col-sm-5">
-                         <input id="distanceQuantity" type="text" class="form-control" aria-label="..." placeholder="Enter distance">
-                       </div>
+                         <input id="distanceQuantity" type="text" class="col-sm-5 form-control" aria-label="..." placeholder="Enter distance" />
                        <div class="col-sm-5">
                          <div class="btn-group">
                            <button id="distanceUnits" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
@@ -1080,18 +1086,15 @@
                            </ul>
                          </div>
                        </div>
-                     </div>
+                     </form>
                    </div>
                    <p>of these coordinates:</p>
                    <div class="row">
                      <div class="col-sm-10">
-                       <div class="col-sm-5">
-                         <input id="latitude" type="text"class="form-control" aria-label="..." placeholder="Latitude (decimal)">
-                       </div>
-                       <div class="col-sm-5">
-                         <input id="longitude" type="text" class="form-control" aria-label="..." placeholder="Longitude (decimal)">
-                       </div>
+                         <input id="latitude" type="text" class="col-sm-5 form-control" aria-label="..." placeholder="Latitude (decimal)" />
+                         <input id="longitude" type="text" class=" col-sm-5 form-control" aria-label="..." placeholder="Longitude (decimal)" />
                      </div>
+                   </div>
                    </div>
                  </div>
                  <div class="modal-footer">
@@ -1106,7 +1109,7 @@
         var me = this
 
         element.find('li').on('click', function(){
-          $('#distanceUnits').text($(this).text()).append('<span class="caret"></span>')
+          $('#distanceUnits').text($(this).text()).append('<span class="caret"></span>');
         });
 
         element.find('.done').on('click', function(){
@@ -1116,6 +1119,7 @@
             "units": $('#distanceUnits').text(),
             "coordinates": $('#latitude').val() + ', ' + $('#longitude').val()
           }
+          $('#byType').text('Select items...').append('<span class="caret"></span>');
           me.scalarLensObject.components[me.editedComponentIndex]["content-selector"] = contentSelector
           me.updateContentSelectorButton(me.scalarLensObject.components[me.editedComponentIndex]["content-selector"], $(me.element).find('.content-selector-btn-group').eq(me.editedComponentIndex))
           me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
@@ -1124,6 +1128,7 @@
         return element
 
     }
+
 
     // add filter modal
     // sets default state for all filter modals
@@ -3020,10 +3025,17 @@
 
     // callback for content-selector
     ScalarLenses.prototype.handleContentSelected = function(nodes){
-      if (nodes && nodes.length != 0) {
+      if (nodes && nodes.length != 0){
         let nodeTitles = nodes.map(node => node.slug);
         this.scalarLensObject.components[this.editedComponentIndex]["content-selector"].type = 'specific-items';
         this.scalarLensObject.components[this.editedComponentIndex]["content-selector"].items = nodeTitles;
+        const contentSelections = this.scalarLensObject.components[this.editedComponentIndex]["content-selector"]
+        delete contentSelections["content-type"];
+        delete contentSelections.quantity;
+        delete contentSelections.units;
+        delete contentSelections.coordinates;
+        document.getElementById('distanceForm').reset();
+        $('#byType').text('Select item...').append('<span class="caret"></span>');
         this.updateEditorDom();
         this.saveLens(() => this.getLensResults(this.scalarLensObject, this.options.onLensResults));
       }
