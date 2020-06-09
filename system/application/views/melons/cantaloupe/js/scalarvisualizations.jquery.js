@@ -3601,10 +3601,39 @@ window.scalarvis = { instanceCount: -1 };
         // this updates the dimensions of the vis based on window size, etc.
         // and calls setupElement if the vis was just created
         super.draw();
+        
+        base.visualization.empty();
+        // Customizable variables
+    	var min_font_size = 12;
+    	var max_font_size = 26;
+    	// Other variables
+    	var middle_font_size = min_font_size + ((max_font_size - min_font_size) / 2);
+        var max_all = null;
+    	var min_all = null;
+    	// Add nodes
+        for (var j = 0; j < base.sortedNodes.length; j++) {
+        	var incoming = parseInt( base.sortedNodes[j].incomingRelations.length );
+        	var outgoing = parseInt( base.sortedNodes[j].outgoingRelations.length );
+        	var all = incoming + outgoing;
+        	if (null == max_all || all > max_all) max_all = all;
+        	if (null == min_all || all < min_all) min_all = all;
+        	var $el = $('<div class="WordCloud-Element" data-incoming="'+incoming+'" data-outgoing="'+outgoing+'" data-all="'+all+'"><a href="'+base.sortedNodes[j].url+'">'+base.sortedNodes[j].getDisplayTitle()+'</a></div>').appendTo(base.visualization);
+        };
+        var middle_all = min_all + ((max_all - min_all) / 2);
+        // Set the font size for each
+        base.visualization.find('.WordCloud-Element').each(function() {
+        	var $this = $(this);
+        	var all = parseInt($this.data('all'));
+        	var diff = all - middle_all;
+        	var ratio = (diff / (max_all - min_all));
+        	var fontSize = middle_font_size + ((max_font_size - min_font_size) * ratio);
+        	$this.css('font-size', fontSize + 'px');
+        }).css('float', 'left').css('padding', '5px 10px 5px 10px');
+        // Alphabetize
+        base.visualization.find('.WordCloud-Element').sort(function(a,b) {
+        	return $(a).text().toUpperCase().localeCompare($(b).text().toUpperCase());
+        }).appendTo(base.visualization);
 
-        // add additional code here to render the vis
-        // base.hierarchy is an object containing a hierarchy of known nodes, organized by type
-        // base.sortedNodes is an array of all known nodes
       }
 
       getHelpContent() {
