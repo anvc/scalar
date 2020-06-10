@@ -2616,13 +2616,6 @@
         ontologyName = getButtonData.value;
       }
 
-      // reset property if new ontology selected
-      if(getButtonData && propertyButtonOption) {
-        if($(getButtonData.value).change()){
-          propertyButtonOption.label = 'Select property';
-        }
-      }
-
       let me = this;
       let onClick = function() { me.updateMatchCountSortForm(); };
       this.populateDropdown($('#match-property-button'), $('#match-property-list'), null, onClick,
