@@ -622,6 +622,7 @@
         me.editedModifierIndex = parseInt(button.data('modifierIndex'));
         if (option.value == 'delete') {
           me.deleteFilterButton(me.editedComponentIndex, me.editedModifierIndex);
+
         } else {
           let filterObj = me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex];
           me.updateFilterModal(option.value, filterObj);
@@ -630,7 +631,9 @@
         button.find('li.active').removeClass( 'active' );
         $( evt.target ).parent().addClass( 'active' );
 
-
+        if($(evt.target).parent().text() == 'Delete'){
+          $(this).removeClass('active')
+        }
 
       }
 
@@ -1785,12 +1788,14 @@
             </div>
             <div class="row" style="margin-top:10px;">
             <span style="margin-left:10px;vertical-align:middle;"> in this metadata field: </span>
-              <div class="btn-group"><button id="metadata-ontology-button" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
-                  Select field...<span class="caret"></span></button>
+              <div class="btn-group">
+                <button id="metadata-ontology-button" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Select field...<span class="caret"></span>
+                </button>
                 <ul id="metadata-ontology-list" class="dropdown-menu"></ul>
               </div>
               <div class="row" style="margin-top:10px;">
-              <div class="btn-group"><button id="metadata-property-button" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
+              <div class="btn-group"><button id="metadata-property-button" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   Select field...<span class="caret"></span></button>
                 <ul id="metadata-property-list" class="dropdown-menu"></ul>
               </div>
@@ -1799,7 +1804,13 @@
       `).appendTo(container);
 
       let me = this;
-      let onClick = function() { me.updateMetadataFilterForm();};
+      let onClick = function() { me.updateMetadataFilterForm(); }
+
+      let resetProperty = function(evt){
+         $('#metadata-property-button').data('option').label = `Select property`
+         me.updateMetadataFilterForm();
+      }
+
 
       // operator dropdown
       this.populateDropdown($('#operator-button'), $('#operator-list'), filterObj.operator, onClick,
@@ -1813,9 +1824,11 @@
       $('#metadata-content').val(filterObj.content).on('change', onClick);
 
       // ontology dropdown
-      this.populateDropdown($('#metadata-ontology-button'), $('#metadata-ontology-list'), filterObj["metadata-field"].split(':')[0], onClick,
+      this.populateDropdown($('#metadata-ontology-button'), $('#metadata-ontology-list'), filterObj["metadata-field"].split(':')[0], resetProperty,
         '<li><a></a></li>', this.createOntologyList()
       );
+
+
 
       return element;
     }
@@ -1859,26 +1872,18 @@
       propertyButton.text(option.label).append('<span class="caret"></span>');
 
 
-
       // populate property dropdown when ontology is selected
       let ontologyOption = $('#metadata-ontology-button').data('option');
       let ontologyName;
       if (ontologyOption) {
         ontologyName = ontologyOption.value;
       }
-      // reset property if new ontology selected
-      if($(ontologyOption.value).change()){
-        propertyButton.data('option').label = 'Select property';
-      } else {
-        propertyButton.text(option.label).append('<span class="caret"></span>');
-      }
 
       let me = this;
-      let onClick = function() { me.updateMetadataFilterForm(); };
+      let onClick = function() { me.updateMetadataFilterForm();};
       this.populateDropdown($('#metadata-property-button'), $('#metadata-property-list'), null, onClick,
         '<li><a></a></li>', this.createPropertyList(ontologyName)
       );
-
 
 
       this.updateFilterModalBadges(this.buildFilterData());
