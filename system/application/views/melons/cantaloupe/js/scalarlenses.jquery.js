@@ -2244,7 +2244,16 @@
       let me = this;
       let onClick = function() { me.updateAlphabeticalSortForm(); };
 
-      this.populateDropdown($('#sort-ontology-button'), $('#sort-ontology-list'), sortObj["metadata-field"], onClick,
+      let resetProperty = function(){
+        let propertyButton = $('#sort-property-button').data('option');
+        if(propertyButton){
+          propertyButton.label = `Select property`;
+
+        }
+        me.updateAlphabeticalSortForm();
+      }
+
+      this.populateDropdown($('#sort-ontology-button'), $('#sort-ontology-list'), sortObj["metadata-field"], resetProperty,
         '<li><a></a></li>', this.createOntologyList()
         );
 
@@ -2295,15 +2304,10 @@
         ontologyName = getButtonData.value;
       }
 
-      // reset property if new ontology selected
-      if(getButtonData && propertyButtonOption) {
-        if($(getButtonData.value).change()){
-          propertyButtonOption.label = 'Select property';
-        }
-      }
 
       let me = this;
-      let onClick = function() { me.updateAlphabeticalSortForm(); };
+      let onClick = function() {me.updateAlphabeticalSortForm(); };
+
       this.populateDropdown($('#sort-property-button'), $('#sort-property-list'), null, onClick,
         '<li><a></a></li>', this.createPropertyList(ontologyName)
       );
@@ -2548,9 +2552,18 @@
       let me = this;
       let onClick = function() { me.updateMatchCountSortForm(); };
 
+      let resetProperty = function(){
+        let propertyButton = $('#match-property-button').data('option');
+        if(propertyButton){
+          propertyButton.label = `Select property`;
+
+        }
+        me.updateMatchCountSortForm();
+      }
+
       $('#match-count-content').val(sortObj.content);
 
-      this.populateDropdown($('#match-ontology-button'), $('#match-ontology-list'), sortObj["metadata-field"], onClick,
+      this.populateDropdown($('#match-ontology-button'), $('#match-ontology-list'), sortObj["metadata-field"], resetProperty,
         '<li><a></a></li>', this.createOntologyList()
       );
 
