@@ -622,14 +622,14 @@
         me.editedModifierIndex = parseInt(button.data('modifierIndex'));
         if (option.value == 'delete') {
           me.deleteFilterButton(me.editedComponentIndex, me.editedModifierIndex);
+          console.log(me.editedModifierIndex)
 
         } else {
           let filterObj = me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex];
           me.updateFilterModal(option.value, filterObj);
         }
         // add/remove active class
-        button.find('li.active').removeClass( 'active' );
-        $( evt.target ).parent().addClass( 'active' );
+        $( evt.target ).parent().toggleClass( 'active' );
 
         if($(evt.target).parent().text() == 'Delete'){
           $(this).removeClass('active')
@@ -816,8 +816,11 @@
         }
 
         // add/remove active class
-        $(evt.target).parent().parent().find( 'li.active' ).removeClass( 'active' );
-        $(evt.target).parent().addClass( 'active' );
+        $( evt.target ).parent().toggleClass( 'active' );
+
+        if($(evt.target).parent().text() == 'Delete'){
+          $(this).removeClass('active')
+        }
 
 
         // save by type value on click
@@ -1490,7 +1493,6 @@
         let contentList = $('#content-type-list li');
         let contentArray = filterObj["content-types"];
         contentList.each(function(i, item)  {
-          console.log($(item).data('option').value)
           if(contentArray.indexOf($(item).data('option').value) != -1 ){
             $(contentList[i]).addClass('active');
           }
