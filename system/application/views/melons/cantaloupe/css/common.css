@@ -1421,6 +1421,7 @@ body>.annotorious-popup{
 .row.lens {
 	margin:0;
 }
+
 .lens-editor .col-xs-12 {
   padding:0;
   background:#dddddd;
@@ -1677,14 +1678,17 @@ body>.annotorious-popup{
 	border:none;
 	padding:0 15px 15px;
 }
-#modalByDistance .col-sm-5,
-#modalByDistance .col-sm-6 {
-	padding:0;
+#distanceForm .row {
+	margin:0;
+}
+#distanceForm .col-sm-10 {
+	padding-left:0;
 }
 #distanceInput.form-control {
 	width:97%;
 }
 #distanceQuantity {
+	z-index:999999;
 	max-width:150px;
 	float:left;
 	margin-right:3px;

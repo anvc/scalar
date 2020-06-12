@@ -622,15 +622,18 @@
         me.editedModifierIndex = parseInt(button.data('modifierIndex'));
         if (option.value == 'delete') {
           me.deleteFilterButton(me.editedComponentIndex, me.editedModifierIndex);
+          console.log(me.editedModifierIndex)
+
         } else {
           let filterObj = me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex];
           me.updateFilterModal(option.value, filterObj);
         }
         // add/remove active class
-        button.find('li.active').removeClass( 'active' );
-        $( evt.target ).parent().addClass( 'active' );
+        $( evt.target ).parent().toggleClass( 'active' );
 
-
+        if($(evt.target).parent().text() == 'Delete'){
+          $(this).removeClass('active')
+        }
 
       }
 
@@ -692,8 +695,13 @@
                   if (index > 0 && index < contentTypes.length - 1) {
                     buttonText += ', ';
                   }
-                  if (index == contentTypes.length - 1) {
+                  if (index == contentTypes.length - 1 && contentTypes.length >= 3) {
                     buttonText += ', or ';
+                  }
+                }
+                if(contentTypes.length == 2){
+                  if (index > 0 && index == contentTypes.length - 1) {
+                    buttonText += ' or ';
                   }
                 }
                 buttonText += scalarapi.model.scalarTypes[contentType].plural;
@@ -808,8 +816,11 @@
         }
 
         // add/remove active class
-        $(evt.target).parent().parent().find( 'li.active' ).removeClass( 'active' );
-        $(evt.target).parent().addClass( 'active' );
+        $( evt.target ).parent().toggleClass( 'active' );
+
+        if($(evt.target).parent().text() == 'Delete'){
+          $(this).removeClass('active')
+        }
 
 
         // save by type value on click
@@ -1044,6 +1055,13 @@
           "type": "items-by-type",
           "content-type": $('#byType').text().split(/[_\s]/).join("-").toLowerCase()
         }
+        let contentSelections = me.scalarLensObject.components[me.editedComponentIndex]["content-selector"]
+        delete contentSelections.quantity;
+        delete contentSelections.units;
+        delete contentSelections.coordinates;
+        document.getElementById('distanceForm').reset();
+        $('#distanceUnits').text('Select unit...').append('<span class="caret"></span>');
+
         me.scalarLensObject.components[me.editedComponentIndex]["content-selector"] = contentSelector
         me.updateContentSelectorButton(me.scalarLensObject.components[me.editedComponentIndex]["content-selector"], $(me.element).find('.content-selector-btn-group').eq(me.editedComponentIndex))
         me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults))
@@ -1060,11 +1078,10 @@
                <div class="modal-content">
                  <div class="modal-body">
                    <p>Add any item that is within</p>
+                   <form id="distanceForm">
                    <div class="row">
                      <div class="col-sm-10">
-                       <div class="col-sm-5">
-                         <input id="distanceQuantity" type="text" class="form-control" aria-label="..." placeholder="Enter distance">
-                       </div>
+                         <input id="distanceQuantity" type="text" class="col-sm-5 form-control" aria-label="..." placeholder="Enter distance" />
                        <div class="col-sm-5">
                          <div class="btn-group">
                            <button id="distanceUnits" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
@@ -1075,18 +1092,15 @@
                            </ul>
                          </div>
                        </div>
-                     </div>
+                     </form>
                    </div>
                    <p>of these coordinates:</p>
                    <div class="row">
                      <div class="col-sm-10">
-                       <div class="col-sm-5">
-                         <input id="latitude" type="text"class="form-control" aria-label="..." placeholder="Latitude (decimal)">
-                       </div>
-                       <div class="col-sm-5">
-                         <input id="longitude" type="text" class="form-control" aria-label="..." placeholder="Longitude (decimal)">
-                       </div>
+                         <input id="latitude" type="text" class="col-sm-5 form-control" aria-label="..." placeholder="Latitude (decimal)" />
+                         <input id="longitude" type="text" class=" col-sm-5 form-control" aria-label="..." placeholder="Longitude (decimal)" />
                      </div>
+                   </div>
                    </div>
                  </div>
                  <div class="modal-footer">
@@ -1101,7 +1115,7 @@
         var me = this
 
         element.find('li').on('click', function(){
-          $('#distanceUnits').text($(this).text()).append('<span class="caret"></span>')
+          $('#distanceUnits').text($(this).text()).append('<span class="caret"></span>');
         });
 
         element.find('.done').on('click', function(){
@@ -1111,6 +1125,7 @@
             "units": $('#distanceUnits').text(),
             "coordinates": $('#latitude').val() + ', ' + $('#longitude').val()
           }
+          $('#byType').text('Select items...').append('<span class="caret"></span>');
           me.scalarLensObject.components[me.editedComponentIndex]["content-selector"] = contentSelector
           me.updateContentSelectorButton(me.scalarLensObject.components[me.editedComponentIndex]["content-selector"], $(me.element).find('.content-selector-btn-group').eq(me.editedComponentIndex))
           me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
@@ -1119,6 +1134,7 @@
         return element
 
     }
+
 
     // add filter modal
     // sets default state for all filter modals
@@ -1172,7 +1188,7 @@
       // cancel click handler
       element.find('.cancel').on('click', function(){
         let currentButton = $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-btn-group').eq(me.editedModifierIndex);
-        $(currentButton).find('.filter-type-list li.active').removeClass('active');
+        //$(currentButton).find('.filter-type-list li.active').removeClass('active');
       });
 
       return element;
@@ -1437,24 +1453,20 @@
       `).appendTo(container);
 
       let me = this;
-      let onClick = function(evt) { me.updateTypeFilterForm(); };
+      let onClick = function(evt) {me.updateTypeFilterForm();};
 
       // allow multiple selections
       let multipleSelects = function(evt){
         $(evt.currentTarget).toggleClass('active');
-        evt.currentTarget.toggleAttribute("hello")
         let typeFilterArray = [];
         $('#content-type-list li.active').each(function(items){
            typeFilterArray.push($(this).data('option').value)
-           if(items > 0){
-             $('#content-type-button').text('(Multiple selections)').append('<span class="caret"></span>');
-           } else if (items <= 0){
-             $('#content-type-button').text($('#content-type-list li.active').data('option').label).append('<span class="caret"></span>')
-           }
         });
         $('#content-type-button').data('option', { value: typeFilterArray });
-      }
 
+        me.updateTypeFilterForm();
+
+      }
 
 
       this.populateDropdown($('#operator-button'), $('#operator-list'), filterObj.operator, onClick,
@@ -1463,6 +1475,8 @@
           {label: "are", value: "inclusive"},
           {label: "are not", value: "exclusive"}
         ]);
+
+
 
       this.populateDropdown($('#content-type-button'), $('#content-type-list'), filterObj['content-types'], multipleSelects,
         '<li><a></a></li>',
@@ -1474,6 +1488,24 @@
           {label: "annotations", value: "annotation"},
           {label: "comments", value: "comment"}
         ]);
+
+
+        let contentList = $('#content-type-list li');
+        let contentArray = filterObj["content-types"];
+        contentList.each(function(i, item)  {
+          if(contentArray.indexOf($(item).data('option').value) != -1 ){
+            $(contentList[i]).addClass('active');
+          }
+        })
+
+        if(contentArray.length == 1){
+          $('#content-type-list li').each(function(){
+            if($(this).data('option').value == contentArray[0]) {
+              $('#content-type-button').text($(this).data('option').label).append('<span class="caret"></span>');
+            }
+          })
+        }
+
 
       return element;
     }
@@ -1495,29 +1527,24 @@
       // update content type menu
       let contentTypeButton = $('#content-type-button');
       option = contentTypeButton.data('option');
-      //let contentOptionValue = contentTypeButton.data('option').value;
       if (!option) { // if nothing selected yet, create a placeholder option
         option = {label: 'Select type(s)', value: null};
         contentTypeButton.data('option', option);
       }
-      contentTypeButton.text(option.label).append('<span class="caret"></span>');
 
 
-      let currentTypes = me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex]["content-types"];
-      let contentTypeList = $('#content-type-list li');
-
-      if(currentTypes){
-        currentTypes.forEach(item => {
-          for(let i = 0; i < contentTypeList.length; i++){
-            if(item.substring(0,3) === $(contentTypeList[i]).text().substring(0,3)){
-              $(contentTypeList[i]).addClass('active');
+      let contentTypeList = $('#content-type-list li.active');
+        if(contentTypeList.length > 1){
+          contentTypeButton.text('(Multiple selections)').append('<span class="caret"></span>');
+        } else if(contentTypeList.length == 0){
+          contentTypeButton.text('Select type(s)').append('<span class="caret"></span>');
+        } else {
+          $('#content-type-list li').each(function(){
+            if($(this).data('option').value == option.value[0]) {
+              contentTypeButton.text($(this).data('option').label).append('<span class="caret"></span>');
             }
-          }
-          if(item.length > 2){
-            contentTypeButton.text('(Multiple selections)').append('<span class="caret"></span>');
-          }
-        })
-      }
+          })
+        }
 
 
       this.updateFilterModalBadges(this.buildFilterData());
@@ -1763,12 +1790,14 @@
             </div>
             <div class="row" style="margin-top:10px;">
             <span style="margin-left:10px;vertical-align:middle;"> in this metadata field: </span>
-              <div class="btn-group"><button id="metadata-ontology-button" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
-                  Select field...<span class="caret"></span></button>
+              <div class="btn-group">
+                <button id="metadata-ontology-button" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Select field...<span class="caret"></span>
+                </button>
                 <ul id="metadata-ontology-list" class="dropdown-menu"></ul>
               </div>
               <div class="row" style="margin-top:10px;">
-              <div class="btn-group"><button id="metadata-property-button" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
+              <div class="btn-group"><button id="metadata-property-button" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   Select field...<span class="caret"></span></button>
                 <ul id="metadata-property-list" class="dropdown-menu"></ul>
               </div>
@@ -1777,7 +1806,13 @@
       `).appendTo(container);
 
       let me = this;
-      let onClick = function() { me.updateMetadataFilterForm();};
+      let onClick = function() { me.updateMetadataFilterForm(); }
+
+      let resetProperty = function(evt){
+         $('#metadata-property-button').data('option').label = `Select property`
+         me.updateMetadataFilterForm();
+      }
+
 
       // operator dropdown
       this.populateDropdown($('#operator-button'), $('#operator-list'), filterObj.operator, onClick,
@@ -1791,9 +1826,11 @@
       $('#metadata-content').val(filterObj.content).on('change', onClick);
 
       // ontology dropdown
-      this.populateDropdown($('#metadata-ontology-button'), $('#metadata-ontology-list'), filterObj["metadata-field"].split(':')[0], onClick,
+      this.populateDropdown($('#metadata-ontology-button'), $('#metadata-ontology-list'), filterObj["metadata-field"].split(':')[0], resetProperty,
         '<li><a></a></li>', this.createOntologyList()
       );
+
+
 
       return element;
     }
@@ -1837,26 +1874,18 @@
       propertyButton.text(option.label).append('<span class="caret"></span>');
 
 
-
       // populate property dropdown when ontology is selected
       let ontologyOption = $('#metadata-ontology-button').data('option');
       let ontologyName;
       if (ontologyOption) {
         ontologyName = ontologyOption.value;
       }
-      // reset property if new ontology selected
-      if($(ontologyOption.value).change()){
-        propertyButton.data('option').label = 'Select property';
-      } else {
-        propertyButton.text(option.label).append('<span class="caret"></span>');
-      }
 
       let me = this;
-      let onClick = function() { me.updateMetadataFilterForm(); };
+      let onClick = function() { me.updateMetadataFilterForm();};
       this.populateDropdown($('#metadata-property-button'), $('#metadata-property-list'), null, onClick,
         '<li><a></a></li>', this.createPropertyList(ontologyName)
       );
-
 
 
       this.updateFilterModalBadges(this.buildFilterData());
@@ -2215,7 +2244,16 @@
       let me = this;
       let onClick = function() { me.updateAlphabeticalSortForm(); };
 
-      this.populateDropdown($('#sort-ontology-button'), $('#sort-ontology-list'), sortObj["metadata-field"], onClick,
+      let resetProperty = function(){
+        let propertyButton = $('#sort-property-button').data('option');
+        if(propertyButton){
+          propertyButton.label = `Select property`;
+
+        }
+        me.updateAlphabeticalSortForm();
+      }
+
+      this.populateDropdown($('#sort-ontology-button'), $('#sort-ontology-list'), sortObj["metadata-field"], resetProperty,
         '<li><a></a></li>', this.createOntologyList()
         );
 
@@ -2266,15 +2304,10 @@
         ontologyName = getButtonData.value;
       }
 
-      // reset property if new ontology selected
-      if(getButtonData && propertyButtonOption) {
-        if($(getButtonData.value).change()){
-          propertyButtonOption.label = 'Select property';
-        }
-      }
 
       let me = this;
-      let onClick = function() { me.updateAlphabeticalSortForm(); };
+      let onClick = function() {me.updateAlphabeticalSortForm(); };
+
       this.populateDropdown($('#sort-property-button'), $('#sort-property-list'), null, onClick,
         '<li><a></a></li>', this.createPropertyList(ontologyName)
       );
@@ -2519,9 +2552,18 @@
       let me = this;
       let onClick = function() { me.updateMatchCountSortForm(); };
 
+      let resetProperty = function(){
+        let propertyButton = $('#match-property-button').data('option');
+        if(propertyButton){
+          propertyButton.label = `Select property`;
+
+        }
+        me.updateMatchCountSortForm();
+      }
+
       $('#match-count-content').val(sortObj.content);
 
-      this.populateDropdown($('#match-ontology-button'), $('#match-ontology-list'), sortObj["metadata-field"], onClick,
+      this.populateDropdown($('#match-ontology-button'), $('#match-ontology-list'), sortObj["metadata-field"], resetProperty,
         '<li><a></a></li>', this.createOntologyList()
       );
 
@@ -2572,13 +2614,6 @@
       let ontologyName;
       if(getButtonData){
         ontologyName = getButtonData.value;
-      }
-
-      // reset property if new ontology selected
-      if(getButtonData && propertyButtonOption) {
-        if($(getButtonData.value).change()){
-          propertyButtonOption.label = 'Select property';
-        }
       }
 
       let me = this;
@@ -3003,10 +3038,17 @@
 
     // callback for content-selector
     ScalarLenses.prototype.handleContentSelected = function(nodes){
-      if (nodes && nodes.length != 0) {
+      if (nodes && nodes.length != 0){
         let nodeTitles = nodes.map(node => node.slug);
         this.scalarLensObject.components[this.editedComponentIndex]["content-selector"].type = 'specific-items';
         this.scalarLensObject.components[this.editedComponentIndex]["content-selector"].items = nodeTitles;
+        const contentSelections = this.scalarLensObject.components[this.editedComponentIndex]["content-selector"]
+        delete contentSelections["content-type"];
+        delete contentSelections.quantity;
+        delete contentSelections.units;
+        delete contentSelections.coordinates;
+        document.getElementById('distanceForm').reset();
+        $('#byType').text('Select item...').append('<span class="caret"></span>');
         this.updateEditorDom();
         this.saveLens(() => this.getLensResults(this.scalarLensObject, this.options.onLensResults));
       }
