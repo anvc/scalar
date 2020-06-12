@@ -3558,11 +3558,11 @@ window.scalarvis = { instanceCount: -1 };
     /*********************
      * MAP VISUALIZATION *
      *********************/
-    class MapVisualization extends AbstractVisualization {
-
+    class MapVisualization extends AbstractVisualization {	
+    	
       constructor() {
         super();
-        // init any special properties needed for this visualization here
+        this.map = null;
       }
 
       draw() {
@@ -3570,9 +3570,8 @@ window.scalarvis = { instanceCount: -1 };
         // and calls setupElement if the vis was just created
         super.draw();
 
-        // add additional code here to render the vis
-        // base.hierarchy is an object containing a hierarchy of known nodes, organized by type
-        // base.sortedNodes is an array of all known nodes
+    	console.log('map in draw');
+    	console.log(this.map);
       }
 
       getHelpContent() {
@@ -3583,8 +3582,21 @@ window.scalarvis = { instanceCount: -1 };
       setupElement() {
         this.hasBeenDrawn = true;
         base.visualization.empty(); // empty the element where this vis is to be shown
-        base.visualization.append('Map visualization');
+        // TODO: script might already be loaded
+        $.getScript('https://maps.googleapis.com/maps/api/js?key=' + $('link#google_maps_key').attr('href'), function() {
+        	setupMap();
+        });
       }
+        
+      setupMap() {
+    	this.map = new google.maps.Map(base.visualization[0], {
+    		center: { lat: -34.397, lng: 150.644 },
+    		zoom: 8
+       	});
+     	console.log('map in setupMap');
+     	console.log(this.map);     	  
+      }
+      
     }
 
     /*********************
