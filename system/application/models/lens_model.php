@@ -144,14 +144,14 @@ class Lens_model extends MY_Model {
 								case "distance":
 									$has_used_filter = true;
 									$from_arr = $this->get_pages_from_content_selector($component['content-selector'], $book_id);
-									$distance_in_meters = $this->get_distance_in_meters($modifier['quantity'], $modifier['units']);
+									$distance_in_meters = $modifier['quantity'];
 									$items = $CI->versions->get_by_predicate($book_id, array('dcterms:spatial','dcterms:coverage'));
 									foreach ($from_arr as $from) {
+										$content = array();
 										$item = $this->filter_by_slug($items, $from->slug);
 										if (!empty($item)) {
 											$latlng = $this->get_latlng_from_item($item[0]);
-											$content_by_location = $this->filter_by_location($items, $latlng, $distance_in_meters);
-											$content = (!empty($content)) ? $this->combine_items($content, $content_by_location, 'or') : $content_by_location;
+											$content = $this->filter_by_location($items, $latlng, $distance_in_meters);
 										}
 									}
 									break;
@@ -215,7 +215,7 @@ class Lens_model extends MY_Model {
 											foreach ($types as $type) {
 												$content = $this->get_pages_of_type($type, $book_id);
 												$content = $this->do_versions($content);
-												// TODO: multiple filters
+												$content = $this->filter_by_content_selector($content, $component);
 											}
 											break;
 										}
@@ -331,7 +331,7 @@ class Lens_model extends MY_Model {
     }
     
     public function filter_by_location($items, $location, $distance_in_meters) {
-
+    	
     	$arr = explode(',',$location);
     	$loc_lat = trim($arr[0]);
     	$loc_lng = trim($arr[1]);
@@ -369,21 +369,6 @@ class Lens_model extends MY_Model {
     	$return = 'or';
     	if (isset($json['options']) && isset($json['options']['operation'])) $return = $json['options']['operation'];
     	return $return;
-    	
-    }
-    
-    public function get_distance_in_meters($quantity, $units) {
-    	
-    	switch ($units) {
-    		case 'kilometers':
-    			return $quantity * 1000;
-    			break;
-    		case 'miles':
-    			return $quantity * 1609.344;
-    			break;
-    		default: // meters
-    			return $quantity;
-    	}
     	
     }
     
@@ -515,6 +500,11 @@ class Lens_model extends MY_Model {
     		$content = $this->filter_by_location($items, $latlng, $distance_in_meters);
     		return $content;
     		
+    	} elseif (isset($json['type']) && 'items-by-type' == $json['type'] && isset($json['content-type']) && 'table-of-contents' == $json['content-type']) {
+    		$CI =& get_instance();
+    		$content = $CI->books->get_book_versions($book_id, true);
+    		return $content;
+    		
     	} elseif (isset($json['type']) && 'items-by-type' == $json['type']) {
     		$content_type = $json['content-type'];
     		$type = $category = null;
@@ -564,11 +554,16 @@ class Lens_model extends MY_Model {
     	
     	if (isset($component['content-selector']) && empty($component['content-selector']['items'])) {
     		$content_type = $component['content-selector']['content-type'];
+    		if ('page' == $content_type) $content_type = 'composite';
     		if ('all-content' != $content_type) {
-	    		if ('page' == $content_type) $content_type = 'composite';
+	    		
+    		} elseif ('composite' == $content_type || 'media' == $content_type) {
 	    		foreach ($content as $key => $row) {
 	    			if ($row->type != $content_type) unset($content[$key]);
 	    		}
+    		} else {
+    			// Relational types	
+    			// Table-of-contents
     		}
     	}
     	
