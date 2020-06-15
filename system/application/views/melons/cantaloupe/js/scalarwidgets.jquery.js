@@ -271,12 +271,64 @@
 
            var visElement = $( '<div></div>' ).appendTo($element);
 
+           var visType = $widget.data( 'visformat' ) || "force-directed";
+           var content = $widget.data( 'viscontent' ) || "all";
+           if (content == 'all') content = 'all-content';
+
+           var modifiers = [];
+           var contentTypes;
+           var relations = $widget.data( 'visrelations' ) || "all";
+           switch (relations) {
+
+             case 'all':
+             contentTypes = ['all-types'];
+             relations = 'any-relationship';
+             modifiers.push({
+               "type": "filter",
+               "subtype": "relationship",
+               "content-types": contentTypes,
+               "relationship": relations
+             });
+             break;
+
+             case 'parents-children':
+             contentTypes = [content];
+             relations = 'any-relationship';
+             modifiers.push({
+               "type": "filter",
+               "subtype": "relationship",
+               "content-types": contentTypes,
+               "relationship": relations
+             });
+             break;
+
+             case 'none':
+             // no filter needed
+             break;
+
+           }
+
+           var lensObj = {
+             "visualization": {
+               "type": visType,
+               "options": {}
+             },
+             "components": [
+               {
+                 "content-selector": {
+                   "type": "items-by-type",
+                   "content-type": content
+                 },
+                 "modifiers": modifiers
+               }
+             ],
+           }
+
            var options = {
                modal: false,
                widget: true,
-               content : $widget.data( 'viscontent' ) || "all",
-               relations : $widget.data( 'visrelations' ) || "all",
-               format : $widget.data( 'visformat' ) || "force-directed"
+               content : 'lens',
+               lens: lensObj
            }
 
            visElement.scalarvis( options );
