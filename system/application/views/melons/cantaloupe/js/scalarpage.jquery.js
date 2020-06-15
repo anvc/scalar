@@ -3026,73 +3026,211 @@
                                 case "vis":
                                 case "visindex":
                                     visOptions = {
-                                        modal: false,
-                                        content: 'all',
-                                        relations: 'all',
-                                        format: 'grid'
+                                      modal: false,
+                                      content: 'lens',
+                                      lens: {
+                                        "visualization": {
+                                          "type": "grid",
+                                          "options": {}
+                                        },
+                                        "components": [
+                                          {
+                                            "content-selector": {
+                                              "type": "items-by-type",
+                                              "content-type": "all-content"
+                                            },
+                                            "modifiers": [
+                                              {
+                                                "type": "sort",
+                                                "sort-type": "alphabetical",
+                                                "metadata-field": "dcterms:title",
+                                                "sort-order": "ascending"
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
                                     }
                                     break;
 
                                 case "vistoc":
                                     visOptions = {
-                                        modal: false,
-                                        content: 'toc',
-                                        relations: 'all',
-                                        format: 'tree'
+                                      modal: false,
+                                      content: 'lens',
+                                      lens: {
+                                        "visualization": {
+                                          "type": "tree",
+                                          "options": {}
+                                        },
+                                        "components": [
+                                          {
+                                            "content-selector": {
+                                              "type": "items-by-type",
+                                              "content-type": "table-of-contents"
+                                            },
+                                            "modifiers": []
+                                          }
+                                        ]
+                                      }
                                     }
                                     break;
 
                                 case "visconnections":
                                     visOptions = {
-                                        modal: false,
-                                        content: 'all',
-                                        relations: 'all',
-                                        format: 'force-directed'
+                                      modal: false,
+                                      content: 'lens',
+                                      lens: {
+                                        "visualization": {
+                                          "type": "force-directed",
+                                          "options": {}
+                                        },
+                                        "components": [
+                                          {
+                                            "content-selector": {
+                                              "type": "items-by-type",
+                                              "content-type": "all-content"
+                                            },
+                                            "modifiers": []
+                                          }
+                                        ]
+                                      }
                                     }
                                     break;
 
                                 case "visradial":
                                     visOptions = {
-                                        modal: false,
-                                        content: 'all',
-                                        relations: 'all',
-                                        format: 'radial'
+                                      modal: false,
+                                      content: 'lens',
+                                      lens: {
+                                        "visualization": {
+                                          "type": "radial",
+                                          "options": {}
+                                        },
+                                        "components": [
+                                          {
+                                            "content-selector": {
+                                              "type": "items-by-type",
+                                              "content-type": "all-content"
+                                            },
+                                            "modifiers": []
+                                          }
+                                        ]
+                                      }
                                     }
                                     break;
 
                                 case "vispath":
                                     visOptions = {
-                                        modal: false,
-                                        content: 'current',
-                                        relations: 'path',
-                                        format: 'tree'
+                                      modal: false,
+                                      content: 'lens',
+                                      lens: {
+                                        "visualization": {
+                                          "type": "tree",
+                                          "options": {}
+                                        },
+                                        "components": [
+                                          {
+                                            "content-selector": {
+                                              "type": "items-by-type",
+                                              "content-type": "path"
+                                            },
+                                            "modifiers": [
+                                              {
+                                                "type": "filter",
+                                                "subtype": "relationship",
+                                                "content-types": [
+                                                  "path"
+                                                ],
+                                                "relationship": "child"
+                                              }
+                                            ]
+                                          }
+                                        ],
+                                      }
                                     }
                                     break;
 
                                 case "vismedia":
                                     visOptions = {
-                                        modal: false,
-                                        content: 'current',
-                                        relations: 'reference',
-                                        format: 'force-directed'
+                                      modal: false,
+                                      content: 'lens',
+                                      lens: {
+                                        "visualization": {
+                                          "type": "force-directed",
+                                          "options": {}
+                                        },
+                                        "components": [
+                                          {
+                                            "content-selector": {
+                                              "type": "items-by-type",
+                                              "content-type": "media"
+                                            },
+                                            "modifiers": [
+                                              {
+                                                "type": "filter",
+                                                "subtype": "relationship",
+                                                "content-types": [
+                                                  "reference"
+                                                ],
+                                                "relationship": "any-relationship"
+                                              }
+                                            ]
+                                          }
+                                        ],
+                                      }
                                     }
                                     break;
 
                                 case "vistag":
                                     visOptions = {
-                                        modal: false,
-                                        content: 'current',
-                                        relations: 'tag',
-                                        format: 'force-directed'
+                                      modal: false,
+                                      content: 'lens',
+                                      lens: {
+                                        "visualization": {
+                                          "type": "force-directed",
+                                          "options": {}
+                                        },
+                                        "components": [
+                                          {
+                                            "content-selector": {
+                                              "type": "items-by-type",
+                                              "content-type": "tag"
+                                            },
+                                            "modifiers": [
+                                              {
+                                                "type": "filter",
+                                                "subtype": "relationship",
+                                                "content-types": [
+                                                  "tag"
+                                                ],
+                                                "relationship": "child"
+                                              }
+                                            ]
+                                          }
+                                        ],
+                                      }
                                     }
                                     break;
 
                                 case "tags":
                                     visOptions = {
-                                        modal: false,
-                                        content: 'external',
-                                        relations: 'none',
-                                        format: 'tagcloud'
+                                      modal: false,
+                                      content: 'lens',
+                                      lens: {
+                                        "visualization": {
+                                          "type": "word-cloud",
+                                          "options": {}
+                                        },
+                                        "components": [
+                                          {
+                                            "content-selector": {
+                                              "type": "items-by-type",
+                                              "content-type": "tag"
+                                            },
+                                            "modifiers": []
+                                          }
+                                        ],
+                                      }
                                     }
                                     break;
 

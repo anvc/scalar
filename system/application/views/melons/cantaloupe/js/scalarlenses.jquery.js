@@ -70,6 +70,7 @@
         'path': {'parent': 'contain', 'child': 'contained by', 'any-relationship':'contain or are contained by'},
         'tag': {'parent': 'tag', 'child': 'tagged by', 'any-relationship':'tag or are tagged by'},
         'annotation': {'parent': 'annotate', 'child': 'annotated by', 'any-relationship':'annotate or are annotated by'},
+        'reference': {'parent': 'reference', 'child': 'referenced by', 'any-relationship':'reference or are referenced by'},
         'comment': {'parent': 'comment on', 'child': 'commented on by', 'any-relationship':'comment on or are commented on by'}
       };
 
@@ -78,6 +79,7 @@
         'path': {'parent': 'and their containing paths', 'child': 'and their path contents', 'any-relationship':'and their path relations'},
         'tag': {'parent': 'and their tags', 'child': 'and the items they tag', 'any-relationship':'and their tag relations'},
         'annotation': {'parent': 'and their annotations', 'child': 'and the items they annotate', 'any-relationship':'and their annotation relations'},
+        'reference': {'parent': 'and their referencers', 'child': 'and the media they reference', 'any-relationship':'and their media relations'},
         'comment': {'parent': 'and their comments', 'child': 'and the items they comment on', 'any-relationship':'and their comment relations'}
       };
 
@@ -86,6 +88,7 @@
         'path': {'parent': 'and its containing paths', 'child': 'and its path contents', 'any-relationship':'and its path relations'},
         'tag': {'parent': 'and its tags', 'child': 'and the items it tags', 'any-relationship':'and its tag relations'},
         'annotation': {'parent': 'and its annotations', 'child': 'and the items it annotates', 'any-relationship':'and its annotation relations'},
+        'reference': {'parent': 'and its referencers', 'child': 'and the media it references', 'any-relationship':'and its media relations'},
         'comment': {'parent': 'and its comments', 'child': 'and the items it comments on', 'any-relationship':'and its comment relations'}
       };
 
@@ -546,6 +549,9 @@
             switch (contentType) {
               case 'all-content':
               buttonText = 'All content';
+              break;
+              case 'table-of-contents':
+              buttonText = 'Table of contents';
               break;
               case 'page':
               case 'media':
@@ -1024,6 +1030,7 @@
                      Select item...<span class="caret"></span></button>
                    <ul id="content-type-dropdown" class="dropdown-menu">
                      <li><a>All content</a></li>
+                     <li><a>Table of contents</a></li>
                      <li><a>Page</a></li>
                      <li><a>Media</a></li>
                      <li><a>Path</a></li>
@@ -1633,6 +1640,7 @@
           {label: "path", value: "path"},
           {label: "tag", value: "tag"},
           {label: "annotation", value: "annotation"},
+          {label: "media", value: "reference"},
           {label: "comment", value: "comment"}
         ]);
 

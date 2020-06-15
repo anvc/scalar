@@ -578,14 +578,13 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 $('#scalarheader.navbar').data('scalarheader').index.data('plugin_scalarindex').showIndex();
             });
 
-
             //Handle the visualizations...
             var visElement = $( '<div></div>' ).prependTo( 'body' );
             base.vis = visElement.scalarvis( { modal: true, local: false } );
             base.$el.find('.vis_link').on('click', function(e){
 
                 var options = {
-                    modal: true
+                  modal: true
                 }
 
                 switch ( $( this ).attr( 'data-vistype' ) ) {
@@ -610,46 +609,155 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                     break;
 
                     case "vistoc":
-                    options.content = 'toc';
-                    options.relations = 'all';
-                    options.format = 'tree';
+                    options.content = 'lens';
+                    options.lens = {
+                      "visualization": {
+                        "type": "tree",
+                        "options": {}
+                      },
+                      "components": [
+                        {
+                          "content-selector": {
+                            "type": "items-by-type",
+                            "content-type": "table-of-contents"
+                          },
+                          "modifiers": []
+                        }
+                      ]
+                    }
                     break;
 
                     case "vis":
                     case "visindex":
-                    options.content = 'all';
-                    options.relations = 'all';
-                    options.format = 'grid';
+                    options.content = 'lens';
+                    options.lens = {
+                      "visualization": {
+                        "type": "grid",
+                        "options": {}
+                      },
+                      "components": [
+                        {
+                          "content-selector": {
+                            "type": "items-by-type",
+                            "content-type": "all-content"
+                          },
+                          "modifiers": [
+                            {
+                              "type": "sort",
+                              "sort-type": "alphabetical",
+                              "metadata-field": "dcterms:title",
+                              "sort-order": "ascending"
+                            }
+                          ]
+                        }
+                      ]
+                    }
                     break;
 
                     case "visradial":
-                    options.content = 'all';
-                    options.relations = 'all';
-                    options.format = 'radial';
+                    options.content = 'lens';
+                    options.lens = {
+                      "visualization": {
+                        "type": "radial",
+                        "options": {}
+                      },
+                      "components": [
+                        {
+                          "content-selector": {
+                            "type": "items-by-type",
+                            "content-type": "all-content"
+                          },
+                          "modifiers": []
+                        }
+                      ]
+                    }
                     break;
 
                     case "vispath":
-                    options.content = 'path';
-                    options.relations = 'path';
-                    options.format = 'tree';
+                    options.content = 'lens';
+                    options.lens = {
+                      "visualization": {
+                        "type": "tree",
+                        "options": {}
+                      },
+                      "components": [
+                        {
+                          "content-selector": {
+                            "type": "items-by-type",
+                            "content-type": "path"
+                          },
+                          "modifiers": [
+                            {
+                              "type": "filter",
+                              "subtype": "relationship",
+                              "content-types": [
+                                "path"
+                              ],
+                              "relationship": "child"
+                            }
+                          ]
+                        }
+                      ],
+                    }
                     break;
 
                     case "vismedia":
-                    options.content = 'media';
-                    options.relations = 'reference';
-                    options.format = 'force-directed';
+                    options.content = 'lens';
+                    options.lens = {
+                      "visualization": {
+                        "type": "force-directed",
+                        "options": {}
+                      },
+                      "components": [
+                        {
+                          "content-selector": {
+                            "type": "items-by-type",
+                            "content-type": "media"
+                          },
+                          "modifiers": [
+                            {
+                              "type": "filter",
+                              "subtype": "relationship",
+                              "content-types": [
+                                "reference"
+                              ],
+                              "relationship": "any-relationship"
+                            }
+                          ]
+                        }
+                      ],
+                    }
                     break;
 
                     case "vistag":
-                    options.content = 'tag';
-                    options.relations = 'tag';
-                    options.format = 'force-directed';
+                    options.content = 'lens';
+                    options.lens = {
+                      "visualization": {
+                        "type": "force-directed",
+                        "options": {}
+                      },
+                      "components": [
+                        {
+                          "content-selector": {
+                            "type": "items-by-type",
+                            "content-type": "tag"
+                          },
+                          "modifiers": [
+                            {
+                              "type": "filter",
+                              "subtype": "relationship",
+                              "content-types": [
+                                "tag"
+                              ],
+                              "relationship": "child"
+                            }
+                          ]
+                        }
+                      ],
+                    }
                     break;
-
                 }
-
                 $( '.modalVisualization' ).data( 'scalarvis' ).showModal( options );
-
             });
 
             base.book_id = $('link#book_id').attr('href');
