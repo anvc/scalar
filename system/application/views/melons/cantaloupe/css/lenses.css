@@ -3,3 +3,32 @@
   padding-right: 7.2rem;
   margin-top: -2rem;
 }
+.lens-list-item {
+  background:#ccc;
+  height:120px;
+  width:100%;
+}
+#lenses ul li {
+  text-decoration: none;
+  list-style-type: none;
+  cursor:pointer;
+}
+#lenses ul li a {
+  font-size:12px;
+}
+#lenses .btn-primary,
+#lenses .btn-primary:hover  {
+  background: #3b82c0;
+  border: 1px solid #457db8;
+  padding:2px 11px;
+}
+#lenses .viz-icon {
+  float:right;
+}
+#lenses .badge {
+  float:right;
+  font-weight:100;
+}
+.author-lenses-list li {
+  padding:10px;
+}
