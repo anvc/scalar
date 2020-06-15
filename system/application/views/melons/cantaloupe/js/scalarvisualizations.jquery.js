@@ -3558,21 +3558,55 @@ window.scalarvis = { instanceCount: -1 };
     /*********************
      * MAP VISUALIZATION *
      *********************/
-    class MapVisualization extends AbstractVisualization {
-
+    class MapVisualization extends AbstractVisualization {	
+    	
       constructor() {
         super();
-        // init any special properties needed for this visualization here
+        this.map = null;
+        this.markers = [];
+        this.infowindows = [];
+        this.paths = [];
       }
 
       draw() {
-        // this updates the dimensions of the vis based on window size, etc.
-        // and calls setupElement if the vis was just created
         super.draw();
 
-        // add additional code here to render the vis
-        // base.hierarchy is an object containing a hierarchy of known nodes, organized by type
-        // base.sortedNodes is an array of all known nodes
+    	if (null == this.map) return;
+    	
+    	this.clearMarkers();
+    	var bounds = new google.maps.LatLngBounds();
+    	var urls = [];
+    	// Contents of paths connected by lines
+    	for (var j = 0; j < base.sortedNodes.length; j++) {
+    		if ('undefined' == typeof(base.sortedNodes[j].scalarTypes.path)) continue;
+    		var pathCoordinates = [];
+    		for (var k = 0; k < base.sortedNodes[j].outgoingRelations.length; k++) {
+    			if (-1 == urls.indexOf(base.sortedNodes[j].outgoingRelations[k].target.url)) urls.push(base.sortedNodes[j].outgoingRelations[k].target.url);
+    			var title = 'Step '+base.sortedNodes[j].outgoingRelations[k].index+': '+base.sortedNodes[j].outgoingRelations[k].target.getDisplayTitle();
+    			var coords = this.drawMarker(base.sortedNodes[j].outgoingRelations[k].target, title);
+    	        if (coords) {
+    	        	pathCoordinates.push(coords);
+    	        	bounds.extend( new google.maps.LatLng(coords.lat, coords.lng) );
+    	        }
+    		}
+    		var path_key = this.paths.length;
+            this.paths[path_key] = new google.maps.Polyline({
+                path: pathCoordinates,
+                geodesic: true,
+                strokeColor: '#FF0000',
+                strokeOpacity: 1.0,
+                strokeWeight: 2
+            });
+            this.paths[path_key].setMap(this.map);
+    	}
+    	// All other nodes
+    	for (var j = 0; j < base.sortedNodes.length; j++) {
+    		if (-1 != urls.indexOf(base.sortedNodes[j].url)) continue;
+    		var coords = this.drawMarker(base.sortedNodes[j], base.sortedNodes[j].getDisplayTitle());
+    	    if (coords) bounds.extend( new google.maps.LatLng(coords.lat, coords.lng) );
+    	}
+    	this.map.fitBounds(bounds);
+    	
       }
 
       getHelpContent() {
@@ -3582,9 +3616,73 @@ window.scalarvis = { instanceCount: -1 };
       // one-time visualization setup
       setupElement() {
         this.hasBeenDrawn = true;
-        base.visualization.empty(); // empty the element where this vis is to be shown
-        base.visualization.append('Map visualization');
+        base.visualization.empty();
+        if ('undefined' == typeof(google) || 'undefined' == typeof(google.maps)) {
+        	$.getScript('https://maps.googleapis.com/maps/api/js?key=' + $('link#google_maps_key').attr('href'), () => {
+        		this.setupMap();
+        	});
+        } else {
+        	this.setupMap();
+        }
       }
+        
+      setupMap() {
+    	this.map = new google.maps.Map(base.visualization[0], {
+          center: {lat: -25.344, lng: 131.036},
+          zoom: 4
+       	});
+    	this.draw();
+      }
+      
+      clearMarkers() {
+    	this.markers.forEach(function(marker) {
+    	  marker.setMap(null);
+    	});
+    	this.markers = [];
+    	this.infowindows = {};
+      }
+      
+      drawMarker(obj, title) {
+    	  	var coords = this.getCoords(obj);
+			if (!coords) return false;
+			// Marker
+			var key = this.markers.length;
+			this.markers[key] = new google.maps.Marker({
+	    		position: coords, 
+	    		map: this.map,
+	    		title: title
+	    	});
+			// Infowindow
+	        this.infowindows[key] = new google.maps.InfoWindow({
+	            content: '<p>'+title+'</p>',
+	            maxWidth: 300
+	        });
+	        $(this.markers[key]).data('infowindow', this.infowindows[key]).data('map', this.map);
+	        this.markers[key].addListener('click', function(evt) {
+	        	var infowindow = $(this).data('infowindow');
+	        	var map = $(this).data('map');
+	        	infowindow.open(map, this);
+	        });
+	        return coords;
+      }
+      
+      getCoords(obj) {
+    	  var spatial = ('undefined' != typeof(obj.current.auxProperties["dcterms:spatial"])) ? obj.current.auxProperties["dcterms:spatial"][0] : null;
+    	  var coverage = ('undefined' != typeof(obj.current.auxProperties["dcterms:coverage"])) ? obj.current.auxProperties["dcterms:coverage"][0] : null;
+    	  var latlng = '';
+    	  if (/-?[0-9]{1,3}[.][0-9]+/.test(spatial)) {
+    		 latlng = spatial;
+    	  } else if (/-?[0-9]{1,3}[.][0-9]+/.test(coverage)) {
+    		 latlng = coverage;
+    	  }
+    	  if (!latlng.length) return false;
+    	  var arr = latlng.split(',');
+    	  var coords = {};
+    	  coords.lat = parseFloat(arr[0].trim());
+    	  coords.lng = parseFloat(arr[1].trim());
+    	  return coords;
+      }
+      
     }
 
     /*********************
