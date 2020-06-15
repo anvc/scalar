@@ -143,6 +143,9 @@
       if (!this.scalarLensObject) {
         this.scalarLensObject = this.getDefaultJson();
       }
+      if (Array.isArray(this.scalarLensObject.visualization.options)) {
+        this.scalarLensObject.visualization.options = {}; // because PHP will turn the empty object into an array
+      }
       this.checkSavePrivileges();
       this.getOntologyData();
       this.getLensResults(this.scalarLensObject, this.options.onLensResults);
