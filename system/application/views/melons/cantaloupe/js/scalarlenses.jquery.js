@@ -622,13 +622,12 @@
         me.editedModifierIndex = parseInt(button.data('modifierIndex'));
         if (option.value == 'delete') {
           me.deleteFilterButton(me.editedComponentIndex, me.editedModifierIndex);
-          console.log(me.editedModifierIndex)
-
         } else {
           let filterObj = me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex];
           me.updateFilterModal(option.value, filterObj);
         }
         // add/remove active class
+        //button.find('li.active').removeClass('active');
         $( evt.target ).parent().toggleClass( 'active' );
 
         if($(evt.target).parent().text() == 'Delete'){
@@ -1181,14 +1180,18 @@
 
       // done click handler
       element.find('.done').on('click', function(){
+        //button.find('li.active').removeClass('active');
+        let currentButton = $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-btn-group').eq(me.editedModifierIndex);
+        $(currentButton).find('.filter-type-list li.active').removeClass('active');
         me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex] = me.buildFilterData();
         me.updateFilterButton(me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex], $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-btn-group').eq(me.editedModifierIndex), me.editedComponentIndex)
         me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
+
       });
       // cancel click handler
       element.find('.cancel').on('click', function(){
         let currentButton = $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-btn-group').eq(me.editedModifierIndex);
-        //$(currentButton).find('.filter-type-list li.active').removeClass('active');
+        //$(currentButton).find('.filter-type-list li.active').toggleClass('active');
       });
 
       return element;
@@ -2093,7 +2096,7 @@
       // cancel click handler
       element.find('.cancel').on('click', function(){
         let currentButton = $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-btn-group').eq(me.editedModifierIndex);
-        $(currentButton).find('.dropdown-menu li.active').removeClass('active');
+        //$(currentButton).find('.dropdown-menu li.active').removeClass('active');
       });
 
       return element;
