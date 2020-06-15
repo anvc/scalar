@@ -59,7 +59,7 @@ window.scalarvis = { instanceCount: -1 };
     }
     base.VisualizationContent = {
       "all-content": "All content",
-      "toc": "Table of contents",
+      "table-of-contents": "Table of contents",
       "page": "All pages",
       "path": "All paths",
       "tag": "All tags",
@@ -3558,8 +3558,8 @@ window.scalarvis = { instanceCount: -1 };
     /*********************
      * MAP VISUALIZATION *
      *********************/
-    class MapVisualization extends AbstractVisualization {	
-    	
+    class MapVisualization extends AbstractVisualization {
+
       constructor() {
         super();
         this.map = null;
@@ -3572,7 +3572,7 @@ window.scalarvis = { instanceCount: -1 };
         super.draw();
 
     	if (null == this.map) return;
-    	
+
     	this.clearMarkers();
     	var bounds = new google.maps.LatLngBounds();
     	var urls = [];
@@ -3606,7 +3606,7 @@ window.scalarvis = { instanceCount: -1 };
     	    if (coords) bounds.extend( new google.maps.LatLng(coords.lat, coords.lng) );
     	}
     	this.map.fitBounds(bounds);
-    	
+
       }
 
       getHelpContent() {
@@ -3625,7 +3625,7 @@ window.scalarvis = { instanceCount: -1 };
         	this.setupMap();
         }
       }
-        
+
       setupMap() {
     	this.map = new google.maps.Map(base.visualization[0], {
           center: {lat: -25.344, lng: 131.036},
@@ -3633,7 +3633,7 @@ window.scalarvis = { instanceCount: -1 };
        	});
     	this.draw();
       }
-      
+
       clearMarkers() {
     	this.markers.forEach(function(marker) {
     	  marker.setMap(null);
@@ -3641,14 +3641,14 @@ window.scalarvis = { instanceCount: -1 };
     	this.markers = [];
     	this.infowindows = {};
       }
-      
+
       drawMarker(obj, title) {
     	  	var coords = this.getCoords(obj);
 			if (!coords) return false;
 			// Marker
 			var key = this.markers.length;
 			this.markers[key] = new google.maps.Marker({
-	    		position: coords, 
+	    		position: coords,
 	    		map: this.map,
 	    		title: title
 	    	});
@@ -3665,7 +3665,7 @@ window.scalarvis = { instanceCount: -1 };
 	        });
 	        return coords;
       }
-      
+
       getCoords(obj) {
     	  var spatial = ('undefined' != typeof(obj.current.auxProperties["dcterms:spatial"])) ? obj.current.auxProperties["dcterms:spatial"][0] : null;
     	  var coverage = ('undefined' != typeof(obj.current.auxProperties["dcterms:coverage"])) ? obj.current.auxProperties["dcterms:coverage"][0] : null;
@@ -3682,7 +3682,7 @@ window.scalarvis = { instanceCount: -1 };
     	  coords.lng = parseFloat(arr[1].trim());
     	  return coords;
       }
-      
+
     }
 
     /*********************
@@ -3699,7 +3699,7 @@ window.scalarvis = { instanceCount: -1 };
         // this updates the dimensions of the vis based on window size, etc.
         // and calls setupElement if the vis was just created
         super.draw();
-        
+
         base.visualization.empty();
         // Customizable variables
     	var min_font_size = 13;
