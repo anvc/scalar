@@ -165,7 +165,7 @@ class Lens_model extends MY_Model {
 										$content[] = $page;
 										$types = $modifier['content-types'];
 										if (isset($types[0]) && 'all-types' == $types[0]) {
-											$types = $CI->config->item('rel');
+											$types = array_merge($CI->config->item('rel'), $CI->config->item('ref'));
 											for ($j = 0; $j < count($types); $j++) {
 												$type = rtrim($types[$j], "s");
 												if ($type == 'replie') $type = 'reply';
