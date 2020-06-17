@@ -146,6 +146,13 @@ a.headerIcon{
 	background-image: url(../images/icon_recent_light.png);
 }
 
+.navbar li>a>#lensIcon{
+	background-image: url(../images/icon_lens.png);
+}
+.navbar li:hover>a>#lensIcon{
+	background-image: url(../images/icon_lens_light.png);
+}
+
 .navbar li>a>#visIcon{
 	background-image: url(../images/icon_vis.png);
 }
