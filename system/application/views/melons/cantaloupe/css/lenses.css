@@ -29,6 +29,9 @@
   float:right;
   font-weight:100;
 }
+#lenses span {
+  vertical-align: middle;
+}
 .author-lenses-list li {
-  padding:10px;
+
 }

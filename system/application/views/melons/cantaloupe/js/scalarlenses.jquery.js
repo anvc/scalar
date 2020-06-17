@@ -359,7 +359,7 @@
          `<div class="visualization-btn-group btn-group"><button type="button" class="btn btn-primary btn-xs dropdown-toggle caption_font visualization-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Select visualization <span class="caret"></span></button>
            <ul id="visualization-dropdown" class="dropdown-menu">
-           <li><a><span class="viz-icon force"></span>Force-Directed</a></li>
+           <li><a><span class="viz-icon force-directed"></span>Force-Directed</a></li>
            <li><a><span class="viz-icon grid"></span>Grid</a></li>
            <li><a><span class="viz-icon list"></span>List</a></li>
            <li><a><span class="viz-icon map"></span>Map</a></li>

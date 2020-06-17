@@ -1556,7 +1556,7 @@ body>.annotorious-popup{
 	margin-right:5px;
 	margin-top:1px;
 }
-.viz-icon.force {
+.viz-icon.force-directed {
 	background-image:url(../images/icon_forcedir_dark.png);
 }
 .force-directed.light {
