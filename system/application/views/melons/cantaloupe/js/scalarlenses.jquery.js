@@ -137,8 +137,6 @@
         this.userId = $('link#logged_in').attr('href');
       }
 
-
-
       this.scalarLensObject = this.getEmbeddedJson();
       if (!this.scalarLensObject) {
         this.scalarLensObject = this.getDefaultJson();
@@ -146,6 +144,7 @@
       if (Array.isArray(this.scalarLensObject.visualization.options)) {
         this.scalarLensObject.visualization.options = {}; // because PHP will turn the empty object into an array
       }
+      this.scalarLensObject.title = scalarapi.model.getCurrentPageNode().title;
       this.checkSavePrivileges();
       this.getOntologyData();
       this.getLensResults(this.scalarLensObject, this.options.onLensResults);
