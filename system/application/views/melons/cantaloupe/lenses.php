@@ -39,25 +39,25 @@
 			</heading>
 			<div id="lens-manager">
 				<div class="private-lenses">
-					<h3 class="heading_font heading_weight">My Private Lenses</h3>
+					<h3 class="heading_font heading_weight title">My Private Lenses</h3>
 					<ul class="private-lenses-list">
-						<li class="caption_font"><a>Recently Viewed</a> <span class="badge dark caption_font">20</span> <span class="viz-icon list"></span></li>
-						<li class="caption_font"><a>recent stuff on the frontier</a> <span class="badge dark caption_font">80</span> <span class="viz-icon force"></span></li>
+						<!-- <li class="caption_font"><a>Private Lenses</a> <span id="private-lens-count" class="badge dark caption_font">0</span> <span class="viz-icon list"></span></li> -->
+						<!-- <li class="caption_font"><a>recent stuff on the frontier</a> <span class="badge dark caption_font">80</span> <span class="viz-icon force"></span></li> -->
 					</ul>
 					<button type="button" class="btn btn-primary btn-xs caption_font">Add lens</button>
 				</div>
 				<div class="submitted-lenses">
-					<h3 class="heading_font heading_weight">My Submitted Lenses</h3>
-					<ul class="private-lenses-list">
-						<li class="caption_font"><a>recent stuff on the frontier</a> <span class="badge dark caption_font">8</span> <span class="viz-icon list"></span></li>
+					<h3 class="heading_font heading_weight title">My Submitted Lenses</h3>
+					<ul class="submitted-lenses-list">
+						<!-- <li class="caption_font"><a>submitted lenses</a> <span id="submitted-lens-count" class="badge dark caption_font">0</span> <span class="viz-icon list"></span></li> -->
 					</ul>
 				</div>
-				<div class="author-lenses">
-					<h3 class="heading_font heading_weight">Author Lenses</h3>
-					<ul class="author-lenses-list">
-						<li class="caption_font"><a>Tokyo Area Commercial Networks</a> <span class="badge dark caption_font">10</span> <span class="viz-icon map"></span></li>
-						<li class="caption_font"><a>Consuming Places</a> <span class="badge dark caption_font">67</span> <span class="viz-icon tree"></span></li>
-						<li class="caption_font"><a>Contested Borderlands</a><span class="badge dark caption_font">40</span> <span class="viz-icon force"></span></li>
+				<div class="public-lenses">
+					<h3 class="heading_font heading_weight title">Author Lenses</h3>
+					<ul class="public-lenses-list">
+						<!-- <li class="caption_font"><a>Public lenses</a> <span id="public-lens-count" class="badge dark caption_font">0</span> <span class="viz-icon map"></span></li> -->
+						<!-- <li class="caption_font"><a>Consuming Places</a> <span class="badge dark caption_font">67</span> <span class="viz-icon tree"></span></li>
+						<li class="caption_font"><a>Contested Borderlands</a><span class="badge dark caption_font">40</span> <span class="viz-icon force"></span></li> -->
 					</ul>
 				</div>
 			</div>
