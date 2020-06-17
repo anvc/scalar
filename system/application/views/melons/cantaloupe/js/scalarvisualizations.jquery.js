@@ -120,6 +120,7 @@ window.scalarvis = { instanceCount: -1 };
             base.force.stop();
           }
           $('body').trigger('closeModalVis');
+          base.visInstance = null;
           base.pause();
           base.modalIsOpen = false;
         });
@@ -338,13 +339,18 @@ window.scalarvis = { instanceCount: -1 };
 
     base.updateLensModifiers = function() {
       base.options.lens.components[0].modifiers = [];
-      if (base.visElement.find(".vis-filter-control").val() != 'none') {
-        base.options.lens.components[0].modifiers.push({
+      let filterControlVal = base.visElement.find(".vis-filter-control").val();
+      if (filterControlVal != 'none') {
+        let filter = {
           "type": "filter",
           "subtype": "relationship",
-          "content-types": [base.visElement.find(".vis-content-control").val()],
           "relationship": base.visElement.find(".vis-filter-control").val()
-        });
+        };
+        if (filterControlVal == 'any-relationship') {
+          filter.contentTypes = ["all-types"];
+        } else {
+          filter.contentTypes = [base.visElement.find(".vis-content-control").val()];
+        }
       }
       if (base.visElement.find(".vis-sort-control").val() != 'none') {
         if (base.visElement.find(".vis-sort-order-control").val() == 'none') {
@@ -365,8 +371,14 @@ window.scalarvis = { instanceCount: -1 };
 
     base.getLensResults = function(success) {
       base.options.lens.book_urn = 'urn:scalar:book:' + $('link#book_id').attr('href');
-      console.log(JSON.stringify(base.options.lens.components, null, 2));
+      //console.log(JSON.stringify(base.options.lens.components, null, 2));
       let url = $('link#approot').attr('href').replace('application/','') + 'lenses';
+      base.startTime = new Date();
+      var percentDone = 0;
+      var timeout = setInterval(() => {
+        percentDone = Math.min(90, percentDone + 10);
+        base.updateLoadingMsg('', percentDone, 0, 1, null);
+      }, 1000)
       $.ajax({
         url: url,
         type: "POST",
@@ -380,9 +392,11 @@ window.scalarvis = { instanceCount: -1 };
         		console.log('There was an error attempting to get Lens data: '+data.error);
         		return;
       	  };
+          clearInterval(timeout);
+          base.updateLoadingMsg('', 100, 0, 1, null);
+          base.hideLoadingMsg();
           base.options.lens = data;
           scalarapi.parsePagesByType(data.items);
-          console.log(data.items);
           if (success) {
             success(data);
           }
@@ -445,7 +459,6 @@ window.scalarvis = { instanceCount: -1 };
         delete(base.options.relations);
         base.getLensResults();
       }
-      console.log(base.options);
     };
 
     base.getFormat = function() {
@@ -503,14 +516,24 @@ window.scalarvis = { instanceCount: -1 };
             if (base.options.lens.components[0].modifiers[0]['content-types'].length == 0) {
               base.visElement.find(".vis-filter-control").val('none');
             } else {
-              console.log(base.options.lens.components[0].modifiers[0].relationship);
               base.visElement.find(".vis-filter-control").val(base.options.lens.components[0].modifiers[0].relationship);
             }
             break;
 
             case 'sort':
-            base.visElement.find(".vis-sort-control").val(base.options.lens.components[0].modifiers[1]['sort-type']);
-            base.visElement.find(".vis-sort-order-control").val(base.options.lens.components[0].modifiers[1]['sort-order']);
+            let sort = null;
+            base.options.lens.components[0].modifiers.forEach(modifier => {
+              if (modifier.type === 'sort') {
+                sort = modifier;
+              }
+            });
+            if (sort) {
+              base.visElement.find(".vis-sort-control").val(sort['sort-type']);
+              base.visElement.find(".vis-sort-order-control").val(sort['sort-order']);
+            } else {
+              base.visElement.find(".vis-sort-control").val('none');
+              base.visElement.find(".vis-sort-order-control").val('none');
+            }
             break;
           }
         });
@@ -602,6 +625,13 @@ window.scalarvis = { instanceCount: -1 };
 
       }
 
+    }
+
+    base.linkIsBeingInteractedWith = function(link) {
+      return ((base.rolloverNode == link.source.node) ||
+        (base.selectedNodes.indexOf(link.source.node) != -1) ||
+        (base.rolloverNode == link.target.node) ||
+        (base.selectedNodes.indexOf(link.target.node) != -1));
     }
 
     // pop-up that shows information about the selected node
@@ -741,6 +771,7 @@ window.scalarvis = { instanceCount: -1 };
       base.hierarchy = null;
       base.selectedHierarchyNodes = null;
       base.processedNodesForHierarchy = [];
+      base.visInstance = null;
 
       base.visualization.css('height', '');
 
@@ -956,6 +987,31 @@ window.scalarvis = { instanceCount: -1 };
             result = scalarapi.loadPagesByType(loadInstruction.id, true, base.parseData, null, depth, references, relations, start, base.resultsPerPage, false, false);
             break;
         }
+
+				console.log( "load next data: " + loadInstruction.id + ' ' + start + ' ' + end );
+
+				base.updateLoadingMsg(
+					loadInstruction.desc,
+					(( base.loadIndex + 1 ) / ( base.loadSequence.length + 1 )) * 100,
+					( start == -1 ) ? -1 : start + 1,
+					end,
+					base.typeCounts[ loadInstruction.id ]
+				);
+
+				if ( result == 'loaded' ) {
+					base.parseData();
+				}
+
+      // otherwise, hide the loading message
+			} else {
+				base.hideLoadingMsg();
+				base.loadingDone = true;
+				base.draw(true);
+				// when content is set to 'toc', we still load everything so users can drill down as far as they want
+				if (( base.options.content == 'all' ) || ( base.options.content == 'toc' )) {
+					base.loadedAllContent = true;
+					$( 'body' ).trigger( 'visLoadedAllContent' );
+				}
       }
       base.visElement.find(".vis-format-control").val(base.getFormat());
     }
@@ -1345,19 +1401,33 @@ window.scalarvis = { instanceCount: -1 };
           switch (base.options.content) {
 
             case "all":
-              base.updateTypeHierarchy(false, true, false, false);
+              base.updateTypeHierarchy(false, true, null, false);
               break;
 
             case "toc":
-              base.updateTypeHierarchy(false, true, true, true);
+              base.updateTypeHierarchy(false, true, base.options.content, true);
               break;
 
             case "current":
-              base.updateTypeHierarchy(false, true, true, false);
+              base.updateTypeHierarchy(false, true, base.options.content, false);
+              break;
+
+            case "lens":
+              let hasToc = false;
+              base.options.lens.components.forEach(component => {
+                if (component['content-selector'].type === 'items-by-type' && component['content-selector']['content-type'] === 'table-of-contents') {
+                  hasToc = true;
+                }
+              })
+              let hasSingleType;
+              if (base.options.lens.components.length === 1 && base.options.lens.components[0]['content-selector'].type === 'items-by-type') {
+                hasSingleType = base.options.lens.components[0]['content-selector']['content-type'];
+              }
+              base.updateTypeHierarchy(false, true, hasSingleType, hasToc);
               break;
 
             default:
-              base.updateTypeHierarchy(false, true, true, false);
+              base.updateTypeHierarchy(false, true, base.options.content, false);
               break;
 
           }
@@ -1390,10 +1460,10 @@ window.scalarvis = { instanceCount: -1 };
 		  *
 		  * @param	{Boolean} includeSubgroups			Subdivide type branches such that no single branch has too many children
 		  * @param	{Boolean} includeRelations			Recursively include nodes that are related to existing nodes in the hierarchy
-		  * @param	{Boolean} restrictTopLevelTypes		Don't create top level branches for nodes not of the current content type
-		  * @param	{Boolean} includeToc				Include the table of contents as a top level branch
+		  * @param	{Boolean} topLevelType		      Top level branches will be restricted to this type
+		  * @param	{Boolean} includeToc			    	Include the table of contents as a top level branch
 		  */
-    base.updateTypeHierarchy = function(includeSubgroups, includeRelations, restrictTopLevelTypes, includeToc) {
+    base.updateTypeHierarchy = function(includeSubgroups, includeRelations, topLevelType, includeToc) {
 
       var maxNodeChars = 115 / 6;
 
@@ -1456,21 +1526,21 @@ window.scalarvis = { instanceCount: -1 };
         n = tocNodes.length;
         for (i = 0; i < n; i++) {
           node = tocNodes[i];
-          //if (processedNodes.indexOf(node) == -1) {
-          hierarchyNode = {
-            title: node.title,
-            shortTitle: node.shortTitle,
-            showsTitle: true,
-            node: node,
-            type: node.type.id,
-            children: null,
-            parent: tocRoot
-          };
-          tocRoot.children.push(hierarchyNode);
-          if (includeRelations) {
-            base.addRelationsForHierarchyNode(hierarchyNode);
+          if (node.type) {
+            hierarchyNode = {
+              title: node.title,
+              shortTitle: node.shortTitle,
+              showsTitle: true,
+              node: node,
+              type: node.type.id,
+              children: null,
+              parent: tocRoot
+            };
+            tocRoot.children.push(hierarchyNode);
+            if (includeRelations) {
+              base.addRelationsForHierarchyNode(hierarchyNode);
+            }
           }
-          //}
         }
       }
 
@@ -1478,7 +1548,7 @@ window.scalarvis = { instanceCount: -1 };
 
         // replace the root node with the current node if showing types
         // is not a priority
-        if (restrictTopLevelTypes) {
+        if (topLevelType) {
           base.hierarchy = {
             title: base.currentNode.title,
             shortTitle: base.currentNode.shortTitle,
@@ -1503,7 +1573,7 @@ window.scalarvis = { instanceCount: -1 };
 
         case "toc":
         case "current":
-          if (restrictTopLevelTypes) {
+          if (topLevelType) {
             typeList = [];
           } else {
             typeList = base.canonicalTypeOrder;
@@ -1511,8 +1581,8 @@ window.scalarvis = { instanceCount: -1 };
           break;
 
         default:
-          if (restrictTopLevelTypes) {
-            typeList = [base.options.content];
+          if (topLevelType) {
+            typeList = [topLevelType];
           } else {
             typeList = base.canonicalTypeOrder;
           }
@@ -1940,7 +2010,6 @@ window.scalarvis = { instanceCount: -1 };
 
       }
       base.visInstance.draw();
-
     };
 
     /**************************
@@ -2082,15 +2151,22 @@ window.scalarvis = { instanceCount: -1 };
                  })
              );
 
-           if (((base.options.content == "path") || (base.options.content == "all")) && ((base.options.relations == "path") || (base.options.relations == "all"))) {
-
+           if (((base.options.content == "path") || (base.options.content == "all") || (base.options.content == "lens")) && ((base.options.relations == "path") || (base.options.relations == "all") || (base.options.content == "lens"))) {
              // path vis line function
              this.line = d3.line()
                .x((d) => {
-                 return d[base.instanceId].x + (this.boxSize * .5);
+                 if (d[base.instanceId]) {
+                   return d[base.instanceId].x + (this.boxSize * .5);
+                 } else {
+                   return 0;
+                 }
                })
                .y((d) => {
-                 return d[base.instanceId].y + (this.boxSize * .5);
+                 if (d[base.instanceId]) {
+                   return d[base.instanceId].y + (this.boxSize * .5);
+                 } else {
+                   return 0;
+                 }
                })
                .curve(d3.curveCatmullRom.alpha(0.5));
 
@@ -2274,7 +2350,8 @@ window.scalarvis = { instanceCount: -1 };
          infoBox.enter().append('div')
            .attr('class', 'info_box')
            .style('left', (d) => { return (d[base.instanceId].x + visPos.left + (this.boxSize * .5)) + 'px'; })
-           .style('top', (d) => { return (d[base.instanceId].y + visPos.top + this.boxSize + 5) + 'px'; });
+           .style('top', (d) => { return (d[base.instanceId].y + visPos.top + this.boxSize + 5) + 'px'; })
+           .html(base.nodeInfoBox);
 
          infoBox.style('left', (d) => { return (d[base.instanceId].x + visPos.left + (this.boxSize * .5)) + 'px'; })
            .style('top', (d) => { return (d[base.instanceId].y + visPos.top + this.boxSize + 5) + 'px'; })
@@ -2306,7 +2383,7 @@ window.scalarvis = { instanceCount: -1 };
              var n = relations.length;
              for (i = 0; i < n; i++) {
                relation = relations[i];
-               if (relation.type.id == base.options.relations || base.options.relations == "all") {
+               if (relation.type.id == base.options.relations || base.options.relations == "all" || base.options.content == "lens") {
                  if (relation.type.id != 'path' && base.sortedNodes.indexOf(relation.body) != -1 && base.sortedNodes.indexOf(relation.target) != -1) {
                    if (!relation.body.scalarTypes.toc) {
                      relationArr.push(relations[i]);
@@ -2336,7 +2413,7 @@ window.scalarvis = { instanceCount: -1 };
              var n = relations.length;
              for (i = 0; i < n; i++) {
                relation = relations[i];
-               if ((relation.type.id == base.options.relations) || (base.options.relations == "all")) {
+               if (relation.type.id == base.options.relations || base.options.relations == "all" || base.options.content == "lens") {
                  if ((relation.type.id != 'path') && (base.sortedNodes.indexOf(relation.body) != -1) && (base.sortedNodes.indexOf(relation.target) != -1)) {
                    if (!relation.body.scalarTypes.toc) {
                      nodeArr.push({ role: 'body', node: relation.body, type: relation.type });
@@ -2353,6 +2430,7 @@ window.scalarvis = { instanceCount: -1 };
            .attr('cx', (d) => { return d.node[base.instanceId].x + (this.boxSize * .5); })
            .attr('cy', (d) => { return d.node[base.instanceId].y + (this.boxSize * .5); })
            .attr('r', (d, i) => { return (d.role == 'body') ? 5 : 3; });
+
        }
     }
 
@@ -2436,6 +2514,7 @@ window.scalarvis = { instanceCount: -1 };
 
       branchExpand(d) {
         var parentId = base.parentIdForHierarchyNode(d);
+        console.log(d._children);
         if (d._children != null) {
           d.children = d._children;
           d._children = null;
@@ -3312,16 +3391,20 @@ window.scalarvis = { instanceCount: -1 };
 
         if (base.svg != null) {
           this.forceLink.links(base.links);
-          base.force.nodes(base.abstractedSortedNodes).alpha(.05);
-
-          console.log('nodes: '+Object.values(base.abstractedSortedNodes).length);
+          base.force.nodes(base.abstractedSortedNodes).alpha(.3);
 
           this.container = base.svg.selectAll('g.container');
 
           this.linkSelection = this.container.selectAll('.link')
             .data(base.links, function(d) { return d.source.node.slug + '-' + d.target.node.slug; });
           this.linkSelection.enter().insert('svg:line', '.node')
-            .attr('class', 'link');
+            .attr('class', 'link')
+            .attr('stroke-width', function(d) {
+              return base.linkIsBeingInteractedWith(d) ? "3" : "1"; })
+            .attr('stroke-opacity', function(d) {
+              return base.linkIsBeingInteractedWith(d) ? '1.0' : '0.5'; })
+            .attr('stroke', function(d) {
+              return base.linkIsBeingInteractedWith(d) ? base.neutralColor : '#999'; });
           this.linkSelection.exit().remove();
 
           this.nodeSelection = this.container.selectAll('g.node')
@@ -3436,8 +3519,7 @@ window.scalarvis = { instanceCount: -1 };
 
         base.force = d3.forceSimulation()
           .force('link', this.forceLink)
-          .force('collision', d3.forceCollide(16))
-          .force('charge', d3.forceManyBody().strength(-200).distanceMax(100))
+          .force('charge', d3.forceManyBody())
           .force('center', d3.forceCenter(this.size.width * .5, this.size.height * .5))
           .on('tick', () => {
             if (base.svg != null) {
@@ -3494,9 +3576,13 @@ window.scalarvis = { instanceCount: -1 };
 
       updateGraph() {
 
-        this.linkSelection.attr('stroke-width', function(d) { return ((base.rolloverNode == d.source.node) || (base.selectedNodes.indexOf(d.source.node) != -1) || (base.rolloverNode == d.target.node) || (base.selectedNodes.indexOf(d.target.node) != -1)) ? "3" : "1"; })
-          .attr('stroke-opacity', function(d) { return ((base.rolloverNode == d.source.node) || (base.selectedNodes.indexOf(d.source.node) != -1) || (base.rolloverNode == d.target.node) || (base.selectedNodes.indexOf(d.target.node) != -1)) ? '1.0' : '0.5'; })
-          .attr('stroke', function(d) { return ((base.rolloverNode == d.source.node) || (base.selectedNodes.indexOf(d.source.node) != -1) || (base.rolloverNode == d.target.node) || (base.selectedNodes.indexOf(d.target.node) != -1)) ? base.neutralColor : '#999'; });
+        this.linkSelection
+          .attr('stroke-width', function(d) {
+            return base.linkIsBeingInteractedWith(d) ? "3" : "1"; })
+          .attr('stroke-opacity', function(d) {
+            return base.linkIsBeingInteractedWith(d) ? '1.0' : '0.5'; })
+          .attr('stroke', function(d) {
+            return base.linkIsBeingInteractedWith(d) ? base.neutralColor : '#999'; });
 
         this.container.selectAll('circle.node').attr('fill', function(d) {
           var interpolator = d3.interpolateRgb(base.highlightColorScale(d.node.type.id), d3.rgb(255, 255, 255));

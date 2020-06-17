@@ -137,12 +137,14 @@
         this.userId = $('link#logged_in').attr('href');
       }
 
-
-
       this.scalarLensObject = this.getEmbeddedJson();
       if (!this.scalarLensObject) {
         this.scalarLensObject = this.getDefaultJson();
       }
+      if (Array.isArray(this.scalarLensObject.visualization.options)) {
+        this.scalarLensObject.visualization.options = {}; // because PHP will turn the empty object into an array
+      }
+      this.scalarLensObject.title = scalarapi.model.getCurrentPageNode().title;
       this.checkSavePrivileges();
       this.getOntologyData();
       this.getLensResults(this.scalarLensObject, this.options.onLensResults);
@@ -2098,7 +2100,7 @@
 
         me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex] = sortObj;
         me.updateSortButton(me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex], $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-btn-group').eq(me.editedModifierIndex))
-        me.saveLens(() => me.getLensResults(me.options.onLensResults));
+        me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
       });
 
       // cancel click handler
@@ -2866,7 +2868,7 @@
 
         }
 
-        me.saveLens(() => me.getLensResults(me.options.onLensResults));
+        me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
         me.updateOptionsMenu();
 
       };
@@ -2970,6 +2972,7 @@
       this.updateBadge(this.primaryBadge, -1, 'light');
       lensObject.book_urn = 'urn:scalar:book:' + $('link#book_id').attr('href');
       let url = $('link#approot').attr('href').replace('application/','') + 'lenses';
+      console.log(JSON.stringify(lensObject, null, 2));
       $.ajax({
         url: url,
         type: "POST",

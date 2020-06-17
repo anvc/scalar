@@ -180,6 +180,8 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 base.$el.addClass('hypothesis_active');
             }
 
+            var lenses_are_active = ('true' == $('link#lenses_are_active').attr('href')) ? true : false;
+
             //Store the home URL so that we can use these later without making extra queries on the DOM
             var home_url = base.$el.find('#book-title').attr("href");
 
@@ -245,6 +247,12 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                             '<li><i class="loader"></i></li>'+
                                                         '</ul>'+
                                                     '</li>'+
+                                                    (lenses_are_active ? '<li id="lenses_menu" class="dropdown">'+
+                                                        '<a role="button" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></span><span class="menuIcon" id="lensIcon"></span>Lenses</a>'+
+                                                        '<ul class="dropdown-menu" role="menu">'+
+                                                          '<li class="vis_link"><a role="button" href="' + base.get_param(scalarapi.model.urlPrefix + 'lenses') + '"><span class="menuIcon" id="lensIcon"></span> Manage Lenses</a></li>'+
+                                                        '</ul>'+
+                                                    '</li>' : '')+
                                                     '<li id="vis_menu" class="dropdown">'+
                                                         '<a role="button" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></span><span class="menuIcon" id="visIcon"></span>Visualizations</a>'+
                                                         '<ul class="dropdown-menu" role="menu">'+
