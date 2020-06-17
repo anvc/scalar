@@ -1223,7 +1223,8 @@
             "type": "filter",
             "subtype": "content",
             "operator": $('#operator-button').data('option').value,
-            "content": $('#content-input').val()
+            "content": $('#content-input').val(),
+            "metadata-field": "sioc:content"
           }
         break;
         case 'relationship':
@@ -1399,7 +1400,8 @@
           	"type": "filter",
             "subtype": subtype,
             "operator": "inclusive",
-            "content": ""
+            "content": "",
+            "metadata-field": "sioc:content"
           }
         break;
         case 'relationship':
