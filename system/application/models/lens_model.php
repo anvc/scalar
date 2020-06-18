@@ -120,6 +120,7 @@ class Lens_model extends MY_Model {
 						case "filter":
 							switch ($modifier['subtype']) {
 								case "metadata":
+								case "content":
 									$has_used_filter = true;
 									$field = trim($modifier['metadata-field']);
 									$value = trim($modifier['content']);
