@@ -3703,6 +3703,8 @@ window.scalarvis = { instanceCount: -1 };
       setupElement() {
         this.hasBeenDrawn = true;
         base.visualization.empty();
+        base.visualization.css('height', this.size.height + 'px');
+        base.visualization.css('width', this.size.width + 'px');
         if ('undefined' == typeof(google) || 'undefined' == typeof(google.maps)) {
         	$.getScript('https://maps.googleapis.com/maps/api/js?key=' + $('link#google_maps_key').attr('href'), () => {
         		this.setupMap();
