@@ -53,29 +53,31 @@
       }
 
       ScalarLensManager.prototype.handleLensData = function(response){
-        let data = response;
 
+        let data = response;
+        //this.userLevel = 'scalar:Reader';
         console.log(this.userLevel);
         console.log(data)
 
-        //this.userLevel = 'scalar:Reader';
+        //_______________//
+        //
+        /// author view
+        //_______________//
 
-
-        // author view
         if(this.userLevel == 'scalar:Author'){
           let privateLensArray = [];
           let submittedLensArray = [];
           let publicLensArray = [];
 
-
+          $('.private-lenses .title').text('My Private Lenses');
+          $(element).find('.submitted-lenses .title').text('Awaiting My Review');
+          $('.public-lenses .title').text('Public Lenses');
 
           // iterate through lenses
           data.forEach(lens => {
             // sort lenses
             if(lens.user_level == 'scalar:Author'){
-
               lens.public ? publicLensArray.push(lens) : privateLensArray.push(lens);
-
               if(lens.submitted == true){
                 submittedLensArray.push(lens);
               }
@@ -85,7 +87,6 @@
           privateLensArray.forEach(privateLensItem => {
             let vizType = privateLensItem.visualization.type;
             let lensLink = $('link#parent').attr('href') + privateLensItem.slug;
-
             // display author private lenses
             if(privateLensArray.length == 0){
               $('.private-lenses').hide()
@@ -100,9 +101,6 @@
                 </li>`
               );
           });
-
-          // display submitted lenses created by anyone
-          $(element).find('.submitted-lenses .title').text('Awaiting My Review');
 
           if(submittedLensArray.length == 0){
             $('.submitted-lenses').hide()
@@ -122,14 +120,8 @@
               );
           });
 
-
-          // display public lenses created by anyone
-          $('.public-lenses .title').text('Public Lenses');
-          $('#public-lens-count').text(publicLensArray.length);
-
           if(publicLensArray.length == 0){
             $('.public-lenses').hide()
-
           } else {
             $('.public-lenses').show()
           }
@@ -146,19 +138,83 @@
               );
           });
 
+        };
 
-        }
+        //_______________//
+        //
+        /// Reader view
+        //_______________//
 
-        // display reader view
-        // Reader
         if(this.userLevel == 'scalar:Reader'){
-          // My Private Lenses: Private lenses created by me
-          // My Submitted Lenses: Submitted lenses created by me (a non-author or editor)
-          // Author Lenses: Public lenses created by anyone
-        }
+          let privateLensArray = [];
+          let submittedLensArray = [];
+          let publicLensArray = [];
 
+          // iterate through lenses
+          data.forEach(lens => {
+            // sort lenses
+            if(lens.user_level == 'scalar:Reader'){
+              lens.public ? publicLensArray.push(lens) : privateLensArray.push(lens);
+              if(lens.submitted == true){
+                submittedLensArray.push(lens);
+              }
+            }
+          });
+          // build sidebar list
+          privateLensArray.forEach(privateLensItem => {
+            let vizType = privateLensItem.visualization.type;
+            let lensLink = $('link#parent').attr('href') + privateLensItem.slug;
+            // display author private lenses
+            if(privateLensArray.length == 0){
+              $('.private-lenses').hide()
+            } else {
+              $('.private-lenses').show()
+            }
+            $('.private-lenses-list').append(`
+                <li class="caption_font">
+                  <a href="${lensLink}" target="_blank">${privateLensItem.title}</a>
+                  <span id="private-lens-count" class="badge dark caption_font">0</span>
+                  <span class="viz-icon ${vizType}"></span>
+                </li>`
+              );
+          });
+          // submitted lenses list
+          if(submittedLensArray.length == 0){
+            $('.submitted-lenses').hide()
+          } else {
+            $('.submitted-lenses').show()
+          }
+          submittedLensArray.forEach(submittedLensItem => {
+            let vizType = submittedLensItem.visualization.type;
+            let lensLink = $('link#parent').attr('href') + submittedLensItem.slug;
+            $('.submitted-lenses-list').append(`
+                <li class="caption_font">
+                  <a href="${lensLink}" target="_blank">${submittedLensItem.title}</a>
+                  <span id="submitted-lens-count" class="badge dark caption_font">0</span>
+                  <span class="viz-icon ${vizType}"></span>
+                </li>`
+              );
+          });
+          // public lenses list
+          if(publicLensArray.length == 0){
+            $('.public-lenses').hide()
+          } else {
+            $('.public-lenses').show()
+          }
+          publicLensArray.forEach(publicLensItem => {
+            let vizType = publicLensItem.visualization.type;
+            let lensLink = $('link#parent').attr('href') + publicLensItem.slug;
+            $('.public-lenses-list').append(`
+                <li class="caption_font">
+                  <a href="${lensLink}" target="_blank">${publicLensItem.title}</a>
+                  <span id="public-lens-count" class="badge dark caption_font">0</span>
+                  <span class="viz-icon ${vizType}"></span>
+                </li>`
+              );
+          });
+        };
 
-      }
+      };
 
       this.getLensData();
 
