@@ -65,6 +65,8 @@ class Lens_model extends MY_Model {
 	public function get_all($book_id=null, $type=null, $category=null, $is_live=true, $sq='', $id_array=null) {
 
 		$this->db->select($this->lenses_table.'.*');
+		$this->db->select($this->versions_table.'.title');
+		$this->db->select($this->pages_table.'.slug');
 		$this->db->from($this->lenses_table);
 		$this->db->join($this->versions_table, $this->versions_table.'.version_id='.$this->lenses_table.'.parent_version_id');
 		$this->db->join($this->pages_table, $this->pages_table.'.content_id='.$this->versions_table.'.content_id');
@@ -77,6 +79,8 @@ class Lens_model extends MY_Model {
 			if (isset($result[$j]->contents) && !empty($result[$j]->contents)) {
 				$result[$j]->contents = json_decode($result[$j]->contents);
 				$result[$j]->contents->urn = $this->urn($result[$j]->parent_version_id);
+				$result[$j]->contents->title = $result[$j]->title;
+				$result[$j]->contents->slug = $result[$j]->slug;
 				$return[] = $result[$j]->contents;
 			}
 		}
@@ -85,6 +89,14 @@ class Lens_model extends MY_Model {
     }
 
     public function get_children($parent_version_id=0) {
+    	
+    	$this->db->select($this->versions_table.'.*');
+    	$this->db->select($this->pages_table.'.slug');
+    	$this->db->from($this->versions_table);
+    	$this->db->where('version_id', $parent_version_id);
+    	$this->db->join($this->pages_table, $this->pages_table.'.content_id='.$this->versions_table.'.content_id');
+    	$query = $this->db->get();
+    	$version = $query->result();
     	
     	$this->db->select('*');
     	$this->db->from($this->lenses_table);
@@ -95,6 +107,8 @@ class Lens_model extends MY_Model {
     	for ($j = 0; $j < count($result); $j++) {
     		$result[$j]->contents = json_decode($result[$j]->contents);
     		$result[$j]->contents->urn = $this->urn($result[$j]->parent_version_id);
+    		$result[$j]->contents->title = $version[0]->title;
+    		$result[$j]->contents->slug = $version[0]->slug;
     		$result[$j]->contents = json_encode($result[$j]->contents);
     	}
     	return $result[0]->contents;

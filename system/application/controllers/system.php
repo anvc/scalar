@@ -144,6 +144,9 @@ class System extends MY_Controller {
 				if (!isset($json['components'])) die ('{"error":"JSON payload not formatted properly"}');
 				$this->load->model('book_model', 'books');
 				$this->load->model('lens_model', 'lenses');
+				$this->load->model('version_model', 'versions');
+				$this->load->model('page_model', 'pages');
+				// Validate book
 				$book_id = 0;
 				if (isset($json['book_id'])) {
 					$book_id = (int) $json['book_id'];
@@ -154,7 +157,17 @@ class System extends MY_Controller {
 				if (empty($book_id)) die ('{"error":"Could not find a book ID associated with JSON payload"}');
 				$this->data['book'] = $this->books->get($book_id);
 				if (empty($this->data['book'])) die ('{"error":"Could not find a book associated with the JSON payload"}');
+				// Get items from JSON
 				$json['items'] = $this->lenses->get_nodes_from_json($book_id, $json, confirm_slash(base_url()).$this->data['book']->slug);
+				// Return version title and slug
+				$urn_arr = explode(':', $json['urn']);
+				$version_id = $urn_arr[count($urn_arr)-1];
+				$version = $this->versions->get($version_id, '', false);
+				if (!empty($version)) {
+					$json['title'] = $version->title;
+					$page = $this->pages->get($version->content_id);
+					$json['slug'] = $page->slug;
+				}
 				$this->data['content'] = $json;
 			} else {
 				$this->data['content'] = '{"error":"Missing Version ID, Book ID, or JSON payload"}';
