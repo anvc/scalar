@@ -12,9 +12,20 @@
   text-decoration: none;
   list-style-type: none;
   cursor:pointer;
+  margin-left:-10px;
+  margin-right:10px;
+  padding:2px 0;
+}
+#lenses ul li:hover {
+  background:#d9edf7;
+}
+#lenses ul li:active{
+  background:#c7e6f6;
 }
 #lenses ul li a {
   font-size:12px;
+  padding-left:10px;
+  padding-right:10px;
 }
 #lenses .btn-primary,
 #lenses .btn-primary:hover  {
@@ -24,10 +35,13 @@
 }
 #lenses .viz-icon {
   float:right;
+  margin-top:6px;
 }
 #lenses .badge {
   float:right;
   font-weight:100;
+  margin-top:4px;
+  margin-right:10px;
 }
 #lenses span {
   vertical-align: middle;

@@ -60,11 +60,14 @@
 
         //this.userLevel = 'scalar:Reader';
 
+
         // author view
         if(this.userLevel == 'scalar:Author'){
           let privateLensArray = [];
           let submittedLensArray = [];
           let publicLensArray = [];
+
+
 
           // iterate through lenses
           data.forEach(lens => {
@@ -81,19 +84,17 @@
           // build sidebar list
           privateLensArray.forEach(privateLensItem => {
             let vizType = privateLensItem.visualization.type;
-
+            let lensLink = $('link#parent').attr('href') + privateLensItem.slug;
 
             // display author private lenses
             if(privateLensArray.length == 0){
-              $('.private-lenses-list').append(`
-                  <li class="caption_font">
-                    <a>No private lenses to view</a>
-                  </li>`
-                );
+              $('.private-lenses').hide()
+            } else {
+              $('.private-lenses').show()
             }
             $('.private-lenses-list').append(`
                 <li class="caption_font">
-                  <a>${privateLensItem.title}</a>
+                  <a href="${lensLink}" target="_blank">${privateLensItem.title}</a>
                   <span id="private-lens-count" class="badge dark caption_font">0</span>
                   <span class="viz-icon ${vizType}"></span>
                 </li>`
@@ -104,18 +105,17 @@
           $(element).find('.submitted-lenses .title').text('Awaiting My Review');
 
           if(submittedLensArray.length == 0){
-            $('.submitted-lenses-list').append(`
-                <li class="caption_font">
-                  <a>No submissions to review</a>
-                </li>`
-              );
+            $('.submitted-lenses').hide()
+          } else {
+            $('.submitted-lenses').show()
           }
           submittedLensArray.forEach(submittedLensItem => {
             let vizType = submittedLensItem.visualization.type;
+            let lensLink = $('link#parent').attr('href') + submittedLensItem.slug;
 
             $('.submitted-lenses-list').append(`
                 <li class="caption_font">
-                  <a>${submittedLensItem.title}</a>
+                  <a href="${lensLink}" target="_blank">${submittedLensItem.title}</a>
                   <span id="submitted-lens-count" class="badge dark caption_font">0</span>
                   <span class="viz-icon ${vizType}"></span>
                 </li>`
@@ -128,19 +128,18 @@
           $('#public-lens-count').text(publicLensArray.length);
 
           if(publicLensArray.length == 0){
-            $('.public-lenses-list').append(`
-                <li class="caption_font">
-                  <a>No public lenses view</a>
-                </li>`
-              );
+            $('.public-lenses').hide()
+
+          } else {
+            $('.public-lenses').show()
           }
           publicLensArray.forEach(publicLensItem => {
             let vizType = publicLensItem.visualization.type;
-            //console.log(vizType)
+            let lensLink = $('link#parent').attr('href') + publicLensItem.slug;
 
             $('.public-lenses-list').append(`
                 <li class="caption_font">
-                  <a>${publicLensItem.title}</a>
+                  <a href="${lensLink}" target="_blank">${publicLensItem.title}</a>
                   <span id="public-lens-count" class="badge dark caption_font">0</span>
                   <span class="viz-icon ${vizType}"></span>
                 </li>`
