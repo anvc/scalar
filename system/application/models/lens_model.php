@@ -123,10 +123,10 @@ class Lens_model extends MY_Model {
 		if (empty($book_id)) throw new Exception("Invalud Book ID");
 		$how_to_combine = $this->get_operation_from_visualization($json['visualization']);
 		$contents = array();
-		$has_used_filter = false;
 
 		foreach ($json['components'] as $component) {
 			$content = array();
+			$has_used_filter = false;
 			// Modifiers that get content
 			if (isset($component['modifiers'])) {
 				foreach ($component['modifiers'] as $modifier) {
