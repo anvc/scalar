@@ -633,9 +633,6 @@
           let filterObj = me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex];
           me.updateFilterModal(option.value, filterObj);
         }
-        // add/remove active class
-        //button.find('li.active').removeClass('active');
-        $( evt.target ).parent().toggleClass( 'active' );
 
         if($(evt.target).parent().text() == 'Delete'){
           $(this).removeClass('active')
@@ -821,13 +818,9 @@
           me.updateSortModal(option.value, sortObj);
         }
 
-        // add/remove active class
-        $( evt.target ).parent().toggleClass( 'active' );
-
         if($(evt.target).parent().text() == 'Delete'){
           $(this).removeClass('active')
         }
-
 
         // save by type value on click
         if(option.value == 'type'){
@@ -1188,7 +1181,6 @@
 
       // done click handler
       element.find('.done').on('click', function(){
-        //button.find('li.active').removeClass('active');
         let currentButton = $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-btn-group').eq(me.editedModifierIndex);
         $(currentButton).find('.filter-type-list li.active').removeClass('active');
         me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex] = me.buildFilterData();
@@ -2098,6 +2090,9 @@
             };
           break;
         }
+
+        let currentButton = $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-btn-group').eq(me.editedModifierIndex);
+        $(currentButton).find('.sort-type-list li.active').removeClass('active');
 
         me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex] = sortObj;
         me.updateSortButton(me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex], $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-btn-group').eq(me.editedModifierIndex))
