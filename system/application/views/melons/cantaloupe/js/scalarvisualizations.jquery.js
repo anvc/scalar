@@ -3669,6 +3669,7 @@ window.scalarvis = { instanceCount: -1 };
     		var pathTitle = base.sortedNodes[j].getDisplayTitle();
     		var pathCoordinates = [];
     		for (var k = 0; k < base.sortedNodes[j].outgoingRelations.length; k++) {
+    			if (null == base.sortedNodes[j].outgoingRelations[k].index) continue;  // Not part of the path
     			if (-1 == urls.indexOf(base.sortedNodes[j].outgoingRelations[k].target.url)) urls.push(base.sortedNodes[j].outgoingRelations[k].target.url);
     			var title = '<p style="margin-bottom:8px;">'+pathTitle + '<br />' + base.sortedNodes[j].outgoingRelations[k].startString + '<br /><b>'+base.sortedNodes[j].outgoingRelations[k].target.getDisplayTitle()+'</b></p>';
     			var description = base.sortedNodes[j].outgoingRelations[k].target.getDescription();
