@@ -3658,6 +3658,7 @@ window.scalarvis = { instanceCount: -1 };
         super.draw();
 
     	if (null == this.map) return;
+    	console.log(base.sortedNodes);
 
     	this.clearMarkers();
     	var bounds = new google.maps.LatLngBounds();
@@ -3669,7 +3670,7 @@ window.scalarvis = { instanceCount: -1 };
     		var pathCoordinates = [];
     		for (var k = 0; k < base.sortedNodes[j].outgoingRelations.length; k++) {
     			if (-1 == urls.indexOf(base.sortedNodes[j].outgoingRelations[k].target.url)) urls.push(base.sortedNodes[j].outgoingRelations[k].target.url);
-    			var title = '<p style="margin-bottom:8px;">'+pathTitle + '<br />Page ' + base.sortedNodes[j].outgoingRelations[k].index + '<br /><b>'+base.sortedNodes[j].outgoingRelations[k].target.getDisplayTitle()+'</b></p>';
+    			var title = '<p style="margin-bottom:8px;">'+pathTitle + '<br />' + base.sortedNodes[j].outgoingRelations[k].startString + '<br /><b>'+base.sortedNodes[j].outgoingRelations[k].target.getDisplayTitle()+'</b></p>';
     			var description = base.sortedNodes[j].outgoingRelations[k].target.getDescription();
     			if (description && description.length) title += '<p style="margin-bottom:8px;">'+description+'</p>';
     			var coords = this.drawMarker(base.sortedNodes[j].outgoingRelations[k].target, title);
@@ -3689,17 +3690,49 @@ window.scalarvis = { instanceCount: -1 };
             this.paths[path_key].setMap(this.map);
     	}
     	// All other nodes
-    	console.log(base.sortedNodes);
     	for (var j = 0; j < base.sortedNodes.length; j++) {
     		if (-1 != urls.indexOf(base.sortedNodes[j].url)) continue;
     		var title = '<p style="margin-bottom:8px;"><b>'+base.sortedNodes[j].getDisplayTitle()+'</b></p>';
+			var thumbnail = base.sortedNodes[j].thumbnail;
 			var description = base.sortedNodes[j].getDescription();
+			if (null != thumbnail) title += '<img src="'+thumbnail+'" align="left" style="max-width:100px;max-height:100px;margin-right:12px;" />';
 			if (description && description.length) title += '<p style="margin-bottom:8px;">'+description+'</p>';
     		var coords = this.drawMarker(base.sortedNodes[j], title);
     	    if (coords) bounds.extend( new google.maps.LatLng(coords.lat, coords.lng) );
     	}
     	this.map.fitBounds(bounds);
-
+    	// Group markers
+    	var getGoogleClusterInlineSvg = function (color) {  // https://stackoverflow.com/questions/28178080/getting-google-map-markerclusterer-plus-icons-in-one-color
+    		var encoded = window.btoa('<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="-100 -100 200 200"><defs><g id="a" transform="rotate(45)"><path d="M0 47A47 47 0 0 0 47 0L62 0A62 62 0 0 1 0 62Z" fill-opacity="0.7"/><path d="M0 67A67 67 0 0 0 67 0L81 0A81 81 0 0 1 0 81Z" fill-opacity="0.5"/><path d="M0 86A86 86 0 0 0 86 0L100 0A100 100 0 0 1 0 100Z" fill-opacity="0.3"/></g></defs><g fill="' + color + '"><circle r="42"/><use xlink:href="#a"/><g transform="rotate(120)"><use xlink:href="#a"/></g><g transform="rotate(240)"><use xlink:href="#a"/></g></g></svg>');
+    	    return ('data:image/svg+xml;base64,' + encoded);
+    	};
+    	var cluster_styles = [
+    	        {
+    	            width: 40,
+    	            height: 40,
+    	            url: getGoogleClusterInlineSvg('red'),
+    	            textColor: 'white',
+    	            textSize: 12
+    	        },
+    	        {
+    	            width: 50,
+    	            height: 50,
+    	            url: getGoogleClusterInlineSvg('violet'),
+    	            textColor: 'white',
+    	            textSize: 14
+    	        },
+    	        {
+    	            width: 60,
+    	            height: 60,
+    	            url: getGoogleClusterInlineSvg('yellow'),
+    	            textColor: 'white',
+    	            textSize: 16
+    	        }
+    	        //up to 5
+    	    ];
+    	var markerCluster = new MarkerClusterer(this.map, this.markers, {
+            styles: cluster_styles
+        });
       }
 
       getHelpContent() {
@@ -3713,6 +3746,7 @@ window.scalarvis = { instanceCount: -1 };
         base.visualization.css('height', this.size.height + 'px');
         base.visualization.css('width', this.size.width + 'px');
         if ('undefined' == typeof(google) || 'undefined' == typeof(google.maps)) {
+        	$.getScript($('link#approot').attr('href') + 'views/melons/cantaloupe/js/markerclusterer.js');
         	$.getScript('https://maps.googleapis.com/maps/api/js?key=' + $('link#google_maps_key').attr('href'), () => {
         		this.setupMap();
         	});
