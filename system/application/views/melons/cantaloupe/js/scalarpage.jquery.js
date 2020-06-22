@@ -1715,7 +1715,7 @@
 
             addLensEditor: function() {
               if ($('.page-lens-editor').length == 0) {
-                var div = $('<div class="page-lens-editor"></div>');
+                var div = $('<div class="page-lens-editor page_margins"></div>');
                 page.bodyContent().prepend(div);
                 $.when(
                   $.getScript(views_uri+'/melons/cantaloupe/js/bootbox.min.js'),

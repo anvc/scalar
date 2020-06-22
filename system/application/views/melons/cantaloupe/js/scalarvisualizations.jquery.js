@@ -457,7 +457,10 @@ window.scalarvis = { instanceCount: -1 };
       if (base.options.lens) {
         delete(base.options.format);
         delete(base.options.relations);
-        base.getLensResults();
+        if (!base.options.lens.items) {
+          console.log('get lens results');
+          base.getLensResults();
+        }
       }
     };
 
@@ -1938,7 +1941,9 @@ window.scalarvis = { instanceCount: -1 };
       if (base.svg != null) {
         base.svg.empty();
       }
-      base.visualization.empty();
+      if (base.visualization) {
+        base.visualization.empty();
+      }
 
       switch (base.getFormat()) {
 
@@ -3760,8 +3765,8 @@ window.scalarvis = { instanceCount: -1 };
 	    		position: coords,
 	    		/* map: this.map, */
 	    		title: title,
-	    		icon: {                             
-	    			url: icon                           
+	    		icon: {
+	    			url: icon
 	    		}
 	    	});
 			this.oms.addMarker(this.markers[key]);
@@ -3796,9 +3801,9 @@ window.scalarvis = { instanceCount: -1 };
     	  coords.lng = parseFloat(arr[1].trim());
     	  return coords;
       }
-      
+
       getIcon(types) {
-    	  
+
     	var icon = $('link#approot').attr('href') + 'views/melons/cantaloupe/images/orange-dot.png';  // page
       	if ('undefined' != typeof(types.media)) icon = $('link#approot').attr('href') + 'views/melons/cantaloupe/images/green-dot.png';
       	if ('undefined' != typeof(types.reply)) icon = $('link#approot').attr('href') + 'views/melons/cantaloupe/images/gray-dot.png';
@@ -3806,7 +3811,7 @@ window.scalarvis = { instanceCount: -1 };
       	if ('undefined' != typeof(types.annotation)) icon = $('link#approot').attr('href') + 'views/melons/cantaloupe/images/purple-dot.png';
       	if ('undefined' != typeof(types.path)) icon = $('link#approot').attr('href') + 'views/melons/cantaloupe/images/blue-dot.png';
       	return icon;
-    	  
+
       }
 
     }
@@ -3881,16 +3886,16 @@ window.scalarvis = { instanceCount: -1 };
           this.draw();
         });
       }
-      
+
       getWords(content) {
-    	  
+
     	  if (!content) return [];
     	  content = content.replace(/(<([^>]+)>)/ig," ");  // Strip tags
     	  var words = content.split(' ');
     	  return words;
-    	  
+
       }
-      
+
       mergeWords(arr1, arr2) {
 
     	  for (var j = 0; j < arr2.length; j++) {
@@ -3909,13 +3914,13 @@ window.scalarvis = { instanceCount: -1 };
     		  }
     	  }
     	  return arr1;
-    	  
+
       }
-      
+
       isAStopWord(word) {
-    	  
+
     	  if (word.substr(0, 1) == '&') return true;
-    	  
+
     	  // https://programminghistorian.org/en/lessons/counting-frequencies
     	  var stopwords = ['a', 'about', 'above', 'across', 'after', 'afterwards']
     	  stopwords += ['again', 'against', 'all', 'almost', 'alone', 'along']
@@ -3968,10 +3973,10 @@ window.scalarvis = { instanceCount: -1 };
     	  stopwords += ['whoever', 'whole', 'whom', 'whose', 'why', 'will', 'with']
     	  stopwords += ['within', 'without', 'would', 'yet', 'you', 'your']
     	  stopwords += ['yours', 'yourself', 'yourselves']
-    	  
+
     	  if (stopwords.indexOf(word) != -1) return true;
     	  false;
-    	  
+
       }
     }
 

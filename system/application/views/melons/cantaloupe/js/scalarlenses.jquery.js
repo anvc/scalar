@@ -137,7 +137,11 @@
         this.userId = $('link#logged_in').attr('href');
       }
 
-      this.scalarLensObject = this.getEmbeddedJson();
+      if (this.options.lens) {
+        this.scalarLensObject = this.options.lens;
+      } else {
+        this.scalarLensObject = this.getEmbeddedJson();
+      }
       if (!this.scalarLensObject) {
         this.scalarLensObject = this.getDefaultJson();
       }
@@ -183,30 +187,26 @@
 
       /// HTML for Lens default state
       let lensHtml = $(
-         `<div class="paragraph_wrapper">
-           <div class="body_copy">
-             <div class="row lens">
-               <div class="lens-editor">
-                 <div class="col-xs-12">
-                   <div class="lens-expand-container" data-toggle="collapse" data-target="">
-                     <div class="lens-icon-wrapper col-xs-1">
-                       <span class="lens-icon"></span>
-                     </div>
-                     <div class="lens-content col-xs-11">
-                      <div class="row" style="margin:0;">
-                        <div class="lens-header col-xs-12 no-bg">
-                           <h3 class="lens-title heading_font heading_weight col-xs-10">(Untitled lens)</h3>
-                           <div class="col-xs-2 no-padding">
-                              <div>
-                                <span class="pull-right badge"></span>
-                                <span class="pull-right snowflake"></span>
-                              </div>
-                           </div>
-                         </div>
-                       </div>
-                     <div class="lens-tags">
-                   </div>
+         `<div class="row lens">
+           <div class="lens-editor">
+             <div class="col-xs-12">
+               <div class="lens-expand-container" data-toggle="collapse" data-target="">
+                 <div class="lens-icon-wrapper col-xs-1">
+                   <span class="lens-icon"></span>
                  </div>
+                 <div class="lens-content col-xs-11">
+                  <div class="row" style="margin:0;">
+                    <div class="lens-header col-xs-12 no-bg">
+                       <h3 class="lens-title heading_font heading_weight col-xs-10">(Untitled lens)</h3>
+                       <div class="col-xs-2 no-padding">
+                          <div>
+                            <span class="pull-right badge"></span>
+                            <span class="pull-right snowflake"></span>
+                          </div>
+                       </div>
+                     </div>
+                   </div>
+                 <div class="lens-tags">
                </div>
              </div>
            </div>
@@ -230,7 +230,7 @@
 
     // update DOM
     ScalarLenses.prototype.updateEditorDom = function(){
-      $(this.element).find('.lens-title').text(scalarapi.model.getCurrentPageNode().current.title);
+      $(this.element).find('.lens-title').text(this.scalarLensObject.title);
       this.updateVisualizationButton(this.scalarLensObject.visualization);
 
       if(this.scalarLensObject.components.length == 0){
