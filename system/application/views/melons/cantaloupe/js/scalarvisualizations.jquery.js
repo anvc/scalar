@@ -3649,6 +3649,7 @@ window.scalarvis = { instanceCount: -1 };
       constructor() {
         super();
         this.map = null;
+        this.oms = null;
         this.markers = [];
         this.infowindows = [];
         this.paths = [];
@@ -3671,10 +3672,13 @@ window.scalarvis = { instanceCount: -1 };
     		for (var k = 0; k < base.sortedNodes[j].outgoingRelations.length; k++) {
     			if (null == base.sortedNodes[j].outgoingRelations[k].index) continue;  // Not part of the path
     			if (-1 == urls.indexOf(base.sortedNodes[j].outgoingRelations[k].target.url)) urls.push(base.sortedNodes[j].outgoingRelations[k].target.url);
-    			var title = '<p style="margin-bottom:8px;">'+pathTitle + '<br />' + base.sortedNodes[j].outgoingRelations[k].startString + '<br /><b>'+base.sortedNodes[j].outgoingRelations[k].target.getDisplayTitle()+'</b></p>';
+    			var title = '<p style="margin-bottom:8px;">'+pathTitle + '<br />' + base.sortedNodes[j].outgoingRelations[k].startString + '<br /><b><a href="'+base.sortedNodes[j].outgoingRelations[k].target.url+'">'+base.sortedNodes[j].outgoingRelations[k].target.getDisplayTitle()+'</a></b></p>';
+    			var thumbnail = base.sortedNodes[j].outgoingRelations[k].target.thumbnail;
     			var description = base.sortedNodes[j].outgoingRelations[k].target.getDescription();
+    			if (null != thumbnail) title += '<img src="'+thumbnail+'" align="left" style="max-width:100px;max-height:100px;margin-right:12px;" />';
     			if (description && description.length) title += '<p style="margin-bottom:8px;">'+description+'</p>';
-    			var coords = this.drawMarker(base.sortedNodes[j].outgoingRelations[k].target, title);
+    			var icon = this.getIcon(base.sortedNodes[j].outgoingRelations[k].target.scalarTypes);
+    			var coords = this.drawMarker(base.sortedNodes[j].outgoingRelations[k].target, title, icon);
     	        if (coords) {
     	        	pathCoordinates.push(coords);
     	        	bounds.extend( new google.maps.LatLng(coords.lat, coords.lng) );
@@ -3684,7 +3688,7 @@ window.scalarvis = { instanceCount: -1 };
             this.paths[path_key] = new google.maps.Polyline({
                 path: pathCoordinates,
                 geodesic: true,
-                strokeColor: '#FF0000',
+                strokeColor: '#0000FF',
                 strokeOpacity: 1.0,
                 strokeWeight: 2
             });
@@ -3693,47 +3697,16 @@ window.scalarvis = { instanceCount: -1 };
     	// All other nodes
     	for (var j = 0; j < base.sortedNodes.length; j++) {
     		if (-1 != urls.indexOf(base.sortedNodes[j].url)) continue;
-    		var title = '<p style="margin-bottom:8px;"><b>'+base.sortedNodes[j].getDisplayTitle()+'</b></p>';
+    		var title = '<p style="margin-bottom:8px;"><b><a href="'+base.sortedNodes[j].url+'">'+base.sortedNodes[j].getDisplayTitle()+'</a></b></p>';
 			var thumbnail = base.sortedNodes[j].thumbnail;
 			var description = base.sortedNodes[j].getDescription();
 			if (null != thumbnail) title += '<img src="'+thumbnail+'" align="left" style="max-width:100px;max-height:100px;margin-right:12px;" />';
 			if (description && description.length) title += '<p style="margin-bottom:8px;">'+description+'</p>';
-    		var coords = this.drawMarker(base.sortedNodes[j], title);
+        	var icon = this.getIcon(base.sortedNodes[j].scalarTypes);
+    		var coords = this.drawMarker(base.sortedNodes[j], title, icon);
     	    if (coords) bounds.extend( new google.maps.LatLng(coords.lat, coords.lng) );
     	}
     	this.map.fitBounds(bounds);
-    	// Group markers
-    	var getGoogleClusterInlineSvg = function (color) {  // https://stackoverflow.com/questions/28178080/getting-google-map-markerclusterer-plus-icons-in-one-color
-    		var encoded = window.btoa('<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="-100 -100 200 200"><defs><g id="a" transform="rotate(45)"><path d="M0 47A47 47 0 0 0 47 0L62 0A62 62 0 0 1 0 62Z" fill-opacity="0.7"/><path d="M0 67A67 67 0 0 0 67 0L81 0A81 81 0 0 1 0 81Z" fill-opacity="0.5"/><path d="M0 86A86 86 0 0 0 86 0L100 0A100 100 0 0 1 0 100Z" fill-opacity="0.3"/></g></defs><g fill="' + color + '"><circle r="42"/><use xlink:href="#a"/><g transform="rotate(120)"><use xlink:href="#a"/></g><g transform="rotate(240)"><use xlink:href="#a"/></g></g></svg>');
-    	    return ('data:image/svg+xml;base64,' + encoded);
-    	};
-    	var cluster_styles = [
-    	        {
-    	            width: 40,
-    	            height: 40,
-    	            url: getGoogleClusterInlineSvg('red'),
-    	            textColor: 'white',
-    	            textSize: 12
-    	        },
-    	        {
-    	            width: 50,
-    	            height: 50,
-    	            url: getGoogleClusterInlineSvg('violet'),
-    	            textColor: 'white',
-    	            textSize: 14
-    	        },
-    	        {
-    	            width: 60,
-    	            height: 60,
-    	            url: getGoogleClusterInlineSvg('yellow'),
-    	            textColor: 'white',
-    	            textSize: 16
-    	        }
-    	        //up to 5
-    	    ];
-    	var markerCluster = new MarkerClusterer(this.map, this.markers, {
-            styles: cluster_styles
-        });
       }
 
       getHelpContent() {
@@ -3747,7 +3720,7 @@ window.scalarvis = { instanceCount: -1 };
         base.visualization.css('height', this.size.height + 'px');
         base.visualization.css('width', this.size.width + 'px');
         if ('undefined' == typeof(google) || 'undefined' == typeof(google.maps)) {
-        	$.getScript($('link#approot').attr('href') + 'views/melons/cantaloupe/js/markerclusterer.js');
+        	$.getScript($('link#approot').attr('href') + 'views/melons/cantaloupe/js/oms.min.js');
         	$.getScript('https://maps.googleapis.com/maps/api/js?key=' + $('link#google_maps_key').attr('href'), () => {
         		this.setupMap();
         	});
@@ -3761,6 +3734,12 @@ window.scalarvis = { instanceCount: -1 };
           center: {lat: -25.344, lng: 131.036},
           zoom: 4
        	});
+    	this.oms = new OverlappingMarkerSpiderfier(this.map, {  // https://github.com/jawj/OverlappingMarkerSpiderfier
+    		  markersWontMove: true,
+    		  markersWontHide: true,
+    		  basicFormatEvents: true,
+    		  keepSpiderfied: true
+    		});
     	this.draw();
       }
 
@@ -3772,23 +3751,27 @@ window.scalarvis = { instanceCount: -1 };
     	this.infowindows = {};
       }
 
-      drawMarker(obj, title) {
+      drawMarker(obj, title, icon) {
     	  	var coords = this.getCoords(obj);
 			if (!coords) return false;
 			// Marker
 			var key = this.markers.length;
 			this.markers[key] = new google.maps.Marker({
 	    		position: coords,
-	    		map: this.map,
-	    		title: title
+	    		/* map: this.map, */
+	    		title: title,
+	    		icon: {                             
+	    			url: icon                           
+	    		}
 	    	});
+			this.oms.addMarker(this.markers[key]);
 			// Infowindow
 	        this.infowindows[key] = new google.maps.InfoWindow({
 	            content: title,
 	            maxWidth: 300
 	        });
 	        $(this.markers[key]).data('infowindow', this.infowindows[key]).data('map', this.map);
-	        this.markers[key].addListener('click', function(evt) {
+	        this.markers[key].addListener('spider_click', function(evt) {
 	        	var infowindow = $(this).data('infowindow');
 	        	var map = $(this).data('map');
 	        	infowindow.open(map, this);
@@ -3807,10 +3790,23 @@ window.scalarvis = { instanceCount: -1 };
     	  }
     	  if (!latlng.length) return false;
     	  var arr = latlng.split(',');
+    	  if ('undefined' == typeof(arr[1])) return false;
     	  var coords = {};
     	  coords.lat = parseFloat(arr[0].trim());
     	  coords.lng = parseFloat(arr[1].trim());
     	  return coords;
+      }
+      
+      getIcon(types) {
+    	  
+    	var icon = $('link#approot').attr('href') + 'views/melons/cantaloupe/images/orange-dot.png';  // page
+      	if ('undefined' != typeof(types.media)) icon = $('link#approot').attr('href') + 'views/melons/cantaloupe/images/green-dot.png';
+      	if ('undefined' != typeof(types.reply)) icon = $('link#approot').attr('href') + 'views/melons/cantaloupe/images/gray-dot.png';
+      	if ('undefined' != typeof(types.tag)) icon = $('link#approot').attr('href') + 'views/melons/cantaloupe/images/red-dot.png';
+      	if ('undefined' != typeof(types.annotation)) icon = $('link#approot').attr('href') + 'views/melons/cantaloupe/images/purple-dot.png';
+      	if ('undefined' != typeof(types.path)) icon = $('link#approot').attr('href') + 'views/melons/cantaloupe/images/blue-dot.png';
+      	return icon;
+    	  
       }
 
     }
@@ -3831,6 +3827,8 @@ window.scalarvis = { instanceCount: -1 };
         super.draw();
 
         base.visualization.empty();
+        //base.visualization.css('height', this.size.height + 'px');
+        //base.visualization.css('width', this.size.width + 'px');
         // Customizable variables
     	var min_font_size = 13;
     	var max_font_size = 36;
@@ -3866,10 +3864,36 @@ window.scalarvis = { instanceCount: -1 };
         	$this.css('font-size', fontSize + 'px');
         });
         // Alphabetize
+        /*
         base.visualization.find('.WordCloud-Element').sort(function(a,b) {
         	return $(a).text().toUpperCase().localeCompare($(b).text().toUpperCase());
         }).appendTo(base.visualization);
-
+        */
+        // Highest 'all' number to lowest
+        base.visualization.find('.WordCloud-Element').sort(function(a,b) {
+        	return parseInt($(a).data('all')) < parseInt($(b).data('all'))
+        }).appendTo(base.visualization);
+        // Spiral
+        var radius = 30;
+        var x0 = this.size.width / 2;
+        var y0 = this.size.height / 2;
+        console.log(this.size.width + ' ' + this.size.height);
+        var angle = 0;
+        var distance = 70;
+        base.visualization.find('.WordCloud-Element').each(function() {
+        	var $this = $(this);
+        	angle += angle + (Math.PI * 2) / 30;
+        	var x = x0 + radius*Math.sin(angle);
+        	var y = y0 - radius*Math.cos(angle);
+        	var width = parseInt($this.width());
+        	var height = parseInt($this.height());
+	        $this.css({
+	        	position: 'absolute',
+	        	left: x  + 'px',
+	        	top: y  + 'px'
+	        });
+        	radius += 5;
+        });
       }
 
       getHelpContent() {
