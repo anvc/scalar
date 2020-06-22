@@ -1,5 +1,25 @@
 
 #vis {}
 
-.WordCloud-Element {margin:8px 10px 8px 10px; padding-left:16px; position:relative;}
-.WordCloud-Dot {position:absolute; left:0px; top:8px; width:8px; height:8px; border-radius:4px; background-color:#aaaaaa;}
+div.jqcloud span.w10 {font-size:1000% !important;}
+div.jqcloud span.w9 {font-size:900% !important;}
+div.jqcloud span.w8 {font-size:800% !important;}
+div.jqcloud span.w7 {font-size:700% !important;}
+div.jqcloud span.w6 {font-size:600% !important;}
+div.jqcloud span.w5 {font-size:500% !important;}
+div.jqcloud span.w4 {font-size:400% !important;}
+div.jqcloud span.w3 {font-size:300% !important;}
+div.jqcloud span.w2 {font-size:200% !important;}
+div.jqcloud span.w1 {font-size:100% !important;}
+
+div.jqcloud > span {}
+div.jqcloud > span:hover {}
+
+/*
+.tooltip-inner {
+	max-width:500px;
+    font-size:13px;
+    text-align:left;
+    padding:8px 16px 8px 16px;
+}
+*/

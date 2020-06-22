@@ -3818,81 +3818,50 @@ window.scalarvis = { instanceCount: -1 };
 
       constructor() {
         super();
-        // init any special properties needed for this visualization here
+        this.words = [];
       }
 
       draw() {
         // this updates the dimensions of the vis based on window size, etc.
         // and calls setupElement if the vis was just created
         super.draw();
-
+        console.log(base.sortedNodes);
+        if ('undefined' != typeof(base.visualization.jQCloud)) base.visualization.jQCloud('destroy');
         base.visualization.empty();
-        //base.visualization.css('height', this.size.height + 'px');
-        //base.visualization.css('width', this.size.width + 'px');
-        // Customizable variables
-    	var min_font_size = 13;
-    	var max_font_size = 36;
-    	// Other variables
-    	var middle_font_size = min_font_size + ((max_font_size - min_font_size) / 2);
-        var max_all = null;
-    	var min_all = null;
-    	// Add nodes
+    	// Create array of words
         for (var j = 0; j < base.sortedNodes.length; j++) {
-        	var incoming = parseInt( base.sortedNodes[j].incomingRelations.length );
-        	var outgoing = parseInt( base.sortedNodes[j].outgoingRelations.length );
-        	var all = incoming + outgoing;
-        	if (null == max_all || all > max_all) max_all = all;
-        	if (null == min_all || all < min_all) min_all = all;
-        	var $el = $('<div class="WordCloud-Element" data-incoming="'+incoming+'" data-outgoing="'+outgoing+'" data-all="'+all+'"><a href="'+base.sortedNodes[j].url+'">'+base.sortedNodes[j].getDisplayTitle()+'</a></div>').appendTo(base.visualization);
-        	var $dot = $('<div class="WordCloud-Dot"></div>').prependTo($el);
-        	var color = '#ff7f00';  // page
-        	if ('undefined' != typeof(base.sortedNodes[j].scalarTypes.media)) color = '#4daf4a';
-        	if ('undefined' != typeof(base.sortedNodes[j].scalarTypes.reply)) color = '#666666';
-        	if ('undefined' != typeof(base.sortedNodes[j].scalarTypes.tag)) color = '#e41a1c';
-        	if ('undefined' != typeof(base.sortedNodes[j].scalarTypes.annotation)) color = '#984ea3';
-        	if ('undefined' != typeof(base.sortedNodes[j].scalarTypes.path)) color = '#377eb8';
-        	$dot.css('background-color', color);
+        	var words = this.getWords(base.sortedNodes[j].current.content);
+        	this.words = this.mergeWords(this.words, words);
         };
-        var middle_all = min_all + ((max_all - min_all) / 2);
-        // Set the font size for each
-        base.visualization.find('.WordCloud-Element').each(function() {
-        	var $this = $(this);
-        	var all = parseInt($this.data('all'));
-        	var diff = all - middle_all;
-        	var ratio = (diff / (max_all - min_all));
-        	var fontSize = middle_font_size + ((max_font_size - min_font_size) * ratio);
-        	$this.css('font-size', fontSize + 'px');
+        this.words.sort(function(a, b) {
+            return b.weight - a.weight;
         });
-        // Alphabetize
+        // Get the most recent...
+        var tags = this.words.slice(0, 50);
+        // Add tooltips
         /*
-        base.visualization.find('.WordCloud-Element').sort(function(a,b) {
-        	return $(a).text().toUpperCase().localeCompare($(b).text().toUpperCase());
-        }).appendTo(base.visualization);
+        for (var j = 0; j < tags.length; j++) {
+        	var numPages = 0;
+        	var word = tags[j].text;
+        	for (var k = 0; k < base.sortedNodes.length; k++) {
+        		if (base.sortedNodes[k].current.content && base.sortedNodes[k].current.content.toLowerCase().indexOf(word) != -1) {
+        			numPages++;
+        		}
+        	}
+        	tags[j].html = {
+        		"data-toggle":"tooltip",
+        		"title":'In '+numPages+' pages'
+        	}
+        }
         */
-        // Highest 'all' number to lowest
-        base.visualization.find('.WordCloud-Element').sort(function(a,b) {
-        	return parseInt($(a).data('all')) < parseInt($(b).data('all'))
-        }).appendTo(base.visualization);
-        // Spiral
-        var radius = 30;
-        var x0 = this.size.width / 2;
-        var y0 = this.size.height / 2;
-        console.log(this.size.width + ' ' + this.size.height);
-        var angle = 0;
-        var distance = 70;
-        base.visualization.find('.WordCloud-Element').each(function() {
-        	var $this = $(this);
-        	angle += angle + (Math.PI * 2) / 30;
-        	var x = x0 + radius*Math.sin(angle);
-        	var y = y0 - radius*Math.cos(angle);
-        	var width = parseInt($this.width());
-        	var height = parseInt($this.height());
-	        $this.css({
-	        	position: 'absolute',
-	        	left: x  + 'px',
-	        	top: y  + 'px'
-	        });
-        	radius += 5;
+        // Render cloud
+        base.visualization.jQCloud(tags, {
+        	afterCloudRender: function() {
+        		$('[data-toggle="tooltip"]').tooltip({
+        			html: true,
+        			container: 'body'
+        		});
+        	}
         });
       }
 
@@ -3904,7 +3873,105 @@ window.scalarvis = { instanceCount: -1 };
       setupElement() {
         this.hasBeenDrawn = true;
         base.visualization.empty(); // empty the element where this vis is to be shown
-        $('head').append('<link rel="stylesheet" type="text/css" href="' + $('link#approot').attr('href') + 'views/melons/cantaloupe/css/vis.css">');
+        approot = $('link#approot').attr('href');
+        $('head').append('<link rel="stylesheet" type="text/css" href="' + approot + 'views/melons/cantaloupe/css/vis.css">');
+        $('head').append('<link rel="stylesheet" type="text/css" href="' + approot + 'views/widgets/jQCloud/jqcloud.min.css">');
+        $.getScript(approot + 'views/widgets/jQCloud/jqcloud.min.js', () => {
+          base.visualization.addClass("tag_cloud caption_font");
+          this.draw();
+        });
+      }
+      
+      getWords(content) {
+    	  
+    	  if (!content) return [];
+    	  content = content.replace(/(<([^>]+)>)/ig," ");  // Strip tags
+    	  var words = content.split(' ');
+    	  return words;
+    	  
+      }
+      
+      mergeWords(arr1, arr2) {
+
+    	  for (var j = 0; j < arr2.length; j++) {
+    		  if (!arr2[j].length) continue;
+    		  var word = arr2[j].toLowerCase();
+    		  if (this.isAStopWord(word)) continue;
+    		  var wordIncluded = false;
+    		  for (var k = 0; k < arr1.length; k++) {
+    			  if (arr1[k].text == word) {
+    				  arr1[k].weight = arr1[k].weight + 1;
+    				  wordIncluded = true;
+    			  }
+    		  }
+    		  if (!wordIncluded) {
+    			  arr1.push({text:word, weight:1});
+    		  }
+    	  }
+    	  return arr1;
+    	  
+      }
+      
+      isAStopWord(word) {
+    	  
+    	  if (word.substr(0, 1) == '&') return true;
+    	  
+    	  // https://programminghistorian.org/en/lessons/counting-frequencies
+    	  var stopwords = ['a', 'about', 'above', 'across', 'after', 'afterwards']
+    	  stopwords += ['again', 'against', 'all', 'almost', 'alone', 'along']
+    	  stopwords += ['already', 'also', 'although', 'always', 'am', 'among']
+    	  stopwords += ['amongst', 'amoungst', 'amount', 'an', 'and', 'another']
+    	  stopwords += ['any', 'anyhow', 'anyone', 'anything', 'anyway', 'anywhere']
+    	  stopwords += ['are', 'around', 'as', 'at', 'back', 'be', 'became']
+    	  stopwords += ['because', 'become', 'becomes', 'becoming', 'been']
+    	  stopwords += ['before', 'beforehand', 'behind', 'being', 'below']
+    	  stopwords += ['beside', 'besides', 'between', 'beyond', 'bill', 'both']
+    	  stopwords += ['bottom', 'but', 'by', 'call', 'can', 'cannot', 'cant']
+    	  stopwords += ['co', 'computer', 'con', 'could', 'couldnt', 'cry', 'de']
+    	  stopwords += ['describe', 'detail', 'did', 'do', 'done', 'down', 'due']
+    	  stopwords += ['during', 'each', 'eg', 'eight', 'either', 'eleven', 'else']
+    	  stopwords += ['elsewhere', 'empty', 'enough', 'etc', 'even', 'ever']
+    	  stopwords += ['every', 'everyone', 'everything', 'everywhere', 'except']
+    	  stopwords += ['few', 'fifteen', 'fifty', 'fill', 'find', 'fire', 'first']
+    	  stopwords += ['five', 'for', 'former', 'formerly', 'forty', 'found']
+    	  stopwords += ['four', 'from', 'front', 'full', 'further', 'get', 'give']
+    	  stopwords += ['go', 'had', 'has', 'hasnt', 'have', 'he', 'hence', 'her']
+    	  stopwords += ['here', 'hereafter', 'hereby', 'herein', 'hereupon', 'hers']
+    	  stopwords += ['herself', 'him', 'himself', 'his', 'how', 'however']
+    	  stopwords += ['hundred', 'i', 'ie', 'if', 'in', 'inc', 'indeed']
+    	  stopwords += ['interest', 'into', 'is', 'it', 'its', 'itself', 'keep']
+    	  stopwords += ['last', 'latter', 'latterly', 'least', 'less', 'ltd', 'made']
+    	  stopwords += ['many', 'may', 'me', 'meanwhile', 'might', 'mill', 'mine']
+    	  stopwords += ['more', 'moreover', 'most', 'mostly', 'move', 'much']
+    	  stopwords += ['must', 'my', 'myself', 'name', 'namely', 'neither', 'never']
+    	  stopwords += ['nevertheless', 'next', 'nine', 'no', 'nobody', 'none']
+    	  stopwords += ['noone', 'nor', 'not', 'nothing', 'now', 'nowhere', 'of']
+    	  stopwords += ['off', 'often', 'on','once', 'one', 'only', 'onto', 'or']
+    	  stopwords += ['other', 'others', 'otherwise', 'our', 'ours', 'ourselves']
+    	  stopwords += ['out', 'over', 'own', 'part', 'per', 'perhaps', 'please']
+    	  stopwords += ['put', 'rather', 're', 's', 'same', 'see', 'seem', 'seemed']
+    	  stopwords += ['seeming', 'seems', 'serious', 'several', 'she', 'should']
+    	  stopwords += ['show', 'side', 'since', 'sincere', 'six', 'sixty', 'so']
+    	  stopwords += ['some', 'somehow', 'someone', 'something', 'sometime']
+    	  stopwords += ['sometimes', 'somewhere', 'still', 'such', 'system', 'take']
+    	  stopwords += ['ten', 'than', 'that', 'the', 'their', 'them', 'themselves']
+    	  stopwords += ['then', 'thence', 'there', 'thereafter', 'thereby']
+    	  stopwords += ['therefore', 'therein', 'thereupon', 'these', 'they']
+    	  stopwords += ['thick', 'thin', 'third', 'this', 'those', 'though', 'three']
+    	  stopwords += ['three', 'through', 'throughout', 'thru', 'thus', 'to']
+    	  stopwords += ['together', 'too', 'top', 'toward', 'towards', 'twelve']
+    	  stopwords += ['twenty', 'two', 'un', 'under', 'until', 'up', 'upon']
+    	  stopwords += ['us', 'very', 'via', 'was', 'we', 'well', 'were', 'what']
+    	  stopwords += ['whatever', 'when', 'whence', 'whenever', 'where']
+    	  stopwords += ['whereafter', 'whereas', 'whereby', 'wherein', 'whereupon']
+    	  stopwords += ['wherever', 'whether', 'which', 'while', 'whither', 'who']
+    	  stopwords += ['whoever', 'whole', 'whom', 'whose', 'why', 'will', 'with']
+    	  stopwords += ['within', 'without', 'would', 'yet', 'you', 'your']
+    	  stopwords += ['yours', 'yourself', 'yourselves']
+    	  
+    	  if (stopwords.indexOf(word) != -1) return true;
+    	  false;
+    	  
       }
     }
 
