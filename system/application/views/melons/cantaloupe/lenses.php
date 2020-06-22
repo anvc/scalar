@@ -1,5 +1,6 @@
 <?if (!defined('BASEPATH')) exit('No direct script access allowed') ?>
 <?php
+	$this->template->add_js('system/application/views/widgets/api/scalarapi.js');
 	$this->template->add_js('system/application/views/widgets/edit/jquery.content_selector_bootstrap.js');
 	$this->template->add_css('system/application/views/widgets/edit/content_selector.css');
 	$this->template->add_js('system/application/views/melons/cantaloupe/js/bootbox.min.js');
