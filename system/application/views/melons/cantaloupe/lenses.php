@@ -19,7 +19,7 @@
 				<div class="private-lenses">
 					<h3 class="heading_font heading_weight title"></h3>
 					<ul class="private-lenses-list"></ul>
-					<!--<button type="button" class="btn btn-primary btn-xs caption_font">Add lens</button>-->
+					<!--<button type="button" class="btn btn-primary btn-xs caption_font add-lens-btn">Add lens</button>-->
 				</div>
 				<div class="submitted-lenses">
 					<h3 class="heading_font heading_weight title"></h3>

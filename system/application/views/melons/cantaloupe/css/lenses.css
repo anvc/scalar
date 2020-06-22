@@ -3,12 +3,15 @@
   padding-right: 7.2rem;
   margin-top: -2rem;
 }
+#lenses .lens-title {
+  margin-top:0 !important;
+}
 .lens-list-item {
   background:#ccc;
   height:120px;
   width:100%;
 }
-#lenses ul li {
+#lens-manager ul li {
   text-decoration: none;
   list-style-type: none;
   cursor:pointer;
@@ -16,34 +19,34 @@
   margin-right:10px;
   padding:2px 0;
 }
-#lenses ul li:hover {
+#lens-manager ul li:hover {
   background:#d9edf7;
 }
-#lenses ul li:active{
+#lens-manager ul li:active{
   background:#c7e6f6;
 }
-#lenses ul li a {
+#lens-manager ul li a {
   font-size:12px;
   padding-left:10px;
   padding-right:10px;
 }
-#lenses .btn-primary,
-#lenses .btn-primary:hover  {
+#lens-manager .btn-primary.add-lens-btn,
+#lens-manager .btn-primary.add-lens-btn:hover  {
   background: #3b82c0;
   border: 1px solid #457db8;
   padding:2px 11px;
 }
-#lenses .viz-icon {
+#lens-manager .viz-icon {
   float:right;
   margin-top:6px;
 }
-#lenses .badge {
+#lens-manager .badge {
   float:right;
   font-weight:100;
   margin-top:4px;
   margin-right:10px;
 }
-#lenses span {
+##lens-manager span {
   vertical-align: middle;
 }
 .author-lenses-list li {
