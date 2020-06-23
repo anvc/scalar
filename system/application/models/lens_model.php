@@ -123,6 +123,10 @@ class Lens_model extends MY_Model {
 		if (empty($book_id)) throw new Exception("Invalud Book ID");
 		$how_to_combine = $this->get_operation_from_visualization($json['visualization']);
 		$contents = array();
+		
+		if (isset($json['frozen']) && $json['frozen']) {
+			return $this->frozen_items($book_id, $json, $prefix);
+		}
 
 		foreach ($json['components'] as $component) {
 			$content = array();
@@ -281,6 +285,35 @@ class Lens_model extends MY_Model {
 				}
 			}
 		}
+
+		$return = array();
+		if (empty($contents)) return $return;
+		foreach ($contents as $content_id => $page) {
+			$uri = $prefix.'/'.$page->slug;
+			$version_uri = $uri.'.'.$page->versions[0]->version_num;
+			$page->has_version = $version_uri;
+			$page->versions[0]->version_of = $uri;
+			$return[$uri] = $CI->pages->rdf($page);
+			$return[$version_uri] = $CI->versions->rdf($page->versions[0]);
+		}
+		
+		$return = $this->rdf_ns_to_uri($return);
+		$return = $this->add_relationships($return, $book_id);
+
+		return $return;
+		
+	}
+	
+	public function frozen_items($book_id=0, $json='', $prefix='') {
+		
+		$CI =& get_instance();
+		$contents = array();
+		if (!isset($json['frozen-items'])) return $contents;
+		foreach ($json['frozen-items'] as $slug) {
+			$page = $CI->pages->get_by_slug($book_id, $slug, $is_live=true);
+			if (!empty($page)) $contents[] = $page;
+		}
+		$contents = $this->do_versions($contents);
 
 		$return = array();
 		if (empty($contents)) return $return;
@@ -664,6 +697,38 @@ class Lens_model extends MY_Model {
     					'type' => 'uri',
     					'value' => base_url().$book->slug.'/'.$item->child_content_slug
     				);
+    			}
+    		}
+    		// get parents
+    		$types = $CI->config->item('rel');
+    		foreach ($types as $type_p) {
+    			$type = rtrim($type_p, "s");
+    			if ($type == 'replie') $type = 'reply';
+    			if (!isset($CI->$type_p) || 'object'!=gettype($CI->$type_p)) $CI->load->model($type.'_model',$type_p);
+    			$items = $CI->$type_p->get_parents($version_id, '', '', true, null);
+    			foreach ($items as $item) {
+    				$rel_uri = 'urn:scalar:'.$type.':'.$item->parent_version_id.':'.$item->child_version_id.':'.$num;
+    				$append = $CI->rdf_object->annotation_append($item);
+    				$num++;
+    				$node = array(
+    						'http://scalar.usc.edu/2012/01/scalar-ns#urn' => array(array(
+    								'type' => 'uri',
+    								'value' => $rel_uri
+    						)),
+    						'http://www.openannotation.org/ns/hasBody' => array(array(
+    								'type' => 'uri',
+    								'value' => base_url().$book->slug.'/'.$item->parent_content_slug.'.'.$item->parent_version_num
+    						)),
+    						'http://www.openannotation.org/ns/hasTarget' => array(array(
+    								'type' => 'uri',
+    								'value' => $uri.$append
+    						)),
+    						'http://www.w3.org/1999/02/22-rdf-syntax-ns#type' => array(array(
+    								'type' => 'uri',
+    								'value' => 'http://www.openannotation.org/ns/Annotation'
+    						)),
+    				);
+    				$return[$rel_uri] = $node;
     			}
     		}
     		// get children
