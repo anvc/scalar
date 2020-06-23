@@ -252,6 +252,13 @@
         });
       };
 
+
+      // display lens when clicked
+      $('#lens-manager ul li').on('click', function(){
+        var me = this;
+        me.selectLens(data).data();
+      });
+
     };
 
     // plugin wrapper around the constructor,
