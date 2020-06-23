@@ -3875,7 +3875,7 @@ window.scalarvis = { instanceCount: -1 };
         this.stopwords += ['whoever', 'whole', 'whom', 'whose', 'why', 'will', 'with']
         this.stopwords += ['within', 'without', 'would', 'yet', 'you', 'your']
         this.stopwords += ['yours', 'yourself', 'yourselves']
-        this.stopwords += ['(', ')', 'p.', 'it.', ':', ]  // Added by Craig
+        this.stopwords += ['-']
       }
 
       draw() {
@@ -3888,12 +3888,9 @@ window.scalarvis = { instanceCount: -1 };
 
       // one-time visualization setup
       setupElement() {
-    	console.log('setupElement()');
-    	console.log(base.sortedNodes);
         this.hasBeenDrawn = true;
         base.visualization.empty(); // empty the element where this vis is to be shown
         if ('undefined' == typeof($.fn.jQCloud)) {
-        	console.log('Loading CSS and JS ...');
 	        var approot = $('link#approot').attr('href');
 	        $('head').append('<link rel="stylesheet" type="text/css" href="' + approot + 'views/melons/cantaloupe/css/vis.css">');
 	        $('head').append('<link rel="stylesheet" type="text/css" href="' + approot + 'views/widgets/jQCloud/jqcloud.min.css">');
@@ -3908,7 +3905,6 @@ window.scalarvis = { instanceCount: -1 };
       
       drawWordCLoud() {
     	  
-    	  console.log('drawWordCloud()');
           base.visualization.css('height', this.size.height + 'px');
           base.visualization.css('width', this.size.width + 'px');
           if ('undefined' != typeof(base.visualization.jQCloud)) base.visualization.jQCloud('destroy');
@@ -3941,7 +3937,8 @@ window.scalarvis = { instanceCount: -1 };
 
     	  for (var j = 0; j < arr2.length; j++) {
     		  if (!arr2[j].length) continue;
-    		  var word = arr2[j].toLowerCase();
+    		  var word = arr2[j].toLowerCase().replace(/[^0-9a-z-]/g, '');
+    		  if (!word.length) continue;
     		  if (this.isAStopWord(word)) continue;
     		  var wordIncluded = false;
     		  for (var k = 0; k < arr1.length; k++) {

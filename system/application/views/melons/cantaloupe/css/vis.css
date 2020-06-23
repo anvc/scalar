@@ -1,16 +1,16 @@
 
 #vis {}
 
-div.jqcloud span.w10 {color:#8c8c8c !important;}
-div.jqcloud span.w9 {color:#969696 !important;}
-div.jqcloud span.w8 {color:#a1a1a1 !important;}
-div.jqcloud span.w7 {color:#a8a8a8 !important;}
-div.jqcloud span.w6 {color:#aaaaaa !important;}
-div.jqcloud span.w5 {color:#b2b2b2 !important;}
-div.jqcloud span.w4 {color:#b6b6b6 !important;}
-div.jqcloud span.w3 {color:#bfbfbf !important;}
-div.jqcloud span.w2 {color:#c6c6c6 !important;}
-div.jqcloud span.w1 {color:#cbcbcb !important;}
+div.jqcloud span.w10 {color:#444444 !important;}
+div.jqcloud span.w9 {color:#525252 !important;}
+div.jqcloud span.w8 {color:#5f5f5f !important;}
+div.jqcloud span.w7 {color:#6e6e6e !important;}
+div.jqcloud span.w6 {color:#7a7a7a !important;}
+div.jqcloud span.w5 {color:#848484 !important;}
+div.jqcloud span.w4 {color:#8f8f8f !important;}
+div.jqcloud span.w3 {color:#989898 !important;}
+div.jqcloud span.w2 {color:#a0a0a0 !important;}
+div.jqcloud span.w1 {color:#a7a7a7 !important;}
 
 div.jqcloud > span {}
 div.jqcloud > span:hover {}
