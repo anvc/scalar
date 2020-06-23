@@ -1,16 +1,16 @@
 
 #vis {}
 
-div.jqcloud span.w10 {font-size:1000% !important;}
-div.jqcloud span.w9 {font-size:900% !important;}
-div.jqcloud span.w8 {font-size:800% !important;}
-div.jqcloud span.w7 {font-size:700% !important;}
-div.jqcloud span.w6 {font-size:600% !important;}
-div.jqcloud span.w5 {font-size:500% !important;}
-div.jqcloud span.w4 {font-size:400% !important;}
-div.jqcloud span.w3 {font-size:300% !important;}
-div.jqcloud span.w2 {font-size:200% !important;}
-div.jqcloud span.w1 {font-size:100% !important;}
+div.jqcloud span.w10 {font-size:1000% !important; color:#8c8c8c !important;}
+div.jqcloud span.w9 {font-size:900% !important; color:#969696 !important;}
+div.jqcloud span.w8 {font-size:800% !important; color:#a1a1a1 !important;}
+div.jqcloud span.w7 {font-size:700% !important; color:#a8a8a8 !important;}
+div.jqcloud span.w6 {font-size:600% !important; color:#aaaaaa !important;}
+div.jqcloud span.w5 {font-size:500% !important; color:#b2b2b2 !important;}
+div.jqcloud span.w4 {font-size:400% !important; color:#b6b6b6 !important;}
+div.jqcloud span.w3 {font-size:300% !important; color:#bfbfbf !important;}
+div.jqcloud span.w2 {font-size:200% !important; color:#c6c6c6 !important;}
+div.jqcloud span.w1 {font-size:100% !important; color:#cbcbcb !important;}
 
 div.jqcloud > span {}
 div.jqcloud > span:hover {}
