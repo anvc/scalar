@@ -3880,13 +3880,10 @@ window.scalarvis = { instanceCount: -1 };
 
       draw() {
         super.draw();
-        base.visualization.css('height', this.size.height + 'px');
-        base.visualization.css('width', this.size.width + 'px');
-
       }
 
       getHelpContent() {
-        return "Some info about this visualization"; // see other vis classes for examples
+        return "The Word Cloud displays the most commonly used words across main text content of the selected items. For example, if the word \"scholarship\" is present in the main text content of ten pages it will be displayed in the cloud larger than another word that is present in the text content of only five pages."; // see other vis classes for examples
       }
 
       // one-time visualization setup
@@ -3905,13 +3902,15 @@ window.scalarvis = { instanceCount: -1 };
 	        	this.drawWordCLoud();
 	        });
         } else {
-        	this.drawWordCloud();
+        	this.drawWordCLoud();
         }
       }
       
       drawWordCLoud() {
     	  
     	  console.log('drawWordCloud()');
+          base.visualization.css('height', this.size.height + 'px');
+          base.visualization.css('width', this.size.width + 'px');
           if ('undefined' != typeof(base.visualization.jQCloud)) base.visualization.jQCloud('destroy');
           base.visualization.empty();
       	  // Create array of words
