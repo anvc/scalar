@@ -20,7 +20,7 @@ $this->template->add_js('system/application/views/arbors/admin/jquery-3.4.1.min.
 <div class="saved">An email has been sent to the address you provided, with instructions on how to continue.</div>
 <? endif ?>
 	<form action="<?=confirm_slash(base_url())?>system/forgot_password" method="post" class="panel">
-		<input type="hidden" name="action" value="do_forgot_password" />" />
+		<input type="hidden" name="action" value="do_forgot_password" />
 		<input type="hidden" name="msg" value="<?=((isset($_REQUEST['msg']))?(int)$_REQUEST['msg']:'')?>" />
 		<table class="form_fields">
 			<tr>
