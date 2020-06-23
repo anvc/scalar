@@ -761,7 +761,7 @@
               } else if(metadataOperator == 'exclusive'){
                 operatorText = 'does not include'
               }
-              buttonText = `that ${operatorText} "${metadataContent}" in ${metadataProperty.split(':')[1]}`;
+              buttonText = `that ${operatorText} “${metadataContent}” in ${metadataProperty.split(':')[1]}`;
             break;
 
             case 'visit-date':
@@ -942,7 +942,7 @@
                 displayMatchProperty = matchMetadata.split(':')[1];
               }
               displaySortArrows();
-              buttonText = `by matches of ${matchContent} in ${displayMatchProperty} ${sortOrder}`;
+              buttonText = `by matches of “${matchContent}” in ${displayMatchProperty} ${sortOrder}`;
             break;
             case 'visit-date':
               displaySortArrows();
