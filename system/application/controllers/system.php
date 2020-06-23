@@ -160,13 +160,15 @@ class System extends MY_Controller {
 				// Get items from JSON
 				$json['items'] = $this->lenses->get_nodes_from_json($book_id, $json, confirm_slash(base_url()).$this->data['book']->slug);
 				// Return version title and slug
-				$urn_arr = explode(':', $json['urn']);
-				$version_id = $urn_arr[count($urn_arr)-1];
-				$version = $this->versions->get($version_id, '', false);
-				if (!empty($version)) {
-					$json['title'] = $version->title;
-					$page = $this->pages->get($version->content_id);
-					$json['slug'] = $page->slug;
+				if (isset($json['urn'])) {
+					$urn_arr = explode(':', $json['urn']);
+					$version_id = $urn_arr[count($urn_arr)-1];
+					$version = $this->versions->get($version_id, '', false);
+					if (!empty($version)) {
+						$json['title'] = $version->title;
+						$page = $this->pages->get($version->content_id);
+						$json['slug'] = $page->slug;
+					}
 				}
 				$this->data['content'] = $json;
 			} else {

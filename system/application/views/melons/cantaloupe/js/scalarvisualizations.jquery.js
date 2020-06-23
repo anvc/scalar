@@ -3824,11 +3824,60 @@ window.scalarvis = { instanceCount: -1 };
       constructor() {
         super();
         this.words = [];
+        this.stopwords = ['a', 'about', 'above', 'across', 'after', 'afterwards']  // https://programminghistorian.org/en/lessons/counting-frequencies
+        this.stopwords += ['again', 'against', 'all', 'almost', 'alone', 'along']
+        this.stopwords += ['already', 'also', 'although', 'always', 'am', 'among']
+        this.stopwords += ['amongst', 'amoungst', 'amount', 'an', 'and', 'another']
+        this.stopwords += ['any', 'anyhow', 'anyone', 'anything', 'anyway', 'anywhere']
+        this.stopwords += ['are', 'around', 'as', 'at', 'back', 'be', 'became']
+        this.stopwords += ['because', 'become', 'becomes', 'becoming', 'been']
+        this.stopwords += ['before', 'beforehand', 'behind', 'being', 'below']
+        this.stopwords += ['beside', 'besides', 'between', 'beyond', 'bill', 'both']
+        this.stopwords += ['bottom', 'but', 'by', 'call', 'can', 'cannot', 'cant']
+        this.stopwords += ['co', 'computer', 'con', 'could', 'couldnt', 'cry', 'de']
+        this.stopwords += ['describe', 'detail', 'did', 'do', 'done', 'down', 'due']
+        this.stopwords += ['during', 'each', 'eg', 'eight', 'either', 'eleven', 'else']
+        this.stopwords += ['elsewhere', 'empty', 'enough', 'etc', 'even', 'ever']
+        this.stopwords += ['every', 'everyone', 'everything', 'everywhere', 'except']
+        this.stopwords += ['few', 'fifteen', 'fifty', 'fill', 'find', 'fire', 'first']
+        this.stopwords += ['five', 'for', 'former', 'formerly', 'forty', 'found']
+        this.stopwords += ['four', 'from', 'front', 'full', 'further', 'get', 'give']
+        this.stopwords += ['go', 'had', 'has', 'hasnt', 'have', 'he', 'hence', 'her']
+        this.stopwords += ['here', 'hereafter', 'hereby', 'herein', 'hereupon', 'hers']
+        this.stopwords += ['herself', 'him', 'himself', 'his', 'how', 'however']
+        this.stopwords += ['hundred', 'i', 'ie', 'if', 'in', 'inc', 'indeed']
+        this.stopwords += ['interest', 'into', 'is', 'it', 'its', 'itself', 'keep']
+        this.stopwords += ['last', 'latter', 'latterly', 'least', 'less', 'ltd', 'made']
+        this.stopwords += ['many', 'may', 'me', 'meanwhile', 'might', 'mill', 'mine']
+        this.stopwords += ['more', 'moreover', 'most', 'mostly', 'move', 'much']
+        this.stopwords += ['must', 'my', 'myself', 'name', 'namely', 'neither', 'never']
+        this.stopwords += ['nevertheless', 'next', 'nine', 'no', 'nobody', 'none']
+        this.stopwords += ['noone', 'nor', 'not', 'nothing', 'now', 'nowhere', 'of']
+        this.stopwords += ['off', 'often', 'on','once', 'one', 'only', 'onto', 'or']
+        this.stopwords += ['other', 'others', 'otherwise', 'our', 'ours', 'ourselves']
+        this.stopwords += ['out', 'over', 'own', 'part', 'per', 'perhaps', 'please']
+        this.stopwords += ['put', 'rather', 're', 's', 'same', 'see', 'seem', 'seemed']
+        this.stopwords += ['seeming', 'seems', 'serious', 'several', 'she', 'should']
+        this.stopwords += ['show', 'side', 'since', 'sincere', 'six', 'sixty', 'so']
+        this.stopwords += ['some', 'somehow', 'someone', 'something', 'sometime']
+        this.stopwords += ['sometimes', 'somewhere', 'still', 'such', 'system', 'take']
+        this.stopwords += ['ten', 'than', 'that', 'the', 'their', 'them', 'themselves']
+        this.stopwords += ['then', 'thence', 'there', 'thereafter', 'thereby']
+        this.stopwords += ['therefore', 'therein', 'thereupon', 'these', 'they']
+        this.stopwords += ['thick', 'thin', 'third', 'this', 'those', 'though', 'three']
+        this.stopwords += ['three', 'through', 'throughout', 'thru', 'thus', 'to']
+        this.stopwords += ['together', 'too', 'top', 'toward', 'towards', 'twelve']
+        this. stopwords += ['twenty', 'two', 'un', 'under', 'until', 'up', 'upon']
+        this.stopwords += ['us', 'very', 'via', 'was', 'we', 'well', 'were', 'what']
+        this.stopwords += ['whatever', 'when', 'whence', 'whenever', 'where']
+        this.stopwords += ['whereafter', 'whereas', 'whereby', 'wherein', 'whereupon']
+        this.stopwords += ['wherever', 'whether', 'which', 'while', 'whither', 'who']
+        this.stopwords += ['whoever', 'whole', 'whom', 'whose', 'why', 'will', 'with']
+        this.stopwords += ['within', 'without', 'would', 'yet', 'you', 'your']
+        this.stopwords += ['yours', 'yourself', 'yourselves']
       }
 
       draw() {
-        // this updates the dimensions of the vis based on window size, etc.
-        // and calls setupElement if the vis was just created
         super.draw();
         console.log(base.sortedNodes);
         if ('undefined' != typeof(base.visualization.jQCloud)) base.visualization.jQCloud('destroy');
@@ -3841,26 +3890,8 @@ window.scalarvis = { instanceCount: -1 };
         this.words.sort(function(a, b) {
             return b.weight - a.weight;
         });
-        // Get the most recent...
-        var tags = this.words.slice(0, 50);
-        // Add tooltips
-        /*
-        for (var j = 0; j < tags.length; j++) {
-        	var numPages = 0;
-        	var word = tags[j].text;
-        	for (var k = 0; k < base.sortedNodes.length; k++) {
-        		if (base.sortedNodes[k].current.content && base.sortedNodes[k].current.content.toLowerCase().indexOf(word) != -1) {
-        			numPages++;
-        		}
-        	}
-        	tags[j].html = {
-        		"data-toggle":"tooltip",
-        		"title":'In '+numPages+' pages'
-        	}
-        }
-        */
         // Render cloud
-        base.visualization.jQCloud(tags, {
+        base.visualization.jQCloud(this.words, {
         	afterCloudRender: function() {
         		$('[data-toggle="tooltip"]').tooltip({
         			html: true,
@@ -3920,61 +3951,7 @@ window.scalarvis = { instanceCount: -1 };
       isAStopWord(word) {
 
     	  if (word.substr(0, 1) == '&') return true;
-
-    	  // https://programminghistorian.org/en/lessons/counting-frequencies
-    	  var stopwords = ['a', 'about', 'above', 'across', 'after', 'afterwards']
-    	  stopwords += ['again', 'against', 'all', 'almost', 'alone', 'along']
-    	  stopwords += ['already', 'also', 'although', 'always', 'am', 'among']
-    	  stopwords += ['amongst', 'amoungst', 'amount', 'an', 'and', 'another']
-    	  stopwords += ['any', 'anyhow', 'anyone', 'anything', 'anyway', 'anywhere']
-    	  stopwords += ['are', 'around', 'as', 'at', 'back', 'be', 'became']
-    	  stopwords += ['because', 'become', 'becomes', 'becoming', 'been']
-    	  stopwords += ['before', 'beforehand', 'behind', 'being', 'below']
-    	  stopwords += ['beside', 'besides', 'between', 'beyond', 'bill', 'both']
-    	  stopwords += ['bottom', 'but', 'by', 'call', 'can', 'cannot', 'cant']
-    	  stopwords += ['co', 'computer', 'con', 'could', 'couldnt', 'cry', 'de']
-    	  stopwords += ['describe', 'detail', 'did', 'do', 'done', 'down', 'due']
-    	  stopwords += ['during', 'each', 'eg', 'eight', 'either', 'eleven', 'else']
-    	  stopwords += ['elsewhere', 'empty', 'enough', 'etc', 'even', 'ever']
-    	  stopwords += ['every', 'everyone', 'everything', 'everywhere', 'except']
-    	  stopwords += ['few', 'fifteen', 'fifty', 'fill', 'find', 'fire', 'first']
-    	  stopwords += ['five', 'for', 'former', 'formerly', 'forty', 'found']
-    	  stopwords += ['four', 'from', 'front', 'full', 'further', 'get', 'give']
-    	  stopwords += ['go', 'had', 'has', 'hasnt', 'have', 'he', 'hence', 'her']
-    	  stopwords += ['here', 'hereafter', 'hereby', 'herein', 'hereupon', 'hers']
-    	  stopwords += ['herself', 'him', 'himself', 'his', 'how', 'however']
-    	  stopwords += ['hundred', 'i', 'ie', 'if', 'in', 'inc', 'indeed']
-    	  stopwords += ['interest', 'into', 'is', 'it', 'its', 'itself', 'keep']
-    	  stopwords += ['last', 'latter', 'latterly', 'least', 'less', 'ltd', 'made']
-    	  stopwords += ['many', 'may', 'me', 'meanwhile', 'might', 'mill', 'mine']
-    	  stopwords += ['more', 'moreover', 'most', 'mostly', 'move', 'much']
-    	  stopwords += ['must', 'my', 'myself', 'name', 'namely', 'neither', 'never']
-    	  stopwords += ['nevertheless', 'next', 'nine', 'no', 'nobody', 'none']
-    	  stopwords += ['noone', 'nor', 'not', 'nothing', 'now', 'nowhere', 'of']
-    	  stopwords += ['off', 'often', 'on','once', 'one', 'only', 'onto', 'or']
-    	  stopwords += ['other', 'others', 'otherwise', 'our', 'ours', 'ourselves']
-    	  stopwords += ['out', 'over', 'own', 'part', 'per', 'perhaps', 'please']
-    	  stopwords += ['put', 'rather', 're', 's', 'same', 'see', 'seem', 'seemed']
-    	  stopwords += ['seeming', 'seems', 'serious', 'several', 'she', 'should']
-    	  stopwords += ['show', 'side', 'since', 'sincere', 'six', 'sixty', 'so']
-    	  stopwords += ['some', 'somehow', 'someone', 'something', 'sometime']
-    	  stopwords += ['sometimes', 'somewhere', 'still', 'such', 'system', 'take']
-    	  stopwords += ['ten', 'than', 'that', 'the', 'their', 'them', 'themselves']
-    	  stopwords += ['then', 'thence', 'there', 'thereafter', 'thereby']
-    	  stopwords += ['therefore', 'therein', 'thereupon', 'these', 'they']
-    	  stopwords += ['thick', 'thin', 'third', 'this', 'those', 'though', 'three']
-    	  stopwords += ['three', 'through', 'throughout', 'thru', 'thus', 'to']
-    	  stopwords += ['together', 'too', 'top', 'toward', 'towards', 'twelve']
-    	  stopwords += ['twenty', 'two', 'un', 'under', 'until', 'up', 'upon']
-    	  stopwords += ['us', 'very', 'via', 'was', 'we', 'well', 'were', 'what']
-    	  stopwords += ['whatever', 'when', 'whence', 'whenever', 'where']
-    	  stopwords += ['whereafter', 'whereas', 'whereby', 'wherein', 'whereupon']
-    	  stopwords += ['wherever', 'whether', 'which', 'while', 'whither', 'who']
-    	  stopwords += ['whoever', 'whole', 'whom', 'whose', 'why', 'will', 'with']
-    	  stopwords += ['within', 'without', 'would', 'yet', 'you', 'your']
-    	  stopwords += ['yours', 'yourself', 'yourselves']
-
-    	  if (stopwords.indexOf(word) != -1) return true;
+    	  if (this.stopwords.indexOf(word) != -1) return true;
     	  false;
 
       }
