@@ -3875,30 +3875,14 @@ window.scalarvis = { instanceCount: -1 };
         this.stopwords += ['whoever', 'whole', 'whom', 'whose', 'why', 'will', 'with']
         this.stopwords += ['within', 'without', 'would', 'yet', 'you', 'your']
         this.stopwords += ['yours', 'yourself', 'yourselves']
+        this.stopwords += ['(', ')', 'p.', 'it.', ':', ]  // Added by Craig
       }
 
       draw() {
         super.draw();
-        console.log(base.sortedNodes);
-        if ('undefined' != typeof(base.visualization.jQCloud)) base.visualization.jQCloud('destroy');
-        base.visualization.empty();
-    	// Create array of words
-        for (var j = 0; j < base.sortedNodes.length; j++) {
-        	var words = this.getWords(base.sortedNodes[j].current.content);
-        	this.words = this.mergeWords(this.words, words);
-        };
-        this.words.sort(function(a, b) {
-            return b.weight - a.weight;
-        });
-        // Render cloud
-        base.visualization.jQCloud(this.words, {
-        	afterCloudRender: function() {
-        		$('[data-toggle="tooltip"]').tooltip({
-        			html: true,
-        			container: 'body'
-        		});
-        	}
-        });
+        base.visualization.css('height', this.size.height + 'px');
+        base.visualization.css('width', this.size.width + 'px');
+
       }
 
       getHelpContent() {
@@ -3907,15 +3891,42 @@ window.scalarvis = { instanceCount: -1 };
 
       // one-time visualization setup
       setupElement() {
+    	console.log('setupElement()');
+    	console.log(base.sortedNodes);
         this.hasBeenDrawn = true;
         base.visualization.empty(); // empty the element where this vis is to be shown
-        approot = $('link#approot').attr('href');
-        $('head').append('<link rel="stylesheet" type="text/css" href="' + approot + 'views/melons/cantaloupe/css/vis.css">');
-        $('head').append('<link rel="stylesheet" type="text/css" href="' + approot + 'views/widgets/jQCloud/jqcloud.min.css">');
-        $.getScript(approot + 'views/widgets/jQCloud/jqcloud.min.js', () => {
-          base.visualization.addClass("tag_cloud caption_font");
-          this.draw();
-        });
+        if ('undefined' == typeof($.fn.jQCloud)) {
+        	console.log('Loading CSS and JS ...');
+	        var approot = $('link#approot').attr('href');
+	        $('head').append('<link rel="stylesheet" type="text/css" href="' + approot + 'views/melons/cantaloupe/css/vis.css">');
+	        $('head').append('<link rel="stylesheet" type="text/css" href="' + approot + 'views/widgets/jQCloud/jqcloud.min.css">');
+	        $.getScript(approot + 'views/widgets/jQCloud/jqcloud.min.js', () => {
+	        	base.visualization.addClass("tag_cloud caption_font");
+	        	this.drawWordCLoud();
+	        });
+        } else {
+        	this.drawWordCloud();
+        }
+      }
+      
+      drawWordCLoud() {
+    	  
+    	  console.log('drawWordCloud()');
+          if ('undefined' != typeof(base.visualization.jQCloud)) base.visualization.jQCloud('destroy');
+          base.visualization.empty();
+      	  // Create array of words
+          for (var j = 0; j < base.sortedNodes.length; j++) {
+          	var words = this.getWords(base.sortedNodes[j].current.content);
+          	this.words = this.mergeWords(this.words, words);
+          };
+          base.visualization.empty();
+          // Render cloud
+          base.visualization.jQCloud(this.words, {
+          	afterCloudRender: function() {
+          		removeOverflowing: false
+          	}
+          });
+    	  
       }
 
       getWords(content) {
