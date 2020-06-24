@@ -206,7 +206,7 @@
 .node_selector .node_search input[type="text"]{
 	border-right: 0;
 }
-.modal-dialog .modal-body{
+.content_selector_bootbox .modal-body{
 	overflow-x: hidden;
 	overflow-y: auto;
 }
@@ -336,8 +336,8 @@
 	display: inline;
 }
 .node_filter .node_types>.filter_spinner .spinner_container{
-	position: absolute; 
-	top: 50%; 
+	position: absolute;
+	top: 50%;
 	left: 50%;
 }
 .node_selector .panel-heading hr{

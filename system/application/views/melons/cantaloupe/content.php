@@ -26,6 +26,7 @@
 <?$this->template->add_js(path_from_file(__FILE__).'js/scalarvisualizations.jquery.js')?>
 <?$this->template->add_js(path_from_file(__FILE__).'js/scalarstructuredgallery.jquery.js')?>
 <?$this->template->add_js(path_from_file(__FILE__).'js/scalarwidgets.jquery.js')?>
+<?$this->template->add_js(path_from_file(__FILE__).'js/scalarlenses.jquery.js')?>
 <?$this->template->add_js(path_from_file(__FILE__).'js/jquery.tabbing.js')?>
 <?
 if (!empty($tklabels)):

@@ -65,6 +65,8 @@ class Lens_model extends MY_Model {
 	public function get_all($book_id=null, $type=null, $category=null, $is_live=true, $sq='', $id_array=null) {
 
 		$this->db->select($this->lenses_table.'.*');
+		$this->db->select($this->versions_table.'.title');
+		$this->db->select($this->pages_table.'.slug');
 		$this->db->from($this->lenses_table);
 		$this->db->join($this->versions_table, $this->versions_table.'.version_id='.$this->lenses_table.'.parent_version_id');
 		$this->db->join($this->pages_table, $this->pages_table.'.content_id='.$this->versions_table.'.content_id');
@@ -77,6 +79,8 @@ class Lens_model extends MY_Model {
 			if (isset($result[$j]->contents) && !empty($result[$j]->contents)) {
 				$result[$j]->contents = json_decode($result[$j]->contents);
 				$result[$j]->contents->urn = $this->urn($result[$j]->parent_version_id);
+				$result[$j]->contents->title = $result[$j]->title;
+				$result[$j]->contents->slug = $result[$j]->slug;
 				$return[] = $result[$j]->contents;
 			}
 		}
@@ -85,6 +89,14 @@ class Lens_model extends MY_Model {
     }
 
     public function get_children($parent_version_id=0) {
+    	
+    	$this->db->select($this->versions_table.'.*');
+    	$this->db->select($this->pages_table.'.slug');
+    	$this->db->from($this->versions_table);
+    	$this->db->where('version_id', $parent_version_id);
+    	$this->db->join($this->pages_table, $this->pages_table.'.content_id='.$this->versions_table.'.content_id');
+    	$query = $this->db->get();
+    	$version = $query->result();
     	
     	$this->db->select('*');
     	$this->db->from($this->lenses_table);
@@ -95,6 +107,8 @@ class Lens_model extends MY_Model {
     	for ($j = 0; $j < count($result); $j++) {
     		$result[$j]->contents = json_decode($result[$j]->contents);
     		$result[$j]->contents->urn = $this->urn($result[$j]->parent_version_id);
+    		$result[$j]->contents->title = $version[0]->title;
+    		$result[$j]->contents->slug = $version[0]->slug;
     		$result[$j]->contents = json_encode($result[$j]->contents);
     	}
     	return $result[0]->contents;
@@ -109,10 +123,14 @@ class Lens_model extends MY_Model {
 		if (empty($book_id)) throw new Exception("Invalud Book ID");
 		$how_to_combine = $this->get_operation_from_visualization($json['visualization']);
 		$contents = array();
-		$has_used_filter = false;
+		
+		if (isset($json['frozen']) && $json['frozen']) {
+			return $this->frozen_items($book_id, $json, $prefix);
+		}
 
 		foreach ($json['components'] as $component) {
 			$content = array();
+			$has_used_filter = false;
 			// Modifiers that get content
 			if (isset($component['modifiers'])) {
 				foreach ($component['modifiers'] as $modifier) {
@@ -120,6 +138,7 @@ class Lens_model extends MY_Model {
 						case "filter":
 							switch ($modifier['subtype']) {
 								case "metadata":
+								case "content":
 									$has_used_filter = true;
 									$field = trim($modifier['metadata-field']);
 									$value = trim($modifier['content']);
@@ -165,7 +184,7 @@ class Lens_model extends MY_Model {
 										$content[] = $page;
 										$types = $modifier['content-types'];
 										if (isset($types[0]) && 'all-types' == $types[0]) {
-											$types = $CI->config->item('rel');
+											$types = array_merge($CI->config->item('rel'), $CI->config->item('ref'));
 											for ($j = 0; $j < count($types); $j++) {
 												$type = rtrim($types[$j], "s");
 												if ($type == 'replie') $type = 'reply';
@@ -266,6 +285,35 @@ class Lens_model extends MY_Model {
 				}
 			}
 		}
+
+		$return = array();
+		if (empty($contents)) return $return;
+		foreach ($contents as $content_id => $page) {
+			$uri = $prefix.'/'.$page->slug;
+			$version_uri = $uri.'.'.$page->versions[0]->version_num;
+			$page->has_version = $version_uri;
+			$page->versions[0]->version_of = $uri;
+			$return[$uri] = $CI->pages->rdf($page);
+			$return[$version_uri] = $CI->versions->rdf($page->versions[0]);
+		}
+		
+		$return = $this->rdf_ns_to_uri($return);
+		$return = $this->add_relationships($return, $book_id);
+
+		return $return;
+		
+	}
+	
+	public function frozen_items($book_id=0, $json='', $prefix='') {
+		
+		$CI =& get_instance();
+		$contents = array();
+		if (!isset($json['frozen-items'])) return $contents;
+		foreach ($json['frozen-items'] as $slug) {
+			$page = $CI->pages->get_by_slug($book_id, $slug, $is_live=true);
+			if (!empty($page)) $contents[] = $page;
+		}
+		$contents = $this->do_versions($contents);
 
 		$return = array();
 		if (empty($contents)) return $return;
@@ -649,6 +697,38 @@ class Lens_model extends MY_Model {
     					'type' => 'uri',
     					'value' => base_url().$book->slug.'/'.$item->child_content_slug
     				);
+    			}
+    		}
+    		// get parents
+    		$types = $CI->config->item('rel');
+    		foreach ($types as $type_p) {
+    			$type = rtrim($type_p, "s");
+    			if ($type == 'replie') $type = 'reply';
+    			if (!isset($CI->$type_p) || 'object'!=gettype($CI->$type_p)) $CI->load->model($type.'_model',$type_p);
+    			$items = $CI->$type_p->get_parents($version_id, '', '', true, null);
+    			foreach ($items as $item) {
+    				$rel_uri = 'urn:scalar:'.$type.':'.$item->parent_version_id.':'.$item->child_version_id.':'.$num;
+    				$append = $CI->rdf_object->annotation_append($item);
+    				$num++;
+    				$node = array(
+    						'http://scalar.usc.edu/2012/01/scalar-ns#urn' => array(array(
+    								'type' => 'uri',
+    								'value' => $rel_uri
+    						)),
+    						'http://www.openannotation.org/ns/hasBody' => array(array(
+    								'type' => 'uri',
+    								'value' => base_url().$book->slug.'/'.$item->parent_content_slug.'.'.$item->parent_version_num
+    						)),
+    						'http://www.openannotation.org/ns/hasTarget' => array(array(
+    								'type' => 'uri',
+    								'value' => $uri.$append
+    						)),
+    						'http://www.w3.org/1999/02/22-rdf-syntax-ns#type' => array(array(
+    								'type' => 'uri',
+    								'value' => 'http://www.openannotation.org/ns/Annotation'
+    						)),
+    				);
+    				$return[$rel_uri] = $node;
     			}
     		}
     		// get children

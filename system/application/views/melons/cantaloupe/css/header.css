@@ -42,8 +42,9 @@ a.headerIcon{
 .menuIcon{
 	height: 22px;
 	width: 22px;
+	padding: 4px;
 	background-position: center center;
-	background-size: 22px;
+	background-size: 14px;
 	background-repeat: no-repeat;
 	display: inline-block;
 	vertical-align: bottom;
@@ -92,7 +93,7 @@ a.headerIcon{
 	background-image: url(../images/editorialpath_icon.png);
 }
 .navbar .rightArrowIcon, #mobileMainMenuSubmenus .rightArrowIcon{
-	background-image: url(../images/menu_arrow_icon.png);
+	background-image: url(../images/icon_arrow_light.png);
 	height: 22px;
 	background-size: 22px;
 	padding: 0;
@@ -117,7 +118,7 @@ a.headerIcon{
 }
 
 .navbar .closeIcon, #mobileMainMenuSubmenus .closeIcon{
-	background-image: url(../images/menu_close_icon.png);
+	background-image: url(../images/icon_close_light.png);
 	background-size: 22px;
 	height: 22px;
 	padding: 0;
@@ -139,17 +140,24 @@ a.headerIcon{
 }
 
 .navbar li>a>#recentIcon{
-	background-image: url(../images/menu_recent_icon.png);
+	background-image: url(../images/icon_recent.png);
 }
 .navbar li:hover>a>#recentIcon{
-	background-image: url(../images/menu_recent_icon_selected.png);
+	background-image: url(../images/icon_recent_light.png);
+}
+
+.navbar li>a>#lensIcon{
+	background-image: url(../images/icon_lens.png);
+}
+.navbar li:hover>a>#lensIcon{
+	background-image: url(../images/icon_lens_light.png);
 }
 
 .navbar li>a>#visIcon{
-	background-image: url(../images/menu_vis_icon.png);
+	background-image: url(../images/icon_vis.png);
 }
 .navbar li:hover>a>#visIcon{
-	background-image: url(../images/menu_vis_icon_selected.png);
+	background-image: url(../images/icon_vis_light.png);
 }
 
 
@@ -175,87 +183,87 @@ a.headerIcon{
 }
 
 .navbar li>a>#scalarIcon{
-	background-image: url(../images/menu_scalar_icon.png);
+	background-image: url(../images/icon_scalar.png);
 }
 .navbar li:hover>a>#scalarIcon{
-	background-image: url(../images/menu_scalar_icon_selected.png);
+	background-image: url(../images/icon_scalar_light.png);
 }
 
 .navbar li>a>#pathIcon{
-	background-image: url(../images/menu_path_icon.png);
+	background-image: url(../images/icon_path.png);
 }
 .navbar li:hover>a>#pathIcon{
-	background-image: url(../images/menu_path_icon_selected.png);
+	background-image: url(../images/icon_path_light.png);
 }
 
 .navbar li>a>#connectionsIcon{
-	background-image: url(../images/menu_connections_icon.png);
+	background-image: url(../images/icon_forcedir.png);
 }
 .navbar li:hover>a>#connectionsIcon{
-	background-image: url(../images/menu_connections_icon_selected.png);
+	background-image: url(../images/icon_forcedir_light.png);
 }
 
 .navbar li>a>#tocIcon{
-	background-image: url(../images/menu_toc_icon.png);
+	background-image: url(../images/icon_tree.png);
 }
 .navbar li:hover>a>#tocIcon{
-	background-image: url(../images/menu_toc_icon_selected.png);
+	background-image: url(../images/icon_tree_light.png);
 }
 
 .navbar li>a>#pageIcon{
-	background-image: url(../images/menu_page_icon.png);
+	background-image: url(../images/icon_page.png);
 }
 .navbar li:hover>a>#pageIcon{
-	background-image: url(../images/menu_page_icon_selected.png);
+	background-image: url(../images/icon_page_light.png);
 }
 
 .navbar li>a>#mediaIcon{
-	background-image: url(../images/menu_media_icon.png);
+	background-image: url(../images/icon_media.png);
 }
 .navbar li:hover>a>#mediaIcon{
-	background-image: url(../images/menu_media_icon_selected.png);
+	background-image: url(../images/icon_media_light.png);
 }
 
 .navbar li>a>#tagIcon{
-	background-image: url(../images/menu_tag_icon.png);
+	background-image: url(../images/icon_tag.png);
 }
 .navbar li:hover>a>#tagIcon{
-	background-image: url(../images/menu_tag_icon_selected.png);
+	background-image: url(../images/icon_tag_light.png);
 }
 
 .navbar li>a>#annotationIcon{
-	background-image: url(../images/menu_annotation_icon.png);
+	background-image: url(../images/icon_annotation.png);
 }
 .navbar li:hover>a>#annotationIcon{
-	background-image: url(../images/menu_annotation_icon_selected.png);
+	background-image: url(../images/icon_annotation_light.png);
 }
 
 .navbar li>a>#gridIcon{
-	background-image: url(../images/menu_grid_icon.png);
+	background-image: url(../images/icon_grid.png);
 }
 .navbar li:hover>a>#gridIcon{
-	background-image: url(../images/menu_grid_icon_selected.png);
+	background-image: url(../images/icon_grid_light.png);
 }
 
 .navbar li>a>#radialIcon{
-	background-image: url(../images/menu_radial_icon.png);
+	background-image: url(../images/icon_radial.png);
 }
 .navbar li:hover>a>#radialIcon{
-	background-image: url(../images/menu_radial_icon_selected.png);
+	background-image: url(../images/icon_radial_light.png);
 }
 
 .navbar li>a>#commentIcon{
-	background-image: url(../images/menu_comment_icon.png);
+	background-image: url(../images/icon_comment.png);
 }
 .navbar li:hover>a>#commentIcon{
-	background-image: url(../images/menu_comment_icon_selected.png);
+	background-image: url(../images/icon_comment_light.png);
 }
 
 .navbar li>a>#bookmarkIcon{
-	background-image: url(../images/menu_bookmark_icon.png);
+	background-image: url(../images/icon_bookmark.png);
 }
 .navbar li:hover>a>#bookmarkIcon{
-	background-image: url(../images/menu_bookmark_icon_selected.png);
+	background-image: url(../images/icon_bookmark_light.png);
 }
 
 .navbar{
@@ -860,7 +868,7 @@ i.loader{
 		width: 3rem;
 	}
 	.navbar .rightArrowIcon, #mobileMainMenuSubmenus .rightArrowIcon{
-		  background-image: url(../images/menu_arrow_icon.png);
+		  background-image: url(../images/icon_arrow_light.png);
 		  height: 3rem;
 		  background-size: 22px;
 		  padding: 0;
@@ -917,7 +925,7 @@ i.loader{
 		text-transform: none;
 	}
 	.navbar .closeIcon, #mobileMainMenuSubmenus .closeIcon {
-	  background-image: url(../images/menu_close_icon.png);
+	  background-image: url(../images/icon_close_light.png);
 	  background-size: 4rem;
 	  height: 5rem;
 	  width: 5rem;

@@ -2650,7 +2650,6 @@ ScalarModel.prototype.parseNodes = function(json) {
 
 			// otherwise, create the node and store it
 			} else {
-
 				node = new ScalarNode(property, json[property], versionData);
 				this.addNode(node);
 			}

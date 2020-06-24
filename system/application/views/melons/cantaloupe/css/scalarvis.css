@@ -45,21 +45,25 @@ h1.visualization { margin-bottom: 1.2rem; }
 	width: 100% !important;
 	height: 100% !important;
 	margin: 0;
+	padding: 10px !important;
 }
 .scalarvis:-moz-full-screen {
 	width: 100% !important;
 	height: 100% !important;
 	margin: 0;
+	padding: 10px !important;
 }
 .scalarvis:-ms-fullscreen {
 	width: 100% !important;
 	height: 100% !important;
 	margin: 0;
+	padding: 10px !important;
 }
 .scalarvis:fullscreen {
 	width: 100% !important;
 	height: 100% !important;
 	margin: 0;
+	padding: 10px !important;
 }
 
 .visualization form {
@@ -151,6 +155,12 @@ svg {
 	pointer-events: none;
 	font-size: 1.2rem;
 	font-weight: normal;
+}
+
+.vis-control-header {
+	font-size: 14px;
+	display: inline-block;
+	margin-right: 5px;
 }
 
 rect.visit-button {
