@@ -131,13 +131,14 @@
           } else {
             $('.private-lenses').show()
           }
-          $('.private-lenses-list').append(`
-              <li class="caption_font">
-                <a href="${lensLink}" target="_blank">${privateLensItem.title}</a>
-                <span id="private-lens-count" class="badge dark caption_font">0</span>
-                <span class="viz-icon ${vizType}"></span>
-              </li>`
-            );
+          let markup = $(`
+            <li class="caption_font">
+              <a href="${lensLink}" target="_blank">${privateLensItem.title}</a>
+              <span id="private-lens-count" class="badge dark caption_font">0</span>
+              <span class="viz-icon ${vizType}"></span>
+            </li>`
+          ).appendTo($('.private-lenses-list'));
+          markup.data('lens', privateLensItem);
         });
 
         if(submittedLensArray.length == 0){
@@ -148,14 +149,14 @@
         submittedLensArray.forEach(submittedLensItem => {
           let vizType = submittedLensItem.visualization.type;
           let lensLink = $('link#parent').attr('href') + submittedLensItem.slug;
-
-          $('.submitted-lenses-list').append(`
-              <li class="caption_font">
-                <a href="${lensLink}" target="_blank">${submittedLensItem.title}</a>
-                <span id="submitted-lens-count" class="badge dark caption_font">0</span>
-                <span class="viz-icon ${vizType}"></span>
-              </li>`
-            );
+          let markup = $(`
+            <li class="caption_font">
+              <a href="${lensLink}" target="_blank">${submittedLensItem.title}</a>
+              <span id="submitted-lens-count" class="badge dark caption_font">0</span>
+              <span class="viz-icon ${vizType}"></span>
+            </li>`
+          ).appendTo($('.submitted-lenses-list'));
+          markup.data('lens', submittedLensItem);
         });
 
         if(publicLensArray.length == 0){
@@ -166,14 +167,14 @@
         publicLensArray.forEach(publicLensItem => {
           let vizType = publicLensItem.visualization.type;
           let lensLink = $('link#parent').attr('href') + publicLensItem.slug;
-
-          $('.public-lenses-list').append(`
-              <li class="caption_font">
-                <a href="${lensLink}" target="_blank">${publicLensItem.title}</a>
-                <span id="public-lens-count" class="badge dark caption_font">0</span>
-                <span class="viz-icon ${vizType}"></span>
-              </li>`
-            );
+          let markup = $(`
+            <li class="caption_font">
+              <a href="${lensLink}" target="_blank">${publicLensItem.title}</a>
+              <span id="public-lens-count" class="badge dark caption_font">0</span>
+              <span class="viz-icon ${vizType}"></span>
+            </li>`
+          ).appendTo($('.public-lenses-list'));
+          markup.data('lens', publicLensItem);
         });
 
       };
@@ -208,13 +209,14 @@
           } else {
             $('.private-lenses').show()
           }
-          $('.private-lenses-list').append(`
-              <li class="caption_font">
-                <a href="${lensLink}" target="_blank">${privateLensItem.title}</a>
-                <span id="private-lens-count" class="badge dark caption_font">0</span>
-                <span class="viz-icon ${vizType}"></span>
-              </li>`
-            );
+          let markup = $(`
+            <li class="caption_font">
+              <a href="${lensLink}" target="_blank">${privateLensItem.title}</a>
+              <span id="private-lens-count" class="badge dark caption_font">0</span>
+              <span class="viz-icon ${vizType}"></span>
+            </li>`
+          ).appendTo($('.private-lenses-list'));
+          markup.data('lens', privateLensItem);
         });
         // submitted lenses list
         if(submittedLensArray.length == 0){
@@ -225,13 +227,14 @@
         submittedLensArray.forEach(submittedLensItem => {
           let vizType = submittedLensItem.visualization.type;
           let lensLink = $('link#parent').attr('href') + submittedLensItem.slug;
-          $('.submitted-lenses-list').append(`
-              <li class="caption_font">
-                <a href="${lensLink}" target="_blank">${submittedLensItem.title}</a>
-                <span id="submitted-lens-count" class="badge dark caption_font">0</span>
-                <span class="viz-icon ${vizType}"></span>
-              </li>`
-            );
+          let markup = $(`
+            <li class="caption_font">
+              <a href="${lensLink}" target="_blank">${submittedLensItem.title}</a>
+              <span id="submitted-lens-count" class="badge dark caption_font">0</span>
+              <span class="viz-icon ${vizType}"></span>
+            </li>`
+          ).appendTo($('.submitted-lenses-list'));
+          markup.data('lens', submittedLensItem);
         });
         // public lenses list
         if(publicLensArray.length == 0){
@@ -242,20 +245,21 @@
         publicLensArray.forEach(publicLensItem => {
           let vizType = publicLensItem.visualization.type;
           let lensLink = $('link#parent').attr('href') + publicLensItem.slug;
-          $('.public-lenses-list').append(`
-              <li class="caption_font">
-                <a href="${lensLink}" target="_blank">${publicLensItem.title}</a>
-                <span id="public-lens-count" class="badge dark caption_font">0</span>
-                <span class="viz-icon ${vizType}"></span>
-              </li>`
-            );
+          let markup = $(`
+            <li class="caption_font">
+              <a href="${lensLink}" target="_blank">${publicLensItem.title}</a>
+              <span id="public-lens-count" class="badge dark caption_font">0</span>
+              <span class="viz-icon ${vizType}"></span>
+            </li>`
+          ).appendTo($('.public-lenses-list'));
+          markup.data('lens', publicLensItem);
         });
       };
 
       var me = this;
       // display lens when clicked
       $('#lens-manager ul li').on('click', function(){
-        me.selectLens(data).data();
+        me.selectLens($(this).data('lens'));
       });
 
     };
