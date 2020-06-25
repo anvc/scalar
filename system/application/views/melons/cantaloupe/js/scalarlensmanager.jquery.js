@@ -91,7 +91,9 @@
       let data = response;
       //this.userLevel = 'scalar:Reader';
       console.log(this.userLevel);
-      console.log(data)
+      console.log(data);
+
+
 
       //_______________//
       //
@@ -111,7 +113,7 @@
           this.selectLens(data[0]);
         }
 
-        // iterate through lenses
+        // build sidebar list
         data.forEach(lens => {
           // sort lenses
           if(lens.user_level == 'scalar:Author'){
@@ -121,7 +123,7 @@
             }
           }
         });
-        // build sidebar list
+        // private lenses
         privateLensArray.forEach(privateLensItem => {
           let vizType = privateLensItem.visualization.type;
           let lensLink = $('link#parent').attr('href') + privateLensItem.slug;
@@ -141,6 +143,7 @@
           markup.data('lens', privateLensItem);
         });
 
+        // submitted lenses
         if(submittedLensArray.length == 0){
           $('.submitted-lenses').hide()
         } else {
@@ -159,6 +162,7 @@
           markup.data('lens', submittedLensItem);
         });
 
+        // public lenses
         if(publicLensArray.length == 0){
           $('.public-lenses').hide()
         } else {
@@ -177,6 +181,7 @@
           markup.data('lens', publicLensItem);
         });
 
+
       };
 
       //_______________//
@@ -189,7 +194,7 @@
         let submittedLensArray = [];
         let publicLensArray = [];
 
-        // iterate through lenses
+        // build sidebar list
         data.forEach(lens => {
           // sort lenses
           if(lens.user_level == 'scalar:Reader'){
@@ -199,7 +204,7 @@
             }
           }
         });
-        // build sidebar list
+        // private lenses
         privateLensArray.forEach(privateLensItem => {
           let vizType = privateLensItem.visualization.type;
           let lensLink = $('link#parent').attr('href') + privateLensItem.slug;
@@ -218,7 +223,7 @@
           ).appendTo($('.private-lenses-list'));
           markup.data('lens', privateLensItem);
         });
-        // submitted lenses list
+        // submitted lenses
         if(submittedLensArray.length == 0){
           $('.submitted-lenses').hide()
         } else {
@@ -236,7 +241,40 @@
           ).appendTo($('.submitted-lenses-list'));
           markup.data('lens', submittedLensItem);
         });
-        // public lenses list
+        // public lenses
+        if(publicLensArray.length == 0){
+          $('.public-lenses').hide()
+        } else {
+          $('.public-lenses').show()
+        }
+        publicLensArray.forEach(publicLensItem => {
+          let vizType = publicLensItem.visualization.type;
+          let lensLink = $('link#parent').attr('href') + publicLensItem.slug;
+          let markup = $(`
+            <li class="caption_font">
+              <a href="${lensLink}" target="_blank">${publicLensItem.title}</a>
+              <span id="public-lens-count" class="badge dark caption_font">0</span>
+              <span class="viz-icon ${vizType}"></span>
+            </li>`
+          ).appendTo($('.public-lenses-list'));
+          markup.data('lens', publicLensItem);
+        });
+      };
+
+
+      // non-authors and non-readers
+      if(this.userId == 'unknown') {
+        let publicLensArray = [];
+        // build sidebar list
+        data.forEach(lens => {
+          // sort lenses
+          if(lens.user_level == 'unknown'){
+            if(lens.public == true){
+              publicLensArray.push(lens);
+            }
+          }
+        });
+        // public lenses
         if(publicLensArray.length == 0){
           $('.public-lenses').hide()
         } else {
