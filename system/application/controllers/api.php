@@ -582,7 +582,11 @@ Class Api extends CI_Controller {
 			if (is_array($response_json)) {
 				$return_array = [];
 				if (isset($response_json['thumbnail'])){
-					$return_array['scalar:thumbnail'] = $response_json['thumbnail']['@id'];
+					if(isset($response_json['thumbnail']['@id'])){
+				        $return_array['scalar:thumbnail'] = $response_json['thumbnail']['@id'];
+					} else {
+					    $return_array['scalar:thumbnail'] = $response_json['thumbnail']	
+					}
 				}
 				if (isset($response_json['license'])) {
 					$return_array['dcterms:license'] = $response_json['license'];
