@@ -2036,7 +2036,8 @@ class MysqliDb
         }
 
         while ($pos = strpos($str, "?")) {
-            $val = $vals[$i++];
+        	// Updated by Craig Dietrich, 14 March 2019 to supress warning
+            $val =@ $vals[$i++];
             if (is_object($val)) {
                 $val = '[object]';
             }

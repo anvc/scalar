@@ -328,6 +328,18 @@ class MY_Controller extends CI_Controller {
 		return true;
 		
 	}
+	
+	/**
+	 * Test whether lenses can be used based on the database configuration
+	 * @return bool
+	 */
+	
+	protected function can_save_lenses() {
+		
+		if (!$this->db->table_exists('rel_grouped')) return false;
+		return true;
+		
+	}
 
 	/**
 	 * Return a redirect URL

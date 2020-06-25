@@ -164,29 +164,49 @@ class System extends MY_Controller {
 	
 	public function lenses() {
 		
+		if (!$this->can_save_lenses()) die ('{"error":"Lenses table (scalar_db_rel_grouped) is not installed"}');
 		$version_id = (isset($_REQUEST['version_id'])) ? (int) $_REQUEST['version_id'] : 0;
 		$book_id = (isset($_REQUEST['book_id'])) ? (int) $_REQUEST['book_id'] : 0;
 		
-		if (!empty($version_id)) {
+		if (!empty($version_id)) {  // Get the Lens JSON for a particular Version
 			$this->load->model('book_model', 'books');
 			$this->load->model('lens_model', 'lenses');
 			$this->load->model('version_model', 'versions');
 			$book_id = (int) $this->versions->get_book($version_id);
 			if (empty($book_id)) die ('{"error":"Could not find a book associated with the Version ID"}');
 			$this->data['book'] = $this->books->get($book_id);
-			$this->set_user_book_perms();
-			//if (!$this->login_is_book_admin()) die ('{"error":"Invalid permissions"}');
+			if (empty($this->data['book'])) die ('{"error":"Could not find a book associated with the JSON payload"}');
 			$this->data['content'] = $this->lenses->get_children($version_id);
-		} elseif (!empty($book_id)) {
+		} elseif (!empty($book_id)) {  // Get all of the lens JSONs for a particular book
 			$this->load->model('book_model', 'books');
 			$this->load->model('lens_model', 'lenses');
 			$this->load->model('version_model', 'versions');
 			$this->data['book'] = $this->books->get($book_id);
-			$this->set_user_book_perms();
-			//if (!$this->login_is_book_admin()) die ('{"error":"Invalid permissions"}');
+			if (empty($this->data['book'])) die ('{"error":"Could not find a book associated with the JSON payload"}');
 			$this->data['content'] = $this->lenses->get_all($book_id);
 		} else {
-			$this->data['content'] = '{"error":"Missing Version ID or Book ID"}';
+			$request_body = file_get_contents('php://input');
+			if (!empty($request_body)) {  // Get nodes described by a JSON payload
+				$json = json_decode($request_body, true);
+				if (false === $json) die ('{"error":"Invalid JSON sent in payload"}');
+				if (!isset($json['components'])) die ('{"error":"JSON payload not formatted properly"}');
+				$this->load->model('book_model', 'books');
+				$this->load->model('lens_model', 'lenses');
+				$book_id = 0;
+				if (isset($json['book_id'])) {
+					$book_id = (int) $json['book_id'];
+				} elseif (isset($json['book_urn'])) {
+					$arr = explode(':', $json['book_urn']);
+					$book_id = (int) array_pop($arr);
+				}
+				if (empty($book_id)) die ('{"error":"Could not find a book ID associated with JSON payload"}');
+				$this->data['book'] = $this->books->get($book_id);
+				if (empty($this->data['book'])) die ('{"error":"Could not find a book associated with the JSON payload"}');
+				$json['items'] = $this->lenses->get_nodes_from_json($book_id, $json, confirm_slash(base_url()).$this->data['book']->slug);
+				$this->data['content'] = $json;
+			} else {
+				$this->data['content'] = '{"error":"Missing Version ID, Book ID, or JSON payload"}';
+			}
 		}
 		
 		$this->template->set_template('blank');
@@ -638,6 +658,12 @@ class System extends MY_Controller {
 					}
 					unset($books);
 					break;
+				case "normalize_predicate_table":  // Admin: Tools
+					if (!$this->data['login_is_super']) $this->kickout();
+					$predicates = $this->versions->normalize_predicate_table();
+					$this->data['normalize_predicate_table'] = array_keys($predicates);
+					unset($predicates);
+					break;
 		 	}
 	 	} catch (Exception $e) {
 			show_error($e->getMessage());
@@ -951,7 +977,7 @@ class System extends MY_Controller {
 					if (!$this->can_edition()) die ('{"error":"Editions are not active"}');
 					if (!isset($this->data['book']->editions[$edition_index])) die ('{"error":"Invalid edition index"}');
 					foreach ($this->data['book']->editions[$edition_index]['pages'] as $version_id) {
-						$version = $this->versions->get($version_id);
+						$version = $this->versions->get($version_id, null, false);
 						if (!empty($version) && isset($version->editorial_state) && isset($this->data['content'][$version->editorial_state])) $this->data['content'][$version->editorial_state]++;
 						if (!empty($version) && isset($version->usage_rights) && !empty($version->usage_rights)) $this->data['content']['usagerights']++;
 					}
@@ -962,7 +988,7 @@ class System extends MY_Controller {
 							$this->data['content']['hidden']++;
 							continue;
 						}
-						$version = $this->versions->get_single($content[$j]->content_id, $content[$j]->recent_version_id);
+						$version = $this->versions->get_single($content[$j]->content_id, $content[$j]->recent_version_id, null, false);
 						if (!empty($version) && isset($version->editorial_state) && isset($this->data['content'][$version->editorial_state])) $this->data['content'][$version->editorial_state]++;
 						if (!empty($version) && isset($version->usage_rights) && !empty($version->usage_rights)) $this->data['content']['usagerights']++;
 					}
@@ -1189,7 +1215,7 @@ class System extends MY_Controller {
 				if (is_int($version_id)) {  // Change a single page to a state
 					$this->load->model('page_model', 'pages');
 					$this->load->model('version_model', 'versions');
-					$version = $this->versions->get($version_id);
+					$version = $this->versions->get($version_id, null, false);
 					if (empty($version)) die ("{'error':'Could not find version'}");
 					$this->data['book'] = $this->books->get_by_content_id($version->content_id);
 					$this->set_user_book_perms();
@@ -1204,7 +1230,7 @@ class System extends MY_Controller {
 					$this->load->model('version_model', 'versions');
 					foreach ($version_id as $id) {
 						$id = (int) $id;
-						$version = $this->versions->get($id);
+						$version = $this->versions->get($id, null, false);
 						if (empty($version)) die ("{'error':'Could not find version'}");
 						$this->data['book'] = $this->books->get_by_content_id($version->content_id);
 						$this->set_user_book_perms();

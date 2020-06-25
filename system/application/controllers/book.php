@@ -132,6 +132,7 @@ class Book extends MY_Controller {
 							  		'max_recurses' => $this->max_recursions,
 									'tklabeldata'  => $this->data['tklabels'],
 									'tklabels' 	   => RDF_Object::TKLABELS_ALL,
+									'lens_recurses'=> (($this->can_save_lenses()) ? 0 : RDF_Object::LENSES_NONE),
 									'is_book_admin'=> $this->login_is_book_admin()
 								 );
 				$index = $this->rdf_object->index($settings);
@@ -328,12 +329,21 @@ class Book extends MY_Controller {
 
 		if (strlen($this->uri->segment(3))) return;
 		if ($this->data['mode'] == 'editing') return;
-		$this->data['book_tags'] = $this->tags->get_all($this->data['book']->book_id, null, null, true);  // TODO: editions
-		for ($j = 0; $j < count($this->data['book_tags']); $j++) {
-			$this->data['book_tags'][$j]->versions = array();
-			$this->data['book_tags'][$j]->versions[0] = $this->versions->get_single($this->data['book_tags'][$j]->content_id, $this->data['book_tags'][$j]->recent_version_id);
-			$this->data['book_tags'][$j]->versions[0]->tag_of = $this->tags->get_children($this->data['book_tags'][$j]->versions[0]->version_id);
+		
+
+		if (isset($this->data['page']->versions) && !empty($this->data['page']->versions) && !empty($this->data['page']->versions[$this->data['page']->version_index]->tag_of)) {
+			$this->data['book_tags'] = $this->data['page']->versions[$this->data['page']->version_index]->tag_of;
+			
+		// Otherwise, use all tags in the book
+		} else {
+			$this->data['book_tags'] = $this->tags->get_all($this->data['book']->book_id, null, null, true);
+			for ($j = 0; $j < count($this->data['book_tags']); $j++) {
+				$this->data['book_tags'][$j]->versions = array();
+				$this->data['book_tags'][$j]->versions[0] = $this->versions->get_single($this->data['book_tags'][$j]->content_id, $this->data['book_tags'][$j]->recent_version_id);
+				$this->data['book_tags'][$j]->versions[0]->tag_of = $this->tags->get_children($this->data['book_tags'][$j]->versions[0]->version_id);
+			}
 		}
+
 		$this->data['login_is_author'] = $this->login_is_book_admin();
 		$this->data['view'] = __FUNCTION__;
 
@@ -347,7 +357,7 @@ class Book extends MY_Controller {
 		$this->data['book_content'] = $this->pages->get_all($this->data['book']->book_id, null, null, true);
 		for ($j = 0; $j < count($this->data['book_content']); $j++) {
 			$this->data['book_content'][$j]->versions = array();
-			$this->data['book_content'][$j]->versions[0] = $this->versions->get_single($this->data['book_content'][$j]->content_id, $this->data['book_content'][$j]->recent_version_id);
+			$this->data['book_content'][$j]->versions[0] = $this->versions->get_single($this->data['book_content'][$j]->content_id, $this->data['book_content'][$j]->recent_version_id, null, false);
 		}
 		$this->data['login_is_author'] = $this->login_is_book_admin();
 		$this->data['view'] = __FUNCTION__;
