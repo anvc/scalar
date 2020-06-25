@@ -3875,7 +3875,7 @@ window.scalarvis = { instanceCount: -1 };
         this.stopwords += ['whoever', 'whole', 'whom', 'whose', 'why', 'will', 'with']
         this.stopwords += ['within', 'without', 'would', 'yet', 'you', 'your']
         this.stopwords += ['yours', 'yourself', 'yourselves']
-        this.stopwords += ['-']
+        this.stopwords += ['-','nbsp','nbspnbsp','nbspnbspnbsp','p']
       }
 
       draw() {
