@@ -182,17 +182,18 @@
         });
 
 
-      };
-
+      }
       //_______________//
-      //
       /// Reader view
-      //_______________//
 
-      if(this.userLevel == 'scalar:Reader'){
+      else if(this.userLevel == 'scalar:Reader'){
         let privateLensArray = [];
         let submittedLensArray = [];
         let publicLensArray = [];
+
+        $('.private-lenses .title').text('My Private Lenses');
+        $(this.element).find('.submitted-lenses .title').text('My Submitted Lenses');
+        $('.public-lenses .title').text('Public Lenses');
 
         // build sidebar list
         data.forEach(lens => {
@@ -259,19 +260,16 @@
           ).appendTo($('.public-lenses-list'));
           markup.data('lens', publicLensItem);
         });
-      };
-
+      }
 
       // non-authors and non-readers
-      if(this.userId == 'unknown') {
+      else {
         let publicLensArray = [];
+        $('.public-lenses .title').text('Public Lenses');
         // build sidebar list
         data.forEach(lens => {
-          // sort lenses
-          if(lens.user_level == 'unknown'){
-            if(lens.public == true){
-              publicLensArray.push(lens);
-            }
+          if(lens.public == true){
+            publicLensArray.push(lens);
           }
         });
         // public lenses
