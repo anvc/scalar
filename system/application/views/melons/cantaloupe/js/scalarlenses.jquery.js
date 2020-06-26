@@ -222,6 +222,7 @@
       lensHtml.find('.lens-content').append(this.addOptionsMenu())
       lensHtml.append(this.addOkModal());
       lensHtml.find('.lens-editor').append(this.addDuplicateCopyPrompt());
+      lensHtml.find('.lens-editor').append(this.reviewSubmittedLenses());
       lensHtml.append(this.duplicateLensForCurrentUser())
       this.buttonContainer = $(this.element).find('.lens-tags').eq(0);
       this.primaryBadge = lensHtml.find('.badge');
@@ -2909,6 +2910,7 @@
       });
     }
 
+
     // duplicate copy prompt
     ScalarLenses.prototype.addDuplicateCopyPrompt = function(){
       let element = $(`
@@ -2961,6 +2963,37 @@
 
       return element;
     }
+
+
+
+    // author can review submitted lenses, make them public or not
+    ScalarLenses.prototype.reviewSubmittedLenses = function(){
+      let element = $(`
+        <div id="submitted-lenses-review-prompt">
+          <div class="row">
+            <div class="col-xs-9">
+              <h4 class="caption_font"><strong>Submitted by:</strong> Publisher name</h4>
+              <h4 class="caption_font"><strong>Comments:</strong> Publisher comment</h4>
+            </div>
+            <div class="col-xs-3">
+              <button type="button" class="btn btn-default pull-right reject">Reject submission</button>
+              <button type="button" class="btn btn-primary pull-right make-lens-public">Make lens public</button>
+            </div>
+          </div>
+        </div>
+      `)
+
+      var me = this;
+
+      if(this.userLevel == 'scalar:Author' && me.scalarLensObject.submitted == true){
+        $('#submitted-lenses-review-prompt').addClass('show-lens-prompt');
+      }
+
+      return element;
+    }
+
+
+
 
 
     // get Lens results

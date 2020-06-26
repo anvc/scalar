@@ -1860,3 +1860,52 @@ span.base {
 #duplicate-copy-prompt .save {
 	margin-top:0;
 }
+
+#submitted-lenses-review-prompt {
+	display:none;
+	padding:20px;
+	margin:10px 0;
+	width:100%;
+	background:#d4ebf5;
+	border:1px solid #b4e5ee;
+	border-radius:3px;
+}
+#submitted-lenses-review-prompt.show-lens-prompt {
+	display:inline-block;
+}
+#submitted-lenses-review-prompt p {
+	font-size: 14px;
+	color:#347da1;
+	line-height: 17px;
+	margin-bottom:0;
+}
+#submitted-lenses-review-prompt h4 {
+	color:#347da1;
+	margin-top:0;
+	margin-bottom:15px;
+}
+#submitted-lenses-review-prompt .row {
+	display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#submitted-lenses-review-prompt .save {
+	margin-top:0;
+}
+.btn-primary.make-lens-public,
+.btn-primary.make-lens-public:hover,
+.btn-primary.make-lens-public.disabled:hover,
+.btn-primary.make-lens-public:active,
+.btn-primary.make-lens-public:focus,
+.btn-primary.make-lens-public.disabled:focus{
+	background:#3b82c0;
+	border:1px solid #457db8;
+	margin-right:0;
+	margin-top:8px;
+}
+.btn-default.reject,
+.btn-primary.make-lens-public {
+	min-width:138px;
+	padding:6px 12px;
+	max-width:138px;
+}
