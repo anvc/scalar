@@ -346,10 +346,20 @@
     // edit lens title
     ScalarLenses.prototype.editLensTitle = function(){
       var me = this;
-      document.querySelector(".lens-title").addEventListener("input", function() {
-        console.log(this.innerText);
+      let lensTitle = document.querySelector(".lens-title");
+      
+      lensTitle.addEventListener("input", function() {
         me.scalarLensObject.title = this.innerText;
         me.scalarLensObject.slug = this.innerText;
+      });
+
+      lensTitle.addEventListener('keydown', (evt) => {
+          if (evt.keyCode === 13) {
+              evt.preventDefault();
+          }
+      });
+
+      $('.lens-title').on('keypress focusout', function(ev) {
         me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
       });
     }

@@ -1461,9 +1461,13 @@ body>.annotorious-popup{
 .body_copy .lens-title {
   margin-top:0;
   margin-bottom: 1px;
+	white-space: nowrap;
+	overflow: hidden;
 }
 [contenteditable]:focus{
   outline:none;
+	white-space: nowrap;
+	overflow: hidden;
 }
 .lens-editor .btn-primary {
 	font-family:'Lato', sans-serif !important;
