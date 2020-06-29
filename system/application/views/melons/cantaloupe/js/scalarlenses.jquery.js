@@ -197,7 +197,7 @@
                  <div class="lens-content col-xs-11">
                   <div class="row" style="margin:0;">
                     <div class="lens-header col-xs-12 no-bg">
-                       <h3 class="lens-title heading_font heading_weight col-xs-10">(Untitled lens)</h3>
+                       <h3 class="lens-title heading_font heading_weight col-xs-10" contenteditable="true">(Untitled lens)</h3>
                        <div class="col-xs-2 no-padding">
                           <div>
                             <span class="pull-right badge"></span>
@@ -338,7 +338,22 @@
       }
 
 
+      this.editLensTitle()
+
+
     }
+
+    // edit lens title
+    ScalarLenses.prototype.editLensTitle = function(){
+      var me = this;
+      document.querySelector(".lens-title").addEventListener("input", function() {
+        console.log(this.innerText);
+        me.scalarLensObject.title = this.innerText;
+        me.scalarLensObject.slug = this.innerText;
+        me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
+      });
+    }
+
 
     // looks for a container component div for the component with the given index;
     // creates one if it can't find it
