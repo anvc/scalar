@@ -356,7 +356,9 @@
       lensTitle.addEventListener('keydown', (evt) => {
           if (evt.keyCode === 13) {
             evt.preventDefault();
+            me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
           }
+
       });
 
       $('.lens-title').on('focusout', function(ev) {
