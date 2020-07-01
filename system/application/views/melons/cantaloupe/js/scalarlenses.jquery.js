@@ -1229,7 +1229,7 @@
     }
 
     ScalarLenses.prototype.validateFilterData = function() {
-      let passedValdiation = true;
+      let passedValidation = true;
       $('#filterModal div.validation-error').remove();
       $('#filterModal btn.validation-error').removeClass('validation-error');
       let subtype = $('.filter-modal-content').data('filterType');
@@ -1250,7 +1250,7 @@
 
         case 'relationship':
         break;
-        
+
         case 'distance':
         break;
 
@@ -1267,7 +1267,7 @@
       if (errorMessage) {
         $('#filterModal .filter-modal-content').append('<div class="validation-error">' + errorMessage + '</div>');
       }
-      return passedValdiation;
+      return passedValidation;
     }
 
     ScalarLenses.prototype.buildFilterData = function() {
