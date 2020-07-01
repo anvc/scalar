@@ -1506,6 +1506,14 @@ body>.annotorious-popup{
 	border-radius:20px;
 	float:right;
 }
+div.validation-error {
+	margin-top: 15px;
+	font-size: 12px;
+	color: #d75452;
+}
+.btn.validation-error {
+	border-color: #d75452;
+}
 .no-padding {
 	padding:0;
 }

@@ -1170,11 +1170,11 @@
     ScalarLenses.prototype.addFilterModal = function(){
 
       let element = $(
-        `<div id="filterModal" class="modal fade caption_font" role="dialog">
+        `<div id="filterModal" class="modal fade caption_font" role="dialog" aria-labelledby="filterModalTitle">
           <div class="modal-dialog">
             <div class="modal-content">
               <div class="modal-body">
-                <h4 class="heading_font">Configure filter</h4>
+                <h4 id="filterModalTitle" class="heading_font">Configure filter</h4>
                 <div class="row">
                   <div class="filter-modal-container col-xs-12">
                     <div class="left-badge col-xs-1 no-padding">
@@ -1184,18 +1184,19 @@
                       <div class="filter-arrow"></div>
                     </div>
                     <div class="filter-modal-content col-xs-8"></div>
-                      <div class="col-xs-1 no-padding">
-                        <div class="filter-arrow pull-left"></div>
-                      </div>
-                      <div class="right-badge col-xs-1 no-padding">
-                        <div class="counter pull-left">0</div>
-                      </div>
+                    <div class="col-xs-1 no-padding">
+                      <div class="filter-arrow pull-left"></div>
+                    </div>
+                    <div class="right-badge col-xs-1 no-padding">
+                      <div class="counter pull-left">0</div>
+                    </div>
                   </div>
                 </div>
+                <div class="form-validation-error"></div>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-default cancel" data-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary done" data-dismiss="modal">Done</button>
+                <button type="button" class="btn btn-primary done">Done</button>
               </div>
             </div>
           </div>
@@ -1208,13 +1209,15 @@
       //element.find('.filter-modal-container').prepend(me.addFilterButton(componentContainer))
 
       // done click handler
-      element.find('.done').on('click', function(){
-        let currentButton = $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-btn-group').eq(me.editedModifierIndex);
-        $(currentButton).find('.filter-type-list li.active').removeClass('active');
-        me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex] = me.buildFilterData();
-        me.updateFilterButton(me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex], $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-btn-group').eq(me.editedModifierIndex), me.editedComponentIndex)
-        me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
-
+      element.find('.done').on('click', function(evt){
+        if (me.validateFilterData()) {
+          let currentButton = $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-btn-group').eq(me.editedModifierIndex);
+          $(currentButton).find('.filter-type-list li.active').removeClass('active');
+          me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex] = me.buildFilterData();
+          me.updateFilterButton(me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex], $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-btn-group').eq(me.editedModifierIndex), me.editedComponentIndex)
+          me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
+          $('#filterModal').modal('hide');
+        }
       });
       // cancel click handler
       element.find('.cancel').on('click', function(){
@@ -1223,6 +1226,48 @@
       });
 
       return element;
+    }
+
+    ScalarLenses.prototype.validateFilterData = function() {
+      let passedValdiation = true;
+      $('#filterModal div.validation-error').remove();
+      $('#filterModal btn.validation-error').removeClass('validation-error');
+      let subtype = $('.filter-modal-content').data('filterType');
+      let errorMessage;
+      switch(subtype){
+
+        case 'content-type':
+        let contentTypes = $('#content-type-button').data('option').value;
+        if (!contentTypes) {
+          passedValdiation = false;
+          errorMessage = 'You must select a content type.';
+          $('#content-type-button').addClass('validation-error');
+        }
+        break;
+
+        case 'content':
+        break;
+
+        case 'relationship':
+        break;
+        
+        case 'distance':
+        break;
+
+        case 'quantity':
+        break;
+
+        case 'metadata':
+        break;
+
+        case 'visit-date':
+        break;
+
+      }
+      if (errorMessage) {
+        $('#filterModal .filter-modal-content').append('<div class="validation-error">' + errorMessage + '</div>');
+      }
+      return passedValdiation;
     }
 
     ScalarLenses.prototype.buildFilterData = function() {
