@@ -3937,12 +3937,12 @@ window.scalarvis = { instanceCount: -1 };
 
     	  for (var j = 0; j < arr2.length; j++) {
     		  if (!arr2[j].length) continue;
-    		  var word = arr2[j].toLowerCase().replace(/[^0-9a-z-]/g, '');
+    		  var word = arr2[j].replace(/[^0-9a-zA-Z-]/g, '');
     		  if (!word.length) continue;
     		  if (this.isAStopWord(word)) continue;
     		  var wordIncluded = false;
     		  for (var k = 0; k < arr1.length; k++) {
-    			  if (arr1[k].text == word) {
+    			  if (arr1[k].text.toLowerCase() == word.toLowerCase()) {
     				  arr1[k].weight = arr1[k].weight + 1;
     				  wordIncluded = true;
     			  }
@@ -3958,7 +3958,7 @@ window.scalarvis = { instanceCount: -1 };
       isAStopWord(word) {
 
     	  if (word.substr(0, 1) == '&') return true;
-    	  if (this.stopwords.indexOf(word) != -1) return true;
+    	  if (this.stopwords.indexOf(word.toLowerCase()) != -1) return true;
     	  false;
 
       }
