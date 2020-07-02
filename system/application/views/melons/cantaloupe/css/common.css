@@ -1511,7 +1511,8 @@ div.validation-error {
 	font-size: 12px;
 	color: #d75452;
 }
-.btn.validation-error {
+.btn.validation-error,
+input.validation-error {
 	border-color: #d75452;
 }
 .no-padding {

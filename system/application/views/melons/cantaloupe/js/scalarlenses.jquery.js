@@ -1048,8 +1048,7 @@
              <div class="modal-content">
                <div class="modal-body">
                  <p>Select all items of this type:</p>
-                 <div class="btn-group"><button id="byType" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
-                     Select item...<span class="caret"></span></button>
+                 <div class="btn-group"><button id="byType" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">Select item...<span class="caret"></span></button>
                    <ul id="content-type-dropdown" class="dropdown-menu">
                      <li><a>All content</a></li>
                      <li><a>Table of contents</a></li>
@@ -1061,10 +1060,11 @@
                      <li><a>Comment</a></li>
                    </ul>
                  </div>
+                 <div class="form-validation-error"></div>
                </div>
                <div class="modal-footer">
                  <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                 <button type="button" class="btn btn-primary done" data-dismiss="modal">Done</button>
+                 <button type="button" class="btn btn-primary done">Done</button>
                </div>
              </div>
            </div>
@@ -1078,24 +1078,51 @@
         $('#byType').text($(this).text()).append('<span class="caret"></span>')
       });
 
-      element.find('.done').on('click', function(){
-        let contentSelector = {
-          "type": "items-by-type",
-          "content-type": $('#byType').text().split(/[_\s]/).join("-").toLowerCase()
-        }
-        let contentSelections = me.scalarLensObject.components[me.editedComponentIndex]["content-selector"]
-        delete contentSelections.quantity;
-        delete contentSelections.units;
-        delete contentSelections.coordinates;
-        document.getElementById('distanceForm').reset();
-        $('#distanceUnits').text('Select unit...').append('<span class="caret"></span>');
+      element.find('.done').on('click', function(evt){
+        console.log(me.validateItemsByType())
+        if(me.validateItemsByType()){
 
-        me.scalarLensObject.components[me.editedComponentIndex]["content-selector"] = contentSelector
-        me.updateContentSelectorButton(me.scalarLensObject.components[me.editedComponentIndex]["content-selector"], $(me.element).find('.content-selector-btn-group').eq(me.editedComponentIndex))
-        me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults))
+          let contentSelector = {
+            "type": "items-by-type",
+            "content-type": $('#byType').text().split(/[_\s]/).join("-").toLowerCase()
+          }
+          let contentSelections = me.scalarLensObject.components[me.editedComponentIndex]["content-selector"]
+          delete contentSelections.quantity;
+          delete contentSelections.units;
+          delete contentSelections.coordinates;
+          document.getElementById('distanceForm').reset();
+          $('#distanceUnits').text('Select unit...').append('<span class="caret"></span>');
+
+          me.scalarLensObject.components[me.editedComponentIndex]["content-selector"] = contentSelector
+          me.updateContentSelectorButton(me.scalarLensObject.components[me.editedComponentIndex]["content-selector"], $(me.element).find('.content-selector-btn-group').eq(me.editedComponentIndex))
+          me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
+          $('#modalByType').modal('hide');
+        }
       });
       return element
     }
+
+    ScalarLenses.prototype.validateItemsByType = function() {
+      let passedValidation = true;
+      $('#modalByType div.validation-error').remove();
+      $('#byType').removeClass('validation-error');
+
+      let errorMessage;
+
+      let byTypeValue = $('#byType').text();
+      console.log(byTypeValue)
+      if (byTypeValue == 'Select item...') {
+        passedValidation = false;
+        errorMessage = 'You must select a content type.';
+        $('#byType').addClass('validation-error');
+      }
+      if (errorMessage) {
+        $('#modalByType .modal-body').append('<div class="validation-error">' + errorMessage + '</div>');
+      }
+      return passedValidation;
+    }
+
+
 
     // add distance modal
     ScalarLenses.prototype.addDistanceModal = function(){
@@ -1130,10 +1157,11 @@
                      </div>
                    </div>
                    </div>
+                   <div class="form-validation-error"></div>
                  </div>
                  <div class="modal-footer">
                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                   <button id="distanceDone" type="button" class="btn btn-primary done" data-dismiss="modal">Done</button>
+                   <button id="distanceDone" type="button" class="btn btn-primary done">Done</button>
                  </div>
                </div>
              </div>
@@ -1147,22 +1175,73 @@
         });
 
         element.find('.done').on('click', function(){
-          let contentSelector = {
-            "type":"items-by-distance",
-            "quantity": $('#distanceQuantity').val(),
-            "units": $('#distanceUnits').text(),
-            "coordinates": $('#latitude').val() + ', ' + $('#longitude').val()
+          if(me.validateDistance()){
+            let contentSelector = {
+              "type":"items-by-distance",
+              "quantity": $('#distanceQuantity').val(),
+              "units": $('#distanceUnits').text(),
+              "coordinates": $('#latitude').val() + ', ' + $('#longitude').val()
+            }
+            $('#byType').text('Select items...').append('<span class="caret"></span>');
+            me.scalarLensObject.components[me.editedComponentIndex]["content-selector"] = contentSelector
+            me.updateContentSelectorButton(me.scalarLensObject.components[me.editedComponentIndex]["content-selector"], $(me.element).find('.content-selector-btn-group').eq(me.editedComponentIndex))
+            me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
+            $('#modalByDistance').modal('hide');
           }
-          $('#byType').text('Select items...').append('<span class="caret"></span>');
-          me.scalarLensObject.components[me.editedComponentIndex]["content-selector"] = contentSelector
-          me.updateContentSelectorButton(me.scalarLensObject.components[me.editedComponentIndex]["content-selector"], $(me.element).find('.content-selector-btn-group').eq(me.editedComponentIndex))
-          me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
         });
 
         return element
 
     }
 
+
+    ScalarLenses.prototype.validateDistance = function() {
+      let passedValidation = true;
+      $('#modalByDistance div.validation-error').remove();
+      $('#distanceQuantity, #latitude, #longitude').removeClass('validation-error');
+      let errorMessage;
+      let distanceValue = $('#distanceQuantity').val();
+      let latitude = $('#latitude').val();
+      let longitude = $('#longitude').val();
+
+      // check for valid latitude and longitude
+      function isLatitude(lat) {
+        return isFinite(lat) && Math.abs(lat) <= 90;
+      }
+      function isLongitude(lng) {
+        return isFinite(lng) && Math.abs(lng) <= 180;
+      }
+
+      if (!distanceValue || distanceValue == "") {
+        passedValidation = false;
+        errorMessage = 'You must enter a distance.';
+        $('#distanceQuantity').addClass('validation-error');
+      }
+      if(isNaN(distanceValue)){
+        passedValidation = false;
+        errorMessage = 'You must enter a number for distance.';
+        $('#distanceQuantity').addClass('validation-error');
+      }
+      if(!latitude || !longitude){
+        passedValidation = false;
+        errorMessage = 'You must enter a latitude and longitude.';
+        $('#latitude, #longitude').addClass('validation-error');
+      }
+      if(isNaN(latitude) || isNaN(longitude)){
+        passedValidation = false;
+        errorMessage = 'You must enter a number for latitude and longitude.';
+        $('#latitude, #longitude').addClass('validation-error');
+      }
+      if(!isLatitude(latitude) || !isLongitude(longitude)){
+        passedValidation = false;
+        errorMessage = 'You must enter a valid coordinates for latitude and longitude.';
+        $('#latitude, #longitude').addClass('validation-error');
+      }
+      if (errorMessage) {
+        $('#modalByDistance .modal-body').append('<div class="validation-error">' + errorMessage + '</div>');
+      }
+      return passedValidation;
+    }
 
     // add filter modal
     // sets default state for all filter modals
@@ -1234,33 +1313,124 @@
       $('#filterModal btn.validation-error').removeClass('validation-error');
       let subtype = $('.filter-modal-content').data('filterType');
       let errorMessage;
+      let addValidationError;
       switch(subtype){
 
         case 'content-type':
-        let contentTypes = $('#content-type-button').data('option').value;
-        if (!contentTypes) {
-          passedValdiation = false;
-          errorMessage = 'You must select a content type.';
-          $('#content-type-button').addClass('validation-error');
-        }
+          let contentTypes = $('#content-type-button').data('option').value;
+          if (!contentTypes) {
+            passedValdiation = false;
+            errorMessage = 'You must select a content type.';
+            $('#content-type-button').addClass('validation-error');
+          }
         break;
 
         case 'content':
+          let content = $('#content-input').val();
+          if (content.length < 1 || content == "") {
+            passedValidation = false;
+            errorMessage = 'You must enter some text to filter on';
+            $('#content-input').addClass('validation-error');
+
+          }
         break;
 
         case 'relationship':
+          let relationshipType = $('#relationship-content-button').data('option').value;
+          if (!relationshipType) {
+            passedValidation = false;
+            errorMessage = 'You must select a content type.';
+            $('#relationship-content-button').addClass('validation-error');
+          }
         break;
 
+
         case 'distance':
+          let distanceInput = $('#distanceFilterQuantity').val();
+          addValidationError = $('#distanceFilterQuantity').addClass('validation-error');
+          if (distanceInput.length < 1 || distanceInput == "" || distanceInput == null) {
+            passedValidation = false;
+            errorMessage = 'You must enter a distance.';
+            addValidationError;
+          }
+          if(distanceInput < 0){
+            passedValidation = false;
+            errorMessage = 'Distance must be a positive number';
+            addValidationError;
+          }
+          if(isNaN(distanceInput)){
+            passedValidation = false;
+            errorMessage = 'Distance must be a number.';
+            addValidationError;
+          }
         break;
 
         case 'quantity':
+          let quantityInput = parseFloat($('#filterQuantityValue').val());
+          addValidationError = $('#filterQuantityValue').addClass('validation-error');
+
+          if(quantityInput < 1 || quantityInput == null){
+            passedValidation = false;
+            errorMessage = 'You must enter a quantity.';
+            addValidationError
+          }
+          if(quantityInput < 0){
+            passedValidation = false;
+            errorMessage = 'Quantity must be a positive number.';
+            addValidationError
+          }
+          if (isNaN(quantityInput)) {
+            passedValidation = false;
+            errorMessage = 'Quantity must be a number.';
+            addValidationError
+          }
+          if(Number.isInteger(quantityInput) == false){
+            passedValidation = false;
+            errorMessage = 'Quantity must be an integer.';
+            addValidationError
+          }
         break;
 
         case 'metadata':
+          let metadatContentField = $('#metadata-content').val()
+          let metadataOntology = $('#metadata-ontology-button').data('option').value;
+          let metadataProperty = $('#metadata-property-button').data('option').value;
+          if(metadatContentField.length < 1 || metadatContentField == ""){
+            passedValidation = false;
+            errorMessage = 'You must enter some text to filter on.';
+            $('#metadata-content').addClass('validation-error');
+          }
+          if (!metadataOntology || !metadataProperty) {
+            passedValidation = false;
+            errorMessage = 'You must select a content type.';
+            $('#metadata-ontology-button,#metadata-property-button').addClass('validation-error');
+          }
+
         break;
 
         case 'visit-date':
+          let quantityInputVisit = parseFloat($('#visitdate-quantity').val());
+          addValidationError = $('#visitdate-quantity').addClass('validation-error');
+          if(quantityInputVisit < 1){
+            passedValidation = false;
+            errorMessage = 'You must enter a quantity.';
+            addValidationError
+          }
+          if(quantityInputVisit < 0){
+            passedValidation = false;
+            errorMessage = 'Quantity must be a positive number.';
+            addValidationError
+          }
+          if (isNaN(quantityInputVisit)) {
+            passedValidation = false;
+            errorMessage = 'Quantity must be a number.';
+            addValidationError
+          }
+          if(Number.isInteger(quantityInputVisit) == false){
+            passedValidation = false;
+            errorMessage = 'Quantity must be an integer.';
+            addValidationError
+          }
         break;
 
       }
@@ -1645,7 +1815,7 @@
             </div>
           </div>
           <div class="row">
-            <input id="content-input" type="text" class="form-control" aria-label="..." placeholder="Enter text" style="max-width:300px;margin:10px auto 0;">
+            <input id="content-input" type="text" class="form-control" aria-label="..." placeholder="Enter text" style="max-width:300px;margin:10px auto 0;" required>
           </div>
         </div>
       `).appendTo(container);
@@ -2079,10 +2249,11 @@
                 <div class="sort-modal-container">
                   <div class="sort-modal-content"></div>
                 </div>
+                <div class="form-validation-error"></div>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-default cancel" data-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary done" data-dismiss="modal">Done</button>
+                <button type="button" class="btn btn-primary done">Done</button>
               </div>
             </div>
           </div>
@@ -2093,83 +2264,14 @@
 
       // saves values
       element.find('.done').on('click', function(){
-
-        let type = $('.sort-modal-content').data('sortType')
-
-        switch(type){
-          case 'alphabetical':
-            const sortOntologyValue = $('#sort-ontology-button').data('option').value;
-            const sortPropertyValue = $('#sort-property-button').data('option').value;
-            sortObj = {
-              "type": "sort",
-              "sort-type": "alphabetical",
-              "metadata-field":`${sortOntologyValue}:${sortPropertyValue}`,
-              "sort-order": $('#sort-alph-button').data('option').value
-            };
-          break;
-          case 'creation-date':
-            sortObj = {
-              "type": "sort",
-              "sort-type": "creation-date",
-              "sort-order": $('#sort-creation-date-button').data('option').value
-            };
-          break;
-          case 'edit-date':
-            sortObj = {
-              "type": "sort",
-              "sort-type": "edit-date",
-              "sort-order": $('#sort-edit-date-button').data('option').value
-            };
-          break;
-          case 'distance':
-            const latitude = $('#latitude.sort').val();
-            const longitude = $('#longitude.sort').val();
-            sortObj = {
-              "type": "sort",
-              "sort-type": "distance",
-  	          "content": `${latitude},${longitude}`,
-              "sort-order": $('#sort-distance-button').data('option').value
-            };
-          break;
-          case 'type':
-            sortObj = {
-              "type": "sort",
-              "sort-type": "type"
-            };
-          break;
-          case 'relationship-count':
-            sortObj = {
-              "type": "sort",
-              "sort-type": "relationship-count",
-              "sort-order": $('#sort-relationship-button').data('option').value
-            };
-          break;
-          case 'match-count':
-            const matchOntologyValue = $('#match-ontology-button').data('option').value;
-            const matchPropertyValue = $('#match-property-button').data('option').value;
-            sortObj = {
-              "type": "sort",
-              "sort-type": "match-count",
-              "sort-order": $('#sort-match-button').data('option').value,
-              "metadata-field": `${matchOntologyValue}:${matchPropertyValue}`,
-	            "content": $('#match-count-content').val()
-            };
-          break;
-          case 'visit-date':
-            sortObj = {
-              "type": "sort",
-              "sort-type": "visit-date",
-              "sort-order": $('#sort-visit-date-button').data('option').value
-            };
-          break;
+        if (me.validateSortData()) {
+          let currentButton = $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-btn-group').eq(me.editedModifierIndex);
+          $(currentButton).find('.sort-type-list li.active').removeClass('active');
+          me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex] = me.buildSortData();
+          me.updateSortButton(me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex], $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-btn-group').eq(me.editedModifierIndex))
+          me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
+          $('#sortModal').modal('hide');
         }
-
-        let currentButton = $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-btn-group').eq(me.editedModifierIndex);
-        $(currentButton).find('.sort-type-list li.active').removeClass('active');
-
-        me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex] = sortObj;
-        me.updateSortButton(me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex], $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-btn-group').eq(me.editedModifierIndex))
-        me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
       });
 
       // cancel click handler
@@ -2180,6 +2282,128 @@
 
       return element;
     }
+
+    ScalarLenses.prototype.validateSortData = function() {
+      let passedValidation = true;
+      $('#sortModal div.validation-error').remove();
+      $('#sortModal btn.validation-error').removeClass('validation-error');
+      let errorMessage;
+      let addValidationError;
+
+      let latitude = $('#sortModal #latitude').val();
+      let longitude = $('#sortModal #longitude').val();
+
+      function isLatitude(lat) {
+        return isFinite(lat) && Math.abs(lat) <= 90;
+      }
+      function isLongitude(lng) {
+        return isFinite(lng) && Math.abs(lng) <= 180;
+      }
+
+      let subtype = $('.sort-modal-content').data('sortType');
+
+      switch(subtype){
+        case 'distance':
+          if(latitude == "" || longitude == ""){
+             passedValidation = false;
+             errorMessage = 'You must enter a latitude and longitude.'
+             addValidationError = $('#longitude, #latitude').addClass('validation-error');
+           }
+           if(!isLatitude(latitude) || !isLongitude(longitude)){
+             passedValidation = false;
+             errorMessage = 'You must enter a valid coordinates for latitude and longitude.';
+             addValidationError = $('#longitude, #latitude').addClass('validation-error');
+           }
+        break;
+        case 'match-count':
+          let matchInput = $('#match-count-content').val();
+          if(matchInput.length < 1){
+            passedValidation = false;
+            errorMessage = 'You must enter some text to match on.'
+            addValidationError = $('#match-count-content').addClass('validation-error');
+          }
+        break;
+      }
+      if (errorMessage) {
+        $('#sortModal .sort-modal-content').append('<div class="validation-error">' + errorMessage + '</div>');
+      }
+      return passedValidation;
+    }
+
+// build sort data
+  ScalarLenses.prototype.buildSortData = function(){
+    let type = $('.sort-modal-content').data('sortType');
+    let sortObj;
+
+    switch(type){
+      case 'alphabetical':
+        const sortOntologyValue = $('#sort-ontology-button').data('option').value;
+        const sortPropertyValue = $('#sort-property-button').data('option').value;
+        sortObj = {
+          "type": "sort",
+          "sort-type": "alphabetical",
+          "metadata-field":`${sortOntologyValue}:${sortPropertyValue}`,
+          "sort-order": $('#sort-alph-button').data('option').value
+        };
+      break;
+      case 'creation-date':
+        sortObj = {
+          "type": "sort",
+          "sort-type": "creation-date",
+          "sort-order": $('#sort-creation-date-button').data('option').value
+        };
+      break;
+      case 'edit-date':
+        sortObj = {
+          "type": "sort",
+          "sort-type": "edit-date",
+          "sort-order": $('#sort-edit-date-button').data('option').value
+        };
+      break;
+      case 'distance':
+        const latitude = $('#latitude.sort').val();
+        const longitude = $('#longitude.sort').val();
+        sortObj = {
+          "type": "sort",
+          "sort-type": "distance",
+          "content": `${latitude},${longitude}`,
+          "sort-order": $('#sort-distance-button').data('option').value
+        };
+      break;
+      case 'type':
+        sortObj = {
+          "type": "sort",
+          "sort-type": "type"
+        };
+      break;
+      case 'relationship-count':
+        sortObj = {
+          "type": "sort",
+          "sort-type": "relationship-count",
+          "sort-order": $('#sort-relationship-button').data('option').value
+        };
+      break;
+      case 'match-count':
+        const matchOntologyValue = $('#match-ontology-button').data('option').value;
+        const matchPropertyValue = $('#match-property-button').data('option').value;
+        sortObj = {
+          "type": "sort",
+          "sort-type": "match-count",
+          "sort-order": $('#sort-match-button').data('option').value,
+          "metadata-field": `${matchOntologyValue}:${matchPropertyValue}`,
+          "content": $('#match-count-content').val()
+        };
+      break;
+      case 'visit-date':
+        sortObj = {
+          "type": "sort",
+          "sort-type": "visit-date",
+          "sort-order": $('#sort-visit-date-button').data('option').value
+        };
+      break;
+    }
+    return sortObj;
+  };
 
     // update sort modal
     ScalarLenses.prototype.updateSortModal = function(type, sortObj){
