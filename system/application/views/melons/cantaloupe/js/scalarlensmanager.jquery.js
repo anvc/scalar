@@ -63,14 +63,9 @@
     }
 
     ScalarLensManager.prototype.getLensData = function(){
-      // get all lenses in the book: http://[scalar_install]/system/lenses?book_id=XX
       let bookId = $('link#book_id').attr('href');
-      let baseURL = $('link#parent').attr('href');
-      let splitURL = baseURL.split("/");
-      splitURL.splice(4,0, "system/lenses");
-      let newURL = splitURL.join('/').replace(/\/$/, "")
-
-      let mainURL = `${newURL}?book_id=${bookId}`;
+      let baseURL = $('link#approot').attr('href').replace('application', 'lenses');
+      let mainURL = `${baseURL}?book_id=${bookId}`;
       $.ajax({
         url:mainURL,
         type: "GET",
