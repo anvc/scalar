@@ -1197,8 +1197,10 @@
     ScalarLenses.prototype.validateDistance = function() {
       let passedValidation = true;
       $('#modalByDistance div.validation-error').remove();
-      $('#distanceQuantity, #latitude, #longitude').removeClass('validation-error');
+      $('#distanceQuantity, #latitude, #longitude, #distanceUnits').removeClass('validation-error');
       let errorMessage;
+      let errorMessageTwo;
+      let errorMessageThree;
       let distanceValue = $('#distanceQuantity').val();
       let distanceUnits = $('#distanceUnits').text();
       let latitude = $('#latitude').val();
@@ -1219,33 +1221,37 @@
       }
       if(isNaN(distanceValue)){
         passedValidation = false;
-        errorMessage += 'You must enter a number for distance.';
+        errorMessage = 'You must enter a number for distance.';
         $('#distanceQuantity').addClass('validation-error');
       }
       if(distanceUnits == "Select unit..."){
         passedValidation = false;
-        errorMessage += '<br>' + 'You must select a unit of distance';
+        errorMessageTwo = 'You must select a unit of distance.';
         $('#distanceUnits').addClass('validation-error');
       }
       if(!latitude || !longitude){
         passedValidation = false;
-        errorMessage += '<br>' + 'You must enter a latitude and longitude.';
+        errorMessageThree = 'You must enter a latitude and longitude.';
         $('#latitude, #longitude').addClass('validation-error');
       }
       if(isNaN(latitude) || isNaN(longitude)){
         passedValidation = false;
-        errorMessage += '<br>' + 'You must enter a number for latitude and longitude.';
+        errorMessageThree = 'You must enter a number for latitude and longitude.';
         $('#latitude, #longitude').addClass('validation-error');
       }
       if(!isLatitude(latitude) || !isLongitude(longitude)){
         passedValidation = false;
-        errorMessage += '<br>' + 'You must enter a valid coordinates for latitude and longitude.';
+        errorMessageThree = 'You must enter valid coordinates for latitude and longitude.';
         $('#latitude, #longitude').addClass('validation-error');
       }
-
-
       if (errorMessage) {
         $('#modalByDistance .modal-body').append('<div class="validation-error">' + errorMessage + '</div>');
+      }
+      if (errorMessageTwo) {
+        $('#modalByDistance .modal-body').append('<div class="validation-error">' + errorMessageTwo + '</div>');
+      }
+      if (errorMessageThree) {
+        $('#modalByDistance .modal-body').append('<div class="validation-error">' + errorMessageThree + '</div>');
       }
       return passedValidation;
     }
