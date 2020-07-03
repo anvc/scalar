@@ -1137,10 +1137,9 @@
                    <div class="row">
                      <div class="col-sm-10">
                          <input id="distanceQuantity" type="text" class="col-sm-5 form-control" aria-label="..." placeholder="Enter distance" />
-                       <div class="col-sm-5">
+                       <div class="col-sm-5" style="padding-left:0;">
                          <div class="btn-group">
-                           <button id="distanceUnits" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
-                             Select unit...<span class="caret"></span></button>
+                           <button id="distanceUnits" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Select unit...<span class="caret"></span></button>
                            <ul id="distance-dropdown" class="dropdown-menu">
                              <li><a>miles</a></li>
                              <li><a>kilometers</a></li>
@@ -1149,7 +1148,7 @@
                        </div>
                      </form>
                    </div>
-                   <p>of these coordinates:</p>
+                   <p style="float:left;">of these coordinates:</p>
                    <div class="row">
                      <div class="col-sm-10">
                          <input id="latitude" type="text" class="col-sm-5 form-control" aria-label="..." placeholder="Latitude (decimal)" />
@@ -1201,6 +1200,7 @@
       $('#distanceQuantity, #latitude, #longitude').removeClass('validation-error');
       let errorMessage;
       let distanceValue = $('#distanceQuantity').val();
+      let distanceUnits = $('#distanceUnits').text();
       let latitude = $('#latitude').val();
       let longitude = $('#longitude').val();
 
@@ -1219,24 +1219,31 @@
       }
       if(isNaN(distanceValue)){
         passedValidation = false;
-        errorMessage = 'You must enter a number for distance.';
+        errorMessage += 'You must enter a number for distance.';
         $('#distanceQuantity').addClass('validation-error');
+      }
+      if(distanceUnits == "Select unit..."){
+        passedValidation = false;
+        errorMessage += '<br>' + 'You must select a unit of distance';
+        $('#distanceUnits').addClass('validation-error');
       }
       if(!latitude || !longitude){
         passedValidation = false;
-        errorMessage = 'You must enter a latitude and longitude.';
+        errorMessage += '<br>' + 'You must enter a latitude and longitude.';
         $('#latitude, #longitude').addClass('validation-error');
       }
       if(isNaN(latitude) || isNaN(longitude)){
         passedValidation = false;
-        errorMessage = 'You must enter a number for latitude and longitude.';
+        errorMessage += '<br>' + 'You must enter a number for latitude and longitude.';
         $('#latitude, #longitude').addClass('validation-error');
       }
       if(!isLatitude(latitude) || !isLongitude(longitude)){
         passedValidation = false;
-        errorMessage = 'You must enter a valid coordinates for latitude and longitude.';
+        errorMessage += '<br>' + 'You must enter a valid coordinates for latitude and longitude.';
         $('#latitude, #longitude').addClass('validation-error');
       }
+
+
       if (errorMessage) {
         $('#modalByDistance .modal-body').append('<div class="validation-error">' + errorMessage + '</div>');
       }
@@ -1402,7 +1409,7 @@
           }
           if (!metadataOntology || !metadataProperty) {
             passedValidation = false;
-            errorMessage = 'You must select a content type.';
+            errorMessage += '<br>' + 'You must select a content type.';
             $('#metadata-ontology-button,#metadata-property-button').addClass('validation-error');
           }
 
@@ -2317,10 +2324,18 @@
         break;
         case 'match-count':
           let matchInput = $('#match-count-content').val();
+          let matchOntologyValue = $('#match-ontology-button').text;
+          let matchPropertyValue = $('#match-property-button').data('option').value;
+
           if(matchInput.length < 1){
             passedValidation = false;
             errorMessage = 'You must enter some text to match on.'
             addValidationError = $('#match-count-content').addClass('validation-error');
+          }
+          if(!matchOntologyValue || !matchPropertyValue){
+            passedValidation = false;
+            errorMessage += 'You must enter select an ontology'
+            addValidationError = $('#match-ontology-button, #match-property-button ').addClass('validation-error');
           }
         break;
       }
