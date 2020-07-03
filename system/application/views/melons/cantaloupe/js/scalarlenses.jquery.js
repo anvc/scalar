@@ -2301,6 +2301,7 @@
       $('#sortModal div.validation-error').remove();
       $('#sortModal btn.validation-error').removeClass('validation-error');
       let errorMessage;
+      let errorMessageTwo;
       let addValidationError;
 
       let latitude = $('#sortModal #latitude').val();
@@ -2330,23 +2331,26 @@
         break;
         case 'match-count':
           let matchInput = $('#match-count-content').val();
-          let matchOntologyValue = $('#match-ontology-button').text;
-          let matchPropertyValue = $('#match-property-button').data('option').value;
+          let matchOntologyValue = $('#match-ontology-button').text();
+          let matchPropertyValue = $('#match-property-button').text();
 
-          if(matchInput.length < 1){
+          if(matchInput.length < 1 || matchInput == ""){
             passedValidation = false;
             errorMessage = 'You must enter some text to match on.'
             addValidationError = $('#match-count-content').addClass('validation-error');
           }
-          if(!matchOntologyValue || !matchPropertyValue){
+          if(matchOntologyValue == "Select ontology..." || matchPropertyValue == "Select property..."){
             passedValidation = false;
-            errorMessage += 'You must enter select an ontology'
+            errorMessageTwo = 'You must enter select an ontology'
             addValidationError = $('#match-ontology-button, #match-property-button ').addClass('validation-error');
           }
         break;
       }
       if (errorMessage) {
         $('#sortModal .sort-modal-content').append('<div class="validation-error">' + errorMessage + '</div>');
+      }
+      if (errorMessageTwo) {
+        $('#sortModal .sort-modal-content').append('<div class="validation-error">' + errorMessageTwo + '</div>');
       }
       return passedValidation;
     }
@@ -2405,8 +2409,8 @@
         };
       break;
       case 'match-count':
-        const matchOntologyValue = $('#match-ontology-button').data('option').value;
-        const matchPropertyValue = $('#match-property-button').data('option').value;
+        let matchOntologyValue = $('#match-ontology-button').data('option').value;
+        let matchPropertyValue = $('#match-property-button').data('option').value;
         sortObj = {
           "type": "sort",
           "sort-type": "match-count",
