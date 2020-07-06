@@ -2456,6 +2456,9 @@ window.scalarvis = { instanceCount: -1 };
         super.draw();
         if (base.svg != null && base.hierarchy != null) {
           this.root = d3.hierarchy(base.hierarchy);
+          this.root.descendants().forEach((d,i) => {
+            d._children = d.children;
+          })
           this.container = base.svg.selectAll('g.container');
           // collapse all nodes except the root and its children
           this.branchExpand(this.root);
@@ -2497,7 +2500,7 @@ window.scalarvis = { instanceCount: -1 };
         var container = base.svg.append("g").attr('class', 'container');
         base.svg.call(d3.zoom().on("zoom", function() { container.attr("transform", d3.event.transform); }));
         base.svg.style("cursor", "move");
-        base.tree = d3.cluster().nodeSize([30, this.size.height]);
+        base.tree = d3.tree().nodeSize([30, this.size.height]);
         base.diagonal = d3.linkHorizontal()
           .x(function(d) { return d.y; })
           .y(function(d) { return d.x; });
@@ -2505,10 +2508,7 @@ window.scalarvis = { instanceCount: -1 };
 
       branchCollapse(d) {
         var parentId = base.parentIdForHierarchyNode(d);
-        if (d.children != null) {
-          d._children = d.children;
-          d.children = null;
-        }
+        d.children = null;
         if (d.data.node != null) {
           var index = d.data.node.parentsOfMaximizedInstances.indexOf(parentId);
           if (index != -1) {
@@ -2519,11 +2519,7 @@ window.scalarvis = { instanceCount: -1 };
 
       branchExpand(d) {
         var parentId = base.parentIdForHierarchyNode(d);
-        console.log(d._children);
-        if (d._children != null) {
-          d.children = d._children;
-          d._children = null;
-        }
+        d.children = d._children;
         if (d.data.node != null) {
           if (d.data.node.parentsOfMaximizedInstances.indexOf(parentId) == -1) {
             d.data.node.parentsOfMaximizedInstances.push(parentId);
@@ -2543,40 +2539,44 @@ window.scalarvis = { instanceCount: -1 };
       // makes sure node's data matches its state
       branchConform(d) {
         if (!base.isHierarchyNodeMaximized(d)) {
-          if (d.children != null) {
-            d._children = d.children;
-            d.children = null;
-          }
+          d.children = null;
         } else {
-          if (d.children == null) {
-            d.children = d._children;
-            d._children = null;
-          }
+          d.children = d._children;
         }
       }
 
       branchConformAll(d) {
-        if (d.children != null) {
-          d.children.forEach((d) => { this.branchConformAll(d); });
+        if (d._children) {
+          d._children.forEach((d) => { this.branchConformAll(d); });
         }
         this.branchConform(d);
       }
 
       branchCollapseAll(d) {
-        if (d.children != null) {
-          d._children = d.children;
-          d.children = null;
-        }
-        if (d._children != null) {
+        d.children = null;
+        if (d._children) {
           d._children.forEach((d) => { this.branchCollapseAll(d); });
         }
+      }
+
+      getDescendantForData(data) {
+        let descendant;
+        let descendants = this.root.descendants();
+        for (let i=0; i<descendants.length; i++) {
+          let candidate = descendants[i];
+          if (candidate.data.title == data.title && candidate.data.node == data.node) {
+            descendant = candidate;
+            break;
+          }
+        }
+        return descendant;
       }
 
       pathUpdate(root, instantaneous) {
         var duration = instantaneous ? 0 : d3.event && d3.event.altKey ? 5000 : 500;
 
-        var nodes = root.descendants();
-        base.tree(root);
+        base.tree(this.root);
+        var nodes = this.root.descendants();
 
         // Normalize for fixed-depth.
         nodes.forEach((d) => {
@@ -2613,11 +2613,14 @@ window.scalarvis = { instanceCount: -1 };
 
         nodeEnter.append("svg:circle")
           .attr("r", 1e-6)
-          .style("fill", function(d) { return d._children ? d3.hsl(base.highlightColorScale(d.data.type, "noun", '#777')).brighter(1.5) : "#fff"; })
+          .style("fill", function(d) { return !d.children && d._children ? d3.hsl(base.highlightColorScale(d.data.type, "noun", '#777')).brighter(1.5) : "#fff"; })
           .style("stroke", function(d) { return base.highlightColorScale(d.data.type, "noun", '#777') })
           .on('touchstart', function(d) { d3.event.stopPropagation(); })
           .on('mousedown', function(d) { d3.event.stopPropagation(); })
           .on("click", (d) => {
+            // the non-node "d" items here aren't the right ones, for some reason...
+            // so getDescendantForData finds the most updated "d" (shouldn't be necessary)
+            d = this.getDescendantForData(d.data);
             this.lastToggledNode = d;
             if (d3.event.defaultPrevented) return; // ignore drag
             this.branchToggle(d);
@@ -2640,7 +2643,9 @@ window.scalarvis = { instanceCount: -1 };
           .on('click', function(d) {
             if (d3.event.defaultPrevented) return; // ignore drag
             d3.event.stopPropagation();
-            window.open(d.data.node.url, '_blank');
+            if (d.data.node) {
+              window.open(d.data.node.url, '_blank');
+            }
           });
 
         // Transition nodes to their new position.
@@ -2650,7 +2655,7 @@ window.scalarvis = { instanceCount: -1 };
 
         nodeUpdate.selectAll("circle")
           .attr("r", 8)
-          .style("fill", function(d) { return d._children ? d3.hsl(base.highlightColorScale(d.data.type, "noun", '#777')).brighter(1.5) : "#fff"; });
+          .style("fill", function(d) { return !d.children && d._children ? d3.hsl(base.highlightColorScale(d.data.type, "noun", '#777')).brighter(1.5) : "#fff"; });
 
         nodeUpdate.selectAll("text")
           .style("fill-opacity", 1);
@@ -2696,7 +2701,7 @@ window.scalarvis = { instanceCount: -1 };
               source = d.source;
             }
             var o;
-            o = {x:source.x, y:source.y};
+            o = {x:source.x0, y:source.y0};
             return base.diagonal({ source: o, target: o });
           })
           .transition()
@@ -3723,7 +3728,7 @@ window.scalarvis = { instanceCount: -1 };
         this.hasBeenDrawn = true;
         base.visualization.empty();
         base.visualization.css('height', this.size.height + 'px');
-        base.visualization.css('width', this.size.width + 'px');
+        //base.visualization.css('width', this.size.width + 'px');
         if ('undefined' == typeof(google) || 'undefined' == typeof(google.maps)) {
         	$.getScript($('link#approot').attr('href') + 'views/melons/cantaloupe/js/oms.min.js');
         	$.getScript('https://maps.googleapis.com/maps/api/js?key=' + $('link#google_maps_key').attr('href'), () => {
@@ -3896,17 +3901,17 @@ window.scalarvis = { instanceCount: -1 };
 	        $('head').append('<link rel="stylesheet" type="text/css" href="' + approot + 'views/widgets/jQCloud/jqcloud.min.css">');
 	        $.getScript(approot + 'views/widgets/jQCloud/jqcloud.min.js', () => {
 	        	base.visualization.addClass("tag_cloud caption_font");
-	        	this.drawWordCLoud();
+	        	this.drawWordCloud();
 	        });
         } else {
-        	this.drawWordCLoud();
+        	this.drawWordCloud();
         }
       }
-      
-      drawWordCLoud() {
-    	  
+
+      drawWordCloud() {
+
           base.visualization.css('height', this.size.height + 'px');
-          base.visualization.css('width', this.size.width + 'px');
+          //base.visualization.css('width', this.size.width + 'px');
           if ('undefined' != typeof(base.visualization.jQCloud)) base.visualization.jQCloud('destroy');
           base.visualization.empty();
       	  // Create array of words
@@ -3921,7 +3926,7 @@ window.scalarvis = { instanceCount: -1 };
           		removeOverflowing: false
           	}
           });
-    	  
+
       }
 
       getWords(content) {
