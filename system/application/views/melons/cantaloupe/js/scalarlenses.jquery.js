@@ -1066,7 +1066,6 @@
                      <li><a>Comment</a></li>
                    </ul>
                  </div>
-                 <div class="form-validation-error"></div>
                </div>
                <div class="modal-footer">
                  <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
@@ -1112,11 +1111,8 @@
       let passedValidation = true;
       $('#modalByType div.validation-error').remove();
       $('#byType').removeClass('validation-error');
-
       let errorMessage;
-
       let byTypeValue = $('#byType').text();
-      console.log(byTypeValue)
       if (byTypeValue == 'Select item...') {
         passedValidation = false;
         errorMessage = 'You must select a content type.';
@@ -1290,7 +1286,6 @@
                     </div>
                   </div>
                 </div>
-                <div class="form-validation-error"></div>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-default cancel" data-dismiss="modal">Cancel</button>
@@ -1329,10 +1324,10 @@
     ScalarLenses.prototype.validateFilterData = function() {
       let passedValidation = true;
       $('#filterModal div.validation-error').remove();
-      $('#filterModal btn.validation-error').removeClass('validation-error');
+      $('#filterModal btn').removeClass('validation-error');
+      $('#filterModal input').removeClass('validation-error');
       let subtype = $('.filter-modal-content').data('filterType');
       let errorMessage;
-      let addValidationError;
       switch(subtype){
 
         case 'content-type':
@@ -1348,7 +1343,7 @@
           let content = $('#content-input').val();
           if (content.length < 1 || content == "") {
             passedValidation = false;
-            errorMessage = 'You must enter some text to filter on';
+            errorMessage = 'You must enter some text to filter on.';
             $('#content-input').addClass('validation-error');
 
           }
@@ -1366,89 +1361,75 @@
 
         case 'distance':
           let distanceInput = $('#distanceFilterQuantity').val();
-          addValidationError = $('#distanceFilterQuantity').addClass('validation-error');
+          $('#distanceFilterQuantity').addClass('validation-error');
           if (distanceInput.length < 1 || distanceInput == "" || distanceInput == null) {
             passedValidation = false;
             errorMessage = 'You must enter a distance.';
-            addValidationError;
           }
           if(distanceInput < 0){
             passedValidation = false;
-            errorMessage = 'Distance must be a positive number';
-            addValidationError;
+            errorMessage = 'Distance must be a positive number.';
           }
           if(isNaN(distanceInput)){
             passedValidation = false;
             errorMessage = 'Distance must be a number.';
-            addValidationError;
           }
         break;
 
         case 'quantity':
           let quantityInput = parseFloat($('#filterQuantityValue').val());
-          addValidationError = $('#filterQuantityValue').addClass('validation-error');
-
-          if(quantityInput < 1 || quantityInput == null){
-            passedValidation = false;
-            errorMessage = 'You must enter a quantity.';
-            addValidationError
-          }
-          if(quantityInput < 0){
+          $('#filterQuantityValue').addClass('validation-error');
+          if (quantityInput < 0){
             passedValidation = false;
             errorMessage = 'Quantity must be a positive number.';
-            addValidationError
-          }
-          if (isNaN(quantityInput)) {
+          } else if (isNaN(quantityInput)) {
             passedValidation = false;
             errorMessage = 'Quantity must be a number.';
-            addValidationError
-          }
-          if(Number.isInteger(quantityInput) == false){
+          } else if (Number.isInteger(quantityInput) == false){
             passedValidation = false;
             errorMessage = 'Quantity must be an integer.';
-            addValidationError
           }
         break;
 
         case 'metadata':
-          let metadatContentField = $('#metadata-content').val()
+          let metadataContentField = $('#metadata-content').val()
           let metadataOntology = $('#metadata-ontology-button').data('option').value;
           let metadataProperty = $('#metadata-property-button').data('option').value;
-          if(metadatContentField.length < 1 || metadatContentField == ""){
+          if(metadataContentField.length < 1 || metadataContentField == ""){
             passedValidation = false;
             errorMessage = 'You must enter some text to filter on.';
             $('#metadata-content').addClass('validation-error');
           }
           if (!metadataOntology || !metadataProperty) {
             passedValidation = false;
-            errorMessage += '<br>' + 'You must select a content type.';
-            $('#metadata-ontology-button,#metadata-property-button').addClass('validation-error');
+            if (errorMessage) {
+              errorMessage += '<br>';
+            } else {
+              errorMessage = '';
+            }
+            errorMessage += 'You must select a content type.';
           }
-
+          if (!metadataOntology) {
+            $('#metadata-ontology-button').addClass('validation-error');
+          } else {
+            $('#metadata-ontology-button').removeClass('validation-error');
+          }
+          if (!metadataProperty) {
+            $('#metadata-property-button').addClass('validation-error');
+          } else {
+            $('#metadata-property-button').removeClass('validation-error');
+          }
         break;
 
         case 'visit-date':
           let quantityInputVisit = parseFloat($('#visitdate-quantity').val());
-          addValidationError = $('#visitdate-quantity').addClass('validation-error');
-          if(quantityInputVisit < 1){
-            passedValidation = false;
-            errorMessage = 'You must enter a quantity.';
-            addValidationError
-          }
-          if(quantityInputVisit < 0){
+          $('#visitdate-quantity').addClass('validation-error');
+          if (quantityInputVisit < 0){
             passedValidation = false;
             errorMessage = 'Quantity must be a positive number.';
-            addValidationError
-          }
-          if (isNaN(quantityInputVisit)) {
+          } else if (isNaN(quantityInputVisit)) {
             passedValidation = false;
             errorMessage = 'Quantity must be a number.';
-            addValidationError
-          }
-          if(Number.isInteger(quantityInputVisit) == false){
-            passedValidation = false;
-            errorMessage = 'Quantity must be an integer.';
-            addValidationError
           }
         break;
 
@@ -2308,7 +2289,6 @@
       $('#sortModal btn.validation-error').removeClass('validation-error');
       let errorMessage;
       let errorMessageTwo;
-      let addValidationError;
 
       let latitude = $('#sortModal #latitude').val();
       let longitude = $('#sortModal #longitude').val();
@@ -2327,12 +2307,12 @@
           if(latitude == "" || longitude == ""){
              passedValidation = false;
              errorMessage = 'You must enter a latitude and longitude.'
-             addValidationError = $('#longitude, #latitude').addClass('validation-error');
+             $('#longitude, #latitude').addClass('validation-error');
            }
            if(!isLatitude(latitude) || !isLongitude(longitude)){
              passedValidation = false;
              errorMessage = 'You must enter a valid coordinates for latitude and longitude.';
-             addValidationError = $('#longitude, #latitude').addClass('validation-error');
+             $('#longitude, #latitude').addClass('validation-error');
            }
         break;
         case 'match-count':
@@ -2343,12 +2323,12 @@
           if(matchInput.length < 1 || matchInput == ""){
             passedValidation = false;
             errorMessage = 'You must enter some text to match on.'
-            addValidationError = $('#match-count-content').addClass('validation-error');
+            $('#match-count-content').addClass('validation-error');
           }
           if(matchOntologyValue == "Select ontology..." || matchPropertyValue == "Select property..."){
             passedValidation = false;
-            errorMessageTwo = 'You must enter select an ontology'
-            addValidationError = $('#match-ontology-button, #match-property-button ').addClass('validation-error');
+            errorMessageTwo = 'You must select an ontology.'
+            $('#match-ontology-button, #match-property-button ').addClass('validation-error');
           }
         break;
       }
