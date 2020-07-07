@@ -379,7 +379,8 @@ window.scalarvis = { instanceCount: -1 };
         percentDone = Math.min(90, percentDone + 10);
         base.updateLoadingMsg('', percentDone, 0, 1, null);
       }, 1000)
-      $.ajax({
+      if (base.lensRequest) base.lensRequest.abort();
+      base.lensRequest = $.ajax({
         url: url,
         type: "POST",
         dataType: 'json',
@@ -458,7 +459,6 @@ window.scalarvis = { instanceCount: -1 };
         delete(base.options.format);
         delete(base.options.relations);
         if (!base.options.lens.items) {
-          console.log('get lens results');
           base.getLensResults();
         }
       }

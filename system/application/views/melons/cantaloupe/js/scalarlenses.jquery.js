@@ -3323,7 +3323,8 @@
       lensObject.book_urn = 'urn:scalar:book:' + $('link#book_id').attr('href');
       let url = $('link#approot').attr('href').replace('application/','') + 'lenses';
       console.log(JSON.stringify(lensObject, null, 2));
-      $.ajax({
+      if (this.lensRequest) this.lensRequest.abort();
+      this.lensRequest = $.ajax({
         url: url,
         type: "POST",
         dataType: 'json',
@@ -3422,7 +3423,6 @@
      ScalarLenses.prototype.getOntologyData = function() {
        let me = this;
        let newURL = $('link#approot').attr('href').replace('application', 'ontologies');
-
        $.ajax({
          url: newURL,
          type: "GET",
