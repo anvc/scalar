@@ -1697,7 +1697,7 @@
       container.empty();
       let element = $(`
         <div class="filterByType">
-          <p class="filter-text-desc">Allow any items through that</p>
+          <p class="filter-text-desc">Only allow items through that</p>
           <div class="btn-group">
             <button id="operator-button" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               is a<span class="caret"></span>
@@ -1817,7 +1817,7 @@
       container.empty();
       let element = $(`
         <div class="filterByContent">
-          <p class="filter-text-desc">Allow any items through that</p>
+          <p class="filter-text-desc">Only allow items through that</p>
           <div class="row">
             <div class="btn-group">
               <button id="operator-button" type="button" class="btn btn-default btn-md dropdown-toggle content-operator" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -2039,7 +2039,7 @@
       container.empty();
       let element = $(`
         <div class="filterByMetadata">
-          <p class="filter-text-desc">Allow any item through that</p>
+          <p class="filter-text-desc">Only allow items through that</p>
             <div class="row">
               <div class="btn-group"><button type="button" id="operator-button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
                   includes<span class="caret"></span></button>
@@ -2080,8 +2080,8 @@
       this.populateDropdown($('#operator-button'), $('#operator-list'), filterObj.operator, onClick,
         '<li><a></a></li>',
         [
-          {label: "includes", value: "inclusive"},
-          {label: "does not include", value: "exclusive"}
+          {label: "include", value: "inclusive"},
+          {label: "do not include", value: "exclusive"}
         ]);
 
       // save metadata content value
@@ -2160,7 +2160,7 @@
       container.empty();
       let element = $(`
         <div class="filterByVisitDate">
-          <p class="filter-text-desc">Allow any items through that were visited up to</p>
+          <p class="filter-text-desc">Only allow items through that were visited up to</p>
            <div class="row" style="max-widtH:210px;margin:0 auto;">
              <input id="visitdate-quantity" class="form-control" aria-label="..." placeholder="Enter quantity">
              <div class="btn-group" style="min-width:83px;">
