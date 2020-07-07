@@ -314,7 +314,13 @@ window.scalarvis = { instanceCount: -1 };
 
     base.onTypeSelect = function() {
       base.options.lens.visualization.type = $(this).val();
-      base.getLensResults();
+      // no need to do the lens call if it's only the vis type that has changed
+      if (!base.visStarted) {
+        base.visualize();
+      } else {
+        base.filter();
+        base.draw();
+      }
     }
 
     base.onContentSelect = function() {

@@ -402,7 +402,13 @@
       element.find('li').on('click', function(){
         me.scalarLensObject.visualization.type = $(this).text().split(/[_\s]/).join("-").toLowerCase();
         me.updateVisualizationButton(me.scalarLensObject.visualization);
-        me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
+        // no need to do the lens call if all we're changing is the vis, but we still
+        // need to let the hosting page know that a change happened
+        me.saveLens(null);
+        if (me.lastResults) {
+          me.lastResults.visualization = me.scalarLensObject.visualization;
+          me.options.onLensResults(me.lastResults);
+        }
       });
       return element;
     }
@@ -3338,6 +3344,7 @@
         		return;
       	  };
           scalarapi.parsePagesByType(data.items);
+          this.lastResults = data;
           this.updateBadge(this.primaryBadge, this.getNodeCount(data), 'light');
           if (success) {
             success(data);
