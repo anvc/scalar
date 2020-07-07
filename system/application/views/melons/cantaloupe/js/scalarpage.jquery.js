@@ -3132,8 +3132,8 @@
                                         "components": [
                                           {
                                             "content-selector": {
-                                              "type": "items-by-type",
-                                              "content-type": "path"
+                                              "type": "specific-items",
+                                              "items": [currentNode.slug]
                                             },
                                             "modifiers": [
                                               {
@@ -3163,8 +3163,8 @@
                                         "components": [
                                           {
                                             "content-selector": {
-                                              "type": "items-by-type",
-                                              "content-type": "media"
+                                              "type": "specific-items",
+                                              "items": [currentNode.slug]
                                             },
                                             "modifiers": [
                                               {
@@ -3194,8 +3194,8 @@
                                         "components": [
                                           {
                                             "content-selector": {
-                                              "type": "items-by-type",
-                                              "content-type": "tag"
+                                              "type": "specific-items",
+                                              "items": [currentNode.slug]
                                             },
                                             "modifiers": [
                                               {
