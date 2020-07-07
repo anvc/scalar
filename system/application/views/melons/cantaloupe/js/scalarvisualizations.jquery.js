@@ -1254,6 +1254,17 @@ window.scalarvis = { instanceCount: -1 };
             node.connectionCount = rels.length;
             base.maxConnections = Math.max(base.maxConnections, node.connectionCount);
           }
+
+          n = base.selectedNodes.length;
+          for (i = 0; i < n; i++) {
+            node = base.selectedNodes[i];
+            relNodes = node.getRelatedNodes(null, "both");
+            rels = node.getRelations(null, "both");
+            base.relatedNodes = base.relatedNodes.concat(relNodes);
+            base.relations = base.relations.concat(rels);
+            node.connectionCount = rels.length;
+            base.maxConnections = Math.max(base.maxConnections, node.connectionCount);
+          }
           break;
 
         case "toc":
@@ -3437,7 +3448,7 @@ window.scalarvis = { instanceCount: -1 };
               var index = base.selectedNodes.indexOf(d.node);
               if (index == -1) {
                 base.selectedNodes.push(d.node);
-                if (base.options.content == "current") {
+                if (base.options.content == "current" || base.options.content == "lens") {
                   base.loadNode(d.node.slug, false);
                 }
               } else {
