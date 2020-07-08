@@ -773,7 +773,10 @@ window.scalarvis = { instanceCount: -1 };
       base.sortedNodes = [];
       base.nodesBySlug = {};
       base.svg = null;
-      base.selectedNodes = [base.currentNode];
+      base.selectedNodes = [];
+      if (base.currentNode) {
+        base.selectedNodes.push(base.currentNode);
+      }
       base.hasBeenDrawn = false;
       base.loadSequence = null;
       base.maxConnections = 0;
