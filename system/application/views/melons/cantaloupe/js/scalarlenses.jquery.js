@@ -1195,14 +1195,12 @@
 
     }
 
-
     ScalarLenses.prototype.validateDistance = function() {
       let passedValidation = true;
       $('#modalByDistance div.validation-error').remove();
-      $('#distanceQuantity, #latitude, #longitude, #distanceUnits').removeClass('validation-error');
-      let errorMessage;
-      let errorMessageTwo;
-      let errorMessageThree;
+      $('#modalByDistance .btn').removeClass('validation-error');
+      $('#modalByDistance input').removeClass('validation-error');
+      let errorMessage, msg;
       let distanceValue = $('#distanceQuantity').val();
       let distanceUnits = $('#distanceUnits').text();
       let latitude = $('#latitude').val();
@@ -1223,37 +1221,36 @@
       }
       if(isNaN(distanceValue)){
         passedValidation = false;
-        errorMessage = 'You must enter a number for distance.';
+        msg = 'You must enter a number for distance.';
+        errorMessage = errorMessage ? errorMessage + '<br>' + msg : msg;
         $('#distanceQuantity').addClass('validation-error');
       }
       if(distanceUnits == "Select unit..."){
         passedValidation = false;
-        errorMessageTwo = 'You must select a unit of distance.';
+        msg = 'You must select a unit of distance.';
+        errorMessage = errorMessage ? errorMessage + '<br>' + msg : msg;
         $('#distanceUnits').addClass('validation-error');
       }
       if(!latitude || !longitude){
         passedValidation = false;
-        errorMessageThree = 'You must enter a latitude and longitude.';
+        msg = 'You must enter a latitude and longitude.';
+        errorMessage = errorMessage ? errorMessage + '<br>' + msg : msg;
         $('#latitude, #longitude').addClass('validation-error');
       }
       if(isNaN(latitude) || isNaN(longitude)){
         passedValidation = false;
-        errorMessageThree = 'You must enter a number for latitude and longitude.';
+        msg = 'You must enter a number for latitude and longitude.';
+        errorMessage = errorMessage ? errorMessage + '<br>' + msg : msg;
         $('#latitude, #longitude').addClass('validation-error');
       }
       if(!isLatitude(latitude) || !isLongitude(longitude)){
         passedValidation = false;
-        errorMessageThree = 'You must enter valid coordinates for latitude and longitude.';
+        msg = 'You must enter valid coordinates for latitude and longitude.';
+        errorMessage = errorMessage ? errorMessage + '<br>' + msg : msg;
         $('#latitude, #longitude').addClass('validation-error');
       }
       if (errorMessage) {
         $('#modalByDistance .modal-body').append('<div class="validation-error">' + errorMessage + '</div>');
-      }
-      if (errorMessageTwo) {
-        $('#modalByDistance .modal-body').append('<div class="validation-error">' + errorMessageTwo + '</div>');
-      }
-      if (errorMessageThree) {
-        $('#modalByDistance .modal-body').append('<div class="validation-error">' + errorMessageThree + '</div>');
       }
       return passedValidation;
     }
@@ -1324,7 +1321,7 @@
     ScalarLenses.prototype.validateFilterData = function() {
       let passedValidation = true;
       $('#filterModal div.validation-error').remove();
-      $('#filterModal btn').removeClass('validation-error');
+      $('#filterModal .btn').removeClass('validation-error');
       $('#filterModal input').removeClass('validation-error');
       let subtype = $('.filter-modal-content').data('filterType');
       let errorMessage;
@@ -1411,13 +1408,9 @@
           }
           if (!metadataOntology) {
             $('#metadata-ontology-button').addClass('validation-error');
-          } else {
-            $('#metadata-ontology-button').removeClass('validation-error');
           }
           if (!metadataProperty) {
             $('#metadata-property-button').addClass('validation-error');
-          } else {
-            $('#metadata-property-button').removeClass('validation-error');
           }
         break;
 
@@ -2058,10 +2051,9 @@
       let onClick = function() { me.updateMetadataFilterForm(); }
 
       let resetProperty = function(evt){
-         $('#metadata-property-button').data('option').label = `Select property`
+         $('#metadata-property-button').data('option', null);
          me.updateMetadataFilterForm();
       }
-
 
       // operator dropdown
       this.populateDropdown($('#operator-button'), $('#operator-list'), filterObj.operator, onClick,
@@ -2078,8 +2070,6 @@
       this.populateDropdown($('#metadata-ontology-button'), $('#metadata-ontology-list'), filterObj["metadata-field"].split(':')[0], resetProperty,
         '<li><a></a></li>', this.createOntologyList()
       );
-
-
 
       return element;
     }
@@ -2122,7 +2112,6 @@
       }
       propertyButton.text(option.label).append('<span class="caret"></span>');
 
-
       // populate property dropdown when ontology is selected
       let ontologyOption = $('#metadata-ontology-button').data('option');
       let ontologyName;
@@ -2136,9 +2125,7 @@
         '<li><a></a></li>', this.createPropertyList(ontologyName)
       );
 
-
       this.updateFilterModalBadges(this.buildFilterData());
-
     }
 
     // add visitdate filter form
@@ -2286,9 +2273,9 @@
     ScalarLenses.prototype.validateSortData = function() {
       let passedValidation = true;
       $('#sortModal div.validation-error').remove();
-      $('#sortModal btn.validation-error').removeClass('validation-error');
+      $('#sortModal input').removeClass('validation-error');
+      $('#sortModal .btn').removeClass('validation-error');
       let errorMessage;
-      let errorMessageTwo;
 
       let latitude = $('#sortModal #latitude').val();
       let longitude = $('#sortModal #longitude').val();
@@ -2303,40 +2290,68 @@
       let subtype = $('.sort-modal-content').data('sortType');
 
       switch(subtype){
-        case 'distance':
-          if(latitude == "" || longitude == ""){
-             passedValidation = false;
-             errorMessage = 'You must enter a latitude and longitude.'
-             $('#longitude, #latitude').addClass('validation-error');
-           }
-           if(!isLatitude(latitude) || !isLongitude(longitude)){
-             passedValidation = false;
-             errorMessage = 'You must enter a valid coordinates for latitude and longitude.';
-             $('#longitude, #latitude').addClass('validation-error');
-           }
-        break;
-        case 'match-count':
-          let matchInput = $('#match-count-content').val();
-          let matchOntologyValue = $('#match-ontology-button').text();
-          let matchPropertyValue = $('#match-property-button').text();
 
-          if(matchInput.length < 1 || matchInput == ""){
-            passedValidation = false;
-            errorMessage = 'You must enter some text to match on.'
-            $('#match-count-content').addClass('validation-error');
+        case 'alphabetical':
+        let sortOntology = $('#sort-ontology-button').data('option').value;
+        let sortProperty = $('#sort-property-button').data('option').value;
+        if (!sortOntology || !sortProperty) {
+          passedValidation = false;
+          if (errorMessage) {
+            errorMessage += '<br>';
+          } else {
+            errorMessage = '';
           }
-          if(matchOntologyValue == "Select ontology..." || matchPropertyValue == "Select property..."){
-            passedValidation = false;
-            errorMessageTwo = 'You must select an ontology.'
-            $('#match-ontology-button, #match-property-button ').addClass('validation-error');
+          errorMessage += 'You must select a content type.';
+        }
+        if (!sortOntology) {
+          $('#sort-ontology-button').addClass('validation-error');
+        }
+        if (!sortProperty) {
+          $('#sort-property-button').addClass('validation-error');
+        }
+        break;
+
+        case 'distance':
+        if(latitude == "" || longitude == ""){
+           passedValidation = false;
+           errorMessage = 'You must enter a latitude and longitude.'
+           $('#longitude, #latitude').addClass('validation-error');
+         }
+         if(!isLatitude(latitude) || !isLongitude(longitude)){
+           passedValidation = false;
+           errorMessage = 'You must enter a valid coordinates for latitude and longitude.';
+           $('#longitude, #latitude').addClass('validation-error');
+         }
+        break;
+
+        case 'match-count':
+        let matchInput = $('#match-count-content').val();
+        let matchOntologyValue = $('#match-ontology-button').data('option').value;
+        let matchPropertyValue = $('#match-property-button').data('option').value;
+        if(matchInput.length < 1 || matchInput == ""){
+          passedValidation = false;
+          errorMessage = 'You must enter some text to match on.'
+          $('#match-count-content').addClass('validation-error');
+        }
+        if (!matchOntologyValue || !matchPropertyValue) {
+          passedValidation = false;
+          if (errorMessage) {
+            errorMessage += '<br>';
+          } else {
+            errorMessage = '';
           }
+          errorMessage += 'You must select a content type.';
+        }
+        if (!matchOntologyValue) {
+          $('#match-ontology-button').addClass('validation-error');
+        }
+        if (!matchPropertyValue) {
+          $('#match-property-button').addClass('validation-error');
+        }
         break;
       }
       if (errorMessage) {
         $('#sortModal .sort-modal-content').append('<div class="validation-error">' + errorMessage + '</div>');
-      }
-      if (errorMessageTwo) {
-        $('#sortModal .sort-modal-content').append('<div class="validation-error">' + errorMessageTwo + '</div>');
       }
       return passedValidation;
     }
@@ -2419,7 +2434,13 @@
     // update sort modal
     ScalarLenses.prototype.updateSortModal = function(type, sortObj){
 
-      if(!sortObj) sortObj = this.getDefaultSort(type);
+      let needsNewSort = false;
+      if (!sortObj) {
+        needsNewSort = true;
+      } else if (sortObj['sort-type'] != type) {
+        needsNewSort = true;
+      }
+      if (needsNewSort) sortObj = this.getDefaultSort(type);
       let modalContainer = $('.sort-modal-content');
       modalContainer.data('sortType', type);
 
@@ -2427,7 +2448,7 @@
 
         case 'alphabetical':
         this.addAlphabeticalSortForm(modalContainer, sortObj);
-        this.updateAlphabeticalSortForm();
+        this.updateAlphabeticalSortForm(sortObj);
         break;
 
         case 'creation-date':
@@ -2457,7 +2478,7 @@
 
         case 'match-count':
         this.addMatchCountSortForm(modalContainer, sortObj);
-        this.updateMatchCountSortForm();
+        this.updateMatchCountSortForm(sortObj);
         break;
 
         case 'visit-date':
@@ -2475,7 +2496,8 @@
         case 'alphabetical':
           sortObj = {
           	"type": "sort",
-            "subtype": "alphabetical"
+            "subtype": "alphabetical",
+            "metadata-field": ":"
           }
         break;
         case 'creation-date':
@@ -2511,7 +2533,8 @@
         case 'match-count':
           sortObj = {
             "type":"filter",
-            "subtype":"match-count"
+            "subtype":"match-count",
+            "metadata-field": ":"
           }
         break;
         case 'visit-date':
@@ -2562,18 +2585,13 @@
       let onClick = function() { me.updateAlphabeticalSortForm(); };
 
       let resetProperty = function(){
-        let propertyButton = $('#sort-property-button').data('option');
-        if(propertyButton){
-          propertyButton.label = `Select property`;
-
-        }
+        $('#sort-property-button').data('option', null);
         me.updateAlphabeticalSortForm();
       }
 
-      this.populateDropdown($('#sort-ontology-button'), $('#sort-ontology-list'), sortObj["metadata-field"], resetProperty,
+      this.populateDropdown($('#sort-ontology-button'), $('#sort-ontology-list'), sortObj['metadata-field'].split(':')[0], resetProperty,
         '<li><a></a></li>', this.createOntologyList()
         );
-
 
       this.populateDropdown($('#sort-alph-button'), $('#sort-order-list'), sortObj['sort-order'], onClick,
         '<li><a></a></li>',
@@ -2583,27 +2601,41 @@
         ]);
 
       return element;
-
     }
 
-    ScalarLenses.prototype.updateAlphabeticalSortForm = function() {
+    ScalarLenses.prototype.updateAlphabeticalSortForm = function(sortObj) {
       let option;
 
       // update ontology button
       let ontologyButton = $('#sort-ontology-button');
       option = ontologyButton.data('option');
       if (!option) { // if nothing selected yet, pull the option from the first item
-        option = {label: 'Select ontology...', value: null};
+        option = {label: 'Select ontology', value: null};
+        ontologyButton.data('option', option);
       }
       ontologyButton.text(option.label).append('<span class="caret"></span>');
 
       // update property button
       let propertyButton = $('#sort-property-button');
-      let propertyButtonOption = propertyButton.data('option');
-      if (!propertyButtonOption) { // if nothing selected yet, create a placeholder option
-        propertyButtonOption = {label: 'Select property...', value: null};
+      if (sortObj) {
+        let propertyName = sortObj['metadata-field'].split(':')[1];
+        if (propertyName != '') {
+          propertyButton.data('option', {label:propertyName, value:propertyName});
+        }
       }
-      propertyButton.text(propertyButtonOption.label).append('<span class="caret"></span>');
+      option = propertyButton.data('option');
+      if (!option) { // if nothing selected yet, create a placeholder option
+        option = {label: 'Select property', value: null};
+        propertyButton.data('option', option);
+      }
+      propertyButton.text(option.label).append('<span class="caret"></span>');
+
+      // populate property dropdown when ontology is selected
+      let ontologyOption = $('#sort-ontology-button').data('option');
+      let ontologyName;
+      if (ontologyOption) {
+        ontologyName = ontologyOption.value;
+      }
 
       // update sort order button
       let sortOrderButton = $('#sort-alph-button');
@@ -2613,14 +2645,6 @@
         sortOrderButton.data('option', option);
       }
       sortOrderButton.text(option.label).append('<span class="caret"></span>');
-
-      // populate property dropdown when ontology is selected
-      let getButtonData = $('#sort-ontology-button').data('option');
-      let ontologyName;
-      if(getButtonData){
-        ontologyName = getButtonData.value;
-      }
-
 
       let me = this;
       let onClick = function() {me.updateAlphabeticalSortForm(); };
@@ -2870,17 +2894,13 @@
       let onClick = function() { me.updateMatchCountSortForm(); };
 
       let resetProperty = function(){
-        let propertyButton = $('#match-property-button').data('option');
-        if(propertyButton){
-          propertyButton.label = `Select property`;
-
-        }
+        $('#match-property-button').data('option', null);
         me.updateMatchCountSortForm();
       }
 
       $('#match-count-content').val(sortObj.content);
 
-      this.populateDropdown($('#match-ontology-button'), $('#match-ontology-list'), sortObj["metadata-field"], resetProperty,
+      this.populateDropdown($('#match-ontology-button'), $('#match-ontology-list'), sortObj["metadata-field"].split(':')[0], resetProperty,
         '<li><a></a></li>', this.createOntologyList()
       );
 
@@ -2895,26 +2915,40 @@
 
     }
 
-    ScalarLenses.prototype.updateMatchCountSortForm = function() {
+    ScalarLenses.prototype.updateMatchCountSortForm = function(sortObj) {
 
       let option;
 
       // update ontology button
-      let buttonOne = $('#match-ontology-button');
-      option = buttonOne.data('option');
+      let ontologyButton = $('#match-ontology-button');
+      option = ontologyButton.data('option');
       if (!option) { // if nothing selected yet, pull the option from the first item
-        option = {label: 'Select ontology...', value: null};
+        option = {label: 'Select ontology', value: null};
+        ontologyButton.data('option', option);
       }
-      buttonOne.text(option.label).append('<span class="caret"></span>');
-
+      ontologyButton.text(option.label).append('<span class="caret"></span>');
 
       // update property button
       let propertyButton = $('#match-property-button');
-      propertyButtonOption = propertyButton.data('option');
-      if (!propertyButtonOption) { // if nothing selected yet, create a placeholder option
-        propertyButtonOption = {label: 'Select property...', value: null};
+      if (sortObj) {
+        let propertyName = sortObj['metadata-field'].split(':')[1];
+        if (propertyName != '') {
+          propertyButton.data('option', {label:propertyName, value:propertyName});
+        }
       }
-      propertyButton.text(propertyButtonOption.label).append('<span class="caret"></span>');
+      option = propertyButton.data('option');
+      if (!option) { // if nothing selected yet, create a placeholder option
+        option = {label: 'Select property', value: null};
+        propertyButton.data('option', option);
+      }
+      propertyButton.text(option.label).append('<span class="caret"></span>');
+
+      // populate property dropdown when ontology is selected
+      let getButtonData = $('#match-ontology-button').data('option');
+      let ontologyName;
+      if(getButtonData){
+        ontologyName = getButtonData.value;
+      }
 
       // update sort order
       let sortOrderButton = $('#sort-match-button');
@@ -2924,14 +2958,6 @@
         sortOrderButton.data('option', option);
       }
       sortOrderButton.text(option.label).append('<span class="caret"></span>');
-
-
-      // populate property dropdown when ontology is selected
-      let getButtonData = $('#match-ontology-button').data('option');
-      let ontologyName;
-      if(getButtonData){
-        ontologyName = getButtonData.value;
-      }
 
       let me = this;
       let onClick = function() { me.updateMatchCountSortForm(); };
