@@ -3741,7 +3741,7 @@ window.scalarvis = { instanceCount: -1 };
       }
 
       getHelpContent() {
-        return "Some info about this visualization"; // see other vis classes for examples
+        return "The map will display any chosen content that contains geospatial metadata (e.g., dcterms:spatial). In the event that pages are part of a path, route lines will be drawn between each page."; // see other vis classes for examples
       }
 
       // one-time visualization setup
