@@ -3248,8 +3248,10 @@ ScalarNode.prototype.getDisplayTitle = function( removeMarkup ) {
 
 }
 
-ScalarNode.prototype.getDescription = function() {
+ScalarNode.prototype.getDescription = function(inNewPage) {
 
+	if ('undefined' == typeof(inNewPage)) inNewPage = false;
+	
 	// add the node description if available
 	var description = "";
 	if ( this.current.description != null ) {
@@ -3257,7 +3259,7 @@ ScalarNode.prototype.getDescription = function() {
 
 		// if the node has page content as well, show a "more" link
 		if ( this.current.content != null ) {
-			description += ' &nbsp;<a href="' + this.url + '">More &raquo;</a>';
+			description += ' &nbsp;<a href="' + this.url + '" '+((inNewPage)?'target="_blank"':'')+'>More &raquo;</a>';
 		}
 
 	// add the node page content if available

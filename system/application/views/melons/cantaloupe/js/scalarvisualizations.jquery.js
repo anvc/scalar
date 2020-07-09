@@ -3702,9 +3702,9 @@ window.scalarvis = { instanceCount: -1 };
     		for (var k = 0; k < base.sortedNodes[j].outgoingRelations.length; k++) {
     			if (null == base.sortedNodes[j].outgoingRelations[k].index) continue;  // Not part of the path
     			if (-1 == urls.indexOf(base.sortedNodes[j].outgoingRelations[k].target.url)) urls.push(base.sortedNodes[j].outgoingRelations[k].target.url);
-    			var title = '<p style="margin-bottom:8px;">'+pathTitle + '<br />' + base.sortedNodes[j].outgoingRelations[k].startString + '<br /><b><a href="'+base.sortedNodes[j].outgoingRelations[k].target.url+'">'+base.sortedNodes[j].outgoingRelations[k].target.getDisplayTitle()+'</a></b></p>';
+    			var title = '<p style="margin-bottom:8px;">'+base.sortedNodes[j].outgoingRelations[k].startString+' of the "'+pathTitle+'" path<br /><b><a href="'+base.sortedNodes[j].outgoingRelations[k].target.url+'">'+base.sortedNodes[j].outgoingRelations[k].target.getDisplayTitle()+'</a></b></p>';
     			var thumbnail = base.sortedNodes[j].outgoingRelations[k].target.thumbnail;
-    			var description = base.sortedNodes[j].outgoingRelations[k].target.getDescription();
+    			var description = base.sortedNodes[j].outgoingRelations[k].target.getDescription(true);
     			if (null != thumbnail) title += '<img src="'+thumbnail+'" align="left" style="max-width:100px;max-height:100px;margin-right:12px;" />';
     			if (description && description.length) title += '<p style="margin-bottom:8px;">'+description+'</p>';
     			var icon = this.getIcon(base.sortedNodes[j].outgoingRelations[k].target.scalarTypes);
@@ -3729,7 +3729,7 @@ window.scalarvis = { instanceCount: -1 };
     		if (-1 != urls.indexOf(base.sortedNodes[j].url)) continue;
     		var title = '<p style="margin-bottom:8px;"><b><a href="'+base.sortedNodes[j].url+'">'+base.sortedNodes[j].getDisplayTitle()+'</a></b></p>';
 			var thumbnail = base.sortedNodes[j].thumbnail;
-			var description = base.sortedNodes[j].getDescription();
+			var description = base.sortedNodes[j].getDescription(true);
 			if (null != thumbnail) title += '<img src="'+thumbnail+'" align="left" style="max-width:100px;max-height:100px;margin-right:12px;" />';
 			if (description && description.length) title += '<p style="margin-bottom:8px;">'+description+'</p>';
         	var icon = this.getIcon(base.sortedNodes[j].scalarTypes);
@@ -3737,6 +3737,7 @@ window.scalarvis = { instanceCount: -1 };
     	    if (coords) bounds.extend( new google.maps.LatLng(coords.lat, coords.lng) );
     	}
     	this.map.fitBounds(bounds);
+    	if (!this.markers.length) this.displayNoContentWarning();
       }
 
       getHelpContent() {
@@ -3771,6 +3772,16 @@ window.scalarvis = { instanceCount: -1 };
     		  keepSpiderfied: true
     		});
     	this.draw();
+      }
+      
+      displayNoContentWarning() {
+    	  
+    	  var $el = $('<div class="no-content-warning" style="position:absolute; z-index:999; top:0px; left:0px; right:0px; bottom:0px; text-align:center; color:#000000;"></div>').appendTo(base.visualization);
+    	  var $inner = $('<div style="background-color:rgba(255, 255, 255, 0.5); margin-top:100px; padding:30px 0px 30px 0px;">There is no geospatial metadata associated with the selected items.<br /><br /><button type="button" class="btn btn-primary btn-sm">Dismiss</button></div>').appendTo($el);
+    	  $inner.find('button').on('click', function() {
+    		  $(this).parent().remove();
+    	  });
+    	  
       }
 
       clearMarkers() {
