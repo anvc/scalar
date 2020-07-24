@@ -1356,7 +1356,7 @@ window.scalarvis = { instanceCount: -1 };
 
       }
 
-      console.log( 'related nodes: ' + base.relatedNodes.length );
+      console.log( 'related nodes', base.relatedNodes );
 
       newSortedNodes = base.arrayUnique(base.contentNodes.concat(base.relatedNodes));
       oldNodes = base.sortedNodes.concat();
