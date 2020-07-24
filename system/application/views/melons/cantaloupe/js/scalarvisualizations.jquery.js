@@ -1472,6 +1472,7 @@ window.scalarvis = { instanceCount: -1 };
       if (node[base.instanceId] == null) {
         node[base.instanceId] = {};
       }
+      console.log('process',node);
       node.type = node.getDominantScalarType(base.options.content);
       if (node.parentsOfMaximizedInstances == null) {
         node.parentsOfMaximizedInstances = [];
