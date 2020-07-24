@@ -1356,7 +1356,7 @@ window.scalarvis = { instanceCount: -1 };
 
       }
 
-      console.log( 'related nodes', base.relatedNodes );
+      //console.log( 'related nodes', base.relatedNodes );
 
       newSortedNodes = base.arrayUnique(base.contentNodes.concat(base.relatedNodes));
       oldNodes = base.sortedNodes.concat();
@@ -1472,7 +1472,6 @@ window.scalarvis = { instanceCount: -1 };
       if (node[base.instanceId] == null) {
         node[base.instanceId] = {};
       }
-      console.log('process',node);
       node.type = node.getDominantScalarType(base.options.content);
       if (node.parentsOfMaximizedInstances == null) {
         node.parentsOfMaximizedInstances = [];
@@ -2205,9 +2204,19 @@ window.scalarvis = { instanceCount: -1 };
              var pathContents;
              for (i = 0; i < n; i++) {
                node = typedNodes[i];
-               pathContents = node.getRelatedNodes('path', 'outgoing');
-               pathContents.unshift(node);
-               allPathContents.push(pathContents);
+               let okToInclude = true;
+               if (base.options.content == "lens") {
+                 if (!base.options.lens.items) {
+                   okToInclude = false;
+                 } else if (!base.options.lens.items[node.url]) {
+                   okToInclude = false;
+                 }
+               }
+               if (okToInclude) {
+                 pathContents = node.getRelatedNodes('path', 'outgoing');
+                 pathContents.unshift(node);
+                 allPathContents.push(pathContents);
+               }
              }
 
              var pathGroups = this.gridPathLayer.selectAll('g.pathGroup')
@@ -2239,7 +2248,6 @@ window.scalarvis = { instanceCount: -1 };
                })
                .attr('class', 'pathDot')
                .attr('cx', (d) => {
-                 console.log(d,base.instanceId);
                  return d[base.instanceId].x + (this.boxSize * .5);
                })
                .attr('cy', (d) => {
