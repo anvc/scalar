@@ -1356,7 +1356,7 @@ window.scalarvis = { instanceCount: -1 };
 
       }
 
-      //console.log( 'related nodes: ' + base.relatedNodes.length );
+      console.log( 'related nodes: ' + base.relatedNodes.length );
 
       newSortedNodes = base.arrayUnique(base.contentNodes.concat(base.relatedNodes));
       oldNodes = base.sortedNodes.concat();
@@ -1364,7 +1364,6 @@ window.scalarvis = { instanceCount: -1 };
       n = newSortedNodes.length;
       for (i = (n - 1); i >= 0; i--) {
         node = newSortedNodes[i];
-        console.log('b');
         base.processNode(node);
         index = base.sortedNodes.indexOf(node);
 
@@ -1795,7 +1794,6 @@ window.scalarvis = { instanceCount: -1 };
             o = nodes.length;
             for (j = 0; j < o; j++) {
               destNode = nodes[j];
-              console.log('a');
               base.processNode(destNode);
               destData = {
                 title: destNode.title,
