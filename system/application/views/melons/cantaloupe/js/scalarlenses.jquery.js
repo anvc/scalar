@@ -1593,6 +1593,8 @@
       tempLensObj.components[0].modifiers.push(filterObj);
       let postFilterLensObj = JSON.parse(JSON.stringify(tempLensObj));
 
+      console.log(preFilterLensObj,postFilterLensObj);
+
       // get the results from both and post
       let leftBadge = $('#filterModal .left-badge .counter');
       this.updateBadge(leftBadge, -1, 'dark');
@@ -1773,20 +1775,18 @@
         contentTypeButton.data('option', option);
       }
 
-
       let contentTypeList = $('#content-type-list li.active');
-        if(contentTypeList.length > 1){
-          contentTypeButton.text('(Multiple selections)').append('<span class="caret"></span>');
-        } else if(contentTypeList.length == 0){
-          contentTypeButton.text('Select type(s)').append('<span class="caret"></span>');
-        } else {
-          $('#content-type-list li').each(function(){
-            if($(this).data('option').value == option.value[0]) {
-              contentTypeButton.text($(this).data('option').label).append('<span class="caret"></span>');
-            }
-          })
-        }
-
+      if(contentTypeList.length > 1){
+        contentTypeButton.text('(Multiple selections)').append('<span class="caret"></span>');
+      } else if(contentTypeList.length == 0){
+        contentTypeButton.text('Select type(s)').append('<span class="caret"></span>');
+      } else {
+        $('#content-type-list li').each(function(){
+          if($(this).data('option').value == option.value[0]) {
+            contentTypeButton.text($(this).data('option').label).append('<span class="caret"></span>');
+          }
+        })
+      }
 
       this.updateFilterModalBadges(this.buildFilterData());
     }
@@ -3107,10 +3107,12 @@
         {label: "Freeze", value: 'freeze'},
         {label: "Create path from lens", value: 'create-path'},
         {label: "Create tag from lens", value: 'create-tag'},
-        {label: "Duplicate Lens", value: "duplicate-lens"},
-        {label: "Export to CSV", value: "export-lens"},
-        {label: "Delete Lens", value: "delete-lens"}
+        {label: "Duplicate lens", value: "duplicate-lens"},
+        {label: "Export to CSV", value: "export-lens"}
       )
+      if (header.okToDelete) {
+        menuOptions.push({label: "Delete lens", value: "delete-lens"});
+      }
 
       switch(userLevel){
         case 'scalar:Author':
@@ -3194,6 +3196,7 @@
             // modal
           break;
           case 'delete-lens':
+          me.deleteLens();
           break;
 
         }
@@ -3205,6 +3208,34 @@
 
       this.populateDropdown($(this.element).find('.option-menu-button'), $(this.element).find('.option-menu-list'), null, onClick,
         '<li><a></a></li>', menuOptions);
+    }
+
+    ScalarLenses.prototype.deleteLens = function() {
+      var result = confirm('Are you sure you wish to hide this lens from view?');
+      if (result) {
+          // assemble params for the trash action
+          var pageData = {
+                  native:1,
+                  id:$('link#parent').attr('href'),
+                  api_key:'',
+                  action: 'DELETE',
+                  'scalar:urn': $('link#urn').attr('href')
+              };
+          // execute the trash action (i.e. make is_live=0)
+          scalarapi.savePage(pageData, function(result) {
+              for (var url in result) break;
+              url = url.substr(0, url.lastIndexOf('.'));
+              window.location.href=url;
+              return;
+          }, function(result) {
+              alert('An error occurred attempting to hide this lens: '+result);
+              var login = $('link#approot').attr('href').replace('application','login');
+              if ('/'==login.substr(login.length-1,1)) login = login.substr(0,login.length-1);
+              var url = $('link#parent').attr('href');
+              window.location.href=login+'?redirect_url='+encodeURIComponent(url);
+              return;
+          });
+      }
     }
 
     // ok modal
@@ -3334,7 +3365,7 @@
       this.updateBadge(this.primaryBadge, -1, 'light');
       lensObject.book_urn = 'urn:scalar:book:' + $('link#book_id').attr('href');
       let url = $('link#approot').attr('href').replace('application/','') + 'lenses';
-      console.log(JSON.stringify(lensObject, null, 2));
+      //console.log(JSON.stringify(lensObject, null, 2));
       if (this.lensRequest) this.lensRequest.abort();
       this.lensRequest = $.ajax({
         url: url,

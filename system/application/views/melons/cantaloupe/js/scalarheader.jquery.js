@@ -1846,9 +1846,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
     };
 
     $.fn.scalarheader = function(options){
-        return this.each(function(){
-            (new $.scalarheader(this, options));
-        });
+        return new $.scalarheader(this, options);
     };
 
 })(jQuery);
