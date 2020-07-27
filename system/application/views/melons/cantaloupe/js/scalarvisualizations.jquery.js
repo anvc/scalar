@@ -3452,6 +3452,8 @@ window.scalarvis = { instanceCount: -1 };
 
           var nodeEnter = this.nodeSelection.enter().append('svg:g')
             .attr('class', 'node')
+            .attr('x', (d) => { d.x = this.size.width * .5; return d.x; })
+            .attr('y', (d) => { d.y = this.size.height * .5; return d.y; })
             .call(this.dragHandling(base.force))
             .on('touchstart', function(d) { d3.event.stopPropagation(); })
             .on('mousedown', function(d) { d3.event.stopPropagation(); })
@@ -3555,11 +3557,13 @@ window.scalarvis = { instanceCount: -1 };
         // once we upgrade to D3 4.0, we should implement custom x and y accessors
         // so multiple instances don't try to change each other's positions
 
-        this.forceLink = d3.forceLink().distance(120);
+        this.forceLink = d3.forceLink().distance(100);
 
         base.force = d3.forceSimulation()
           .force('link', this.forceLink)
-          .force('charge', d3.forceManyBody())
+          .alphaDecay(.01)
+          .force('collide', d3.forceCollide(30))
+          .force('charge', d3.forceManyBody().strength(-40))
           .force('center', d3.forceCenter(this.size.width * .5, this.size.height * .5))
           .on('tick', () => {
             if (base.svg != null) {
