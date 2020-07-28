@@ -3143,13 +3143,16 @@
         let lensButtons = $(me.element).find('.lens-tags .btn');
 
         switch(option.value){
+
           case 'make-public':
             me.scalarLensObject.public = true;
             $(menuOptions).find('li').text()
           break;
+
           case 'make-private':
             me.scalarLensObject.public = false;
           break;
+
           case 'freeze':
             me.scalarLensObject.frozen = true;
             $('.snowflake').show()
@@ -3171,6 +3174,7 @@
               }
             }
           break;
+
           case 'unfreeze':
             me.scalarLensObject.frozen = false;
             $('.snowflake').hide()
@@ -3179,22 +3183,27 @@
             }
             me.scalarLensObject["frozen-items"] = [];
           break;
+
           case 'submit-lens':
             // modal
-
           break;
+
           case 'create-path':
             me.showModal('Are you sure you want to create a path?', function(){console.log()});
           break;
+
           case 'create-tag':
             me.showModal('Are you sure you want to create a tag?', function(){console.log()});
           break;
+
           case 'duplicate-lens':
             me.showModal('Are you sure you want to duplicate this lens?', function(){console.log()});
           break;
+
           case 'export-lens':
-            // modal
+          me.exportCSV();
           break;
+
           case 'delete-lens':
           me.deleteLens();
           break;
@@ -3208,34 +3217,6 @@
 
       this.populateDropdown($(this.element).find('.option-menu-button'), $(this.element).find('.option-menu-list'), null, onClick,
         '<li><a></a></li>', menuOptions);
-    }
-
-    ScalarLenses.prototype.deleteLens = function() {
-      var result = confirm('Are you sure you wish to hide this lens from view?');
-      if (result) {
-          // assemble params for the trash action
-          var pageData = {
-                  native:1,
-                  id:$('link#parent').attr('href'),
-                  api_key:'',
-                  action: 'DELETE',
-                  'scalar:urn': $('link#urn').attr('href')
-              };
-          // execute the trash action (i.e. make is_live=0)
-          scalarapi.savePage(pageData, function(result) {
-              for (var url in result) break;
-              url = url.substr(0, url.lastIndexOf('.'));
-              window.location.href=url;
-              return;
-          }, function(result) {
-              alert('An error occurred attempting to hide this lens: '+result);
-              var login = $('link#approot').attr('href').replace('application','login');
-              if ('/'==login.substr(login.length-1,1)) login = login.substr(0,login.length-1);
-              var url = $('link#parent').attr('href');
-              window.location.href=login+'?redirect_url='+encodeURIComponent(url);
-              return;
-          });
-      }
     }
 
     // ok modal
@@ -3328,7 +3309,74 @@
       return element;
     }
 
+    ScalarLenses.prototype.exportCSV = function() {
+      let data = [];
+      for (var url in this.lastResults.items) {
+        if (scalarapi.model.nodesByURL[url] != null) {
+          let node = scalarapi.model.nodesByURL[url];
+          let datum = {};
+          scalarapi.model.versionPropertyMap.forEach(propData => {
+            if (node.current.properties[propData.uri]) {
+              for (let i in node.current.properties[propData.uri]) {
+                let value = node.current.properties[propData.uri][i];
+                let propName = propData.property;
+                if (!datum[propName]) {
+                  datum[propName] = [];
+                }
+                datum[propName].push(value.value);
+              }
+            }
+          })
+          scalarapi.model.versionPropertyMap.forEach(propData => {
+            if (node.current.auxProperties[propData.uri]) {
+              for (let i in node.current.auxProperties[propData.uri]) {
+                let value = node.current.auxProperties[propData.uri][i];
+                let propName = propData.property;
+                if (!datum[propName]) {
+                  datum[propName] = [];
+                }
+                datum[propName].push(value.value);
+              }
+            }
+          })
+          data.push(datum);
+        }
+      }
+      let csv = Papa.unparse(data);
+      var hiddenElement = document.createElement('a');
+      hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);
+      hiddenElement.target = '_blank';
+      hiddenElement.download = 'people.csv';
+      hiddenElement.click();
+    }
 
+    ScalarLenses.prototype.deleteLens = function() {
+      var result = confirm('Are you sure you wish to hide this lens from view?');
+      if (result) {
+          // assemble params for the trash action
+          var pageData = {
+                  native:1,
+                  id:$('link#parent').attr('href'),
+                  api_key:'',
+                  action: 'DELETE',
+                  'scalar:urn': $('link#urn').attr('href')
+              };
+          // execute the trash action (i.e. make is_live=0)
+          scalarapi.savePage(pageData, function(result) {
+              for (var url in result) break;
+              url = url.substr(0, url.lastIndexOf('.'));
+              window.location.href=url;
+              return;
+          }, function(result) {
+              alert('An error occurred attempting to hide this lens: '+result);
+              var login = $('link#approot').attr('href').replace('application','login');
+              if ('/'==login.substr(login.length-1,1)) login = login.substr(0,login.length-1);
+              var url = $('link#parent').attr('href');
+              window.location.href=login+'?redirect_url='+encodeURIComponent(url);
+              return;
+          });
+      }
+    }
 
     // author can review submitted lenses, make them public or not
     ScalarLenses.prototype.reviewSubmittedLenses = function(){

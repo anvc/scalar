@@ -1726,6 +1726,7 @@
                      href: views_uri+"/widgets/edit/content_selector.css"
                   }).appendTo("head"),
                   $.getScript(views_uri+'/widgets/edit/jquery.content_selector_bootstrap.js'),
+                  $.getScript(views_uri+'/melons/cantaloupe/js/papaparse.min.js'),
                   $.Deferred((deferred) => {
                     $(deferred.resolve);
                   })
