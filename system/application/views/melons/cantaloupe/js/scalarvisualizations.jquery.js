@@ -3722,10 +3722,12 @@ window.scalarvis = { instanceCount: -1 };
     			if (null != thumbnail) title += '<img src="'+thumbnail+'" align="left" style="max-width:100px;max-height:100px;margin-right:12px;" />';
     			if (description && description.length) title += '<p style="margin-bottom:8px;">'+description+'</p>';
     			var icon = this.getIcon(base.sortedNodes[j].outgoingRelations[k].target.scalarTypes);
-    			var coords = this.drawMarker(base.sortedNodes[j].outgoingRelations[k].target, title, icon);
-    	        if (coords) {
-    	        	pathCoordinates.push(coords);
-    	        	bounds.extend( new google.maps.LatLng(coords.lat, coords.lng) );
+    			var coords = this.drawMarkers(base.sortedNodes[j].outgoingRelations[k].target, title, icon);
+    	        if (coords.length) {
+    	        	for (var m = 0; m < coords.length; m++) {
+    	        		pathCoordinates.push(coords[m]);
+    	        		bounds.extend( new google.maps.LatLng(coords[m].lat, coords[m].lng) );
+    	        	};
     	        }
     		}
     		var path_key = this.paths.length;
@@ -3747,8 +3749,12 @@ window.scalarvis = { instanceCount: -1 };
 			if (null != thumbnail) title += '<img src="'+thumbnail+'" align="left" style="max-width:100px;max-height:100px;margin-right:12px;" />';
 			if (description && description.length) title += '<p style="margin-bottom:8px;">'+description+'</p>';
         	var icon = this.getIcon(base.sortedNodes[j].scalarTypes);
-    		var coords = this.drawMarker(base.sortedNodes[j], title, icon);
-    	    if (coords) bounds.extend( new google.maps.LatLng(coords.lat, coords.lng) );
+    		var coords = this.drawMarkers(base.sortedNodes[j], title, icon);
+    	    if (coords.length) {
+	        	for (var m = 0; m < coords.length; m++) {
+	        		bounds.extend( new google.maps.LatLng(coords[m].lat, coords[m].lng) );
+	        	};
+    	    }
     	}
     	this.map.fitBounds(bounds);
     	if (!this.markers.length) this.displayNoContentWarning();
@@ -3806,49 +3812,67 @@ window.scalarvis = { instanceCount: -1 };
     	this.infowindows = {};
       }
 
-      drawMarker(obj, title, icon) {
+      drawMarkers(obj, title, icon) {
     	  	var coords = this.getCoords(obj);
-			if (!coords) return false;
-			// Marker
-			var key = this.markers.length;
-			this.markers[key] = new google.maps.Marker({
-	    		position: coords,
-	    		/* map: this.map, */
-	    		title: title,
-	    		icon: {
-	    			url: icon
-	    		}
-	    	});
-			this.oms.addMarker(this.markers[key]);
-			// Infowindow
-	        this.infowindows[key] = new google.maps.InfoWindow({
-	            content: title,
-	            maxWidth: 300
-	        });
-	        $(this.markers[key]).data('infowindow', this.infowindows[key]).data('map', this.map);
-	        this.markers[key].addListener('spider_click', function(evt) {
-	        	var infowindow = $(this).data('infowindow');
-	        	var map = $(this).data('map');
-	        	infowindow.open(map, this);
-	        });
+			if (!coords.length) return false;
+			for (var j = 0; j < coords.length; j++) {
+				var coord = coords[j];
+				// Marker
+				var key = this.markers.length;
+				this.markers[key] = new google.maps.Marker({
+		    		position: coord,
+		    		/* map: this.map, */
+		    		title: title,
+		    		icon: {
+		    			url: icon
+		    		}
+		    	});
+				this.oms.addMarker(this.markers[key]);
+				// Infowindow
+		        this.infowindows[key] = new google.maps.InfoWindow({
+		            content: title,
+		            maxWidth: 300
+		        });
+		        $(this.markers[key]).data('infowindow', this.infowindows[key]).data('map', this.map);
+		        this.markers[key].addListener('spider_click', function(evt) {
+		        	var infowindow = $(this).data('infowindow');
+		        	var map = $(this).data('map');
+		        	infowindow.open(map, this);
+		        });
+			};
 	        return coords;
       }
 
       getCoords(obj) {
-    	  var spatial = ('undefined' != typeof(obj.current.auxProperties["dcterms:spatial"])) ? obj.current.auxProperties["dcterms:spatial"][0] : null;
-    	  var coverage = ('undefined' != typeof(obj.current.auxProperties["dcterms:coverage"])) ? obj.current.auxProperties["dcterms:coverage"][0] : null;
-    	  var latlng = '';
-    	  if (/-?[0-9]{1,3}[.][0-9]+/.test(spatial)) {
-    		 latlng = spatial;
-    	  } else if (/-?[0-9]{1,3}[.][0-9]+/.test(coverage)) {
-    		 latlng = coverage;
+    	  var coords = [];
+    	  if (('undefined' != typeof(obj.current.auxProperties["dcterms:spatial"]))) {
+    		  for (var j = 0; j < obj.current.auxProperties["dcterms:spatial"].length; j++) {
+    			  var spatial = obj.current.auxProperties["dcterms:spatial"][j];
+    	    	  var latlng = '';
+    	    	  if (/-?[0-9]{1,3}[.][0-9]+/.test(spatial)) latlng = spatial;
+    	    	  if (!latlng.length) continue;
+    	    	  var arr = latlng.split(',');
+    	    	  if ('undefined' == typeof(arr[1])) continue;
+    	    	  var row = {};
+    	    	  row.lat = parseFloat(arr[0].trim());
+    	    	  row.lng = parseFloat(arr[1].trim());
+    	    	  coords.push(row);
+    		  }
     	  }
-    	  if (!latlng.length) return false;
-    	  var arr = latlng.split(',');
-    	  if ('undefined' == typeof(arr[1])) return false;
-    	  var coords = {};
-    	  coords.lat = parseFloat(arr[0].trim());
-    	  coords.lng = parseFloat(arr[1].trim());
+    	  if (('undefined' != typeof(obj.current.auxProperties["dcterms:coverage"]))) {
+    		  for (var j = 0; j < obj.current.auxProperties["dcterms:coverage"].length; j++) {
+    			  var coverage = obj.current.auxProperties["dcterms:coverage"][j];
+    	    	  var latlng = '';
+    	    	  if (/-?[0-9]{1,3}[.][0-9]+/.test(coverage)) latlng = coverage;
+    	    	  if (!latlng.length) continue;
+    	    	  var arr = latlng.split(',');
+    	    	  if ('undefined' == typeof(arr[1])) continue;
+    	    	  var row = {};
+    	    	  row.lat = parseFloat(arr[0].trim());
+    	    	  row.lng = parseFloat(arr[1].trim());
+    	    	  coords.push(row);
+    		  }
+    	  }
     	  return coords;
       }
 
