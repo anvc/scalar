@@ -18,6 +18,8 @@
     // Init
     ScalarLenses.prototype.init = function (){
 
+      this.papaParseIsLoaded = false;
+
       this.visualizationOptions = {
         'force-directed': {
           id: 1,
@@ -3110,6 +3112,7 @@
         {label: "Duplicate lens", value: "duplicate-lens"},
         {label: "Export to CSV", value: "export-lens"}
       )
+      
       if (header.okToDelete) {
         menuOptions.push({label: "Delete lens", value: "delete-lens"});
       }
@@ -3310,53 +3313,60 @@
     }
 
     ScalarLenses.prototype.exportCSV = function() {
-      let data = [];
-      let defaultProps = ['title', 'slug', 'description', 'content', 'created', 'author', 'baseType', 'url', 'urn'];
-      let keys = defaultProps.concat();
-      for (var url in this.lastResults.items) {
-        if (scalarapi.model.nodesByURL[url] != null) {
-          let node = scalarapi.model.nodesByURL[url];
-          let datum = {
-            title: node.title,
-            slug: node.slug,
-            description: node.current.description,
-            content: node.current.content,
-            created: node.current.created,
-            author: node.current.author,
-            baseType: node.baseType,
-            url: node.url,
-            urn: node.current.urn
-          };
-          scalarapi.model.versionPropertyMap.forEach(propData => {
-            if (node.current.properties[propData.uri]) {
-              for (let i in node.current.properties[propData.uri]) {
-                let value = node.current.properties[propData.uri][i];
-                let propName = propData.property;
-                if (defaultProps.indexOf(propName) == -1) {
-                  if (!datum[propName]) {
-                    datum[propName] = [];
-                    if (keys.indexOf(propName) == -1) keys.push(propName);
+      if (!this.papaParseIsLoaded) {
+        $.getScript(views_uri+'/melons/cantaloupe/js/papaparse.min.js', () => {
+          this.papaParseIsLoaded = true;
+          this.exportCSV();
+        });
+      } else {
+        let data = [];
+        let defaultProps = ['title', 'slug', 'description', 'content', 'created', 'author', 'baseType', 'url', 'urn'];
+        let keys = defaultProps.concat();
+        for (var url in this.lastResults.items) {
+          if (scalarapi.model.nodesByURL[url] != null) {
+            let node = scalarapi.model.nodesByURL[url];
+            let datum = {
+              title: node.title,
+              slug: node.slug,
+              description: node.current.description,
+              content: node.current.content,
+              created: node.current.created,
+              author: node.current.author,
+              baseType: node.baseType,
+              url: node.url,
+              urn: node.current.urn
+            };
+            scalarapi.model.versionPropertyMap.forEach(propData => {
+              if (node.current.properties[propData.uri]) {
+                for (let i in node.current.properties[propData.uri]) {
+                  let value = node.current.properties[propData.uri][i];
+                  let propName = propData.property;
+                  if (defaultProps.indexOf(propName) == -1) {
+                    if (!datum[propName]) {
+                      datum[propName] = [];
+                      if (keys.indexOf(propName) == -1) keys.push(propName);
+                    }
+                    datum[propName].push(value.value);
                   }
-                  datum[propName].push(value.value);
                 }
               }
+            })
+            for (let propName in node.current.auxProperties) {
+              if (!datum[propName]) {
+                if (keys.indexOf(propName) == -1) keys.push(propName);
+                datum[propName] = node.current.auxProperties[propName];
+              }
             }
-          })
-          for (let propName in node.current.auxProperties) {
-            if (!datum[propName]) {
-              if (keys.indexOf(propName) == -1) keys.push(propName);
-              datum[propName] = node.current.auxProperties[propName];
-            }
+            data.push(datum);
           }
-          data.push(datum);
         }
+        let csv = Papa.unparse(data, {columns: keys});
+        var hiddenElement = document.createElement('a');
+        hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);
+        hiddenElement.target = '_blank';
+        hiddenElement.download = 'people.csv';
+        hiddenElement.click();
       }
-      let csv = Papa.unparse(data, {columns: keys});
-      var hiddenElement = document.createElement('a');
-      hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);
-      hiddenElement.target = '_blank';
-      hiddenElement.download = 'people.csv';
-      hiddenElement.click();
     }
 
     ScalarLenses.prototype.deleteLens = function() {
