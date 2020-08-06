@@ -3112,7 +3112,7 @@
         {label: "Duplicate lens", value: "duplicate-lens"},
         {label: "Export to CSV", value: "export-lens"}
       )
-      
+
       if (header.okToDelete) {
         menuOptions.push({label: "Delete lens", value: "delete-lens"});
       }
@@ -3364,7 +3364,7 @@
         var hiddenElement = document.createElement('a');
         hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);
         hiddenElement.target = '_blank';
-        hiddenElement.download = 'people.csv';
+        hiddenElement.download = 'scalar-export.csv';
         hiddenElement.click();
       }
     }
@@ -3494,6 +3494,37 @@
       this.scalarLensObject.user_level = this.userLevel;
       this.baseURL = $('link#parent').attr('href');
       if (this.canSave == true) {
+        /*let currentNode = scalarapi.model.getCurrentPageNode();
+        var baseProperties =  {
+            'native': 1,
+            'id': this.userId,
+            'api_key':''
+        };
+        var pageData = {
+          action: 'UPDATE',
+          'scalar:urn': this.scalarLensObject.urn,
+          uriSegment: this.scalarLensObject.slug,
+          'dcterms:title': this.scalarLensObject.title,
+          /*'dcterms:description': currentNode.current.description,
+          'sioc:content': currentNode.current.content,
+          'rdf:type': currentNode.baseType,
+          'scalar:is_live': currentNode.isLive*
+        };
+        var relationData = {};
+        /*relationData[annotation.id] = {
+          action: 'RELATE',
+          'scalar:urn': annotation.body.current.urn,
+          'scalar:child_urn': $('input[name="scalar:child_urn"]').val(),
+          'scalar:child_rel': 'annotated',
+          'scalar:start_seconds': edits.start,
+          'scalar:end_seconds': edits.end,
+          'scalar:start_line_num': '',
+          'scalar:end_line_num': '',
+          'scalar:points': ''
+        };*
+
+        scalarapi.modifyPageAndRelations(baseProperties, pageData, this.scalarLensObject, successHandler);*/
+
         $.ajax({
           url: this.baseURL + "api/relate",
           type: "POST",
