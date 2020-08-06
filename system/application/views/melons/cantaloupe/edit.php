@@ -1485,11 +1485,15 @@ if (isset($page->version_index)):
 	if (!empty($page->versions[$page->version_index]->has_references)) {
 		foreach ($page->versions[$page->version_index]->has_references as $node) {
 			echo '<input type="hidden" name="has_reference" value="'.$node->slug.'" />';
-			echo '<input type="hidden" name="has_reference_reference_text" value="'.htmlspecialchars(@$node->versions[0]->reference_text).'" />';
+			echo '<input type="hidden" name="has_reference_reference_text" value="'.htmlspecialchars(@$node->versions[0]->reference_text).'" />'."\n";
 		}
 	}
 	// Table of Contents
-	echo '<input type="hidden" name="scalar:sort_number" value="'.$page->versions[$page->version_index]->sort_number.'" />';
+	echo '<input type="hidden" name="scalar:sort_number" value="'.$page->versions[$page->version_index]->sort_number.'" />'."\n";
+	// Is lens of
+	if (!empty($page->versions[$page->version_index]->is_lens_of)) {
+		echo '<input type="hidden" name="lens_of" value="'.htmlspecialchars($page->versions[$page->version_index]->is_lens_of).'" />'."\n";
+	}
 endif;
 ?>
 </form>

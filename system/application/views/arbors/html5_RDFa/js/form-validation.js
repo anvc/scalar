@@ -311,6 +311,8 @@ function send_form_relationships($form, version_urn, success, redirect_url) {
 		values['references'].push($('<input value="'+resource+'" />'));
 		// TODO: reference_text
 	});
+	// Lens of
+	values['lens_of'] = $('input[name="lens_of"]');
 
 	// Has container
 	values['has_container'] = $('input[name="has_container"]');

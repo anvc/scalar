@@ -1204,6 +1204,15 @@ ScalarAPI.prototype.saveManyRelations = function(data, completeCallback, stepCal
 			'scalar:child_rel':'tagged'
 		});
 	});
+	// Queue lens_of
+	$(data['lens_of']).each(function() {
+		self.queueManyRelations({
+			action:data['action'],'native':data['native'],'id':data['id'],api_key:data['api_key'],
+			'scalar:urn':data['scalar:urn'],
+			'scalar:child_rel':'grouped',
+			'scalar:contents':$(this).val()
+		});
+	});
 	// Queue references
 	$(data['references']).each(function() {
 		self.queueManyRelations({
