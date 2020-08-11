@@ -1237,18 +1237,22 @@
             	var popover_template = '<div class="popover tk-help caption_font" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>';
             	$labels.each(function() {
             		var $label = $(this);
-                    $label.parent().prepend($label);
+                $label.parent().prepend($label);
             		$label.css('display', 'inline-block');
             		var $url = $label.find('a[rel="art:url"]');
             		var url = $url.attr('href');
-            		$url.replaceWith('<img rel="art:url" src="'+url+'" data-toggle="popover" data-placement="bottom" />');
-                    $label.find('img').popover( {
-                        trigger: "click",
-                        html: true,
-                        template: popover_template,
-                        container: 'body',
-                        content: '<img src="'+url+'" /><p class="supertitle">Traditional Knowledge</p><h3 class="heading_weight">'+$label.find('[property="dcterms:title"]').text()+'</h3><p>'+$label.find('[property="dcterms:description"]').text()+'</p><p><a href="http://localcontexts.org/tk-labels/" target="_blank">More about Traditional Knowledge labels</a></p>'
-                    } );
+            		$url.replaceWith('<img tabindex="0" rel="art:url" src="'+url+'" data-toggle="popover" data-placement="bottom" />');
+                $label.find('img').popover( {
+                  trigger: "manual focus",
+                  html: true,
+                  template: popover_template,
+                  container: 'body',
+                  content: '<img src="'+url+'" /><p class="supertitle">Traditional Knowledge</p><h3 class="heading_weight">'+$label.find('[property="dcterms:title"]').text()+'</h3><p>'+$label.find('[property="dcterms:description"]').text()+'</p><p><a href="http://localcontexts.org/tk-labels/" target="_blank">More about Traditional Knowledge labels</a></p>'
+                });
+								$label.find('img').click(function(e) {
+									$(this).popover('toggle');
+									e.stopPropagation();
+								})
             	});
             	// Move labels to image header if present
             	if ($('.image_header').length) $('.image_header').prepend($labels.parent());
