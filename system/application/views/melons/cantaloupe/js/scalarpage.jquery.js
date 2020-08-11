@@ -2794,18 +2794,18 @@
 
             page.getContainingPathInfo();
 
-    		var cover_video = function() {  // Have <video> tag mimic background-size:cover
-    			$video = $(this);
-    			var scale_h = parseInt($video.parent().width()) / $video.data('orig_w');
-    			var scale_v = parseInt($video.parent().height()) / $video.data('orig_h');
-    			var scale = scale_h > scale_v ? scale_h : scale_v;
-                $video.parent().height($video.parent().height());
-    			$video.width(scale * $video.data('orig_w'));
-    			$video.height(scale * $video.data('orig_h'));
-        		$video.parent().scrollLeft( ($video.width() - $video.parent().width()) * .5 );
-        		$video.parent().scrollTop( ($video.height() - $video.parent().height()) * .5 );
-                $video.show();
-    		}
+        		var cover_video = function() {  // Have <video> tag mimic background-size:cover
+        			$video = $(this);
+        			var scale_h = parseInt($video.parent().parent().width()) / $video.data('orig_w');
+        			var scale_v = parseInt($video.parent().parent().height()) / $video.data('orig_h');
+        			var scale = scale_h > scale_v ? scale_h : scale_v;
+              $video.parent().height($video.parent().parent().height());
+        			$video.width(scale * $video.data('orig_w'));
+        			$video.height(scale * $video.data('orig_h'));
+            	$video.parent().scrollLeft( ($video.width() - $video.parent().width()) * .5 );
+            	$video.parent().scrollTop( ($video.height() - $video.parent().height()) * .5 );
+              $video.show();
+        		}
 
             switch (viewType) {
 
