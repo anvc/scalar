@@ -556,6 +556,7 @@ header [typeof="tk:TKLabel"] { margin-left:6px; margin-right: 0; }
 	color: white;
 	border: none;
 	background-size: cover;
+	padding: 0;
 	background-position: center center;
 	-webkit-transform: scale( 1.2, 1.2 );
 	-moz-transform: scale( 1.2, 1.2 );
