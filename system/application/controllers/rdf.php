@@ -293,6 +293,7 @@ class Rdf extends MY_Controller {
 									   	 'meta'			=> $this->data['include_meta'],
 									   	 'max_meta_recs'=> $this->data['meta_recursion'],
 									   	 'paywall_msg'	=> $this->can_bypass_paywall(),
+									   	 'lens_recurses'=> (($this->can_save_lenses()) ? $this->data['recursion']: RDF_Object::LENSES_NONE),
 									   	 'tklabeldata'	=> $this->tklabels(),
 									   	 'tklabels' 	=> (($this->data['tklabels'])?RDF_Object::TKLABELS_ALL:RDF_Object::TKLABELS_NONE),
 									   	 'is_book_admin'=> $this->login_is_book_admin()

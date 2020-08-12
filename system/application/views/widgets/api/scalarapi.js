@@ -2480,8 +2480,8 @@ function ScalarModel(options) {
 		{property:'background', uri:'http://scalar.usc.edu/2012/01/scalar-ns#background', type:'string'},
 		{property:'banner', uri:'http://scalar.usc.edu/2012/01/scalar-ns#banner', type:'string'},
 		{property:'audio', uri:'http://scalar.usc.edu/2012/01/scalar-ns#audio', type:'string'},
-		{property:'isLive', uri:'http://scalar.usc.edu/2012/01/scalar-ns#isLive', type:'int'},  // Add by Craig 21 July 2014
-		{property:'paywall', uri:'http://scalar.usc.edu/2012/01/scalar-ns#paywall', type:'string'},  // Add by Craig 15 August 2014
+		{property:'isLive', uri:'http://scalar.usc.edu/2012/01/scalar-ns#isLive', type:'int'},
+		{property:'paywall', uri:'http://scalar.usc.edu/2012/01/scalar-ns#paywall', type:'string'},
 		{property:'author', uri:'http://www.w3.org/ns/prov#wasAttributedTo', type:'string'}
 	];
 
@@ -2515,7 +2515,7 @@ function ScalarModel(options) {
 		{property:'author', uri:'http://www.w3.org/ns/prov#wasAttributedTo', type:'string'},
 		{property:'references', uri:'http://purl.org/dc/terms/references', type:'string'},
 		{property:'isReferencedBy', uri:'http://purl.org/dc/terms/isReferencedBy', type:'string'},
-    {property:'isLensOf', uri:'http://scalar.usc.edu/2012/01/scalar-ns#isLensOf', type:'json'}
+		{property:'isLensOf', uri:'http://scalar.usc.edu/2012/01/scalar-ns#isLensOf', type:'json'}
 	];
 
 	// metadata about each relation type
@@ -3729,7 +3729,21 @@ ScalarVersion.prototype.parseRelations = function() {
 			}
 		}
 	}
-
+	
+	/*
+	arr = this.data.json['http://scalar.usc.edu/2012/01/scalar-ns#isLensOf'];
+	if (arr) {
+		n = arr.length;
+		for (i=0; i<n; i++) {
+			body = scalarapi.model.nodesByURL[this.data.url];
+			target = null;
+			relation = new ScalarRelation(null, body, target, scalarapi.model.relationTypes.lens);
+			//scalarapi.model.relations.push(relation);
+			scalarapi.model.relationsById[relation.id] = relation;
+		}
+	}
+	*/
+	
 }
 
 /**

@@ -525,6 +525,12 @@ class RDF_Object {
 					$versions[$key]->references[] = $settings['base_uri'].$node->child_content_slug;
 				}
 			}
+			// Lenses
+			if ($settings['lens_recurses'] !== self::LENSES_NONE && $settings['lens_recurses'] >= $settings['num_recurses']) {
+				if (!isset($CI->lenses) || empty($CI->lenses)) $CI->load->model('lens_model', 'lenses');
+				$json = $CI->lenses->get_children($version->version_id);
+				if (!empty($json)) $versions[$key]->is_lens_of = $json;
+			}
 			// User
 			if ($settings['prov']) {
 				if (array_key_exists($versions[$key]->user, $this->user_cache)) {
