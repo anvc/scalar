@@ -45,6 +45,7 @@ class RDF_Object {
 	const METADATA_NONE = false;
 	const TKLABELS_ALL = 1;
 	const TKLABELS_NONE = 0;
+	const LENSES_NONE = null;
 	const USERS_ALL = 1;
 	const USERS_LISTED = 2;
 	const USE_VERSIONS_INCLUSIVE = 0;
@@ -79,6 +80,7 @@ class RDF_Object {
 		'editorial_state' => null,
 		'tklabeldata'	=> null,
 		'tklabels'		=> self::TKLABELS_NONE,
+		'lens_recurses'	=> self::LENSES_NONE,
 		'is_book_admin' => false
 	);
 
@@ -900,6 +902,11 @@ class RDF_Object {
 					}
 				}
 			}
+			if ($settings['lens_recurses'] !== self::LENSES_NONE && $settings['lens_recurses'] == $settings['num_recurses']) {
+				if (!isset($CI->lenses) || empty($CI->lenses)) $CI->load->model('lens_model', 'lenses');
+				$json = $CI->lenses->get_children($version_id);
+				if (!empty($json)) $row->versions[$j]->is_lens_of = $json;
+			}
 		}
 
 		return $row;
@@ -987,7 +994,7 @@ class RDF_Object {
 			if ($settings['use_versions_restriction'] == self::USE_VERSIONS_INCLUSIVE && null!==$settings['use_versions'] && !isset($settings['use_versions'][$annotation->parent_content_id])) {
 				$settings['use_versions'][$annotation->parent_content_id] = $annotation->parent_version_id;
 			}
-			if ($settings['use_versions_restriction'] >= self::USE_VERSIONS_EXCLUSIVE && $settings['use_versions'][$annotation->parent_content_id] != $annotation->parent_version_id) {
+			if ($settings['use_versions_restriction'] >= self::USE_VERSIONS_EXCLUSIVE && null!==$settings['use_versions'] && $settings['use_versions'][$annotation->parent_content_id] != $annotation->parent_version_id) {
 				// Don't do anything
 			} else {
 				++$settings['num_recurses'];
@@ -1045,7 +1052,7 @@ class RDF_Object {
 			if ($settings['use_versions_restriction'] == self::USE_VERSIONS_INCLUSIVE && null!==$settings['use_versions'] && !isset($settings['use_versions'][$annotation->child_content_id])) {
 				$settings['use_versions'][$annotation->child_content_id] = $annotation->child_version_id;
 			}
-			if ($settings['use_versions_restriction'] >= self::USE_VERSIONS_EXCLUSIVE && $settings['use_versions'][$annotation->child_content_id] != $annotation->child_version_id) {
+			if ($settings['use_versions_restriction'] >= self::USE_VERSIONS_EXCLUSIVE && null!==$settings['use_versions'] && $settings['use_versions'][$annotation->child_content_id] != $annotation->child_version_id) {
 				// Don't do anything
 			} else {
 				++$settings['num_recurses'];

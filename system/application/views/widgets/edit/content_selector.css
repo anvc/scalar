@@ -36,6 +36,7 @@
 .media_options_bootbox {z-index:1500; overflow:auto;}
 .media_options_bootbox .buttons {text-align:right; padding:10px 0px 0px 0px; margin:0;}
 .media_options_bootbox .buttons input:first-of-type {visibility:hidden;}
+.media_options_bootbox .modal-header h5, .widget_selector_bootbox .modal-header h5 {font-size:20px;}
 
 /* Style for generic (not Bootstrap) modal */
 

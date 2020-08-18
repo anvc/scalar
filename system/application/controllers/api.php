@@ -128,7 +128,7 @@ Class Api extends CI_Controller {
  	public function debug(){
  		$this->_output_error(StatusCodes::HTTP_FORBIDDEN);
  		$this->data['content']=array('postdata'=>$this->data);
- 		$this->_rdf_serialize($this->data['content'], $this->config->item('RDF_vocab_prefix'));
+ 		$this->data['content'] = $this->_rdf_serialize($this->data['content'], $this->config->item('RDF_vocab_prefix'));
  		$this->template->write_view('content', 'modules/data/'.$this->data['format'], $this->data);
  		$this->template->render();
  	}
@@ -278,7 +278,8 @@ Class Api extends CI_Controller {
 	 * TODO: only really tried JSON, XML doesn't seem to work
 	 */
 	private function _output(){
-		$this->_rdf_serialize($this->data['content'], $this->config->item('RDF_vocab_prefix'));
+
+		$this->data['content'] = $this->_rdf_serialize($this->data['content'], $this->config->item('RDF_vocab_prefix'));
 		$this->template->write_view('content', 'modules/data/'.$this->data['format'], $this->data);
 		$this->template->render();
 	}
@@ -544,7 +545,7 @@ Class Api extends CI_Controller {
 	* @return array
 	*/
 	private function _array_remap_version($content_id=0){
-		if($content_id==0) $this->_output_error(StatusCodes::HTTP_INTERNAL_SERVER_ERROR);
+		if($content_id==0) $this->_output_error(StatusCodes::HTTP_INTERNAL_SERVER_ERROR, 'Could not resolve content ID when remapping version');
 
 		$save = array();
 		$save['content_id'] = $content_id;
@@ -657,9 +658,9 @@ Class Api extends CI_Controller {
 	* Serialize an RDF structure (e.g, to RDF-XML or RDF-JSON)
 	* TODO: Shared function with /rdf, move to model?
 	*/
-	private function _rdf_serialize(&$return, $prefix='') {
+	private function _rdf_serialize($return, $prefix='') {
 
-		if (empty($return)) $this->_output_error(StatusCodes::HTTP_INTERNAL_SERVER_ERROR);
+		if (empty($return)) $this->_output_error(StatusCodes::HTTP_INTERNAL_SERVER_ERROR, 'Attempting to serialize, the return value is empty');
 		$output = array();
 		foreach ($return as $key => $row) {
 			foreach ($row as $field => $value) {
@@ -667,7 +668,7 @@ Class Api extends CI_Controller {
 				$output[$key][fromNS($field, $this->ns)] = $value;
 			}
 		}
-		$return = $this->rdf_store->serialize($output, $prefix, $this->data['format']);
+		return $this->rdf_store->serialize($output, $prefix, $this->data['format']);
 
 	}
 	

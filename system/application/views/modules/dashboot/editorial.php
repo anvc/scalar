@@ -826,8 +826,8 @@ STR;
 
 <div class="container-fluid properties">
   <?php
-    $edition_count = count($book->editions);
     if (!empty($book->editions)) {
+      $edition_count = count($book->editions);
       echo '<div class="row editions">';
       echo '<div class="col-sm-12">';
       echo '<h3 class="message"><strong><span class="edition_title">'.$book->editions[$edition_count-1]['title'].'</span></strong> is the currently published edition of this '.$book->scope.'.</h3>';
