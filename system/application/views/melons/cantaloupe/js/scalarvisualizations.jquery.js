@@ -314,7 +314,10 @@ window.scalarvis = { instanceCount: -1 };
 
     base.onTypeSelect = function() {
       base.options.lens.visualization.type = $(this).val();
-      // no need to do the lens call if it's only the vis type that has changed
+      // only the map vis triggers a call to re-get lens data since it needs metadata to work
+      if (base.options.lens.visualization.type == 'map') {
+        base.getLensResults();
+      }
       if (!base.visStarted) {
         base.visualize();
       } else {
