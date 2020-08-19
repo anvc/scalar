@@ -3773,13 +3773,15 @@ window.scalarvis = { instanceCount: -1 };
         this.hasBeenDrawn = true;
         base.visualization.empty();
         base.visualization.css('height', this.size.height + 'px');
-        //base.visualization.css('width', this.size.width + 'px');
         if ('undefined' == typeof(google) || 'undefined' == typeof(google.maps)) {
+        	console.log('Loading OMS and Google Maps...');
         	$.getScript($('link#approot').attr('href') + 'views/melons/cantaloupe/js/oms.min.js');
         	$.getScript('https://maps.googleapis.com/maps/api/js?key=' + $('link#google_maps_key').attr('href'), () => {
+        		console.log('setupMap (1)');
         		this.setupMap();
         	});
         } else {
+        	console.log('setupMap (2)');
         	this.setupMap();
         }
       }
