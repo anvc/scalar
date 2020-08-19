@@ -380,7 +380,8 @@ window.scalarvis = { instanceCount: -1 };
       base.loadingMsgShown = false;
       base.startTime = new Date();
       var percentDone = 0;
-      var timeout = setInterval(() => {
+      if (base.progressInterval) clearInterval(base.progressInterval);
+      base.progressInterval = setInterval(() => {
         percentDone = Math.min(90, percentDone + 10);
         base.updateLoadingMsg('', percentDone, 0, 1, null);
       }, 1000)
@@ -398,7 +399,7 @@ window.scalarvis = { instanceCount: -1 };
         		console.log('There was an error attempting to get Lens data: '+data.error);
         		return;
       	  };
-          clearInterval(timeout);
+          clearInterval(base.progressInterval);
           base.updateLoadingMsg('', 100, 0, 1, null);
           base.hideLoadingMsg();
           base.options.lens = data;
