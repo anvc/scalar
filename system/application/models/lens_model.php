@@ -122,10 +122,11 @@ class Lens_model extends MY_Model {
 		if (!isset($CI->versions) || 'object'!=gettype($CI->versions)) $CI->load->model('version_model','versions');
 		if (empty($book_id)) throw new Exception("Invalud Book ID");
 		$how_to_combine = $this->get_operation_from_visualization($json['visualization']);
+		$pages_load_metadata = (isset($json['visualization']['type']) && $json['visualization']['type'] == 'map') ? true : false;
 		$contents = array();
 		
 		if (isset($json['frozen']) && $json['frozen']) {
-			return $this->frozen_items($book_id, $json, $prefix);
+			return $this->frozen_items($book_id, $json, $prefix, $pages_load_metadata);
 		}
 
 		foreach ($json['components'] as $component) {
@@ -148,7 +149,7 @@ class Lens_model extends MY_Model {
 											$content = (!empty($content)) ? $content : $this->get_pages_from_content_selector($component['content-selector'], $book_id);
 											$to_subtract = $CI->versions->get_by_predicate($book_id, $field, false, null, $value);
 											$content = $this->subtract_content($content, $to_subtract);
-											$content = $this->do_versions($content);
+											$content = $this->do_versions($content, $pages_load_metadata);
 											break;
 										case 'inclusive':
 											$content_with_predicate = $CI->versions->get_by_predicate($book_id, $field, false, null, $value);
@@ -201,7 +202,7 @@ class Lens_model extends MY_Model {
 												foreach ($items as $item) {
 													$page = $CI->pages->get($item->child_content_id);
 													$page->versions = array();
-													$page->versions[] = $CI->versions->get_single($page->content_id, $page->recent_version_id, null, true);
+													$page->versions[] = $CI->versions->get_single($page->content_id, $page->recent_version_id, null, (($pages_load_metadata)?true:false));
 													$content[] = $page;
 												}
 											}
@@ -210,7 +211,7 @@ class Lens_model extends MY_Model {
 												foreach ($items as $item) {
 													$page = $CI->pages->get($item->parent_content_id);
 													$page->versions = array();
-													$page->versions[] = $CI->versions->get_single($page->content_id, $page->recent_version_id, null, true);
+													$page->versions[] = $CI->versions->get_single($page->content_id, $page->recent_version_id, null, (($pages_load_metadata)?true:false));
 													$content[] = $page;
 												}
 											}
@@ -228,12 +229,12 @@ class Lens_model extends MY_Model {
 												$to_subtract = $this->get_pages_of_type($type, $book_id);
 												$content = $this->subtract_content($content, $to_subtract);
 											}
-											$content = $this->do_versions($content);
+											$content = $this->do_versions($content, $pages_load_metadata);
 											break;
 										case 'inclusive':
 											foreach ($types as $type) {
 												$content = $this->get_pages_of_type($type, $book_id);
-												$content = $this->do_versions($content);
+												$content = $this->do_versions($content, $pages_load_metadata);
 												$content = $this->filter_by_content_selector($content, $component);
 											}
 											break;
@@ -249,7 +250,7 @@ class Lens_model extends MY_Model {
 				$content = $this->get_pages_from_content_selector($component['content-selector'], $book_id);
 				for ($j = 0; $j < count($content); $j++) {
 					$content[$j]->versions = array();
-					$content[$j]->versions[] = $CI->versions->get_single($content[$j]->content_id, $content[$j]->recent_version_id, null, true);
+					$content[$j]->versions[] = $CI->versions->get_single($content[$j]->content_id, $content[$j]->recent_version_id, null, (($pages_load_metadata)?true:false));
 				}
 			}
 			// Combine content that has been gathered
@@ -304,7 +305,7 @@ class Lens_model extends MY_Model {
 		
 	}
 	
-	public function frozen_items($book_id=0, $json='', $prefix='') {
+	public function frozen_items($book_id=0, $json='', $prefix='', $pages_load_metadata=false) {
 		
 		$CI =& get_instance();
 		$contents = array();
@@ -313,7 +314,7 @@ class Lens_model extends MY_Model {
 			$page = $CI->pages->get_by_slug($book_id, $slug, $is_live=true);
 			if (!empty($page)) $contents[] = $page;
 		}
-		$contents = $this->do_versions($contents);
+		$contents = $this->do_versions($contents, $pages_load_metadata);
 
 		$return = array();
 		if (empty($contents)) return $return;
@@ -366,13 +367,13 @@ class Lens_model extends MY_Model {
 
     }
     
-    public function do_versions($items) {
+    public function do_versions($items, $pages_load_metadata=false) {
     	
     	$CI =& get_instance();
     	foreach ($items as $key => $row) {
     		if (isset($row->versions)) continue;
     		$items[$key]->versions = array();
-    		$items[$key]->versions[] = $CI->versions->get_single($row->content_id, $row->recent_version_id, null, false);
+    		$items[$key]->versions[] = $CI->versions->get_single($row->content_id, $row->recent_version_id, null, (($pages_load_metadata)?true:false));
     	}
     	return $items;
     	

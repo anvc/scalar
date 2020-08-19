@@ -378,16 +378,6 @@ class Rdf extends MY_Controller {
 		$this->template->render();
 		
 	}
-	
-	/**
-	 * Output a page's lens JSON
-	 */
-	
-	public function lens() {
-		
-		// TODO
-		
-	}
 
 	/**
 	 * Output information about a group of pages based on class name
@@ -431,11 +421,9 @@ class Rdf extends MY_Controller {
 				case 'tag':
 				case 'path':
 				case 'reference':
+				case 'lens':
 					$this->load->model($class.'_model', plural($class));
 					$model = plural($class);
-					break;
-				case 'lens':
-					// TODO
 					break;
 				case 'hidden':
 					if (!$this->data['login'] || !$this->login_is_book_admin()) {

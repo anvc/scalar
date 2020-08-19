@@ -3760,7 +3760,11 @@ window.scalarvis = { instanceCount: -1 };
     	    }
     	}
     	this.map.fitBounds(bounds);
-    	if (!this.markers.length) this.displayNoContentWarning();
+    	if (!this.markers.length) {
+    		this.displayNoContentWarning();
+    	} else {
+    		this.removeNoContentWarning();
+    	}
       }
 
       getHelpContent() {
@@ -3799,12 +3803,19 @@ window.scalarvis = { instanceCount: -1 };
 
       displayNoContentWarning() {
 
+    	  base.visualization.find('.no-content-warning').remove();
     	  var $el = $('<div class="no-content-warning" style="position:absolute; z-index:999; top:0px; left:0px; right:0px; bottom:0px; text-align:center; color:#000000;"></div>').appendTo(base.visualization);
     	  var $inner = $('<div style="background-color:rgba(255, 255, 255, 0.5); margin-top:100px; padding:30px 0px 30px 0px;">There is no geospatial metadata associated with the selected items.<br /><br /><button type="button" class="btn btn-primary btn-sm">Dismiss</button></div>').appendTo($el);
     	  $inner.find('button').on('click', function() {
     		  $(this).parent().remove();
     	  });
 
+      }
+      
+      removeNoContentWarning() {
+    	  
+    	  base.visualization.find('.no-content-warning').remove();
+    	  
       }
 
       clearMarkers() {
