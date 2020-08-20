@@ -389,5 +389,16 @@ spl_autoload_register(function ($class) {
     require_once('system/application/arc/vendor/autoload.php');
 });
 
+/*
+|--------------------------------------------------------------------------
+| Media Url
+|--------------------------------------------------------------------------
+|
+| With the existence of mulitiple storage adapters, you may wish to redefine
+| where the system is looking for its media. 
+|
+*/
+$config['media_url'] = (getenv('MEDIA_URL') ? getenv('MEDIA_URL') : '');
+
 /* End of file config.php */
 /* Location: ./application/config/config.php */
