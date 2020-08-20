@@ -322,7 +322,13 @@ window.scalarvis = { instanceCount: -1 };
     }
 
     base.onContentSelect = function() {
-      base.options.lens.components[0]['content-selector']['content-type'] = $(this).val();
+      if ($(this).val() == 'current') {
+        base.options.lens.components[0]['content-selector']['content-type'] = 'specific-items';
+        base.options.lens.components[0]['content-selector']['items'] = [base.currentNode.slug];
+      } else {
+        base.options.lens.components[0]['content-selector']['content-type'] = $(this).val();
+        base.options.lens.components[0]['content-selector']['items'] = [];
+      }
       base.getLensResults();
     }
 
