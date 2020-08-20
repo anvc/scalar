@@ -26,7 +26,7 @@ $header =@ urldecode($_REQUEST['header']);
 $domain = parse_url($uri, PHP_URL_HOST);
 $archives_path = __DIR__.'/xsl/archives.rdf';
 $archives_rdf = file_get_contents($archives_path);
-$is_valid_domain = ($domain==$_SERVER['HTTP_HOST'] || false!==strstr($archives_rdf,$domain)) ? true : false;
+$is_valid_domain = ($domain=='localhost' || $domain==$_SERVER['HTTP_HOST'] || false!==strstr($archives_rdf,$domain)) ? true : false;
 if (!$is_valid_domain) die ('Invalid domain');
 
 header("content-type: text/xml");
@@ -60,6 +60,7 @@ function jsonToXMLNodes($row) {
 	if (!is_array($row)) return $return;
 	foreach ($row as $field => $value) {
 		if (is_numeric($field)) $field = 'node';
+		if (is_numeric(substr($field, 0, 1))) $field = 'node_'.$field;
 		$field = str_replace(' ','_',$field);
 		$field = str_replace('@','',$field);
 		$field = str_replace('#','',$field);
@@ -111,6 +112,7 @@ if ('json'==$format) {
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+		if (!empty($_SERVER['SERVER_NAME'])) curl_setopt($ch, CURLOPT_REFERER, $_SERVER['SERVER_NAME']);
 		$response = curl_exec($ch);
 		curl_close($ch);
 		$json = json_decode($response, true);

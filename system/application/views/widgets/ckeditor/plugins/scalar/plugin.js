@@ -305,6 +305,7 @@ CKEDITOR._scalar = {
 		var $element = $(element.$);
 
 		cke_loadedScalarInline.push(element);
+		console.log(element);
 		var thumbnail = node.thumbnail || $('link#approot').attr('href')+'/views/melons/cantaloupe/images/media_icon_chip.png';
 
 		var cssElement = '<style>'+
@@ -539,7 +540,7 @@ CKEDITOR._scalar = {
 
 CKEDITOR.plugins.add( 'scalar', {
     //icons: 'scalar1,scalar2,scalar3,scalar4,scalar5,scalar6,scalar7',
-	icons: 'scalarkeyboard,scalar1,scalar2,scalar5,scalar6,scalar7,scalar8,scalar9',
+	icons: 'scalarkeyboard,scalar1,scalar2,scalar5,scalar6,scalar7,scalar8,scalar9,scalar10',
     requires: 'dialog',
     init: function( editor ) {
 
@@ -636,7 +637,7 @@ CKEDITOR.plugins.add( 'scalar', {
 						e.preventDefault();
 						e.stopPropagation();
 
-						if(confirm("Are you sure you would like to remove this inline "+($($(this).data('element').$).data('type')=="widget"?"widget":"media")+" from the current page?")){
+						if(confirm("Are you sure you would like to remove this inline element from the current page?")){
 							$('#scalarInlineRedXIcon,#scalarInlineGearIcon').hide();
 							$(this).data('element').remove(true);
 						}
@@ -782,14 +783,14 @@ CKEDITOR.plugins.add( 'scalar', {
 							$(element.$).data({
 								element : element,
 								contentOptionsCallback : CKEDITOR._scalar.inlineMediaCallback,
-								selectOptions : {type:'media',changeable:false,multiple:false,msg:'Insert Scalar Media Link',element:element,callback:CKEDITOR._scalar.inlineMediaCallback}
+								selectOptions : {type:'media',changeable:false,multiple:false,msg:'Insert Inline Scalar Media Link',element:element,callback:CKEDITOR._scalar.inlineMediaCallback}
 							});
 						}
 
         		CKEDITOR._scalar.selectcontent($(element.$).data('selectOptions'));
 					}
         });
-        editor.addCommand( 'insertScalar5', {
+        editor.addCommand( 'insertScalar5', {  // Insert Note
             exec: function( editor ) {
             	CKEDITOR._scalar.editor = editor;
 	    		var sel = editor.getSelection();
@@ -797,15 +798,16 @@ CKEDITOR.plugins.add( 'scalar', {
 	    			alert('Please select text to transform into a note link');
 	    			return;
 	    		}
+				var sel = editor.getSelection();
+				element = editor.document.createElement('span');
+				element.setHtml(sel.getSelectedText());
         		CKEDITOR._scalar.selectcontent({changeable:true,multiple:false,onthefly:true,msg:'Insert Scalar Note',callback:function(node){
-        			CKEDITOR._scalar.contentoptions({data:reference_options['insertNote'],callback:function(options) {
-	        			var sel = editor.getSelection();
-	            		element = editor.document.createElement('span');
-	            		element.setHtml(sel.getSelectedText());
+        			CKEDITOR._scalar.contentoptions({data:reference_options['insertNote'],node:node,element:element,isMedia:false,callback:function(options) {
 	            		element.setAttribute('class', 'note');
 	        			element.setAttribute('rev', 'scalar:has_note');
 	        			element.setAttribute('resource', node.slug);
             			for (var key in options) {
+            				if (key == 'node') continue;
             				element.setAttribute('data-'+key, options[key]);
             			}
 	        			editor.insertElement(element);
@@ -813,6 +815,60 @@ CKEDITOR.plugins.add( 'scalar', {
         		}});
             }
         });
+        
+        editor.addCommand( 'insertScalar10', {  // Insert Inline Note
+            exec: function( editor ) {
+				CKEDITOR._scalar.editor = editor;
+        		var sel = editor.getSelection();
+				var element = sel.getStartElement();
+				var isEdit = false;
+				//Check to see if we currently have an anchor tag - if so, make sure it's a non-inline media link
+				if ( element.data('widget') == null && element.getAscendant( 'a', true ) ) {
+					element = element.getAscendant( 'a', true );
+					if(element.getAttribute('resource')!=null && element.hasClass('inline')){
+						//Is inline
+						isEdit = true;
+					}
+				}
+				var callback = function(node,element) {
+        			CKEDITOR._scalar.contentoptions({data:reference_options['insertInlineNote'],node:node,element:element,isMedia:false,callback:function(options) {
+	            		element.setAttribute('class', 'inline inlineNote');
+	        			element.setAttribute('rev', 'scalar:has_note');
+	        			element.setAttribute('name', 'scalar-inline-note');
+	        			element.setAttribute('resource', node.slug);
+            			for (var key in options) {
+            				if (key == 'node') continue;
+            				element.setAttribute('data-'+key, options[key]);
+            			}
+	        			//editor.insertElement(element);
+        				if(!isEdit){
+        					CKEDITOR._scalar.editor.insertElement(element);
+        				}else{
+        					CKEDITOR._scalar.editor.updateElement(element);
+        				}
+        				if(cke_loadedScalarInline.indexOf(element)==-1){
+        					(function(thisSlug,element){
+        						if(scalarapi.loadPage( thisSlug, false, function(){
+        								CKEDITOR._scalar.addCKInlineMediaPreview(thisSlug,element);
+        						}) == "loaded"){
+        								CKEDITOR._scalar.addCKInlineMediaPreview(thisSlug,element);
+        						}
+        					})(node.slug,element)
+        				}
+        			}});			
+				};
+				if(!isEdit) {
+					element = editor.document.createElement('a');
+					$(element.$).data({
+						element : element,
+						contentOptionsCallback : callback,
+						selectOptions : {changeable:true,multiple:false,onthefly:true,msg:'Insert Inline Scalar Note',element:element,callback}
+					});
+				}
+        		CKEDITOR._scalar.selectcontent($(element.$).data('selectOptions'));
+			}
+        });
+        
         editor.addCommand( 'insertScalar6', {
             exec: function( editor ) {
             	CKEDITOR._scalar.editor = editor;
@@ -948,6 +1004,11 @@ CKEDITOR.plugins.add( 'scalar', {
         editor.ui.addButton( 'Scalar9', {
             label: 'Insert Inline Scalar Widget Link',
             command: 'insertScalar9',
+            toolbar: 'links'
+        });
+        editor.ui.addButton( 'Scalar10', {
+            label: 'Insert Inline Scalar Note',
+            command: 'insertScalar10',
             toolbar: 'links'
         });
     }

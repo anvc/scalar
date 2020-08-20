@@ -12,12 +12,13 @@
 	xmlns:foaf="http://xmlns.com/foaf/0.1/"
 	xmlns:owl="http://www.w3.org/2002/07/owl#">
 
-	<rdf:Description rdf:about="http://criticalcommons.org/cc/playlist">
+	<rdf:Description rdf:about="system/application/rdf/critical_commons_to_json.php">
 		<rdf:type rdf:resource="scalar:External" />
 		<dc:title>Critical Commons</dc:title>
 		<dcterms:description><![CDATA[Critical Commons is a non-profit advocacy coalition that supports the use of media for scholarship, reasearch and teaching, providing resources, information and tools for scholars, students, educators and creators. (From <a href="http://criticalcommons.org">Critical Commons</a>)<br />Note: Please allow at least a half hour for media imported into Critical Commons to appear here.]]></dcterms:description>
-		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/critical_commons_2.xsl" />
-		<scalar:getStr><![CDATA[SearchableText=$1]]></scalar:getStr>
+		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/critical_commons_3.xsl" />
+		<scalar:getStr><![CDATA[q=$1]]></scalar:getStr>
+		<dcterms:hasFormat>json</dcterms:hasFormat>
 	</rdf:Description>
 
 	<rdf:Description rdf:about="system/application/rdf/omeka_to_json.php">

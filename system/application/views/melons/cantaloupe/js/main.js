@@ -410,6 +410,7 @@ function addMetadataTableForNodeToElement(node, element) {
  * @param obj options, required 'url_attributes'
  */
 $.fn.slotmanager_create_slot = function(width, height, options) {
+
 	$tag = $(this);
 	//if ($tag.hasClass('inline')) return;
 	$tag.data( 'slot', $('<div class="slot"></div>') );

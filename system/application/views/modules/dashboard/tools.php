@@ -144,3 +144,19 @@ Recreate book folders:&nbsp; <input type="submit" value="Recreate" />&nbsp; <a h
 	}
 ?></textarea>
 </form>
+<br />
+<form action="<?=confirm_slash(base_url())?>system/dashboard#tabs-tools" method="post">
+<input type="hidden" name="zone" value="tools" />
+<input type="hidden" name="action" value="normalize_predicate_table" />
+Normalize predicate table:&nbsp; <input type="submit" value="Normalize" />&nbsp; <a href="?zone=tools#tabs-tools">clear</a>
+<span style="float:right;">Will remove duplicates from the ARC2 id2val table so that predicate searches work as expected</span>
+<textarea class="textarea_list"><?php
+	if (!isset($normalize_predicate_table)) {
+
+	} elseif (empty($normalize_predicate_table)) {
+		echo 'No book folders required recreating';
+	} else {
+		echo implode("\n", $normalize_predicate_table);
+	}
+?></textarea>
+</form>

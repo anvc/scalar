@@ -152,6 +152,95 @@ class Rdf extends MY_Controller {
 	}
 
 	/**
+	 * Get pages based on queries of the semantic (ARC) tables
+	 */
+	
+	public function query() {
+
+		if (empty($this->data['book'])) {
+			header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));
+			exit;
+		}
+		$this->set_url_params();
+		$type = $category = null;
+		$rel = RDF_Object::REL_CHILDREN_ONLY;
+		$method = (isset($_REQUEST['method']) && !empty($_REQUEST['method'])) ? trim($_REQUEST['method']) : null;
+		$field = (isset($_REQUEST['field']) && !empty($_REQUEST['field'])) ? trim($_REQUEST['field']) : null;
+		if (empty($method)) {
+			header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));
+			exit;
+		} elseif (empty($field)) {
+			header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));
+			exit;
+		}
+		$this->load->library('RDF_Store', 'rdf_store');
+		switch ($method) {
+			case 'hasPredicate':
+				$content = $this->versions->get_by_predicate($this->data['book']->book_id, $field, $this->data['versions']);
+				break;
+			case 'objectLiteralContains':
+				$value = (isset($_REQUEST['value']) && !empty($_REQUEST['value'])) ? trim($_REQUEST['value']) : null;
+				if (empty($value)) {
+					header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));
+					exit;
+				}
+				$content = $this->versions->get_by_predicate($this->data['book']->book_id, $field, $this->data['versions'], null, $value);
+				break;
+			case 'pagesDistanceFromPageInMeters':
+				$value = (isset($_REQUEST['value']) && !empty($_REQUEST['value'])) ? (int) trim($_REQUEST['value']) : null;
+				if (empty($value)) {
+					header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));
+					exit;
+				}
+				$this->load->model( 'lens_model', 'lenses' );
+				$content = $this->versions->get_by_predicate($this->data['book']->book_id, array('dcterms:spatial','dcterms:coverage'), $this->data['versions'], null);
+				$item = $this->lenses->filter_by_slug($content, $field);
+				if (!count($item)) {
+					header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));
+					exit;
+				}
+				$latlng = $this->lenses->get_latlng_from_item($item[0]);
+				$content = $this->lenses->filter_by_location($content, $latlng, $value);
+				break;
+			default:
+				header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));
+				exit;
+		}
+		$this->rdf_object->index(
+				$this->data['content'],
+				array(
+						'book'			=> $this->data['book'],
+						'content'		=> $content,
+						'base_uri'		=> $this->data['base_uri'],
+						'use_versions' => $this->data['use_versions'],
+						'use_versions_restriction' => ($this->editorial_is_on() && (null!==$this->data['url_params']['edition_index'] || !$this->login_is_book_admin())) ? RDF_OBJECT::USE_VERSIONS_EDITORIAL : RDF_OBJECT::USE_VERSIONS_INCLUSIVE,
+						'method'		=> __FUNCTION__.'/'.$method.'/'.$field,
+						'restrict'		=> $this->data['restrict'],
+						'rel'			=> $rel,
+						'sq'			=> $this->data['sq'],
+						'versions'		=> (($this->data['versions'])?RDF_Object::VERSIONS_ALL:RDF_Object::VERSIONS_MOST_RECENT),
+						'ref'			=> (($this->data['references'])?RDF_Object::REFERENCES_ALL:RDF_Object::REFERENCES_NONE),
+						'prov'			=> (($this->data['provenance'])?RDF_Object::PROVENANCE_ALL:RDF_Object::PROVENANCE_NONE),
+						'pagination'   => $this->data['pagination'],
+						'max_recurses' => $this->data['recursion'],
+						'meta'			=> $this->data['include_meta'],
+						'max_meta_recs'=> $this->data['meta_recursion'],
+						'paywall_msg'	=> $this->can_bypass_paywall(),
+						'editorial_state' => ((isset($this->data['editorial_state']))?$this->data['editorial_state']:null),
+						'tklabeldata'	=> $this->tklabels(),
+						'tklabels' 	=> (($this->data['tklabels'])?RDF_Object::TKLABELS_ALL:RDF_Object::TKLABELS_NONE),
+						'is_book_admin'=> $this->login_is_book_admin()
+				)
+		);
+		$this->rdf_object->serialize($this->data['content'], $this->data['format']);
+		$this->template->set_template('blank');
+		$this->template->write_view('content', 'modules/data/'.$this->data['format'], $this->data);
+		$this->template->render();
+		
+		
+	}
+	
+	/**
 	 * Output information about a page
 	 */
 
@@ -288,6 +377,16 @@ class Rdf extends MY_Controller {
 		$this->template->render();
 		
 	}
+	
+	/**
+	 * Output a page's lens JSON
+	 */
+	
+	public function lens() {
+		
+		// TODO
+		
+	}
 
 	/**
 	 * Output information about a group of pages based on class name
@@ -333,6 +432,9 @@ class Rdf extends MY_Controller {
 				case 'reference':
 					$this->load->model($class.'_model', plural($class));
 					$model = plural($class);
+					break;
+				case 'lens':
+					// TODO
 					break;
 				case 'hidden':
 					if (!$this->data['login'] || !$this->login_is_book_admin()) {
