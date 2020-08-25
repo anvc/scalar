@@ -2577,6 +2577,7 @@ function ScalarModel(options) {
 		'path':{id:'path', singular:'path', plural:'paths'},
 		'media':{id:'media', singular:'media', plural:'media files'},
 		'tag':{id:'tag', singular:'tag', plural:'tags'},
+		'lens':{id:'lens', singular:'lens', plural:'lenses'},
 		'annotation':{id:'annotation', singular:'annotation', plural:'annotations'},
 		'commentary':{id:'commentary', singular:'commentary', plural:'commentaries'},
 		'comment':{id:'reply', singular:'comment', plural:'comments'},
