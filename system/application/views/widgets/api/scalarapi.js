@@ -3342,7 +3342,6 @@ ScalarNode.prototype.getDominantScalarType = function( preferredType ) {
 			return ( this.scalarTypes[ prop ] );
 		}
 
-		console.log('prop: ' + prop);
 		switch (prop) {
 
 			// page and media only win if no other types are present
@@ -3370,9 +3369,6 @@ ScalarNode.prototype.getDominantScalarType = function( preferredType ) {
 		}
 
 	}
-	
-	console.log('returning: ');
-	console.log(dominantType);
 
 	return dominantType;
 }

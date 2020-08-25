@@ -4004,10 +4004,6 @@ window.scalarvis = { instanceCount: -1 };
       	  // Create array of words
           for (var j = 0; j < base.sortedNodes.length; j++) {
           	var words = this.getWords(base.sortedNodes[j].current.content);
-          	if (words.indexOf('4') != -1) {
-          		console.log('Contains 4:');
-          		console.log(base.sortedNodes[j]);
-          	}
           	this.words = this.mergeWords(this.words, words);
           };
           base.visualization.empty();
@@ -4034,8 +4030,9 @@ window.scalarvis = { instanceCount: -1 };
     	  for (var j = 0; j < arr2.length; j++) {
     		  if (!arr2[j].length) continue;
     		  var word = arr2[j].replace(/[^0-9a-zA-Z-]/g, '');
-    		  if (!word.length) continue;
-    		  if (this.isAStopWord(word)) continue;
+    		  if (!word.length < 3) continue;  // Remove empty or short
+    		  if (this.isAStopWord(word)) continue;  // Remove stop words
+    		  if (!isNaN(word) && word.length != 4) continue;  // Remove numbers if not a year
     		  var wordIncluded = false;
     		  for (var k = 0; k < arr1.length; k++) {
     			  if (arr1[k].text.toLowerCase() == word.toLowerCase()) {
