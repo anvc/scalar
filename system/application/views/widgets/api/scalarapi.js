@@ -1498,6 +1498,18 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 
 				switch(this.type.id) {
 
+					case 'lens':
+					completeRelationData[this.id] = {
+							action: 'RELATE',
+							native: baseProperties.native,
+							id: baseProperties.id,
+							api_key: baseProperties.api_key,
+							'scalar:urn': version_urn,
+							'scalar:child_rel': 'grouped',
+							'scalar:contents': this.properties.content
+						};
+					break;
+				
 					case 'path':
 					completeRelationData[this.id] = {
 						action: 'RELATE',
@@ -1616,6 +1628,8 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 
 				switch(this.type.id) {
 
+					// Lenses don't apply to incoming relations
+				
 					case 'path':
 					completeRelationData[this.id] = {
 						action: 'RELATE',
@@ -2538,6 +2552,7 @@ function ScalarModel(options) {
 		'tag':{id:'tag', body:'tag', bodyPlural:'tags', target:'item', targetPlural:'items', incoming:'has', outgoing:'tags'},
 		'path':{id:'path', body:'path', bodyPlural:'paths', target:'item', targetPlural:'items', incoming:'contained by', outgoing:'contains'},
 		'reference':{id:'reference', body:'item', bodyPlural:'items', target:'media file', targetPlural:'media files', incoming:'referenced by', outgoing:'references'},
+		'lens':{id:'lens', body:'item', bodyPlural:'items', target:'item', targetPlural:'items', incoming:'lensed by', outgoing:'lens of'},
 		'annotation':{id:'annotation', body:'annotation', bodyPlural:'annotations', target:'item', targetPlural:'items', incoming:'annotated by', outgoing:'annotates'},
 		'comment':{id:'comment', body:'comment', bodyPlural:'comments', target:'item', targetPlural:'items', incoming:'has', outgoing:'is a comment on'},
 		'commentary':{id:'commentary', body:'commentary', bodyPlural:'commentaries', target:'item', targetPlural:'items', incoming:'has', outgoing:'is a commentary on'},
@@ -3404,7 +3419,7 @@ ScalarNode.prototype.getRelatedNodes = function(type, direction, includeNonPages
 		for (i=0; i<n; i++) {
 			relation = this.incomingRelations[i];
 			if (( relation.type.id == type ) || ( type == null )) {
-				if (includeNonPages || (!includeNonPages && relation.body.current && relation.target.current)) {
+				if (includeNonPages || (!includeNonPages && relation.body && relation.body.current && relation.target &&  relation.target.current)) {
 					relations.push(relation);
 				}
 			}
@@ -3416,7 +3431,7 @@ ScalarNode.prototype.getRelatedNodes = function(type, direction, includeNonPages
 		for (i=0; i<n; i++) {
 			relation = this.outgoingRelations[i];
 			if (( relation.type.id == type ) || ( type == null )) {
-				if (includeNonPages || (!includeNonPages && relation.body.current && relation.target.current)) {
+				if (includeNonPages || (!includeNonPages && relation.body && relation.body.current && relation.target && relation.target.current)) {
 					relations.push(relation);
 				}
 			}
@@ -3492,7 +3507,7 @@ ScalarNode.prototype.getRelations = function(type, direction, sort, includeNonPa
 		for (i=0; i<n; i++) {
 			relation = this.incomingRelations[i];
 			if ((relation.type.id == type) || (type == null)) {
-				if (includeNonPages || (!includeNonPages && relation.body.current && relation.target.current)) {
+				if (includeNonPages || (!includeNonPages && relation.body && relation.body.current && relation.target && relation.target.current)) {
 					results.push(relation);
 				}
 			}
@@ -3504,7 +3519,7 @@ ScalarNode.prototype.getRelations = function(type, direction, sort, includeNonPa
 		for (i=0; i<n; i++) {
 			relation = this.outgoingRelations[i];
 			if ((relation.type.id == type) || (type == null)) {
-				if (includeNonPages || (!includeNonPages && relation.body.current && relation.target.current)) {
+				if (includeNonPages || (!includeNonPages && relation.body && relation.body.current && relation.target && relation.target.current)) {
 					results.push(relation);
 				}
 			}
@@ -3745,19 +3760,17 @@ ScalarVersion.prototype.parseRelations = function() {
 		}
 	}
 	
-	/*
 	arr = this.data.json['http://scalar.usc.edu/2012/01/scalar-ns#isLensOf'];
 	if (arr) {
 		n = arr.length;
 		for (i=0; i<n; i++) {
-			body = scalarapi.model.nodesByURL[this.data.url];
+			body = scalarapi.model.nodesByURL[ this.data.url.substr(0, this.data.url.lastIndexOf('.')) ];
 			target = null;
-			relation = new ScalarRelation(null, body, target, scalarapi.model.relationTypes.lens);
+			relation = new ScalarRelation(null, body, target, scalarapi.model.relationTypes.lens, this.isLensOf);
 			//scalarapi.model.relations.push(relation);
 			scalarapi.model.relationsById[relation.id] = relation;
 		}
 	}
-	*/
 	
 }
 
@@ -3773,7 +3786,7 @@ ScalarVersion.prototype.parseRelations = function() {
  * @param {Object} target				Target (destination) node.
  * @param {Object} type					Data describing the relation.
  */
-function ScalarRelation(json, body, target, type) {
+function ScalarRelation(json, body, target, type, content) {
 
 	this.properties = {};
 
@@ -3913,16 +3926,21 @@ function ScalarRelation(json, body, target, type) {
 	} else {
 		this.body = body;
 		this.target = target;
-		this.id = this.body.url+this.target.url;
+		this.id = this.body.url + ((this.target) ? this.target.url : 'null');
 		if (type != null) {
 			this.type = type;
 		} else {
 			this.type = scalarapi.model.relationTypes.unknown;
 		}
+		if (content != null) {
+			this.properties.content = content;
+		}
 	}
 
-	if (this.body && this.target){
+	if (this.body) {
 		this.body.addRelation(this);
+	}
+	if (this.target) {
 		this.target.addRelation(this);
 	}
 

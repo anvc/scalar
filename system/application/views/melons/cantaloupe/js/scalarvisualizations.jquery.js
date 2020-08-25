@@ -3721,6 +3721,7 @@ window.scalarvis = { instanceCount: -1 };
     		var pathCoordinates = [];
     		for (var k = 0; k < base.sortedNodes[j].outgoingRelations.length; k++) {
     			if (null == base.sortedNodes[j].outgoingRelations[k].index) continue;  // Not part of the path
+    			if (null == base.sortedNodes[j].outgoingRelations[k].target) continue;  // Not part of the path
     			if (-1 == urls.indexOf(base.sortedNodes[j].outgoingRelations[k].target.url)) urls.push(base.sortedNodes[j].outgoingRelations[k].target.url);
     			var title = '<p style="margin-bottom:8px;">'+base.sortedNodes[j].outgoingRelations[k].startString+' of the "'+pathTitle+'" path<br /><b><a href="'+base.sortedNodes[j].outgoingRelations[k].target.url+'">'+base.sortedNodes[j].outgoingRelations[k].target.getDisplayTitle()+'</a></b></p>';
     			var thumbnail = base.sortedNodes[j].outgoingRelations[k].target.thumbnail;
