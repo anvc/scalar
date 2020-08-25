@@ -4004,6 +4004,10 @@ window.scalarvis = { instanceCount: -1 };
       	  // Create array of words
           for (var j = 0; j < base.sortedNodes.length; j++) {
           	var words = this.getWords(base.sortedNodes[j].current.content);
+          	if (words.indexOf('4') != -1) {
+          		console.log('Contains 4:');
+          		console.log(base.sortedNodes[j]);
+          	}
           	this.words = this.mergeWords(this.words, words);
           };
           base.visualization.empty();
