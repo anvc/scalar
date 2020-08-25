@@ -341,6 +341,20 @@ function ScalarAPI() {
 				'Chrome': {extensions:[], format:'HyperCities Collection', player:'proprietary', specifiesDimensions:false},
 				'Other': {extensions:[], format:'HyperCities Collection', player:'proprietary', specifiesDimensions:false}
 			}},
+                'IIIF': {
+                    name: 'IIIF',
+                    extensions: [],
+                    isProprietary:false,
+                    contentType:'manifest',
+                    browserSupport: {
+                        'Mozilla': {extensions:[], format:'Manifest', player:'Mirador', specifiesDimensions:false},
+			'Explorer': {extensions:[], format:'Manifest', player:'Mirador', specifiesDimensions:false},
+			'MobileSafari': {extensions:[], format:'Manifest', player:'Mirador', specifiesDimensions:false},
+			'Safari': {extensions:[], format:'Manifest', player:'Mirador', specifiesDimensions:false},
+			'Chrome': {extensions:[], format:'Manifest', player:'Mirador', specifiesDimensions:false},
+			'Android': {extensions:[], format:'Manifest', player:'Mirador', specifiesDimensions:false},
+			'Other': {extensions:[], format:'Manifest', player:'Mirador', specifiesDimensions:false}
+			}},
 		'JPEG': {
 			name:'JPEG',
 			extensions:['jpg','jpeg'],
@@ -862,7 +876,8 @@ ScalarAPI.prototype.parseMediaSource = function(uri) {
 
 		} else if (uri.substr(uri.length - 3) == 'PDF') {
 			source = this.mediaSources['PDF'];
-
+                } else if (uri.indexOf('?iiif-manifest=1') != -1) {
+                    source = this.mediaSources['IIIF'];
 		// no special cases; handle normally
 		} else {
 			var currentSource;

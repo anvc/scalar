@@ -290,6 +290,11 @@ Other supported formats: 3gp, aif, flv, mov, mpg, oga, tif, webm<br />
 		<small>IPTC or ID3 fields embedded in the file will auto-populate during upload</small>
 	</td></tr>
 	<tr id="metadata_rows_parent"><td class="field"></td><td><div id="metadata_rows"></div></td></tr>
+        <tr><td>IIIF</td><td>
+		<div class="checkbox">
+			<label><input type="checkbox" id="media_file_url_iiif" name="iiif-url" /> Is IIIF Manifest</label>	
+		</div>
+	</td></tr>
 	<tr><td class="field">Choose file</td><td>
 		<!-- <input type="file" name="source_file" /> -->
 		<label class="btn btn-grey" for="my-file-selector">
