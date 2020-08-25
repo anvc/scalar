@@ -4030,7 +4030,7 @@ window.scalarvis = { instanceCount: -1 };
     	  for (var j = 0; j < arr2.length; j++) {
     		  if (!arr2[j].length) continue;
     		  var word = arr2[j].replace(/[^0-9a-zA-Z-]/g, '');
-    		  if (!word.length < 3) continue;  // Remove empty or short
+    		  if (word.length < 3) continue;  // Remove empty or short
     		  if (this.isAStopWord(word)) continue;  // Remove stop words
     		  if (!isNaN(word) && word.length != 4) continue;  // Remove numbers if not a year
     		  var wordIncluded = false;
