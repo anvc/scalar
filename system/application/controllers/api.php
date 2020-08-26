@@ -769,6 +769,13 @@ Class Api extends CI_Controller {
 		if (isset($json[0]['@context']) && 'http://www.w3.org/ns/anno.jsonld' == $json[0]['@context']) {
 			$_POST['native'] = 'true';
 			$_POST['action'] = 'ADD';
+			if (isset($json[0]['request']) && isset($json[0]['request']['items'])) {
+				$_POST["native"] = (isset($json[0]['request']['items']['native'])) ? $json[0]['request']['items']['native'] : false;
+				$_POST["id"] = (isset($json[0]['request']['items']['id'])) ? $json[0]['request']['items']['id'] : '';
+				$_POST["api_key"] = (isset($json[0]['request']['items']['api_key'])) ? $json[0]['request']['items']['api_key'] : '';
+				$_POST["action"] = (isset($json[0]['request']['items']['action'])) ? $json[0]['request']['items']['action'] : '';
+				$_POST["format"] = (isset($json[0]['request']['items']['format'])) ? $json[0]['request']['items']['format'] : 'json';
+			}
 			
 		// Lens JSON
 		} elseif (isset($json[0]['urn']) && 'urn:scalar:lens:' == substr($json[0]['urn'], 0, 16)) {
