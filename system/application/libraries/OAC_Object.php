@@ -74,7 +74,7 @@ class OAC_Object extends RDF_Object {
     	if (!isset($CI->pages) || 'object'!=gettype($CI->pages)) $CI->load->model('page_model','pages');
     	if (!isset($CI->versions) || 'object'!=gettype($CI->versions)) $CI->load->model('version_model','versions');
     	$return = array();
-    	
+
     	// Validate the book and get the page based on the target URL
     	if (empty($book) || !isset($book->book_id)) return $return;
     	$book_url = base_url() . $book->slug . '/';
@@ -92,7 +92,7 @@ class OAC_Object extends RDF_Object {
     	
     		// Relational fields
     		if (empty($page->versions)) return $return;
-    		$return['rdf:type'] = $CI->versions->rdf_type('media');
+    		$return['rdf:type'] = $CI->versions->rdf_type('composite');
     		$return['scalar:child_type'] = $CI->versions->rdf_type('version');
 	    	$return['scalar:child_urn'] = $CI->versions->urn($page->versions[$page->version_index]->version_id);
 	    	$return['scalar:child_rel'] = 'annotated';

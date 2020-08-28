@@ -26,9 +26,19 @@
 * @version				1.3
 */
 
-header("Access-Control-Allow-Origin: *");
-header('Access-Control-Allow-Credentials: true');
-header('Access-Control-Max-Age: 86400'); 
+// Allow from any origin
+if (isset($_SERVER['HTTP_ORIGIN'])) {
+	header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
+	header('Access-Control-Allow-Credentials: true');
+	header('Access-Control-Max-Age: 86400');
+}
+
+// Access-Control headers are received during OPTIONS requests
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+	if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'])) header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+	if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS'])) header("Access-Control-Allow-Headers: {$_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']}");
+	exit(0);
+}
 
 Class Api extends CI_Controller {
 
@@ -90,19 +100,21 @@ Class Api extends CI_Controller {
  		$this->load->model('user_model', 'users');
  		$this->load->model('api_login_model', 'api_users');
 
+ 		//Get the current book, used to authenticate the user
+ 		$this->load->model('book_model', 'books');
+ 		$this->data['book'] = $this->books->get_by_slug(strtolower(no_edition($this->uri->segment(1))));
+ 		if (empty($this->data['book'])) $this->_output_error(StatusCodes::HTTP_NOT_FOUND, 'Could not find book');
+ 		
  		//Session login first
- 		if($this->data['native']==='true'){
- 			$this->load->model('book_model', 'books');
- 			$this->data['book'] = $this->books->get_by_slug(strtolower(no_edition($this->uri->segment(1))));
- 			if (empty($this->data['book'])) $this->_output_error(StatusCodes::HTTP_NOT_FOUND, 'Could not find book');
+ 		if ($this->data['native']==='true'){
  			$this->user = $this->api_users->do_session_login($this->data['book']->book_id);
- 			if(!$this->user && $this->api_users->is_super()) $this->_output_error(StatusCodes::HTTP_UNAUTHORIZED, 'You do not have permission to modify this book');
- 			if(!$this->user) $this->_output_error(StatusCodes::HTTP_UNAUTHORIZED, 'You are not logged in');
- 			$this->_fill_user_session_data();
+ 			if (!$this->user && $this->api_users->is_super()) $this->_output_error(StatusCodes::HTTP_UNAUTHORIZED, 'You do not have permission to modify this book');
+ 			if (!$this->user) $this->_output_error(StatusCodes::HTTP_UNAUTHORIZED, 'You are not logged in');
  		// API key login
- 		} else if(!$this->user = $this->api_users->do_login($this->data['email'], $this->data['api_key'], $this->data['host'])){
+ 		} else if (!$this->user = $this->api_users->do_login($this->data['email'], $this->data['api_key'], $this->data['host'], $this->data['book']->book_id)){
  			$this->_output_error(StatusCodes::HTTP_UNAUTHORIZED, 'Could not log in via API key');
  		}
+ 		$this->_fill_user_session_data();
 
  		//Determine if the incoming request has a payload (JSON blob) and convert to post fields if available
  		$this->_payload_to_data($this->data['book']);
@@ -777,7 +789,7 @@ Class Api extends CI_Controller {
 				$_POST["native"] = (isset($json[0]['request']['items']['native'])) ? $json[0]['request']['items']['native'] : false;
 				$_POST["id"] = (isset($json[0]['request']['items']['id'])) ? $json[0]['request']['items']['id'] : '';
 				$_POST["api_key"] = (isset($json[0]['request']['items']['api_key'])) ? $json[0]['request']['items']['api_key'] : '';
-				$_POST["action"] = (isset($json[0]['request']['items']['action'])) ? $json[0]['request']['items']['action'] : '';
+				$_POST["action"] = (isset($json[0]['request']['items']['action'])) ? strtoupper($json[0]['request']['items']['action']) : '';
 				$_POST["format"] = (isset($json[0]['request']['items']['format'])) ? $json[0]['request']['items']['format'] : 'json';
 			}
 			
