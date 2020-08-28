@@ -1106,7 +1106,7 @@ a.nav_btn:hover {
 .texteo_icon       { background-repeat:no-repeat; background-size: 15px 15px; padding-left:20px; background-position:2px 2px; }
 .texteo_icon_audio { background-image:url(images/audio@2x.png); }
 .texteo_icon_video { background-image:url(images/video@2x.png); }
-.texteo_icon_image, .texteo_icon_tiledImage { background-image:url(images/image@2x.png); }
+.texteo_icon_image, .texteo_icon_tiledImage, .texteo_icon_manifest { background-image:url(images/image@2x.png); }
 .texteo_icon_note { background-image:url(images/note@2x.png); }
 .texteo_icon_map { background-image:url(images/map@2x.png); background-size: 8px 15px !important; padding-left: 13px !important; }
 .texteo_icon_timeline { background-image:url(images/timeline@2x.png); }
