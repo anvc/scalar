@@ -76,6 +76,9 @@ class MY_Controller extends CI_Controller {
 			} elseif ($this->login->do_login()) {
 				header('Location: '.$this->redirect_url());
 				exit;
+			} elseif ($this->login->do_google_authenticator()) {
+				header('Location: '.$this->redirect_url());
+				exit;
 			}
 			$this->set_login_params();
 		} catch (Exception $e) {

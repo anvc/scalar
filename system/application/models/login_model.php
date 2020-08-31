@@ -47,6 +47,16 @@ class Login_model extends User_model {
 			$result->uri = $_SERVER['REQUEST_URI'];
 			$this->session->set_userdata(array($this->login_basename => (array) $result));
 			return (object) $data;
+		} elseif (!empty($data) && isset($data['google_authenticator_authenticated']) && !$data['google_authenticator_authenticated']) {
+			$result = new stdClass;
+			$user_id = (int) $data['user_id'];
+			$result = $this->get_by_user_id($user_id);
+			$result->is_logged_in = false;
+			$result->google_authenticator_authenticated = false;
+			$result->error = null;
+			$result->uri = $_SERVER['REQUEST_URI'];
+			$this->session->set_userdata(array($this->login_basename => (array) $result));
+			return (object) $data;
 		}
 
 		// Return empty
@@ -69,6 +79,7 @@ class Login_model extends User_model {
     			$CI->redirect_url($_REQUEST['redirect_url']);
     		}
     		$this->session->unset_userdata($this->login_basename);
+    		$this->session->unset_userdata($this->login_basename.'__cache_results');
 			return true;
     	}
 
@@ -92,9 +103,10 @@ class Login_model extends User_model {
 	public function do_login($force=false) {
 
 		$action = (isset($_REQUEST['action'])) ? $_REQUEST['action'] : null;
+		
 		if ($force || $action == 'do_login') {
 
-			$email = trim($_POST['email']);
+			$email =@ trim($_POST['email']);
 			if (empty($email)) throw new Exception( lang('login.invalid') );
 			log_message('error', 'Scalar: Login attempt by '.$email.', from '.$this->getUserIpAddr().'.');
 			$password = trim($_POST['password']);
@@ -121,6 +133,17 @@ class Login_model extends User_model {
 				$result->books = array();
 				$this->session->set_userdata(array($this->login_basename => (array) $result));
 				throw new Exception( lang('login.invalid') );
+			} else if ($this->must_pass_google_authenticator($result)) {
+				parent::save_reset_string($result->user_id, '');  // Get rid of any reset string if the user successfully logs in
+				$this->session->set_userdata(array($this->login_basename.'__cache_results' => (array) $result));
+				$result = new stdClass;
+				$result->is_logged_in = false;
+				$result->books = array();
+				$this->session->set_userdata(array($this->login_basename => (array) $result));
+				$this->reset_login_attempts();
+				$url = base_url().'system/authenticator';
+				header('Location: '.$url);
+				exit;
 			} else {
 				parent::save_reset_string($result->user_id, '');  // Get rid of any reset string if the user successfully logs in
 				$result->is_logged_in = true;
@@ -134,6 +157,31 @@ class Login_model extends User_model {
 		return false;
 
 	}
+	
+	public function do_google_authenticator() {
+		
+		$action = (isset($_REQUEST['action'])) ? $_REQUEST['action'] : null;
+		
+		if ($action == 'do_authenticator') {
+		
+			include_once APPPATH.'/libraries/GoogleAuthenticator/vendor/autoload.php';
+			$g = new \Google\Authenticator\GoogleAuthenticator();
+			$google_authenticator_salt = $this->config->item('google_authenticator_salt');
+			$code = trim($_POST['code']);
+			if ($g->checkCode($google_authenticator_salt, $code)) {
+				$result = $this->session->userdata($this->login_basename.'__cache_results');
+				if (empty($result)) return false;  // There isn't a pending login session
+				$result['is_logged_in'] = true;
+				$result['google_authenticator_authenticated'] = true;
+				$this->session->set_userdata(array($this->login_basename => $result));
+				$this->session->unset_userdata($this->login_basename.'__cache_results');
+				return true;
+			}
+		}
+		
+		return false;
+		
+	}
 
 	public function has_empty_password($email='') {
 
@@ -145,6 +193,25 @@ class Login_model extends User_model {
 
 		return parent::has_empty_password($email);
 
+	}
+	
+	private function must_pass_google_authenticator($user=array()) {
+		
+		// Super admins only
+		if (!$user->is_super) return false;
+		// Google Authenticator SALT key
+		$salt = $this->config->item('google_authenticator_salt');
+		if (empty($salt)) return false;
+		// Get user ID
+		$user_id = (int) $user->user_id;
+		// Get resource array
+		$ci =& get_instance();
+		$ci->load->model('resource_model', 'resources');
+		$arr = json_decode($ci->resources->get('google_authenticator'), true);
+		// Check whether GA auth is enabled or not
+		if (isset($arr[$user_id]) && $arr[$user_id]) return true;
+		return true;
+		
 	}
 
 	private function increment_and_check_login_attempts() {

@@ -87,6 +87,7 @@ $(document).ready(function() {
 	    <li data-id="export"><a href="?book_id=<?=((isset($book) && !empty($book))?$book->book_id:'0')?>&zone=utils&pill=export#tabs-utils">Export</a></li>
 	    <li data-id="api-explorer"><a href="?book_id=<?=((isset($book) && !empty($book))?$book->book_id:'0')?>&zone=utils&pill=api-explorer#tabs-utils">API Explorer</a></li>
 <? if ($login_is_super): ?>
+		<li class="admin" data-id="google-authenticator"><a href="?book_id=<?=((isset($book) && !empty($book))?$book->book_id:'0')?>&zone=utils&pill=google-authenticator#tabs-utils">Google Authenticator</a></li>
 		<li class="admin" data-id="manage-users"><a href="?book_id=<?=((isset($book) && !empty($book))?$book->book_id:'0')?>&zone=all-users&pill=manage-users#tabs-utils">Manage users</a></li>
 		<li class="admin" data-id="manage-books"><a href="?book_id=<?=((isset($book) && !empty($book))?$book->book_id:'0')?>&zone=all-books&pill=manage-books#tabs-utils">Manage books</a></li>
 		<li class="admin" data-id="generate-email-list"><a href="?book_id=<?=((isset($book) && !empty($book))?$book->book_id:'0')?>&zone=utils&pill=generate-email-list#tabs-utils">Generate email list</a></li>
@@ -347,6 +348,36 @@ $(document).ready(function() {
 			</div>
 			</form>
     	<?php endif; ?>
+    	</div>
+    	<div class="section" id="google-authenticator">
+    	<?php if ('google-authenticator'==$pill): ?>
+			<form action="<?=confirm_slash(base_url())?>system/dashboard?book_id=<?=((isset($book)&&!empty($book))?$book->book_id:0)?>&zone=utils&pill=google-authenticator#tabs-utils" method="post">
+			<input type="hidden" name="zone" value="utils" />
+			<input type="hidden" name="pill" value="google-authenticator" />
+			<input type="hidden" name="action" value="enable_google_authenticator" />
+			<h4>Google Authenticator</h4><br />
+			<div><div style="width:50%;float:left;"><?php 
+				$salt = $this->config->item('google_authenticator_salt');
+				if (empty($salt)) {
+					echo 'Two factor authentication is disabled. To enable, enter a "google_authenticator_salt" key in local_settings.php.'."\n";
+				} else {
+					echo 'To enable two-factor authentication for your super admin account (<b>'.$login->email.'</b>) first open Google Authenticator on your device and scan the QR code:<br />'."\n";
+					echo $qr_image;
+					echo '<br />';
+					echo 'Then, check the box below to enable two-factor authentication for your account:<br />';
+					echo '<label><input style="margin-top:8px;" type="checkbox" name="enable_google_authenticator" value="1" '.(($google_authenticator_is_enabled)?'checked':'').' /> &nbsp;Enable two-factor authentication for my account</labe><br />';
+					echo '<input type="submit" value="Save" style="margin-top:8px;" />';
+				}
+			?></div><div style="width:50%;float:right;border-left:solid 1px #aaaaaa;padding-left:20px;">
+				List of super admins (<b>bold</b> = authentication enabled):<br /><br /><?php 
+				foreach ($super_admins as $admin) {
+					$enabled = (isset($admin->google_authenticator_is_enabled) && $admin->google_authenticator_is_enabled) ? true : false; 
+					echo (($enabled)?'<b>':'').$admin->fullname.' ('.$admin->email.')'.(($enabled)?'</b>':'').'<br />';
+				}
+				?>
+			</div></div>
+			</form>
+		<?php endif; ?>
     	</div>
     	<div class="section" id="manage-books">
     	<?php if ('manage-books'==$pill): ?>

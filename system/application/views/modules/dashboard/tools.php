@@ -37,6 +37,34 @@ $(document).ready(function() {
 });
 </script>
 <h4>Admin Tools</h4>
+
+<form action="<?=confirm_slash(base_url())?>system/dashboard#tabs-tools" method="post">
+<input type="hidden" name="zone" value="tools" />
+<input type="hidden" name="action" value="enable_google_authenticator" />
+Google Authenticator
+<span style="float:right;">Enable two-factor authentication</span>
+<div style="margin-top:12px;"><div style="width:49%;float:left;"><?php 
+	$salt = $this->config->item('google_authenticator_salt');
+	if (empty($salt)) {
+		echo 'Two factor authentication is disabled. To enable, enter a "google_authenticator_salt" key in local_settings.php.'."\n";
+	} else {
+		echo 'To enable two-factor authentication for your super admin account (<b>'.$login->email.'</b>) first open Google Authenticator on your device and scan the QR code:<br />'."\n";
+		echo $qr_image;
+		echo '<br />';
+		echo 'Then, check the box below to enable two-factor authentication for your account:<br />';
+		echo '<label><input style="margin-top:8px;" type="checkbox" name="enable_google_authenticator" value="1" '.(($google_authenticator_is_enabled)?'checked':'').' /> &nbsp;Enable two-factor authentication for my account</labe><br />';
+		echo '<input type="submit" value="Save" style="margin-top:8px;" />';
+	}
+?></div><div style="width:49%;float:right;border-left:solid 1px #aaaaaa;padding-left:20px;">
+	List of super admins (<b>bold</b> = authentication enabled):<br /><br /><?php 
+	foreach ($super_admins as $admin) {
+		$enabled = (isset($admin->google_authenticator_is_enabled) && $admin->google_authenticator_is_enabled) ? true : false; 
+		echo (($enabled)?'<b>':'').$admin->fullname.' ('.$admin->email.')'.(($enabled)?'</b>':'').'<br />';
+	}
+	?>
+</div>
+</form>
+<br clear="both" /><br />
 <form action="<?=confirm_slash(base_url())?>system/dashboard#tabs-tools" method="post">
 <input type="hidden" name="zone" value="tools" />
 <input type="hidden" name="action" value="get_recent_book_list" />

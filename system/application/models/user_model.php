@@ -277,6 +277,17 @@ class User_model extends MY_Model {
     	return $query->result();  	// Could be more than one
 
     }
+    
+    public function get_super_admins() {
+    	
+    	$this->db->select('*');
+    	$this->db->from($this->users_table);
+    	$this->db->where('is_super', 1);
+    	$query = $this->db->get();
+    	if ($query->num_rows == 0) return false;
+    	return $query->result();  	// Could be more than one
+    	
+    }
 
     public function email_exists_for_different_user($email='', $user_id=0) {
 
