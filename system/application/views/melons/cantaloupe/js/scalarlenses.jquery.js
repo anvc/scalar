@@ -3150,11 +3150,13 @@
           case 'make-public':
             me.scalarLensObject.public = true;
             $(menuOptions).find('li').text()
+            me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
           break;
 
           case 'make-private':
             me.scalarLensObject.public = false;
-          break;
+            me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
+            break;
 
           case 'freeze':
             me.scalarLensObject.frozen = true;
@@ -3176,6 +3178,7 @@
                 //console.log(nodesURL)
               }
             }
+            me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
           break;
 
           case 'unfreeze':
@@ -3185,6 +3188,7 @@
               lensButtons.removeClass('disabled');
             }
             me.scalarLensObject["frozen-items"] = [];
+            me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
           break;
 
           case 'submit-lens':
@@ -3213,7 +3217,6 @@
 
         }
 
-        me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
         me.updateOptionsMenu();
 
       };
@@ -3325,14 +3328,15 @@
         for (var url in this.lastResults.items) {
           if (scalarapi.model.nodesByURL[url] != null) {
             let node = scalarapi.model.nodesByURL[url];
+              console.log(node.baseType);
             let datum = {
               title: node.title,
               slug: node.slug,
               description: node.current.description,
-              content: node.current.content,
+              //content: node.current.content,
               created: node.current.created,
               author: node.current.author,
-              baseType: node.baseType,
+              baseType: [node.baseType],
               url: node.url,
               urn: node.current.urn
             };
@@ -3362,7 +3366,7 @@
         }
         let csv = Papa.unparse(data, {columns: keys});
         var hiddenElement = document.createElement('a');
-        hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);
+        hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
         hiddenElement.target = '_blank';
         hiddenElement.download = 'scalar-export.csv';
         hiddenElement.click();
@@ -3494,7 +3498,7 @@
       this.scalarLensObject.user_level = this.userLevel;
       this.baseURL = $('link#parent').attr('href');
       if (this.canSave == true) {
-        /*let currentNode = scalarapi.model.getCurrentPageNode();
+        let currentNode = scalarapi.model.getCurrentPageNode();
         var baseProperties =  {
             'native': 1,
             'id': this.userId,
@@ -3508,24 +3512,21 @@
           /*'dcterms:description': currentNode.current.description,
           'sioc:content': currentNode.current.content,
           'rdf:type': currentNode.baseType,
-          'scalar:is_live': currentNode.isLive*
+          'scalar:is_live': currentNode.isLive*/
         };
         var relationData = {};
-        /*relationData[annotation.id] = {
+        relationData[this.scalarLensObject.slug + 'null'] = {
           action: 'RELATE',
-          'scalar:urn': annotation.body.current.urn,
-          'scalar:child_urn': $('input[name="scalar:child_urn"]').val(),
-          'scalar:child_rel': 'annotated',
-          'scalar:start_seconds': edits.start,
-          'scalar:end_seconds': edits.end,
-          'scalar:start_line_num': '',
-          'scalar:end_line_num': '',
-          'scalar:points': ''
-        };*
+          'scalar:urn': this.scalarLensObject.urn,
+          'scalar:child_rel': 'grouped',
+          'scalar:contents': JSON.stringify(this.scalarLensObject)
+        };
 
-        scalarapi.modifyPageAndRelations(baseProperties, pageData, this.scalarLensObject, successHandler);*/
+        console.log(relationData);
 
-        $.ajax({
+        scalarapi.modifyPageAndRelations(baseProperties, pageData, relationData, successHandler);
+
+        /*$.ajax({
           url: this.baseURL + "api/relate",
           type: "POST",
           dataType: 'json',
@@ -3537,7 +3538,7 @@
           error: function error(response) {
             console.log(response);
           }
-        });
+        });*/
       } else {
         $('#duplicate-copy-prompt').addClass('show-lens-prompt');
       }
