@@ -51,6 +51,10 @@ $config['register_key'] = array();
 $config['max_login_attempts'] = 6;
 $config['max_login_attempts_penalty_seconds'] = 120;
 
+// To enable two-factor authentication (using the Google Authenticator), enter a salt string here
+// The string needs to be a 'base32' string 'without equals signs at the end' or the QR barcode will not work
+$config['google_authenticator_salt'] = '';
+
 // Soundcloud key
 $config['soundcloud_id'] = (getenv('SCALAR_SOUNDCLOUD_ID') ? getenv('SCALAR_SOUNDCLOUD_ID') : '');
 
