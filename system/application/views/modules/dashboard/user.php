@@ -1,5 +1,6 @@
 <?if (!defined('BASEPATH')) exit('No direct script access allowed')?>
 <?$this->template->add_js(path_from_file(__FILE__).'../../widgets/modals/jquery.duplicatabledialog.js')?>
+<?$this->template->add_js("\nvar fullname='".$login->fullname."';\nvar email='".$login->email."';\nvar strong_password_enabled=".$this->config->item('strong_password')."\n", 'embed')?>
 
 <script>
 $(window).ready(function() {
@@ -35,6 +36,26 @@ $(window).ready(function() {
 			});
 		};
     });
+    $('input[name="password"]').on('keyup', function() {
+    	if (!strong_password_enabled) return;
+		var passwd = $(this).val();
+		var $bar = $('.strong_password_bar');
+		var reservedWords = fullname.split(' ');
+		reservedWords = reservedWords.concat(email.split('@'));
+		var msg = '';
+		if (passwd.length < 16) {
+			msg = 'Password must be at least 16 characters longs';
+		}
+		for (var j = 0; j < reservedWords.length; j++) {
+			if (passwd.toLowerCase().indexOf(reservedWords[j].toLowerCase()) != -1) msg = 'Password cannot contain elements of name or email';
+		}
+		$bar.css('visibility', 'visible');
+		if (msg.length) {
+			$bar.removeClass('strong_password_strong').addClass('strong_password_weak').text(msg);
+		} else {
+			$bar.removeClass('strong_password_weak').addClass('strong_password_strong').text('Password strength is strong');
+		}
+    });
 });
 </script>
 
@@ -52,6 +73,12 @@ $(window).ready(function() {
 <? endif ?>
 <? if (isset($_REQUEST['error']) && 'password_match'==$_REQUEST['error']): ?>
 <div class="error">New password and retype password do not match<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">clear</a></div>
+<? endif ?>
+<? if (isset($_REQUEST['error']) && 'strong_password'==$_REQUEST['error']): ?>
+<div class="error">New password did not pass strong password test<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">clear</a></div>
+<? endif ?>
+<? if (isset($_REQUEST['error']) && 'previous_password'==$_REQUEST['error']): ?>
+<div class="error">New password has previously been used<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">clear</a></div>
 <? endif ?>
 
 <form action="<?=confirm_slash(base_url())?>system/dashboard" method="post" id="user_form">
@@ -89,12 +116,17 @@ $(window).ready(function() {
 <tr class="odd" typeof="books">
 	<td style="vertical-align:middle;white-space:nowrap;">Change password</td>
 	<td style="vertical-align:middle;">
-		<span style="white-space:nowrap;">Current:
-		<input name="old_password" type="password" value="" style="width:150px;" autocomplete="off" /></span>
-		&nbsp; <span style="white-space:nowrap;">New:
-		<input name="password" type="password" value="" style="width:150px;" autocomplete="off" /></span>
-		&nbsp; <span style="white-space:nowrap;">Retype new:
-		<input name="password_2" type="password" value="" style="width:150px;" autocomplete="off" /></span>
+		<div style="display:inline-block;vertical-align:top;">
+			<span style="white-space:nowrap;">Current:
+			<input name="old_password" type="password" value="" style="width:150px;" autocomplete="off" /></span>
+		</div>
+		<div style="display:inline-block;vertical-align:top;">
+			&nbsp; <span style="white-space:nowrap;">New:
+			<input name="password" type="password" value="" style="width:150px;" autocomplete="off" /></span>
+			&nbsp; <span style="white-space:nowrap;">Retype new:
+			<input name="password_2" type="password" value="" style="width:150px;" autocomplete="off" /></span><br />
+			&nbsp; <span class="strong_password_bar">&nbsp;</span>
+		</div>
 	</td>
 </tr>
 <tr>

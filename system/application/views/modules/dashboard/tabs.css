@@ -184,3 +184,6 @@ table.tablesorter .tablesorter-header-inner {
 
 input[name="is_duplicate"] {margin-right:8px; margin-left:16px;}
 
+.strong_password_bar {visibility:hidden; border-top:solid 1px #aaaaaa; display:inline-block; margin-top:12px; padding:6px 6px 5px 6px; min-width:400px;}
+.strong_password_weak {background-color:#f9e46d;}
+.strong_password_strong {background-color:#6df977;}

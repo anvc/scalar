@@ -1,4 +1,5 @@
 <?if (!defined('BASEPATH')) exit('No direct script access allowed')?>
+<?$this->template->add_js("\nvar fullname='".$login->fullname."';\nvar email='".$login->email."';\nvar strong_password_enabled=".$this->config->item('strong_password')."\n", 'embed')?>
 <script>
 $(document).ready(function() {
     // Table row mousovers
@@ -62,6 +63,26 @@ $(document).ready(function() {
 		$duplicateBookModal.find('.rows').hide();
 		$duplicateBookModal.find('button:last').prop('disabled','disabled');
 	});
+    $('input[name="password"]').on('keyup', function() {
+        if (!strong_password_enabled) return;
+		var passwd = $(this).val();
+		var $bar = $('.strong_password_bar');
+		var reservedWords = fullname.split(' ');
+		reservedWords = reservedWords.concat(email.split('@'));
+		var msg = '';
+		if (passwd.length < 16) {
+			msg = 'Password must be at least 16 characters longs';
+		}
+		for (var j = 0; j < reservedWords.length; j++) {
+			if (passwd.toLowerCase().indexOf(reservedWords[j].toLowerCase()) != -1) msg = 'Password cannot contain elements of name or email';
+		}
+		$('.strong_password_bar_wrapper').show();
+		if (msg.length) {
+			$bar.removeClass('strong_password_strong').addClass('strong_password_weak').text(msg);
+		} else {
+			$bar.removeClass('strong_password_weak').addClass('strong_password_strong').text('Password strength is strong');
+		}
+    });
 });
 </script>
 
@@ -85,6 +106,12 @@ $(document).ready(function() {
 <? endif ?>
 <? if (isset($_REQUEST['error']) && 'password_match'==$_REQUEST['error']): ?>
 <div class="alert alert-danger">New password and retype password do not match<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">remove notice</a></div>
+<? endif ?>
+<? if (isset($_REQUEST['error']) && 'strong_password'==$_REQUEST['error']): ?>
+<div class="alert alert-danger">New password did not pass strong password test<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">remove notice</a></div>
+<? endif ?>
+<? if (isset($_REQUEST['error']) && 'previous_password'==$_REQUEST['error']): ?>
+<div class="alert alert-danger">New password has previously been used<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">remove notice</a></div>
 <? endif ?>
 <? if (isset($_REQUEST['error']) && 'invalid_captcha_1'==$_REQUEST['error']): ?>
 <div class="alert alert-danger">Invalid CAPTCHA response<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">remove notice</a></div>
@@ -162,6 +189,12 @@ $(document).ready(function() {
           <label for="password_2" class="col-sm-4 control-label">Retype new</label>
           <div class="col-sm-8">
             <input type="password" class="form-control" id="password_2" name="password_2">
+          </div>
+        </div>
+        <div class="form-group strong_password_bar_wrapper" style="display:none;">
+          <label for="password_2" class="col-sm-4 control-label">&nbsp;</label>
+          <div class="col-sm-8">
+            <span class="strong_password_bar">&nbsp;</span>
           </div>
         </div>
         <div class="page-header">&nbsp;</div>

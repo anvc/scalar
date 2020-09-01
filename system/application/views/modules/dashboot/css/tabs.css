@@ -138,6 +138,10 @@ header h5 {margin-bottom:14px;}
 #manageEditions .edition .formatted {white-space:nowrap;}
 #manageEditions .edition.deleted {opacity:0.35}
 
+.strong_password_bar {border-top:solid 1px #aaaaaa; display:inline-block; padding:6px 8px 5px 8px;}
+.strong_password_weak {background-color:#f9e46d;}
+.strong_password_strong {background-color:#6df977;}
+
 /* (tablets, 768px and up) */
 @media (min-width: 768px) { 
 	.bgcolor { padding-left:40px; padding-right:40px; }

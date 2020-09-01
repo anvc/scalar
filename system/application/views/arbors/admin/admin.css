@@ -224,3 +224,9 @@ textarea[name=custom_style], textarea[name=custom_js] { font-family: Courier, mo
 .pulldown-content-nudge-left {right:0px;}
 .pulldown-content-nudge-center {left:0px;}  /* jQuery will center */
 .pulldown-content-nudge-right {left:0px;}
+
+/* Strong password */
+
+.strong_password_bar {border-top:solid 1px #aaaaaa; display:none; padding:6px 8px 5px 8px;}
+.strong_password_weak {background-color:#f9e46d;}
+.strong_password_strong {background-color:#6df977;}

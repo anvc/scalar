@@ -7,9 +7,35 @@ if (isset($_REQUEST['redirect_url'])) {
 $this->template->add_meta('viewport','width=device-width');
 $this->template->add_css('system/application/views/arbors/admin/admin.css');
 $this->template->add_js('system/application/views/arbors/admin/jquery-3.4.1.min.js');
+$this->template->add_js("\nvar strong_password_enabled=".$this->config->item('strong_password')."\n", 'embed');
 ?>
 <script src="https://code.jquery.com/jquery-migrate-3.1.0.js"></script>
 <?$this->template->add_js('system/application/views/arbors/admin/admin.js')?>
+<script>
+$(document).ready(function() {
+$('input[name="password"]').on('keyup', function() {
+	    if (!strong_password_enabled) return;
+		var passwd = $(this).val();
+		var $bar = $('.strong_password_bar');
+		var reservedWords = [];
+		if ($('input[name="fullname"]').val().length) reservedWords = reservedWords.concat($('input[name="fullname"]').val().split(' '));
+		if ($('input[name="email"]').val().length) reservedWords = reservedWords.concat($('input[name="email"]').val().split('@'));
+		var msg = '';
+		if (passwd.length < 16) {
+			msg = 'Password must be at least 16 characters longs';
+		}
+		for (var j = 0; j < reservedWords.length; j++) {
+			if (passwd.toLowerCase().indexOf(reservedWords[j].toLowerCase()) != -1) msg = 'Password cannot contain elements of name or email';
+		}
+		$bar.css('display', 'inline-block');
+		if (msg.length) {
+			$bar.removeClass('strong_password_strong').addClass('strong_password_weak').text(msg);
+		} else {
+			$bar.removeClass('strong_password_weak').addClass('strong_password_strong').text('Password strength is strong');
+		}
+	});
+});
+</script>
 <div class="system_wrapper">
 <div class="content">
 <?
@@ -49,7 +75,10 @@ if (isset($_POST['registration_key'])) $registration_key = trim(htmlspecialchars
 			</tr>
 			<? endif ?>
 			<tr>
-				<td class="field">Password <span style="color:red;">*</span></td><td class="value"><input type="password" name="password" class="input_text" autocomplete="off" /></td>
+				<td class="field">
+					Password <span style="color:red;">*</span></td><td class="value"><input type="password" name="password" class="input_text" autocomplete="off" /><br />
+					<span class="strong_password_bar">&nbsp;</span>
+				</td>
 			</tr>
 			<tr>
 				<td class="field">Confirm<br />password <span style="color:red;">*</span></td><td class="value"><input type="password" name="password_2" class="input_text" autocomplete="off" /></td>

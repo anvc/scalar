@@ -424,6 +424,15 @@ class System extends MY_Controller {
 		 					header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&error=password_match');
 		 					exit;
 		 				}
+		 				$strong_password_enabled = $this->config->item('strong_password');
+		 				if ($strong_password_enabled && !$this->users->test_strong_password($array['password'], $array['fullname'], $array['email'])) {
+		 					header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&error=strong_password');
+		 					exit;
+		 				}
+		 				if ($strong_password_enabled && !$this->users->test_previous_password($array['password'], $array['email'])) {
+		 					header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&error=previous_password');
+		 					exit;
+		 				}
 		 				$this->users->set_password($this->data['login']->user_id, $array['password']);
 		 			}
 					// Save profile
@@ -531,7 +540,7 @@ class System extends MY_Controller {
 						unset($array['password_2']);
 						$user_id = (int) $this->users->add($array);
 					} catch (Exception $e) {
-						$get .= 'error=3';
+						$get .= 'error='.urlencode($e->getMessage());
 						if (isset($_REQUEST['hash'])) $get .= $_REQUEST['hash'];
 						header('Location: '.$this->base_url.$get);
 						exit;

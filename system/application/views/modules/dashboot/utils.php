@@ -237,12 +237,12 @@ $(document).ready(function() {
 
 			<? if (isset($_GET['error']) && $_GET['error']==1): ?>
 			<div class="alert alert-danger">You left out a required field<a style="float:right;" href="?book_id=<?=((isset($book->book_id))?$book->book_id:0)?>&pill=manage-users&zone=all-users#tabs-utils">clear</a></div>
-			<? endif; ?>
-			<? if (isset($_GET['error']) && $_GET['error']==2): ?>
+			<? elseif (isset($_GET['error']) && $_GET['error']==2): ?>
 			<div class="alert alert-danger">Password and Retype password did not match<a style="float:right;" href="?book_id=<?=((isset($book->book_id))?$book->book_id:0)?>&pill=manage-users&zone=all-users#tabs-utils">clear</a></div>
-			<? endif; ?>
-			<? if (isset($_GET['error']) && $_GET['error']==3): ?>
+			<? elseif (isset($_GET['error']) && $_GET['error']==3): ?>
 			<div class="alert alert-danger">A user with that email address already exists<a style="float:right;" href="?book_id=<?=((isset($book->book_id))?$book->book_id:0)?>&pill=manage-users&zone=all-users#tabs-utils">clear</a></div>
+			<? elseif (isset($_GET['error'])): ?>
+			<div class="alert alert-danger"><? echo $_GET['error']; ?><a style="float:right;" href="?book_id=<?=((isset($book->book_id))?$book->book_id:0)?>&pill=manage-users&zone=all-users#tabs-utils">clear</a></div>
 			<? endif; ?>
 			<? if (isset($_REQUEST['action']) && 'deleted'==$_REQUEST['action']): ?>
 			<div class="alert alert-success">User has been deleted<a style="float:right;" href="?book_id=<?=((isset($book->book_id))?$book->book_id:0)?>&pill=manage-users&zone=all-users#tabs-utils">clear</a></div>
