@@ -210,7 +210,7 @@ class Login_model extends User_model {
 		$arr = json_decode($ci->resources->get('google_authenticator'), true);
 		// Check whether GA auth is enabled or not
 		if (isset($arr[$user_id]) && $arr[$user_id]) return true;
-		return true;
+		return false;
 		
 	}
 
