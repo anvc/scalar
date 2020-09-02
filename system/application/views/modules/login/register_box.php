@@ -22,7 +22,7 @@ $('input[name="password"]').on('keyup', function() {
 		if ($('input[name="email"]').val().length) reservedWords = reservedWords.concat($('input[name="email"]').val().split('@'));
 		var msg = '';
 		if (passwd.length < 16) {
-			msg = 'Password must be at least 16 characters longs';
+			msg = 'Password must be at least 16 characters long';
 		}
 		for (var j = 0; j < reservedWords.length; j++) {
 			if (passwd.toLowerCase().indexOf(reservedWords[j].toLowerCase()) != -1) msg = 'Password cannot contain elements of name or email';

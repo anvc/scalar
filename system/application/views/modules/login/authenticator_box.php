@@ -26,7 +26,7 @@ $this->template->add_js('system/application/views/arbors/admin/jquery-3.4.1.min.
 				</td>
 			</tr>
 			<tr>
-				<td class="field">Code</td><td class="value"><input type="text" name="code" value="" class="input_text" /></td>
+				<td class="field">Code</td><td class="value"><input type="text" name="code" value="" class="input_text" autofocus /></td>
 			</tr>
 			<tr>
 				<td></td>
