@@ -591,6 +591,20 @@ function ScalarAPI() {
 				'Android': {extensions:prismSrcExt, format:'PlainText', player:'native', specifiesDimensions:false},
 				'Other': {extensions:prismSrcExt, format:'PlainText', player:'native', specifiesDimensions:false}
 			}},
+		'Unity WebGL': {
+			name:'Unity WebGL',
+			extensions:[],
+			isProprietary:true,
+			contentType:'3D',
+			browserSupport: {
+				'Mozilla': {extensions:[], format:'', player:'proprietary', specifiesDimensions:false},
+				'Explorer': {extensions:[], format:'', player:'proprietary', specifiesDimensions:false},
+				'MobileSafari': {extensions:[], format:'', player:'proprietary', specifiesDimensions:false},
+				'Safari': {extensions:[], format:'', player:'proprietary', specifiesDimensions:false},
+				'Chrome': {extensions:[], format:'', player:'proprietary', specifiesDimensions:false},
+				'Android': {extensions:[], format:'', player:'proprietary', specifiesDimensions:false},
+				'Other': {extensions:[], format:'', player:'proprietary', specifiesDimensions:false}
+			}},
 		'Unsupported': {
 			name:'Unsupported',
 			extensions:[],
@@ -876,8 +890,10 @@ ScalarAPI.prototype.parseMediaSource = function(uri) {
 
 		} else if (uri.substr(uri.length - 3) == 'PDF') {
 			source = this.mediaSources['PDF'];
-                } else if (uri.indexOf('?iiif-manifest=1') != -1) {
-                    source = this.mediaSources['IIIF'];
+    } else if (uri.indexOf('?iiif-manifest=1') != -1) {
+      source = this.mediaSources['IIIF'];
+    } else if (uri.indexOf('?unity-webgl=1') != -1) {
+      source = this.mediaSources['Unity WebGL'];
 		// no special cases; handle normally
 		} else {
 			var currentSource;
@@ -1476,8 +1492,6 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 			completePageData[property] = pageData[property];
 		};
 
-    console.log('save page',completePageData);
-
 		scalarapi.savePage(completePageData, function(json) {
 
 			var node;
@@ -1757,13 +1771,13 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 				};
 				// add the new properties
 				for (subproperty in relationData[property]) {
-					//if (subproperty != 'scalar:urn') {
+					if (subproperty != 'scalar:urn') {
 						if ( completeRelationData[property] == null ) {
 							completeRelationData[property] = {};
 						}
             console.log(property,subproperty,relationData[property][subproperty]);
 						completeRelationData[property][subproperty] = relationData[property][subproperty];
-					//}
+					}
 				}
         console.log(completeRelationData[property]);
         if (completeRelationData[property]['scalar:contents']) {
@@ -1774,6 +1788,7 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 
 			for (property in completeRelationData) {
 				scalarapi.queueManyRelations(completeRelationData[property]);
+        console.log(property,completeRelationData[property]);
 			}
 
 			scalarapi.runManyRelations(function(e) {

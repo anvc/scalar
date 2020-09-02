@@ -1130,6 +1130,8 @@ function YouTubeGetID(url){
 						case '3D':
 						if (player == 'Threejs') {
 							this.mediaObjectView = new $.ThreejsObjectView(this.model, this);
+            } else if (this.model.mediaSource.name == 'Unity WebGL') {
+              this.mediaObjectView = new $.UnityWebGLObjectView(this.model, this);
 						}
 						break;
 
@@ -5507,7 +5509,7 @@ function YouTubeGetID(url){
 	 */
 	jQuery.MiradorObjectView = function(model, parentView) {
 
-                var me = this;
+    var me = this;
 
 		this.model = model;  					// instance of the model
 		this.parentView = parentView;   		// primary view for the media element
@@ -5522,15 +5524,15 @@ function YouTubeGetID(url){
 
 			this.mediaObject = $( '<div class="mediaObject" id="mirador"></div>' ).appendTo( this.parentView.mediaContainer );
 
-                        var miradorInstance = Mirador.viewer({
-                            id: 'mirador',
-                            windows: [{ manifestId: this.model.node.current.sourceFile }]
-                        });
+      var miradorInstance = Mirador.viewer({
+          id: 'mirador',
+          windows: [{ manifestId: this.model.node.current.sourceFile }]
+      });
 
 			this.parentView.layoutMediaObject();
 			this.parentView.removeLoadingMessage();
-                        // make sure mirador doesn't overflow its bounds
-                        $('.mirador-viewer').css('max-height', $('.mediaContainer').css('max-height'));
+      // make sure mirador doesn't overflow its bounds
+      $('.mirador-viewer').css('max-height', $('.mediaContainer').css('max-height'));
 
 			return;
 		}
@@ -5736,6 +5738,68 @@ function YouTubeGetID(url){
 					$(theElement).removeClass('small');
 				}
 			}
+		}
+
+	}
+
+  /**
+	 * View for rendered HTML content.
+	 * @constructor
+	 *
+	 * @param {Object} model		Instance of the model.
+	 * @param {Object} parentView	Primary view for the media element.
+	 */
+	jQuery.UnityWebGLObjectView = function(model, parentView) {
+
+		var me = this;
+
+		this.model = model;  					// instance of the model
+		this.parentView = parentView;   		// primary view for the media element
+		this.hasFrameLoaded = false;			// has the iframe loaded yet?
+		this.isLiquid = true;					// media will expand to fill available space
+
+		/**
+		 * Creates the video media object.
+		 */
+		jQuery.UnityWebGLObjectView.prototype.createObject = function() {
+
+			var approot = $('link#approot').attr('href');
+			this.frameId = 'html'+this.model.filename+'_'+this.model.id;
+			var obj = $('<div class="mediaObject" style="overflow: hidden"><div><iframe style="width: 100%; height: 100%;" id="'+this.frameId+'" src="'+this.model.path+'" frameborder="0"></iframe></div></div>').appendTo(this.parentView.mediaContainer);
+			this.frame = obj.find('#'+this.frameId)[0];
+
+			$(this.frame).bind("load", function () {
+			   	me.hasFrameLoaded = true;
+          me.receiver = this.contentWindow;
+			});
+
+			this.parentView.layoutMediaObject();
+			this.parentView.removeLoadingMessage();
+
+			$(this.parentView.mediaContainer).parent().find('#viewPageLink').show();
+
+			return;
+		}
+
+		// These functions are basically irrelevant for this type of media
+		jQuery.UnityWebGLObjectView.prototype.play = function() { }
+		jQuery.UnityWebGLObjectView.prototype.pause = function() { }
+		jQuery.UnityWebGLObjectView.prototype.getCurrentTime = function() { }
+		jQuery.UnityWebGLObjectView.prototype.isPlaying = function(value, player_id) { return null; }
+
+    jQuery.UnityWebGLObjectView.prototype.seek = function(transform) {
+      this.receiver.postMessage(transform, this.model.path);
+    }
+
+		/**
+		 * Resizes the media to the specified dimensions.
+		 *
+		 * @param {Number} width		The new width of the media.
+		 * @param {Number} height		The new height of the media.
+		 */
+		jQuery.UnityWebGLObjectView.prototype.resize = function(width, height) {
+			$('#'+this.frameId).parent().width(width);
+			$('#'+this.frameId).parent().height(height);
 		}
 
 	}
