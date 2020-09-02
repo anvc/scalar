@@ -55,6 +55,9 @@ $config['max_login_attempts_penalty_seconds'] = 120;
 // The string needs to be a 'base32' string 'without equals signs at the end' or the QR barcode will not work
 $config['google_authenticator_salt'] = '';
 
+// Enable stronger-password verification (min 16 characters, can't use previous passwords)
+$config['strong_password'] = false;
+
 // Soundcloud key
 $config['soundcloud_id'] = (getenv('SCALAR_SOUNDCLOUD_ID') ? getenv('SCALAR_SOUNDCLOUD_ID') : '');
 
