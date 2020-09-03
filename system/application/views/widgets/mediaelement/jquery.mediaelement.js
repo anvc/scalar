@@ -245,11 +245,14 @@ function YouTubeGetID(url){
 		this.seek = function(data) {
 			// if the data has a url property, then we assume it's an annotation node that could represent
 			// either a temporal or a spatial annotation
+      console.log('seek');
 			if ( data != null ) {
 				if (data.properties) {
+          console.log(this.view.seek);
 					this.view.seek(data);
 				// otherwise, we assume its a number or string representing the start time of a temporal annotation
 				} else {
+          console.log('b');
 					this.view.mediaObjectView.seek(data);
 				}
 			}
@@ -1898,6 +1901,14 @@ function YouTubeGetID(url){
  				this.lastSeekTime = annotation.properties.start;
 				handleTimer();
  				break;
+
+        case '3D':
+        console.log(annotation.body.current);
+ 				this.mediaObjectView.seek(annotation.body.current.auxProperties['dcterms:spatial'][0]);
+        if (me.model.isChromeless || ('nav_bar' != me.model.options.header)) {
+          $('body').trigger('show_annotation', [annotation, me]);
+        }
+        break;
 
  				case 'image':
  				this.showSpatialAnnotation(annotation);
@@ -5788,6 +5799,7 @@ function YouTubeGetID(url){
 		jQuery.UnityWebGLObjectView.prototype.isPlaying = function(value, player_id) { return null; }
 
     jQuery.UnityWebGLObjectView.prototype.seek = function(transform) {
+      console.log('seek to '+transform);
       this.receiver.postMessage(transform, this.model.path);
     }
 

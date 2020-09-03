@@ -54,7 +54,7 @@ class RDF_Object {
 	public $ns = array();
 	protected $version_cache = array();
 	protected $user_cache = array();
-	protected $rel_fields = array('sort_number','start_seconds','end_seconds','start_line_num','end_line_num','points','additional','datetime','paragraph_num');
+	protected $rel_fields = array('sort_number','start_seconds','end_seconds','start_line_num','end_line_num','points','position-3d','additional','datetime','paragraph_num');
 	protected $defaults = array(
 		'books'			=> null,
 		'book'			=> null,
@@ -125,6 +125,8 @@ class RDF_Object {
 			$append = '#line='.$content->start_line_num.','.$content->end_line_num;
 		} elseif (!empty($content->points)) {
 			$append = '#xywh='.$content->points;
+		} elseif (!empty($content->position_3d)) {
+			$append = '#xyzhtf='.$content->position_3d;
 		} elseif (!empty($content->datetime)) {
 			$append = '#datetime='.rdf_timestamp($content->datetime);
 			if (!empty($content->paragraph_num)) $append .= '&paragraph='.$content->paragraph_num;
@@ -264,7 +266,7 @@ class RDF_Object {
 			$user_base = $settings['base_uri'].'users/'.$row->user_id;
 			$settings['book']->users[] = $user_base.$this->annotation_append($row);
 		}
-		
+
 		// Editions
 		if (isset($settings['book']->editions) && !empty($settings['book']->editions)) {
 			$settings['book']->has_edition = array();
@@ -308,7 +310,7 @@ class RDF_Object {
 				$return[$settings['base_uri'].$row->slug.'.'.$version->version_num] = $CI->versions->rdf($version, $settings['base_uri']);
 			}
 		}
-		
+
 		// Edition nodes
 		if (isset($settings['book']->editions) && !empty($settings['book']->editions)) {
 			for ($j = count($settings['book']->editions)-1; $j >= 0; $j--) {
@@ -351,11 +353,11 @@ class RDF_Object {
 		$count = 0;
 		$skips = 0;
 		foreach ($settings['content'] as $row) {
-	  
+
 			// The logic below is adaptable to results with or without versions already include; full search (get_all()) and quick search (search_with_recent_version_id())
-			
+
 			$temp_return = array();
-			
+
 			if (!empty($settings['pagination']) && $count >= $settings['pagination']['results']) break;
 
 			if (!empty($settings['sq']) && empty($row->versions)) {
@@ -365,13 +367,13 @@ class RDF_Object {
 					continue;
 				}
 			}
-			
+
 			if (!empty($settings['pagination']) && $settings['pagination']['start'] > $skips) {
 				$settings['total']--;
 				$skips++;
 				continue;
 			}
-			
+
 			if (!empty($temp_return)) {
 				$return = array_merge((array)$return,(array)$temp_return);
 			} else {
@@ -496,7 +498,7 @@ class RDF_Object {
 		}
 
 		if (!count($versions)) return;
-		
+
 		// If editorial_state is present only pass through versions that match
 		if (!empty($settings['editorial_state'])) {
 			if (!isset($versions[0]->editorial_state)) return;
@@ -696,7 +698,7 @@ class RDF_Object {
 		}
 
 	}
-	
+
 	protected function _tklabels($page, $settings) {
 
 		if (!$settings['tklabels'] || empty($settings['tklabeldata'])) return $page;
@@ -726,11 +728,11 @@ class RDF_Object {
 				}
 			}
 		}
-		
+
 		return $page;
-		
+
 	}
-	
+
 	protected function _tklabels_by_ref(&$return, $row, $versions, $settings) {
 
 		if (!$settings['tklabels'] || empty($settings['tklabeldata'])) return;
@@ -762,7 +764,7 @@ class RDF_Object {
 				if (!$this->_uri_exists($return, $uri)) $return[$uri] = $CI->versions->rdf((object) $tklabel);
 			}
 		}
-		
+
 	}
 
 	protected function _pagination($page, $settings) {
@@ -1046,7 +1048,7 @@ class RDF_Object {
 		$CI =& get_instance();
 		if ('object'!=gettype($CI->pages)) $CI->load->model('page_model','pages');
 		if ('object'!=gettype($CI->annotations)) $CI->load->model('annotation_model','annotations');
-		
+
 		$annotation->has_body = $body_uri;
 		$target_base = $settings['base_uri'].$annotation->child_content_slug.'.'.$annotation->child_version_num;
 		$annotation->has_target = $target_base.$this->annotation_append($annotation);
@@ -1099,12 +1101,12 @@ class RDF_Object {
 		return false;
 
 	}
-	
+
 	protected function _safely_write_rdf(&$return, $uri, $rdf) {
-		
+
 		if (!$this->_uri_exists($return, $uri)) $return[$uri] = $rdf;
 		$return[$uri] = array_merge($return[$uri], $rdf);
-		
+
 	}
 
 	protected function _object_exists($s, $p, $o) {
@@ -1116,13 +1118,13 @@ class RDF_Object {
 		return false;
 
 	}
-	
+
 	protected function _use_version($use_versions, $content_id) {
-		
+
 		if (!is_array($use_versions)) return null;
 		if (!isset($use_versions[$content_id])) return false;
 		return (int) $use_versions[$content_id];
-		
+
 	}
 
 }

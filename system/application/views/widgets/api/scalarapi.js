@@ -1225,6 +1225,7 @@ ScalarAPI.prototype.saveManyRelations = function(data, completeCallback, stepCal
 			'scalar:start_line_num':$(data['annotation_of_start_line_num'][indexInArray]).val(),
 			'scalar:end_line_num':$(data['annotation_of_end_line_num'][indexInArray]).val(),
 			'scalar:points':$(data['annotation_of_points'][indexInArray]).val(),
+			'scalar:position_3d':$(data['annotation_of_position_3d'][indexInArray]).val(),
 		});
 	});
 	// Queue tag_of
@@ -1288,7 +1289,8 @@ ScalarAPI.prototype.saveManyRelations = function(data, completeCallback, stepCal
 			'scalar:end_seconds':$(data['has_annotation_end_seconds'][indexInArray]).val(),
 			'scalar:start_line_num':$(data['has_annotation_start_line_num'][indexInArray]).val(),
 			'scalar:end_line_num':$(data['has_annotation_end_line_num'][indexInArray]).val(),
-			'scalar:points':$(data['has_annotation_points'][indexInArray]).val()
+			'scalar:points':$(data['has_annotation_points'][indexInArray]).val(),
+			'scalar:position_3d':$(data['has_annotation_position_3d'][indexInArray]).val()
 		});
 	});
 	// Queue has_tag
@@ -1567,7 +1569,8 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 							'scalar:end_seconds': this.properties.end,
 							'scalar:start_line_num': '',
 							'scalar:end_line_num': '',
-							'scalar:points': ''
+							'scalar:points': '',
+							'scalar:position_3d': ''
 						};
 						break;
 
@@ -1584,7 +1587,8 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 							'scalar:end_seconds': '',
 							'scalar:start_line_num': this.properties.start,
 							'scalar:end_line_num': this.properties.end,
-							'scalar:points': ''
+							'scalar:points': '',
+              'scalar:position_3d': ''
 						};
 						break;
 
@@ -1601,7 +1605,8 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 							'scalar:end_seconds': '',
 							'scalar:start_line_num': '',
 							'scalar:end_line_num': '',
-							'scalar:points': this.properties.x+','+this.properties.y+','+this.properties.w+','+this.properties.h
+							'scalar:points': this.properties.x+','+this.properties.y+','+this.properties.w+','+this.properties.h,
+							'scalar:position_3d': this.properties.x+','+this.properties.y+','+this.properties.z+','+this.properties.heading+','+this.properties.tilt+','+this.properties.fieldOfView
 						};
 						break;
 
@@ -1939,7 +1944,8 @@ ScalarAPI.prototype.savePage = function(data, successCallback, errorCallback) {
 	   	  	successCallback(json);
 	      },
 	      error: function(obj) {
-	    	var error = jQuery.parseJSON(obj.responseText);
+        console.log(obj.responseText);
+	    	var error = JSON.parse(obj.responseText);
 	    	errorCallback(error.error.message[0].value);
 	      }
 		});
@@ -3899,6 +3905,27 @@ function ScalarRelation(json, body, target, type, content) {
 						this.separator = ' ';
 						this.subType = 'spatial';
 						this.index = parseFloat(this.properties.x) * parseFloat(this.properties.y);
+						this.id += prop + this.index;
+						break;
+
+						case 'xyzhtf':
+						if (!this.type) this.type = scalarapi.model.relationTypes.annotation;
+						temp = anchorVars[prop].split(',');
+						this.properties.x = temp[0];
+						this.properties.y = temp[1];
+						this.properties.z = temp[2];
+						this.properties.heading = temp[3];
+						this.properties.tilt = temp[4];
+						this.properties.fieldOfView = temp[5];
+						this.startString = 'x:' + Math.round( parseFloat( this.properties.x ));
+						this.startString += ' y:' + Math.round( parseFloat( this.properties.y ));
+						this.startString += ' z:' + Math.round( parseFloat( this.properties.z ));
+						this.endString = 'heading:' + Math.round( parseFloat( this.properties.heading ));
+						this.endString += ' tilt:' + Math.round( parseFloat( this.properties.tilt ));
+						this.endString += ' fov:' + Math.round( parseFloat( this.properties.fieldOfView ));
+						this.separator = ' ';
+						this.subType = 'spatial';
+						this.index = parseFloat(this.properties.x) * parseFloat(this.properties.y) * parseFloat(this.properties.z);
 						this.id += prop + this.index;
 						break;
 

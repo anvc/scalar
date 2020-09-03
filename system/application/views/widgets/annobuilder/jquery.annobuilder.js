@@ -772,6 +772,44 @@ jQuery.AnnoBuilderInterfaceView = function() {
 		return dimensions;
 	}
 
+	/**
+	 * Unparses form data for a 3D annotation and returns an object containing
+	 * the string representations of its position.
+	 *
+	 * @param edits {Object}			Edited position to be unparsed (if omitted, will operate on current form contents)
+	 * @return							Object with string encapsulation of position.
+	 */
+	jQuery.AnnoBuilderInterfaceView.prototype.unparsePosition3D = function(edits) {
+
+		var position3D = {};
+
+		if (edits) {
+			dimensions.x = edits.x;
+			dimensions.y = edits.y;
+			dimensions.z = edits.z;
+			dimensions.heading = edits.heading;
+			dimensions.tilt = edits.tilt;
+			dimensions.fieldOfView = edits.fieldOfView;
+		} else {
+			position3D.x = $('#x').val().toString();
+			if (position3D.x == '') position3D.x = '0';
+			position3D.y = $('#y').val().toString();
+			if (position3D.y == '') position3D.y = '0';
+			position3D.z = $('#y').val().toString();
+			if (position3D.z == '') position3D.z = '0';
+			position3D.heading = $('#heading').val().toString();
+			if (position3D.heading == '') position3D.heading = '0';
+			position3D.tilt = $('#tilt').val().toString();
+			if (position3D.tilt == '') position3D.tilt = '0';
+			position3D.fieldOfView = $('#fieldOfView').val().toString();
+			if (position3D.fieldOfView == '') position3D.fieldOfView = '0';
+		}
+
+		position3D.string = position3D.x+','+position3D.y+','+position3D.z+','+position3D.heading+','+position3D.tilt+','+position3D.fieldOfView;
+
+		return position3D;
+	}
+
 
 	/**
 	 * Updates the list of annotations.
@@ -1560,7 +1598,8 @@ jQuery.AnnoBuilderInterfaceView = function() {
 				'scalar:end_seconds': seconds + 0.5,
 				'scalar:start_line_num': '',
 				'scalar:end_line_num': '',
-				'scalar:points': ''
+				'scalar:points': '',
+        'scalar:position_3d': ''
 			};
 			break;
 
@@ -1581,7 +1620,30 @@ jQuery.AnnoBuilderInterfaceView = function() {
 				'scalar:end_seconds': '',
 				'scalar:start_line_num': '',
 				'scalar:end_line_num': '',
-				'scalar:points': '0%,0%,0%,0%'
+				'scalar:points': '0%,0%,0%,0%',
+        'scalar:position_3d': ''
+			};
+			break;
+
+			case '3D':
+			data = {
+				action: 'ADD',
+				'native': $('input[name="native"]').val(),
+				id: $('input[name="id"]').val(),
+				api_key: $('input[name="api_key"]').val(),
+				'dcterms:title': 'Annotation',
+				'dcterms:description': '',
+				'sioc:content': '',
+				'rdf:type': 'http://scalar.usc.edu/2012/01/scalar-ns#Composite',
+				'scalar:child_urn': $('input[name="scalar:child_urn"]').val(),  /* WARNING: This is actually coming from the comment form, since the annotation form has been replaced ~cd */
+				'scalar:child_type': 'http://scalar.usc.edu/2012/01/scalar-ns#Media',
+				'scalar:child_rel': 'annotated',
+				'scalar:start_seconds': '',
+				'scalar:end_seconds': '',
+				'scalar:start_line_num': '',
+				'scalar:end_line_num': '',
+				'scalar:points': '',
+        'scalar:position_3d': '0,0,0,0,0,60'
 			};
 			break;
 
@@ -1603,7 +1665,8 @@ jQuery.AnnoBuilderInterfaceView = function() {
 				'scalar:end_seconds': '',
 				'scalar:start_line_num': '1',
 				'scalar:end_line_num': '1',
-				'scalar:points': ''
+				'scalar:points': '',
+        'scalar:position_3d': ''
 			};
 			break;
 
@@ -1683,7 +1746,8 @@ jQuery.AnnoBuilderInterfaceView = function() {
 							'scalar:end_seconds': edits.end,
 							'scalar:start_line_num': '',
 							'scalar:end_line_num': '',
-							'scalar:points': ''
+							'scalar:points': '',
+							'scalar:position_3d': ''
 						};
 						break;
 
@@ -1698,7 +1762,24 @@ jQuery.AnnoBuilderInterfaceView = function() {
 							'scalar:end_seconds': '',
 							'scalar:start_line_num': '',
 							'scalar:end_line_num': '',
-							'scalar:points': dimensions.string
+							'scalar:points': dimensions.string,
+							'scalar:position_3d': ''
+						};
+						break;
+
+						case '3D':
+						var position3D = me.unparsePosition3D(edits);
+						relationData[annotation.id] = {
+							action: 'RELATE',
+							'scalar:urn': annotation.body.current.urn,
+							'scalar:child_urn': $('input[name="scalar:child_urn"]').val(),
+							'scalar:child_rel': 'annotated',
+							'scalar:start_seconds': '',
+							'scalar:end_seconds': '',
+							'scalar:start_line_num': '',
+							'scalar:end_line_num': '',
+							'scalar:points': '',
+							'scalar:position_3d': position3D.string
 						};
 						break;
 
@@ -1713,7 +1794,8 @@ jQuery.AnnoBuilderInterfaceView = function() {
 							'scalar:end_seconds': '',
 							'scalar:start_line_num': edits.start,
 							'scalar:end_line_num': edits.end,
-							'scalar:points': ''
+							'scalar:points': '',
+							'scalar:position_3d': ''
 						};
 						break;
 
@@ -1821,7 +1903,8 @@ jQuery.AnnoBuilderInterfaceView = function() {
 			'scalar:end_seconds': '',
 			'scalar:start_line_num': '',
 			'scalar:end_line_num': '',
-			'scalar:points': geometryString
+			'scalar:points': geometryString,
+			'scalar:position_3d': ''
 		};
 
 		var success = function(json) {

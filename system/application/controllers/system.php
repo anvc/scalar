@@ -113,13 +113,13 @@ class System extends MY_Controller {
 		$this->template->render();
 
 	}
-	
+
 	public function lenses() {
-		
+
 		if (!$this->can_save_lenses()) die ('{"error":"Lenses table (scalar_db_rel_grouped) is not installed"}');
 		$version_id = (isset($_REQUEST['version_id'])) ? (int) $_REQUEST['version_id'] : 0;
 		$book_id = (isset($_REQUEST['book_id'])) ? (int) $_REQUEST['book_id'] : 0;
-		
+
 		if (!empty($version_id)) {  // Get the Lens JSON for a particular Version
 			$this->load->model('book_model', 'books');
 			$this->load->model('lens_model', 'lenses');
@@ -175,11 +175,11 @@ class System extends MY_Controller {
 				$this->data['content'] = '{"error":"Missing Version ID, Book ID, or JSON payload"}';
 			}
 		}
-		
+
 		$this->template->set_template('blank');
 		$this->template->write_view('content', 'modules/data/json', $this->data);
 		$this->template->render();
-		
+
 	}
 
 	public function login() {
@@ -195,17 +195,17 @@ class System extends MY_Controller {
 		$this->template->render();
 
 	}
-	
+
 	public function authenticator() {
 
 		$this->data['login'] = $this->login->get();
 		$this->data['title'] = $this->lang->line('install_name').': Login';
 		$this->data['norobots'] = true;
-		
+
 		$this->template->set_template('admin');
 		$this->template->write_view('content', 'modules/login/authenticator_box', $this->data);
 		$this->template->render();
-		
+
 	}
 
 	public function logout() {
@@ -911,6 +911,7 @@ class System extends MY_Controller {
 					$this->data['content'][$key]->start_seconds = $row->start_seconds;
 					$this->data['content'][$key]->end_seconds = $row->end_seconds;
 					$this->data['content'][$key]->points = $row->points;
+					$this->data['content'][$key]->position_3d = $row->position_3d;
 					$this->data['content'][$key]->start_line_num = $row->start_line_num;
 					$this->data['content'][$key]->end_line_num = $row->end_line_num;
 					$versions = $this->versions->get_single($this->data['content'][$key]->content_id, $this->data['content'][$key]->recent_version_id);

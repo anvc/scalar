@@ -108,6 +108,7 @@
 								if (data[j]['start_seconds'].length && '0'!=data[j]['start_seconds']) str += 'start sec '+Math.round(data[j]['start_seconds'])+'; ';
 								if (data[j]['end_seconds'].length && '0'!=data[j]['end_seconds']) str += 'end sec '+Math.round(data[j]['end_seconds'])+'; ';
 								if (data[j]['points'].length && '0'!=data[j]['points']) str += 'points '+data[j]['points']+'; ';
+								if (data[j]['position_3d'].length && '0'!=data[j]['position_3d']) str += '3d position '+data[j]['position_3d']+'; ';
 								if (data[j]['start_line_num'].length && '0'!=data[j]['start_line_num']) str += 'start line '+data[j]['start_line_num']+'; ';
 								if (data[j]['end_line_num'].length && '0'!=data[j]['end_line_num']) str += 'end line '+data[j]['end_line_num']+'; ';
 								$data_row.append('<td>at '+str+'</td>');
