@@ -281,7 +281,7 @@ Class Api extends CI_Controller {
 	* and other metadata from the iiif json itself.
 	**/
 	private function _load_iiif_data(){
-		if (strpos($this->data['scalar:url'], '?iiif-manifest=1') > -1){
+		if (isset($this->data['scalar:url']) && strpos($this->data['scalar:url'], '?iiif-manifest=1') > -1){
 			$iiif_metadata_array = $this->_get_IIIF_metadata($this->data['scalar:url']);
 			if($iiif_metadata_array !== false){
 				foreach ($iiif_metadata_array as $key => $value){
