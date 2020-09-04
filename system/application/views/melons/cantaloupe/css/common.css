@@ -1117,10 +1117,10 @@ a.nav_btn:hover {
 .texteo_icon_document { background-image:url(images/document@2x.png); }
 
 /* TODO */
-.path_icon { width:22px; height:22px; background-size: contain; background-image:url(../images/menu_path_icon.png); display:inline-block; background-position:left top;}
-.reply_icon { width:22px; height:22px; background-size: contain; background-image:url(../images/menu_comment_icon.png); display:inline-block; background-position:left top;}
-.annotation_icon { width:22px; height:22px; background-size: contain; background-image:url(../images/menu_annotation_icon.png); display:inline-block; background-position:left top;}
-.tag_icon { width:22px; height:22px; background-size: contain; background-image:url(../images/menu_tag_icon.png); display:inline-block; background-position:left top;}
+.path_icon { width:14px; height:14px; margin-right: 5px; background-size: contain; background-image:url(../images/icon_path_dark.png); display:inline-block; background-position:left top;}
+.reply_icon { width:14px; height:14px; margin-right: 5px; background-size: contain; background-image:url(../images/icon_comment_dark.png); display:inline-block; background-position:left top;}
+.annotation_icon { width:14px; height:14px; margin-right: 5px; background-size: contain; background-image:url(../images/icon_annotation_dark.png); display:inline-block; background-position:left top;}
+.tag_icon { width:14px; height:14px; margin-right: 5px; background-size: contain; background-image:url(../images/icon_tag_dark.png); display:inline-block; background-position:left top;}
 
 /* loading */
 .loading { background: #fff; position:absolute; top:0; left:0; }
