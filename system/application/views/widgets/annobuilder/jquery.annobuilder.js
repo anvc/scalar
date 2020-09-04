@@ -335,6 +335,7 @@ jQuery.AnnoBuilderView = function() {
 			case "audio":
 			case "video":
 			case "image":
+      case "3D":
 			this.builder = new $.AnnoBuilderInterfaceView();
 			break;
 
