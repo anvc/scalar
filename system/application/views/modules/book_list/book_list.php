@@ -39,6 +39,14 @@ function print_books($books, $is_large=false) {
 
 ?>
 
+<?
+$data = $this->session->userdata(base_url());
+if (isset($data['password_exceeds_max_days']) && $data['password_exceeds_max_days']) {
+	$days = $this->config->item('strong_password_days_to_reset');
+	echo '<div class="saved msg">It\'s been more than '.$days.' '.(($days>1)?'days':'day').' since you updated your password &mdash; please change your password in the Dashboard</div>'."\n";
+}
+?>
+
 <?if (isset($_REQUEST['user_created']) && '1'==$_REQUEST['user_created']): ?>
 <div class="saved">
   Thank you for registering your <?=$cover_title?> account

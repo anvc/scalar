@@ -86,6 +86,14 @@ function editionCookieName() {
   </div>
 </header>
 
+<?
+$data = $this->session->userdata(base_url());
+if (isset($data['password_exceeds_max_days']) && $data['password_exceeds_max_days']) {
+	$days = $this->config->item('strong_password_days_to_reset');
+	echo '<div class="alert alert-danger text-center">It\'s been more than '.$days.' '.(($days>1)?'days':'day').' since you updated your password &mdash; <a href="?book_id='.$_GET['book_id'].'&zone=user#tabs-user">please change your password</a></div>'."\n";
+}
+?>
+
 <?php
 if ('user'==$zone):
 

@@ -736,6 +736,23 @@ class User_model extends MY_Model {
     	$this->db->update($this->users_table, array('previous_passwords'=>json_encode($previous_passwords)));
     	
     }
+    
+    public function days_since_last_password_change($user_id) {
+    	
+    	if (empty($user_id)) return;
+    	$user = $this->get_by_user_id($user_id);
+    	if (!property_exists($user, 'previous_passwords')) return;  // Database hasn't been updated
+    	$previous_passwords = json_decode($user->previous_passwords, true);
+    	if (empty($previous_passwords)) $previous_passwords = array();
+    	$current_time = time();
+    	$least_days = null;
+    	foreach ($previous_passwords as $previous_time => $previous_password) {
+    		$days = abs($current_time - $previous_time)/60/60/24;
+    		if ($least_days == null || $days < $least_days) $least_days = $days;
+    	}
+    	return $least_days;
+    	
+    }
 
 }
 ?>

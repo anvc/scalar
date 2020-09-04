@@ -45,6 +45,13 @@ class Login_model extends User_model {
 			$result->is_logged_in = true;
 			$result->error = null;
 			$result->uri = $_SERVER['REQUEST_URI'];
+			if ($this->config->item('strong_password')) {
+				$days = $this->days_since_last_password_change($result->user_id);
+				$max_days = $this->config->item('strong_password_days_to_reset');
+				if ($max_days) {
+					if ($days == null || $days > $max_days) $result->password_exceeds_max_days = true;
+				}
+			}
 			$this->session->set_userdata(array($this->login_basename => (array) $result));
 			return (object) $data;
 		} elseif (!empty($data) && isset($data['google_authenticator_authenticated']) && !$data['google_authenticator_authenticated']) {

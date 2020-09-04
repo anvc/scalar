@@ -43,6 +43,14 @@ foreach ($my_books as $row) {
 </div>
 </div>
 
+<?
+$data = $this->session->userdata(base_url());
+if (isset($data['password_exceeds_max_days']) && $data['password_exceeds_max_days']) {
+	$days = $this->config->item('strong_password_days_to_reset');
+	echo '<div class="notice-change-password">It\'s been more than '.$days.' '.(($days>1)?'days':'day').' since you updated your password &mdash; <a href="?book_id='.$_GET['book_id'].'&zone=user#tabs-user">please change your password</a></div>'."\n";
+}
+?>
+
 <div class="system_wrapper">
 <div class="content">
 

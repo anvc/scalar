@@ -118,6 +118,8 @@ table.tablesorter .tablesorter-header-inner {
 .add_book_form input[type="submit"] {margin-top:5px;}
 .add_book_form select {margin-top:3px;}
 
+.notice-change-password {margin:0px 30px 10px 30px; background-color:#f2dede; font-size:14px; border:solid 1px #ebccd1; border-radius:5px; padding:10px 8px 10px 8px; text-align:center; color:#b84442;}
+
 .select_box {
 	z-index:9;
 	padding:10px;
