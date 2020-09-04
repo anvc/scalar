@@ -106,6 +106,10 @@ class OAC_Object extends RDF_Object {
 	    		}
 	    	}
 	    	foreach ($arr['target']['selector'] as $el) {
+	    		if ('SvgSelector' == $el['type']) {
+	    			$value = $el['value'];
+	    			$return['dcterms:spatial'] = $value;
+	    		}
 	    		if ('FragmentSelector' == $el['type']) {
 	    			$value = $el['value'];
 	    			$value = str_replace('npt:', '', $value);
@@ -281,6 +285,15 @@ class OAC_Object extends RDF_Object {
     					)
     			)
     	);
+    	if (isset($node->versions[$node->version_index]->rdf) && isset($node->versions[$node->version_index]->rdf['http://purl.org/dc/terms/spatial'])) {
+    		$svg = $node->versions[$node->version_index]->rdf['http://purl.org/dc/terms/spatial'][0]['value'];
+    		if (substr($svg, 0, 4) == '<svg') {
+    			$row['target']['selector'][] = array(
+    				"type" => "SvgSelector",
+    				"value" => $svg
+    			);
+    		}
+    	}
     	if (isset($node->versions[$node->version_index]->additional) && !empty($node->versions[$node->version_index]->additional)) {
     		$row['target']['selector'][] = array(
     			"type" => "SvgSelector",
