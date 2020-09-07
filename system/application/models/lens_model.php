@@ -587,6 +587,9 @@ class Lens_model extends MY_Model {
     				$this->load->model($content_type.'_model', plural($content_type));
     				$model = plural($content_type);
     				break;
+    			case 'table-of-contents':
+    				// TODO
+    				break;
     		}
     		$content = $this->$model->get_all($this->data['book']->book_id, $type, $category, true, null);
     		return $content;

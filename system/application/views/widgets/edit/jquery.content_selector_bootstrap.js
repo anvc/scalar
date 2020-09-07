@@ -2467,13 +2467,10 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			};
 
 			$rows.find('.node_thumb img').each(function() {
-				if ($(this).parents('tr').data('item').hasThumbnail) {
-					$(this).tooltip({
-						title: '<img src="' + $(this).attr('src') + '" class="nodeSelectorEnlargedThumbnail">',
-						html: true,
-						container: '.bootbox'
-					});
-				}
+				$(this).tooltip({
+					title: '<img src="' + $(this).attr('src') + '" class="nodeSelectorEnlargedThumbnail">',
+					html: true
+				});
 			});
 
 			$rows.find('.shortened_desc').each(function() {
