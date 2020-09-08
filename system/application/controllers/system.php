@@ -135,7 +135,7 @@ class System extends MY_Controller {
 			$this->load->model('version_model', 'versions');
 			$this->data['book'] = $this->books->get($book_id);
 			if (empty($this->data['book'])) die ('{"error":"Could not find a book associated with the JSON payload"}');
-			$this->data['content'] = $this->lenses->get_all($book_id);
+			$this->data['content'] = $this->lenses->get_all_json($book_id);
 		} else {
 			$request_body = file_get_contents('php://input');
 			if (!empty($request_body)) {  // Get nodes described by a JSON payload

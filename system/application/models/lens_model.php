@@ -64,27 +64,7 @@ class Lens_model extends MY_Model {
 
 	public function get_all($book_id=null, $type=null, $category=null, $is_live=true, $sq='', $id_array=null) {
 
-		$this->db->select($this->lenses_table.'.*');
-		$this->db->select($this->versions_table.'.title');
-		$this->db->select($this->pages_table.'.slug');
-		$this->db->from($this->lenses_table);
-		$this->db->join($this->versions_table, $this->versions_table.'.version_id='.$this->lenses_table.'.parent_version_id');
-		$this->db->join($this->pages_table, $this->pages_table.'.content_id='.$this->versions_table.'.content_id');
-		$this->db->where($this->pages_table.'.book_id', $book_id);
-		if (!empty($is_live)) $this->db->where($this->pages_table.'.is_live', 1);
-		$query = $this->db->get();
-		$result = $query->result();
-		$return = array();
-		for ($j = 0; $j < count($result); $j++) {
-			if (isset($result[$j]->contents) && !empty($result[$j]->contents)) {
-				$result[$j]->contents = json_decode($result[$j]->contents);
-				$result[$j]->contents->urn = $this->urn($result[$j]->parent_version_id);
-				$result[$j]->contents->title = $result[$j]->title;
-				$result[$j]->contents->slug = $result[$j]->slug;
-				$return[] = $result[$j]->contents;
-			}
-		}
-		return json_encode($return);
+		return parent::get_all($this->lenses_table, $book_id, $type, $category, $is_live, $sq, $id_array);
 		
     }
 
@@ -113,6 +93,17 @@ class Lens_model extends MY_Model {
     	}
     	return $result[0]->contents;
 
+	}
+	
+	public function get_all_json($book_id=null, $type=null, $category=null, $is_live=true, $sq='', $id_array=null) {
+		
+		$result = $this->get_all($book_id, $type, $category, $is_live, $sq, $id_array);
+		$return = array();
+		foreach ($result as $row) {
+			$return[] = json_decode($this->get_children($row->recent_version_id));
+		}
+		return $return;
+		
 	}
 	
 	public function get_nodes_from_json($book_id=0, $json='', $prefix='') {
