@@ -1766,7 +1766,6 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 				}
 				completeRelationData[property].action = 'RELATE';
 				for (subproperty in baseProperties) {
-          console.log(property,subproperty,baseProperties[subproperty]);
 					completeRelationData[property][subproperty] = baseProperties[subproperty];
 				};
 				// add the new properties
@@ -1775,20 +1774,14 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 						if ( completeRelationData[property] == null ) {
 							completeRelationData[property] = {};
 						}
-            console.log(property,subproperty,relationData[property][subproperty]);
 						completeRelationData[property][subproperty] = relationData[property][subproperty];
 					}
 				}
-        console.log(completeRelationData[property]);
-        if (completeRelationData[property]['scalar:contents']) {
-          console.log(completeRelationData[property]['scalar:contents']);
-        }
 			};
 
 
 			for (property in completeRelationData) {
 				scalarapi.queueManyRelations(completeRelationData[property]);
-        console.log(property,completeRelationData[property]);
 			}
 
 			scalarapi.runManyRelations(function(e) {
@@ -3243,10 +3236,15 @@ ScalarNode.prototype.addRelation = function(relation) {
 		if (this.outgoingRelations.indexOf(relation) == -1) {
 			n = this.outgoingRelations.length;
 			for (i=0; i<n; i++) {
-				if (this.outgoingRelations[i].id == relation.id) {
-					this.outgoingRelations[i] = relation;
+        if (this.outgoingRelations[i].target == relation.target) {
+          this.outgoingRelations[i] = relation;
 					foundExisting = true;
-				}
+        } else if (this.outgoingRelations[i].target && relation.target) {
+          if (this.outgoingRelations[i].target.slug == relation.target.slug) {
+            this.outgoingRelations[i] = relation;
+  					foundExisting = true;
+          }
+        }
 			}
 			if (!foundExisting) {
 				this.outgoingRelations.push(relation);
@@ -3267,10 +3265,15 @@ ScalarNode.prototype.addRelation = function(relation) {
 
 			n = this.incomingRelations.length;
 			for (i=0; i<n; i++) {
-				if (this.incomingRelations[i].id == relation.id) {
-					this.incomingRelations[i] = relation;
+        if (this.incomingRelations[i].body == relation.body) {
+          this.incomingRelations[i] = relation;
 					foundExisting = true;
-				}
+        } else if (this.incomingRelations[i].body && relation.body) {
+          if (this.incomingRelations[i].body.slug == relation.body.slug) {
+            this.incomingRelations[i] = relation;
+  					foundExisting = true;
+          }
+        }
 			}
 			if (!foundExisting) {
 				this.incomingRelations.push(relation);
