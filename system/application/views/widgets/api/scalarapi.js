@@ -1500,8 +1500,8 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 				node = scalarapi.model.nodesByURL[me.stripEditionAndVersion(property)];
 			}
 
-		    for (var version_uri in json) break;
-		    var version_urn = json[version_uri]['http://scalar.usc.edu/2012/01/scalar-ns#urn'][0].value;
+	    for (var version_uri in json) break;
+	    var version_urn = json[version_uri]['http://scalar.usc.edu/2012/01/scalar-ns#urn'][0].value;
 
 			// gather relations from existing node
 			var completeRelationData = {};
@@ -1514,14 +1514,14 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 
 					case 'lens':
 					completeRelationData[this.id] = {
-							action: 'RELATE',
-							native: baseProperties.native,
-							id: baseProperties.id,
-							api_key: baseProperties.api_key,
-							'scalar:urn': version_urn,
-							'scalar:child_rel': 'grouped',
-							'scalar:contents': this.properties.content
-						};
+						action: 'RELATE',
+						native: baseProperties.native,
+						id: baseProperties.id,
+						api_key: baseProperties.api_key,
+						'scalar:urn': version_urn,
+						'scalar:child_rel': 'grouped',
+						'scalar:contents': this.properties.content
+					};
 					break;
 
 					case 'path':
@@ -1775,7 +1775,11 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 							completeRelationData[property] = {};
 						}
 						completeRelationData[property][subproperty] = relationData[property][subproperty];
-					}
+					} else if (!completeRelationData[property][subproperty]) {
+            // if the scalar:urn property doesn't already exist, don't use the one provided
+            // since it will be out of date; use the current version_urn
+            completeRelationData[property][subproperty] = version_urn
+          }
 				}
 			};
 
@@ -1785,11 +1789,11 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 			}
 
 			scalarapi.runManyRelations(function(e) {
-				completeCallback(true);
+				if (completeCallback) completeCallback(true);
 			});
 
 		}, function(e) {
-			errorCallback( e );
+			if (errorCallback) errorCallback( e );
 		});
 
 	}, null, 1, true)

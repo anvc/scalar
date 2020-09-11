@@ -51,7 +51,7 @@ window.scalarvis = { instanceCount: -1 };
     base.VisualizationTypes = {
       'force-directed': 'Force-directed',
       'grid': 'Grid',
-      'list': 'List',
+      /*'list': 'List',*/
       'map': 'Map',
       'radial': 'Radial',
       'tree': 'Tree',
@@ -203,7 +203,7 @@ window.scalarvis = { instanceCount: -1 };
           controls_html += '<option value="' + prop + '">' + base.VisualizationFilters[prop] + '</option>';
         }
         controls_html += '</select></div> ' +
-          '<div class="vis-control-header"><b>Sort</b></br><select class="vis-sort-control form-control">';
+          '<div class="vis-control-header" style="display:none"><b>Sort</b></br><select class="vis-sort-control form-control">';
         for (var prop in base.VisualizationSorts) {
           controls_html += '<option value="' + prop + '">' + base.VisualizationSorts[prop] + '</option>';
         }
@@ -2040,7 +2040,7 @@ window.scalarvis = { instanceCount: -1 };
           break;
 
       }
-      base.visInstance.draw();
+      if (base.visInstance) base.visInstance.draw();
     };
 
     /**************************

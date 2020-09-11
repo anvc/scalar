@@ -170,6 +170,7 @@
     // get Default data
     ScalarLenses.prototype.getDefaultJson = function(){
       // the Lens object
+      let currentPageNode = scalarapi.model.getCurrentPageNode();
       return {
         "urn": $('link#urn').attr('href').replace("version", "lens"),
         "submitted": false,
@@ -180,7 +181,9 @@
           "type": null,
           "options": {}
         },
-        "components": []
+        "components": [],
+        "title": currentPageNode.title,
+        "slug": currentPageNode.slug
       };
     }
 
@@ -1583,8 +1586,6 @@
       // make another copy of it that includes the current filter
       tempLensObj.components[0].modifiers.push(filterObj);
       let postFilterLensObj = JSON.parse(JSON.stringify(tempLensObj));
-
-      console.log(preFilterLensObj,postFilterLensObj);
 
       // get the results from both and post
       let leftBadge = $('#filterModal .left-badge .counter');
@@ -3438,7 +3439,6 @@
         },
         error: function error(response) {
     	     console.log('There was an error attempting to communicate with the server.');
-    	     console.log(response);
         }
       });
     }
@@ -3472,7 +3472,7 @@
 
     // ajax call to post user lens selections
     ScalarLenses.prototype.saveLens = function(successHandler){
-      console.log(JSON.stringify(this.scalarLensObject, null, 2));
+      //console.log(JSON.stringify(this.scalarLensObject, null, 2));
       this.scalarLensObject.user_level = this.userLevel;
       this.baseURL = $('link#parent').attr('href');
       if (this.canSave == true) {
@@ -3486,37 +3486,17 @@
           action: 'UPDATE',
           'scalar:urn': this.scalarLensObject.urn,
           uriSegment: this.scalarLensObject.slug,
-          'dcterms:title': this.scalarLensObject.title,
-          /*'dcterms:description': currentNode.current.description,
-          'sioc:content': currentNode.current.content,
-          'rdf:type': currentNode.baseType,
-          'scalar:is_live': currentNode.isLive*/
+          'dcterms:title': this.scalarLensObject.title
         };
         var relationData = {};
         relationData[this.baseURL + this.scalarLensObject.slug + 'null'] = {
           action: 'RELATE',
-          'scalar:urn': this.scalarLensObject.urn,
+          'scalar:urn': this.scalarLensObject.urn.replace('lens','version'),
           'scalar:child_rel': 'grouped',
           'scalar:contents': JSON.stringify(this.scalarLensObject)
         };
 
-        console.log(relationData);
-
         scalarapi.modifyPageAndRelations(baseProperties, pageData, relationData, successHandler);
-
-        /*$.ajax({
-          url: this.baseURL + "api/relate",
-          type: "POST",
-          dataType: 'json',
-          contentType: 'application/json',
-          data: JSON.stringify(this.scalarLensObject),
-          async: true,
-          context: this,
-          success: successHandler,
-          error: function error(response) {
-            console.log(response);
-          }
-        });*/
       } else {
         $('#duplicate-copy-prompt').addClass('show-lens-prompt');
       }
