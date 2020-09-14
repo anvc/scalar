@@ -182,6 +182,9 @@ class Login_model extends User_model {
 				$result['google_authenticator_authenticated'] = true;
 				$this->session->set_userdata(array($this->login_basename => $result));
 				$this->session->unset_userdata($this->login_basename.'__cache_results');
+				// Trusted browser
+				$trust_browser = (isset($_POST['trust_browser']) && $_POST['trust_browser']) ? true : false;
+				if ($trust_browser) $this->set_trusted_browser($result);
 				return true;
 			}
 		}
@@ -203,7 +206,7 @@ class Login_model extends User_model {
 	}
 	
 	private function must_pass_google_authenticator($user=array()) {
-		
+
 		// Super admins only
 		if (!$user->is_super) return false;
 		// Google Authenticator SALT key
@@ -216,11 +219,61 @@ class Login_model extends User_model {
 		$ci->load->model('resource_model', 'resources');
 		$arr = json_decode($ci->resources->get('google_authenticator'), true);
 		// Check whether GA auth is enabled or not
-		if (isset($arr[$user_id]) && $arr[$user_id]) return true;
+		if (isset($arr[$user_id])) {
+			if ($this->is_using_trusted_browser($user)) return false;
+			return true;
+		}
 		return false;
 		
 	}
 
+	private function set_trusted_browser($user=array()) {
+
+		$auth = array();
+		$name = $this->config->item('sess_cookie_name');
+		$prefix = $this->config->item('cookie_prefix`');
+		$cookie = (($name)?$name.'_':'').(($prefix)?$prefix.'_':'')."trusted_browser_uid";
+		$auth['user_agent'] = $_SERVER['HTTP_USER_AGENT'];
+		$auth['uid'] = str_replace('.', '', uniqid('', true));
+		setcookie($cookie, $auth['uid']);
+
+		$user_id = (int) $user['user_id'];
+		$ci =& get_instance();
+		$ci->load->model('resource_model', 'resources');
+		$arr = json_decode($ci->resources->get('google_authenticator'), true);
+		if (!isset($arr[$user_id])) return; 
+		$arr[$user_id] = $auth;
+		
+		$json = json_encode($arr);
+		$this->resources->put('google_authenticator', $json);
+		
+	}
+	
+	private function is_using_trusted_browser($user=array()) {
+		
+		$name = $this->config->item('sess_cookie_name');
+		$prefix = $this->config->item('cookie_prefix`');
+		$cookie = (($name)?$name.'_':'').(($prefix)?$prefix.'_':'')."trusted_browser_uid";
+		$user_agent = $_SERVER['HTTP_USER_AGENT'];
+		
+		$user_id = (int) $user->user_id;
+		$ci =& get_instance();
+		$ci->load->model('resource_model', 'resources');
+		$arr = json_decode($ci->resources->get('google_authenticator'), true);
+		if (!isset($arr[$user_id])) return false;
+		$auth = $arr[$user_id];
+		if (!isset($auth['uid'])) return false;
+		if (!isset($auth['user_agent'])) return false;
+		
+		if ($auth['user_agent'] != $user_agent) return false;
+		
+		$existing = $_COOKIE[$cookie];
+		if ($auth['uid'] != $existing) return false;
+		
+		return true;
+		
+	}
+	
 	private function increment_and_check_login_attempts() {
 
 		// Is user on a penalty?

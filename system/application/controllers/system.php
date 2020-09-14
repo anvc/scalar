@@ -455,7 +455,11 @@ class System extends MY_Controller {
 		 			$this->load->model('resource_model', 'resources');
 		 			$json = $this->resources->get('google_authenticator');
 		 			$arr = json_decode($json, true);
-		 			$arr[$user_id] = $enable;
+		 			if ($enable) {
+		 				$arr[$user_id] = true;
+		 			} else {
+		 				unset($arr[$user_id]);
+		 			}
 		 			$json = json_encode($arr);
 		 			$this->resources->put('google_authenticator', $json);
 		 			header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.((isset($_POST['zone']))?$_POST['zone']:'').'&pill='.((isset($_POST['pill']))?$_POST['pill']:'').'#tabs-'.((isset($_POST['zone']))?$_POST['zone']:''));
@@ -714,9 +718,9 @@ class System extends MY_Controller {
 		    		$json = $this->resources->get('google_authenticator');
 		    		$arr = json_decode($json, true);
 		    		$user_id = (int) $this->data['login']->user_id;
-		    		$this->data['google_authenticator_is_enabled'] = (isset($arr[$user_id]) && $arr[$user_id]) ? true : false;
+		    		$this->data['google_authenticator_is_enabled'] = (isset($arr[$user_id])) ? true : false;
 		    		foreach ($this->data['super_admins'] as $key => $value) {
-		    			if (isset($arr[$value->user_id]) && $arr[$value->user_id]) {
+		    			if (isset($arr[$value->user_id])) {
 		    				$this->data['super_admins'][$key]->google_authenticator_is_enabled = true;
 		    			}
 		    		}
