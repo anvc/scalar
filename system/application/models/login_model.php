@@ -115,6 +115,7 @@ class Login_model extends User_model {
 
 			$email =@ trim($_POST['email']);
 			if (empty($email)) throw new Exception( lang('login.invalid') );
+			if ($this->email_is_disallowed($email)) throw new Exception( lang('login.invalid') );
 			log_message('error', 'Scalar: Login attempt by '.$email.', from '.$this->getUserIpAddr().'.');
 			$password = trim($_POST['password']);
             $result = false;

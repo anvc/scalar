@@ -615,6 +615,21 @@ class System extends MY_Controller {
 					if (!$this->data['login_is_super']) $this->kickout();
 					$this->data['recent_user_list'] = $this->users->get_all(0, true, 'user_id', 'desc');
 					break;
+				case "do_save_disallowed_emails":  // Admin: Tools
+					if (!$this->data['login_is_super']) $this->kickout();
+					$emails = (isset($_POST['emails']) && !empty($_POST['emails'])) ? explode(',', $_POST['emails']) : array();
+					$this->load->model('resource_model', 'resources');
+					$json = json_encode($emails);
+					$this->resources->put('disallowed_emails', $json);
+					// Don't break
+				case "get_disallowed_emails":  // Admin: Tools
+					if (!$this->data['login_is_super']) $this->kickout();
+					$this->load->model('resource_model', 'resources');
+					$json = $this->resources->get('disallowed_emails');
+					$arr = json_decode($json, true);
+					if (empty($arr)) $arr = array();
+					$this->data['disallowed_emails'] = $arr;
+					break;
 				case "get_email_list":  // Admin: Tools
 					if (!$this->data['login_is_super']) $this->kickout();
 					$users = $this->users->get_all();
@@ -815,6 +830,7 @@ class System extends MY_Controller {
 			}
 			if (empty($dashboard) || !file_exists(APPPATH.'views/modules/'.$dashboard)) $dashboard = 'dashboard';
 		}
+		
 		$this->template->set_template('admin');
 		$this->template->write_view('content', 'modules/'.$dashboard.'/content', $this->data);
 		$this->template->render();

@@ -26,6 +26,24 @@ $(document).ready(function() {
 		$(this).find('[name="user_ids"]').val(user_ids.join(','));
 		return true;
 	});
+	$('#do_add_disallowed_email').on('submit', function() {
+		var email = $(this).find('[name="email"]').val();
+		$('#disallowed_emails_form').find('.div_list').append('<div data-email="'+email+'">'+email+' <a href="javascript:void(null);">remove</a></div>');
+		$(this).find('[name="email"]').val('');
+		return false;
+	});
+	$('#do_save_disallowed_emails').on('submit', function() {
+		var emails = [];
+		$('#disallowed_emails_form').find('.div_list').find('div[data-email]').each(function() {
+			var email = $(this).data('email');
+			emails.push(email);
+		});
+		$(this).find('input[name="emails"]').val(emails.join(','));
+		return true;
+	});
+	$('#disallowed_emails_form').find('.div_list').on('click', 'a', function() {
+		$(this).parent().remove();
+	});
 	$('.div_list').find('input[type="checkbox"]').on('change', function() {
 		var checked = $(this).is(':checked') ? true : false;
 		if (checked) {
@@ -64,6 +82,40 @@ Google Authenticator
 	?>
 </div>
 </form>
+<br clear="both" /><br />
+<form action="<?=confirm_slash(base_url())?>system/dashboard#tabs-tools" method="post" id="disallowed_emails_form">
+<input type="hidden" name="zone" value="tools" />
+<input type="hidden" name="action" value="get_disallowed_emails" />
+List disallowed email addresses:&nbsp; <input type="submit" value="Generate" />&nbsp; <a href="?zone=tools#tabs-tools">clear</a>
+<span style="float:right;">Disallow email address from being used to register or login</span>
+<div class="div_list"><?php
+	if (!isset($disallowed_emails)) {
+
+	} elseif (empty($disallowed_emails)) {
+		echo 'No disallowed emails have been entered';
+	} else {
+		foreach($disallowed_emails as $email) {
+			echo '<div data-email="'.$email.'">';
+			echo $email;
+			echo ' <a href="javascript:void(null);">remove</a>';
+			echo '</div>'."\n";
+		}
+	}
+echo '</div>'."\n";
+echo '</form>'."\n";
+if (isset($disallowed_emails)) {
+	echo '<form id="do_add_disallowed_email" action="'.confirm_slash(base_url()).'system/dashboard#tabs-tools" method="post" style="width:49%;float:left;text-align:left;">';
+	echo '<input type="text" name="email" value="" placeholder="name@example.com" /> ';
+	echo '<input type="submit" value="Add email" /> &nbsp; ';
+	echo '</form>'."\n";
+	echo '<form id="do_save_disallowed_emails" action="'.confirm_slash(base_url()).'system/dashboard#tabs-tools" method="post" style="width:49%;float:right;text-align:right;">';
+	echo '<input type="hidden" name="zone" value="tools" />';
+	echo '<input type="hidden" name="action" value="do_save_disallowed_emails" />';
+	echo '<input type="hidden" name="emails" value="" />';
+	echo '<input type="submit" value="Save disallowed emails" /> &nbsp; ';
+	echo '</form>'."\n";
+}
+?>
 <br clear="both" /><br />
 <form action="<?=confirm_slash(base_url())?>system/dashboard#tabs-tools" method="post">
 <input type="hidden" name="zone" value="tools" />

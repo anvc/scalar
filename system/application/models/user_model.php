@@ -459,6 +459,7 @@ class User_model extends MY_Model {
 
 		if (empty($array['email'])) throw new Exception('Email is a required field');
 		if ($this->get_by_email($array['email'])) throw new Exception('Email already in use');
+		if ($this->email_is_disallowed($array['email'])) throw new Exception('Email is disallowed');
 		if (empty($array['fullname'])) throw new Exception('Full name is a required field');
 		if (empty($array['password'])) throw new Exception('Password is a required field');
 		
@@ -751,6 +752,17 @@ class User_model extends MY_Model {
     		if ($least_days == null || $days < $least_days) $least_days = $days;
     	}
     	return $least_days;
+    	
+    }
+    
+    protected function email_is_disallowed($email='') {
+    	
+    	$this->load->model('resource_model', 'resources');
+    	$json = $this->resources->get('disallowed_emails');
+    	$arr = json_decode($json, true);
+    	if (empty($arr)) $arr = array();
+    	if (in_array($email, $arr)) return true;
+    	return false;
     	
     }
 
