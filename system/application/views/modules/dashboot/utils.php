@@ -367,7 +367,7 @@ $(document).ready(function() {
 					echo '<br />';
 					echo 'Then, check the box below to enable two-factor authentication for your account:<br />';
 					echo '<label><input style="margin-top:8px;" type="checkbox" name="enable_google_authenticator" value="1" '.(($google_authenticator_is_enabled)?'checked':'').' /> &nbsp;Enable two-factor authentication for my account</labe><br />';
-					echo '<input type="submit" value="Save" style="margin-top:8px;" />';
+					echo '<input type="submit" value="Save" class="btn btn-primary" style="margin-top:8px;" />';
 				}
 			?></div><div style="width:50%;float:right;border-left:solid 1px #aaaaaa;padding-left:20px;">
 				List of super admins (<b>bold</b> = authentication enabled):<br /><br /><?php 
@@ -385,57 +385,65 @@ $(document).ready(function() {
 			<form action="<?=confirm_slash(base_url())?>system/dashboard?book_id=<?=((isset($book)&&!empty($book))?$book->book_id:0)?>&zone=utils&pill=disallowed-emails#tabs-utils" method="post" id="disallowed_emails_form">
 			<input type="hidden" name="zone" value="utils" />
 			<input type="hidden" name="action" value="get_disallowed_emails" />
-			<h4>Disallowed emails</h4><br />
+			<h4>Disallowed emails</h4>
 			<?php 
 			if (isset($_POST['action']) && $_POST['action'] == 'do_save_disallowed_emails') {
 				echo '<div class="alert alert-success" style="margin-left:0px; margin-right:0px;">List of disallowed emails has been saved</div>';
 			}
 			?>
-			Disallow email address from being used to register or login
+			Disallow email addresses from being used to register or login<br /><br />
 			<div class="div_list"><?php 
 			if (!isset($disallowed_emails)) {
 				
 			} elseif (empty($disallowed_emails)) {
-				echo 'No disallowed emails have been entered';
+				
 			} else {
 				foreach($disallowed_emails as $email) {
-					echo '<div data-email="'.$email.'">';
+					echo '<div><label>';
+					echo '<input type="checkbox" name="email[]" value="'.$email.'" /> &nbsp; ';
 					echo $email;
-					echo ' <a href="javascript:void(null);">remove</a>';
-					echo '</div>'."\n";
+					echo '</label></div>'."\n";
 				}
 			}
 			?></div></form>
 			<?php 
 			if (isset($disallowed_emails)) {
-				echo '<form id="do_add_disallowed_email" action="'.confirm_slash(base_url()).'system/dashboard?book_id='.((isset($book)&&!empty($book))?$book->book_id:0).'&zone=utils&pill=disallowed-emails#tabs-utils" method="post" style="display:inline-block;margin-top:3px;">';
-				echo '<input type="text" name="email" value="" placeholder="name@example.com" /> ';
-				echo '<input type="submit" value="Add email" /> &nbsp; ';
-				echo '</form>'."\n";
-				echo '<form id="do_save_disallowed_emails" action="'.confirm_slash(base_url()).'system/dashboard?book_id='.((isset($book)&&!empty($book))?$book->book_id:0).'&zone=utils&pill=disallowed-emails#tabs-utils" method="post" style="display:inline-block;margin-top:3px;">';
-				echo '<input type="hidden" name="zone" value="utils" />';
+				echo '<form id="do_remove_disallowed_emails" action="'.confirm_slash(base_url()).'system/dashboard?book_id='.((isset($book)&&!empty($book))?$book->book_id:0).'&zone=utils&pill=disallowed-emails#tabs-utils" method="post" style="display:inline-block;margin-top:3px;float:right;">';
 				echo '<input type="hidden" name="action" value="do_save_disallowed_emails" />';
 				echo '<input type="hidden" name="emails" value="" />';
-				echo '<input type="submit" value="Save disallowed emails" /> &nbsp; ';
+				echo '<input type="submit" class="btn btn-default" value="Remove selected from list" />';
+				echo '</form>';
+				echo '<form id="do_save_disallowed_emails" action="'.confirm_slash(base_url()).'system/dashboard?book_id='.((isset($book)&&!empty($book))?$book->book_id:0).'&zone=utils&pill=disallowed-emails#tabs-utils" method="post" style="display:inline-block;margin-top:3px;">';
+				echo '<input type="hidden" name="action" value="do_save_disallowed_emails" />';
+				echo '<input type="hidden" name="emails" value="" />';
+				echo '<input type="text" name="email" value="" placeholder="name@example.com" class="form-control" style="display:inline-block;width:200px;position:relative;top:1px;" /> ';
+				echo '<input type="submit" value="Add email" class="btn btn-primary" /> &nbsp; ';
 				echo '</form>'."\n";
-				echo '<br />';
 			}
 			?>
 			<br />
-			<input type="submit" value="Show list" class="btn btn-primary" onclick="this.disabled=true;$(this).parent().find('form:first').trigger('submit');" />
 			<script>
-    		$('#do_add_disallowed_email').on('submit', function() {
-    			var email = $(this).find('[name="email"]').val();
-    			$('#disallowed_emails_form').find('.div_list').append('<div data-email="'+email+'">'+email+' <a href="javascript:void(null);">remove</a></div>');
-    			$(this).find('[name="email"]').val('');
-    			return false;
-    		});
-    		$('#do_save_disallowed_emails').on('submit', function() {
+			$('#do_remove_disallowed_emails').on('submit', function() {
     			var emails = [];
-    			$('#disallowed_emails_form').find('.div_list').find('div[data-email]').each(function() {
-    				var email = $(this).data('email');
-    				emails.push(email);
+    			$('#disallowed_emails_form').find('.div_list').find('input[type="checkbox"]').each(function() {
+        			var $this = $(this);
+        			if ($this.is(':checked')) return;
+    				var _email = $(this).val();
+    				emails.push(_email);
     			});
+    			emails.sort();
+    			$(this).find('input[name="emails"]').val(emails.join(','));
+    			return true;
+			});
+    		$('#do_save_disallowed_emails').on('submit', function() {
+    			var email = $(this).find('[name="email"]').val();
+    			if (!email.length) return false;
+    			var emails = [email];
+    			$('#disallowed_emails_form').find('.div_list').find('input[type="checkbox"]').each(function() {
+    				var _email = $(this).val();
+    				emails.push(_email);
+    			});
+    			emails.sort();
     			$(this).find('input[name="emails"]').val(emails.join(','));
     			return true;
     		});

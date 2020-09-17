@@ -760,6 +760,7 @@ class System extends MY_Controller {
 	 		$this->data['start'] = (isset($_REQUEST['start']) && is_numeric($_REQUEST['start']) && $_REQUEST['start'] > 0) ? $_REQUEST['start'] : 0;
 	 		$query = isset($_REQUEST['sq'])?$_REQUEST['sq']:null;
 	 		$id = isset($_REQUEST['id'])?(int) $_REQUEST['id']:null;
+	 		$pill = isset($_REQUEST['pill'])?$_REQUEST['pill']:null;
 			switch ($this->data['zone']) {
 			 	case 'all-users':
 			 		if($this->data['login_is_super']) {
@@ -791,6 +792,12 @@ class System extends MY_Controller {
 			 		}
 					$this->data['users'] = ($this->data['login_is_super']) ? $this->users->get_all() : array();
 					break;
+			}
+			if ('disallowed-emails' == $pill) {
+				$json = $this->resources->get('disallowed_emails');
+				$arr = json_decode($json, true);
+				if (empty($arr)) $arr = array();
+				$this->data['disallowed_emails'] = $arr;
 			}
 		}
 

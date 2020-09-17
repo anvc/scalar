@@ -475,8 +475,9 @@ class User_model extends MY_Model {
 		$data = array('fullname' => $fullname, 'email' => $email);
 		$this->db->insert($this->users_table, $data);
 		$user_id = $this->db->insert_id();
-
-		$this->save_password($user_id, $array['password']);  // Hashes the string
+		$user = $this->get_by_user_id($user_id);
+		
+		$this->save_password($user_id, $array['password'], $user->fullname, $user->email);  // Hashes the string
 
     	return $user_id;
 
@@ -716,6 +717,7 @@ class User_model extends MY_Model {
     	
     	if (empty($email)) return true;
     	$user = $this->get_by_email($email);
+    	if (empty($user)) return true;  // User hasn't been created yet (e.g., is registering)
     	if (!property_exists($user, 'previous_passwords')) return true;  // Database hasn't been updated
     	$previous_passwords = json_decode($user->previous_passwords, true);
     	if (empty($previous_passwords)) $previous_passwords = array();
@@ -726,6 +728,7 @@ class User_model extends MY_Model {
     
     private function save_previous_password($password, $email='') {
     	
+
     	if (empty($email)) return;
     	$user = $this->get_by_email($email);
     	if (!property_exists($user, 'previous_passwords')) return;  // Database hasn't been updated
@@ -744,7 +747,7 @@ class User_model extends MY_Model {
     	$user = $this->get_by_user_id($user_id);
     	if (!property_exists($user, 'previous_passwords')) return;  // Database hasn't been updated
     	$previous_passwords = json_decode($user->previous_passwords, true);
-    	if (empty($previous_passwords)) $previous_passwords = array();
+    	if (empty($previous_passwords) || !is_array($previous_passwords)) $previous_passwords = array();
     	$current_time = time();
     	$least_days = null;
     	foreach ($previous_passwords as $previous_time => $previous_password) {
