@@ -3073,7 +3073,14 @@
                                               "type": "items-by-type",
                                               "content-type": "table-of-contents"
                                             },
-                                            "modifiers": []
+                                            "modifiers": [{
+                                                "type": "filter",
+                                                "subtype": "relationship",
+                                                "content-types": [
+                                                    "all-types"
+                                                ],
+                                                "relationship": "child"
+                                            }]
                                           }
                                         ]
                                       }
