@@ -356,11 +356,8 @@ window.scalarvis = { instanceCount: -1 };
           "subtype": "relationship",
           "relationship": base.visElement.find(".vis-filter-control").val()
         };
-        if (filterControlVal == 'any-relationship') {
-          filter.contentTypes = ["all-types"];
-        } else {
-          filter.contentTypes = [base.visElement.find(".vis-content-control").val()];
-        }
+        filter["content-types"] = ["all-types"];
+        base.options.lens.components[0].modifiers.push(filter);
       }
       if (base.visElement.find(".vis-sort-control").val() != 'none') {
         if (base.visElement.find(".vis-sort-order-control").val() == 'none') {
@@ -392,12 +389,14 @@ window.scalarvis = { instanceCount: -1 };
         base.updateLoadingMsg('', percentDone, 0, 1, null);
       }, 1000)
       if (base.lensRequest) base.lensRequest.abort();
+      let requestData = JSON.parse(JSON.stringify(base.options.lens));
+      delete requestData.items;
       base.lensRequest = $.ajax({
         url: url,
         type: "POST",
         dataType: 'json',
         contentType: 'application/json',
-        data: JSON.stringify(base.options.lens),
+        data: JSON.stringify(requestData),
         async: true,
         context: this,
         success: (data) => {
@@ -3458,8 +3457,8 @@ window.scalarvis = { instanceCount: -1 };
 
           var nodeEnter = this.nodeSelection.enter().append('svg:g')
             .attr('class', 'node')
-            .attr('x', (d) => { d.x = this.size.width * .5; return d.x; })
-            .attr('y', (d) => { d.y = this.size.height * .5; return d.y; })
+            .attr('x', (d) => { d.x = this.size.width * .5 + (Math.random() * 200 - 100); return d.x; })
+            .attr('y', (d) => { d.y = this.size.height * .5 + (Math.random() * 200 - 100); return d.y; })
             .call(this.dragHandling(base.force))
             .on('touchstart', function(d) { d3.event.stopPropagation(); })
             .on('mousedown', function(d) { d3.event.stopPropagation(); })
@@ -3569,7 +3568,7 @@ window.scalarvis = { instanceCount: -1 };
           .force('link', this.forceLink)
           .alphaDecay(.01)
           .force('collide', d3.forceCollide(30))
-          .force('charge', d3.forceManyBody().strength(-40))
+          .force('charge', d3.forceManyBody().strength(-50))
           .force('center', d3.forceCenter(this.size.width * .5, this.size.height * .5))
           .on('tick', () => {
             if (base.svg != null) {
