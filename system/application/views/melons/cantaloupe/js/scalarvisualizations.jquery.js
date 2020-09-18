@@ -3584,13 +3584,11 @@ window.scalarvis = { instanceCount: -1 };
         // once we upgrade to D3 4.0, we should implement custom x and y accessors
         // so multiple instances don't try to change each other's positions
 
-        this.forceLink = d3.forceLink().distance(100);
+        this.forceLink = d3.forceLink().distance(120);
 
         base.force = d3.forceSimulation()
           .force('link', this.forceLink)
-          .alphaDecay(.01)
-          .force('collide', d3.forceCollide(30))
-          .force('charge', d3.forceManyBody().strength(-50))
+          .force('charge', d3.forceManyBody().strength(-200))
           .force('center', d3.forceCenter(this.size.width * .5, this.size.height * .5))
           .on('tick', () => {
             if (base.svg != null) {
@@ -3634,7 +3632,7 @@ window.scalarvis = { instanceCount: -1 };
         }
 
         function dragEnded(d) {
-          if (!d3.event.active) base.force.alphaTarget(0);
+          if (!d3.event.active) base.force.alphaTarget(0.01);
           d.fx = null;
           d.fy = null;
         }
