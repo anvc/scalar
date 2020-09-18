@@ -468,7 +468,7 @@ window.scalarvis = { instanceCount: -1 };
       }
       if (base.options.lens) {
         delete(base.options.format);
-        delete(base.options.relations);
+        base.options.relations = 'from-lens';
         if (!base.options.lens.items) {
           base.getLensResults();
         }
@@ -1235,43 +1235,49 @@ window.scalarvis = { instanceCount: -1 };
           }
 
           // get relationships for each node
-          n = base.contentNodes.length;
-          for (i = 0; i < n; i++) {
-            node = base.contentNodes[i];
-            relNodes = [];
-            rels = [];
-            if (base.options.relations == "all") {
-              relNodes = node.getRelatedNodes(null, "both");
-              rels = node.getRelations(null, "both");
-              relNodes.forEach((relNode, index) => {
-                if (base.options.lens.items[relNode.url]) {
-                  base.relatedNodes.push(relNode);
-                  base.relations.push(rels[index]);
-                }
-              });
-            } else if (base.options.relations != "none") {
-              relNodes = node.getRelatedNodes(base.options.relations, "both");
-              rels = node.getRelations(base.options.relations, "both");
-              relNodes.forEach((relNode, index) => {
-                if (base.options.lens.items[relNode.url]) {
-                  base.relatedNodes.push(relNode);
-                  base.relations.push(rels[index]);
-                }
-              });
+          if (base.options.lens.components[0].modifiers.length > 0) {
+            n = base.contentNodes.length;
+            for (i = 0; i < n; i++) {
+              node = base.contentNodes[i];
+              relNodes = [];
+              rels = [];
+              if (base.options.lens.components[0].modifiers[0].relationship == 'any-relationship') {
+                relNodes = node.getRelatedNodes(null, "both");
+                rels = node.getRelations(null, "both");
+                relNodes.forEach((relNode, index) => {
+                  if (base.options.lens.items[relNode.url]) {
+                    base.relatedNodes.push(relNode);
+                    base.relations.push(rels[index]);
+                  }
+                });
+              } else {
+                relNodes = node.getRelatedNodes(base.options.lens.components[0].modifiers[0]['content-types'][0], "both");
+                rels = node.getRelations(base.options.lens.components[0].modifiers[0]['content-types'][0], "both");
+                relNodes.forEach((relNode, index) => {
+                  if (base.options.lens.items[relNode.url]) {
+                    base.relatedNodes.push(relNode);
+                    base.relations.push(rels[index]);
+                  }
+                });
+              }
+              node.connectionCount = rels.length;
+              base.maxConnections = Math.max(base.maxConnections, node.connectionCount);
             }
-            node.connectionCount = rels.length;
-            base.maxConnections = Math.max(base.maxConnections, node.connectionCount);
           }
 
           n = base.selectedNodes.length;
-          for (i = 0; i < n; i++) {
+          for (i = n-1; i >= 0; i--) {
             node = base.selectedNodes[i];
-            relNodes = node.getRelatedNodes(null, "both");
-            rels = node.getRelations(null, "both");
-            base.relatedNodes = base.relatedNodes.concat(relNodes);
-            base.relations = base.relations.concat(rels);
-            node.connectionCount = rels.length;
-            base.maxConnections = Math.max(base.maxConnections, node.connectionCount);
+            if (base.contentNodes.indexOf(node) != -1) {
+              relNodes = node.getRelatedNodes(null, "both");
+              rels = node.getRelations(null, "both");
+              base.relatedNodes = base.relatedNodes.concat(relNodes);
+              base.relations = base.relations.concat(rels);
+              node.connectionCount = rels.length;
+              base.maxConnections = Math.max(base.maxConnections, node.connectionCount);
+            } else {
+              base.selectedNodes.splice(i, 1);
+            }
           }
           break;
 
@@ -1360,8 +1366,6 @@ window.scalarvis = { instanceCount: -1 };
           break;
 
       }
-
-      //console.log( 'related nodes', base.relatedNodes );
 
       newSortedNodes = base.arrayUnique(base.contentNodes.concat(base.relatedNodes));
       oldNodes = base.sortedNodes.concat();
@@ -1776,6 +1780,23 @@ window.scalarvis = { instanceCount: -1 };
           relationList = [];
           break;
 
+        case "from-lens":
+          relationList = [];
+          if (base.options.lens.components[0].modifiers.length > 0) {
+            switch (base.options.lens.components[0].modifiers[0].relationship) {
+              case 'any-relationship':
+              relationList = base.canonicalRelationOrder;
+              break;
+              case 'parent':
+              relationList = [{ type: null, direction: 'incoming' }];
+              break;
+              case 'child':
+              relationList = [{ type: null, direction: 'outgoing' }];
+              break;
+            }
+          }
+          break;
+
         default:
           if (base.options.relations == "reference") {
             relationList = [{ type: base.options.relations, direction: 'incoming' }];
@@ -2004,8 +2025,7 @@ window.scalarvis = { instanceCount: -1 };
           break;
 
         case "tree":
-          needsInstantiation = base.visInstance ? base.visInstance.constructor.name != 'TreeVisualization' : true;
-          if (needsInstantiation) base.visInstance = new TreeVisualization();
+          base.visInstance = new TreeVisualization(); // rebuild it every time to avoid issues with data constancy
           break;
 
         case "radial":
@@ -2648,21 +2668,23 @@ window.scalarvis = { instanceCount: -1 };
 
         nodeEnter.append("svg:circle")
           .attr("r", 1e-6)
-          .style("fill", function(d) { return !d.children && d._children ? d3.hsl(base.highlightColorScale(d.data.type, "noun", '#777')).brighter(1.5) : "#fff"; })
-          .style("stroke", function(d) { return base.highlightColorScale(d.data.type, "noun", '#777') })
+          .style("fill", (d) => { return !d.children && d._children ? d3.hsl(base.highlightColorScale(d.data.type, "noun", '#777')).brighter(1.5) : "#fff"; })
+          .style("stroke", (d) => { return base.highlightColorScale(d.data.type, "noun", '#777') })
           .on('touchstart', function(d) { d3.event.stopPropagation(); })
           .on('mousedown', function(d) { d3.event.stopPropagation(); })
           .on("click", (d) => {
             // the non-node "d" items here aren't the right ones, for some reason...
             // so getDescendantForData finds the most updated "d" (shouldn't be necessary)
             d = this.getDescendantForData(d.data);
-            this.lastToggledNode = d;
-            if (d3.event.defaultPrevented) return; // ignore drag
-            this.branchToggle(d);
-            this.pathUpdate(this.root);
-            if (base.isHierarchyNodeMaximized(d)) {
-              if (base.options.content == "current") {
-                setTimeout(function() { base.loadNode(d.data.node.slug, false, 2); }, 500);
+            if (d.data.children) {
+              this.lastToggledNode = d;
+              if (d3.event.defaultPrevented) return; // ignore drag
+              this.branchToggle(d);
+              this.pathUpdate(this.root);
+              if (base.isHierarchyNodeMaximized(d)) {
+                if (base.options.content == "current") {
+                  setTimeout(function() { base.loadNode(d.data.node.slug, false, 2); }, 500);
+                }
               }
             }
           });
@@ -2690,7 +2712,7 @@ window.scalarvis = { instanceCount: -1 };
 
         nodeUpdate.selectAll("circle")
           .attr("r", 8)
-          .style("fill", function(d) { return !d.children && d._children ? d3.hsl(base.highlightColorScale(d.data.type, "noun", '#777')).brighter(1.5) : "#fff"; });
+          .style("fill", (d) => { d = this.getDescendantForData(d.data); return !d.children && d._children ? d3.hsl(base.highlightColorScale(d.data.type, "noun", '#777')).brighter(1.5) : "#fff"; });
 
         nodeUpdate.selectAll("text")
           .style("fill-opacity", 1);
