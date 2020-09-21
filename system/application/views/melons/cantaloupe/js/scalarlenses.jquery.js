@@ -593,6 +593,9 @@
               case 'media':
               buttonText = 'All ' + scalarapi.model.scalarTypes[contentType].plural;
               break;
+              case 'reply':
+              buttonText = 'All ' + scalarapi.model.relationTypes['comment'].bodyPlural;
+              break;
               default:
               buttonText = 'All ' + scalarapi.model.relationTypes[contentType].bodyPlural;
               break;
@@ -1082,12 +1085,13 @@
       });
 
       element.find('.done').on('click', function(evt){
-        console.log(me.validateItemsByType())
         if(me.validateItemsByType()){
-
           let contentSelector = {
             "type": "items-by-type",
             "content-type": $('#byType').text().split(/[_\s]/).join("-").toLowerCase()
+          }
+          if (contentSelector['content-type'] == 'comment') {
+            contentSelector['content-type'] = 'reply';
           }
           let contentSelections = me.scalarLensObject.components[me.editedComponentIndex]["content-selector"]
           delete contentSelections.quantity;
@@ -1716,7 +1720,7 @@
           {label: "paths", value: "path"},
           {label: "tags", value: "tag"},
           {label: "annotations", value: "annotation"},
-          {label: "comments", value: "comment"}
+          {label: "comments", value: "reply"}
         ]);
 
         let contentList = $('#content-type-list li');

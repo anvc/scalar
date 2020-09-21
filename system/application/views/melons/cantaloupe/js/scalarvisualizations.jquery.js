@@ -51,11 +51,11 @@ window.scalarvis = { instanceCount: -1 };
     base.VisualizationTypes = {
       'force-directed': 'Force-directed',
       'grid': 'Grid',
-      /*'list': 'List',*/
-      'map': 'Map',
+      /*'list': 'List',
+      'map': 'Map',*/
       'radial': 'Radial',
       'tree': 'Tree',
-      'word-cloud': 'Word cloud'
+      /*'word-cloud': 'Word cloud'*/
     }
     base.VisualizationContent = {
       "all-content": "All content",
@@ -65,7 +65,7 @@ window.scalarvis = { instanceCount: -1 };
       "tag": "All tags",
       "annotation": "All annotations",
       "media": "All media",
-      "comment": "All comments",
+      "reply": "All comments",
       "current": "Current page"
     }
     base.VisualizationFilters = {
@@ -170,23 +170,6 @@ window.scalarvis = { instanceCount: -1 };
       if (base.options.modal) {
 
         base.controls = $('<div class="vis-controls form-inline form-group-sm"></div>').appendTo(base.visElement);
-
-        /*var controls_html = '<select class="vis-content-control form-control">';
-        for (var prop in base.VisualizationContent) {
-          controls_html += '<option value="' + prop + '">' + base.VisualizationContent[prop] + '</option>';
-        }
-        controls_html += '</select> ' +
-          '<select class="vis-relations-control form-control">' +
-          '<option value="all">All relationships</option>' +
-          '<option value="parents-children">Parents and children</option>' +
-          '<option value="none">No relationships</option>' +
-          '</select> ' +
-          '<select class="vis-format-control form-control">' +
-          '<option value="grid">Grid format</option>' +
-          '<option value="tree">Tree format</option>' +
-          '<option value="radial">Radial format</option>' +
-          '<option value="force-directed">Force-directed format</option>' +
-          '</select>';*/
 
         var controls_html = '<div class="vis-control-header"><b>Type</b></br><select class="vis-type-control form-control">';
         for (var prop in base.VisualizationTypes) {
@@ -327,8 +310,9 @@ window.scalarvis = { instanceCount: -1 };
         base.options.lens.components[0]['content-selector']['items'] = [base.currentNode.slug];
       } else {
         base.options.lens.components[0]['content-selector']['content-type'] = $(this).val();
-        base.options.lens.components[0]['content-selector']['items'] = [];
+        delete base.options.lens.components[0]['content-selector'].items;
       }
+      base.updateLensModifiers();
       base.getLensResults();
     }
 
@@ -356,7 +340,25 @@ window.scalarvis = { instanceCount: -1 };
           "subtype": "relationship",
           "relationship": base.visElement.find(".vis-filter-control").val()
         };
-        filter["content-types"] = ["all-types"];
+        let contentControlVal = base.visElement.find(".vis-content-control").val();
+        switch (contentControlVal) {
+
+          case 'all-content':
+          case 'table-of-contents':
+          case 'current':
+          case 'page':
+          filter["content-types"] = ["all-types"];
+          break;
+
+          case 'media':
+          filter["content-types"] = ["reference"];
+          break;
+
+          default:
+          filter["content-types"] = [contentControlVal];
+          break;
+
+        }
         base.options.lens.components[0].modifiers.push(filter);
       }
       if (base.visElement.find(".vis-sort-control").val() != 'none') {
@@ -1453,7 +1455,9 @@ window.scalarvis = { instanceCount: -1 };
               })
               let hasSingleType;
               if (base.options.lens.components.length === 1 && base.options.lens.components[0]['content-selector'].type === 'items-by-type') {
-                hasSingleType = base.options.lens.components[0]['content-selector']['content-type'];
+                if (base.options.lens.components[0]['content-selector']['content-type'] != 'all-content') {
+                  hasSingleType = base.options.lens.components[0]['content-selector']['content-type'];
+                }
               }
               base.updateTypeHierarchy(false, true, hasSingleType, hasToc);
               break;
@@ -1576,7 +1580,18 @@ window.scalarvis = { instanceCount: -1 };
         }
       }
 
+      let isCurrentContent = false;
       if (base.options.content == "current") {
+        isCurrentContent = true;
+      } else if (base.options.lens) {
+        if (base.options.lens.components[0]['content-selector'].items) {
+          if (base.options.lens.components[0]['content-selector'].type == 'items-by-type' && base.options.lens.components[0]['content-selector'].items.length == 1 && base.options.lens.components[0]['content-selector'].items[0] == base.currentNode.slug) {
+            isCurrentContent = true;
+          }
+        }
+      }
+
+      if (isCurrentContent) {
 
         // replace the root node with the current node if showing types
         // is not a priority
@@ -1607,6 +1622,18 @@ window.scalarvis = { instanceCount: -1 };
         case "current":
           if (topLevelType) {
             typeList = [];
+          } else {
+            typeList = base.canonicalTypeOrder;
+          }
+          break;
+
+        case "lens":
+          if (topLevelType) {
+            if (isCurrentContent) {
+              typeList = [];
+            } else {
+              typeList = [topLevelType];
+            }
           } else {
             typeList = base.canonicalTypeOrder;
           }
@@ -1817,23 +1844,35 @@ window.scalarvis = { instanceCount: -1 };
               sourceData.children = [];
             }
             o = nodes.length;
+            let okToProcess;
             for (j = 0; j < o; j++) {
               destNode = nodes[j];
-              base.processNode(destNode);
-              destData = {
-                title: destNode.title,
-                shortTitle: destNode.shortTitle,
-                node: destNode,
-                type: destNode.type.id,
-                showsTitle: true,
-                parent: sourceData,
-                children: null,
-                localIndex: sourceData.children.length
-              };
-              sourceData.children.push(destData);
-              if (base.processedNodesForHierarchy.indexOf(destNode) == -1) {
-                base.processedNodesForHierarchy.push(destNode);
-                base.addRelationsForHierarchyNode(destData);
+              okToProcess = true;
+              // if this is a lens, don't include items not returned by the lens
+              if (base.options.content == 'lens') {
+                if (base.options.lens.items) {
+                  if (!base.options.lens.items[destNode.url]) {
+                    okToProcess = false;
+                  }
+                }
+              }
+              if (okToProcess) {
+                base.processNode(destNode);
+                destData = {
+                  title: destNode.title,
+                  shortTitle: destNode.shortTitle,
+                  node: destNode,
+                  type: destNode.type.id,
+                  showsTitle: true,
+                  parent: sourceData,
+                  children: null,
+                  localIndex: sourceData.children.length
+                };
+                sourceData.children.push(destData);
+                if (base.processedNodesForHierarchy.indexOf(destNode) == -1) {
+                  base.processedNodesForHierarchy.push(destNode);
+                  base.addRelationsForHierarchyNode(destData);
+                }
               }
             }
           }
@@ -1991,16 +2030,10 @@ window.scalarvis = { instanceCount: -1 };
         base.visualization.empty();
       }
 
-      switch (base.getFormat()) {
-
-        case "force-directed":
-          if (base.force != null) {
-            base.force.on("tick", null);
-          }
-          base.force = null;
-          base.links = [];
-          break;
-
+      if (base.getFormat() != 'force-directed' && base.force != null) {
+        base.force.on("tick", null);
+        base.force = null;
+        base.links = [];
       }
     }
 
