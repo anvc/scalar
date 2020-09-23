@@ -8,7 +8,7 @@
  * (the "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
  *
- * http://www.osedu.org/licenses /ECL-2.0
+ * http://www.osedu.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an "AS IS"
@@ -20,7 +20,7 @@
 /**
  * @projectDescription  Propogate a user's breadcrumbs using HTML5 localStorage
  * @author              Craig Dietrich
- * @version             1.1
+ * @version             1.2
  * @requires            $.rdfQuery
  */
 
@@ -76,6 +76,7 @@ function scalarrecent_log_page() {
 	var desc = $("meta[name='Description']").attr('content');
 	var role = $('link#primary_role').attr('href');
     var color = $('link#color').attr('href');
+    var timestamp = new Date().getTime();
 
 	// Clear existing (so item is at top of list)
 	// There seems to be a bug with rdfQuery where if you try to delete a triple that doesn't exist, it arbitrarily deletes another triple
@@ -84,10 +85,22 @@ function scalarrecent_log_page() {
 	var r = $.rdf({ databank: rdf });
 	r.where('<'+parent+'users/anonymous> scalar:has_viewed <'+uri+'> .').each(function() {
 		rdf.remove('<'+parent+'users/anonymous> scalar:has_viewed <'+uri+'> .');
+		// Remove all RDF for the resource
+		$query = r.where('<'+uri+'> ?p ?o .');
+		var triples = $query.select();
+		for (var m in triples) {
+			var p = triples[m].p.value;
+			var o = triples[m].o.value;
+			var o_type = triples[m].o.type;
+			if (o_type=='uri') {
+				rdf.remove('<'+uri+'> <'+p+'> <'+o+'> .');
+			} else {
+				rdf.remove('<'+uri+'> <'+p+'> "'+htmlspecialchars(o)+'" .');
+			}
+		}
 	});
 
-	// If more than N in the history, trim the list
-	// Remember that the list is in reverse order than intuitive
+	// If more than N in the history, trim the list (0 = oldest; N = most recent)
 
 	var max_allowable = 20; // Magic number; note, the view cuts the list off at 10 anyways, but having more will help fill out the sub-tabs
 	var $query = r.where('<'+parent+'users/anonymous> scalar:has_viewed ?o .');
@@ -108,7 +121,7 @@ function scalarrecent_log_page() {
 				if (o_type=='uri') {
 					rdf.remove('<'+resource+'> <'+p+'> <'+o+'> .');
 				} else {
-					rdf.remove('<'+resource+'> <'+p+'> <'+htmlspecialchars(o)+'> .');
+					rdf.remove('<'+resource+'> <'+p+'> "'+htmlspecialchars(o)+'" .');
 				}
 			}
 		}
@@ -123,6 +136,7 @@ function scalarrecent_log_page() {
 	rdf.add('<'+uri+'> dc:title "'+htmlspecialchars(title)+'" .');
 	rdf.add('<'+uri+'> dcterms:description "'+htmlspecialchars(desc)+'" .');
 	rdf.add('<'+uri+'> rdf:type <'+role+'> .');
+	rdf.add('<'+uri+'> dcterms:date "'+timestamp+'" .');
 	if (color) rdf.add('<'+uri+'> scalar:color "'+color+'" .');
 
 	// Save new state
@@ -141,10 +155,23 @@ function scalarrecent_log_page() {
  * Clear the localStorage so we can start over
  * @return null
  */
+
 function scalarrecent_clear() {
 
 	localStorage.removeItem('scalar_user_history');
 
+}
+
+/**
+ * scalarrecent_get_more_recent_than()
+ * str  timestamp 
+ * Get all nodes that were committed more recently than the passed timestamp
+ */
+
+function scalarrecent_get_more_recent_than(timestamp) {
+	
+	// TODO
+	
 }
 
 /**
