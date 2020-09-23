@@ -54,7 +54,7 @@ class RDF_Object {
 	public $ns = array();
 	protected $version_cache = array();
 	protected $user_cache = array();
-	protected $rel_fields = array('sort_number','start_seconds','end_seconds','start_line_num','end_line_num','points','position-3d','additional','datetime','paragraph_num');
+	protected $rel_fields = array('sort_number','start_seconds','end_seconds','start_line_num','end_line_num','points','position_3d','additional','datetime','paragraph_num');
 	protected $defaults = array(
 		'books'			=> null,
 		'book'			=> null,
