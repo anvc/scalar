@@ -611,7 +611,14 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                             "type": "items-by-type",
                             "content-type": "all-content"
                           },
-                          "modifiers": []
+                          "modifiers": [{
+                              "type": "filter",
+                              "subtype": "relationship",
+                              "content-types": [
+                                  "all-types"
+                              ],
+                              "relationship": "any-relationship"
+                          }]
                         }
                       ]
                     }
@@ -630,7 +637,14 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                             "type": "items-by-type",
                             "content-type": "table-of-contents"
                           },
-                          "modifiers": []
+                          "modifiers": [{
+                              "type": "filter",
+                              "subtype": "relationship",
+                              "content-types": [
+                                  "all-types"
+                              ],
+                              "relationship": "child"
+                          }]
                         }
                       ]
                     }
@@ -651,6 +665,14 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                             "content-type": "all-content"
                           },
                           "modifiers": [
+                            {
+                              "type": "filter",
+                              "subtype": "relationship",
+                              "content-types": [
+                                  "all-types"
+                              ],
+                              "relationship": "any-relationship"
+                            },
                             {
                               "type": "sort",
                               "sort-type": "alphabetical",
@@ -676,7 +698,14 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                             "type": "items-by-type",
                             "content-type": "all-content"
                           },
-                          "modifiers": []
+                          "modifiers": [{
+                              "type": "filter",
+                              "subtype": "relationship",
+                              "content-types": [
+                                  "all-types"
+                              ],
+                              "relationship": "any-relationship"
+                          }]
                         }
                       ]
                     }

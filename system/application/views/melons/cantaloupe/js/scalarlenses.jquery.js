@@ -170,6 +170,7 @@
     // get Default data
     ScalarLenses.prototype.getDefaultJson = function(){
       // the Lens object
+      let currentPageNode = scalarapi.model.getCurrentPageNode();
       return {
         "urn": $('link#urn').attr('href').replace("version", "lens"),
         "submitted": false,
@@ -180,7 +181,9 @@
           "type": null,
           "options": {}
         },
-        "components": []
+        "components": [],
+        "title": currentPageNode.title,
+        "slug": currentPageNode.slug
       };
     }
 
@@ -339,10 +342,7 @@
         $(this.element).find('.lens-tags .btn').addClass('disabled');
       }
 
-
       this.editLensTitle()
-
-
     }
 
     // edit lens title
@@ -356,11 +356,10 @@
       });
 
       lensTitle.addEventListener('keydown', (evt) => {
-          if (evt.keyCode === 13) {
-            evt.preventDefault();
-            me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
-          }
-
+        if (evt.keyCode === 13) {
+          evt.preventDefault();
+          me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
+        }
       });
 
       $('.lens-title').on('focusout', function(ev) {
@@ -594,6 +593,9 @@
               case 'media':
               buttonText = 'All ' + scalarapi.model.scalarTypes[contentType].plural;
               break;
+              case 'reply':
+              buttonText = 'All ' + scalarapi.model.relationTypes['comment'].bodyPlural;
+              break;
               default:
               buttonText = 'All ' + scalarapi.model.relationTypes[contentType].bodyPlural;
               break;
@@ -669,13 +671,10 @@
           let filterObj = me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex];
           me.updateFilterModal(option.value, filterObj);
         }
-
         if($(evt.target).parent().text() == 'Delete'){
           $(this).removeClass('active')
         }
-
       }
-
 
       this.populateDropdown(button, button.find('.filter-type-list'), null, onClick,
         '<li><a data-toggle="modal" data-target="#filterModal"></a></li>',
@@ -1086,12 +1085,13 @@
       });
 
       element.find('.done').on('click', function(evt){
-        console.log(me.validateItemsByType())
         if(me.validateItemsByType()){
-
           let contentSelector = {
             "type": "items-by-type",
             "content-type": $('#byType').text().split(/[_\s]/).join("-").toLowerCase()
+          }
+          if (contentSelector['content-type'] == 'comment') {
+            contentSelector['content-type'] = 'reply';
           }
           let contentSelections = me.scalarLensObject.components[me.editedComponentIndex]["content-selector"]
           delete contentSelections.quantity;
@@ -1297,9 +1297,6 @@
 
       var me = this;
 
-      //let componentContainer = $('.filter-modal-container')
-      //element.find('.filter-modal-container').prepend(me.addFilterButton(componentContainer))
-
       // done click handler
       element.find('.done').on('click', function(evt){
         if (me.validateFilterData()) {
@@ -1316,7 +1313,6 @@
         let currentButton = $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-btn-group').eq(me.editedModifierIndex);
         //$(currentButton).find('.filter-type-list li.active').toggleClass('active');
       });
-
       return element;
     }
 
@@ -1444,7 +1440,7 @@
             "type": "filter",
             "subtype": "content-type",
             "operator": $('#operator-button').data('option').value,
-            "content-types": $('#content-type-button').data('option').value
+            "content-types": $('#content-type-button').data('option').value ? $('#content-type-button').data('option').value : []
           }
         break;
         case 'content':
@@ -1595,8 +1591,6 @@
       tempLensObj.components[0].modifiers.push(filterObj);
       let postFilterLensObj = JSON.parse(JSON.stringify(tempLensObj));
 
-      console.log(preFilterLensObj,postFilterLensObj);
-
       // get the results from both and post
       let leftBadge = $('#filterModal .left-badge .counter');
       this.updateBadge(leftBadge, -1, 'dark');
@@ -1708,11 +1702,8 @@
            typeFilterArray.push($(this).data('option').value)
         });
         $('#content-type-button').data('option', { value: typeFilterArray });
-
         me.updateTypeFilterForm();
-
       }
-
 
       this.populateDropdown($('#operator-button'), $('#operator-list'), filterObj.operator, onClick,
         '<li><a></a></li>',
@@ -1720,8 +1711,6 @@
           {label: "are", value: "inclusive"},
           {label: "are not", value: "exclusive"}
         ]);
-
-
 
       this.populateDropdown($('#content-type-button'), $('#content-type-list'), filterObj['content-types'], multipleSelects,
         '<li><a></a></li>',
@@ -1731,9 +1720,8 @@
           {label: "paths", value: "path"},
           {label: "tags", value: "tag"},
           {label: "annotations", value: "annotation"},
-          {label: "comments", value: "comment"}
+          {label: "comments", value: "reply"}
         ]);
-
 
         let contentList = $('#content-type-list li');
         let contentArray = filterObj["content-types"];
@@ -1750,7 +1738,6 @@
             }
           })
         }
-
 
       return element;
     }
@@ -3427,10 +3414,6 @@
       return element;
     }
 
-
-
-
-
     // get Lens results
     ScalarLenses.prototype.getLensResults = function(lensObject, success){
       this.updateBadge(this.primaryBadge, -1, 'light');
@@ -3460,7 +3443,6 @@
         },
         error: function error(response) {
     	     console.log('There was an error attempting to communicate with the server.');
-    	     console.log(response);
         }
       });
     }
@@ -3494,7 +3476,7 @@
 
     // ajax call to post user lens selections
     ScalarLenses.prototype.saveLens = function(successHandler){
-      console.log(JSON.stringify(this.scalarLensObject, null, 2));
+      //console.log(JSON.stringify(this.scalarLensObject, null, 2));
       this.scalarLensObject.user_level = this.userLevel;
       this.baseURL = $('link#parent').attr('href');
       if (this.canSave == true) {
@@ -3508,37 +3490,17 @@
           action: 'UPDATE',
           'scalar:urn': this.scalarLensObject.urn,
           uriSegment: this.scalarLensObject.slug,
-          'dcterms:title': this.scalarLensObject.title,
-          /*'dcterms:description': currentNode.current.description,
-          'sioc:content': currentNode.current.content,
-          'rdf:type': currentNode.baseType,
-          'scalar:is_live': currentNode.isLive*/
+          'dcterms:title': this.scalarLensObject.title
         };
         var relationData = {};
-        relationData[this.scalarLensObject.slug + 'null'] = {
+        relationData[this.baseURL + this.scalarLensObject.slug + 'null'] = {
           action: 'RELATE',
-          'scalar:urn': this.scalarLensObject.urn,
+          'scalar:urn': this.scalarLensObject.urn.replace('lens','version'),
           'scalar:child_rel': 'grouped',
           'scalar:contents': JSON.stringify(this.scalarLensObject)
         };
 
-        console.log(relationData);
-
         scalarapi.modifyPageAndRelations(baseProperties, pageData, relationData, successHandler);
-
-        /*$.ajax({
-          url: this.baseURL + "api/relate",
-          type: "POST",
-          dataType: 'json',
-          contentType: 'application/json',
-          data: JSON.stringify(this.scalarLensObject),
-          async: true,
-          context: this,
-          success: successHandler,
-          error: function error(response) {
-            console.log(response);
-          }
-        });*/
       } else {
         $('#duplicate-copy-prompt').addClass('show-lens-prompt');
       }

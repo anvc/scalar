@@ -120,6 +120,7 @@ CREATE TABLE IF NOT EXISTS `scalar_db_users` (
   `reset_string` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `url` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `is_super` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `previous_passwords` text COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`user_id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 

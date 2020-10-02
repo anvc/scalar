@@ -459,6 +459,7 @@ class User_model extends MY_Model {
 
 		if (empty($array['email'])) throw new Exception('Email is a required field');
 		if ($this->get_by_email($array['email'])) throw new Exception('Email already in use');
+		if ($this->email_is_disallowed($array['email'])) throw new Exception('Email is disallowed');
 		if (empty($array['fullname'])) throw new Exception('Full name is a required field');
 		if (empty($array['password'])) throw new Exception('Password is a required field');
 		
@@ -474,8 +475,9 @@ class User_model extends MY_Model {
 		$data = array('fullname' => $fullname, 'email' => $email);
 		$this->db->insert($this->users_table, $data);
 		$user_id = $this->db->insert_id();
-
-		$this->save_password($user_id, $array['password']);  // Hashes the string
+		$user = $this->get_by_user_id($user_id);
+		
+		$this->save_password($user_id, $array['password'], $user->fullname, $user->email);  // Hashes the string
 
     	return $user_id;
 
@@ -715,6 +717,7 @@ class User_model extends MY_Model {
     	
     	if (empty($email)) return true;
     	$user = $this->get_by_email($email);
+    	if (empty($user)) return true;  // User hasn't been created yet (e.g., is registering)
     	if (!property_exists($user, 'previous_passwords')) return true;  // Database hasn't been updated
     	$previous_passwords = json_decode($user->previous_passwords, true);
     	if (empty($previous_passwords)) $previous_passwords = array();
@@ -725,6 +728,7 @@ class User_model extends MY_Model {
     
     private function save_previous_password($password, $email='') {
     	
+
     	if (empty($email)) return;
     	$user = $this->get_by_email($email);
     	if (!property_exists($user, 'previous_passwords')) return;  // Database hasn't been updated
@@ -734,6 +738,34 @@ class User_model extends MY_Model {
     	$previous_passwords = array_slice($previous_passwords, -10, 10, true);  // Limit to last 10
     	$this->db->where('user_id', $user->user_id);
     	$this->db->update($this->users_table, array('previous_passwords'=>json_encode($previous_passwords)));
+    	
+    }
+    
+    public function days_since_last_password_change($user_id) {
+    	
+    	if (empty($user_id)) return;
+    	$user = $this->get_by_user_id($user_id);
+    	if (!property_exists($user, 'previous_passwords')) return;  // Database hasn't been updated
+    	$previous_passwords = json_decode($user->previous_passwords, true);
+    	if (empty($previous_passwords) || !is_array($previous_passwords)) $previous_passwords = array();
+    	$current_time = time();
+    	$least_days = null;
+    	foreach ($previous_passwords as $previous_time => $previous_password) {
+    		$days = abs($current_time - $previous_time)/60/60/24;
+    		if ($least_days == null || $days < $least_days) $least_days = $days;
+    	}
+    	return $least_days;
+    	
+    }
+    
+    protected function email_is_disallowed($email='') {
+    	
+    	$this->load->model('resource_model', 'resources');
+    	$json = $this->resources->get('disallowed_emails');
+    	$arr = json_decode($json, true);
+    	if (empty($arr)) $arr = array();
+    	if (in_array($email, $arr)) return true;
+    	return false;
     	
     }
 

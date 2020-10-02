@@ -8,7 +8,7 @@
  * (the "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
  *
- * http://www.osedu.org/licenses /ECL-2.0
+ * http://www.osedu.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an "AS IS"
@@ -20,7 +20,7 @@
 /**
  * @projectDescription  Propogate a user's breadcrumbs using HTML5 localStorage
  * @author              Craig Dietrich
- * @version             1.1
+ * @version             1.2
  * @requires            $.rdfQuery
  */
 
@@ -84,32 +84,46 @@ function scalarrecent_log_page() {
 	var r = $.rdf({ databank: rdf });
 	r.where('<'+parent+'users/anonymous> scalar:has_viewed <'+uri+'> .').each(function() {
 		rdf.remove('<'+parent+'users/anonymous> scalar:has_viewed <'+uri+'> .');
+		// Remove all RDF for the resource
+		$query = r.where('<'+uri+'> ?p ?o .');
+		var triples = $query.select();
+		for (var m in triples) {
+			var p = triples[m].p.value;
+			var o = triples[m].o.value;
+			var o_type = triples[m].o.type;
+			if (o_type=='uri') {
+				rdf.remove('<'+uri+'> <'+p+'> <'+o+'> .');
+			} else {
+				rdf.remove('<'+uri+'> <'+p+'> "'+htmlspecialchars(o)+'" .');
+			}
+		}
 	});
 
-	// If more than N in the history, trim the list
-	// Remember that the list is in reverse order than intuitive
-
-	var max_allowable = 20; // Magic number; note, the view cuts the list off at 10 anyways, but having more will help fill out the sub-tabs
+	// Trim the list (0 = oldest; N = most recent)
+	var remove_items_older_than = '60 days';
 	var $query = r.where('<'+parent+'users/anonymous> scalar:has_viewed ?o .');
 	var selected = $query.select();
-	if (selected.length > max_allowable) {
-		var k = (selected.length - max_allowable);
-		for (var j = 0; j < k; j++) {
-			// Remove resource from has_viewed list
-			var resource = selected[j].o.value;
-			rdf.remove('<'+parent+'users/anonymous> scalar:has_viewed <'+resource+'> .');
-			// Remove all RDF for the resource
-			$query = r.where('<'+resource+'> ?p ?o .');
-			var triples = $query.select();
-			for (var m in triples) {
-				var p = triples[m].p.value;
-				var o = triples[m].o.value;
-				var o_type = triples[m].o.type;
-				if (o_type=='uri') {
-					rdf.remove('<'+resource+'> <'+p+'> <'+o+'> .');
-				} else {
-					rdf.remove('<'+resource+'> <'+p+'> <'+htmlspecialchars(o)+'> .');
-				}
+	for (var j = 0; j < selected.length; j++) {
+		var resource = selected[j].o.value;
+		var $query = r.where('<'+resource+'> dcterms:date ?o .');
+		var date = $query.select();
+		if ('undefined' != typeof(date[0])) {
+			var timestamp = date[0].o.value;
+			if (scalarrecent_is_more_recent_than(timestamp, remove_items_older_than)) continue;
+		}
+		// Remove resource from has_viewed list
+		rdf.remove('<'+parent+'users/anonymous> scalar:has_viewed <'+resource+'> .');
+		// Remove all RDF for the resource
+		$query = r.where('<'+resource+'> ?p ?o .');
+		var triples = $query.select();
+		for (var m in triples) {
+			var p = triples[m].p.value;
+			var o = triples[m].o.value;
+			var o_type = triples[m].o.type;
+			if (o_type=='uri') {
+				rdf.remove('<'+resource+'> <'+p+'> <'+o+'> .');
+			} else {
+				rdf.remove('<'+resource+'> <'+p+'> "'+htmlspecialchars(o)+'" .');
 			}
 		}
 	}
@@ -123,6 +137,7 @@ function scalarrecent_log_page() {
 	rdf.add('<'+uri+'> dc:title "'+htmlspecialchars(title)+'" .');
 	rdf.add('<'+uri+'> dcterms:description "'+htmlspecialchars(desc)+'" .');
 	rdf.add('<'+uri+'> rdf:type <'+role+'> .');
+	rdf.add('<'+uri+'> dcterms:date "'+(new Date().getTime())+'" .');
 	if (color) rdf.add('<'+uri+'> scalar:color "'+color+'" .');
 
 	// Save new state
@@ -141,10 +156,38 @@ function scalarrecent_log_page() {
  * Clear the localStorage so we can start over
  * @return null
  */
+
 function scalarrecent_clear() {
 
 	localStorage.removeItem('scalar_user_history');
 
+}
+
+/**
+ * scalarrecent_get_more_recent_than()
+ * str  timestamp 
+ * Get all nodes that were committed more recently than the passed timestamp
+ */
+
+function scalarrecent_get_more_recent_than(humanStr) {
+	
+		var parent = $('link#parent').attr('href');
+		var user_url = parent+'users/anonymous';
+		var prev_string = localStorage.getItem('scalar_user_history');
+		var json = JSON.parse(prev_string);
+		var nodes = json[user_url]['http://scalar.usc.edu/2012/01/scalar-ns#has_viewed'];
+		var obj = {};
+
+		for (var j = 0; j < nodes.length; j++) {
+			var uri = nodes[j].value;
+			var date = ('undefined' != typeof(json[uri]['http://purl.org/dc/terms/date'])) ? json[uri]['http://purl.org/dc/terms/date'][0]['value'] : null;
+			if (!date) continue;
+			if (!scalarrecent_is_more_recent_than(date, humanStr)) continue;
+			obj[uri] = json[uri];
+		}
+		
+		return obj;
+	
 }
 
 /**
@@ -168,7 +211,7 @@ function scalarrecent_clear() {
 			$this.addClass('history_bar');
 			var is_logged_in = false;  // Craig (2012 06 06): for now, deprecating stored history for 80/20 reasons
 			var parent = $('link#parent').attr('href');
-			var max_to_show = 10;
+			var max_to_show = 15;
 
 			// Tab bar
 
@@ -236,7 +279,7 @@ function scalarrecent_clear() {
 					$this.append('<br clear="both"><p><small>No history has been logged</small></p>');
 				} else {
 					var json = JSON.parse(prev_string);
-					scalarrecent_rdf_to_html($this, json, parent+'users/anonymous');
+					scalarrecent_rdf_to_html($this, json, parent+'users/anonymous', max_to_show);
 					scalarrecent_set_typeof($this, json, 'http://scalar.usc.edu/2012/01/scalar-ns#Tag');
 					scalarrecent_set_typeof($this, json, 'http://scalar.usc.edu/2012/01/scalar-ns#Path');
 					scalarrecent_iconify($this, json);
@@ -278,7 +321,7 @@ function scalarrecent_rdf_to_html($this, json, user_url, max_to_show) {
 
 	var uris = [];
 	var count = 1;
-	for (var j = (nodes.length-1); j >= 0; j--) {  // reverse order; assume most recent is the current page
+	for (var j = (nodes.length-1); j >= 0; j--) {  // reverse order, so that that top of the list is most recent
 		var uri = nodes[j].value;
 		if (uris.indexOf(uri)!=-1) continue;
 		uris.push(uri);
@@ -288,19 +331,20 @@ function scalarrecent_rdf_to_html($this, json, user_url, max_to_show) {
 		var node = json[uri];
 		var title = node['http://purl.org/dc/elements/1.1/title'][0]['value'];
 		var desc = node['http://purl.org/dc/terms/description'][0]['value'];
+		var date = ('undefined' != typeof(node['http://purl.org/dc/terms/date'])) ? node['http://purl.org/dc/terms/date'][0]['value'] : '';
+		var diff = (date.length) ? scalarrecent_time_diff(date, Date.now()) : '';
+		if (j == nodes.length-1) diff = 'now';
 		// Classes
 		var classes = new Array;
 		for (var k in node['http://www.w3.org/1999/02/22-rdf-syntax-ns#type']) {
 			classes.push(node['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'][k]['value']);
 		}
 		// Append
-		var $li = $('<li id="'+uri+'" title="'+htmlspecialchars(desc)+'"><a href="javascript:;">'+title+'</a></li>');
-		if (count > max_to_show) $li.hide();
+		var $li = $('<li id="'+uri+'" title="'+htmlspecialchars(desc)+'"><a href="javascript:;">'+title+' &nbsp; <small>'+diff+'</small></a></li>')
 		$history.append($li);
 		for (var k in classes) {
 			$li.attr('typeof', ((($li.attr('typeof'))?$li.attr('typeof')+' ':'')+classes[k]) );
 		}
-
 		// added by Erik Loyer on 7/13/11 for iOS support
 		$li.data('uri', uri);
 		var clickFunc = function() {
@@ -308,7 +352,8 @@ function scalarrecent_rdf_to_html($this, json, user_url, max_to_show) {
 		}
 		$li.on('click', clickFunc);
 		$li.on('touchend', clickFunc);
-
+		// Count
+		if (count >= max_to_show) break;
 		count++;
 	}
 
@@ -532,4 +577,64 @@ function scalarrecent_no_version(uri) {
 	var uri = base+'/'+slug;
 	return uri;
 
+}
+
+function scalarrecent_time_diff( tstart, tend ) {
+	
+	  var diff = Math.floor((tend - tstart) / 1000);
+	  var units = [
+	    { d: 60, l: "seconds", m: "second", amount: 0 },
+	    { d: 60, l: "minutes", m: "minute", amount: 0 },
+	    { d: 24, l: "hours", m: "hour", amount: 0 },
+	    { d: 7, l: "days", m: "day", amount: 0 }
+	  ];
+
+	  for (var i = 0; i < units.length; ++i) {
+		var amount = (diff % units[i].d);
+		units[i].amount = amount;
+		var unit = (amount==1) ? units[i].m : units[i].l;
+	    diff = Math.floor(diff / units[i].d);
+	  }
+	  
+	  var str = units[3].amount + ' ' + ((units[3].amount==1)?units[3].m:units[3].l) + ' ';
+	  str += units[2].amount + ' ' + ((units[2].amount==1)?units[2].m:units[2].l);
+	  if (units[3].amount < 1) {
+		  str = units[2].amount + ' ' + ((units[2].amount==1)?units[2].m:units[2].l);
+	  }
+	  if (units[3].amount < 1 && units[2].amount < 1) {
+		  str = units[1].amount + ' ' + ((units[1].amount==1)?units[1].m:units[1].l);
+	  }
+	  if (units[3].amount < 1 && units[2].amount < 1 && units[1].amount < 1) {
+		  str = 'less than a minute';
+	  }
+	  return str;
+	  
+}
+
+function scalarrecent_is_more_recent_than(date, humanStr) {
+	
+	var diff = Math.floor((Date.now() - date) / 1000);
+	var units = [
+		{ d: 60, l: "seconds", m: "second", amount: 0 },
+		{ d: 60, l: "minutes", m: "minute", amount: 0 },
+		{ d: 24, l: "hours", m: "hour", amount: 0 },
+		{ d: 7, l: "days", m: "day", amount: 0 }
+		];
+
+	for (var i = 0; i < units.length; ++i) {
+		var amount = (diff % units[i].d);
+		units[i].amount = amount;
+		var unit = (amount==1) ? units[i].m : units[i].l;
+		diff = Math.floor(diff / units[i].d);
+	}
+	
+	if (humanStr.toLowerCase().indexOf('hours') != -1 || humanStr.toLowerCase().indexOf('hour') != -1) {
+		if (units[3].amount > 0) return false;
+		if (units[2].amount <= parseInt(humanStr)) return true;
+	} else if (humanStr.toLowerCase().indexOf('days') != -1 || humanStr.toLowerCase().indexOf('day') != -1) {
+		if (units[3].amount <= parseInt(humanStr)) return true;
+	}
+	
+	return false;
+	
 }

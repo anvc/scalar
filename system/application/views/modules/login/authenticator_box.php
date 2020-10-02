@@ -29,6 +29,11 @@ $this->template->add_js('system/application/views/arbors/admin/jquery-3.4.1.min.
 				<td class="field">Code</td><td class="value"><input type="text" name="code" value="" class="input_text" autofocus /></td>
 			</tr>
 			<tr>
+				<td class="field">&nbsp;</td><td class="value">
+					<label><input type="checkbox" name="trust_browser" value="1" style="position:relative;top:2px;" /> Trust this browser</label>
+				</td>
+			</tr>
+			<tr>
 				<td></td>
 				<td class="form_buttons">
 					<input type="submit" class="generic_button large default" value="Submit" />

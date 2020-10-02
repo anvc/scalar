@@ -1502,8 +1502,8 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 				node = scalarapi.model.nodesByURL[me.stripEditionAndVersion(property)];
 			}
 
-		    for (var version_uri in json) break;
-		    var version_urn = json[version_uri]['http://scalar.usc.edu/2012/01/scalar-ns#urn'][0].value;
+	    for (var version_uri in json) break;
+	    var version_urn = json[version_uri]['http://scalar.usc.edu/2012/01/scalar-ns#urn'][0].value;
 
 			// gather relations from existing node
 			var completeRelationData = {};
@@ -1516,14 +1516,14 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 
 					case 'lens':
 					completeRelationData[this.id] = {
-							action: 'RELATE',
-							native: baseProperties.native,
-							id: baseProperties.id,
-							api_key: baseProperties.api_key,
-							'scalar:urn': version_urn,
-							'scalar:child_rel': 'grouped',
-							'scalar:contents': this.properties.content
-						};
+						action: 'RELATE',
+						native: baseProperties.native,
+						id: baseProperties.id,
+						api_key: baseProperties.api_key,
+						'scalar:urn': version_urn,
+						'scalar:child_rel': 'grouped',
+						'scalar:contents': this.properties.content
+					};
 					break;
 
 					case 'path':
@@ -1780,7 +1780,11 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 							completeRelationData[property] = {};
 						}
 						completeRelationData[property][subproperty] = relationData[property][subproperty];
-					}
+					} else if (!completeRelationData[property][subproperty]) {
+            // if the scalar:urn property doesn't already exist, don't use the one provided
+            // since it will be out of date; use the current version_urn
+            completeRelationData[property][subproperty] = version_urn
+          }
 				}
 			};
 
@@ -1790,11 +1794,11 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 			}
 
 			scalarapi.runManyRelations(function(e) {
-				completeCallback(true);
+				if (completeCallback) completeCallback(true);
 			});
 
 		}, function(e) {
-			errorCallback( e );
+			if (errorCallback) errorCallback( e );
 		});
 
 	}, null, 1, true)
@@ -3242,10 +3246,15 @@ ScalarNode.prototype.addRelation = function(relation) {
 		if (this.outgoingRelations.indexOf(relation) == -1) {
 			n = this.outgoingRelations.length;
 			for (i=0; i<n; i++) {
-				if (this.outgoingRelations[i].id == relation.id) {
-					this.outgoingRelations[i] = relation;
+        if (this.outgoingRelations[i].target == relation.target) {
+          this.outgoingRelations[i] = relation;
 					foundExisting = true;
-				}
+        } else if (this.outgoingRelations[i].target && relation.target) {
+          if (this.outgoingRelations[i].target.slug == relation.target.slug) {
+            this.outgoingRelations[i] = relation;
+  					foundExisting = true;
+          }
+        }
 			}
 			if (!foundExisting) {
 				this.outgoingRelations.push(relation);
@@ -3266,10 +3275,15 @@ ScalarNode.prototype.addRelation = function(relation) {
 
 			n = this.incomingRelations.length;
 			for (i=0; i<n; i++) {
-				if (this.incomingRelations[i].id == relation.id) {
-					this.incomingRelations[i] = relation;
+        if (this.incomingRelations[i].body == relation.body) {
+          this.incomingRelations[i] = relation;
 					foundExisting = true;
-				}
+        } else if (this.incomingRelations[i].body && relation.body) {
+          if (this.incomingRelations[i].body.slug == relation.body.slug) {
+            this.incomingRelations[i] = relation;
+  					foundExisting = true;
+          }
+        }
 			}
 			if (!foundExisting) {
 				this.incomingRelations.push(relation);

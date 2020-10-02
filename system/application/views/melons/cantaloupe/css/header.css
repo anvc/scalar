@@ -516,6 +516,9 @@ span.navbar-text.navbar-left.pull-left.title_wrapper.visible-xs{
 	color: #fff
 }
 
+.navbar ul.dropdown-menu li>a small, .tocMenu li>a small {
+	color: #838383;
+}
 
 .navbar ul.dropdown-menu li>a:hover, #mobileMainMenuSubmenus li>a:hover,
 .navbar ul.dropdown-menu li>a:focus, #mobileMainMenuSubmenus li>a:focus{

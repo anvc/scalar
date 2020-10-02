@@ -1,6 +1,6 @@
 
 div.visualization { text-align: left; }
-h1.visualization { margin-bottom: 1.2rem; }
+article .visualization { margin-bottom: 2.4rem; }
 
 .vis_footer.bounded, .loadingMsg.bounded {
 	padding-left: 0;

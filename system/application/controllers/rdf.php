@@ -484,6 +484,7 @@ class Rdf extends MY_Controller {
 			                           	 'prov'			=> (($this->data['provenance'])?RDF_Object::PROVENANCE_ALL:RDF_Object::PROVENANCE_NONE),
 			                         	 'pagination'   => $this->data['pagination'],
 			                         	 'max_recurses' => $this->data['recursion'],
+			                           	 'lens_recurses'=> (($this->can_save_lenses()) ? 0 : RDF_Object::LENSES_NONE),
 			                           	 'meta'			=> $this->data['include_meta'],
 			                           	 'max_meta_recs'=> $this->data['meta_recursion'],
 			                             'paywall_msg'	=> $this->can_bypass_paywall(),
