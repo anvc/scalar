@@ -253,10 +253,6 @@ jQuery.AnnoBuilderController = function() {
 					$.annobuilder.controller.selectAnnotation(annotation);
 				}
 				$.annobuilder.view.builder.newAnnotationURL = null;
-
-			// if no annotation was selected, then select the top one
-			} else if (!$.annobuilder.model.selectedAnnotation) {
-				$.annobuilder.controller.selectAnnotation();
 			}
 
 			// seeking on an image annotation clears the anno display, so don't do it
