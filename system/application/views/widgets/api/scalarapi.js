@@ -1771,7 +1771,6 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 				}
 				completeRelationData[property].action = 'RELATE';
 				for (subproperty in baseProperties) {
-          console.log(property,subproperty,baseProperties[subproperty]);
 					completeRelationData[property][subproperty] = baseProperties[subproperty];
 				};
 				// add the new properties
@@ -1780,20 +1779,14 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 						if ( completeRelationData[property] == null ) {
 							completeRelationData[property] = {};
 						}
-            console.log(property,subproperty,relationData[property][subproperty]);
 						completeRelationData[property][subproperty] = relationData[property][subproperty];
 					}
 				}
-        console.log(completeRelationData[property]);
-        if (completeRelationData[property]['scalar:contents']) {
-          console.log(completeRelationData[property]['scalar:contents']);
-        }
 			};
 
 
 			for (property in completeRelationData) {
 				scalarapi.queueManyRelations(completeRelationData[property]);
-        console.log(property,completeRelationData[property]);
 			}
 
 			scalarapi.runManyRelations(function(e) {
@@ -3908,24 +3901,28 @@ function ScalarRelation(json, body, target, type, content) {
 						this.id += prop + this.index;
 						break;
 
-						case 'xyzhtf':
+						case 'pos3d':
 						if (!this.type) this.type = scalarapi.model.relationTypes.annotation;
 						temp = anchorVars[prop].split(',');
-						this.properties.x = temp[0];
-						this.properties.y = temp[1];
-						this.properties.z = temp[2];
-						this.properties.heading = temp[3];
-						this.properties.tilt = temp[4];
-						this.properties.fieldOfView = temp[5];
-						this.startString = 'x:' + Math.round( parseFloat( this.properties.x ));
-						this.startString += ' y:' + Math.round( parseFloat( this.properties.y ));
-						this.startString += ' z:' + Math.round( parseFloat( this.properties.z ));
-						this.endString = 'heading:' + Math.round( parseFloat( this.properties.heading ));
-						this.endString += ' tilt:' + Math.round( parseFloat( this.properties.tilt ));
+						this.properties.targetX = temp[0];
+						this.properties.targetY = temp[1];
+						this.properties.targetZ = temp[2];
+						this.properties.cameraX = temp[3];
+						this.properties.cameraY = temp[4];
+						this.properties.cameraZ = temp[5];
+						this.properties.roll = temp[6];
+						this.properties.fieldOfView = temp[7];
+						this.startString = 'x:' + Math.round( parseFloat( this.properties.targetX ));
+						this.startString += ' y:' + Math.round( parseFloat( this.properties.targetY ));
+						this.startString += ' z:' + Math.round( parseFloat( this.properties.targetZ ));
+						this.endString = ' camera x:' + Math.round( parseFloat( this.properties.cameraX ));
+						this.endString += ' y:' + Math.round( parseFloat( this.properties.cameraY ));
+						this.endString += ' z:' + Math.round( parseFloat( this.properties.cameraZ ));
+						this.endString += ' roll:' + Math.round( parseFloat( this.properties.roll ));
 						this.endString += ' fov:' + Math.round( parseFloat( this.properties.fieldOfView ));
 						this.separator = ' ';
 						this.subType = 'spatial';
-						this.index = parseFloat(this.properties.x) * parseFloat(this.properties.y) * parseFloat(this.properties.z);
+						this.index = parseFloat(this.properties.targetX) * parseFloat(this.properties.targetY) * parseFloat(this.properties.targetZ);
 						this.id += prop + this.index;
 						break;
 

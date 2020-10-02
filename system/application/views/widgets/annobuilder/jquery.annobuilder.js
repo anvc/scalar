@@ -223,7 +223,6 @@ jQuery.AnnoBuilderController = function() {
 		scalarapi.model.removeNodes();
 		if (scalarapi.loadCurrentPage(true, this.handleAnnotations, null, 2, false, 'annotation,tag') == 'loaded') this.handleAnnotations();
 		if ( $.annobuilder.model.node.current.mediaSource.contentType == 'image' ) {
-      console.log($.annobuilder.model.mediaElement.view.mediaObjectView);
  			anno.removeAll( $.annobuilder.model.mediaElement.view.mediaObjectView.image.src + '-0' );
 		}
   }
@@ -501,6 +500,54 @@ jQuery.AnnoBuilderInterfaceView = function() {
 			this.annotationForm.find('tbody').append('<tr><td class="field"></td><td class="value">Starting line: <input id="startLine" class="form-control" type="text" size="6" onchange="$.annobuilder.view.builder.handleEditLineExtents()" onkeyup="$.annobuilder.view.builder.handleEditLineExtents()">&nbsp;&nbsp; Ending line: <input id="endLine" class="form-control" type="text" size="6" onchange="$.annobuilder.view.builder.handleEditLineExtents()" onkeyup="$.annobuilder.view.builder.handleEditLineExtents()"></td></tr>');
 			break;
 
+			case '3D':
+			// cantaloupe-only instructions
+			var instructions = '';
+			if ( $( 'article' ).length ) {
+				instructions = 'For quick adjustments, click a numeric field and use mouse wheel.';
+			}
+			this.annotationForm.find('tbody').append('<tr><td class="field">Target</td><td class="value">' +
+				'<div class="form-group">' +
+					'<input id="targetX" class="form-control" type="text" size="3" onchange="$.annobuilder.view.builder.handleEditPosition3D()" onkeyup="$.annobuilder.view.builder.handleEditPosition3D()"> ' +
+				'</div>&nbsp;' +
+				'<div class="form-group">' +
+					'<input id="targetY" class="form-control" type="text" size="3" onchange="$.annobuilder.view.builder.handleEditPosition3D()" onkeyup="$.annobuilder.view.builder.handleEditPosition3D()"> ' +
+				'</div>&nbsp;' +
+				'<div class="form-group">' +
+					'<input id="targetZ" class="form-control" type="text" size="3" onchange="$.annobuilder.view.builder.handleEditPosition3D()" onkeyup="$.annobuilder.view.builder.handleEditPosition3D()"> ' +
+				'</div></td></tr>' +
+      '<tr><td class="field">Camera</td><td class="value">' +
+				'<div class="form-group">' +
+					'<input id="cameraX" class="form-control" type="text" size="3" onchange="$.annobuilder.view.builder.handleEditPosition3D()" onkeyup="$.annobuilder.view.builder.handleEditPosition3D()"> ' +
+				'</div>&nbsp;' +
+				'<div class="form-group">' +
+					'<input id="cameraY" class="form-control" type="text" size="3" onchange="$.annobuilder.view.builder.handleEditPosition3D()" onkeyup="$.annobuilder.view.builder.handleEditPosition3D()"> ' +
+				'</div>&nbsp;' +
+				'<div class="form-group">' +
+					'<input id="cameraZ" class="form-control" type="text" size="3" onchange="$.annobuilder.view.builder.handleEditPosition3D()" onkeyup="$.annobuilder.view.builder.handleEditPosition3D()"> ' +
+				'</div></td></tr>' +
+      '<tr><td class="field">Roll</td><td class="value">' +
+				'<div class="form-group">' +
+					'<input id="roll" class="form-control" type="text" size="6" onchange="$.annobuilder.view.builder.handleEditPosition3D()" onkeyup="$.annobuilder.view.builder.handleEditPosition3D()"> ' +
+				'</div></td></tr>' +
+      '<tr><td class="field">Field of View</td><td class="value">' +
+				'<div class="form-group">' +
+					'<input id="fieldOfView" class="form-control" type="text" size="6" onchange="$.annobuilder.view.builder.handleEditPosition3D()" onkeyup="$.annobuilder.view.builder.handleEditPosition3D()"> ' +
+				'</div></td></tr>' +
+				'</div><br><span style="font-size: small; line-height: 90%;">' + instructions + '</span></td></tr>');
+			// if cantaloupe
+			if ( $( 'article' ).length ) {
+				$( "#targetX" ).TouchSpin({ min: -1000000000, max: 1000000000, step: 1, decimals: 2, boostat:5, mousewheel:true, forcestepdivisibility: 'none' });
+				$( "#targetY" ).TouchSpin({ min: -1000000000, max: 1000000000, step: 1, decimals: 2, boostat:5, mousewheel:true, forcestepdivisibility: 'none' });
+        $( "#targetZ" ).TouchSpin({ min: -1000000000, max: 1000000000, step: 1, decimals: 2, boostat:5, mousewheel:true, forcestepdivisibility: 'none' });
+        $( "#cameraX" ).TouchSpin({ min: -1000000000, max: 1000000000, step: 1, decimals: 2, boostat:5, mousewheel:true, forcestepdivisibility: 'none' });
+				$( "#cameraY" ).TouchSpin({ min: -1000000000, max: 1000000000, step: 1, decimals: 2, boostat:5, mousewheel:true, forcestepdivisibility: 'none' });
+        $( "#cameraZ" ).TouchSpin({ min: -1000000000, max: 1000000000, step: 1, decimals: 2, boostat:5, mousewheel:true, forcestepdivisibility: 'none' });
+				$( "#roll" ).TouchSpin({ min: -1000000000, max: 1000000000, step: 1, decimals: 2, boostat:5, mousewheel:true, forcestepdivisibility: 'none' });
+				$( "#fieldOfView" ).TouchSpin({ min: 0, max: 1000000000, step: 1, decimals: 2, boostat:5, mousewheel:true, forcestepdivisibility: 'none' });
+			}
+			break;
+
 		}
 
 		this.annotationForm.find('tbody').append('<tr><td class="field">Content</td><td class="value"><div class="help_button"><a role="button">?</a><em>The full content of the annotation.</em></div><textarea id="annotationContent" class="form-control" type="text" cols="40" rows="6" onchange="$.annobuilder.view.builder.handleEditContent()" onkeyup="$.annobuilder.view.builder.handleEditContent()"/></td></tr>');
@@ -626,6 +673,14 @@ jQuery.AnnoBuilderInterfaceView = function() {
 					}
 					break;
 
+          case '3D':
+          if (edits) {
+            $.annobuilder.model.mediaElement.seek(edits);
+          } else {
+            $.annobuilder.model.mediaElement.seek(annotation.properties);
+          }
+          break;
+
 				}
 				// if this annotation is not the currently selected one, then store the current edits
 				if (annotation != $.annobuilder.model.selectedAnnotation) {
@@ -667,6 +722,16 @@ jQuery.AnnoBuilderInterfaceView = function() {
 					annotationChip.append('<p class="annotationTitle"><a href="javascript:;">'+annotation.startString+'</a>&nbsp; <strong>'+annotation.body.current.title+'</strong></p>');
 				}
 				break;
+
+        case '3D':
+				if (editTracking[annotation.body.url]) {
+					edits =  editTracking[annotation.body.url].edits;
+					annotationChip.data('edits', edits);
+					annotationChip.append('<p class="annotationTitle"><a href="javascript:;">X:'+edits.targetX+' Y:'+edits.targetY+' Z:'+edits.targetZ+'</a>&nbsp; <strong>'+edits.title+'</strong></p>');
+				} else {
+					annotationChip.append('<p class="annotationTitle"><a href="javascript:;">'+annotation.startString+'</a>&nbsp; <strong>'+annotation.body.current.title+'</strong></p>');
+				}
+        break;
 
 			}
 
@@ -737,6 +802,27 @@ jQuery.AnnoBuilderInterfaceView = function() {
 		return dimensions;
 	}
 
+ jQuery.AnnoBuilderInterfaceView.prototype.parsePosition3D = function(targetXStr, targetYStr, targetZStr, cameraXStr, cameraYStr, cameraZStr, rollStr, fieldOfViewStr) {
+    var dimensions = {};
+    if (!targetXStr) targetXStr = '0';
+    if (!targetYStr) targetYStr = '0';
+    if (!targetZStr) targetZStr = '0';
+    if (!cameraXStr) cameraXStr = '0';
+    if (!cameraYStr) cameraYStr = '0';
+    if (!cameraZStr) cameraZStr = '0';
+    if (!rollStr) rollStr = '0';
+    if (!fieldOfViewStr) fieldOfViewStr = '60';
+    dimensions.targetX = parseFloat(targetXStr);
+    dimensions.targetY = parseFloat(targetYStr);
+    dimensions.targetZ = parseFloat(targetZStr);
+    dimensions.cameraX = parseFloat(cameraXStr);
+    dimensions.cameraY = parseFloat(cameraYStr);
+    dimensions.cameraZ = parseFloat(cameraZStr);
+    dimensions.roll = parseFloat(rollStr);
+    dimensions.fieldOfView = parseFloat(fieldOfViewStr);
+    return dimensions;
+ }
+
 	/**
 	 * Unparses form data for a spatial annotation and returns an object containing
 	 * the string representations of its dimensions.
@@ -785,28 +871,34 @@ jQuery.AnnoBuilderInterfaceView = function() {
 		var position3D = {};
 
 		if (edits) {
-			dimensions.x = edits.x;
-			dimensions.y = edits.y;
-			dimensions.z = edits.z;
-			dimensions.heading = edits.heading;
-			dimensions.tilt = edits.tilt;
-			dimensions.fieldOfView = edits.fieldOfView;
+			position3D.targetX = edits.targetX;
+			position3D.targetY = edits.targetY;
+			position3D.targetZ = edits.targetZ;
+			position3D.cameraX = edits.cameraX;
+			position3D.cameraY = edits.cameraY;
+			position3D.cameraZ = edits.cameraZ;
+			position3D.roll = edits.roll;
+			position3D.fieldOfView = edits.fieldOfView;
 		} else {
-			position3D.x = $('#x').val().toString();
-			if (position3D.x == '') position3D.x = '0';
-			position3D.y = $('#y').val().toString();
-			if (position3D.y == '') position3D.y = '0';
-			position3D.z = $('#y').val().toString();
-			if (position3D.z == '') position3D.z = '0';
-			position3D.heading = $('#heading').val().toString();
-			if (position3D.heading == '') position3D.heading = '0';
-			position3D.tilt = $('#tilt').val().toString();
-			if (position3D.tilt == '') position3D.tilt = '0';
+			position3D.targetX = $('#targetX').val().toString();
+			if (position3D.targetX == '') position3D.targetX = '0';
+			position3D.targetY = $('#targetY').val().toString();
+			if (position3D.targetY == '') position3D.targetY = '0';
+			position3D.targetZ = $('#targetY').val().toString();
+			if (position3D.targetZ == '') position3D.targetZ = '0';
+			position3D.cameraX = $('#cameraX').val().toString();
+			if (position3D.cameraX == '') position3D.cameraX = '0';
+			position3D.cameraY = $('#cameraY').val().toString();
+			if (position3D.cameraY == '') position3D.cameraY = '0';
+			position3D.cameraZ = $('#cameraZ').val().toString();
+			if (position3D.cameraZ == '') position3D.cameraZ = '0';
+			position3D.roll = $('#roll').val().toString();
+			if (position3D.roll == '') position3D.roll = '0';
 			position3D.fieldOfView = $('#fieldOfView').val().toString();
 			if (position3D.fieldOfView == '') position3D.fieldOfView = '0';
 		}
 
-		position3D.string = position3D.x+','+position3D.y+','+position3D.z+','+position3D.heading+','+position3D.tilt+','+position3D.fieldOfView;
+		position3D.string = position3D.targetX+','+position3D.targetY+','+position3D.targetZ+','+position3D.cameraX+','+position3D.cameraY+','+position3D.cameraZ+','+position3D.roll+','+position3D.fieldOfView;
 
 		return position3D;
 	}
@@ -815,13 +907,9 @@ jQuery.AnnoBuilderInterfaceView = function() {
 	/**
 	 * Updates the list of annotations.
 	 */
-	jQuery.AnnoBuilderInterfaceView.prototype.update = function( updateForm ) {
+	jQuery.AnnoBuilderInterfaceView.prototype.update = function( updateForm = true ) {
 
 		var me = this;
-
-		if ( updateForm == null ) {
-			updateForm = true;
-		}
 
 		// highlight selected annotation
 		var annotation = $.annobuilder.model.selectedAnnotation;
@@ -925,6 +1013,31 @@ jQuery.AnnoBuilderInterfaceView = function() {
 							}
 							break;
 
+							case '3D':
+							var dimensions;
+							if (edits) {
+								$('#annotationTitle').val(edits.title);
+								$('#annotationDescription').val(edits.description);
+								$('#annotationContent').val(edits.content);
+								dimensions = $.annobuilder.view.builder.parsePosition3D(edits.targetX, edits.targetY, edits.targetZ, edits.cameraX, edits.cameraY, edits.cameraZ, edits.roll, edits.fieldOfView);
+								me.showPosition3DAnnotation(edits.title, edits);
+							} else {
+								$('#annotationTitle').val(annotation.body.current.title);
+								$('#annotationDescription').val(annotation.body.current.description);
+								$('#annotationContent').val(annotation.body.current.content);
+								dimensions = $.annobuilder.view.builder.parsePosition3D(annotation.properties.targetX, annotation.properties.targetY, annotation.properties.targetZ, annotation.properties.cameraX, annotation.properties.cameraY, annotation.properties.cameraZ, annotation.properties.roll, annotation.properties.fieldOfView);
+								me.showPosition3DAnnotation(annotation.body.getDisplayTitle(), annotation.properties);
+							}
+							$('#targetX').val(dimensions.targetX);
+							$('#targetY').val(dimensions.targetY);
+							$('#targetZ').val(dimensions.targetZ);
+							$('#cameraX').val(dimensions.cameraX);
+							$('#cameraY').val(dimensions.cameraY);
+							$('#cameraZ').val(dimensions.cameraZ);
+							$('#roll').val(dimensions.roll);
+							$('#fieldOfView').val(dimensions.fieldOfView);
+							break;
+
 						}
 
 						var taxNodes = annotation.body.incomingRelations;
@@ -959,7 +1072,13 @@ jQuery.AnnoBuilderInterfaceView = function() {
 						} else {
 							me.showSpatialAnnotation(annotation.body.getDisplayTitle(), annotation.properties);
 						}
-					}
+					} else if ( $.annobuilder.model.node.current.mediaSource.contentType == '3D' ) {
+						if (edits) {
+							me.showPosition3DAnnotation(edits.title, edits);
+						} else {
+							me.showPosition3DAnnotation(annotation.body.getDisplayTitle(), annotation.properties);
+						}
+          }
 				}
 			});
 			$('.annotationForm').css('display', 'block');
@@ -1061,6 +1180,18 @@ jQuery.AnnoBuilderInterfaceView = function() {
 	}
 
 	/**
+	 * Displays a 3d position annotation with the specified name and position data.
+	 *
+	 * @param name {String}			The name to be displayed with the annotation.
+	 * @param data {Object}			The position data of the annotation.
+	 */
+	jQuery.AnnoBuilderInterfaceView.prototype.showPosition3DAnnotation = function(name, data) {
+		if ($.annobuilder.model.mediaElement.view.mediaObjectView.hasFrameLoaded) {
+      $.annobuilder.model.mediaElement.seek(data);
+		}
+	}
+
+	/**
 	 * Scrolls to the given annotation.
 	 *
 	 * @param {Object} annotation		The annotation to scroll to.
@@ -1113,6 +1244,17 @@ jQuery.AnnoBuilderInterfaceView = function() {
 			case 'document':
 			$('#startLine').val(1);
 			$('#endLine').val(1);
+			break;
+
+			case '3D':
+			$('#targetX').val(0);
+			$('#targetY').val(0);
+			$('#targetZ').val(0);
+			$('#cameraX').val(0);
+			$('#cameraY').val(0);
+			$('#cameraZ').val(0);
+			$('#roll').val(0);
+			$('#fieldOfView').val(0);
 			break;
 
 		}
@@ -1278,6 +1420,26 @@ jQuery.AnnoBuilderInterfaceView = function() {
 		}
 	}
 
+  /**
+   * Handles changes to the dimensions of a 3D annotation.
+   *
+   * @param {Object} event		An object representing the event.
+   */
+  jQuery.AnnoBuilderInterfaceView.prototype.handleEditPosition3D = function(event) {
+   var annotation = $.annobuilder.model.selectedAnnotation;
+   if (annotation != null) {
+     me.makeSelectedAnnotationDirty(annotation);
+     me.sortAnnotations();
+     var index = me.indexForAnnotation(annotation);
+     var row = me.annotationList.find('.annotationChip').eq(index);
+     var dimensions = me.unparsePosition3D();
+     var startString = 'x:' + Math.round( parseFloat( dimensions.targetX ));
+     startString += ' y:' + Math.round( parseFloat( dimensions.targetY ));
+     startString += ' z:' + Math.round( parseFloat( dimensions.targetZ ));
+     row.find('a').text( startString );
+   }
+  }
+
 	/**
 	 * Handles changes to the extents of a textual annotation.
 	 *
@@ -1414,6 +1576,24 @@ jQuery.AnnoBuilderInterfaceView = function() {
 				return indexA > indexB ? 1 : -1;
 				break;
 
+				case '3D':
+				var indexA;
+				var indexB;
+				edits = $(a).data('edits');
+				if (edits) {
+					indexA = ( parseFloat(edits.targetZ) * 100000000 ) + ( parseFloat(edits.targetY) * 10000 ) + parseFloat(edits.targetX);
+				} else {
+					indexA = ( parseFloat($(a).data('annotation').properties.targetZ) * 100000000 ) + ( parseFloat($(a).data('annotation').properties.targetY) * 10000 ) + parseFloat($(a).data('annotation').properties.targetX);
+				}
+				edits = $(b).data('edits');
+				if (edits) {
+					indexB = ( parseFloat(edits.targetZ) * 100000000 ) + ( parseFloat(edits.targetY) * 10000 ) + parseFloat(edits.targetX);
+				} else {
+					indexB = ( parseFloat($(a).data('annotation').properties.targetZ) * 100000000 ) + ( parseFloat($(a).data('annotation').properties.targetY) * 10000 ) + parseFloat($(a).data('annotation').properties.targetX);
+				}
+				return indexA > indexB ? 1 : -1;
+				break;
+
 			}
 		});
 
@@ -1469,6 +1649,24 @@ jQuery.AnnoBuilderInterfaceView = function() {
 					title: $('#annotationTitle').val(),
 					start: $('#startLine').val(),
 					end: $('#endLine').val(),
+					description: $('#annotationDescription').val(),
+					content: $('#annotationContent').val(),
+					taxonomy: $('#taggedBy').html()
+				}
+				break;
+
+				case '3D':
+				var dimensions = $.annobuilder.view.builder.unparsePosition3D();
+				edits = {
+					title: $('#annotationTitle').val(),
+					targetX: dimensions.targetX,
+					targetY: dimensions.targetY,
+					targetZ: dimensions.targetZ,
+					cameraX: dimensions.cameraX,
+					cameraY: dimensions.cameraY,
+					cameraZ: dimensions.cameraZ,
+					roll: dimensions.roll,
+					fieldOfView: dimensions.fieldOfView,
 					description: $('#annotationDescription').val(),
 					content: $('#annotationContent').val(),
 					taxonomy: $('#taggedBy').html()
@@ -1644,7 +1842,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 				'scalar:start_line_num': '',
 				'scalar:end_line_num': '',
 				'scalar:points': '',
-        'scalar:position_3d': '0,0,0,0,0,60'
+        'scalar:position_3d': '0,0,0,1,1,1,0,60'
 			};
 			break;
 
@@ -1770,6 +1968,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 
 						case '3D':
 						var position3D = me.unparsePosition3D(edits);
+            console.log(position3D);
 						relationData[annotation.id] = {
 							action: 'RELATE',
 							'scalar:urn': annotation.body.current.urn,

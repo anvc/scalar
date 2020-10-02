@@ -223,7 +223,7 @@ $(document).ready(function() {
 				var annotation = $('<li><input type="hidden" name="annotation_of" value="'+slug+'" />'+title+'&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span><br /></li>').appendTo('#annotation_of');
 				switch (annotation_type) {
 					case "3D":
-						var str = '<div class="form-inline"><div class="form-group"><label>X, Y, Z, Heading, Tilt, Field of View (degrees) &nbsp; <input class="form-control" type="text" name="annotation_of_position_3d" value="0,0,0,0,0,60" /></label></div></div>';
+						var str = '<div class="form-inline"><div class="form-group"><label>Target X, Y, Z, Camera X, Y,, Roll, Field of View (degrees) &nbsp; <input class="form-control" type="text" name="annotation_of_position_3d" value="0,0,0,1,1,1,0,60" /></label></div></div>';
 						str += '<input type="hidden" name="annotation_of_start_line_num" value="" />';
 						str += '<input type="hidden" name="annotation_of_end_line_num" value="" />';
 						str += '<input type="hidden" name="annotation_of_start_seconds" value="" />';
@@ -1132,7 +1132,7 @@ if($currentRole == 'commentator'){
 								echo '<input type="hidden" name="annotation_of_position_3d[]" value="'.@$node->versions[0]->position_3d.'" />';
 								echo '<small>May be pixel or percentage values; for percentage add "%" after each value.</small>';
 							} elseif (!empty($node->versions[0]->position_3d)) {
-								echo '<div class="form-inline"><div class="form-group"><label>X, Y, Z, Heading, Tilt, Field of View&nbsp; <input type="text" class="form-control" name="annotation_of_position_3d" value="'.$node->versions[0]->position_3d.'" /></label></div></div>';
+								echo '<div class="form-inline"><div class="form-group"><label>Target X, Y, Z, Camera X, Y, Z, Roll, Field of View (degrees)&nbsp; <input type="text" class="form-control" name="annotation_of_position_3d" value="'.$node->versions[0]->position_3d.'" /></label></div></div>';
 								echo '<input type="hidden" name="annotation_of_start_seconds" value="'.@$node->versions[0]->start_seconds.'" />';
 								echo '<input type="hidden" name="annotation_of_end_seconds" value="'.@$node->versions[0]->end_seconds.'" />';
 								echo '<input type="hidden" name="annotation_of_start_line_num" value="'.@$node->versions[0]->start_line_num.'" />';
@@ -1182,7 +1182,7 @@ if($currentRole == 'commentator'){
 							echo '<input type="hidden" name="has_annotation_position_3d" value="'.@$node->versions[0]->position_3d.'" />';
 							echo '<br /><small>May be pixel or percentage values; for percentage add "%" after each value.</small>';
 						} elseif (!empty($node->versions[0]->position_3d)) {
-							echo 'X, Y, Z, Heading, Tilt, Field of View: <input type="text" style="width:125px;" name="has_annotation_position_3d" value="'.$node->versions[0]->position_3d.'" />';
+							echo 'Target X, Y, Z, Camera X, Y, Z, Roll, Field of View (degrees): <input type="text" style="width:125px;" name="has_annotation_position_3d" value="'.$node->versions[0]->position_3d.'" />';
 							echo '<input type="hidden" name="has_annotation_start_seconds" value="'.@$node->versions[0]->start_seconds.'" />';
 							echo '<input type="hidden" name="has_annotation_end_seconds" value="'.@$node->versions[0]->end_seconds.'" />';
 							echo '<input type="hidden" name="has_annotation_start_line_num" value="'.@$node->versions[0]->start_line_num.'" />';
