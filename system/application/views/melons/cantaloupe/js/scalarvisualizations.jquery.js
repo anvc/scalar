@@ -2234,7 +2234,16 @@ window.scalarvis = { instanceCount: -1 };
                  })
              );
 
-           if (((base.options.content == "path") || (base.options.content == "all") || (base.options.content == "lens")) && ((base.options.relations == "path") || (base.options.relations == "all") || (base.options.content == "lens"))) {
+          let visualizePaths = false;
+          if ((base.options.content == "path" || base.options.content == "all") && (base.options.relations == "path" || base.options.relations == "all")) {
+            visualizePaths = true;
+          }
+          let filterControlVal = base.visElement.find(".vis-filter-control").val();
+          if (base.options.content == "lens" && (filterControlVal == 'any-relationship' || filterControlVal == 'child')) {
+            visualizePaths = true;
+          }
+
+           if (visualizePaths) {
              // path vis line function
              this.line = d3.line()
                .x((d) => {
@@ -2329,6 +2338,8 @@ window.scalarvis = { instanceCount: -1 };
                })
                .text(function(d, i) { return (i == 0) ? '' : i; });
 
+           } else {
+             this.gridPathLayer.selectAll('g.pathGroup').remove();
            }
 
            this.redrawGrid();
