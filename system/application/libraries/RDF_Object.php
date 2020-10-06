@@ -126,7 +126,7 @@ class RDF_Object {
 		} elseif (!empty($content->points)) {
 			$append = '#xywh='.$content->points;
 		} elseif (!empty($content->position_3d)) {
-			$append = '#xyzhtf='.$content->position_3d;
+			$append = '#pos3d='.$content->position_3d;
 		} elseif (!empty($content->datetime)) {
 			$append = '#datetime='.rdf_timestamp($content->datetime);
 			if (!empty($content->paragraph_num)) $append .= '&paragraph='.$content->paragraph_num;
