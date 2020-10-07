@@ -1413,14 +1413,47 @@
         break;
 
         case 'visit-date':
+
           let quantityInputVisit = parseFloat($('#visitdate-quantity').val());
-          $('#visitdate-quantity').addClass('validation-error');
+          let filterUnits = $('#visitdate-units-button').data('option').value;
+          let now = new Date();
+          let earliestDate = new Date();
+          earliestDate.setDate(now.getDate() - 42); // six weeks prior
+
           if (quantityInputVisit < 0){
             passedValidation = false;
             errorMessage = 'Quantity must be a positive number.';
+            $('#visitdate-quantity').addClass('validation-error');
+
           } else if (isNaN(quantityInputVisit)) {
             passedValidation = false;
             errorMessage = 'Quantity must be a number.';
+            $('#visitdate-quantity').addClass('validation-error');
+
+          } else if ($('#date-button').data('option').value == 'now') {
+            let filterDate = new Date();
+            filterDate = this.getEarlierDate(filterDate, filterUnits, quantityInputVisit);
+            if (filterDate.getTime() < earliestDate.getTime()) {
+              passedValidation = false;
+              errorMessage = 'Filter date cannot be more than six weeks in the past.';
+              $('#visitdate-quantity').addClass('validation-error');
+            }
+
+          } else if ($('#date-button').data('option').value == 'date') {
+            let specificDate = new Date($('#visitdate-input').val());
+            if (isNaN(specificDate)) {
+              passedValidation = false;
+              errorMessage = 'Please enter a valid date.'
+              $('#visitdate-input').addClass('validation-error');
+            } else {
+              let filterDate = new Date($('#visitdate-input').val());
+              filterDate = this.getEarlierDate(filterDate, filterUnits, quantityInputVisit);
+              if (filterDate.getTime() < earliestDate.getTime()) {
+                passedValidation = false;
+                errorMessage = 'Filter date cannot be more than six weeks in the past.';
+                $('#visitdate-quantity').addClass('validation-error');
+              }
+            }
           }
         break;
 
@@ -1429,6 +1462,21 @@
         $('#filterModal .filter-modal-content').append('<div class="validation-error">' + errorMessage + '</div>');
       }
       return passedValidation;
+    }
+
+    ScalarLenses.prototype.getEarlierDate = function(date, units, quantity) {
+      switch (units) {
+        case 'hours':
+        date.setHours(date.getHours() - quantity);
+        break;
+        case 'days':
+        date.setDate(date.getDate() - quantity);
+        break;
+        case 'weeks':
+        date.setDate(date.getDate() - (quantity * 7));
+        break;
+      }
+      return date;
     }
 
     ScalarLenses.prototype.buildFilterData = function() {
@@ -2139,7 +2187,7 @@
                  now<span class="caret"></span></button>
                <ul id="date-list" class="dropdown-menu"></ul>
              </div>
-             <input id="visitdate-input" type="datetime-local" class="form-control" aria-label="..." placeholder="Enter date: mm/dd/yyyy hh:mm am/pm">
+             <input id="visitdate-input" type="datetime-local" class="form-control" aria-label="..." placeholder="Enter date">
            </div>
         </div>
       `).appendTo(container);
@@ -2157,22 +2205,21 @@
       }
 
       // units dropdown
-      this.populateDropdown($('#visitdate-units-button'), $('#visitdate-units-list'), filterObj.operator, onClick,
+      this.populateDropdown($('#visitdate-units-button'), $('#visitdate-units-list'), filterObj.units, onClick,
         '<li><a></a></li>',
         [
           {label: "hours", value: "hours"},
           {label: "days", value: "days"},
-          {label: "weeks", value: "weeks"},
-          {label: "years", value: "years"}
+          {label: "weeks", value: "weeks"}
         ]);
 
+      let dateBtnValue = isNaN(new Date(filterObj.datetime)) ? 'now' : 'date';
       // date dropdown
-      this.populateDropdown($('#date-button'), $('#date-list'), filterObj.operator, onClick,
+      this.populateDropdown($('#date-button'), $('#date-list'), dateBtnValue, onClick,
         '<li><a></a></li>',
         [
           {label: "now", value: "now"},
           {label: "specific date", value: "date"}
-
         ]);
 
       return element
@@ -2206,6 +2253,7 @@
       if(dateButton.text() == 'specific date'){
         visitdateInput.css({'display':'block'});
       } else {
+        visitdateInput.val('');
         visitdateInput.css({'display':'none'});
       }
 

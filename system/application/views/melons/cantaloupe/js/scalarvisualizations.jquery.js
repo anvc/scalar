@@ -1237,7 +1237,8 @@ window.scalarvis = { instanceCount: -1 };
           }
 
           // get relationships for each node
-          if (base.options.lens.components[0].modifiers.length > 0) {
+          // if we're in a modal that means there will never be more than one modifier
+          if (base.options.modal && base.options.lens.components[0].modifiers.length > 0) {
             n = base.contentNodes.length;
             for (i = 0; i < n; i++) {
               node = base.contentNodes[i];
