@@ -257,7 +257,7 @@
 
           // content selector button
           let button = componentContainer.find('.content-selector-btn-group');
-          if (button.length == 0) button = this.addContentSelectorButton(componentContainer, componentIndex);
+          if (button.length == 0 && !componentContainer.hasClass('sort')) button = this.addContentSelectorButton(componentContainer, componentIndex);
           this.updateContentSelectorButton(component["content-selector"], button);
 
           component.modifiers.forEach((modifier, modifierIndex) => {
@@ -311,7 +311,10 @@
         }
       }
 
+      // add sort buttons
       let componentContainer = this.getComponentContainer(this.scalarLensObject.components.length);
+      componentContainer.find('.content-selector-btn-group').remove();
+      componentContainer.find('.plus-btn-group').remove();
       if (this.scalarLensObject.sorts.length > 0) {
         this.scalarLensObject.sorts.forEach((sort, sortIndex) => {
           button = componentContainer.find('.modifier-btn-group').eq(sortIndex);
@@ -389,6 +392,11 @@
           componentContainer = $('<div class="component-container inline"></div>');
           this.buttonContainer.find('.component-container').eq(componentIndex-1).after(componentContainer);
         }
+      }
+      if (componentIndex == this.scalarLensObject.components.length) {
+        componentContainer.addClass('sort');
+      } else {
+        componentContainer.removeClass('sort');
       }
       return componentContainer;
     }
