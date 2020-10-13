@@ -314,6 +314,7 @@
       // add sort buttons
       let componentContainer = this.getComponentContainer(this.scalarLensObject.components.length);
       componentContainer.find('.content-selector-btn-group').remove();
+      componentContainer.find('.filter-btn-group').remove();
       componentContainer.find('.plus-btn-group').remove();
       if (this.scalarLensObject.sorts.length > 0) {
         this.scalarLensObject.sorts.forEach((sort, sortIndex) => {
@@ -890,7 +891,6 @@
 
       }
 
-
       this.populateDropdown(button, button.find('.sort-type-list'), null, onClick,
         `<li><a data-toggle="modal" data-target="#sortModal"></a></li>`,
         [
@@ -906,9 +906,7 @@
           {label: "Delete", value: "delete"}
         ]);
 
-
       return button;
-
     }
 
     // update sort button
@@ -925,13 +923,11 @@
 
       // on reload, add active class to dropdown list item
       let list = element.find('.dropdown-menu li');
+      list.removeClass('active');
       for(let i = 0; i < 7; i++){
         let listItemValue = $(list[i]).data('option').value;
         if(listItemValue == sortObj["sort-type"]){
           $(list[i]).addClass('active');
-        }
-        if(listItemValue == 'delete'){
-          $(list[i]).removeClass('active');
         }
       }
 
