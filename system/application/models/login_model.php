@@ -178,7 +178,7 @@ class Login_model extends User_model {
 			$code = trim($_POST['code']);
 			if ($g->checkCode($google_authenticator_salt, $code)) {
 				$result = $this->session->userdata($this->login_basename.'__cache_results');
-				if (empty($result)) return false;  // There isn't a pending login session
+				if (empty($result)) throw new Exception("There is no pending login");  // There isn't a pending login session
 				$result['is_logged_in'] = true;
 				$result['google_authenticator_authenticated'] = true;
 				$this->session->set_userdata(array($this->login_basename => $result));
@@ -187,6 +187,8 @@ class Login_model extends User_model {
 				$trust_browser = (isset($_POST['trust_browser']) && $_POST['trust_browser']) ? true : false;
 				if ($trust_browser) $this->set_trusted_browser($result);
 				return true;
+			} else {
+				throw new Exception('Invalid authenticator code');
 			}
 		}
 		
