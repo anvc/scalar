@@ -251,18 +251,6 @@ class Lens_model extends MY_Model {
 		$contents = $this->combine_contents($contents, $how_to_combine);
 		
 		foreach ($json['components'] as $component) {
-			// Modifiers that sort
-			if (isset($component['modifiers'])) {
-				foreach ($component['modifiers'] as $modifier) {
-					switch ($modifier['type']) {
-						case "sort":
-							$field = $modifier['metadata-field'];
-							$direction = ('descending' == $modifier['sort-order']) ? 'desc' : 'asc';
-							$contents = $this->sort_by_predicate($contents, $field, $direction);
-							break;
-					}
-				}
-			}
 			// Modifiers that filter content
 			if (isset($component['modifiers'])) {
 				foreach ($component['modifiers'] as $modifier) {
@@ -274,6 +262,31 @@ class Lens_model extends MY_Model {
 								break;
 						}
 					}
+				}
+			}
+		}
+		
+		// Sort
+		if (isset($json['sorts'])) {
+			foreach ($json['sorts'] as $sort) {
+				switch ($sort['sort-type']) {
+					case "match-count":
+						
+						break;
+					case "alphabetical":
+						$field = $sort['metadata-field'];
+						$direction = ('descending' == $sort['sort-order']) ? 'desc' : 'asc';
+						$contents = $this->sort_by_predicate($contents, $field, $direction);
+						break;
+					case "distance":
+						
+						break;
+					case "visit-date":
+						
+						break;
+					case "type":
+						
+						break;
 				}
 			}
 		}

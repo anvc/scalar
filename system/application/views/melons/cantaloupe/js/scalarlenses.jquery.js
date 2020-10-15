@@ -147,6 +147,9 @@
       if (!this.scalarLensObject) {
         this.scalarLensObject = this.getDefaultJson();
       }
+      if (!this.scalarLensObject.sorts) {
+        this.scalarLensObject.sorts = [];
+      }
       if (Array.isArray(this.scalarLensObject.visualization.options)) {
         this.scalarLensObject.visualization.options = {}; // because PHP will turn the empty object into an array
       }
@@ -182,6 +185,7 @@
           "options": {}
         },
         "components": [],
+        "sorts": [],
         "title": currentPageNode.title,
         "slug": currentPageNode.slug
       };
@@ -253,7 +257,7 @@
 
           // content selector button
           let button = componentContainer.find('.content-selector-btn-group');
-          if (button.length == 0) button = this.addContentSelectorButton(componentContainer, componentIndex);
+          if (button.length == 0 && !componentContainer.hasClass('sort')) button = this.addContentSelectorButton(componentContainer, componentIndex);
           this.updateContentSelectorButton(component["content-selector"], button);
 
           component.modifiers.forEach((modifier, modifierIndex) => {
@@ -270,19 +274,6 @@
                 button = this.addFilterButton(componentContainer, componentIndex, modifierIndex);
               }
               this.updateFilterButton(modifier, button, componentIndex);
-              break;
-
-              case 'sort':
-              button = componentContainer.find('.modifier-btn-group').eq(modifierIndex);
-              // if this isn't a sort button, remove it
-              if (!button.hasClass('sort-btn-group')) {
-                button.remove();
-                button = [];
-              }
-              if (button.length == 0) {
-                button = this.addSortButton(componentContainer, componentIndex, modifierIndex);
-              }
-              this.updateSortButton(modifier, button);
               break;
 
             }
@@ -303,7 +294,7 @@
         // remove extra content selections
         let me = this;
         this.buttonContainer.find('.component-container').each(function(index) {
-          if (index >= me.scalarLensObject.components.length) {
+          if (index >= me.scalarLensObject.components.length + (me.scalarLensObject.sorts.length > 0 ? 1 : 0)) {
             $(this).remove();
           }
         });
@@ -319,6 +310,29 @@
           this.updateOperatorButton(this.scalarLensObject.visualization);
         }
       }
+
+      // add sort buttons
+      let componentContainer = this.getComponentContainer(this.scalarLensObject.components.length);
+      componentContainer.find('.content-selector-btn-group').remove();
+      componentContainer.find('.filter-btn-group').remove();
+      componentContainer.find('.plus-btn-group').remove();
+      if (this.scalarLensObject.sorts.length > 0) {
+        this.scalarLensObject.sorts.forEach((sort, sortIndex) => {
+          button = componentContainer.find('.modifier-btn-group').eq(sortIndex);
+          if (button.length == 0) {
+            button = this.addSortButton(componentContainer, sortIndex);
+          }
+          this.updateSortButton(sort, button);
+        });
+      }
+
+      // remove extra sort buttons
+      let me = this;
+      componentContainer.find('.modifier-btn-group').each(function(index) {
+        if (index >= me.scalarLensObject.sorts.length) {
+          $(this).remove();
+        }
+      });
 
       // update options menu
       this.updateOptionsMenu();
@@ -379,6 +393,11 @@
           componentContainer = $('<div class="component-container inline"></div>');
           this.buttonContainer.find('.component-container').eq(componentIndex-1).after(componentContainer);
         }
+      }
+      if (componentIndex == this.scalarLensObject.components.length) {
+        componentContainer.addClass('sort');
+      } else {
+        componentContainer.removeClass('sort');
       }
       return componentContainer;
     }
@@ -820,7 +839,7 @@
     }
 
     // add sort button
-    ScalarLenses.prototype.addSortButton = function(componentContainer, componentIndex, modifierIndex){
+    ScalarLenses.prototype.addSortButton = function(componentContainer, sortIndex){
       let button = $(
         `<div class="modifier-btn-group sort-btn-group btn-group"><button type="button" class="btn btn-primary btn-xs dropdown-toggle sort-button modifier-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Sort items...<span class="caret"></span></button>
@@ -829,27 +848,25 @@
       );
 
       // position button in dom
-      if (modifierIndex == 0) {
-        componentContainer.find('.content-selector-btn-group').after(button);
+      if (sortIndex == 0) {
+        componentContainer.append(button);
       } else {
-        componentContainer.find('.modifier-btn-group').eq(modifierIndex-1).after(button);
+        componentContainer.find('.modifier-btn-group').eq(sortIndex-1).after(button);
       }
 
       button.data({
-        'componentIndex': componentIndex,
-        'modifierIndex': modifierIndex
+        'sortIndex': sortIndex
       });
 
       let me = this;
       let onClick = function(evt) {
         let option = $(evt.target).parent().data('option');
         let button = $(evt.target).parent().parent().parent();
-        me.editedComponentIndex = parseInt(button.data('componentIndex'));
-        me.editedModifierIndex = parseInt(button.data('modifierIndex'));
+        me.editedSortIndex = parseInt(button.data('sortIndex'));
         if (option.value == 'delete') {
-          me.deleteSortButton(me.editedComponentIndex, me.editedModifierIndex);
+          me.deleteSortButton(me.editedSortIndex);
         } else {
-          let sortObj = me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex];
+          let sortObj = me.scalarLensObject.sorts[me.editedSortIndex];
           me.updateSortModal(option.value, sortObj);
         }
 
@@ -867,13 +884,12 @@
             "sort-type": "type"
           };
 
-          me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex] = sortObj;
-          me.updateSortButton(me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex], $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-btn-group').eq(me.editedModifierIndex))
+          me.scalarLensObject.sorts[me.editedSortIndex] = sortObj;
+          me.updateSortButton(me.scalarLensObject.sorts[me.editedSortIndex], $(me.element).find('.component-container').eq(me.scalarLensObject.components.length).find('.modifier-btn-group').eq(me.editedSortIndex))
           me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
         }
 
       }
-
 
       this.populateDropdown(button, button.find('.sort-type-list'), null, onClick,
         `<li><a data-toggle="modal" data-target="#sortModal"></a></li>`,
@@ -890,9 +906,7 @@
           {label: "Delete", value: "delete"}
         ]);
 
-
       return button;
-
     }
 
     // update sort button
@@ -909,13 +923,11 @@
 
       // on reload, add active class to dropdown list item
       let list = element.find('.dropdown-menu li');
+      list.removeClass('active');
       for(let i = 0; i < 7; i++){
         let listItemValue = $(list[i]).data('option').value;
         if(listItemValue == sortObj["sort-type"]){
           $(list[i]).addClass('active');
-        }
-        if(listItemValue == 'delete'){
-          $(list[i]).removeClass('active');
         }
       }
 
@@ -990,8 +1002,8 @@
     }
 
     // delete sort button
-    ScalarLenses.prototype.deleteSortButton = function(componentIndex, modifierIndex) {
-      this.scalarLensObject.components[componentIndex].modifiers.splice(modifierIndex, 1);
+    ScalarLenses.prototype.deleteSortButton = function(sortIndex) {
+      this.scalarLensObject.sorts.splice(sortIndex, 1);
       this.saveLens(() => this.getLensResults(this.scalarLensObject, this.options.onLensResults));
       this.updateEditorDom();
     }
@@ -1038,7 +1050,7 @@
           break;
 
           case 'Add sort':
-          me.scalarLensObject.components[componentIndex].modifiers.push({"type": "sort"});
+          me.scalarLensObject.sorts.push({"type": "sort"});
           me.updateEditorDom();
           break;
 
@@ -1340,7 +1352,6 @@
             passedValidation = false;
             errorMessage = 'You must enter some text to filter on.';
             $('#content-input').addClass('validation-error');
-
           }
         break;
 
@@ -1413,14 +1424,47 @@
         break;
 
         case 'visit-date':
+
           let quantityInputVisit = parseFloat($('#visitdate-quantity').val());
-          $('#visitdate-quantity').addClass('validation-error');
+          let filterUnits = $('#visitdate-units-button').data('option').value;
+          let now = new Date();
+          let earliestDate = new Date();
+          earliestDate.setDate(now.getDate() - 42); // six weeks prior
+
           if (quantityInputVisit < 0){
             passedValidation = false;
             errorMessage = 'Quantity must be a positive number.';
+            $('#visitdate-quantity').addClass('validation-error');
+
           } else if (isNaN(quantityInputVisit)) {
             passedValidation = false;
             errorMessage = 'Quantity must be a number.';
+            $('#visitdate-quantity').addClass('validation-error');
+
+          } else if ($('#date-button').data('option').value == 'now') {
+            let filterDate = new Date();
+            filterDate = this.getEarlierDate(filterDate, filterUnits, quantityInputVisit);
+            if (filterDate.getTime() < earliestDate.getTime()) {
+              passedValidation = false;
+              errorMessage = 'Filter date cannot be more than six weeks in the past.';
+              $('#visitdate-quantity').addClass('validation-error');
+            }
+
+          } else if ($('#date-button').data('option').value == 'date') {
+            let specificDate = new Date($('#visitdate-input').val());
+            if (isNaN(specificDate)) {
+              passedValidation = false;
+              errorMessage = 'Please enter a valid date.'
+              $('#visitdate-input').addClass('validation-error');
+            } else {
+              let filterDate = new Date($('#visitdate-input').val());
+              filterDate = this.getEarlierDate(filterDate, filterUnits, quantityInputVisit);
+              if (filterDate.getTime() < earliestDate.getTime()) {
+                passedValidation = false;
+                errorMessage = 'Filter date cannot be more than six weeks in the past.';
+                $('#visitdate-quantity').addClass('validation-error');
+              }
+            }
           }
         break;
 
@@ -1429,6 +1473,21 @@
         $('#filterModal .filter-modal-content').append('<div class="validation-error">' + errorMessage + '</div>');
       }
       return passedValidation;
+    }
+
+    ScalarLenses.prototype.getEarlierDate = function(date, units, quantity) {
+      switch (units) {
+        case 'hours':
+        date.setHours(date.getHours() - quantity);
+        break;
+        case 'days':
+        date.setDate(date.getDate() - quantity);
+        break;
+        case 'weeks':
+        date.setDate(date.getDate() - (quantity * 7));
+        break;
+      }
+      return date;
     }
 
     ScalarLenses.prototype.buildFilterData = function() {
@@ -2139,7 +2198,7 @@
                  now<span class="caret"></span></button>
                <ul id="date-list" class="dropdown-menu"></ul>
              </div>
-             <input id="visitdate-input" type="datetime-local" class="form-control" aria-label="..." placeholder="Enter date: mm/dd/yyyy hh:mm am/pm">
+             <input id="visitdate-input" type="datetime-local" class="form-control" aria-label="..." placeholder="Enter date">
            </div>
         </div>
       `).appendTo(container);
@@ -2157,22 +2216,21 @@
       }
 
       // units dropdown
-      this.populateDropdown($('#visitdate-units-button'), $('#visitdate-units-list'), filterObj.operator, onClick,
+      this.populateDropdown($('#visitdate-units-button'), $('#visitdate-units-list'), filterObj.units, onClick,
         '<li><a></a></li>',
         [
           {label: "hours", value: "hours"},
           {label: "days", value: "days"},
-          {label: "weeks", value: "weeks"},
-          {label: "years", value: "years"}
+          {label: "weeks", value: "weeks"}
         ]);
 
+      let dateBtnValue = isNaN(new Date(filterObj.datetime)) ? 'now' : 'date';
       // date dropdown
-      this.populateDropdown($('#date-button'), $('#date-list'), filterObj.operator, onClick,
+      this.populateDropdown($('#date-button'), $('#date-list'), dateBtnValue, onClick,
         '<li><a></a></li>',
         [
           {label: "now", value: "now"},
           {label: "specific date", value: "date"}
-
         ]);
 
       return element
@@ -2206,6 +2264,7 @@
       if(dateButton.text() == 'specific date'){
         visitdateInput.css({'display':'block'});
       } else {
+        visitdateInput.val('');
         visitdateInput.css({'display':'none'});
       }
 
@@ -2243,8 +2302,8 @@
         if (me.validateSortData()) {
           let currentButton = $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-btn-group').eq(me.editedModifierIndex);
           $(currentButton).find('.sort-type-list li.active').removeClass('active');
-          me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex] = me.buildSortData();
-          me.updateSortButton(me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex], $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-btn-group').eq(me.editedModifierIndex))
+          me.scalarLensObject.sorts[me.editedSortIndex] = me.buildSortData();
+          me.updateSortButton(me.scalarLensObject.sorts[me.editedSortIndex], $(me.element).find('.component-container').eq(me.scalarLensObject.components.length).find('.modifier-btn-group').eq(me.editedSortIndex))
           me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
           $('#sortModal').modal('hide');
         }
@@ -2252,7 +2311,7 @@
 
       // cancel click handler
       element.find('.cancel').on('click', function(){
-        let currentButton = $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-btn-group').eq(me.editedModifierIndex);
+        let currentButton = $(me.element).find('.component-container').eq(me.editedSortIndex).find('.modifier-btn-group').eq(me.editedSortIndex);
         //$(currentButton).find('.dropdown-menu li.active').removeClass('active');
       });
 

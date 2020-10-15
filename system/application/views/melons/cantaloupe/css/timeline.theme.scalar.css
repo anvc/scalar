@@ -5,6 +5,18 @@
 	moz-box-sizing: content-box;
 	box-sizing: content-box;
 }
+.tl-timeline .tl-headline-date, .tl-timeline h3.tl-headline-date {
+    text-transform: none !important;
+}
+.tl-timeline h2.tl-headline {
+    text-transform: none;
+    font-weight: normal;
+    font-size: 34px;
+    line-height: 34px;
+}
+.tl-timeline .tl-slidenav-next .tl-slidenav-title, .tl-timeline .tl-slidenav-previous .tl-slidenav-title {
+    text-transform: none;
+}
 .tl-headline-date, .tl-headline{
 	padding: 0px;
 }

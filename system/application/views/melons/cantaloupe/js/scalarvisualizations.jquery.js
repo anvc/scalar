@@ -1237,7 +1237,8 @@ window.scalarvis = { instanceCount: -1 };
           }
 
           // get relationships for each node
-          if (base.options.lens.components[0].modifiers.length > 0) {
+          // if we're in a modal that means there will never be more than one modifier
+          if (base.options.modal && base.options.lens.components[0].modifiers.length > 0) {
             n = base.contentNodes.length;
             for (i = 0; i < n; i++) {
               node = base.contentNodes[i];
@@ -2234,7 +2235,16 @@ window.scalarvis = { instanceCount: -1 };
                  })
              );
 
-           if (((base.options.content == "path") || (base.options.content == "all") || (base.options.content == "lens")) && ((base.options.relations == "path") || (base.options.relations == "all") || (base.options.content == "lens"))) {
+          let visualizePaths = false;
+          if ((base.options.content == "path" || base.options.content == "all") && (base.options.relations == "path" || base.options.relations == "all")) {
+            visualizePaths = true;
+          }
+          let filterControlVal = base.visElement.find(".vis-filter-control").val();
+          if (base.options.content == "lens" && (filterControlVal == 'any-relationship' || filterControlVal == 'child')) {
+            visualizePaths = true;
+          }
+
+           if (visualizePaths) {
              // path vis line function
              this.line = d3.line()
                .x((d) => {
@@ -2329,6 +2339,8 @@ window.scalarvis = { instanceCount: -1 };
                })
                .text(function(d, i) { return (i == 0) ? '' : i; });
 
+           } else {
+             this.gridPathLayer.selectAll('g.pathGroup').remove();
            }
 
            this.redrawGrid();
