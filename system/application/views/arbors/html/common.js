@@ -49,7 +49,7 @@ function validate_upload_form_file_return($form) {
 	var iframe = $form.find('iframe:first')[0];
 	var content = iframe.contentWindow.document.getElementsByTagName("body")[0].innerHTML;
 	try {
-		var obj = jQuery.parseJSON(content);
+		var obj = JSON.parse(content);
 	} catch(err) {
 		$(iframe).off();
 		$(iframe).attr('src', '');
@@ -191,6 +191,7 @@ function send_form_relationships($form, version_urn, redirect_url) {
 	values['annotation_of_start_line_num'] = $('input[name="annotation_of_start_line_num"]');
 	values['annotation_of_end_line_num'] = $('input[name="annotation_of_end_line_num"]');
 	values['annotation_of_points'] = $('input[name="annotation_of_points"]');
+	values['annotation_of_position_3d'] = $('input[name="annotation_of_position_3d"]');
 	// Tag of
 	values['tag_of'] = $('input[name="tag_of"]');
 	// Reference of
@@ -218,6 +219,7 @@ function send_form_relationships($form, version_urn, redirect_url) {
 	values['has_annotation_start_line_num'] = $('input[name="has_annotation_start_line_num"]');
 	values['has_annotation_end_line_num'] = $('input[name="has_annotation_end_line_num"]');
 	values['has_annotation_points'] = $('input[name="has_annotation_points"]');
+	values['has_annotation_position_3d'] = $('input[name="has_annotation_position_3d"]');
 	// Has Tag
 	values['has_tag'] = $('input[name="has_tag"]');
 	// Has reference

@@ -222,6 +222,15 @@ $(document).ready(function() {
 				var annotation_type = scalarapi.parseMediaSource(url).contentType;
 				var annotation = $('<li><input type="hidden" name="annotation_of" value="'+slug+'" />'+title+'&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span><br /></li>').appendTo('#annotation_of');
 				switch (annotation_type) {
+					case "3D":
+						var str = '<div class="form-inline"><div class="form-group"><label>Target X, Y, Z, Camera X, Y,, Roll, Field of View (degrees) &nbsp; <input class="form-control" type="text" name="annotation_of_position_3d" value="0,0,0,1,1,1,0,60" /></label></div></div>';
+						str += '<input type="hidden" name="annotation_of_start_line_num" value="" />';
+						str += '<input type="hidden" name="annotation_of_end_line_num" value="" />';
+						str += '<input type="hidden" name="annotation_of_start_seconds" value="" />';
+						str += '<input type="hidden" name="annotation_of_end_seconds" value="" />';
+						str += '<input type="hidden" name="annotation_of_points" value="" />';
+						annotation.append('<div>'+str+'</div>');
+						break;
 					case "audio":
 					case "video":
 						var str = '<div class="form-inline"><div class="form-group"><label>Start seconds&nbsp; <input class="form-control" type="text" style="width:75px;" name="annotation_of_start_seconds" value="" /></label>';
@@ -229,6 +238,7 @@ $(document).ready(function() {
 						str += '<input type="hidden" name="annotation_of_start_line_num" value="" />';
 						str += '<input type="hidden" name="annotation_of_end_line_num" value="" />';
 						str += '<input type="hidden" name="annotation_of_points" value="" />';
+						str += '<input type="hidden" name="annotation_of_position_3d" value="" />';
 						annotation.append('<div>'+str+'</div>');
 						break;
 					case "html":
@@ -239,6 +249,7 @@ $(document).ready(function() {
 						str += '<input type="hidden" name="annotation_of_start_seconds" value="" />';
 						str += '<input type="hidden" name="annotation_of_end_seconds" value="" />';
 						str += '<input type="hidden" name="annotation_of_points" value="" />';
+						str += '<input type="hidden" name="annotation_of_position_3d" value="" />';
 						annotation.append('<div>'+str+'</div>');
 						break;
 					case "image":
@@ -248,6 +259,7 @@ $(document).ready(function() {
 						str += '<input type="hidden" name="annotation_of_end_line_num" value="" />';
 						str += '<input type="hidden" name="annotation_of_start_seconds" value="" />';
 						str += '<input type="hidden" name="annotation_of_end_seconds" value="" />';
+						str += '<input type="hidden" name="annotation_of_position_3d" value="" />';
 						annotation.append('<div>'+str+'</div>');
 						break;
 					default:
@@ -904,7 +916,7 @@ if($currentRole == 'commentator'){
 		<label>
 			<input type="checkbox" id="media_file_url_iiif" name="iiif-url" <?=strpos($file_url, '?iiif-manifest=1')?'checked':''?> />
 			Is IIIF Manifest
-	    </label>	
+	    </label>
 	</div>
 </div>
 <table>
@@ -1103,19 +1115,29 @@ if($currentRole == 'commentator'){
 								echo '<input type="hidden" name="annotation_of_start_line_num[]" value="'.@$node->versions[0]->start_line_num.'" />';
 								echo '<input type="hidden" name="annotation_of_end_line_num[]" value="'.@$node->versions[0]->end_line_num.'" />';
 								echo '<input type="hidden" name="annotation_of_points[]" value="'.@$node->versions[0]->points.'" />';
+								echo '<input type="hidden" name="annotation_of_position_3d[]" value="'.@$node->versions[0]->position_3d.'" />';
 							} elseif (!empty($node->versions[0]->start_line_num) || !empty($node->versions[0]->end_line_num)) {
 								echo '<div class="form-inline"><div class="form-group"><label>Start line&nbsp; <input class="form-control" onblur="check_start_end_values(this, $(this).nextAll(\'input:first\'))" type="text" style="width:75px;" name="annotation_of_start_line_num" value="'.$node->versions[0]->start_line_num.'" /></label>';
 								echo '<label for="annotation_of_end_line_num">End line&nbsp; <input id="annotation_of_end_line_num" class="form-control" onblur="check_start_end_values($(this).prevAll(\'input:first\'), this)" type="text" style="width:75px;" name="annotation_of_end_line_num" value="'.$node->versions[0]->end_line_num.'" /></label></div></div>';
 								echo '<input type="hidden" name="annotation_of_start_seconds" value="'.@$node->versions[0]->start_seconds.'" />';
 								echo '<input type="hidden" name="annotation_of_end_seconds" value="'.@$node->versions[0]->end_seconds.'" />';
 								echo '<input type="hidden" name="annotation_of_points" value="'.@$node->versions[0]->points.'" />';
+								echo '<input type="hidden" name="annotation_of_position_3d[]" value="'.@$node->versions[0]->position_3d.'" />';
 							} elseif (!empty($node->versions[0]->points)) {
 								echo '<div class="form-inline"><div class="form-group"><label>Left (x), Top (y), Width, Height&nbsp; <input type="text" class="form-control" name="annotation_of_points" value="'.$node->versions[0]->points.'" /></label></div></div>';
 								echo '<input type="hidden" name="annotation_of_start_seconds" value="'.@$node->versions[0]->start_seconds.'" />';
 								echo '<input type="hidden" name="annotation_of_end_seconds" value="'.@$node->versions[0]->end_seconds.'" />';
 								echo '<input type="hidden" name="annotation_of_start_line_num" value="'.@$node->versions[0]->start_line_num.'" />';
 								echo '<input type="hidden" name="annotation_of_end_line_num" value="'.@$node->versions[0]->end_line_num.'" />';
+								echo '<input type="hidden" name="annotation_of_position_3d[]" value="'.@$node->versions[0]->position_3d.'" />';
 								echo '<small>May be pixel or percentage values; for percentage add "%" after each value.</small>';
+							} elseif (!empty($node->versions[0]->position_3d)) {
+								echo '<div class="form-inline"><div class="form-group"><label>Target X, Y, Z, Camera X, Y, Z, Roll, Field of View (degrees)&nbsp; <input type="text" class="form-control" name="annotation_of_position_3d" value="'.$node->versions[0]->position_3d.'" /></label></div></div>';
+								echo '<input type="hidden" name="annotation_of_start_seconds" value="'.@$node->versions[0]->start_seconds.'" />';
+								echo '<input type="hidden" name="annotation_of_end_seconds" value="'.@$node->versions[0]->end_seconds.'" />';
+								echo '<input type="hidden" name="annotation_of_start_line_num" value="'.@$node->versions[0]->start_line_num.'" />';
+								echo '<input type="hidden" name="annotation_of_end_line_num" value="'.@$node->versions[0]->end_line_num.'" />';
+								echo '<input type="hidden" name="annotation_of_position_3d[]" value="'.@$node->versions[0]->points.'" />';
 							}
 							echo '</li>'."\n";
 						}
@@ -1143,19 +1165,29 @@ if($currentRole == 'commentator'){
 							echo '<input type="hidden" name="has_annotation_start_line_num" value="'.@$node->versions[0]->start_line_num.'" />';
 							echo '<input type="hidden" name="has_annotation_end_line_num" value="'.@$node->versions[0]->end_line_num.'" />';
 							echo '<input type="hidden" name="has_annotation_points" value="'.@$node->versions[0]->points.'" />';
+							echo '<input type="hidden" name="has_annotation_position_3d" value="'.@$node->versions[0]->position_3d.'" />';
 						} elseif (!empty($node->versions[0]->start_line_num) || !empty($node->versions[0]->end_line_num)) {
 							echo 'Start line #: <input type="text" style="width:75px;" name="has_annotation_start_line_num" value="'.$node->versions[0]->start_line_num.'" />';
 							echo '&nbsp; End line #<input type="text" style="width:75px;" name="has_annotation_end_line_num" value="'.$node->versions[0]->end_line_num.'" />';
 							echo '<input type="hidden" name="has_annotation_start_seconds" value="'.@$node->versions[0]->start_seconds.'" />';
 							echo '<input type="hidden" name="has_annotation_end_seconds" value="'.@$node->versions[0]->end_seconds.'" />';
 							echo '<input type="hidden" name="has_annotation_points" value="'.@$node->versions[0]->points.'" />';
+							echo '<input type="hidden" name="has_annotation_position_3d" value="'.@$node->versions[0]->position_3d.'" />';
 						} elseif (!empty($node->versions[0]->points)) {
 							echo 'Left (x), Top (y), Width, Height: <input type="text" style="width:125px;" name="has_annotation_points" value="'.$node->versions[0]->points.'" />';
 							echo '<input type="hidden" name="has_annotation_start_seconds" value="'.@$node->versions[0]->start_seconds.'" />';
 							echo '<input type="hidden" name="has_annotation_end_seconds" value="'.@$node->versions[0]->end_seconds.'" />';
 							echo '<input type="hidden" name="has_annotation_start_line_num" value="'.@$node->versions[0]->start_line_num.'" />';
 							echo '<input type="hidden" name="has_annotation_end_line_num" value="'.@$node->versions[0]->end_line_num.'" />';
+							echo '<input type="hidden" name="has_annotation_position_3d" value="'.@$node->versions[0]->position_3d.'" />';
 							echo '<br /><small>May be pixel or percentage values; for percentage add "%" after each value.</small>';
+						} elseif (!empty($node->versions[0]->position_3d)) {
+							echo 'Target X, Y, Z, Camera X, Y, Z, Roll, Field of View (degrees): <input type="text" style="width:125px;" name="has_annotation_position_3d" value="'.$node->versions[0]->position_3d.'" />';
+							echo '<input type="hidden" name="has_annotation_start_seconds" value="'.@$node->versions[0]->start_seconds.'" />';
+							echo '<input type="hidden" name="has_annotation_end_seconds" value="'.@$node->versions[0]->end_seconds.'" />';
+							echo '<input type="hidden" name="has_annotation_start_line_num" value="'.@$node->versions[0]->start_line_num.'" />';
+							echo '<input type="hidden" name="has_annotation_end_line_num" value="'.@$node->versions[0]->end_line_num.'" />';
+							echo '<input type="hidden" name="has_annotation_position_3d" value="'.@$node->versions[0]->points.'" />';
 						}
 						echo '&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span>';
 						echo '</li>';
