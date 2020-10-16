@@ -212,7 +212,8 @@ class Lens_model extends MY_Model {
 								case "content-type":
 									$has_used_filter = true;
 									$operator = (isset($modifier['operator']) && 'exclusive'==$modifier['operator']) ? 'exclusive' : 'inclusive';
-									$types = $modifier['content-types'];
+									$types = (isset($modifier['content-types'])) ? $modifier['content-types'] : array();
+									if (isset($modifier['content-type'])) $types[] = $modifier['content-type'];
 									switch ($operator) {
 										case 'exclusive':
 											$content = (!empty($content)) ? $content : $this->get_pages_from_content_selector($component['content-selector'], $book_id);
@@ -239,10 +240,7 @@ class Lens_model extends MY_Model {
 			// If there were no modifiers that get content, revert to the content selector
 			if (!$has_used_filter && isset($component['content-selector'])) {
 				$content = $this->get_pages_from_content_selector($component['content-selector'], $book_id);
-				for ($j = 0; $j < count($content); $j++) {
-					$content[$j]->versions = array();
-					$content[$j]->versions[] = $CI->versions->get_single($content[$j]->content_id, $content[$j]->recent_version_id, null, (($pages_load_metadata)?true:false));
-				}
+				$content = $this->do_versions($content, $pages_load_metadata);
 			}
 			// Combine content that has been gathered
 			$contents[] = $content;
@@ -558,6 +556,8 @@ class Lens_model extends MY_Model {
     		$content = $CI->books->get_book_versions($book_id, true);
     		return $content;
     		
+    	// items-by-type | content-type = current
+    		
     	} elseif (isset($json['type']) && 'items-by-type' == $json['type']) {
     		$content_type = $json['content-type'];
     		$type = $category = null;
@@ -591,9 +591,6 @@ class Lens_model extends MY_Model {
     				$this->load->model($content_type.'_model', plural($content_type));
     				$model = plural($content_type);
     				break;
-    			case 'table-of-contents':
-    				// TODO
-    				break;
     		}
     		$content = $this->$model->get_all($this->data['book']->book_id, $type, $category, true, null);
     		return $content;
@@ -607,22 +604,29 @@ class Lens_model extends MY_Model {
     public function filter_by_content_selector($content, $component) {
     	
     	// TODO: this only filters pages, media not relationship types
-    	
     	if (isset($component['content-selector']) && empty($component['content-selector']['items'])) {
     		$content_type = $component['content-selector']['content-type'];
     		if ('page' == $content_type) $content_type = 'composite';
-    		if ('all-content' != $content_type) {
-	    		
+    		if ('all-content' == $content_type) {
+	    		// Nothing to filter
     		} elseif ('composite' == $content_type || 'media' == $content_type) {
 	    		foreach ($content as $key => $row) {
 	    			if ($row->type != $content_type) unset($content[$key]);
 	    		}
-    		} else {
-    			// Relational types	
-    			// Table-of-contents
+    		} elseif ('annotation'==$content_type||'reply'==$content_type||'tag'==$content_type||'path'==$content_type||'reference'==$content_type) {
+    			$this->load->helper('inflector');
+    			$model = plural($content_type);
+    			if (!isset($this->$model) || empty($this->$model)) $this->load->model($content_type.'_model', $model);
+    			foreach ($content as $key => $row) {
+    				$version_id = $row->versions[0]->version_id;
+	    			$relational_content = $this->$model->get_children($version_id, '', '', true);
+	    			if (empty($relational_content)) unset($content[$key]);
+    			}
+    		} elseif ('table-of-contents'==$content_type) {
+				// TODO
     		}
     	}
-    	
+
     	return $content;
     	
     }
