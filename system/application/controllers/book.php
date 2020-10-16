@@ -34,7 +34,7 @@ class Book extends MY_Controller {
 
 	protected $template_has_rendered = false;
 	private $models = array('annotations', 'paths', 'tags', 'replies', 'references');
-	private $rel_fields = array('start_seconds','end_seconds','start_line_num','end_line_num','points','datetime','paragraph_num');
+	private $rel_fields = array('start_seconds','end_seconds','start_line_num','end_line_num','points','position_3d','datetime','paragraph_num');
 	private $vis_views = array('vis', 'visindex', 'vispath', 'vismedia', 'vistag');
 	private $fallback_melon = 'cantaloupe';  // This is independant of the default melon set in the config, which is used for new book creation
 	private $max_recursions = 2;  // Get relationships of the current page, and the relationships of those relationships (e.g., get this pages tags, and the pages those tags tag)

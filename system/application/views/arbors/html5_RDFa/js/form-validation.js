@@ -307,6 +307,7 @@ function send_form_relationships($form, version_urn, success, redirect_url) {
 	values['annotation_of_start_line_num'] = $('input[name="annotation_of_start_line_num"]');
 	values['annotation_of_end_line_num'] = $('input[name="annotation_of_end_line_num"]');
 	values['annotation_of_points'] = $('input[name="annotation_of_points"]');
+	values['annotation_of_position_3d'] = $('input[name="annotation_of_position_3d"]');
 	// Tag of
 	values['tag_of'] = $('input[name="tag_of"]');
 	// Reference of
@@ -336,6 +337,7 @@ function send_form_relationships($form, version_urn, success, redirect_url) {
 	values['has_annotation_start_line_num'] = $('input[name="has_annotation_start_line_num"]');
 	values['has_annotation_end_line_num'] = $('input[name="has_annotation_end_line_num"]');
 	values['has_annotation_points'] = $('input[name="has_annotation_points"]');
+	values['has_annotation_position_3d'] = $('input[name="has_annotation_position_3d"]');
 	// Has Tag
 	values['has_tag'] = $('input[name="has_tag"]');
 	// Has reference

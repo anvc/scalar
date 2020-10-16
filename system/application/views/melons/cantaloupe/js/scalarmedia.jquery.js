@@ -60,7 +60,7 @@
 									if ( $( event.target ).is( 'td,h4,div,p,tr' ) ) {
 										var relation = $(this).data('relation');
 										$(this).data('media').seek(relation);
-										if (( relation.target.current.mediaSource.contentType != 'document' ) && ( relation.target.current.mediaSource.contentType != 'image' )) {
+										if (( relation.target.current.mediaSource.contentType != 'document' ) && ( relation.target.current.mediaSource.contentType != 'image' ) && ( relation.target.current.mediaSource.contentType != '3D' )) {
 						       				setTimeout(function() {
 						           				if(!$(this).data('media').is_playing()) {
 													$(this).data('media').play();
@@ -400,7 +400,7 @@
 							var relation = $(this).data('relation');
 							$(this).data('media').seek(relation);
 							var me = this;
-							if (( relation.target.current.mediaSource.contentType != 'document' ) && ( relation.target.current.mediaSource.contentType != 'image' )) {
+							if (( relation.target.current.mediaSource.contentType != 'document' ) && ( relation.target.current.mediaSource.contentType != 'image' ) && ( relation.target.current.mediaSource.contentType != '3D' )) {
 	              				setTimeout(function() {
 	                				if(!$(me).data('media').is_playing()) {
 	      								$(me).data('media').play();

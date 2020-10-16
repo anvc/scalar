@@ -78,14 +78,14 @@
                 if(!loadedTimeline){
 									if(typeof base.pendingWidgets.timeline === 'undefined'){
 										base.pendingWidgets.timeline = [];
+                    console.log(modules_uri);
 										$.getScript(modules_uri+'/cantaloupe/js/date-utils.min.js',function(){
 											$.getScript(modules_uri+'/cantaloupe/js/timeline.min.js',function(){
-
 												loadedTimeline = true;
 												for(var i = 0; i < base.pendingWidgets.timeline.length; i++){
 														base.pendingWidgets.timeline[i].resolve();
 												}
-
+                        console.log(TL.MediaType);
 											});
 										});
 									}
@@ -524,15 +524,14 @@
                             url : currentNode.sourceFile,
                             thumbnail : thumbnail_url
                           };
-
-                          var mediaType = TL.MediaType(entry.media);
+                          /*var mediaType = TL.MediaType(entry.media);
 
 
                           if(mediaType.type=='imageblank' && thumbnail_url != null){
                             entry.media.url = thumbnail_url;
                           }else if(mediaType.type=='imageblank'){
                             delete entry.media;
-                          }
+                          }*/
                         }else if(typeof node.thumbnail !== 'undefined' && node.thumbnail != null && node.thumbnail != '') {
                           entry.media = {
                             url : thumbnail_url,

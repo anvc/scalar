@@ -102,6 +102,7 @@ function insert_rel_fields(current_urn, current_slug) {
         if (current_uri==data[s]['http://www.openannotation.org/ns/hasBody'][0].value) {
         	fields.push({name:'annotation_of',value:get_urn_from_uri(data,data[s]['http://www.openannotation.org/ns/hasTarget'][0].value)});
         	var points = data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.substr(data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#xywh=')+6);
+					var position_3d = data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.substr(data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#pos3d=')+8);
         	var line_num = data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.substr(data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#line=')+6);
         	var start_line_num = (-1!=data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#line=')) ? line_num.split(',')[0] : 0;
         	var end_line_num = (-1!=data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#line=')) ? line_num.split(',')[1] : 0;
@@ -109,13 +110,15 @@ function insert_rel_fields(current_urn, current_slug) {
         	var start_seconds = (-1!=data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#npt=')) ? seconds.split(',')[0] : 0;
         	var end_seconds = (-1!=data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#npt=')) ? seconds.split(',')[1] : 0;
         	fields.push({name:'annotation_of_points',value:points});
-			fields.push({name:'annotation_of_start_line_num',value:start_line_num});
-			fields.push({name:'annotation_of_end_line_num',value:end_line_num});
-			fields.push({name:'annotation_of_start_seconds',value:start_seconds});
-			fields.push({name:'annotation_of_end_seconds',value:end_seconds});
+					fields.push({name:'annotation_of_position_3d',value:position_3d});
+					fields.push({name:'annotation_of_start_line_num',value:start_line_num});
+					fields.push({name:'annotation_of_end_line_num',value:end_line_num});
+					fields.push({name:'annotation_of_start_seconds',value:start_seconds});
+					fields.push({name:'annotation_of_end_seconds',value:end_seconds});
         } else {
         	fields.push({name:'has_annotation',value:get_urn_from_uri(data,data[s]['http://www.openannotation.org/ns/hasBody'][0].value)});
         	var points = data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.substr(data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#xywh=')+6);
+					var position_3d = data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.substr(data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#pos3d=')+8);
         	var line_num = data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.substr(data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#line=')+6);
         	var start_line_num = (-1!=data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#line=')) ? line_num.split(',')[0] : 0;
         	var end_line_num = (-1!=data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#line=')) ? line_num.split(',')[1] : 0;
@@ -123,10 +126,11 @@ function insert_rel_fields(current_urn, current_slug) {
         	var start_seconds = (-1!=data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#npt=')) ? seconds.split(',')[0] : 0;
         	var end_seconds = (-1!=data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#npt=')) ? seconds.split(',')[1] : 0;
         	fields.push({name:'has_annotation_points',value:points});
-			fields.push({name:'has_annotation_start_line_num',value:start_line_num});
-			fields.push({name:'has_annotation_end_line_num',value:end_line_num});
-			fields.push({name:'has_annotation_start_seconds',value:start_seconds});
-			fields.push({name:'has_annotation_end_seconds',value:end_seconds});
+					fields.push({name:'has_annotation_position_3d',value:position_3d});
+					fields.push({name:'has_annotation_start_line_num',value:start_line_num});
+					fields.push({name:'has_annotation_end_line_num',value:end_line_num});
+					fields.push({name:'has_annotation_start_seconds',value:start_seconds});
+					fields.push({name:'has_annotation_end_seconds',value:end_seconds});
         }
       }
       // Tags
@@ -292,7 +296,7 @@ Other supported formats: 3gp, aif, flv, mov, mpg, oga, tif, webm<br />
 	<tr id="metadata_rows_parent"><td class="field"></td><td><div id="metadata_rows"></div></td></tr>
         <tr><td>IIIF</td><td>
 		<div class="checkbox">
-			<label><input type="checkbox" id="media_file_url_iiif" name="iiif-url" /> Is IIIF Manifest</label>	
+			<label><input type="checkbox" id="media_file_url_iiif" name="iiif-url" /> Is IIIF Manifest</label>
 		</div>
 	</td></tr>
 	<tr><td class="field">Choose file</td><td>
