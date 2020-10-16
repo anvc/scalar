@@ -292,7 +292,11 @@
              break;
 
              case 'parents-children':
-             contentTypes = [content];
+             if (content == 'current') {
+               contentTypes = ['all-types'];
+             } else {
+               contentTypes = [content];
+             }
              relations = 'any-relationship';
              modifiers.push({
                "type": "filter",
@@ -315,13 +319,22 @@
              },
              "components": [
                {
-                 "content-selector": {
-                   "type": "items-by-type",
-                   "content-type": content
-                 },
+                 "content-selector": null,
                  "modifiers": modifiers
                }
              ],
+           }
+
+           if (content == 'current') {
+             lensObj.components[0]['content-selector'] = {
+               "type": "specific-items",
+               "items": [base.currentNode.slug]
+             };
+           } else {
+             lensObj.components[0]['content-selector'] = {
+               "type": "items-by-type",
+               "content-type": content
+             };
            }
 
            var options = {
