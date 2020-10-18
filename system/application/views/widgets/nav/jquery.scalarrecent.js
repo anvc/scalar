@@ -76,6 +76,7 @@ function scalarrecent_log_page() {
 	var desc = $("meta[name='Description']").attr('content');
 	var role = $('link#primary_role').attr('href');
     var color = $('link#color').attr('href');
+    var urn = $('header').find('[rel="scalar:urn"]:first').attr('href');  // Content URN
 
 	// Clear existing (so item is at top of list)
 	// There seems to be a bug with rdfQuery where if you try to delete a triple that doesn't exist, it arbitrarily deletes another triple
@@ -138,6 +139,7 @@ function scalarrecent_log_page() {
 	rdf.add('<'+uri+'> dcterms:description "'+htmlspecialchars(desc)+'" .');
 	rdf.add('<'+uri+'> rdf:type <'+role+'> .');
 	rdf.add('<'+uri+'> dcterms:date "'+(new Date().getTime())+'" .');
+	rdf.add('<'+uri+'> scalar:urn <'+urn+'> .');
 	if (color) rdf.add('<'+uri+'> scalar:color "'+color+'" .');
 
 	// Save new state
@@ -187,6 +189,27 @@ function scalarrecent_get_more_recent_than(humanStr) {
 		}
 		
 		return obj;
+	
+}
+
+/**
+ * scalarrecent_rdf_to_ids()
+ * obj  rdf 
+ * Convert RDF-JSON nodes to an object of content_ids:timestamps
+ */
+
+function scalarrecent_rdf_to_ids(rdf) {
+	
+	var obj = {};
+	for (var uri in rdf) {
+		if ('undefined' == typeof(rdf[uri]['http://scalar.usc.edu/2012/01/scalar-ns#urn'])) continue;
+		if ('undefined' == typeof(rdf[uri]['http://purl.org/dc/terms/date'])) continue;
+		var urn = rdf[uri]['http://scalar.usc.edu/2012/01/scalar-ns#urn'][0].value;
+		var timestamp = rdf[uri]['http://purl.org/dc/terms/date'][0].value;
+		var version_id = urn.split(':').slice(-1)[0];
+		obj[version_id] = timestamp;
+	}
+	return obj;
 	
 }
 
