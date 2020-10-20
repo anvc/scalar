@@ -2125,6 +2125,7 @@ window.scalarvis = { instanceCount: -1 };
             this.size.height = 300;
           }
         } else {
+          this.size.width = window.innerWidth;
           this.size.height = window.innerHeight;
         }
         if (this.isFullScreen != isFullScreenNow) {
@@ -2366,7 +2367,7 @@ window.scalarvis = { instanceCount: -1 };
        setupElement() {
          base.visualization.empty();
          base.visualization.removeClass('bounded');
-         base.visualization.css('width', base.visElement.width() - 20); // accounts for padding
+         base.visualization.css('width', base.visElement.width() - parseInt(base.visualization.css('padding-right'))); // accounts for padding
          base.svg = d3.select(base.visualization[0]).append('svg:svg').attr('width', this.size.width);
          this.gridBoxLayer = base.svg.append('svg:g')
            .attr('width', this.size.width)
