@@ -603,7 +603,6 @@ class Lens_model extends MY_Model {
     
     public function filter_by_content_selector($content, $component) {
     	
-    	// TODO: this only filters pages, media not relationship types
     	if (isset($component['content-selector']) && empty($component['content-selector']['items'])) {
     		$content_type = $component['content-selector']['content-type'];
     		if ('page' == $content_type) $content_type = 'composite';
@@ -624,6 +623,11 @@ class Lens_model extends MY_Model {
     			}
     		} elseif ('table-of-contents'==$content_type) {
 				// TODO
+    		}
+    	} elseif (isset($component['content-selector'])) {
+    		$items = $component['content-selector']['items'];
+    		foreach ($content as $key => $row) {
+    			if (!in_array($row->slug, $items)) unset($content[$key]);
     		}
     	}
 
