@@ -3862,7 +3862,7 @@ window.scalarvis = { instanceCount: -1 };
        	});
     	this.oms = new OverlappingMarkerSpiderfier(this.map, {  // https://github.com/jawj/OverlappingMarkerSpiderfier
     		  markersWontMove: true,
-    		  markersWontHide: true,
+    		  markersWontHide: false,
     		  basicFormatEvents: true,
     		  keepSpiderfied: true
     		});
