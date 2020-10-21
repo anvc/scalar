@@ -2186,17 +2186,28 @@ window.scalarvis = { instanceCount: -1 };
            var node;
            base.svg.attr('height', fullHeight);
 
-           //this.box = this.gridBoxLayer.selectAll('.rowBox');
-
            var tocNode = scalarapi.model.getMainMenuNode();
-           var gridNodes = base.sortedNodes.concat();
-           var index = gridNodes.indexOf(tocNode);
+
+           this.isLocallySorted = true;
+           if (base.options.content === 'lens') {
+             if (base.options.lens.sorts.length > 0) {
+               this.isLocallySorted = false;
+             }
+           }
+
+           if (this.isLocallySorted) {
+             this.gridNodes = base.sortedNodes.concat();
+           } else {
+             this.gridNodes = base.contentNodes.concat();
+           }
+
+           var index = this.gridNodes.indexOf(tocNode);
            if (index != -1) {
-             gridNodes.splice(index, 1);
+             this.gridNodes.splice(index, 1);
            }
 
            this.box = this.gridBoxLayer.selectAll('.rowBox')
-             .data(gridNodes, (d) => { return d.type.id + '-' + d.slug; })
+             .data(this.gridNodes, (d) => { return d.type.id + '-' + d.slug; })
              .join(
                enter => enter.append('svg:rect')
                  .each(function(d) { d.svgTarget = this; })
@@ -2400,11 +2411,18 @@ window.scalarvis = { instanceCount: -1 };
        }
 
        redrawGrid() {
-         this.box.sort(base.typeSort)
-           .attr('fill', (d) => { return (base.rolloverNode == d) ? d3.rgb(base.highlightColorScale(d.type.singular)).darker() : base.highlightColorScale(d.type.singular); })
-           .attr('fill-opacity', this.calculateOpacity)
-           .attr('x', (d, i) => { d[base.instanceId].x = this.colScale(i % this.itemsPerRow) + 0.5; return d[base.instanceId].x; })
-           .attr('y', (d, i) => { d[base.instanceId].y = this.rowScale(Math.floor(i / this.itemsPerRow) + 1) - this.boxSize + 0.5; return d[base.instanceId].y; });
+         if (this.isLocallySorted) {
+           console.log('sort locally');
+           this.box.sort(base.typeSort).attr('fill', (d) => { return (base.rolloverNode == d) ? d3.rgb(base.highlightColorScale(d.type.singular)).darker() : base.highlightColorScale(d.type.singular); })
+             .attr('fill-opacity', this.calculateOpacity)
+             .attr('x', (d, i) => { d[base.instanceId].x = this.colScale(i % this.itemsPerRow) + 0.5; return d[base.instanceId].x; })
+             .attr('y', (d, i) => { d[base.instanceId].y = this.rowScale(Math.floor(i / this.itemsPerRow) + 1) - this.boxSize + 0.5; return d[base.instanceId].y; });
+         } else {
+           this.box.attr('fill', (d) => { return (base.rolloverNode == d) ? d3.rgb(base.highlightColorScale(d.type.singular)).darker() : base.highlightColorScale(d.type.singular); })
+             .attr('fill-opacity', this.calculateOpacity)
+             .attr('x', (d, i) => { d[base.instanceId].x = this.colScale(i % this.itemsPerRow) + 0.5; return d[base.instanceId].x; })
+             .attr('y', (d, i) => { d[base.instanceId].y = this.rowScale(Math.floor(i / this.itemsPerRow) + 1) - this.boxSize + 0.5; return d[base.instanceId].y; });
+         }
 
          this.gridPathLayer.selectAll('path').attr('d', this.line);
          this.gridPathLayer.selectAll('circle.pathDot')
@@ -2481,7 +2499,7 @@ window.scalarvis = { instanceCount: -1 };
 
          // draw connection lines
          linkEnter.selectAll('line.connection')
-           .data(function(d) {
+           .data((d) => {
              var relationArr = [];
              var relations = d.outgoingRelations.concat(d.incomingRelations);
              var relation;
@@ -2490,7 +2508,7 @@ window.scalarvis = { instanceCount: -1 };
              for (i = 0; i < n; i++) {
                relation = relations[i];
                if (relation.type.id == base.options.relations || base.options.relations == "all" || base.options.content == "lens") {
-                 if (relation.type.id != 'path' && base.sortedNodes.indexOf(relation.body) != -1 && base.sortedNodes.indexOf(relation.target) != -1) {
+                 if (relation.type.id != 'path' && this.gridNodes.indexOf(relation.body) != -1 && this.gridNodes.indexOf(relation.target) != -1) {
                    if (!relation.body.scalarTypes.toc) {
                      relationArr.push(relations[i]);
                    }
@@ -2511,7 +2529,7 @@ window.scalarvis = { instanceCount: -1 };
 
          // draw connection dots
          linkEnter.selectAll('circle.connectionDot')
-           .data(function(d) {
+           .data((d) => {
              var nodeArr = [];
              var relations = d.outgoingRelations.concat(d.incomingRelations);
              var relation;
@@ -2520,7 +2538,7 @@ window.scalarvis = { instanceCount: -1 };
              for (i = 0; i < n; i++) {
                relation = relations[i];
                if (relation.type.id == base.options.relations || base.options.relations == "all" || base.options.content == "lens") {
-                 if ((relation.type.id != 'path') && (base.sortedNodes.indexOf(relation.body) != -1) && (base.sortedNodes.indexOf(relation.target) != -1)) {
+                 if ((relation.type.id != 'path') && (this.gridNodes.indexOf(relation.body) != -1) && (this.gridNodes.indexOf(relation.target) != -1)) {
                    if (!relation.body.scalarTypes.toc) {
                      nodeArr.push({ role: 'body', node: relation.body, type: relation.type });
                      nodeArr.push({ role: 'target', node: relation.target, type: relation.type });
