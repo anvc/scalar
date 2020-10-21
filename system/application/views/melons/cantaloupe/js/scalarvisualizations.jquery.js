@@ -76,12 +76,12 @@ window.scalarvis = { instanceCount: -1 };
     }
     base.VisualizationSorts = {
       'none': 'Select a sort...',
-      'alphabetical': 'A-Z',
+      'alphabetical': 'A-Z'/*,
       'creation-date': 'date created',
       'edit-date': 'date last modified',
       'type': 'item type',
       'relationship-count': 'relationship count',
-      'visit-date': 'visit date'
+      'visit-date': 'visit date'*/
     }
     base.popoverTemplate = '<div class="popover vis-help caption_font" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>';
     base.currentNode = scalarapi.model.getCurrentPageNode();
@@ -186,7 +186,7 @@ window.scalarvis = { instanceCount: -1 };
           controls_html += '<option value="' + prop + '">' + base.VisualizationFilters[prop] + '</option>';
         }
         controls_html += '</select></div> ' +
-          '<div class="vis-control-header" style="display:none"><b>Sort</b></br><select class="vis-sort-control form-control">';
+          '<div class="vis-control-header"><b>Sort</b></br><select class="vis-sort-control form-control">';
         for (var prop in base.VisualizationSorts) {
           controls_html += '<option value="' + prop + '">' + base.VisualizationSorts[prop] + '</option>';
         }
@@ -322,12 +322,12 @@ window.scalarvis = { instanceCount: -1 };
     }
 
     base.onSortSelect = function() {
-      base.updateLensModifiers();
+      base.updateSorts();
       base.getLensResults();
     }
 
     base.onSortOrderSelect = function() {
-      base.updateLensModifiers();
+      base.updateSorts();
       base.getLensResults();
     }
 
@@ -361,6 +361,9 @@ window.scalarvis = { instanceCount: -1 };
         }
         base.options.lens.components[0].modifiers.push(filter);
       }
+    }
+
+    base.updateSorts = function() {
       if (base.visElement.find(".vis-sort-control").val() != 'none') {
         if (base.visElement.find(".vis-sort-order-control").val() == 'none') {
           base.visElement.find(".vis-sort-order-control").val('ascending')
@@ -374,7 +377,7 @@ window.scalarvis = { instanceCount: -1 };
         if (sort['sort-type'] == 'alphabetical') {
           sort['metadata-field'] = "dcterms:title";
         }
-        base.options.lens.components[0].modifiers.push(sort);
+        base.options.lens.sorts = [sort];
       }
     }
 
@@ -536,23 +539,18 @@ window.scalarvis = { instanceCount: -1 };
             }
             break;
 
-            case 'sort':
-            let sort = null;
-            base.options.lens.components[0].modifiers.forEach(modifier => {
-              if (modifier.type === 'sort') {
-                sort = modifier;
-              }
-            });
-            if (sort) {
-              base.visElement.find(".vis-sort-control").val(sort['sort-type']);
-              base.visElement.find(".vis-sort-order-control").val(sort['sort-order']);
-            } else {
-              base.visElement.find(".vis-sort-control").val('none');
-              base.visElement.find(".vis-sort-order-control").val('none');
-            }
-            break;
           }
         });
+        if (base.options.lens.sorts) {
+          if (base.options.lens.sorts.length > 0) {
+            let sort = base.options.lens.sorts[0];
+            base.visElement.find(".vis-sort-control").val(sort['sort-type']);
+            base.visElement.find(".vis-sort-order-control").val(sort['sort-order']);
+          } else {
+            base.visElement.find(".vis-sort-control").val('none');
+            base.visElement.find(".vis-sort-order-control").val('none');
+          }
+        }
       }
     }
 
@@ -2190,8 +2188,10 @@ window.scalarvis = { instanceCount: -1 };
 
            this.isLocallySorted = true;
            if (base.options.content === 'lens') {
-             if (base.options.lens.sorts.length > 0) {
-               this.isLocallySorted = false;
+             if (base.options.lens.sorts) {
+               if (base.options.lens.sorts.length > 0) {
+                 this.isLocallySorted = false;
+               }
              }
            }
 
