@@ -3315,13 +3315,13 @@
                                                     url: relNode.sourceFile,
                                                     thumbnail: thumbnail_url
                                                 };
-                                                /*var mediaType = TL.MediaType(entry.media);
-
+                                                var mediaType = TL.lookupMediaType(entry.media);
+                                                
                                                 if(mediaType.type=='imageblank' && thumbnail_url != null){
                                                     entry.media.url = thumbnail_url;
                                                 }else if(mediaType.type=='imageblank'){
                                                     delete entry.media;
-                                                }*/
+                                                }
                                             } else if (typeof nodeSet[n].thumbnail !== 'undefined' && nodeSet[n].thumbnail != null && nodeSet[n].thumbnail != '') {
                                                 entry.media = {
                                                     url: thumbnail_url,
