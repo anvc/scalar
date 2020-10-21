@@ -1147,9 +1147,9 @@ function YouTubeGetID(url){
 						case 'tiledImage':
 							this.mediaObjectView = new $.DeepZoomImageObjectView(this.model, this);
 						break;
-                                                case 'manifest':
-                                                        this.mediaObjectView = new $.MiradorObjectView(this.model, this);
-                                                break;
+                        case 'manifest':
+                            this.mediaObjectView = new $.MiradorObjectView(this.model, this);
+                        break;
 						case 'audio':
 						if (this.model.mediaSource.name == 'SoundCloud') {
 							this.mediaObjectView = new $.SoundCloudAudioObjectView(this.model, this);
@@ -5517,8 +5517,7 @@ function YouTubeGetID(url){
 	 */
 	jQuery.MiradorObjectView = function(model, parentView) {
 
-    var me = this;
-
+		var me = this;
 		this.model = model;  					// instance of the model
 		this.parentView = parentView;   		// primary view for the media element
 		this.isLiquid = true;					// media will expand to fill available space
@@ -5528,19 +5527,17 @@ function YouTubeGetID(url){
 		 */
 		jQuery.MiradorObjectView.prototype.createObject = function() {
 
-			var approot = $('link#approot').attr('href');
+			this.mediaObject = $( `<div class="mediaObject" id="mirador-${me.model.id}"></div>`).appendTo( this.parentView.mediaContainer );
 
-			this.mediaObject = $( '<div class="mediaObject" id="mirador"></div>' ).appendTo( this.parentView.mediaContainer );
-
-      var miradorInstance = Mirador.viewer({
-          id: 'mirador',
-          windows: [{ manifestId: this.model.node.current.sourceFile }]
-      });
+            var miradorInstance = Mirador.viewer({
+                id: `mirador-${me.model.id}`,
+                windows: [{ manifestId: this.model.node.current.sourceFile }]
+            });
 
 			this.parentView.layoutMediaObject();
 			this.parentView.removeLoadingMessage();
-      // make sure mirador doesn't overflow its bounds
-      $('.mirador-viewer').css('max-height', $('.mediaContainer').css('max-height'));
+			// make sure mirador doesn't overflow its bounds
+			$('.mirador-viewer', this.mediaObject).css('max-height', $(this.parentView.mediaContainer).css('max-height'));
 
 			return;
 		}
@@ -5559,8 +5556,8 @@ function YouTubeGetID(url){
 		 * @param {Number} height		The new height of the media.
 		 */
 		jQuery.MiradorObjectView.prototype.resize = function(width, height) {
-			$('#mirador').width(Math.round(width));
-			$('#mirador').height(Math.round(height));
+			$(`#mirador-${me.model.id}`).width(Math.round(width));
+			$(`#mirador-${me.model.id}`).height(Math.round(height));
 		}
 
 	}
