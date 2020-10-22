@@ -118,7 +118,7 @@
 
 			//$link.data('mediaelement').play();
 
-			if (!is_ie) $div.fadeTo(500, 1.0);
+			$div.fadeTo(500, 1.0);
 
 			$('.vert_slots').find('.slot').find('object, embed').css('visibility','hidden');
 
