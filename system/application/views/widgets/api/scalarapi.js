@@ -2230,7 +2230,11 @@ ScalarAPI.prototype.parseCurrentPage = function(json) {
 ScalarAPI.prototype.getNode = function(uriOrSlug) {
 	if ( uriOrSlug != null ) {
 		if (uriOrSlug.indexOf('http://') != -1 || uriOrSlug.indexOf('https://') != -1) {
-			return this.model.nodesByURL[uriOrSlug];
+      if (this.model.nodesByURL[uriOrSlug]) {
+        return this.model.nodesByURL[uriOrSlug];
+      } else if (this.model.nodesByURL[uriOrSlug.replace('http://','https://')]) {
+        return this.model.nodesByURL[uriOrSlug.replace('http://','https://')];
+      }
 		}
 		return this.model.nodesByURL[this.model.urlPrefix+uriOrSlug];
 	}

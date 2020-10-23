@@ -352,6 +352,7 @@ function YouTubeGetID(url){
 			// Scalar url for the media
 			this.meta = this.link.data('meta');
 			this.meta = (this.meta.indexOf('://')==-1) ? scalarapi.model.urlPrefix + this.meta : this.meta;
+      this.meta = scalarapi.model.urlPrefix.indexOf('https://') != -1 ? this.meta.replace('http://','https://') : this.meta;
 
 			// filename of the media
 			this.filename = scalarapi.basename(this.path);
