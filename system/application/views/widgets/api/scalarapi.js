@@ -1215,7 +1215,7 @@ ScalarAPI.prototype.saveManyRelations = function(data, completeCallback, stepCal
 	});
 	// Queue annotation_of
 	$(data['annotation_of']).each(function(indexInArray) {
-		self.queueManyRelations({
+    let relations = {
 			action:data['action'],'native':data['native'],'id':data['id'],api_key:data['api_key'],
 			'scalar:urn':data['scalar:urn'],
 			'scalar:child_urn':$(this).val(),
@@ -1225,8 +1225,11 @@ ScalarAPI.prototype.saveManyRelations = function(data, completeCallback, stepCal
 			'scalar:start_line_num':$(data['annotation_of_start_line_num'][indexInArray]).val(),
 			'scalar:end_line_num':$(data['annotation_of_end_line_num'][indexInArray]).val(),
 			'scalar:points':$(data['annotation_of_points'][indexInArray]).val(),
-			'scalar:position_3d':$(data['annotation_of_position_3d'][indexInArray]).val(),
-		});
+		}
+    if (data['annotation_of_position_3d']) {
+      data['scalar:position_3d'] = $(data['annotation_of_position_3d'][indexInArray]).val()
+    }
+		self.queueManyRelations(relations);
 	});
 	// Queue tag_of
 	$(data['tag_of']).each(function() {
