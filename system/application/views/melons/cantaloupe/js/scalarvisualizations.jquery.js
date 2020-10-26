@@ -1264,6 +1264,18 @@ window.scalarvis = { instanceCount: -1 };
               node.connectionCount = rels.length;
               base.maxConnections = Math.max(base.maxConnections, node.connectionCount);
             }
+          } else {
+            // get relationships for each node
+            n = base.contentNodes.length;
+            for (i = 0; i < n; i++) {
+              node = base.contentNodes[i];
+              relNodes = node.getRelatedNodes(null, "both");
+              rels = node.getRelations(null, "both");
+              base.relatedNodes = base.relatedNodes.concat(relNodes);
+              base.relations = base.relations.concat(rels);
+              node.connectionCount = rels.length;
+              base.maxConnections = Math.max(base.maxConnections, node.connectionCount);
+            }
           }
 
           n = base.selectedNodes.length;
@@ -2252,7 +2264,7 @@ window.scalarvis = { instanceCount: -1 };
             visualizePaths = true;
           }
           let filterControlVal = base.visElement.find(".vis-filter-control").val();
-          if (base.options.content == "lens" && (filterControlVal == 'any-relationship' || filterControlVal == 'child')) {
+          if (base.options.content == "lens" && (filterControlVal == 'any-relationship' || filterControlVal == 'child' || !filterControlVal)) {
             visualizePaths = true;
           }
 
@@ -2412,7 +2424,6 @@ window.scalarvis = { instanceCount: -1 };
 
        redrawGrid() {
          if (this.isLocallySorted) {
-           console.log('sort locally');
            this.box.sort(base.typeSort).attr('fill', (d) => { return (base.rolloverNode == d) ? d3.rgb(base.highlightColorScale(d.type.singular)).darker() : base.highlightColorScale(d.type.singular); })
              .attr('fill-opacity', this.calculateOpacity)
              .attr('x', (d, i) => { d[base.instanceId].x = this.colScale(i % this.itemsPerRow) + 0.5; return d[base.instanceId].x; })

@@ -620,7 +620,8 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                               "relationship": "any-relationship"
                           }]
                         }
-                      ]
+                      ],
+                      "sorts": []
                     }
                     break;
 
@@ -646,7 +647,8 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                               "relationship": "child"
                           }]
                         }
-                      ]
+                      ],
+                      "sorts": []
                     }
                     break;
 
@@ -672,16 +674,11 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                   "all-types"
                               ],
                               "relationship": "any-relationship"
-                            },
-                            {
-                              "type": "sort",
-                              "sort-type": "alphabetical",
-                              "metadata-field": "dcterms:title",
-                              "sort-order": "ascending"
                             }
                           ]
                         }
-                      ]
+                      ],
+                      "sorts": []
                     }
                     break;
 
@@ -707,7 +704,8 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                               "relationship": "any-relationship"
                           }]
                         }
-                      ]
+                      ],
+                      "sorts": []
                     }
                     break;
 
@@ -736,6 +734,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                           ]
                         }
                       ],
+                      "sorts": []
                     }
                     break;
 
@@ -764,6 +763,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                           ]
                         }
                       ],
+                      "sorts": []
                     }
                     break;
 
@@ -792,6 +792,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                           ]
                         }
                       ],
+                      "sorts": []
                     }
                     break;
                 }
