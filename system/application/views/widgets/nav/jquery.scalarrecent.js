@@ -166,13 +166,24 @@ function scalarrecent_clear() {
 }
 
 /**
+ * scalarrecent_is_numeric()
+ * A simple test of whether a string is numeric or not
+ * @return str
+ */
+function scalarrecent_is_numeric(num) {
+	
+	return !isNaN(parseFloat(num)) && isFinite(num);
+	
+}
+
+/**
  * scalarrecent_get_more_recent_than()
  * str  timestamp 
  * Get all nodes that were committed more recently than the passed timestamp
  */
 
 function scalarrecent_get_more_recent_than(humanStr) {
-	
+
 		var parent = $('link#parent').attr('href');
 		var user_url = parent+'users/anonymous';
 		var prev_string = localStorage.getItem('scalar_user_history');
@@ -636,26 +647,34 @@ function scalarrecent_time_diff( tstart, tend ) {
 
 function scalarrecent_is_more_recent_than(date, humanStr) {
 	
-	var diff = Math.floor((Date.now() - date) / 1000);
-	var units = [
-		{ d: 60, l: "seconds", m: "second", amount: 0 },
-		{ d: 60, l: "minutes", m: "minute", amount: 0 },
-		{ d: 24, l: "hours", m: "hour", amount: 0 },
-		{ d: 7, l: "days", m: "day", amount: 0 }
-		];
-
-	for (var i = 0; i < units.length; ++i) {
-		var amount = (diff % units[i].d);
-		units[i].amount = amount;
-		var unit = (amount==1) ? units[i].m : units[i].l;
-		diff = Math.floor(diff / units[i].d);
-	}
+	if (!scalarrecent_is_numeric(humanStr)) {  // E.g., '3 days'
 	
-	if (humanStr.toLowerCase().indexOf('hours') != -1 || humanStr.toLowerCase().indexOf('hour') != -1) {
-		if (units[3].amount > 0) return false;
-		if (units[2].amount <= parseInt(humanStr)) return true;
-	} else if (humanStr.toLowerCase().indexOf('days') != -1 || humanStr.toLowerCase().indexOf('day') != -1) {
-		if (units[3].amount <= parseInt(humanStr)) return true;
+		var diff = Math.floor((Date.now() - date) / 1000);
+		var units = [
+			{ d: 60, l: "seconds", m: "second", amount: 0 },
+			{ d: 60, l: "minutes", m: "minute", amount: 0 },
+			{ d: 24, l: "hours", m: "hour", amount: 0 },
+			{ d: 7, l: "days", m: "day", amount: 0 }
+			];
+	
+		for (var i = 0; i < units.length; ++i) {
+			var amount = (diff % units[i].d);
+			units[i].amount = amount;
+			var unit = (amount==1) ? units[i].m : units[i].l;
+			diff = Math.floor(diff / units[i].d);
+		}
+		
+		if (humanStr.toLowerCase().indexOf('hours') != -1 || humanStr.toLowerCase().indexOf('hour') != -1) {
+			if (units[3].amount > 0) return false;
+			if (units[2].amount <= parseInt(humanStr)) return true;
+		} else if (humanStr.toLowerCase().indexOf('days') != -1 || humanStr.toLowerCase().indexOf('day') != -1) {
+			if (units[3].amount <= parseInt(humanStr)) return true;
+		}
+		
+	} else {
+		
+		if (humanStr < date) return true;
+		
 	}
 	
 	return false;
