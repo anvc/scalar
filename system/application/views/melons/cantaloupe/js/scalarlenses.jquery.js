@@ -3159,8 +3159,10 @@
         {label: "Export to CSV", value: "export-lens"}
       )
 
-      if (header.okToDelete) {
-        menuOptions.push({label: "Delete lens", value: "delete-lens"});
+      if (header) {
+        if (header.okToDelete) {
+          menuOptions.push({label: "Delete lens", value: "delete-lens"});
+        }
       }
 
       switch(userLevel){
@@ -3477,6 +3479,7 @@
     ScalarLenses.prototype.getLensResults = function(lensObject, success){
       this.updateBadge(this.primaryBadge, -1, 'light');
       lensObject.book_urn = 'urn:scalar:book:' + $('link#book_id').attr('href');
+      this.updateHistoryDataForLens(lensObject);
       let url = $('link#approot').attr('href').replace('application/','') + 'lenses';
       //console.log(JSON.stringify(lensObject, null, 2));
       if (this.lensRequest) this.lensRequest.abort();
@@ -3504,6 +3507,51 @@
     	     console.log('There was an error attempting to communicate with the server.');
         }
       });
+    }
+
+    ScalarLenses.prototype.updateHistoryDataForLens = function(lensObject) {
+      let now = new Date();
+      let priorDate;
+      let dates = [];
+      let n = lensObject.sorts.length;
+      for (let i=0; i<n; i++) {
+        let sort = lensObject.sorts[i];
+        if (sort['sort-type'] == 'visit-date') {
+          priorDate = new Date();
+          priorDate.setDate(now.getDate() - 42); // six weeks prior
+          dates.push({str: '42 days', obj: priorDate})
+          break;
+        }
+      }
+      n = lensObject.components.length;
+      for (let i=0; i<n; i++) {
+        let o = lensObject.components[i].modifiers.length;
+        for (let j=0; j<o; j++) {
+          let modifier = lensObject.components[i].modifiers[j];
+          if (modifier.type == 'filter' && modifier.subtype == 'visit-date') {
+            if (modifier.datetime == 'now') {
+              priorDate = new Date();
+            } else {
+              priorDate = new Date(modifier.datetime);
+            }
+            if (!isNaN(priorDate)) {
+              this.getEarlierDate(priorDate, modifier.units, parseInt(modifier.quantity));
+            }
+            dates.push({str: modifier.quantity + ' ' + modifier.units, obj: priorDate});
+            break;
+          }
+        }
+      }
+      if (dates.length > 0) {
+        dates.sort(function(a, b) {
+          return a.obj.getTime() - b.obj.getTime();
+        })
+        let content = scalarrecent_get_more_recent_than(dates[0].str);
+        let converted = scalarrecent_rdf_to_ids(content);
+        lensObject.history = converted;
+      } else {
+        delete lensObject.history;
+      }
     }
 
     ScalarLenses.prototype.getNodeCount = function(lensObj) {
