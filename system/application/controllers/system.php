@@ -128,14 +128,14 @@ class System extends MY_Controller {
 			if (empty($book_id)) die ('{"error":"Could not find a book associated with the Version ID"}');
 			$this->data['book'] = $this->books->get($book_id);
 			if (empty($this->data['book'])) die ('{"error":"Could not find a book associated with the JSON payload"}');
-			$this->data['content'] = $this->lenses->get_children($version_id);
+			$this->data['content'] = $this->lenses->get_children($version_id);  // TODO: permissions
 		} elseif (!empty($book_id)) {  // Get all of the lens JSONs for a particular book
 			$this->load->model('book_model', 'books');
 			$this->load->model('lens_model', 'lenses');
 			$this->load->model('version_model', 'versions');
 			$this->data['book'] = $this->books->get($book_id);
 			if (empty($this->data['book'])) die ('{"error":"Could not find a book associated with the JSON payload"}');
-			$this->data['content'] = $this->lenses->get_all_json($book_id);
+			$this->data['content'] = $this->lenses->get_all_json($book_id);  // TODO: permissions
 		} else {
 			$request_body = file_get_contents('php://input');
 			if (!empty($request_body)) {  // Get nodes described by a JSON payload

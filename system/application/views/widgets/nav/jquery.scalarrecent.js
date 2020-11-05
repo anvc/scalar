@@ -166,17 +166,6 @@ function scalarrecent_clear() {
 }
 
 /**
- * scalarrecent_is_numeric()
- * A simple test of whether a string is numeric or not
- * @return str
- */
-function scalarrecent_is_numeric(num) {
-	
-	return !isNaN(parseFloat(num)) && isFinite(num);
-	
-}
-
-/**
  * scalarrecent_get_more_recent_than()
  * str  timestamp 
  * Get all nodes that were committed more recently than the passed timestamp
@@ -647,7 +636,8 @@ function scalarrecent_time_diff( tstart, tend ) {
 
 function scalarrecent_is_more_recent_than(date, humanStr) {
 	
-	if (!scalarrecent_is_numeric(humanStr)) {  // E.g., '3 days'
+	var humanStr_is_numeric = !isNaN(parseFloat(humanStr)) && isFinite(humanStr);
+	if (!humanStr_is_numeric) {  // E.g., '3 days'
 	
 		var diff = Math.floor((Date.now() - date) / 1000);
 		var units = [

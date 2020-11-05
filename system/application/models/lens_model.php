@@ -24,6 +24,15 @@
  * @version             1.0
  */
 
+function lens_timestamp_cmp_asc($a, $b) {
+	if ($a->timestamp == $b->timestamp) return 0;
+	return ($a->timestamp < $b->timestamp) ? -1 : 1;
+}
+function lens_timestamp_cmp_desc($a, $b) {
+	if ($a->timestamp == $b->timestamp) return 0;
+	return ($a->timestamp < $b->timestamp) ? 1 : -1;
+}
+
 class Lens_model extends MY_Model {
 
 	private $urn_template = 'urn:scalar:lens:$1';
@@ -248,8 +257,8 @@ class Lens_model extends MY_Model {
 		
 		$contents = $this->combine_contents($contents, $how_to_combine);
 		
+		// Filters
 		foreach ($json['components'] as $component) {
-			// Modifiers that filter content
 			if (isset($component['modifiers'])) {
 				foreach ($component['modifiers'] as $modifier) {
 					if (isset($modifier['subtype'])) {
@@ -258,13 +267,20 @@ class Lens_model extends MY_Model {
 								$quantity = (int) $modifier['quantity'];
 								$contents = array_slice($contents, 0, $quantity);
 								break;
+							case "visit-date":
+								if (isset($json['history'])) {
+									for ($j = count($contents)-1; $j >= 0; $j--) {
+										if (!array_key_exists($contents[$j]->content_id, $json['history'])) unset($contents[$j]);
+									}
+								}
+								break;
 						}
 					}
 				}
 			}
 		}
 		
-		// Sort
+		// Sorts
 		if (isset($json['sorts'])) {
 			foreach ($json['sorts'] as $sort) {
 				switch ($sort['sort-type']) {
@@ -280,7 +296,16 @@ class Lens_model extends MY_Model {
 						
 						break;
 					case "visit-date":
-						
+						$direction = ('descending' == $sort['sort-order']) ? 'desc' : 'asc';
+						for ($j = 0; $j < count($contents); $j++) {
+							$content_id = $contents[$j]->content_id;
+							if (isset($json['history']) && isset($json['history'][$content_id])) {
+								$contents[$j]->timestamp = $json['history'][$content_id];
+							} else {
+								$contents[$j]->timestamp = 0;
+							}
+						}
+						usort($contents, "lens_timestamp_cmp_".$direction);
 						break;
 					case "type":
 						
