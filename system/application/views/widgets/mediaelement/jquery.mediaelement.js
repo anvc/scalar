@@ -4500,7 +4500,7 @@ function YouTubeGetID(url){
 		jQuery.TextObjectView.prototype.createObject = function() {
 
 			var approot = $('link#approot').attr('href');
-			var path = approot+'helpers/proxy.php?url='+this.model.path;
+			var path = this.model.path;
 
 			this.frameId = 'text'+this.model.filename+'_'+this.model.id;
 
@@ -4784,7 +4784,7 @@ function YouTubeGetID(url){
 		jQuery.SourceCodeObjectView.prototype.createObject = function() {
 
 			var approot = $('link#approot').attr('href');
-			var path = approot+'helpers/proxy.php?url='+this.model.path;
+			var path = this.model.path;
 
 			this.frameId = 'text'+this.model.filename+'_'+this.model.id;
 
@@ -5471,7 +5471,7 @@ function YouTubeGetID(url){
 		jQuery.DeepZoomImageObjectView.prototype.createObject = function() {
 
 			var approot = $('link#approot').attr('href');
-			var path = approot + 'helpers/proxy.php?url=' + this.model.path;
+			var path = this.model.path;
 
 			this.mediaObject = $( '<div class="mediaObject" style="background-color:black;" id="openseadragon' + this.model.id + '"></div>' ).appendTo( this.parentView.mediaContainer );
 
