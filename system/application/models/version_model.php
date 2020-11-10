@@ -332,11 +332,15 @@ class Version_model extends MY_Model {
     			for ($j = 0; $j < count($content); $j++) {
     				$content[$j]->versions = array($this->get_single($content[$j]->content_id, $content[$j]->recent_version_id, null, false));
     			}
-    			for ($j = count($content)-1; $j >= 0; $j--) {
+    			for ($j = count($content)-1; $j >= 0; $j--) {  // Exclude words within words (e.g., japan in japanese)
     				if (isset($content[$j]->versions[0]->{$field})) {
-    					if (!stristr($content[$j]->versions[0]->{$field}, $o)) unset($content[$j]); 
+    					$arr = explode(' ', strtolower($content[$j]->versions[0]->{$field}));
+    					if (!in_array($o, $arr)) unset($content[$j]); 
+    					//if (!stristr($content[$j]->versions[0]->{$field}, $o)) unset($content[$j]); 
     				} elseif (isset($content[$j]->{$field})) {
-    					if (!stristr($content[$j]->{$field}, $o)) unset($content[$j]); 
+    					$arr = explode(' ', strtolower($content[$j]->{$field}));
+    					if (!in_array($o, $arr)) unset($content[$j]); 
+    					//if (!stristr($content[$j]->{$field}, $o)) unset($content[$j]); 
     				} else {
     					unset($content[$j]); 
     				}
@@ -356,9 +360,10 @@ class Version_model extends MY_Model {
 	    		}
 	    	}
 	    	
-	    	// Get all URNs that have the predicate
+	    	// Get all URNs that have the object in the predicate value
 	    	if (!empty($o)) {
 	    		$version_urns = $ci->rdf_store->get_urns_from_predicate_and_object($p, $o, $book_version_urns);
+	    	// Get all URNs that have the predicate
 	    	} else {
 	    		$version_urns = $ci->rdf_store->get_urns_from_predicate($p, $book_version_urns);
 	    	}

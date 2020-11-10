@@ -152,7 +152,7 @@ class RDF_Store {
     	$q .= '
                FILTER ('.implode(' || ',$list).') . ';
     	$q .= '
-               FILTER (regex (?o,"'.$o.'","i")) . ';
+               FILTER (regex (?o,"'.$o.'","i")) . ';  // TODO: match word, exclude word within word
     	$q .= '
               }';
     	
