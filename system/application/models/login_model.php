@@ -110,40 +110,49 @@ class Login_model extends User_model {
 	public function do_login($force=false) {
 
 		$action = (isset($_REQUEST['action'])) ? $_REQUEST['action'] : null;
-		
+
 		if ($force || $action == 'do_login') {
 
 			$email =@ trim($_POST['email']);
-			if (empty($email)) throw new Exception( lang('login.invalid') );
-			if ($this->email_is_disallowed($email)) throw new Exception( lang('login.invalid') );
+			if (empty($email)) {
+				log_message('error', 'Scalar: Login failed, email is empty');
+				throw new Exception( lang('login.invalid') );
+			}
 			log_message('error', 'Scalar: Login attempt by '.$email.', from '.$this->getUserIpAddr().'.');
+			if ($this->email_is_disallowed($email)) {
+				log_message('error', 'Scalar: Login attempt by '.$email.' failed, email is disallowed');
+				throw new Exception( lang('login.invalid') );
+			}
 			$password = trim($_POST['password']);
-            $result = false;
+      $result = false;
 
-            if (!$this->increment_and_check_login_attempts()) {
-            	$this->session->unset_userdata($this->login_basename);
-            	$msg = lang('login.attempts');
-            	if (empty($msg)) $msg = 'Too many login attempts, try again in a few minutes';
-            	throw new Exception($msg);
-            }
+      if (!$this->increment_and_check_login_attempts()) {
+      	$this->session->unset_userdata($this->login_basename);
+      	$msg = lang('login.attempts');
+      	if (empty($msg)) $msg = 'Too many login attempts, try again in a few minutes';
+				log_message('error', 'Scalar: Login attempt by '.$email.' failed, too many attempts');
+      	throw new Exception($msg);
+      }
 
-            if ( $this->config->item('use_ldap') ) {  // LDAP
-                $result = $this->get_from_ldap_by_email_and_password($email, $password);
-            }
+      if ( $this->config->item('use_ldap') ) {  // LDAP
+          $result = $this->get_from_ldap_by_email_and_password($email, $password);
+      }
 
-            if (!$result) {  // Database
-                $result = $this->get_by_email_and_password($email, $password);
-            }
+      if (!$result) {  // Database
+          $result = $this->get_by_email_and_password($email, $password);
+      }
 
 			if (!$result) {
 				$result = new stdClass;
 				$result->is_logged_in = false;
 				$result->books = array();
 				$this->session->set_userdata(array($this->login_basename => (array) $result));
+				log_message('error', 'Scalar: Login attempt by '.$email.' failed');
 				throw new Exception( lang('login.invalid') );
 			} else if ($this->must_pass_google_authenticator($result)) {
 				parent::save_reset_string($result->user_id, '');  // Get rid of any reset string if the user successfully logs in
 				$this->session->set_userdata(array($this->login_basename.'__cache_results' => (array) $result));
+				log_message('error', 'Scalar: Superuser login attempt by '.$email.' succeeded');
 				$result = new stdClass;
 				$result->is_logged_in = false;
 				$result->books = array();
@@ -157,6 +166,7 @@ class Login_model extends User_model {
 				$result->is_logged_in = true;
 				$this->session->set_userdata(array($this->login_basename => (array) $result));
 				$this->reset_login_attempts();
+				log_message('error', 'Scalar: Login attempt by '.$email.' succeeded');
 				return true;
 			}
 
@@ -165,13 +175,13 @@ class Login_model extends User_model {
 		return false;
 
 	}
-	
+
 	public function do_google_authenticator() {
-		
+
 		$action = (isset($_REQUEST['action'])) ? $_REQUEST['action'] : null;
-		
+
 		if ($action == 'do_authenticator') {
-		
+
 			include_once APPPATH.'/libraries/GoogleAuthenticator/vendor/autoload.php';
 			$g = new \Google\Authenticator\GoogleAuthenticator();
 			$google_authenticator_salt = $this->config->item('google_authenticator_salt');
@@ -191,9 +201,9 @@ class Login_model extends User_model {
 				throw new Exception('Invalid authenticator code');
 			}
 		}
-		
+
 		return false;
-		
+
 	}
 
 	public function has_empty_password($email='') {
@@ -207,7 +217,7 @@ class Login_model extends User_model {
 		return parent::has_empty_password($email);
 
 	}
-	
+
 	private function must_pass_google_authenticator($user=array()) {
 
 		// Super admins only
@@ -227,7 +237,7 @@ class Login_model extends User_model {
 			return true;
 		}
 		return false;
-		
+
 	}
 
 	private function set_trusted_browser($user=array()) {
@@ -244,21 +254,21 @@ class Login_model extends User_model {
 		$ci =& get_instance();
 		$ci->load->model('resource_model', 'resources');
 		$arr = json_decode($ci->resources->get('google_authenticator'), true);
-		if (!isset($arr[$user_id])) return; 
+		if (!isset($arr[$user_id])) return;
 		$arr[$user_id] = $auth;
-		
+
 		$json = json_encode($arr);
 		$this->resources->put('google_authenticator', $json);
-		
+
 	}
-	
+
 	private function is_using_trusted_browser($user=array()) {
-		
+
 		$name = $this->config->item('sess_cookie_name');
 		$prefix = $this->config->item('cookie_prefix`');
 		$cookie = (($name)?$name.'_':'').(($prefix)?$prefix.'_':'')."trusted_browser_uid";
 		$user_agent = $_SERVER['HTTP_USER_AGENT'];
-		
+
 		$user_id = (int) $user->user_id;
 		$ci =& get_instance();
 		$ci->load->model('resource_model', 'resources');
@@ -267,16 +277,16 @@ class Login_model extends User_model {
 		$auth = $arr[$user_id];
 		if (!isset($auth['uid'])) return false;
 		if (!isset($auth['user_agent'])) return false;
-		
+
 		if ($auth['user_agent'] != $user_agent) return false;
-		
+
 		$existing = $_COOKIE[$cookie];
 		if ($auth['uid'] != $existing) return false;
-		
+
 		return true;
-		
+
 	}
-	
+
 	private function increment_and_check_login_attempts() {
 
 		// Is user on a penalty?
