@@ -1,6 +1,6 @@
 
 div.visualization { text-align: left; }
-article .visualization { margin-bottom: 2.4rem; }
+article .visualization { margin-bottom: 2.4rem; position: relative; }
 
 .vis_footer.bounded, .loadingMsg.bounded {
 	padding-left: 0;
@@ -26,6 +26,53 @@ article .visualization { margin-bottom: 2.4rem; }
 .loadingMsg > p {
 	margin-top:3px;
 	margin-bottom: 8px;
+}
+
+.vis_inspector {
+	width: 330px;
+	position: absolute;
+	top: 0;
+	right: 0;
+	height: calc(100% - 37px);
+	overflow-y: auto;
+	line-height: 100%;
+	background-color: white;
+}
+.modalVisualization .vis_inspector {
+	margin-top: 70px;
+	height: calc(100% - 107px);
+	padding: 15px 15px 15px 15px;
+}
+.vis_widget .vis_inspector {
+	padding: 15px;
+	background-color: #eee;
+}
+.visualization .vis_inspector {
+	padding: 15px 0;
+	margin-left: 15px;
+	width: 300px;
+	height: calc(100% - 32px);
+	margin-right: 7.2rem;
+	border-bottom: 1px solid #ccc;
+}
+.vis_inspector h3 {
+	margin-top: 0;
+}
+.vis_inspector h4 {
+	margin-top: 20px;
+	margin-bottom: 10px;
+}
+.inspector-buttons {
+	margin-bottom: 10px;
+}
+.inspector-thumbnail {
+	max-width: 100%;
+	margin-bottom: 10px;
+	border: 1px solid #ccc;
+}
+.vis_inspector p {
+	margin-bottom: 10px;
+	line-height: 120%;
 }
 
 .scalarvis {

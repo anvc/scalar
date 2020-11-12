@@ -828,7 +828,7 @@ a.media_info {
 	word-break: break-all;
 }
 .media_annotations td:first-child, .current_annotation td:first-child, .citations_metadata td:first-child {
-	width: 10rem;
+	width: 12rem;
 	font-weight: bold;
 }
 .media_annotations td:last-child, .current_annotation td:last-child {
