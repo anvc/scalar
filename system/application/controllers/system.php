@@ -138,20 +138,19 @@ class System extends MY_Controller {
 			$this->set_user_book_perms();
 			$is_book_admin = $this->login_is_book_admin();
 			$logged_in_user_id = (isset($this->data['login']->user_id)) ? $this->data['login']->user_id : 0;
-			$this->data['content'] = $this->lenses->get_all_with_lens($book_id);
-			for ($j = count($this->data['content'])-1; $j >= 0; $j--) {
-				$lens = json_decode($this->data['content'][$j]->lens);
+			$lenses = $this->lenses->get_all_with_lens($book_id);
+			$this->data['content'] = array();
+			for ($j = count($lenses)-1; $j >= 0; $j--) {
+				$lens = json_decode($lenses[$j]->lens);
 				$is_public = ($lens->public) ? true : false;
-				$user_id = $this->data['content'][$j]->user;
+				$user_id = $lenses[$j]->user;
 				$user_level = $lens->user_level;
 				if ($is_book_admin && $user_level == 'scalar:Author') {
-					// Return
+					$this->data['content'][] = $lens;
 				} elseif ($is_public) {
-					// Return
+					$this->data['content'][] = $lens;
 				} elseif ($user_id == $logged_in_user_id) {
-					// Return
-				} else {
-					unset($this->data['content'][$j]);
+					$this->data['content'][] = $lens;
 				}
 			}
 		} else {
