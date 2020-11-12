@@ -34,6 +34,7 @@ window.scalarvis = { instanceCount: -1 };
     base.visStarted = false;
     base.resultsPerPage = 50;
     base.loadedAllContent = false;
+    base.inspectorVisible = false;
     base.canonicalTypeOrder = ["path", "page", "comment", "tag", "annotation", "media"];
     base.canonicalRelationOrder = [
       { type: 'path', direction: 'outgoing' },
@@ -216,6 +217,8 @@ window.scalarvis = { instanceCount: -1 };
 
       base.abstractedNodesBySlug = {};
 
+      base.inspector = $('<div class="vis_inspector hidden"></div>').appendTo(base.visElement);
+
       // footer
       var visFooter = $('<div class="vis_footer"></div>').appendTo(base.visElement);
       if (options.modal) {
@@ -260,8 +263,12 @@ window.scalarvis = { instanceCount: -1 };
       }
 
       if (!isMobile) {
+        base.inspectorSpan = $('<span>|</span>').appendTo(visFooter);
+        base.inspectorButton = $('<button class="btn btn-link btn-xs">Inspector</button>').appendTo(base.inspectorSpan);
+        base.inspectorButton.on('click', base.toggleInspector);
+
         visFooter.append('|');
-        base.fullScreenButton = $('<button class="btn btn-link btn-xs" data-toggle="popover" data-placement="top" ><img style="margin-top: -1px;" src="' + modules_uri + '/cantaloupe/images/fs_icon@2x.png" width="15" height="12"/> Full screen</button>');
+        base.fullScreenButton = $('<button class="btn btn-link btn-xs"><img style="margin-top: -1px;" src="' + modules_uri + '/cantaloupe/images/fs_icon@2x.png" width="15" height="12"/> Full screen</button>');
         visFooter.append(base.fullScreenButton);
         base.fullScreenButton.on('click', base.enterFullScreen);
       }
@@ -279,6 +286,75 @@ window.scalarvis = { instanceCount: -1 };
       });
 
     };
+
+    base.toggleInspector = function() {
+      base.inspectorVisible = !base.inspectorVisible;
+      if (base.inspectorVisible) {
+        base.inspector.removeClass('hidden');
+      } else {
+        base.inspector.addClass('hidden');
+      }
+      if (!base.visStarted) {
+        base.visualize();
+      } else {
+        base.filter();
+        base.draw();
+      }
+    }
+
+    base.updateInspector = function() {
+      let visWidth = base.visElement.width();
+      if (visWidth <= 700 && visWidth != 0) {
+        if (base.inspectorVisible) {
+          base.toggleInspector();
+        }
+        base.inspectorSpan.hide();
+      } else {
+        base.inspectorSpan.show();
+      }
+      base.inspector.empty();
+      if (base.selectedNodes.length > 0) {
+        let node = base.selectedNodes[base.selectedNodes.length - 1];
+        base.addInspectorInfoForNode(node);
+      } else {
+        base.inspector.append('<p>No items selected.</p>');
+      }
+    }
+
+    base.addInspectorInfoForNode = function(node) {
+      base.inspector.append('<h3 class="inspector-title heading_weight">' + node.title + '</h3>');
+      let inspectorInfo;
+      if (node.scalarTypes.page != null) {
+        inspectorInfo = $('<div class="page-preview">' +
+          '<p class="inspector-description"></p>' +
+          '<div class="inspector-buttons">' +
+            '<a class="btn btn-primary btn-xs view-node-btn" role="button" target="_blank" href="' + node.url + '">View page</a> ' +
+          '</div>' +
+          '<h4>Details</h4>' +
+          '<div class="citations citations_metadata"></div>' +
+        '</div>').appendTo(base.inspector);
+      } else {
+        let thumbnailClass = 'inspector-thumbnail';
+        let thumbnailUrl = '#';
+        if (node.thumbnail) {
+          thumbnailUrl = node.thumbnail;
+        } else {
+          thumbnailClass += ' hidden';
+        }
+        inspectorInfo = $('<div class="media-preview">' +
+          '<p class="inspector-description"></p>' +
+          '<img class="' + thumbnailClass + '" src="' + thumbnailUrl + '" alt="' + node.current.description + '" />' +
+          '<div class="inspector-buttons">' +
+            '<a class="btn btn-primary btn-xs view-node-btn" role="button" target="_blank" href="' + node.url + '">View media page</a> ' +
+            '<a class="btn btn-primary btn-xs view-media-btn" role="button" target="_blank" href="' + node.current.sourceFile + '">View source file</a>' +
+          '</div>' +
+          '<h4>Details</h4>' +
+          '<div class="citations citations_metadata"></div>' +
+        '</div>').appendTo(base.inspector);
+      }
+      inspectorInfo.find('.inspector-description').html(node.current.description);
+      addMetadataTableForNodeToElement(node, inspectorInfo.find('.citations_metadata'));
+    }
 
     base.enterFullScreen = function() {
       page.isFullScreen = true; // a hack, but if we don't do this then Safari tries to reload the media before it recieves the full screen event that tells it not to reload the media
@@ -779,8 +855,9 @@ window.scalarvis = { instanceCount: -1 };
       base.nodesBySlug = {};
       base.svg = null;
       base.selectedNodes = [];
-      if (base.currentNode) {
+      if (base.currentNode && base.currentNode.type.id != 'lens') {
         base.selectedNodes.push(base.currentNode);
+        base.updateInspector();
       }
       base.hasBeenDrawn = false;
       base.loadSequence = null;
@@ -2103,6 +2180,7 @@ window.scalarvis = { instanceCount: -1 };
           break;
 
       }
+      base.updateInspector();
       if (base.visInstance) base.visInstance.draw();
     };
 
@@ -2123,7 +2201,7 @@ window.scalarvis = { instanceCount: -1 };
       // no need to call directly
       updateSize() {
         var isFullScreenNow = document.fullScreen || document.mozFullScreen || document.webkitIsFullScreen;
-        this.size.width = base.visElement.width();
+        this.size.width = base.visElement.width() - (base.inspectorVisible ? 320 : 0);
         if (!isFullScreenNow) {
           if (window.innerWidth > 768) {
             if (base.options.modal) {
@@ -2147,6 +2225,7 @@ window.scalarvis = { instanceCount: -1 };
       // call using super.draw() from your draw method
       draw() {
         this.updateSize();
+        base.visualization.css('width', this.size.width + 'px');
         if (!this.hasBeenDrawn && base.visElement.width() > 0) {
           base.helpButton.attr('data-content', this.getHelpContent());
           this.setupElement();
@@ -2184,7 +2263,7 @@ window.scalarvis = { instanceCount: -1 };
        draw() {
          super.draw();
          if (base.svg != null) {
-           this.itemsPerRow = Math.floor(this.size.width / this.colWidth);
+           this.itemsPerRow = Math.floor((this.size.width - 1) / this.colWidth);
            this.colScale = d3.scaleLinear([0, this.itemsPerRow], [0, this.itemsPerRow * this.colWidth]);
            var unitWidth = Math.max(this.colScale(1) - this.colScale(0), 36);
            var rowCount = Math.ceil(base.sortedNodes.length / this.itemsPerRow);
@@ -2242,6 +2321,7 @@ window.scalarvis = { instanceCount: -1 };
                    } else {
                      base.selectedNodes.splice(index, 1);
                    }
+                   base.updateInspector();
                    this.updateGraph();
                    return true;
                  })
@@ -2390,7 +2470,6 @@ window.scalarvis = { instanceCount: -1 };
        setupElement() {
          base.visualization.empty();
          base.visualization.removeClass('bounded');
-         base.visualization.css('width', base.visElement.width() - parseInt(base.visualization.css('padding-right'))); // accounts for padding
          base.svg = d3.select(base.visualization[0]).append('svg:svg').attr('width', this.size.width);
          this.gridBoxLayer = base.svg.append('svg:g')
            .attr('width', this.size.width)
@@ -2762,6 +2841,14 @@ window.scalarvis = { instanceCount: -1 };
                 }
               }
             }
+            var index;
+            index = base.selectedNodes.indexOf(d.data.node);
+            if (index == -1) {
+              base.selectedNodes = [d.data.node];
+            } else {
+              base.selectedNodes = [];
+            }
+            base.updateInspector();
           });
 
         nodeEnter.append("svg:text")
@@ -2889,7 +2976,7 @@ window.scalarvis = { instanceCount: -1 };
         this.rollover = $('<div class="rollover caption_font">Test</div>').appendTo(base.visualization);
         base.visualization.on('mousemove', (e) => {
           this.rollover.css('left', (e.pageX - $(base.visualization).offset().left + parseInt($(base.visualization).parent().parent().css('padding-left')) + 10) + 'px');
-          this.rollover.css('top', (e.pageY - $(base.visualization).parent().parent().offset().top) + 15 + 'px');
+          this.rollover.css('top', (e.pageY - $(base.visualization).parent().offset().top) + 15 + 'px');
         })
 
         if (base.svg != null) {
@@ -3050,7 +3137,7 @@ window.scalarvis = { instanceCount: -1 };
 
       setupElement() {
         base.visualization.empty();
-        base.visualization.removeClass('bounded');
+        base.visualization.addClass('bounded');
         base.svg = d3.select(base.visualization[0]).append('svg:svg')
           .attr('width', this.size.width)
           .attr('height', this.size.height);
@@ -3121,20 +3208,21 @@ window.scalarvis = { instanceCount: -1 };
 
       toggleNodeSelected(d) {
         var index;
-        index = base.selectedNodes.indexOf(d.data);
+        index = base.selectedNodes.indexOf(d.data.node);
         if (index == -1) {
-          base.selectedNodes.push(d.data);
-          index = base.selectedHierarchyNodes.indexOf(d.data);
+          base.selectedNodes.push(d.data.node);
+          index = base.selectedHierarchyNodes.indexOf(d.data.node);
           if (index == -1) {
-            base.selectedHierarchyNodes.push(d.data);
+            base.selectedHierarchyNodes.push(d.data.node);
           }
         } else {
           base.selectedNodes.splice(index, 1);
-          index = base.selectedHierarchyNodes.indexOf(d.data);
+          index = base.selectedHierarchyNodes.indexOf(d.data.node);
           if (index != -1) {
             base.selectedHierarchyNodes.splice(index, 1);
           }
         }
+        base.updateInspector();
         this.updateSelectedLabels();
         this.updateHighlights(d);
       }
@@ -3150,7 +3238,7 @@ window.scalarvis = { instanceCount: -1 };
         var n = descendants.length;
         for (var i=0; i<n; i++) {
           descendant = descendants[i];
-          index = base.selectedHierarchyNodes.indexOf(descendant.data);
+          index = base.selectedHierarchyNodes.indexOf(descendant.data.node);
           if (index != -1) {
             this.selectedHierarchyNodes.push(descendant);
           }
@@ -3228,12 +3316,16 @@ window.scalarvis = { instanceCount: -1 };
       updateHighlights(d) {
 
         // show the rollover label if this item has no children, i.e. is a single content item, not a parent
-        if (this.highlightedNode && d.data.showsTitle) {
-          this.rollover.html(d.data.title);
-          this.rollover.css('display', 'block');
+        let rolloverVisible = false;
+        if (d != null) {
+          if (this.highlightedNode && d.data.showsTitle) {
+            this.rollover.html(d.data.title);
+            this.rollover.css('display', 'block');
+            rolloverVisible = true;
+          }
+        }
 
-          // otherwise, hide the rollover label
-        } else {
+        if (!rolloverVisible) {
           this.rollover.css('display', 'none');
         }
 
@@ -3573,6 +3665,7 @@ window.scalarvis = { instanceCount: -1 };
                 base.filter();
                 base.draw();
               }
+              base.updateInspector();
               this.updateGraph();
             })
             .on("mouseover", (d) => {
@@ -3647,7 +3740,6 @@ window.scalarvis = { instanceCount: -1 };
         base.visualization.empty();
         base.visualization.addClass('bounded');
         base.visualization.css('height', this.size.height + 'px');
-        base.visualization.css('width', this.size.width + 'px');
         base.visualization.css('padding', '0px');
         base.svg = d3.select(base.visualization[0]).append('svg:svg')
           .attr('width', this.size.width)
@@ -3803,7 +3895,6 @@ window.scalarvis = { instanceCount: -1 };
         super.draw();
 
     	if (null == this.map) return;
-    	console.log(base.sortedNodes);
 
     	this.clearMarkers();
     	var bounds = new google.maps.LatLngBounds();
@@ -3925,13 +4016,13 @@ window.scalarvis = { instanceCount: -1 };
       }
 
       drawMarkers(obj, title, icon) {
-    	  	var coords = this.getCoords(obj);
-			if (!coords.length) return false;
-			for (var j = 0; j < coords.length; j++) {
-				var coord = coords[j];
-				// Marker
-				var key = this.markers.length;
-				this.markers[key] = new google.maps.Marker({
+  	  	var coords = this.getCoords(obj);
+  			if (!coords.length) return false;
+  			for (var j = 0; j < coords.length; j++) {
+  				var coord = coords[j];
+  				// Marker
+  				var key = this.markers.length;
+  				this.markers[key] = new google.maps.Marker({
 		    		position: coord,
 		    		/* map: this.map, */
 		    		title: title,
@@ -3939,20 +4030,24 @@ window.scalarvis = { instanceCount: -1 };
 		    			url: icon
 		    		}
 		    	});
-				this.oms.addMarker(this.markers[key]);
-				// Infowindow
-		        this.infowindows[key] = new google.maps.InfoWindow({
-		            content: title,
-		            maxWidth: 300
-		        });
-		        $(this.markers[key]).data('infowindow', this.infowindows[key]).data('map', this.map);
-		        this.markers[key].addListener('spider_click', function(evt) {
-		        	var infowindow = $(this).data('infowindow');
-		        	var map = $(this).data('map');
-		        	infowindow.open(map, this);
-		        });
-			};
-	        return coords;
+  				this.oms.addMarker(this.markers[key]);
+  				// Infowindow
+	        this.infowindows[key] = new google.maps.InfoWindow({
+	            content: title,
+	            maxWidth: 300
+	        });
+	        $(this.markers[key]).data('infowindow', this.infowindows[key]).data('map', this.map);
+          this.markers[key].addListener('click', (evt) => {
+            base.selectedNodes = [obj];
+            base.updateInspector();
+          })
+	        this.markers[key].addListener('spider_click', function(evt) {
+	        	var infowindow = $(this).data('infowindow');
+	        	var map = $(this).data('map');
+	        	infowindow.open(map, this);
+	        });
+  			};
+        return coords;
       }
 
       getCoords(obj) {
@@ -4053,7 +4148,7 @@ window.scalarvis = { instanceCount: -1 };
         this.stopwords += ['thick', 'thin', 'third', 'this', 'those', 'though', 'three']
         this.stopwords += ['three', 'through', 'throughout', 'thru', 'thus', 'to']
         this.stopwords += ['together', 'too', 'top', 'toward', 'towards', 'twelve']
-        this. stopwords += ['twenty', 'two', 'un', 'under', 'until', 'up', 'upon']
+        this.stopwords += ['twenty', 'two', 'un', 'under', 'until', 'up', 'upon']
         this.stopwords += ['us', 'very', 'via', 'was', 'we', 'well', 'were', 'what']
         this.stopwords += ['whatever', 'when', 'whence', 'whenever', 'where']
         this.stopwords += ['whereafter', 'whereas', 'whereby', 'wherein', 'whereupon']

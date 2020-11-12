@@ -24,16 +24,13 @@
 .vis_widget {
   	background-color: #fff;
   	padding: 0;
+		position: relative;
 }
 .grid_visualization .vis_widget {
 	padding: 1rem 1rem 0 1rem;
 }
 .tree_visualization .loadingMsg, .force-directed_visualization .loadingMsg {
 	padding-left: 1rem;
-}
-.full .vis_widget {
-	padding-left: 1rem;
-	padding-right: 1rem;
 }
 .vis_widget .scalarvis {
 	margin-top: 0;
