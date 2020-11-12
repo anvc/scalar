@@ -135,7 +135,25 @@ class System extends MY_Controller {
 			$this->load->model('version_model', 'versions');
 			$this->data['book'] = $this->books->get($book_id);
 			if (empty($this->data['book'])) die ('{"error":"Could not find a book associated with the JSON payload"}');
-			$this->data['content'] = $this->lenses->get_all_json($book_id);  // TODO: permissions
+			$this->set_user_book_perms();
+			$is_book_admin = $this->login_is_book_admin();
+			$logged_in_user_id = (isset($this->data['login']->user_id)) ? $this->data['login']->user_id : 0;
+			$this->data['content'] = $this->lenses->get_all_with_lens($book_id);
+			for ($j = count($this->data['content'])-1; $j >= 0; $j--) {
+				$lens = json_decode($this->data['content'][$j]->lens);
+				$is_public = ($lens->public) ? true : false;
+				$user_id = $this->data['content'][$j]->user;
+				$user_level = $lens->user_level;
+				if ($is_book_admin && $user_level == 'scalar:Author') {
+					// Return
+				} elseif ($is_public) {
+					// Return
+				} elseif ($user_id == $logged_in_user_id) {
+					// Return
+				} else {
+					unset($this->data['content'][$j]);
+				}
+			}
 		} else {
 			$request_body = file_get_contents('php://input');
 			if (!empty($request_body)) {  // Get nodes described by a JSON payload

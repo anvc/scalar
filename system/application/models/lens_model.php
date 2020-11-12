@@ -104,12 +104,13 @@ class Lens_model extends MY_Model {
 
 	}
 	
-	public function get_all_json($book_id=null, $type=null, $category=null, $is_live=true, $sq='', $id_array=null) {
+	public function get_all_with_lens($book_id=null, $type=null, $category=null, $is_live=true, $sq='', $id_array=null) {
 		
 		$result = $this->get_all($book_id, $type, $category, $is_live, $sq, $id_array);
 		$return = array();
 		foreach ($result as $row) {
-			$return[] = json_decode($this->get_children($row->recent_version_id));
+			$row->lens = $this->get_children($row->recent_version_id);
+			$return[] = $row;
 		}
 		return $return;
 		
