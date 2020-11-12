@@ -317,7 +317,7 @@ window.scalarvis = { instanceCount: -1 };
         let node = base.selectedNodes[base.selectedNodes.length - 1];
         base.addInspectorInfoForNode(node);
       } else {
-        base.inspector.add('<p>No items selected.</p>');
+        base.inspector.append('<p>No items selected.</p>');
       }
     }
 
@@ -326,7 +326,7 @@ window.scalarvis = { instanceCount: -1 };
       let inspectorInfo;
       if (node.scalarTypes.page != null) {
         inspectorInfo = $('<div class="page-preview">' +
-          '<p class="inspector-description">' + node.current.description + '</p>' +
+          '<p class="inspector-description"></p>' +
           '<div class="inspector-buttons">' +
             '<a class="btn btn-primary btn-xs view-node-btn" role="button" target="_blank" href="' + node.url + '">View page</a> ' +
           '</div>' +
@@ -342,7 +342,7 @@ window.scalarvis = { instanceCount: -1 };
           thumbnailClass += ' hidden';
         }
         inspectorInfo = $('<div class="media-preview">' +
-          '<p class="inspector-description">' + node.current.description + '</p>' +
+          '<p class="inspector-description"></p>' +
           '<img class="' + thumbnailClass + '" src="' + thumbnailUrl + '" alt="' + node.current.description + '" />' +
           '<div class="inspector-buttons">' +
             '<a class="btn btn-primary btn-xs view-node-btn" role="button" target="_blank" href="' + node.url + '">View media page</a> ' +
@@ -352,6 +352,7 @@ window.scalarvis = { instanceCount: -1 };
           '<div class="citations citations_metadata"></div>' +
         '</div>').appendTo(base.inspector);
       }
+      inspectorInfo.find('.inspector-description').html(node.current.description);
       addMetadataTableForNodeToElement(node, inspectorInfo.find('.citations_metadata'));
     }
 
@@ -854,7 +855,7 @@ window.scalarvis = { instanceCount: -1 };
       base.nodesBySlug = {};
       base.svg = null;
       base.selectedNodes = [];
-      if (base.currentNode) {
+      if (base.currentNode && base.currentNode.type.id != 'lens') {
         base.selectedNodes.push(base.currentNode);
         base.updateInspector();
       }
@@ -2179,6 +2180,7 @@ window.scalarvis = { instanceCount: -1 };
           break;
 
       }
+      base.updateInspector();
       if (base.visInstance) base.visInstance.draw();
     };
 
@@ -4014,13 +4016,13 @@ window.scalarvis = { instanceCount: -1 };
       }
 
       drawMarkers(obj, title, icon) {
-    	  	var coords = this.getCoords(obj);
-			if (!coords.length) return false;
-			for (var j = 0; j < coords.length; j++) {
-				var coord = coords[j];
-				// Marker
-				var key = this.markers.length;
-				this.markers[key] = new google.maps.Marker({
+  	  	var coords = this.getCoords(obj);
+  			if (!coords.length) return false;
+  			for (var j = 0; j < coords.length; j++) {
+  				var coord = coords[j];
+  				// Marker
+  				var key = this.markers.length;
+  				this.markers[key] = new google.maps.Marker({
 		    		position: coord,
 		    		/* map: this.map, */
 		    		title: title,
@@ -4028,20 +4030,24 @@ window.scalarvis = { instanceCount: -1 };
 		    			url: icon
 		    		}
 		    	});
-				this.oms.addMarker(this.markers[key]);
-				// Infowindow
-		        this.infowindows[key] = new google.maps.InfoWindow({
-		            content: title,
-		            maxWidth: 300
-		        });
-		        $(this.markers[key]).data('infowindow', this.infowindows[key]).data('map', this.map);
-		        this.markers[key].addListener('spider_click', function(evt) {
-		        	var infowindow = $(this).data('infowindow');
-		        	var map = $(this).data('map');
-		        	infowindow.open(map, this);
-		        });
-			};
-	        return coords;
+  				this.oms.addMarker(this.markers[key]);
+  				// Infowindow
+	        this.infowindows[key] = new google.maps.InfoWindow({
+	            content: title,
+	            maxWidth: 300
+	        });
+	        $(this.markers[key]).data('infowindow', this.infowindows[key]).data('map', this.map);
+          this.markers[key].addListener('click', (evt) => {
+            base.selectedNodes = [obj];
+            base.updateInspector();
+          })
+	        this.markers[key].addListener('spider_click', function(evt) {
+	        	var infowindow = $(this).data('infowindow');
+	        	var map = $(this).data('map');
+	        	infowindow.open(map, this);
+	        });
+  			};
+        return coords;
       }
 
       getCoords(obj) {
