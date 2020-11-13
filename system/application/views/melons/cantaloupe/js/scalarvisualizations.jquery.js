@@ -56,7 +56,7 @@ window.scalarvis = { instanceCount: -1 };
       'map': 'Map',*/
       'radial': 'Radial',
       'tree': 'Tree',
-      /*'word-cloud': 'Word cloud'*/
+      'word-cloud': 'Word cloud'
     }
     base.VisualizationContent = {
       "all-content": "All content",
@@ -304,7 +304,7 @@ window.scalarvis = { instanceCount: -1 };
 
     base.updateInspector = function() {
       let visWidth = base.visElement.width();
-      if (visWidth <= 700 && visWidth != 0) {
+      if ((visWidth <= 700 && visWidth != 0) || base.getFormat() == 'word-cloud') {
         if (base.inspectorVisible) {
           base.toggleInspector();
         }

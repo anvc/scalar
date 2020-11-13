@@ -279,5 +279,5 @@ text.visit-button {
 	height: 7px;
 }
 
-.tag_cloud { font-weight: 700; }
+.tag_cloud { font-weight: 700; cursor: default; }
 div.jqcloud a:hover { color: inherit !important; }
