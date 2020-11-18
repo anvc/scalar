@@ -30,6 +30,7 @@
 
     ScalarLensManager.prototype.selectLens = function(lens) {
       $('.page-lens-editor').remove();
+      $('.visualization').empty();
       var div = $('<div class="page-lens-editor"></div>');
       $('.lens-edit-container').append(div);
       div.ScalarLenses({
@@ -84,11 +85,6 @@
     ScalarLensManager.prototype.handleLensData = function(response){
 
       let data = response;
-      //this.userLevel = 'scalar:Reader';
-      console.log(this.userLevel);
-      console.log(data);
-
-
 
       //_______________//
       //
@@ -193,11 +189,9 @@
         // build sidebar list
         data.forEach(lens => {
           // sort lenses
-          if(lens.user_level == 'scalar:Reader'){
-            lens.public ? publicLensArray.push(lens) : privateLensArray.push(lens);
-            if(lens.submitted == true){
-              submittedLensArray.push(lens);
-            }
+          lens.public ? publicLensArray.push(lens) : privateLensArray.push(lens);
+          if(lens.submitted == true){
+            submittedLensArray.push(lens);
           }
         });
         // private lenses

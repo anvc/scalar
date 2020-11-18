@@ -481,11 +481,19 @@ span.navbar-text.navbar-left.pull-left.title_wrapper.visible-xs{
 	padding: 0 3rem 0 6.5rem;
 	color: #fff;
 }
-.tocMenu .expandedPage h2.title{
+.tocMenu .expandedPage h2.title {
 	font-size: 1.6rem;
 	line-height: 1.8rem;
 	font-weight: normal;
 	margin: 1.8rem 4.8rem 1rem 3rem;
+	padding: 0;
+	color: #fff;
+}
+.navbar .dropdown-menu>li.header h2 {
+	font-size: 1.6rem;
+	line-height: 1.8rem;
+	font-weight: normal;
+	margin: 1.8rem 0 1rem 4.8rem;
 	padding: 0;
 	color: #fff;
 }
@@ -500,6 +508,55 @@ span.navbar-text.navbar-left.pull-left.title_wrapper.visible-xs{
 .tocMenu .expandedPage .relationships ol>li>a{
 	margin-right: 3.5rem;
 }
+#lenses_menu>ul { width: 36rem; }
+#lenses_menu ul.dropdown-menu>li.lens {
+	margin: 0 1rem;
+}
+#lenses_menu ul.dropdown-menu>li.vis_link {
+	margin: 1rem;
+}
+#lenses_menu li.lens>a {
+	padding-left: 5rem;
+}
+#lenses_menu li.lens .title {
+	width: 210px;
+	margin-right: 10px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	display: inline-block;
+}
+#lenses_menu li .viz-icon {
+	float: none;
+	display: inline-block;
+	margin-right: 3px;
+	margin-bottom: -2px;
+}
+#lenses_menu li .badge {
+	margin-top: -3px;
+	margin-right: 3px;
+	display: inline-block;
+	background-color: #b3b3b3;
+	color: #353535;
+	font-weight: normal;
+}
+#lenses_menu li:hover .badge {
+	background-color: white;
+}
+#lenses_menu li .viz-icon.force-directed { background-image:url(../images/icon_forcedir.png); }
+#lenses_menu li:hover .viz-icon.force-directed { background-image:url(../images/icon_forcedir_light.png); }
+#lenses_menu li .viz-icon.grid { background-image:url(../images/icon_grid.png); }
+#lenses_menu li:hover .viz-icon.grid { background-image:url(../images/icon_grid_light.png); }
+#lenses_menu li .viz-icon.list { background-image:url(../images/icon_list.png); }
+#lenses_menu li:hover .viz-icon.list { background-image:url(../images/icon_list_light.png); }
+#lenses_menu li .viz-icon.map { background-image:url(../images/icon_map.png); }
+#lenses_menu li:hover .viz-icon.map { background-image:url(../images/icon_map_light.png); }
+#lenses_menu li .viz-icon.radial { background-image:url(../images/icon_radial.png); }
+#lenses_menu li:hover .viz-icon.radial { background-image:url(../images/icon_radial_light.png); }
+#lenses_menu li .viz-icon.tree { background-image:url(../images/icon_tree.png); }
+#lenses_menu li:hover .viz-icon.tree { background-image:url(../images/icon_tree_light.png); }
+#lenses_menu li .viz-icon.word-cloud { background-image:url(../images/icon_wordcloud.png); }
+#lenses_menu li:hover .viz-icon.word-cloud { background-image:url(../images/icon_wordcloud_light.png); }
+
 
 .navbar ul.dropdown-menu li>a, .tocMenu li>a{
 	color: #b3b3b3;

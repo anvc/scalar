@@ -158,6 +158,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 base.is_commentator = $('link#user_level').length > 0 && $('link#user_level').attr('href')=='scalar:Commentator';
                 base.is_reviewer = $('link#user_level').length > 0 && $('link#user_level').attr('href')=='scalar:Reviewer';
                 base.is_editor = $('link#user_level').length > 0 && $('link#user_level').attr('href')=='scalar:Editor';
+                base.is_reader = $('link#user_level').length > 0 && $('link#user_level').attr('href')=='scalar:Reader';
 
                 if(base.is_author || base.is_commentator || base.is_reviewer || base.is_editor){
                      base.$el.addClass('edit_enabled');
@@ -250,7 +251,6 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                     (lenses_are_active ? '<li id="lenses_menu" class="dropdown">'+
                                                         '<a role="button" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></span><span class="menuIcon" id="lensIcon"></span>Lenses</a>'+
                                                         '<ul class="dropdown-menu" role="menu">'+
-                                                          '<li class="vis_link"><a role="button" href="' + base.get_param(scalarapi.model.urlPrefix + 'lenses') + '"><span class="menuIcon" id="lensIcon"></span> Manage Lenses</a></li>'+
                                                         '</ul>'+
                                                     '</li>' : '')+
                                                     '<li id="vis_menu" class="dropdown">'+
@@ -818,6 +818,8 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
               $('#desktopTitleWrapper').trigger("update");
             });
 
+            if (lenses_are_active) base.getLensData();
+
             $( '#ScalarHeaderHelp>a' ).on('click', function(e) {
                 base.help.data( 'plugin_scalarhelp' ).toggleHelp();
                 e.preventDefault();
@@ -1129,7 +1131,6 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
         }
         base.buildSubItem = function($container){
             var slug = $container.data('slug');
-
         }
         base.expandMenu = function(node,n){
             var expanded_menu = $('#mainMenuSubmenus');
@@ -1604,6 +1605,75 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 userList.append('<li><a href="' + base.get_param(addTemplateToURL(system_uri+'/register?redirect_url='+redirect_url + '&', 'cantaloupe')) + '">Register</a></li>');
             }
         }
+
+        base.getLensData = function(){
+          let bookId = $('link#book_id').attr('href');
+          let baseURL = $('link#approot').attr('href').replace('application', 'lenses');
+          let mainURL = `${baseURL}?book_id=${bookId}`;
+          $.ajax({
+            url:mainURL,
+            type: "GET",
+            dataType: 'json',
+            contentType: 'application/json',
+            async: true,
+            context: this,
+            success: base.handleLensData,
+            error: function error(response) {
+               console.log('There was an error attempting to communicate with the server.');
+               console.log(response);
+            }
+          });
+        }
+
+        base.handleLensData = function(response){
+          let data = response;
+          let privateLensArray = [];
+          let publicLensArray = [];
+
+          data.forEach(lens => {
+            lens.public ? publicLensArray.push(lens) : privateLensArray.push(lens);
+          });
+          let lensMenu = $('#lenses_menu>ul');
+
+          let manageLinkTitle = "Browse Lenses";
+          if (base.is_author || base.is_editor) {
+            manageLinkTitle = "Manage Lenses";
+          }
+
+          // public lenses
+          if (publicLensArray.length > 0) {
+            lensMenu.append('<li class="header"><h2>Author Lenses</h2></li>');
+            publicLensArray.forEach(publicLensItem => {
+              let vizType = publicLensItem.visualization.type;
+              let lensLink = $('link#parent').attr('href') + publicLensItem.slug;
+              let markup = $(`
+                <li class="lens">
+                  <a href="${lensLink}" target="_blank"><span class="title">${publicLensItem.title}</span>
+                  <span class="viz-icon ${vizType}"></span>
+                  <span class="badge caption_font">0</span></a>
+                </li>`
+              ).appendTo(lensMenu);
+            });
+          }
+
+          // private lenses
+          if (privateLensArray.length > 0) {
+            lensMenu.append('<li class="header"><h2>My Private Lenses</h2></li>');
+            privateLensArray.forEach(privateLensItem => {
+              let vizType = privateLensItem.visualization.type;
+              let lensLink = $('link#parent').attr('href') + privateLensItem.slug;
+              let markup = $(`
+                <li class="lens">
+                  <a href="${lensLink}" target="_blank"><span class="title">${privateLensItem.title}</span>
+                  <span class="viz-icon ${vizType}"></span>
+                  <span class="badge caption_font">0</span></a>
+                </li>`
+              ).appendTo(lensMenu);
+            });
+          }
+
+          lensMenu.append('<li class="vis_link"><a role="button" href="' + base.get_param(scalarapi.model.urlPrefix + 'lenses') + '"><span class="menuIcon" id="lensIcon"></span> ' + manageLinkTitle + '</a></li>');
+        };
 
         base.initSubmenus = function(el){
             var li = $(el).is('li.dropdown')?$(el):$(el).parent('li.dropdown');
