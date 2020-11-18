@@ -137,13 +137,13 @@ class System extends MY_Controller {
 			if (empty($this->data['book'])) die ('{"error":"Could not find a book associated with the JSON payload"}');
 			$this->set_user_book_perms();
 			$is_book_admin = $this->login_is_book_admin();
-			$logged_in_user_id = (isset($this->data['login']->user_id)) ? parseInt($this->data['login']->user_id) : 0;
+			$logged_in_user_id = (isset($this->data['login']->user_id)) ? (int) $this->data['login']->user_id : 0;
 			$lenses = $this->lenses->get_all_with_lens($book_id);
 			$this->data['content'] = array();
 			for ($j = count($lenses)-1; $j >= 0; $j--) {
 				$lens = json_decode($lenses[$j]->lens);
 				$is_public = ($lens->public) ? true : false;
-				$user_id = parseInt($lenses[$j]->user);
+				$user_id = (int) $lenses[$j]->user;
 				$user_level = $lens->user_level;
 				if ($is_book_admin && $user_level == 'scalar:Author') {
 					$this->data['content'][] = $lens;
