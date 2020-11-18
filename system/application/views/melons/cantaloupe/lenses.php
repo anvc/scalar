@@ -18,16 +18,16 @@
 			</heading>
 			<div id="lens-manager">
 				<div class="private-lenses">
-					<h3 class="heading_font heading_weight title"></h3>
+					<h3 class="heading_font heading_weight title">My Private Lenses</h3>
 					<ul class="private-lenses-list"></ul>
 					<!--<button type="button" class="btn btn-primary btn-xs caption_font add-lens-btn">Add lens</button>-->
 				</div>
 				<div class="submitted-lenses">
-					<h3 class="heading_font heading_weight title"></h3>
+					<h3 class="heading_font heading_weight title">Submitted Lenses</h3>
 					<ul class="submitted-lenses-list"></ul>
 				</div>
 				<div class="public-lenses">
-					<h3 class="heading_font heading_weight title"></h3>
+					<h3 class="heading_font heading_weight title">Author Lenses</h3>
 					<ul class="public-lenses-list"></ul>
 				</div>
 			</div>

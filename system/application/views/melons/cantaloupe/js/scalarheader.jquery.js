@@ -152,6 +152,8 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
 
             base.currentNode = scalarapi.model.getCurrentPageNode();
 
+
+            base.userId = 'unknown';
             if(base.logged_in){
                 //While we are logged in, check what our user level is, and set the appropriate bools
                 base.is_author = $('link#user_level').length > 0 && $('link#user_level').attr('href')=='scalar:Author';
@@ -159,6 +161,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 base.is_reviewer = $('link#user_level').length > 0 && $('link#user_level').attr('href')=='scalar:Reviewer';
                 base.is_editor = $('link#user_level').length > 0 && $('link#user_level').attr('href')=='scalar:Editor';
                 base.is_reader = $('link#user_level').length > 0 && $('link#user_level').attr('href')=='scalar:Reader';
+                base.userId = $('link#logged_in').attr('href');
 
                 if(base.is_author || base.is_commentator || base.is_reviewer || base.is_editor){
                      base.$el.addClass('edit_enabled');
@@ -1631,29 +1634,17 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
           let publicLensArray = [];
 
           data.forEach(lens => {
-            lens.public ? publicLensArray.push(lens) : privateLensArray.push(lens);
+            if (lens.public) {
+              publicLensArray.push(lens);
+            } else {
+              privateLensArray.push(lens);
+            }
           });
           let lensMenu = $('#lenses_menu>ul');
 
           let manageLinkTitle = "Browse Lenses";
           if (base.is_author || base.is_editor) {
             manageLinkTitle = "Manage Lenses";
-          }
-
-          // public lenses
-          if (publicLensArray.length > 0) {
-            lensMenu.append('<li class="header"><h2>Author Lenses</h2></li>');
-            publicLensArray.forEach(publicLensItem => {
-              let vizType = publicLensItem.visualization.type;
-              let lensLink = $('link#parent').attr('href') + publicLensItem.slug;
-              let markup = $(`
-                <li class="lens">
-                  <a href="${lensLink}" target="_blank"><span class="title">${publicLensItem.title}</span>
-                  <span class="viz-icon ${vizType}"></span>
-                  <span class="badge caption_font">0</span></a>
-                </li>`
-              ).appendTo(lensMenu);
-            });
           }
 
           // private lenses
@@ -1665,6 +1656,22 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
               let markup = $(`
                 <li class="lens">
                   <a href="${lensLink}" target="_blank"><span class="title">${privateLensItem.title}</span>
+                  <span class="viz-icon ${vizType}"></span>
+                  <span class="badge caption_font">0</span></a>
+                </li>`
+              ).appendTo(lensMenu);
+            });
+          }
+
+          // public lenses
+          if (publicLensArray.length > 0) {
+            lensMenu.append('<li class="header"><h2>Author Lenses</h2></li>');
+            publicLensArray.forEach(publicLensItem => {
+              let vizType = publicLensItem.visualization.type;
+              let lensLink = $('link#parent').attr('href') + publicLensItem.slug;
+              let markup = $(`
+                <li class="lens">
+                  <a href="${lensLink}" target="_blank"><span class="title">${publicLensItem.title}</span>
                   <span class="viz-icon ${vizType}"></span>
                   <span class="badge caption_font">0</span></a>
                 </li>`
