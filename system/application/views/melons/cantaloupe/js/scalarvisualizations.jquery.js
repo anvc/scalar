@@ -52,8 +52,8 @@ window.scalarvis = { instanceCount: -1 };
     base.VisualizationTypes = {
       'force-directed': 'Force-directed',
       'grid': 'Grid',
-      /*'list': 'List',
-      'map': 'Map',*/
+      /*'list': 'List',*/
+      'map': 'Map',
       'radial': 'Radial',
       'tree': 'Tree',
       'word-cloud': 'Word cloud'
@@ -88,6 +88,7 @@ window.scalarvis = { instanceCount: -1 };
     base.currentNode = scalarapi.model.getCurrentPageNode();
     base.modalIsOpen = false;
     base.instanceId = 'scalarvis-' + window.scalarvis.instanceCount++;
+    base.selectedNodes = [];
 
     // one-time setup
     base.init = function() {
@@ -854,7 +855,6 @@ window.scalarvis = { instanceCount: -1 };
       base.sortedNodes = [];
       base.nodesBySlug = {};
       base.svg = null;
-      base.selectedNodes = [];
       if (base.currentNode && base.currentNode.type.id != 'lens') {
         base.selectedNodes.push(base.currentNode);
         base.updateInspector();
@@ -1365,8 +1365,6 @@ window.scalarvis = { instanceCount: -1 };
               base.relations = base.relations.concat(rels);
               node.connectionCount = rels.length;
               base.maxConnections = Math.max(base.maxConnections, node.connectionCount);
-            } else {
-              base.selectedNodes.splice(i, 1);
             }
           }
           break;
@@ -1562,6 +1560,18 @@ window.scalarvis = { instanceCount: -1 };
       //console.log( 'sorted: ' + base.sortedNodes.length );
       //console.log( 'links: ' + base.links.length );
 
+      this.validateSelectedNodes();
+    }
+
+    base.validateSelectedNodes = function() {
+      // remove any nodes from the current selection that aren't in the current results
+      let n = base.selectedNodes.length;
+      for (let i=n-1; i>=0; i--) {
+        let node = base.selectedNodes[i];
+        if (base.sortedNodes.indexOf(node) == -1) {
+          base.selectedNodes.splice(i, 1);
+        }
+      }
     }
 
     base.processNode = function(node) {
