@@ -142,9 +142,9 @@ class System extends MY_Controller {
 			$this->data['content'] = array();
 			for ($j = count($lenses)-1; $j >= 0; $j--) {
 				$lens = json_decode($lenses[$j]->lens);
-				$is_public = ($lens->public) ? true : false;
-				$user_id = (int) $lenses[$j]->user;
-				$user_level = $lens->user_level;
+				$is_public = (isset($lens->public) && $lens->public) ? true : false;
+				$user_id = (isset($lenses[$j]->user)) ? (int) $lenses[$j]->user : 0;
+				$user_level = (isset($lens->user_level)) ? $lens->user_level : null; 
 				if ($is_book_admin && $user_level == 'scalar:Author') {
 					$this->data['content'][] = $lens;
 				} elseif ($is_public) {
