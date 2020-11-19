@@ -57,7 +57,7 @@ Class Api extends CI_Controller {
 	private $content_types = array('book', 'media', 'composite', 'version');
 
 	//Valid relationship types and metadata
-	private $rel_types = array('page', 'annotated', 'contained', 'referenced', 'replied', 'tagged');
+	private $rel_types = array('page', 'annotated', 'contained', 'referenced', 'replied', 'tagged','grouped');
 	private $rel_annotated = array('start_seconds', 'end_seconds', 'start_line_num', 'end_line_num', 'points', 'position_3d');
 	private $rel_contained = array('sort_number');
 	private $rel_referenced = array('reference_text');
