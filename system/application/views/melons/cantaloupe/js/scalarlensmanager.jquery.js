@@ -113,7 +113,6 @@
         let markup = $(`
           <li class="caption_font">
             <a href="${lensLink}" target="_blank">${privateLensItem.title}</a>
-            <span id="private-lens-count" class="badge dark caption_font">0</span>
             <span class="viz-icon ${vizType}"></span>
           </li>`
         ).appendTo($('.private-lenses-list'));
@@ -127,7 +126,6 @@
         let markup = $(`
           <li class="caption_font">
             <a href="${lensLink}" target="_blank">${submittedLensItem.title}</a>
-            <span id="submitted-lens-count" class="badge dark caption_font">0</span>
             <span class="viz-icon ${vizType}"></span>
           </li>`
         ).appendTo($('.submitted-lenses-list'));
@@ -141,7 +139,6 @@
         let markup = $(`
           <li class="caption_font">
             <a href="${lensLink}" target="_blank">${publicLensItem.title}</a>
-            <span id="public-lens-count" class="badge dark caption_font">0</span>
             <span class="viz-icon ${vizType}"></span>
           </li>`
         ).appendTo($('.public-lenses-list'));

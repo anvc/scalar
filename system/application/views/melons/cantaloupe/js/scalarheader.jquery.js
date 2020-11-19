@@ -1657,7 +1657,6 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 <li class="lens">
                   <a href="${lensLink}" target="_blank"><span class="title">${privateLensItem.title}</span>
                   <span class="viz-icon ${vizType}"></span>
-                  <span class="badge caption_font">0</span></a>
                 </li>`
               ).appendTo(lensMenu);
             });
@@ -1673,7 +1672,6 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 <li class="lens">
                   <a href="${lensLink}" target="_blank"><span class="title">${publicLensItem.title}</span>
                   <span class="viz-icon ${vizType}"></span>
-                  <span class="badge caption_font">0</span></a>
                 </li>`
               ).appendTo(lensMenu);
             });
