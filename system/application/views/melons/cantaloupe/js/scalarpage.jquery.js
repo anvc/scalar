@@ -3316,7 +3316,7 @@
                                                     thumbnail: thumbnail_url
                                                 };
                                                 var mediaType = TL.lookupMediaType(entry.media);
-                                                
+
                                                 if(mediaType.type=='imageblank' && thumbnail_url != null){
                                                     entry.media.url = thumbnail_url;
                                                 }else if(mediaType.type=='imageblank'){

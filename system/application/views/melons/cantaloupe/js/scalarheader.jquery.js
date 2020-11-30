@@ -161,7 +161,8 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 base.is_reviewer = $('link#user_level').length > 0 && $('link#user_level').attr('href')=='scalar:Reviewer';
                 base.is_editor = $('link#user_level').length > 0 && $('link#user_level').attr('href')=='scalar:Editor';
                 base.is_reader = $('link#user_level').length > 0 && $('link#user_level').attr('href')=='scalar:Reader';
-                base.userId = $('link#logged_in').attr('href');
+                let temp = $('link#logged_in').attr('href').split('/');
+                base.userId = parseInt(temp[temp.length - 1]);
 
                 if(base.is_author || base.is_commentator || base.is_reviewer || base.is_editor){
                      base.$el.addClass('edit_enabled');
@@ -1636,7 +1637,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
           data.forEach(lens => {
             if (lens.public) {
               publicLensArray.push(lens);
-            } else {
+            } else if (lens.user_id == base.userId) {
               privateLensArray.push(lens);
             }
           });

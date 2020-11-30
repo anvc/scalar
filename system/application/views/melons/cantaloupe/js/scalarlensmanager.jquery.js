@@ -21,15 +21,72 @@
       if ($('link#user_level').length > 0) {
         this.userLevel = $('link#user_level').attr('href');
       }
+      this.loggedIn = $('link#logged_in').length > 0;
       this.userId = 'unknown';
-      if ($('link#logged_in').length > 0) {
-        this.userId = $('link#logged_in').attr('href');
+      if (this.loggedIn) {
+        let temp = $('link#logged_in').attr('href').split('/');
+        this.userId = parseInt(temp[temp.length - 1]);
+        this.addLensButton = $('<button class="btn btn-sm btn-primary">Add lens</button>').appendTo($('.my-private-lenses'));
+        this.addLensButton.on('click', () => { this.addLens() });
       }
       $('heading').append('<p>Lenses are living snapshots of the content of a book, visualizing dynamic selections of pages and media. <a href="#">Learn more »</a></p>');
+      $('body').on('lensUpdated', this.handleLensUpdated);
       this.getLensData();
     }
 
+    ScalarLensManager.prototype.addLens = function() {
+
+			data = {
+				'action': 'ADD',
+				'native': '1',
+				'id': this.userId,
+				'api_key': '',
+				'dcterms:title': 'Untitled lens',
+				'dcterms:description': '',
+				'sioc:content': '',
+				'rdf:type': 'http://scalar.usc.edu/2012/01/scalar-ns#Composite',
+        'scalar:child_urn': 'urn:scalar:book:' + this.bookId,
+        'scalar:child_type': 'http://scalar.usc.edu/2012/01/scalar-ns#Book',
+        'scalar:child_rel': 'grouped',
+        'scalar:contents': JSON.stringify(this.getDefaultLensJson())
+			};
+
+  		var error = function(error) {
+  			//me.hideSpinner();
+        console.log(error);
+  			alert('An error occurred while creating a new lens.');
+  		}
+
+  		//me.showSpinner();
+
+  		scalarapi.savePage(data, () => { this.getLensData() }, error);
+    }
+
+    ScalarLensManager.prototype.getDefaultLensJson = function(){
+      return {
+        "submitted": false,
+        "public": false,
+        "frozen": false,
+        "frozen-items": [],
+        "visualization": {
+          "type": null,
+          "options": {}
+        },
+        "components": [],
+        "sorts": [],
+        "title": "Untitled lens",
+        "slug": "untitled-lens",
+        "user_level": this.userLevel
+      };
+    }
+
+    ScalarLensManager.prototype.handleLensUpdated = function(evt, lens) {
+      console.log(evt, lens);
+    }
+
     ScalarLensManager.prototype.selectLens = function(lens) {
+      $('.lens-item').removeClass('highlight');
+      $('.lens-' + lens.slug).addClass('highlight');
       $('.page-lens-editor').remove();
       $('.visualization').empty();
       var div = $('<div class="page-lens-editor"></div>');
@@ -65,6 +122,7 @@
     }
 
     ScalarLensManager.prototype.getLensData = function(){
+      console.log('get lens data');
       let bookId = $('link#book_id').attr('href');
       let baseURL = $('link#approot').attr('href').replace('application', 'lenses');
       let mainURL = `${baseURL}?book_id=${bookId}`;
@@ -85,37 +143,62 @@
 
     ScalarLensManager.prototype.handleLensData = function(response){
 
+      console.log(response);
+
       let data = response;
-      let privateLensArray = [];
+      let myPrivateLensArray = [];
+      let otherPrivateLensArray = [];
       let submittedLensArray = [];
       let publicLensArray = [];
+
+      console.log(this.userId);
 
       // build sidebar list
       data.forEach(lens => {
         if (lens.public) {
           publicLensArray.push(lens);
         } else {
-          privateLensArray.push(lens);
+          if (lens.user_id == this.userId) {
+            myPrivateLensArray.push(lens);
+          } else {
+            otherPrivateLensArray.push(lens);
+          }
           if (lens.submitted) {
             submittedLensArray.push(lens);
           }
         }
       });
 
-      privateLensArray.length > 0 ? $('.private-lenses').show() : $('.private-lenses').hide();
+      $('.my-private-lenses-list,.other-private-lenses-list,.submitted-lenses-list,.public-lenses-list').empty();
+
+      myPrivateLensArray.length > 0 && this.loggedIn ? $('.my-private-lenses').show() : $('.my-private-lenses').hide();
+      otherPrivateLensArray.length > 0 && this.loggedIn ? $('.other-private-lenses').show() : $('.other-private-lenses').hide();
       submittedLensArray.length > 0 ? $('.submitted-lenses').show() : $('.submitted-lenses').hide();
       publicLensArray.length > 0 ? $('.public-lenses').show() : $('.public-lenses').hide();
 
-      // private lenses
-      privateLensArray.forEach(privateLensItem => {
+      // my private lenses
+      myPrivateLensArray.forEach(privateLensItem => {
         let vizType = privateLensItem.visualization.type;
         let lensLink = $('link#parent').attr('href') + privateLensItem.slug;
         let markup = $(`
-          <li class="caption_font">
+          <li class="caption_font lens-item lens-${privateLensItem.slug}">
             <a href="${lensLink}" target="_blank">${privateLensItem.title}</a>
             <span class="viz-icon ${vizType}"></span>
           </li>`
-        ).appendTo($('.private-lenses-list'));
+        ).appendTo($('.my-private-lenses-list'));
+        markup.data('lens', privateLensItem);
+      });
+
+      // other private lenses
+      otherPrivateLensArray.forEach(privateLensItem => {
+        let vizType = privateLensItem.visualization.type;
+        let lensLink = $('link#parent').attr('href') + privateLensItem.slug;
+        let markup = $(`
+          <li class="caption_font lens-item lens-${privateLensItem.slug}">
+            <a href="${lensLink}" target="_blank">${privateLensItem.title}</a>
+            <span class="viz-icon ${vizType}"></span>
+          </li>`
+        ).appendTo($('.other-private-lenses-list'));
         markup.data('lens', privateLensItem);
       });
 
@@ -124,7 +207,7 @@
         let vizType = submittedLensItem.visualization.type;
         let lensLink = $('link#parent').attr('href') + submittedLensItem.slug;
         let markup = $(`
-          <li class="caption_font">
+          <li class="caption_font lens-item lens-${submittedLensItem.slug}">
             <a href="${lensLink}" target="_blank">${submittedLensItem.title}</a>
             <span class="viz-icon ${vizType}"></span>
           </li>`
@@ -137,7 +220,7 @@
         let vizType = publicLensItem.visualization.type;
         let lensLink = $('link#parent').attr('href') + publicLensItem.slug;
         let markup = $(`
-          <li class="caption_font">
+          <li class="caption_font lens-item lens-${publicLensItem.slug}">
             <a href="${lensLink}" target="_blank">${publicLensItem.title}</a>
             <span class="viz-icon ${vizType}"></span>
           </li>`
@@ -147,6 +230,8 @@
 
       if (data.length > 0) {
         this.selectLens(data[0]);
+      } else {
+
       }
 
       var me = this;

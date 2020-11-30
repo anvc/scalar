@@ -363,20 +363,28 @@
     ScalarLenses.prototype.editLensTitle = function(){
       var me = this;
       let lensTitle = document.querySelector(".lens-title");
+      let lensPageTitle = $('h1[property="dcterms:title"]');
+      var saveTimeout;
 
       lensTitle.addEventListener("input", function() {
         me.scalarLensObject.title = this.innerText;
-        me.scalarLensObject.slug = this.innerText;
+        lensPageTitle.text(this.innerText);
+        clearTimeout(saveTimeout);
+        saveTimeout = setTimeout(() => {
+          me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
+        }, 2000);
       });
 
       lensTitle.addEventListener('keydown', (evt) => {
         if (evt.keyCode === 13) {
           evt.preventDefault();
+          clearTimeout(saveTimeout);
           me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
         }
       });
 
       $('.lens-title').on('focusout', function(ev) {
+        clearTimeout(saveTimeout);
         me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
       });
     }
@@ -3607,7 +3615,10 @@
           'scalar:contents': JSON.stringify(this.scalarLensObject)
         };
 
-        scalarapi.modifyPageAndRelations(baseProperties, pageData, relationData, successHandler);
+        scalarapi.modifyPageAndRelations(baseProperties, pageData, relationData, () => {
+          $('body').trigger('lensUpdated', this.scalarLensObject);
+          successHandler();
+        });
       } else {
         $('#duplicate-copy-prompt').addClass('show-lens-prompt');
       }

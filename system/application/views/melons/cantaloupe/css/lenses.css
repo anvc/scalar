@@ -25,6 +25,9 @@
 #lens-manager ul li:active{
   background:#c7e6f6;
 }
+#lens-manager ul li.lens-item.highlight {
+  background: #c7e6f6;
+}
 #lens-manager ul li a {
   font-size:12px;
   padding-left:10px;
