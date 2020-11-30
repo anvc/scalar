@@ -4269,13 +4269,34 @@ window.scalarvis = { instanceCount: -1 };
       }
 
       draw() {
-        // this updates the dimensions of the vis based on window size, etc.
-        // and calls setupElement if the vis was just created
         super.draw();
 
-        // add additional code here to render the vis
-        // base.hierarchy is an object containing a hierarchy of known nodes, organized by type
-        // base.sortedNodes is an array of all known nodes
+        var $wrapper = $('.visList:first');
+        var maxLength = 100;
+        for (var j = 0; j < base.sortedNodes.length; j++) {
+        	console.log(base.sortedNodes[j]);
+        	var url = base.sortedNodes[j].url;
+        	var title = base.sortedNodes[j].current.title;
+        	if (null===title) continue;
+        	title = title.replace(/(<([^>]+)>)/gi, "");
+          	var description = ('undefined'!=typeof(base.sortedNodes[j].current.description) && null!==base.sortedNodes[j].current.description) ? base.sortedNodes[j].current.description : '';
+          	if (description.length > maxLength) description = description.substr(0, maxLength) + '...';
+          	description = description.replace(/(<([^>]+)>)/gi, "");
+          	var content = ('undefined'!=typeof(base.sortedNodes[j].current.content) && null!==base.sortedNodes[j].current.content) ? base.sortedNodes[j].current.content : '';
+          	if (content.length > maxLength) content = content.substr(0, maxLength) + '...';
+          	content = content.replace(/(<([^>]+)>)/gi, "");
+          	var author = base.sortedNodes[j].author;
+          	var authorUrl = $('link#parent').attr('href') + base.sortedNodes[j].author;
+          	var lastEdited = (base.sortedNodes[j].current.created) ? base.sortedNodes[j].current.created.substr(0, base.sortedNodes[j].current.created.indexOf('T')) : '';
+          	var versions = base.sortedNodes[j].current.number;
+          	var $row = $('<div class="visListRow row"></div>').appendTo($wrapper);
+          	$row.append('<div class="col-xs-10 col-md-4 col-lg-3" prop="title"><a href="'+url+'" target="_blank">'+title+'</a></div>');
+          	$row.append('<div class="hidden-xs hidden-sm col-md-4 col-lg-3" prop="description">'+description+'</div>');
+          	$row.append('<div class="hidden-xs hidden-sm col-md-4 col-lg-3" prop="content">'+content+'</div>');
+          	$row.append('<div class="hidden-xs hidden-sm hidden-md col-lg-1" prop="content"><a href="'+authorUrl+'" target="_blank">'+author+'</a></div>');
+          	$row.append('<div class="hidden-xs hidden-sm hidden-md col-lg-1" prop="content">'+lastEdited+'</div>');
+          	$row.append('<div class="hidden-xs hidden-sm hidden-md col-lg-1" prop="content" style="text-align:center;">'+versions+'</div>');
+          };
       }
 
       getHelpContent() {
@@ -4286,7 +4307,16 @@ window.scalarvis = { instanceCount: -1 };
       setupElement() {
         this.hasBeenDrawn = true;
         base.visualization.empty(); // empty the element where this vis is to be shown
-        base.visualization.append('List visualization');
+        var approot = $('link#approot').attr('href');
+        $('head').append('<link rel="stylesheet" type="text/css" href="' + approot + 'views/melons/cantaloupe/css/vis.css">');
+        var $wrapper = $('<div class="visList container-fluid"></div>').appendTo(base.visualization);
+        var $header = $('<div class="header row"></div>').appendTo($wrapper);
+        $header.append('<div class="col-xs-10 col-md-4 col-lg-3" prop="title">Title</div>');
+        $header.append('<div class="hidden-xs hidden-sm col-md-4 col-lg-3" prop="description">Description</div>');
+        $header.append('<div class="hidden-xs hidden-sm col-md-4 col-lg-3" prop="content">Content</div>');
+        $header.append('<div class="hidden-xs hidden-sm hidden-md col-lg-1" prop="content">Author</div>');
+        $header.append('<div class="hidden-xs hidden-sm hidden-md col-lg-1" prop="content">Last Edited</div>');
+        $header.append('<div class="hidden-xs hidden-sm hidden-md col-lg-1" prop="content">Version</div>');
       }
     }
 
