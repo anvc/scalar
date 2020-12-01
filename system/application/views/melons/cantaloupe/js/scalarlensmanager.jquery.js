@@ -7,10 +7,11 @@
     const pluginName = 'ScalarLensManager', defaults = {};
 
     function ScalarLensManager(element, options) {
-        this.element = element;
-        this.options = $.extend( {}, defaults, options);
         this._defaults = defaults;
         this._name = pluginName;
+        this.element = element;
+        this.options = $.extend( {}, defaults, options);
+        this.selectedLens = null;
 
         this.init();
     }
@@ -85,8 +86,8 @@
     }
 
     ScalarLensManager.prototype.selectLens = function(lens) {
-      $('.lens-item').removeClass('highlight');
-      $('.lens-' + lens.slug).addClass('highlight');
+      this.selectedLens = lens;
+      this.updateLensHighlight();
       $('.page-lens-editor').remove();
       $('.visualization').empty();
       var div = $('<div class="page-lens-editor"></div>');
@@ -95,6 +96,13 @@
         lens: lens,
         onLensResults: this.handleLensResults
       });
+    }
+
+    ScalarLensManager.prototype.updateLensHighlight = function() {
+      $('.lens-item').removeClass('highlight');
+      if (this.selectedLens) {
+        $('.lens-' + this.selectedLens.slug).addClass('highlight');
+      }
     }
 
     ScalarLensManager.prototype.handleLensResults = function(lens) {
@@ -223,10 +231,10 @@
         markup.data('lens', publicLensItem);
       });
 
-      if (data.length > 0) {
+      if (this.selectedLens == null && data.length > 0) {
         this.selectLens(data[0]);
       } else {
-
+        this.updateLensHighlight();
       }
 
       var me = this;
