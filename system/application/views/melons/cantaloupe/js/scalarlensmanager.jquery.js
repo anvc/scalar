@@ -30,7 +30,7 @@
         this.addLensButton.on('click', () => { this.addLens() });
       }
       $('heading').append('<p>Lenses are living snapshots of the content of a book, visualizing dynamic selections of pages and media. <a href="#">Learn more »</a></p>');
-      $('body').on('lensUpdated', this.handleLensUpdated);
+      $('body').on('lensUpdated', (evt, lens) => { this.handleLensUpdated(evt, lens); });
       this.getLensData();
     }
 
@@ -81,7 +81,7 @@
     }
 
     ScalarLensManager.prototype.handleLensUpdated = function(evt, lens) {
-      console.log(evt, lens);
+      this.getLensData();
     }
 
     ScalarLensManager.prototype.selectLens = function(lens) {
@@ -122,7 +122,6 @@
     }
 
     ScalarLensManager.prototype.getLensData = function(){
-      console.log('get lens data');
       let bookId = $('link#book_id').attr('href');
       let baseURL = $('link#approot').attr('href').replace('application', 'lenses');
       let mainURL = `${baseURL}?book_id=${bookId}`;
@@ -143,15 +142,11 @@
 
     ScalarLensManager.prototype.handleLensData = function(response){
 
-      console.log(response);
-
       let data = response;
       let myPrivateLensArray = [];
       let otherPrivateLensArray = [];
       let submittedLensArray = [];
       let publicLensArray = [];
-
-      console.log(this.userId);
 
       // build sidebar list
       data.forEach(lens => {
