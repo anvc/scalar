@@ -7,10 +7,11 @@
     const pluginName = 'ScalarLensManager', defaults = {};
 
     function ScalarLensManager(element, options) {
-        this.element = element;
-        this.options = $.extend( {}, defaults, options);
         this._defaults = defaults;
         this._name = pluginName;
+        this.element = element;
+        this.options = $.extend( {}, defaults, options);
+        this.selectedLens = null;
 
         this.init();
     }
@@ -30,7 +31,7 @@
         this.addLensButton.on('click', () => { this.addLens() });
       }
       $('heading').append('<p>Lenses are living snapshots of the content of a book, visualizing dynamic selections of pages and media. <a href="#">Learn more »</a></p>');
-      $('body').on('lensUpdated', this.handleLensUpdated);
+      $('body').on('lensUpdated', (evt, lens) => { this.handleLensUpdated(evt, lens); });
       this.getLensData();
     }
 
@@ -81,12 +82,12 @@
     }
 
     ScalarLensManager.prototype.handleLensUpdated = function(evt, lens) {
-      console.log(evt, lens);
+      this.getLensData();
     }
 
     ScalarLensManager.prototype.selectLens = function(lens) {
-      $('.lens-item').removeClass('highlight');
-      $('.lens-' + lens.slug).addClass('highlight');
+      this.selectedLens = lens;
+      this.updateLensHighlight();
       $('.page-lens-editor').remove();
       $('.visualization').empty();
       var div = $('<div class="page-lens-editor"></div>');
@@ -95,6 +96,13 @@
         lens: lens,
         onLensResults: this.handleLensResults
       });
+    }
+
+    ScalarLensManager.prototype.updateLensHighlight = function() {
+      $('.lens-item').removeClass('highlight');
+      if (this.selectedLens) {
+        $('.lens-' + this.selectedLens.slug).addClass('highlight');
+      }
     }
 
     ScalarLensManager.prototype.handleLensResults = function(lens) {
@@ -122,7 +130,6 @@
     }
 
     ScalarLensManager.prototype.getLensData = function(){
-      console.log('get lens data');
       let bookId = $('link#book_id').attr('href');
       let baseURL = $('link#approot').attr('href').replace('application', 'lenses');
       let mainURL = `${baseURL}?book_id=${bookId}`;
@@ -143,15 +150,11 @@
 
     ScalarLensManager.prototype.handleLensData = function(response){
 
-      console.log(response);
-
       let data = response;
       let myPrivateLensArray = [];
       let otherPrivateLensArray = [];
       let submittedLensArray = [];
       let publicLensArray = [];
-
-      console.log(this.userId);
 
       // build sidebar list
       data.forEach(lens => {
@@ -228,10 +231,10 @@
         markup.data('lens', publicLensItem);
       });
 
-      if (data.length > 0) {
+      if (this.selectedLens == null && data.length > 0) {
         this.selectLens(data[0]);
       } else {
-
+        this.updateLensHighlight();
       }
 
       var me = this;

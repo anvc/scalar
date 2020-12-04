@@ -821,7 +821,10 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
               $('#desktopTitleWrapper').trigger("update");
             });
 
-            if (lenses_are_active) base.getLensData();
+            if (lenses_are_active) {
+              $('body').on('lensUpdated', base.getLensData);
+              base.getLensData();
+            }
 
             $( '#ScalarHeaderHelp>a' ).on('click', function(e) {
                 base.help.data( 'plugin_scalarhelp' ).toggleHelp();
@@ -1641,6 +1644,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             }
           });
           let lensMenu = $('#lenses_menu>ul');
+          lensMenu.empty();
 
           let manageLinkTitle = "Browse Lenses";
           if (base.is_author || base.is_editor) {
