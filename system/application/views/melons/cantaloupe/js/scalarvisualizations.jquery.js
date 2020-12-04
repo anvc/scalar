@@ -4272,9 +4272,9 @@ window.scalarvis = { instanceCount: -1 };
         super.draw();
 
         var $wrapper = $('.visList:first');
+        $wrapper.find('.visListRow').remove();
         var maxLength = 100;
         for (var j = 0; j < base.sortedNodes.length; j++) {
-        	console.log(base.sortedNodes[j]);
         	var url = base.sortedNodes[j].url;
         	var title = base.sortedNodes[j].current.title;
         	if (null===title) continue;
