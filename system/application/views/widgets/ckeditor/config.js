@@ -37,7 +37,7 @@ CKEDITOR.on('instanceReady', function(evt){
 // Editor config
 CKEDITOR.editorConfig = function( config ) {
 
-    config.plugins = 
+    config.plugins =
             'dialogui,'+
             'dialog,'+
             'a11yhelp,'+
@@ -76,7 +76,8 @@ CKEDITOR.editorConfig = function( config ) {
             'codemirror,'+
             'scalarunlink,'+
             'scalar,'+
-            'floatingspace';
+            'floatingspace,'+
+            'stylescombo';
 	config.skin = 'bootstrapck';
 	config.allowedContent = true;
 	config.extraAllowedContent = 'code pre a[*]';
@@ -85,9 +86,12 @@ CKEDITOR.editorConfig = function( config ) {
 	config.font_defaultLabel = 'Lucida Grande';
 	config.fontSize_defaultLabel = '12px';
 	config.enterMode = CKEDITOR.ENTER_BR;
-	
+
 	config.entities_greek = false;
 	config.entities_latin = false;
+
+  //config.stylesSet = 'default';
+  config.stylesCombo_stylesSet = 'default:../ckeditor/styles.js';
 
 	config.toolbar = 'Scalar';
 	config.toolbar_Scalar =
@@ -97,7 +101,8 @@ CKEDITOR.editorConfig = function( config ) {
 		{ name: 'clipboard', items : [ 'PasteText','PasteFromWord','Undo','Redo' ] },
 		{ name: 'basicstyles', items : [ 'Bold','Italic','Underline','TextColor', 'BGColor' ] },
 		{ name: 'clear', items : [ 'RemoveFormat','Unlink' ] },
-		{ name: 'formatting', items : [ 'Format','NumberedList','BulletedList','Blockquote','-','SpecialChar','Code','Iframe' ] },
+    { name: 'styles', items: [ 'Styles' ]},
+		{ name: 'formatting', items : [ 'NumberedList','BulletedList','Blockquote','-','SpecialChar','Code','Iframe' ] },
 		{ name: 'advanced', items : [ 'Scalar1', 'Scalar2', 'Scalar5', 'Scalar10', 'Scalar8', 'Scalar9', 'Scalar6', 'Scalar7' ] },
 		{ name: 'editorial', items:['editorialTools']}
 	];
@@ -111,7 +116,7 @@ CKEDITOR.editorConfig = function( config ) {
 		{ name: 'formatting', items : [ 'Format','NumberedList','BulletedList','Blockquote','-','SpecialChar','Code','Iframe' ]},
 		'/',
 		{ name: 'advanced', items : [ 'Scalar1', 'Scalar2', 'Scalar5', 'Scalar10', 'Scalar8', 'Scalar9', 'Scalar6', 'Scalar7' ] }
-		
+
 	];
 
 	// Remove some buttons provided by the standard plugins, which are not needed in the Standard(s) toolbar.

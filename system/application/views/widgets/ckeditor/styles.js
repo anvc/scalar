@@ -21,8 +21,7 @@ CKEDITOR.stylesSet.add( 'default', [
 	// These styles are already available in the "Format" drop-down list ("format" plugin),
 	// so they are not needed here by default. You may enable them to avoid
 	// placing the "Format" combo in the toolbar, maintaining the same features.
-	/*
-	{ name: 'Paragraph',		element: 'p' },
+	/*{ name: 'Paragraph',		element: 'p' },*/
 	{ name: 'Heading 1',		element: 'h1' },
 	{ name: 'Heading 2',		element: 'h2' },
 	{ name: 'Heading 3',		element: 'h3' },
@@ -30,8 +29,16 @@ CKEDITOR.stylesSet.add( 'default', [
 	{ name: 'Heading 5',		element: 'h5' },
 	{ name: 'Heading 6',		element: 'h6' },
 	{ name: 'Preformatted Text',element: 'pre' },
-	{ name: 'Address',			element: 'address' },
-	*/
+	/*{ name: 'Address',			element: 'address' },*/
+
+  // Block-level styles
+  { name: 'Hanging Indent', element: 'div', styles: { 'padding-left': '22px', 'text-indent': '-22px' } },
+
+  // Inline styles
+  /*{ name: 'CSS Style', element: 'span', attributes: { 'class': 'my_style' } },
+  { name: 'Marker: Yellow', element: 'span', styles: { 'background-color': 'Yellow' } },
+
+
 
 	{ name: 'Italic Title',		element: 'h2', styles: { 'font-style': 'italic' } },
 	{ name: 'Subtitle',			element: 'h3', styles: { 'color': '#aaa', 'font-style': 'italic' } },
@@ -43,7 +50,7 @@ CKEDITOR.stylesSet.add( 'default', [
 			background: '#eee',
 			border: '1px solid #ccc'
 		}
-	},
+	},*/
 
 	/* Inline styles */
 
@@ -61,12 +68,12 @@ CKEDITOR.stylesSet.add( 'default', [
 
 	{ name: 'Marker',			element: 'span', attributes: { 'class': 'marker' } },
 
-	{ name: 'Big',				element: 'big' },
+	/*{ name: 'Big',				element: 'big' },
 	{ name: 'Small',			element: 'small' },
-	{ name: 'Typewriter',		element: 'tt' },
+	{ name: 'Typewriter',		element: 'tt' },*/
 
 	{ name: 'Computer Code',	element: 'code' },
-	{ name: 'Keyboard Phrase',	element: 'kbd' },
+	/*{ name: 'Keyboard Phrase',	element: 'kbd' },
 	{ name: 'Sample Text',		element: 'samp' },
 	{ name: 'Variable',			element: 'var' },
 
@@ -77,7 +84,7 @@ CKEDITOR.stylesSet.add( 'default', [
 	{ name: 'Inline Quotation',	element: 'q' },
 
 	{ name: 'Language: RTL',	element: 'span', attributes: { 'dir': 'rtl' } },
-	{ name: 'Language: LTR',	element: 'span', attributes: { 'dir': 'ltr' } },
+	{ name: 'Language: LTR',	element: 'span', attributes: { 'dir': 'ltr' } },*/
 
 	/* Object styles */
 
@@ -134,4 +141,3 @@ CKEDITOR.stylesSet.add( 'default', [
 	{ name: '1080p ', type: 'widget', widget: 'embed', attributes: { 'class': 'embed-1080p' }, group: 'size' }
 
 ] );
-
