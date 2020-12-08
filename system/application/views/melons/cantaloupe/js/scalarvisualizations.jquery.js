@@ -4289,14 +4289,29 @@ window.scalarvis = { instanceCount: -1 };
           	var authorUrl = $('link#parent').attr('href') + base.sortedNodes[j].author;
           	var lastEdited = (base.sortedNodes[j].current.created) ? base.sortedNodes[j].current.created.substr(0, base.sortedNodes[j].current.created.indexOf('T')) : '';
           	var versions = base.sortedNodes[j].current.number;
-          	var $row = $('<div class="visListRow row"></div>').appendTo($wrapper);
-          	$row.append('<div class="col-xs-10 col-md-4 col-lg-3" prop="title"><a href="'+url+'" target="_blank">'+title+'</a></div>');
-          	$row.append('<div class="hidden-xs hidden-sm col-md-4 col-lg-3" prop="description">'+description+'</div>');
-          	$row.append('<div class="hidden-xs hidden-sm col-md-4 col-lg-3" prop="content">'+content+'</div>');
-          	$row.append('<div class="hidden-xs hidden-sm hidden-md col-lg-1" prop="content"><a href="'+authorUrl+'" target="_blank">'+author+'</a></div>');
-          	$row.append('<div class="hidden-xs hidden-sm hidden-md col-lg-1" prop="content">'+lastEdited+'</div>');
-          	$row.append('<div class="hidden-xs hidden-sm hidden-md col-lg-1" prop="content" style="text-align:center;">'+versions+'</div>');
+          	var $row = $('<tr class="visListRow"></div>').appendTo($wrapper);
+          	$row.append('<td class="sm" prop="title"><a href="'+url+'" target="_blank">'+title+'</a></td>');
+          	$row.append('<td class="md" prop="description">'+description+'</td>');
+          	$row.append('<td class="md" prop="content">'+content+'</td>');
+          	$row.append('<td class="lg" prop="content"><a href="'+authorUrl+'" target="_blank">'+author+'</a></td>');
+          	$row.append('<td class="lg" prop="content">'+lastEdited+'</td>');
+          	$row.append('<td class="lg" prop="content" style="text-align:center;">'+versions+'</td>');
           };
+          var doSizing = function() {
+          	var $visList = $('.visList');
+          	var width = parseInt($visList.parent().width());
+          	if (width < 400) {  // sm
+          		$visList.find('.sm').show();
+          		$visList.find('.md, .lg').hide();
+          	} else if (width < 600) {  // md
+             		$visList.find('.sm, .md').show();
+          		$visList.find('.lg').hide();
+          	} else {  // lg
+             		$visList.find('.sm, .md, .lg').show();
+          	}
+          };
+          $(window).off('resize', doSizing).on('resize', doSizing);
+          doSizing();
       }
 
       getHelpContent() {
@@ -4309,14 +4324,15 @@ window.scalarvis = { instanceCount: -1 };
         base.visualization.empty(); // empty the element where this vis is to be shown
         var approot = $('link#approot').attr('href');
         $('head').append('<link rel="stylesheet" type="text/css" href="' + approot + 'views/melons/cantaloupe/css/vis.css">');
-        var $wrapper = $('<div class="visList container-fluid"></div>').appendTo(base.visualization);
-        var $header = $('<div class="header row"></div>').appendTo($wrapper);
-        $header.append('<div class="col-xs-10 col-md-4 col-lg-3" prop="title">Title</div>');
-        $header.append('<div class="hidden-xs hidden-sm col-md-4 col-lg-3" prop="description">Description</div>');
-        $header.append('<div class="hidden-xs hidden-sm col-md-4 col-lg-3" prop="content">Content</div>');
-        $header.append('<div class="hidden-xs hidden-sm hidden-md col-lg-1" prop="content">Author</div>');
-        $header.append('<div class="hidden-xs hidden-sm hidden-md col-lg-1" prop="content">Last Edited</div>');
-        $header.append('<div class="hidden-xs hidden-sm hidden-md col-lg-1" prop="content">Version</div>');
+        var $wrapper = $('<table class="visList"></table>').appendTo(base.visualization);
+        var $header = $('<tr class="header"></tr>').appendTo($wrapper);
+        $header.append('<td class="sm" prop="title">Title</td>');
+        $header.append('<td class="md" prop="description">Description</td>');
+        $header.append('<td class="md" prop="content">Content</td>');
+        $header.append('<td class="lg" prop="content">Author</td>');
+        $header.append('<td class="lg" prop="content">Last Edited</td>');
+        $header.append('<td class="lg" prop="content">Version</td>');
+
       }
     }
 
