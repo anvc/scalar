@@ -915,7 +915,7 @@ if($currentRole == 'commentator'){
 	<div class="checkbox">
 		<label>
 			<input type="checkbox" id="media_file_url_iiif" name="iiif-url" <?=strpos($file_url, '?iiif-manifest=1')?'checked':''?> />
-			Is IIIF Manifest
+			Is IIIF manifest
 	    </label>
 	</div>
 </div>

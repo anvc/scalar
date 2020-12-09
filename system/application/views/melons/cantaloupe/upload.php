@@ -296,7 +296,7 @@ Other supported formats: 3gp, aif, flv, mov, mpg, oga, tif, webm<br />
 	<tr id="metadata_rows_parent"><td class="field"></td><td><div id="metadata_rows"></div></td></tr>
         <tr><td>IIIF</td><td>
 		<div class="checkbox">
-			<label><input type="checkbox" id="media_file_url_iiif" name="iiif-url" /> Is IIIF Manifest</label>
+			<label><input type="checkbox" id="media_file_url_iiif" name="iiif-url" /> Is IIIF manifest</label>
 		</div>
 	</td></tr>
 	<tr><td class="field">Choose file</td><td>
