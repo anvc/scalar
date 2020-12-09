@@ -32,7 +32,7 @@ CKEDITOR.stylesSet.add( 'default', [
 	/*{ name: 'Address',			element: 'address' },*/
 
   // Block-level styles
-  { name: 'Hanging Indent', element: 'div', styles: { 'padding-left': '22px', 'text-indent': '-22px' } },
+  { name: 'Hanging Indent', element: 'div', attributes: { 'class': 'hanging-indent' } },
 
   // Inline styles
   /*{ name: 'CSS Style', element: 'span', attributes: { 'class': 'my_style' } },

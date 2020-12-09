@@ -51,6 +51,8 @@ sup {
 }
 hr { clear:both; border: 0; border-bottom: 1px solid #ccc; }
 
+.hanging-indent { padding-left: 22px; text-indent: -22px; }
+
 video { background-color: black; }
 
 .spinner_wrapper {

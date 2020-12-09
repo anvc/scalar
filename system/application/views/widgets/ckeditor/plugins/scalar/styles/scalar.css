@@ -37,3 +37,7 @@ a.inline.inlineNote {
 	background-image:url(../../../../../melons/cantaloupe/images/widget_image_note.png) !important;
 }
 .cke_editable ol, .cke_editable ul, .cke_editable dl { padding: 0 18px; }
+
+.cke_editable div { margin-bottom: 10px; }
+
+.cke_editable div.hanging-indent { padding-left: 22px; text-indent: -22px; }
