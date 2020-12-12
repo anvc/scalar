@@ -1188,7 +1188,6 @@ ScalarAPI.prototype.decimalSecondsToHMMSS = function(seconds, showMilliseconds) 
  * A basic Ajax queue for saving relationships, as the save API presently saves one relationship at a time
  */
 ScalarAPI.prototype.saveManyRelations = function(data, completeCallback, stepCallback) {
-  console.log('saveManyRelations',data);
 
 	var self = this;
 
@@ -1227,7 +1226,7 @@ ScalarAPI.prototype.saveManyRelations = function(data, completeCallback, stepCal
 			'scalar:points':$(data['annotation_of_points'][indexInArray]).val(),
 		}
     if (data['annotation_of_position_3d']) {
-      data['scalar:position_3d'] = $(data['annotation_of_position_3d'][indexInArray]).val()
+      relations['scalar:position_3d'] = $(data['annotation_of_position_3d'][indexInArray]).val()
     }
 		self.queueManyRelations(relations);
 	});
