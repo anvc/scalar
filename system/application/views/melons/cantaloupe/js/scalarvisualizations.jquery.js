@@ -4323,7 +4323,10 @@ window.scalarvis = { instanceCount: -1 };
         this.hasBeenDrawn = true;
         base.visualization.empty(); // empty the element where this vis is to be shown
         var approot = $('link#approot').attr('href');
-        $('head').append('<link rel="stylesheet" type="text/css" href="' + approot + 'views/melons/cantaloupe/css/vis.css">');
+        var css = approot + 'views/melons/cantaloupe/css/vis.css';
+        if (!$('head').find('[href="'+css+'"]').length) {
+        	$('head').append('<link rel="stylesheet" type="text/css" href="' + css + '">');
+        };
         var $wrapper = $('<table class="visList"></table>').appendTo(base.visualization);
         var $header = $('<tr class="header"></tr>').appendTo($wrapper);
         $header.append('<td class="sm" prop="title">Title</td>');

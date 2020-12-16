@@ -16,5 +16,5 @@ div.jqcloud > span {}
 div.jqcloud > span:hover {}
 
 .visList {width:100%;}
-.visList .header > td {border-top:solid 1px #aaaaaa; border-bottom:solid 1px #aaaaaa; white-space:nowrap; padding-top:6px; padding-bottom:6px; font-size:13px;}
-.visListRow > td {border-bottom:solid 1px #aaaaaa; padding:4px; font-size:13px;}
+.visList .header > td {border-top:solid 1px #aaaaaa; border-bottom:solid 1px #aaaaaa; white-space:nowrap; padding:6px 4px 6px 4px; font-size:13px;}
+.visListRow > td {border-bottom:solid 1px #aaaaaa; padding:8px 4px 8px 4px; font-size:13px; line-height:125%;}
