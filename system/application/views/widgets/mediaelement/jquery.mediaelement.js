@@ -264,6 +264,10 @@ function YouTubeGetID(url){
 			return this.view.getCurrentTime();
 		}
 
+    this.getPosition3D = function() {
+      return this.view.getPosition3D();
+    }
+
 		/**
 		 * Returns true if the link passed to the plugin should be turned into a media player.
 		 * @return		Returns true if the link is to a file that's been imported into Scalar.
@@ -1992,6 +1996,14 @@ function YouTubeGetID(url){
 				return null;
 			}
 		}
+
+    this.getPosition3D = function() {
+      if (this.model.mediaSource.contentType == '3D') {
+				return this.mediaObjectView.getPosition3D();
+			} else {
+				return null;
+			}
+    }
 
 		jQuery.MediaElementView.prototype.updateAnnotations = function( annotations ) {
 			this.annotations = annotations;
@@ -5791,10 +5803,21 @@ function YouTubeGetID(url){
 		jQuery.UnityWebGLObjectView.prototype.play = function() { }
 		jQuery.UnityWebGLObjectView.prototype.pause = function() { }
 		jQuery.UnityWebGLObjectView.prototype.getCurrentTime = function() { }
+		jQuery.UnityWebGLObjectView.prototype.getPosition3D = function() {
+      this.receiver.postMessage({
+        "objectName": "ScalarCamera",
+        "methodName": "GetTransform",
+        "message": null
+      });
+    }
 		jQuery.UnityWebGLObjectView.prototype.isPlaying = function(value, player_id) { return null; }
 
     jQuery.UnityWebGLObjectView.prototype.seek = function(point_3d) {
-      this.receiver.postMessage(point_3d, this.model.path);
+      this.receiver.postMessage({
+        "objectName": "ScalarCamera",
+        "methodName": "SetTransform",
+        "message": point_3d
+      });
     }
 
 		/**

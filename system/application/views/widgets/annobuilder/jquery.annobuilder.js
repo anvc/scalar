@@ -530,6 +530,8 @@ jQuery.AnnoBuilderInterfaceView = function() {
 				'<div class="form-group">' +
 					'<input id="fieldOfView" class="form-control" type="text" size="6" onchange="$.annobuilder.view.builder.handleEditPosition3D()" onkeyup="$.annobuilder.view.builder.handleEditPosition3D()"> ' +
 				'</div></td></tr>' +
+      '<tr><td class="field"></td><td class="value">' +
+        '<div><a id="setPosition3DBtn" class="btn btn-success btn-sm generic_button border_radius" role="button" style="margin-right:20px;">Set all values from current view</a></div></td></tr>' +
 				'</div><br><span style="font-size: small; line-height: 90%;">' + instructions + '</span></td></tr>');
 			// if cantaloupe
 			if ( $( 'article' ).length ) {
@@ -552,6 +554,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 
 		$('#setStartTimeBtn').on('click', this.handleSetStartTime);
 		$('#setEndTimeBtn').on('click', this.handleSetEndTime);
+    $('#setPosition3DBtn').on('click', this.handleSetPosition3D);
 
 		$('#tagButton').on('click', function() {
 			$('<div></div>').content_selector({
@@ -606,6 +609,10 @@ jQuery.AnnoBuilderInterfaceView = function() {
 			anno.addHandler( "onAnnotationUpdated", $.annobuilder.view.builder.handleAnnotoriousAnnotationUpdated );
 			anno.addHandler( "onAnnotationRemoved", $.annobuilder.view.builder.handleDelete );
 		}
+
+    if ( $.annobuilder.model.node.current.mediaSource.contentType == '3D' ) {
+      window.addEventListener('message', $.annobuilder.view.builder.handleReturnPosition3D);
+    }
 
 		$.annobuilder.view.builder.update();
 
@@ -880,7 +887,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 			if (position3D.targetX == '') position3D.targetX = '0';
 			position3D.targetY = $('#targetY').val().toString();
 			if (position3D.targetY == '') position3D.targetY = '0';
-			position3D.targetZ = $('#targetY').val().toString();
+			position3D.targetZ = $('#targetZ').val().toString();
 			if (position3D.targetZ == '') position3D.targetZ = '0';
 			position3D.cameraX = $('#cameraX').val().toString();
 			if (position3D.cameraX == '') position3D.cameraX = '0';
@@ -1259,11 +1266,6 @@ jQuery.AnnoBuilderInterfaceView = function() {
 		$('#annotationContent').val('');
 	}
 
-	/**
-	 * Handles clicks on the control to update the start time of an annotation.
-	 *
-	 * @param {Object} event		An object representing the event.
-	 */
 	jQuery.AnnoBuilderInterfaceView.prototype.handleSetStartTime = function(event) {
 		var annotation = $.annobuilder.model.selectedAnnotation;
 		if (annotation != null) {
@@ -1275,11 +1277,6 @@ jQuery.AnnoBuilderInterfaceView = function() {
 		}
 	}
 
-	/**
-	 * Handles clicks on the control to update the end time of an annotation.
-	 *
-	 * @param {Object} event		An object representing the event.
-	 */
 	jQuery.AnnoBuilderInterfaceView.prototype.handleSetEndTime = function(event) {
 		var annotation = $.annobuilder.model.selectedAnnotation;
 		if (annotation != null) {
@@ -1288,6 +1285,13 @@ jQuery.AnnoBuilderInterfaceView = function() {
 			me.makeSelectedAnnotationDirty();
 			me.sortAnnotations();
 			me.update();
+		}
+	}
+
+	jQuery.AnnoBuilderInterfaceView.prototype.handleSetPosition3D = function(event) {
+		var annotation = $.annobuilder.model.selectedAnnotation;
+		if (annotation != null) {
+			var position3D = $.annobuilder.model.mediaElement.getPosition3D();
 		}
 	}
 
@@ -1449,11 +1453,6 @@ jQuery.AnnoBuilderInterfaceView = function() {
 		}
 	}
 
-	/**
-	 * Sets the start time to the specified value.
-	 *
-	 * @param {Number} seconds		The seconds value to store.
-	 */
 	jQuery.AnnoBuilderInterfaceView.prototype.setStartTime = function(seconds) {
 		if (seconds != null) {
 			var secondsString = scalarapi.decimalSecondsToHMMSS(seconds, true);
@@ -1466,11 +1465,6 @@ jQuery.AnnoBuilderInterfaceView = function() {
 		}
 	}
 
-	/**
-	 * Sets the end time to the specified value.
-	 *
-	 * @param {Number} seconds		The seconds value to store.
-	 */
 	jQuery.AnnoBuilderInterfaceView.prototype.setEndTime = function(seconds) {
 		if (seconds != null) {
 			var secondsString = scalarapi.decimalSecondsToHMMSS(seconds, true);
@@ -1480,11 +1474,19 @@ jQuery.AnnoBuilderInterfaceView = function() {
 		}
 	}
 
-	/**
-	 * Sets the title to the specified value.
-	 *
-	 * @param {Number} title		The title to store.
-	 */
+	jQuery.AnnoBuilderInterfaceView.prototype.setPosition3D = function(position3D) {
+		if (position3D != null) {
+      $('#targetX').val(position3D.targetX);
+      $('#targetY').val(position3D.targetY);
+      $('#targetZ').val(position3D.targetZ);
+      $('#cameraX').val(position3D.cameraX);
+      $('#cameraY').val(position3D.cameraY);
+      $('#cameraZ').val(position3D.cameraZ);
+      $('#roll').val(position3D.roll);
+      $('#fieldOfView').val(position3D.fieldOfView);
+		}
+	}
+
 	jQuery.AnnoBuilderInterfaceView.prototype.setTitle = function(title) {
 		if (title != null) {
 			this.title = title;
@@ -1964,7 +1966,6 @@ jQuery.AnnoBuilderInterfaceView = function() {
 
 						case '3D':
 						var position3D = me.unparsePosition3D(edits);
-            console.log(position3D);
 						relationData[annotation.id] = {
 							action: 'RELATE',
 							'scalar:urn': annotation.body.current.urn,
@@ -2126,6 +2127,16 @@ jQuery.AnnoBuilderInterfaceView = function() {
 		$('#annotationTitle').val( annotation.text );
 		$.annobuilder.view.builder.handleEditTitle();
 		$.annobuilder.view.builder.handleSave();
+	}
+
+	jQuery.AnnoBuilderInterfaceView.prototype.handleReturnPosition3D = function( message ) {
+    if (message.isTrusted && window.location.href.indexOf(message.origin) != -1) {
+      let position3D = JSON.parse(message.data);
+      me.setPosition3D(position3D);
+      me.makeSelectedAnnotationDirty();
+      me.sortAnnotations();
+      me.update();
+    }
 	}
 
 }
