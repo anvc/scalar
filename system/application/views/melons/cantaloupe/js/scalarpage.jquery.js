@@ -373,7 +373,7 @@
                 }
 
                 if($(mediaelement.link).hasClass('wrap')){
-                    if(typeof infoElement != 'undefined'){
+                    if( typeof infoElement != 'undefined' && !isFullWidth){
                         infoElement.addClass('wrapped');
                     }
                     if(isFullWidth){
