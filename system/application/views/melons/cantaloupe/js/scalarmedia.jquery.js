@@ -316,7 +316,7 @@
         		var labelDescription = labelNode.properties['http://purl.org/dc/terms/description'][0].value;
         		var $img = $('<img tabindex="0" rel="art:url" src="'+url+'" data-toggle="popover" data-placement="top" />').appendTo($label);
             $img.popover({
-              trigger: "click focus",
+              trigger: "manual focus",
               html: true,
               template: popoverTemplate,
               content: '<img src="'+url+'" /><p class="supertitle">Traditional Knowledge</p><h3 class="heading_weight">'+labelNode.title+'</h3><p>'+labelDescription+'</p><p><a href="http://localcontexts.org/tk-labels/" target="_blank">More about Traditional Knowledge labels</a></p>'
