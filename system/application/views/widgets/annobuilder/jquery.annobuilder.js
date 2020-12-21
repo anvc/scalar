@@ -26,18 +26,13 @@
 
 jQuery.fn.annobuilder = function(options) {
 	return this.each(function() {
-
 		var element = $(this);
-
 		$.annobuilder.model.init(element, options);
 		if ($.annobuilder.model.mediaElement.model.node != null) {
 			$.annobuilder.controller.init();
 		} else {
 			$('body').on('mediaElementMetadataHandled', $.annobuilder.controller.init);
 		}
-
-		if ($.annobuilder.model.isTesting) console.log(options);
-
 	});
 };
 
@@ -123,7 +118,6 @@ jQuery.AnnoBuilderModel = function() {
 	this.annotations = [];					// array of annotations
 	this.selectedAnnotation = null;			// currently selected annotation
 	this.lastSelectedURL = null;			// uri of the last selected annotation
-	this.isTesting = false;					// are we in testing mode?
 
 	/**
 	 * Initializes the model.
@@ -132,18 +126,8 @@ jQuery.AnnoBuilderModel = function() {
 	 * @param {Object} options		Configuration options.
 	 */
 	jQuery.AnnoBuilderModel.prototype.init = function(element, options) {
-
 		this.element = element;
 		this.mediaElement = options.link.data('mediaelement');
-
-		// set testing flag
-		if (window.location.href.indexOf('testing') != -1) {
-			$.annobuilder.model.isTesting = true;
-			console.log('isTesting');
-		} else {
-			$.annobuilder.model.isTesting = false;
-		}
-
 	}
 
 	/**
