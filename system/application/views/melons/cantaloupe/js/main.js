@@ -609,19 +609,19 @@ $(window).ready(function() {
 		  }},
 
 		  {load: [widgets_uri+'/spinner/spin.min.js',
-		          widgets_uri+'/d3/d3.v5.min.js'], complete:function() {
+        widgets_uri+'/d3/d3.v5.min.js'], complete:function() {
 
-		        var currentNode = scalarapi.model.getCurrentPageNode();
-		        var extension = scalarapi.getFileExtension( window.location.href );
+        var currentNode = scalarapi.model.getCurrentPageNode();
+        var extension = scalarapi.getFileExtension( window.location.href );
 
-		   		if ( currentNode == null || currentNode.current == null) {
-		   			if ( extension != 'edit' && $('span[property="sioc:content"]').is(':empty')) {
-		   				$( 'body' ).append( '<div id="centered-message"><span>This page contains no content.</span> <span>Click the <img src="' + modules_uri + '/cantaloupe/images/edit_icon.png" alt="Edit button. Click to edit the current page or media." width="30" height="30" /> button above to add some.</span></div>' );
-		   			}
-		   		}
+	   		if ( currentNode == null || currentNode.current == null) {
+	   			if ( extension != 'edit' && $('span[property="sioc:content"]').is(':empty')) {
+	   				$( 'body' ).append( '<div id="centered-message"><span>This page contains no content.</span> <span>Click the <img src="' + modules_uri + '/cantaloupe/images/edit_icon.png" alt="Edit button. Click to edit the current page or media." width="30" height="30" /> button above to add some.</span></div>' );
+	   			}
+	   		}
 
-			  	$('#book-title').parent().wrap('<nav role="navigation"></nav>');
-			  	$('article').before($('#book-title').parent().parent());
+			  $('#book-title').parent().wrap('<nav role="navigation"></nav>');
+			  $('article').before($('#book-title').parent().parent());
 
 				header = $('#book-title').parent().parent().scalarheader( { root_url: modules_uri+'/cantaloupe'} );
 
