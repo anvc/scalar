@@ -2074,6 +2074,9 @@ jQuery.AnnoBuilderInterfaceView = function() {
 			this.footerControls.find('#doneMessage').css('display', 'inline');
 			this.annotationList.find('.annotationChip').data('edits', null);
 			this.dirtyAnnotations = [];
+      if ($.annobuilder.model.node.current.mediaSource.contentType == '3D') {
+        $.annobuilder.model.mediaElement.handleAnnotationsUpdated();
+      }
 		}
 
 		me.hideSpinner();

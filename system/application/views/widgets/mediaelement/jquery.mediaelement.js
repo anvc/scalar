@@ -268,6 +268,10 @@ function YouTubeGetID(url){
       return this.view.getPosition3D();
     }
 
+    this.handleAnnotationsUpdated = function() {
+      return this.view.handleAnnotationsUpdated();
+    }
+
 		/**
 		 * Returns true if the link passed to the plugin should be turned into a media player.
 		 * @return		Returns true if the link is to a file that's been imported into Scalar.
@@ -2000,6 +2004,14 @@ function YouTubeGetID(url){
     this.getPosition3D = function() {
       if (this.model.mediaSource.contentType == '3D') {
 				return this.mediaObjectView.getPosition3D();
+			} else {
+				return null;
+			}
+    }
+
+    this.handleAnnotationsUpdated = function() {
+      if (this.model.mediaSource.contentType == '3D') {
+				return this.mediaObjectView.handleAnnotationsUpdated();
 			} else {
 				return null;
 			}
@@ -5817,6 +5829,15 @@ function YouTubeGetID(url){
         "objectName": "ScalarCamera",
         "methodName": "SetTransform",
         "message": point_3d
+      });
+    }
+
+    jQuery.UnityWebGLObjectView.prototype.handleAnnotationsUpdated = function(slugs) {
+      console.log('handleAnnotationsUpdated');
+      this.receiver.postMessage({
+        "objectName": "ScalarCamera",
+        "methodName": "HandleAnnotationsUpdated",
+        "message": slugs
       });
     }
 
