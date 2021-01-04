@@ -4272,6 +4272,7 @@ window.scalarvis = { instanceCount: -1 };
         super.draw();
 
         var $wrapper = $('.visList:first');
+        var $tbody = $wrapper.find('tbody');
         $wrapper.find('.visListRow').remove();
         var maxLength = 100;
         for (var j = 0; j < base.sortedNodes.length; j++) {
@@ -4289,13 +4290,13 @@ window.scalarvis = { instanceCount: -1 };
           	var authorUrl = $('link#parent').attr('href') + base.sortedNodes[j].author;
           	var lastEdited = (base.sortedNodes[j].current.created) ? base.sortedNodes[j].current.created.substr(0, base.sortedNodes[j].current.created.indexOf('T')) : '';
           	var versions = base.sortedNodes[j].current.number;
-          	var $row = $('<tr class="visListRow"></div>').appendTo($wrapper);
+          	var $row = $('<tr class="visListRow"></div>').appendTo($tbody);
           	$row.append('<td class="sm" prop="title"><a href="'+url+'" target="_blank">'+title+'</a></td>');
           	$row.append('<td class="md" prop="description">'+description+'</td>');
           	$row.append('<td class="md" prop="content">'+content+'</td>');
-          	$row.append('<td class="lg" prop="content"><a href="'+authorUrl+'" target="_blank">'+author+'</a></td>');
-          	$row.append('<td class="lg" prop="content">'+lastEdited+'</td>');
-          	$row.append('<td class="lg" prop="content" style="text-align:center;">'+versions+'</td>');
+          	$row.append('<td class="lg" prop="author"><a href="'+authorUrl+'" target="_blank">'+author+'</a></td>');
+          	$row.append('<td class="lg" prop="lastEdtited">'+lastEdited+'</td>');
+          	$row.append('<td class="lg" prop="version" style="text-align:center;">'+versions+'</td>');
           };
           var doSizing = function() {
           	var $visList = $('.visList');
@@ -4328,14 +4329,31 @@ window.scalarvis = { instanceCount: -1 };
         	$('head').append('<link rel="stylesheet" type="text/css" href="' + css + '">');
         };
         var $wrapper = $('<table class="visList"></table>').appendTo(base.visualization);
-        var $header = $('<tr class="header"></tr>').appendTo($wrapper);
-        $header.append('<td class="sm" prop="title">Title</td>');
-        $header.append('<td class="md" prop="description">Description</td>');
-        $header.append('<td class="md" prop="content">Content</td>');
-        $header.append('<td class="lg" prop="content">Author</td>');
-        $header.append('<td class="lg" prop="content">Last Edited</td>');
-        $header.append('<td class="lg" prop="content">Version</td>');
-
+        var $tbody = $wrapper.append('<tbody></tbody>');
+        var $header = $('<tr class="header"></tr>').appendTo($tbody);
+        $header.append('<td class="sm" prop="title"><a href="javascript:void(null);">Title</a></td>');
+        $header.append('<td class="md" prop="description"><a href="javascript:void(null);">Description</a></td>');
+        $header.append('<td class="md" prop="content"><a href="javascript:void(null);">Content</a></td>');
+        $header.append('<td class="lg" prop="author"><a href="javascript:void(null);">Author</a></td>');
+        $header.append('<td class="lg" prop="lastEdited"><a href="javascript:void(null);">Last Edited</a></td>');
+        $header.append('<td class="lg" prop="version"><a href="javascript:void(null);">Version</a></td>');
+        $header.find('a').on('click', function() {
+        	var $this = $(this);
+        	var index = $header.find('a').index($this);
+        	if ($header.data('sortBy') != index) {
+        		$header.data('sortBy', index);
+        		$header.data('sortDir', 'asc');
+        	} else {
+        		$header.data('sortDir', (($header.data('sortDir')=='asc')?'desc':'asc'));
+        	}
+        	$tbody.find('tr:not(.header)').sort(function(a, b) {
+                if ($header.data('sortDir') == 'asc') {
+                    return $('td:eq('+$header.data('sortBy')+')', a).text().localeCompare($('td:eq('+$header.data('sortBy')+')', b).text());
+                } else {
+                    return $('td:eq('+$header.data('sortBy')+')', b).text().localeCompare($('td:eq('+$header.data('sortBy')+')', a).text());
+                }
+            }).appendTo($tbody);
+        });
       }
     }
 
