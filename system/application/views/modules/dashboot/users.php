@@ -5,6 +5,7 @@ if (empty($book)) {
 }
 ?>
 <?$this->template->add_css('system/application/views/widgets/edit/content_selector.css')?>
+<?$this->template->add_js('system/application/views/widgets/api/scalarapi.js')?>
 <?$this->template->add_js('system/application/views/widgets/edit/jquery.content_selector_bootstrap.js')?>
 <?$this->template->add_css('body {margin-bottom:0;}','embed')?>
 

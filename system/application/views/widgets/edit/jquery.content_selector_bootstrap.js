@@ -2799,13 +2799,11 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				var type_display_name = 'Pages';
 			} else if (opts.types[t] == 'reply') {
 				var type_display_name = 'Comments';
+			} else if (opts.types[t] == 'users') {
+				var type_display_name = 'Users';
 			} else {
 				var type_display_name = scalarapi.model.scalarTypes[opts.types[t]].plural;
 				type_display_name = type_display_name.charAt(0).toUpperCase() + type_display_name.slice(1);
-				/*var type_display_name = opts.types[t].charAt(0).toUpperCase() + opts.types[t].slice(1);
-				if (type_display_name != 'Media' && opts.editorialOptions === false) {
-					type_display_name += 's';
-				}*/
 			}
 
 			$type_selector.append('<option value="' + opts.types[t] + '">' + type_display_name + '</option>');
