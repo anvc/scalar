@@ -1117,6 +1117,7 @@ a.nav_btn:hover {
 .texteo_icon_summary { background-image:url(images/summary@2x.png); }
 .texteo_icon_visualization, .texteo_icon_3D { background-image:url(images/visualization@2x.png); }
 .texteo_icon_document { background-image:url(images/document@2x.png); }
+.texteo_icon_lens { background-image:url(images/lens@2x.png); }
 
 /* TODO */
 .path_icon { width:14px; height:14px; margin-right: 5px; background-size: contain; background-image:url(../images/icon_path_dark.png); display:inline-block; background-position:left top;}
