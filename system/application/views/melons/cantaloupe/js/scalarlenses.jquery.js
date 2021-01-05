@@ -449,6 +449,14 @@
       } else {
         button.text(this.visualizationOptions[visualizationObj.type].text).prepend('<span class="viz-icon '  + visualizationObj.type + ' light"</span>').append('<span class="caret"></span>')
       }
+
+      $(this.element).find('.dropdown-menu li').removeClass('active');
+      $(this.element).find('.dropdown-menu li').each(function() {
+        let listItemValue = $(this).text().toLowerCase();
+        if(listItemValue == visualizationObj.type){
+          $(this).addClass('active');
+        }
+      });
     }
 
     // add operator button
@@ -558,9 +566,6 @@
           me.deleteContentSelectorButton(componentIndex);
           break;
         }
-
-
-
       };
 
       let options = [
@@ -581,6 +586,8 @@
       }
 
       this.populateDropdown(element.find('.content-selector-button'), element.find('.content-selector-dropdown'), null, onClick, markup, options);
+
+      $(element).find('.dropdown-menu li').removeClass('active');
 
       let button = element.find('button'); // the element are being passed is actually a btn-group, the button is inside
       let buttonText = 'Select items...';
@@ -605,6 +612,7 @@
             } else {
               buttonText = '[no items selected]';
             }
+            $(element).find('.dropdown-menu li').eq(0).addClass('active');
             break;
 
           case 'items-by-type':
@@ -627,6 +635,7 @@
               buttonText = 'All ' + scalarapi.model.relationTypes[contentType].bodyPlural;
               break;
             }
+            $(element).find('.dropdown-menu li').eq(1).addClass('active');
             break;
 
           case 'items-by-distance':
@@ -647,6 +656,7 @@
             let updateByDistance = quantity + ' ' + abbreviateUnits + ' from ' + coordinates;
 
             buttonText = 'Items ≤ ' + updateByDistance;
+            $(element).find('.dropdown-menu li').eq(2).addClass('active');
             break;
 
         }

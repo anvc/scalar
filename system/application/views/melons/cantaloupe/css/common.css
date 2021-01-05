@@ -1532,7 +1532,7 @@ input.validation-error {
 	margin: 6px;
 }
 .dropdown-menu {
-	min-width:152px;
+	min-width:172px;
 }
 .dropdown-menu li a {
 	cursor:pointer;
