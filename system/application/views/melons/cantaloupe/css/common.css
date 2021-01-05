@@ -1424,7 +1424,9 @@ body>.annotorious-popup{
 .row.lens {
 	margin:0;
 }
-
+.mediaElementFooter .viz-icon {
+	float: left;
+}
 .lens-editor .col-xs-12 {
   padding:0;
   background:#dddddd;
@@ -1438,7 +1440,7 @@ body>.annotorious-popup{
   float:right;
 }
 .lens-content.col-xs-11 {
-  width:97%;
+  width:calc(100% - 20px);
 	border-radius:0px 8px 8px 0px;
 }
 .lens-icon-wrapper.col-xs-1 {
@@ -1460,7 +1462,8 @@ body>.annotorious-popup{
 .lens-tags {
 	max-width:93%;
 }
-.body_copy .lens-title {
+.lens-editor .lens-title {
+	padding: 0;
   margin-top:0;
   margin-bottom: 1px;
 	white-space: nowrap;
@@ -1591,6 +1594,12 @@ input.validation-error {
 }
 .list.light {
 	background-image:url(../images/icon_list_light.png);
+}
+.viz-icon.lens {
+	background-image:url(../images/icon_lens_dark.png);
+}
+.lens.light {
+	background-image:url(../images/icon_lens_light.png);
 }
 .viz-icon.map {
 	background-image:url(../images/icon_map_dark.png);

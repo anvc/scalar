@@ -2617,6 +2617,7 @@ function ScalarModel(options) {
 		'author':{id:'author', singular:'author', plural:'authors'},
 		'commentator':{id:'commentator', singular:'commentator', plural:'commentators'},
 		'reviewer':{id:'reviewer', singular:'reviewer', plural:'reviewers'},
+		'term':{id:'term', singular:'term', plural:'terms'},
 		'other':{id:'other', singular:'file', plural:'files'}
 	}
 

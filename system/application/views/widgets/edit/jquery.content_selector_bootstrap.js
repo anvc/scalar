@@ -853,6 +853,49 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 							e.stopPropagation();
 						}
 						break;
+					case 'lens':
+						$singleLens = $('<div id="lens_data_single"></div>').appendTo($content);
+						$('<div class="widget_data_type">Select a lens to embed in the page.</div>').appendTo($singleLens);
+						var opts = {};
+						if (isEdit) {
+							var $el = $(element.$);
+							if ($el.attr("resource") != undefined) {
+								opts.selected = [$el.attr("resource")];
+							} else if ($el.data("nodes") != undefined) {
+								opts.selected = $el.data("nodes").split(",");
+							}
+						}
+						opts.allowMultiple = false;
+						opts.nodeCountContainer = $nodeCount = $('<span class="node_count text-warning form-control-static pull-right"></span>');
+						hasNodeCount = true;
+
+						opts.allowChildren = true;
+						opts.fields = ["title", "description", "url", "preview"];
+						opts.types = ['lens'];
+						opts.defaultType = 'lens';
+						opts.rec = 1;
+
+						$('<div class="node_selection lens_single_selection">').appendTo($singleLens).node_selection_dialogue(opts);
+
+						submitAction = function(e) {
+							var data = { type: "lens", attrs: {} };
+							data.isEdit = $(this).data('isEdit');
+							data.attrs["data-widget"] = data.type;
+							data.attrs["data-nodes"] = $('#bootbox-content-selector-content .lens_single_selection').data('node_selection_dialogue').serialize_nodes();
+							if (data.attrs["data-nodes"] == '') {
+								alert("Please select a lens for your widget.");
+								return false;
+							}
+							var nodeList = $('#bootbox-content-selector-content .lens_single_selection .node_selector').data('nodes');
+							if (nodeList.length > 1) {
+								order_nodes(data, nodeList);
+							} else {
+								select_widget_formatting(data)
+							}
+							e.preventDefault();
+							e.stopPropagation();
+						}
+						break;
 					case 'map':
 						$('<div class="widget_data_type">Choose any <a target="_blank" href="http://scalar.usc.edu/works/guide2/google-map-layout">geotagged</a> Scalar items (including paths or tags with geotagged contents).</div>').appendTo($content);
 
@@ -1156,8 +1199,6 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					}
 				}
 
-
-
 				//Need to limit formatting options per widget type here
 				switch (options.type) {
 					case 'timeline':
@@ -1182,6 +1223,9 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 					formattingOptions.Size = ['Full'];
 				}
 
+				if (options.type == "lens") {
+					formattingOptions.Size = ['Medium', 'Large', 'Full'];
+				}
 
 				if (options.type == "timeline") {
 					formattingOptions.Zoom = ['25%','50%','100%','200%','400%'];
@@ -1345,6 +1389,15 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			}
 		];
 
+		var lenses_are_active = ('true' == $('link#lenses_are_active').attr('href')) ? true : false;
+		if (lenses_are_active) {
+			widget_types.splice(2, 0, {
+				name: "Lens",
+				description: "Living snapshots of the content of a book, visualizing dynamic selections of pages and media.",
+				icon: "widget_image_lens.png"
+			});
+		}
+
 		for (var i = 0; i < widget_types.length; i++) {
 			var widget = widget_types[i];
 			var $widget = $('<div class="widget_type"><img class="pull-left" src="' + icon_base_url + widget.icon + '"><a class="uppercase"><strong>' + widget.name + '</strong></a><br />' + widget.description + '</div>').data('type', widget.name);
@@ -1420,13 +1473,13 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			} else {
 				if ('search' == lastLoadType && $('#content_selector_s_all').is(':checked')) {
 					url += '&meta=1';
-					url += '&s_all=1';					
+					url += '&s_all=1';
 				} else if (opts.includeMetadata) {
 					url += '&meta=1';
 					url += '&s_all=0';
 				} else {
 					url += '&meta=0';
-					url += '&s_all=0';					
+					url += '&s_all=0';
 				}
 			}
 			if (!doSearch && typeof loaded_nodeLists[type] !== "undefined" && options.page == 0) {
@@ -2747,10 +2800,12 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			} else if (opts.types[t] == 'reply') {
 				var type_display_name = 'Comments';
 			} else {
-				var type_display_name = opts.types[t].charAt(0).toUpperCase() + opts.types[t].slice(1);
+				var type_display_name = scalarapi.model.scalarTypes[opts.types[t]].plural;
+				type_display_name = type_display_name.charAt(0).toUpperCase() + type_display_name.slice(1);
+				/*var type_display_name = opts.types[t].charAt(0).toUpperCase() + opts.types[t].slice(1);
 				if (type_display_name != 'Media' && opts.editorialOptions === false) {
 					type_display_name += 's';
-				}
+				}*/
 			}
 
 			$type_selector.append('<option value="' + opts.types[t] + '">' + type_display_name + '</option>');

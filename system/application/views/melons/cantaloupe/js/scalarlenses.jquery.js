@@ -3595,7 +3595,6 @@
       this.scalarLensObject.user_level = this.userLevel;
       this.baseURL = $('link#parent').attr('href');
       if (this.canSave == true) {
-        let currentNode = scalarapi.model.getCurrentPageNode();
         var baseProperties =  {
             'native': 1,
             'id': this.userId,

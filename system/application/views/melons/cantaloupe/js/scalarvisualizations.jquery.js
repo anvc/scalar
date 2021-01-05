@@ -226,6 +226,11 @@ window.scalarvis = { instanceCount: -1 };
         visFooter.css('text-align', 'center');
       }
 
+      if (options.caption) {
+        visFooter.append($(options.caption));
+        visFooter.css('text-align', 'left');
+      }
+
       // help popover
       base.helpButton = $('<button class="btn btn-link btn-xs" data-toggle="popover" data-placement="top">About this visualization</button>');
       visFooter.append(base.helpButton);
@@ -237,7 +242,7 @@ window.scalarvis = { instanceCount: -1 };
 
       // legend popover
       if (base.getFormat() != "tagcloud") {
-        visFooter.append('|');
+        visFooter.append(' | ');
         base.legendButton = $('<button class="btn btn-link btn-xs" data-toggle="popover" data-placement="top" >Legend</button>');
         visFooter.append(base.legendButton);
         var type, color, name,
@@ -264,11 +269,11 @@ window.scalarvis = { instanceCount: -1 };
       }
 
       if (!isMobile) {
-        base.inspectorSpan = $('<span>|</span>').appendTo(visFooter);
+        base.inspectorSpan = $('<span> | </span>').appendTo(visFooter);
         base.inspectorButton = $('<button class="btn btn-link btn-xs">Inspector</button>').appendTo(base.inspectorSpan);
         base.inspectorButton.on('click', base.toggleInspector);
 
-        visFooter.append('|');
+        visFooter.append(' | ');
         base.fullScreenButton = $('<button class="btn btn-link btn-xs"><img style="margin-top: -1px;" src="' + modules_uri + '/cantaloupe/images/fs_icon@2x.png" width="15" height="12"/> Full screen</button>');
         visFooter.append(base.fullScreenButton);
         base.fullScreenButton.on('click', base.enterFullScreen);
@@ -4295,7 +4300,7 @@ window.scalarvis = { instanceCount: -1 };
           	$row.append('<td class="md" prop="description">'+description+'</td>');
           	$row.append('<td class="md" prop="content">'+content+'</td>');
           	$row.append('<td class="lg" prop="author"><a href="'+authorUrl+'" target="_blank">'+author+'</a></td>');
-          	$row.append('<td class="lg" prop="lastEdtited">'+lastEdited+'</td>');
+          	$row.append('<td class="lg" prop="lastEdited">'+lastEdited+'</td>');
           	$row.append('<td class="lg" prop="version" style="text-align:center;">'+versions+'</td>');
           };
           var doSizing = function() {
@@ -4366,7 +4371,8 @@ window.scalarvis = { instanceCount: -1 };
     relations: 'all',
     format: 'grid',
     modal: false,
-    widget: false
+    widget: false,
+    caption: null
   };
 
   $.fn.scalarvis = function(options) {

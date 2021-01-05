@@ -1744,12 +1744,6 @@
               } else {
                 visualization.empty();
               }
-              var slugs = [];
-              for (var url in lensObject.items) {
-                if (scalarapi.model.nodesByURL[url] != null) {
-                  slugs.push(scalarapi.model.nodesByURL[url].slug);
-                }
-              }
               if (lensObject.visualization) {
                 var visOptions = {
                     modal: false,

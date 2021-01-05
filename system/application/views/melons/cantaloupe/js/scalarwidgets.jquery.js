@@ -100,6 +100,9 @@
 							case 'visualization':
 								base.renderVisualization($widget);
 								break;
+              case 'lens':
+                base.renderLens($widget);
+                break;
 							case 'map':
                 if(typeof page.pendingDeferredScripts.GoogleMaps == 'undefined'){
                     page.pendingDeferredScripts.GoogleMaps = [];
@@ -344,6 +347,77 @@
 
            visElement.scalarvis( options );
 				 };
+
+         //Handle lenses inserted into this page
+				 base.renderLens = function($widget){
+           //Grab the container for this widget
+           var $element = $widget.data('element');
+           var visElement = $( '<div></div>' ).appendTo($element);
+           var descriptionElement = $widget.data('container').find('.media_description');
+           base.getLensData($widget, visElement, descriptionElement);
+         }
+
+         base.getLensData = function($widget, visElement, descriptionElement){
+           let bookId = $('link#book_id').attr('href');
+           let baseURL = $('link#approot').attr('href').replace('application', 'lenses');
+           let mainURL = `${baseURL}?book_id=${bookId}`;
+           $.ajax({
+             url:mainURL,
+             type: "GET",
+             dataType: 'json',
+             contentType: 'application/json',
+             async: true,
+             context: this,
+             success: function(response) {
+               let data = response;
+               let slug = $widget.data('nodes');
+               data.forEach(lens => {
+                 if (lens.slug == slug) {
+                   let url = $('link#approot').attr('href').replace('application/','') + 'lenses';
+                   $.ajax({
+                     url: url,
+                     type: "POST",
+                     dataType: 'json',
+                     contentType: 'application/json',
+                     data: JSON.stringify(lens),
+                     async: true,
+                     context: this,
+                     success: (data) => {
+                       if ('undefined' != typeof(data.error)) {
+                         console.log('There was an error attempting to get Lens data: '+data.error);
+                         return;
+                       };
+                       scalarapi.parsePagesByType(data.items);
+                      base.handleLensResults(data, visElement, descriptionElement)
+                     },
+                     error: function error(response) {
+                        console.log('There was an error attempting to communicate with the server.');
+                     }
+                   });
+                 }
+               });
+             },
+             error: function error(response) {
+                console.log('There was an error attempting to communicate with the server.');
+                console.log(response);
+             }
+           });
+         }
+
+         base.handleLensResults = function(lensObject, visElement, descriptionElement) {
+           if (lensObject.visualization) {
+             var visOptions = {
+                 modal: false,
+                 widget: true,
+                 content: 'lens',
+                 caption: descriptionElement,
+                 lens: lensObject
+             };
+             visElement.scalarvis(visOptions);
+           }
+           //descriptionElement.addClass('lens-description');
+           descriptionElement.prepend('<span class="viz-icon lens"></span>');
+         }
 
 				 //Handle Google Maps inserted into this page
 				 base.renderMap = function($widget){
@@ -1051,14 +1125,14 @@
                     switch ( caption_type ) {
 
               				case 'title':
-              				description = node.getDisplayTitle();
+              				description = '<div><a href="' + node.url + '"><strong>' + node.getDisplayTitle() + '</strong></a></div>';
               				break;
 
               				case 'title_and_description':
               				if ( node.current.description != null ) {
-              					description = '<strong>' + node.getDisplayTitle() + '</strong><br>' + node.current.description;
+              					description = '<div><a href="' + node.url + '"><strong>' + node.getDisplayTitle() + '</strong></a><br>' + node.current.description + '</div>';
               				} else {
-              					description = node.getDisplayTitle();
+              					description = '<div><a href="' + node.url + '"><strong>' + node.getDisplayTitle() + '</strong></a></div>';
               				}
               				break;
 
