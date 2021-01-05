@@ -130,6 +130,7 @@
       };
       this.darkSpinner = new Spinner(spinner_options).spin();
 
+      this.bookId = $('link#book_id').attr('href');
       this.userLevel = 'unknown';
       if ($('link#user_level').length > 0) {
         this.userLevel = $('link#user_level').attr('href');
@@ -3270,7 +3271,7 @@
           break;
 
           case 'duplicate-lens':
-            me.showModal('Are you sure you want to duplicate this lens?', function(){console.log()});
+            me.showModal('Are you sure you want to duplicate this lens?', () => { me.duplicateLens(); });
           break;
 
           case 'export-lens':
@@ -3289,6 +3290,43 @@
 
       this.populateDropdown($(this.element).find('.option-menu-button'), $(this.element).find('.option-menu-list'), null, onClick,
         '<li><a></a></li>', menuOptions);
+    }
+
+    ScalarLenses.prototype.duplicateLens = function() {
+      let duplicateJson = JSON.parse(JSON.stringify(this.scalarLensObject));
+      duplicateJson.title += ' copy';
+      duplicateJson.user_level = this.userLevel;
+      delete duplicateJson.slug;
+      delete duplicateJson.urn;
+      delete duplicateJson.book_urn;
+			data = {
+				'action': 'ADD',
+				'native': '1',
+				'id': this.userId,
+				'api_key': '',
+				'dcterms:title': duplicateJson.title,
+				'dcterms:description': '',
+				'sioc:content': '',
+				'rdf:type': 'http://scalar.usc.edu/2012/01/scalar-ns#Composite',
+        'scalar:child_urn': 'urn:scalar:book:' + this.bookId,
+        'scalar:child_type': 'http://scalar.usc.edu/2012/01/scalar-ns#Book',
+        'scalar:child_rel': 'grouped',
+        'scalar:contents': JSON.stringify(duplicateJson)
+			};
+  		var error = function(error) {
+        console.log(error);
+  			alert('An error occurred while duplicating the lens.');
+  		}
+  		scalarapi.savePage(data, function(response) {
+        var firstProp;
+        for(var key in response) {
+            if(response.hasOwnProperty(key)) {
+                var url = scalarapi.stripEditionAndVersion(key.slice(0, key.length - 1));
+                window.location.href = url;
+                break;
+            }
+        }
+      }, error);
     }
 
     // ok modal
