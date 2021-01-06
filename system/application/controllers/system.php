@@ -188,6 +188,17 @@ class System extends MY_Controller {
 						$json['slug'] = $page->slug;
 					}
 				}
+				// Return users
+				$json['users'] = array();
+				foreach ($json['items'] as $uri => $values) {
+					if (isset($values['http://www.w3.org/ns/prov#wasAttributedTo'])) {
+						$user_id = (int) substr($values['http://www.w3.org/ns/prov#wasAttributedTo'][0]['value'], 6);
+						if (!isset($json['users'][$user_id])) {
+							$user = $this->users->get_by_user_id($user_id);
+							$json['users'][$user_id] = $user->fullname;
+						}
+					}
+				}
 				$this->data['content'] = $json;
 			} else {
 				$this->data['content'] = '{"error":"Missing Version ID, Book ID, or JSON payload"}';
