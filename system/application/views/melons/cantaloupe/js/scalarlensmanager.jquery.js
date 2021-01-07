@@ -174,7 +174,7 @@
 
       $('.my-private-lenses-list,.other-private-lenses-list,.submitted-lenses-list,.public-lenses-list').empty();
 
-      myPrivateLensArray.length > 0 && this.loggedIn ? $('.my-private-lenses').show() : $('.my-private-lenses').hide();
+      this.loggedIn ? $('.my-private-lenses').show() : $('.my-private-lenses').hide();
       otherPrivateLensArray.length > 0 && this.loggedIn ? $('.other-private-lenses').show() : $('.other-private-lenses').hide();
       submittedLensArray.length > 0 ? $('.submitted-lenses').show() : $('.submitted-lenses').hide();
       publicLensArray.length > 0 ? $('.public-lenses').show() : $('.public-lenses').hide();
