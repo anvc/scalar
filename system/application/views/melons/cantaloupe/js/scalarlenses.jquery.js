@@ -506,36 +506,6 @@
         </div>`
       ).appendTo(element)
       buttonGroup.data('componentIndex', componentIndex);
-      /*var me = this;
-      let onClick = function (evt) {
-        let option = $(evt.target).parent().data('option');
-        console.log(option);
-        me.editedComponentIndex = componentIndex;
-        if (option.value == 'specific-items') {
-          $('<div></div>').content_selector({
-            changeable: true,
-            multiple: true,
-            onthefly: true,
-            msg: 'Choose items to be included in this lens.',
-            callback: function(a){
-              me.handleContentSelected(a)
-            }
-          });
-        }
-      };
-
-      this.populateDropdown(buttonGroup.find('.content-selector-button'), buttonGroup.find('.content-selector-dropdown'), null, onClick,
-        [
-          '<li><a></a></li>',
-          '<li><a data-toggle="modal" data-target="#modalByType"></a></li>',
-          '<li><a data-toggle="modal" data-target="#modalByDistance"></a></li>'
-        ],
-        [
-          {label: "Specific items...", value: "specific-items"},
-          {label: "Items by type...", value: "items-by-type"},
-          {label: "Items by distance...", value: "items-by-distance"}
-        ]);*/
-
       return buttonGroup;
     }
 
@@ -561,6 +531,14 @@
               me.handleContentSelected(a)
             }
           });
+          break;
+
+          case 'items-by-type':
+          me.updateTypeModal(contentSelectorObj);
+          break;
+
+          case 'items-by-distance':
+          me.updateDistanceModal(contentSelectorObj);
           break;
 
           case 'delete':
@@ -1157,7 +1135,9 @@
       return passedValidation;
     }
 
-
+    ScalarLenses.prototype.updateTypeModal = function(contentSelectorObj) {
+      $('#byType').text(contentSelectorObj['content-type']).append('<span class="caret"></span>');
+    }
 
     // add distance modal
     ScalarLenses.prototype.addDistanceModal = function(){
@@ -1286,6 +1266,14 @@
         $('#modalByDistance .modal-body').append('<div class="validation-error">' + errorMessage + '</div>');
       }
       return passedValidation;
+    }
+
+    ScalarLenses.prototype.updateDistanceModal = function(contentSelectorObj) {
+      $('#distanceQuantity').val(contentSelectorObj.quantity);
+      $('#distanceUnits').text(contentSelectorObj.units).append('<span class="caret"></span>');
+      let temp = contentSelectorObj.coordinates.split(',');
+      $('#latitude').val(parseFloat(temp[0]));
+      $('#longitude').val(parseFloat(temp[1]));
     }
 
     // add filter modal
