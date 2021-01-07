@@ -4019,7 +4019,7 @@
         }
       }
       children.each(function () {;
-        triples = triples.concat(rdfa.call($(this), { forward: rels, backward: revs, subject: subject, object: resource || subject, lang: lang, namespaces: namespaces }));
+        if (this.id != 'scalar_version') triples = triples.concat(rdfa.call($(this), { forward: rels, backward: revs, subject: subject, object: resource || subject, lang: lang, namespaces: namespaces }));
       });
       return triples;
     },

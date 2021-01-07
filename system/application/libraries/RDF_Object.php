@@ -964,6 +964,10 @@ class RDF_Object {
 		$CI =& get_instance();
 		if ('object'!=gettype($CI->pages)) $CI->load->model('page_model','pages');
 
+		if ($settings['use_versions'] == null) {
+			$settings['use_versions'] = false;
+		}
+
 		$content = $CI->pages->get_by_slug($settings['book']->book_id, $annotation->parent_content_slug);
 		$settings['rel'] = self::REL_CHILDREN_ONLY;
 		$settings['versions'] = self::VERSIONS_MOST_RECENT;
