@@ -373,31 +373,35 @@
              success: function(response) {
                let data = response;
                let slug = $widget.data('nodes');
-               data.forEach(lens => {
-                 if (lens.slug == slug) {
-                   let url = $('link#approot').attr('href').replace('application/','') + 'lenses';
-                   $.ajax({
-                     url: url,
-                     type: "POST",
-                     dataType: 'json',
-                     contentType: 'application/json',
-                     data: JSON.stringify(lens),
-                     async: true,
-                     context: this,
-                     success: (data) => {
-                       if ('undefined' != typeof(data.error)) {
-                         console.log('There was an error attempting to get Lens data: '+data.error);
-                         return;
-                       };
-                       scalarapi.parsePagesByType(data.items);
-                      base.handleLensResults(data, visElement, descriptionElement)
-                     },
-                     error: function error(response) {
-                        console.log('There was an error attempting to communicate with the server.');
-                     }
-                   });
-                 }
-               });
+               if (data.length > 0) {
+                 data.forEach(lens => {
+                   if (lens.slug == slug) {
+                     let url = $('link#approot').attr('href').replace('application/','') + 'lenses';
+                     $.ajax({
+                       url: url,
+                       type: "POST",
+                       dataType: 'json',
+                       contentType: 'application/json',
+                       data: JSON.stringify(lens),
+                       async: true,
+                       context: this,
+                       success: (data) => {
+                         if ('undefined' != typeof(data.error)) {
+                           console.log('There was an error attempting to get Lens data: '+data.error);
+                           return;
+                         };
+                         scalarapi.parsePagesByType(data.items);
+                        base.handleLensResults(data, visElement, descriptionElement)
+                       },
+                       error: function error(response) {
+                          console.log('There was an error attempting to communicate with the server.');
+                       }
+                     });
+                   }
+                 });
+               } else {
+                 descriptionElement.parent().prepend('Unable to load lens; it may not have been made public yet.');
+               }
              },
              error: function error(response) {
                 console.log('There was an error attempting to communicate with the server.');
@@ -417,7 +421,6 @@
              };
              visElement.scalarvis(visOptions);
            }
-           //descriptionElement.addClass('lens-description');
            descriptionElement.prepend('<span class="viz-icon lens"></span>');
          }
 
@@ -1121,7 +1124,7 @@
               var caption_type = $widget.data('caption');
               if(caption_type=='custom_text'){
                 $descriptionPane.html('<p>'+$widget.data('custom_caption')+'</p>').css('display','block');
-              }else {
+              } else {
                 (function($widget,$descriptionPane,caption_type,slug){
                   var load_caption = function(node){
                     switch ( caption_type ) {
