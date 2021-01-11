@@ -113,12 +113,14 @@
                             page.pendingDeferredScripts.GoogleMaps[i].resolve();
                         }
                     });
+                    promise = $.Deferred();
+                    page.pendingDeferredScripts.GoogleMaps.push(promise);
+                    $.when(promise).then($.proxy(function(){
+                        base.renderMap($widget);
+                    },this));
+                } else {
+                  base.renderMap($widget);
                 }
-                promise = $.Deferred();
-                page.pendingDeferredScripts.GoogleMaps.push(promise);
-                $.when(promise).then($.proxy(function(){
-                    base.renderMap($widget);
-                },this));
 								break;
 							case 'carousel':
 								base.renderCarousel($widget);
