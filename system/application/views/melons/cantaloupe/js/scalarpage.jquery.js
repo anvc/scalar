@@ -2223,7 +2223,9 @@
             },
 
             handleDelayedResize: function() {
-                if ((page.initialMediaLoad === true) && !page.isFullScreen && (document.location.href.indexOf('.annotation_editor') == -1)) {
+              var fullscreenElement = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement;
+              page.isFullScreen = (fullscreenElement != null);
+              if ((page.initialMediaLoad === true) && !page.isFullScreen && (document.location.href.indexOf('.annotation_editor') == -1)) {
                     var reload = false;
                     page.orientation = window.orientation;
                     if ($('body').width() <= page.mobileWidth) {
