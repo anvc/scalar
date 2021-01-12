@@ -1721,7 +1721,7 @@ input.validation-error {
 	float:left;
 	margin-right:3px;
 }
-#latitude.form-control {
+#latitude.form-control, #distance-latitude.form-control {
 	width:98%;
 }
 
@@ -1820,10 +1820,10 @@ span.base {
 .sort-modal-content {
 	margin:20px 0;
 }
-#latitude, #longitude {
+#latitude, #longitude, #distance-latitude, #distance-longitude {
 	max-width:150px
 }
-#latitude {
+#latitude, #distance-latitude {
 	float:left;
 	margin-right:3px;
 }

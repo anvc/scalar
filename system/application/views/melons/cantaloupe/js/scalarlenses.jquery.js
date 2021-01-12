@@ -595,25 +595,7 @@
             break;
 
           case 'items-by-type':
-            let contentType = contentSelectorObj["content-type"];
-            switch (contentType) {
-              case 'all-content':
-              buttonText = 'All content';
-              break;
-              case 'table-of-contents':
-              buttonText = 'Table of contents';
-              break;
-              case 'page':
-              case 'media':
-              buttonText = 'All ' + scalarapi.model.scalarTypes[contentType].plural;
-              break;
-              case 'reply':
-              buttonText = 'All ' + scalarapi.model.relationTypes['comment'].bodyPlural;
-              break;
-              default:
-              buttonText = 'All ' + scalarapi.model.relationTypes[contentType].bodyPlural;
-              break;
-            }
+            buttonText = this.getDisplayTypeForType(contentSelectorObj["content-type"], true);
             $(element).find('.dropdown-menu li').eq(1).addClass('active');
             break;
 
@@ -641,6 +623,46 @@
         }
       }
       button.text(buttonText).append('<span class="caret"></span>');
+    }
+
+    ScalarLenses.prototype.getDisplayTypeForType = function(contentType, usePlurals = false) {
+      let displayType;
+      if (usePlurals) {
+        switch (contentType) {
+          case 'all-content':
+          displayType = 'All content';
+          break;
+          case 'table-of-contents':
+          displayType = 'Table of contents';
+          break;
+          case 'page':
+          case 'media':
+          displayType = 'All ' + scalarapi.model.scalarTypes[contentType].plural;
+          break;
+          case 'reply':
+          displayType = 'All ' + scalarapi.model.relationTypes['comment'].bodyPlural;
+          break;
+          default:
+          displayType = 'All ' + scalarapi.model.relationTypes[contentType].bodyPlural;
+          break;
+        }
+      } else {
+        switch (contentType) {
+          case 'all-content':
+          displayType = 'All content';
+          break;
+          case 'table-of-contents':
+          displayType = 'Table of contents';
+          break;
+          case 'reply':
+          displayType = 'Comment';
+          break;
+          default:
+          displayType = contentType.charAt(0).toUpperCase() + contentType.slice(1);
+          break;
+        }
+      }
+      return displayType;
     }
 
     // delete content selector button
@@ -1086,12 +1108,19 @@
          </div>`
       )
 
-      var me = this
+      var me = this;
 
       // store 'items by type' modal content
       element.find('li').on('click', function(){
         $('#byType').text($(this).text()).append('<span class="caret"></span>')
       });
+
+      element.on('shown.bs.modal', function () {
+        $('#byType').trigger('focus');
+      });
+      element.find('.modal-footer .btn-primary').onTab(function() {
+  			$('#byType').trigger('focus');
+  		});
 
       element.find('.done').on('click', function(evt){
         if(me.validateItemsByType()){
@@ -1102,13 +1131,6 @@
           if (contentSelector['content-type'] == 'comment') {
             contentSelector['content-type'] = 'reply';
           }
-          let contentSelections = me.scalarLensObject.components[me.editedComponentIndex]["content-selector"]
-          delete contentSelections.quantity;
-          delete contentSelections.units;
-          delete contentSelections.coordinates;
-          document.getElementById('distanceForm').reset();
-          $('#distanceUnits').text('Select unit...').append('<span class="caret"></span>');
-
           me.scalarLensObject.components[me.editedComponentIndex]["content-selector"] = contentSelector
           me.updateContentSelectorButton(me.scalarLensObject.components[me.editedComponentIndex]["content-selector"], $(me.element).find('.content-selector-btn-group').eq(me.editedComponentIndex))
           me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
@@ -1136,7 +1158,8 @@
     }
 
     ScalarLenses.prototype.updateTypeModal = function(contentSelectorObj) {
-      $('#byType').text(contentSelectorObj['content-type']).append('<span class="caret"></span>');
+      let type = this.getDisplayTypeForType(contentSelectorObj['content-type']);
+      $('#byType').empty().text(type).append('<span class="caret"></span>');
     }
 
     // add distance modal
@@ -1188,6 +1211,13 @@
           $('#distanceUnits').text($(this).text()).append('<span class="caret"></span>');
         });
 
+        element.on('shown.bs.modal', function () {
+          $('#distanceQuantity').trigger('focus');
+        });
+        element.find('.modal-footer .btn-primary').onTab(function() {
+          $('#distanceQuantity').trigger('focus');
+        });
+
         element.find('.done').on('click', function(){
           if(me.validateDistance()){
             let contentSelector = {
@@ -1196,7 +1226,6 @@
               "units": $('#distanceUnits').text(),
               "coordinates": $('#latitude').val() + ', ' + $('#longitude').val()
             }
-            $('#byType').text('Select items...').append('<span class="caret"></span>');
             me.scalarLensObject.components[me.editedComponentIndex]["content-selector"] = contentSelector
             me.updateContentSelectorButton(me.scalarLensObject.components[me.editedComponentIndex]["content-selector"], $(me.element).find('.content-selector-btn-group').eq(me.editedComponentIndex))
             me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
@@ -1270,10 +1299,14 @@
 
     ScalarLenses.prototype.updateDistanceModal = function(contentSelectorObj) {
       $('#distanceQuantity').val(contentSelectorObj.quantity);
-      $('#distanceUnits').text(contentSelectorObj.units).append('<span class="caret"></span>');
-      let temp = contentSelectorObj.coordinates.split(',');
-      $('#latitude').val(parseFloat(temp[0]));
-      $('#longitude').val(parseFloat(temp[1]));
+      if (contentSelectorObj.units) {
+        $('#distanceUnits').empty().text(contentSelectorObj.units).append('<span class="caret"></span>');
+      }
+      if (contentSelectorObj.coordinates) {
+        let temp = contentSelectorObj.coordinates.split(',');
+        $('#latitude').val(parseFloat(temp[0]));
+        $('#longitude').val(parseFloat(temp[1]));
+      }
     }
 
     // add filter modal
@@ -1315,6 +1348,15 @@
       )
 
       var me = this;
+
+      element.on('shown.bs.modal', function () {
+        let id = $('#filterModal').data('focusId');
+        $('#'+id).trigger('focus');
+      });
+      element.find('.modal-footer .btn-primary').onTab(function() {
+        let id = $('#filterModal').data('focusId');
+  			$('#'+id).trigger('focus');
+  		});
 
       // done click handler
       element.find('.done').on('click', function(evt){
@@ -1759,6 +1801,7 @@
 
       let me = this;
       let onClick = function(evt) {me.updateTypeFilterForm();};
+      $('#filterModal').data('focusId', 'operator-button');
 
       // allow multiple selections
       let multipleSelects = function(evt){
@@ -1870,6 +1913,7 @@
 
       let me = this;
       let onClick = function() { me.updateContentFilterForm(); };
+      $('#filterModal').data('focusId', 'operator-button');
 
       this.populateDropdown($('#operator-button'), $('#operator-list'), filterObj.operator, onClick,
         '<li><a></a></li>',
@@ -1918,6 +1962,7 @@
 
       let me = this;
       let onClick = function() { me.updateRelationshipFilterForm(); };
+      $('#filterModal').data('focusId', 'relationship-content-button');
 
       this.populateDropdown($('#relationship-content-button'), $('#relationship-content-list'), filterObj['content-types'], onClick,
         '<li><a></a></li>',
@@ -1996,6 +2041,7 @@
 
         let me = this;
         let onClick = function() { me.updateDistanceFilterForm(); };
+        $('#filterModal').data('focusId', 'distanceFilterQuantity');
 
         $('#distanceFilterQuantity').val(filterObj.quantity).on('change', onClick);
 
@@ -2040,6 +2086,7 @@
 
       let me = this;
       let onChange = function() { me.updateQuantityFilterForm(); };
+      $('#filterModal').data('focusId', 'filterQuantityValue');
 
       $('#filterQuantityValue').val(filterObj.quantity).on('change', onChange);
 
@@ -2104,6 +2151,7 @@
 
       let me = this;
       let onClick = function() { me.updateMetadataFilterForm(); }
+      $('#filterModal').data('focusId', 'operator-button');
 
       let resetProperty = function(evt){
          $('#metadata-property-button').data('option', null);
@@ -2212,6 +2260,7 @@
 
       let me = this;
       let onClick = function() { me.updateVisitDateFilterForm(); };
+      $('#filterModal').data('focusId', 'visitdate-quantity');
 
       $('#visitdate-quantity').val(filterObj.quantity).on('change', onClick);
       $('#visitdate-input').val(filterObj.datetime).on('change', onClick);
@@ -2304,6 +2353,15 @@
 
       var me = this;
 
+      element.on('shown.bs.modal', function () {
+        let id = $('#sortModal').data('focusId');
+        $('#'+id).trigger('focus');
+      });
+      element.find('.modal-footer .btn-primary').onTab(function() {
+        let id = $('#sortModal').data('focusId');
+  			$('#'+id).trigger('focus');
+  		});
+
       // saves values
       element.find('.done').on('click', function(){
         if (me.validateSortData()) {
@@ -2332,8 +2390,8 @@
       $('#sortModal .btn').removeClass('validation-error');
       let errorMessage;
 
-      let latitude = $('#sortModal #latitude').val();
-      let longitude = $('#sortModal #longitude').val();
+      let latitude = $('#sortModal #distance-latitude').val();
+      let longitude = $('#sortModal #distance-longitude').val();
 
       function isLatitude(lat) {
         return isFinite(lat) && Math.abs(lat) <= 90;
@@ -2370,12 +2428,12 @@
         if(latitude == "" || longitude == ""){
            passedValidation = false;
            errorMessage = 'You must enter a latitude and longitude.'
-           $('#longitude, #latitude').addClass('validation-error');
+           $('#distance-longitude, #distance-latitude').addClass('validation-error');
          }
          if(!isLatitude(latitude) || !isLongitude(longitude)){
            passedValidation = false;
            errorMessage = 'You must enter a valid coordinates for latitude and longitude.';
-           $('#longitude, #latitude').addClass('validation-error');
+           $('#distance-longitude, #distance-latitude').addClass('validation-error');
          }
         break;
 
@@ -2442,8 +2500,8 @@
         };
       break;
       case 'distance':
-        const latitude = $('#latitude.sort').val();
-        const longitude = $('#longitude.sort').val();
+        const latitude = $('#distance-latitude.sort').val();
+        const longitude = $('#distance-longitude.sort').val();
         sortObj = {
           "type": "sort",
           "sort-type": "distance",
@@ -2638,6 +2696,7 @@
       if (!sortObj) sortObj = this.getDefaultSort('alphabetical');
       let me = this;
       let onClick = function() { me.updateAlphabeticalSortForm(); };
+      $('#sortModal').data('focusId', 'sort-ontology-button');
 
       let resetProperty = function(){
         $('#sort-property-button').data('option', null);
@@ -2729,6 +2788,7 @@
       if (!sortObj) sortObj = this.getDefaultSort('creation-date');
       let me = this;
       let onClick = function() { me.updateCreationDateSortForm(); };
+      $('#sortModal').data('focusId', 'sort-creation-date-button');
 
       this.populateDropdown($('#sort-creation-date-button'), $('#sort-order-list'), sortObj['sort-order'], onClick,
         '<li><a></a></li>',
@@ -2772,6 +2832,7 @@
       if (!sortObj) sortObj = this.getDefaultSort('edit-date');
       let me = this;
       let onClick = function() { me.updateEditDateSortForm(); };
+      $('#sortModal').data('focusId', 'sort-edit-date-button');
 
       this.populateDropdown($('#sort-edit-date-button'), $('#sort-order-list'), sortObj['sort-order'], onClick,
         '<li><a></a></li>',
@@ -2804,8 +2865,8 @@
           <span>Sort by distance from these coordinates: </span>
         </div>
         <div class="row" style="margin:10px 0;">
-          <input id="latitude" type="text"class="form-control sort" aria-label="..." placeholder="Latitude (decimal)">
-          <input id="longitude" type="text" class="form-control sort" aria-label="..." placeholder="Longitude (decimal)">
+          <input id="distance-latitude" type="text"class="form-control sort" aria-label="..." placeholder="Latitude (decimal)">
+          <input id="distance-longitude" type="text" class="form-control sort" aria-label="..." placeholder="Longitude (decimal)">
         </div>
         <div class="row">
         <span>in </span>
@@ -2823,6 +2884,7 @@
       if (!sortObj) sortObj = this.getDefaultSort('distance');
       let me = this;
       let onClick = function() { me.updateDistanceSortForm(); };
+      $('#sortModal').data('focusId', 'distance-latitude');
 
       this.populateDropdown($('#sort-distance-button'), $('#sort-order-list'), sortObj['sort-order'], onClick,
         '<li><a></a></li>',
@@ -2839,8 +2901,8 @@
         let latitude = y[0];
         let longitude = y[1];
 
-        $('#latitude.form-control.sort').val(latitude);
-        $('#longitude.form-control.sort').val(longitude);
+        $('#distance-latitude.form-control.sort').val(latitude);
+        $('#distance-longitude.form-control.sort').val(longitude);
       }
 
       return element;
@@ -2878,6 +2940,7 @@
       if (!sortObj) sortObj = this.getDefaultSort('relationship-count');
       let me = this;
       let onClick = function() { me.updateRelationshipCountSortForm(); };
+      $('#sortModal').data('focusId', 'sort-relationship-button');
 
       this.populateDropdown($('#sort-relationship-button'), $('#sort-order-list'), sortObj['sort-order'], onClick,
         '<li><a></a></li>',
@@ -2947,6 +3010,7 @@
       if (!sortObj) sortObj = this.getDefaultSort('match-count');
       let me = this;
       let onClick = function() { me.updateMatchCountSortForm(); };
+      $('#sortModal').data('focusId', 'match-count-content');
 
       let resetProperty = function(){
         $('#match-property-button').data('option', null);
@@ -3041,6 +3105,7 @@
       if (!sortObj) sortObj = this.getDefaultSort('visit-date');
       let me = this;
       let onClick = function() { me.updateVisitDateSortForm(); };
+      $('#sortModal').data('focusId', 'sort-visit-date-button');
 
       this.populateDropdown($('#sort-visit-date-button'), $('#sort-order-list'), sortObj['sort-order'], onClick,
         '<li><a></a></li>',
@@ -3340,9 +3405,17 @@
 
       var me = this;
 
+      element.on('shown.bs.modal', function () {
+        element.find('.modal-footer .btn-primary').trigger('focus');
+      });
+      element.find('.modal-footer .btn-primary').onTab(function() {
+  			element.find('.modal-footer .btn-default').trigger('focus');
+  		});
+
       return element;
 
     }
+
     // show ok modal
     ScalarLenses.prototype.showModal = function(message, okHandler){
       $(this.element).find('.okModal').modal('toggle');
@@ -3352,7 +3425,6 @@
           okHandler();
       });
     }
-
 
     // duplicate copy prompt
     ScalarLenses.prototype.addDuplicateCopyPrompt = function(){
