@@ -4280,23 +4280,24 @@ window.scalarvis = { instanceCount: -1 };
         var $tbody = $wrapper.find('tbody');
         $wrapper.find('.visListRow').remove();
         var maxLength = 100;
-        for (var j = 0; j < base.sortedNodes.length; j++) {
-        	var url = base.sortedNodes[j].url;
-        	var title = base.sortedNodes[j].current.title;
+        console.log(base.contentNodes);
+        for (var j = 0; j < base.contentNodes.length; j++) {
+        	var url = base.contentNodes[j].url;
+        	var title = base.contentNodes[j].current.title;
         	if (null===title) continue;
         	title = title.replace(/(<([^>]+)>)/gi, "");
-          	var description = ('undefined'!=typeof(base.sortedNodes[j].current.description) && null!==base.sortedNodes[j].current.description) ? base.sortedNodes[j].current.description : '';
+          	var description = ('undefined'!=typeof(base.contentNodes[j].current.description) && null!==base.contentNodes[j].current.description) ? base.contentNodes[j].current.description : '';
           	if (description.length > maxLength) description = description.substr(0, maxLength) + '...';
           	description = description.replace(/(<([^>]+)>)/gi, "");
-          	var content = ('undefined'!=typeof(base.sortedNodes[j].current.content) && null!==base.sortedNodes[j].current.content) ? base.sortedNodes[j].current.content : '';
+          	var content = ('undefined'!=typeof(base.contentNodes[j].current.content) && null!==base.contentNodes[j].current.content) ? base.contentNodes[j].current.content : '';
           	if (content.length > maxLength) content = content.substr(0, maxLength) + '...';
           	content = content.replace(/(<([^>]+)>)/gi, "");
-          	var author = base.sortedNodes[j].current.author;  // Most recent version
+          	var author = base.contentNodes[j].current.author;  // Most recent version
           	var authorUrl = $('link#parent').attr('href') + author ;
           	var authorId = parseInt(authorUrl.substr(authorUrl.lastIndexOf('/')+1));
           	var fullname = ('undefined' != typeof(base.options.lens) && 'undefined' != typeof(base.options.lens.users[authorId])) ? base.options.lens.users[authorId] : '';
-          	var lastEdited = (base.sortedNodes[j].current.created) ? base.sortedNodes[j].current.created.substr(0, base.sortedNodes[j].current.created.indexOf('T')) : '';
-          	var versions = base.sortedNodes[j].current.number;
+          	var lastEdited = (base.contentNodes[j].current.created) ? base.contentNodes[j].current.created.substr(0, base.contentNodes[j].current.created.indexOf('T')) : '';
+          	var versions = base.contentNodes[j].current.number;
           	var $row = $('<tr class="visListRow"></div>').appendTo($tbody);
           	$row.append('<td class="sm" prop="title"><a href="'+url+'" target="_blank">'+title+'</a></td>');
           	$row.append('<td class="md" prop="description">'+description+'</td>');
