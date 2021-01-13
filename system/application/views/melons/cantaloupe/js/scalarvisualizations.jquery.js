@@ -4291,8 +4291,8 @@ window.scalarvis = { instanceCount: -1 };
           	var content = ('undefined'!=typeof(base.sortedNodes[j].current.content) && null!==base.sortedNodes[j].current.content) ? base.sortedNodes[j].current.content : '';
           	if (content.length > maxLength) content = content.substr(0, maxLength) + '...';
           	content = content.replace(/(<([^>]+)>)/gi, "");
-          	var author = base.sortedNodes[j].author;
-          	var authorUrl = $('link#parent').attr('href') + base.sortedNodes[j].author;
+          	var author = base.sortedNodes[j].current.author;  // Most recent version
+          	var authorUrl = $('link#parent').attr('href') + author ;
           	var authorId = parseInt(authorUrl.substr(authorUrl.lastIndexOf('/')+1));
           	var fullname = ('undefined' != typeof(base.options.lens) && 'undefined' != typeof(base.options.lens.users[authorId])) ? base.options.lens.users[authorId] : '';
           	var lastEdited = (base.sortedNodes[j].current.created) ? base.sortedNodes[j].current.created.substr(0, base.sortedNodes[j].current.created.indexOf('T')) : '';
@@ -4330,19 +4330,20 @@ window.scalarvis = { instanceCount: -1 };
       setupElement() {
         this.hasBeenDrawn = true;
         base.visualization.empty(); // empty the element where this vis is to be shown
+        base.visualization.css('height', this.size.height + 'px');
         var approot = $('link#approot').attr('href');
         var css = approot + 'views/melons/cantaloupe/css/vis.css';
-        if (!$('head').find('[href="'+css+'"]').length) {
-        	$('head').append('<link rel="stylesheet" type="text/css" href="' + css + '">');
-        };
-        var $wrapper = $('<table class="visList"></table>').appendTo(base.visualization);
+        if (!$('head').find('[href="'+css+'"]').length) $('head').append('<link rel="stylesheet" type="text/css" href="' + css + '">');
+        var $overflow = $('<div style="overflow:auto;"></div>').appendTo(base.visualization);
+        $overflow.height($overflow.parent().height());
+        var $wrapper = $('<table class="visList"></table>').appendTo($overflow);
         var $tbody = $wrapper.append('<tbody></tbody>');
         var $header = $('<tr class="header"></tr>').appendTo($tbody);
         $header.append('<td class="sm" prop="title"><a href="javascript:void(null);">Title</a></td>');
         $header.append('<td class="md" prop="description"><a href="javascript:void(null);">Description</a></td>');
         $header.append('<td class="md" prop="content"><a href="javascript:void(null);">Content</a></td>');
-        $header.append('<td class="lg" prop="author"><a href="javascript:void(null);">Author</a></td>');
-        $header.append('<td class="lg" prop="lastEdited"><a href="javascript:void(null);">Last Edited</a></td>');
+        $header.append('<td class="lg" prop="author"><a href="javascript:void(null);">Last Edited By</a></td>');
+        $header.append('<td class="lg" prop="lastEdited"><a href="javascript:void(null);">Date Edited</a></td>');
         $header.append('<td class="lg" prop="version"><a href="javascript:void(null);">Version</a></td>');
         $header.find('a').on('click', function() {
         	var $this = $(this);

@@ -192,6 +192,7 @@ class System extends MY_Controller {
 				$json['users'] = array();
 				foreach ($json['items'] as $uri => $values) {
 					if (isset($values['http://www.w3.org/ns/prov#wasAttributedTo'])) {
+						if (!isset($values['http://open.vocab.org/terms/versionnumber'])) continue;
 						$user_id = (int) substr($values['http://www.w3.org/ns/prov#wasAttributedTo'][0]['value'], 6);
 						if (!isset($json['users'][$user_id])) {
 							$user = $this->users->get_by_user_id($user_id);
