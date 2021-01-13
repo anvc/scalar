@@ -1861,6 +1861,10 @@ span.base {
 	background:#f5f5f5 !important;
 	color:#262626
 }
+.lens-editor .dropdown-menu li.active a:focus {
+	background:#f5f5f5 !important;
+	outline: dotted 1px #000;
+}
 
 #duplicate-copy-prompt {
 	display:none;

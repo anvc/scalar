@@ -223,6 +223,30 @@
          </div>`
       );
 
+      // On dropdown open
+      $(document).on('shown.bs.dropdown', function(event) {
+        var dropdown = $(event.target);
+
+        // Set aria-expanded to true
+        dropdown.find('.dropdown-menu').attr('aria-expanded', true);
+
+        // Set focus on the first link in the dropdown
+        setTimeout(function() {
+          dropdown.find('.dropdown-menu li:first-child a').trigger('focus');
+        }, 10);
+      });
+
+      // On dropdown close
+      $(document).on('hidden.bs.dropdown', function(event) {
+       var dropdown = $(event.target);
+
+       // Set aria-expanded to false
+       dropdown.find('.dropdown-menu').attr('aria-expanded', false);
+
+       // Set focus back to dropdown toggle
+       dropdown.find('.dropdown-toggle').trigger('focus');
+      });
+
       lensHtml.find('.lens-tags').append(this.addVisualizationButton());
       lensHtml.append(this.addContentTypeModal());
       lensHtml.append(this.addDistanceModal());
@@ -414,16 +438,16 @@
     // add visualization button
     ScalarLenses.prototype.addVisualizationButton = function(){
       let element = $(
-         `<div class="visualization-btn-group btn-group"><button type="button" class="btn btn-primary btn-xs dropdown-toggle caption_font visualization-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+         `<div class="visualization-btn-group btn-group"><button type="button" class="btn btn-primary btn-xs dropdown-toggle caption_font visualization-button" data-toggle="dropdown" aria-haspopup="true">
             Select visualization <span class="caret"></span></button>
-           <ul id="visualization-dropdown" class="dropdown-menu">
-           <li><a><span class="viz-icon force-directed"></span>Force-Directed</a></li>
-           <li><a><span class="viz-icon grid"></span>Grid</a></li>
-           <li><a><span class="viz-icon list"></span>List</a></li>
-           <li><a><span class="viz-icon map"></span>Map</a></li>
-           <li><a><span class="viz-icon radial"></span>Radial</a></li>
-           <li><a><span class="viz-icon tree"></span>Tree</a></li>
-           <li><a><span class="viz-icon word-cloud"></span>Word Cloud</a></li>
+           <ul id="visualization-dropdown" class="dropdown-menu" aria-expanded="false">
+           <li><a tabindex="-1"><span class="viz-icon force-directed"></span>Force-Directed</a></li>
+           <li><a tabindex="-1"><span class="viz-icon grid"></span>Grid</a></li>
+           <li><a tabindex="-1"><span class="viz-icon list"></span>List</a></li>
+           <li><a tabindex="-1"><span class="viz-icon map"></span>Map</a></li>
+           <li><a tabindex="-1"><span class="viz-icon radial"></span>Radial</a></li>
+           <li><a tabindex="-1"><span class="viz-icon tree"></span>Tree</a></li>
+           <li><a tabindex="-1"><span class="viz-icon word-cloud"></span>Word Cloud</a></li>
            </ul>
          </div>`
       )
@@ -439,6 +463,7 @@
           me.options.onLensResults(me.lastResults);
         }
       });
+      element.find('li a').on('keypress', function(e) { if (e.which == 13) $(this).trigger('click'); })
       return element;
     }
 
@@ -477,7 +502,7 @@
         me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
       }
       this.populateDropdown(button, button.find('ul'), null, onClick,
-        '<li><a></a></li>',
+        '<li><a tabindex="-1"></a></li>',
         [
           {label: "the combination of", value: "or"},
           {label: "the intersection of", value: "and"}
@@ -553,15 +578,15 @@
         {label: "Items by distance...", value: "items-by-distance"}
       ];
       let markup = [
-        '<li><a></a></li>',
-        '<li><a data-toggle="modal" data-target="#modalByType"></a></li>',
-        '<li><a data-toggle="modal" data-target="#modalByDistance"></a></li>'
+        '<li><a tabindex="-1"></a></li>',
+        '<li><a tabindex="-1" data-toggle="modal" data-target="#modalByType"></a></li>',
+        '<li><a tabindex="-1" data-toggle="modal" data-target="#modalByDistance"></a></li>'
       ];
       if (this.scalarLensObject.components.length > 1) {
         options.push({label: "separator", value: "separator"});
         options.push({label: "Delete", value: "delete"});
         markup.push('<li><a></a></li>');
-        markup.push('<li><a></a></li>');
+        markup.push('<li><a tabindex="-1"></a></li>');
       }
 
       this.populateDropdown(element.find('.content-selector-button'), element.find('.content-selector-dropdown'), null, onClick, markup, options);
@@ -630,6 +655,7 @@
       if (usePlurals) {
         switch (contentType) {
           case 'all-content':
+          case undefined:
           displayType = 'All content';
           break;
           case 'table-of-contents':
@@ -649,6 +675,7 @@
       } else {
         switch (contentType) {
           case 'all-content':
+          case undefined:
           displayType = 'All content';
           break;
           case 'table-of-contents':
@@ -715,7 +742,7 @@
       }
 
       this.populateDropdown(button, button.find('.filter-type-list'), null, onClick,
-        '<li><a data-toggle="modal" data-target="#filterModal"></a></li>',
+        '<li><a tabindex="-1" data-toggle="modal" data-target="#filterModal"></a></li>',
         [
           {label: "Filter by type...", value: "content-type"},
           {label: "Filter by content...", value: "content"},
@@ -911,7 +938,7 @@
       }
 
       this.populateDropdown(button, button.find('.sort-type-list'), null, onClick,
-        `<li><a data-toggle="modal" data-target="#sortModal"></a></li>`,
+        `<li><a tabindex="-1" data-toggle="modal" data-target="#sortModal"></a></li>`,
         [
           {label: "A-Z", value: "alphabetical"},
           {label: "Date created", value: "creation-date"},
@@ -1033,9 +1060,9 @@
          `<div class="btn-group plus-btn-group"><button type="button" class="btn btn-default btn-xs plus-btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
            <span class="plus-icon"></span></button>
            <ul id="content-dropdown" class="dropdown-menu">
-             <li><a>Add content</a></li>
-             <li><a>Add filter</a></li>
-             <li><a>Add sort</a></li>
+             <li><a tabindex="-1">Add content</a></li>
+             <li><a tabindex="-1">Add filter</a></li>
+             <li><a tabindex="-1">Add sort</a></li>
            </ul>
          </div>`
       );
@@ -1045,6 +1072,7 @@
       } else {
         componentContainer.find('.modifier-btn-group').eq(modifierCount-1).after(button);
       }
+      button.find('li a').on('keypress', function(e) { if (e.which == 13) $(this).trigger('click'); })
       button.data('componentIndex', componentIndex);
       var me = this;
       button.find('li').on('click', function (event) {
@@ -1088,14 +1116,14 @@
                  <p>Select all items of this type:</p>
                  <div class="btn-group"><button id="byType" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">Select item...<span class="caret"></span></button>
                    <ul id="content-type-dropdown" class="dropdown-menu">
-                     <li><a>All content</a></li>
-                     <li><a>Table of contents</a></li>
-                     <li><a>Page</a></li>
-                     <li><a>Media</a></li>
-                     <li><a>Path</a></li>
-                     <li><a>Tag</a></li>
-                     <li><a>Annotation</a></li>
-                     <li><a>Comment</a></li>
+                     <li><a tabIndex="-1">All content</a></li>
+                     <li><a tabIndex="-1">Table of contents</a></li>
+                     <li><a tabIndex="-1">Page</a></li>
+                     <li><a tabIndex="-1">Media</a></li>
+                     <li><a tabIndex="-1">Path</a></li>
+                     <li><a tabIndex="-1">Tag</a></li>
+                     <li><a tabIndex="-1">Annotation</a></li>
+                     <li><a tabIndex="-1">Comment</a></li>
                    </ul>
                  </div>
                </div>
@@ -1114,6 +1142,7 @@
       element.find('li').on('click', function(){
         $('#byType').text($(this).text()).append('<span class="caret"></span>')
       });
+      element.find('li a').on('keypress', function(e) { if (e.which == 13) $(this).trigger('click'); })
 
       element.on('shown.bs.modal', function () {
         $('#byType').trigger('focus');
@@ -1135,6 +1164,7 @@
           me.updateContentSelectorButton(me.scalarLensObject.components[me.editedComponentIndex]["content-selector"], $(me.element).find('.content-selector-btn-group').eq(me.editedComponentIndex))
           me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
           $('#modalByType').modal('hide');
+          $(me.element).find('.content-selector-btn-group').eq(me.editedComponentIndex).find('button').trigger('focus');
         }
       });
       return element
@@ -1179,8 +1209,8 @@
                          <div class="btn-group">
                            <button id="distanceUnits" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Select unit...<span class="caret"></span></button>
                            <ul id="distance-dropdown" class="dropdown-menu">
-                             <li><a>miles</a></li>
-                             <li><a>kilometers</a></li>
+                             <li><a tabIndex="-1">miles</a></li>
+                             <li><a tabIndex="-1">kilometers</a></li>
                            </ul>
                          </div>
                        </div>
@@ -1210,6 +1240,7 @@
         element.find('li').on('click', function(){
           $('#distanceUnits').text($(this).text()).append('<span class="caret"></span>');
         });
+        element.find('li a').on('keypress', function(e) { if (e.which == 13) $(this).trigger('click'); })
 
         element.on('shown.bs.modal', function () {
           $('#distanceQuantity').trigger('focus');
@@ -1230,6 +1261,7 @@
             me.updateContentSelectorButton(me.scalarLensObject.components[me.editedComponentIndex]["content-selector"], $(me.element).find('.content-selector-btn-group').eq(me.editedComponentIndex))
             me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
             $('#modalByDistance').modal('hide');
+            $(me.element).find('.content-selector-btn-group').eq(me.editedComponentIndex).find('button').trigger('focus');
           }
         });
 
@@ -1367,6 +1399,7 @@
           me.updateFilterButton(me.scalarLensObject.components[me.editedComponentIndex].modifiers[me.editedModifierIndex], $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-btn-group').eq(me.editedModifierIndex), me.editedComponentIndex)
           me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
           $('#filterModal').modal('hide');
+          $(me.element).find('.component-container').eq(me.editedComponentIndex).find('.modifier-btn-group').eq(me.editedModifierIndex).find('button').trigger('focus');
         }
       });
       // cancel click handler
@@ -1815,14 +1848,14 @@
       }
 
       this.populateDropdown($('#operator-button'), $('#operator-list'), filterObj.operator, onClick,
-        '<li><a></a></li>',
+        '<li><a tabindex="-1"></a></li>',
         [
           {label: "are", value: "inclusive"},
           {label: "are not", value: "exclusive"}
         ]);
 
       this.populateDropdown($('#content-type-button'), $('#content-type-list'), filterObj['content-types'], multipleSelects,
-        '<li><a></a></li>',
+        '<li><a tabindex="-1"></a></li>',
         [
           {label: "pages", value: "page"},
           {label: "media files", value: "media"},
@@ -1916,7 +1949,7 @@
       $('#filterModal').data('focusId', 'operator-button');
 
       this.populateDropdown($('#operator-button'), $('#operator-list'), filterObj.operator, onClick,
-        '<li><a></a></li>',
+        '<li><a tabindex="-1"></a></li>',
         [
           {label: "include", value: "inclusive"},
           {label: "don’t include", value: "exclusive"}
@@ -1965,7 +1998,7 @@
       $('#filterModal').data('focusId', 'relationship-content-button');
 
       this.populateDropdown($('#relationship-content-button'), $('#relationship-content-list'), filterObj['content-types'], onClick,
-        '<li><a></a></li>',
+        '<li><a tabindex="-1"></a></li>',
         [
           {label: "(all types)", value: "all-types"},
           {label: "path", value: "path"},
@@ -1976,7 +2009,7 @@
         ]);
 
       this.populateDropdown($('#relationship-type-button'), $('#relationship-type-list'), filterObj.relationship, onClick,
-        '<li><a></a></li>',
+        '<li><a tabindex="-1"></a></li>',
         [
           {label: "(any relationship)", value: "any-relationship"},
           {label: "parents", value: "parent"},
@@ -2046,7 +2079,7 @@
         $('#distanceFilterQuantity').val(filterObj.quantity).on('change', onClick);
 
         this.populateDropdown($('#distance-units-button'), $('#distance-units-dropdown'), filterObj.units, onClick,
-          '<li><a></a></li>',
+          '<li><a tabindex="-1"></a></li>',
           [
             {label: "miles", value: "miles"},
             {label: "kilometers", value: "kilometers"}
@@ -2160,7 +2193,7 @@
 
       // operator dropdown
       this.populateDropdown($('#operator-button'), $('#operator-list'), filterObj.operator, onClick,
-        '<li><a></a></li>',
+        '<li><a tabindex="-1"></a></li>',
         [
           {label: "include", value: "inclusive"},
           {label: "do not include", value: "exclusive"}
@@ -2171,7 +2204,7 @@
 
       // ontology dropdown
       this.populateDropdown($('#metadata-ontology-button'), $('#metadata-ontology-list'), filterObj["metadata-field"].split(':')[0], resetProperty,
-        '<li><a></a></li>', this.createOntologyList()
+        '<li><a tabindex="-1"></a></li>', this.createOntologyList()
       );
 
       return element;
@@ -2225,7 +2258,7 @@
       let me = this;
       let onClick = function() { me.updateMetadataFilterForm();};
       this.populateDropdown($('#metadata-property-button'), $('#metadata-property-list'), null, onClick,
-        '<li><a></a></li>', this.createPropertyList(ontologyName)
+        '<li><a tabindex="-1"></a></li>', this.createPropertyList(ontologyName)
       );
 
       this.updateFilterModalBadges(this.buildFilterData());
@@ -2273,7 +2306,7 @@
 
       // units dropdown
       this.populateDropdown($('#visitdate-units-button'), $('#visitdate-units-list'), filterObj.units, onClick,
-        '<li><a></a></li>',
+        '<li><a tabindex="-1"></a></li>',
         [
           {label: "hours", value: "hours"},
           {label: "days", value: "days"},
@@ -2283,7 +2316,7 @@
       let dateBtnValue = isNaN(new Date(filterObj.datetime)) ? 'now' : 'date';
       // date dropdown
       this.populateDropdown($('#date-button'), $('#date-list'), dateBtnValue, onClick,
-        '<li><a></a></li>',
+        '<li><a tabindex="-1"></a></li>',
         [
           {label: "now", value: "now"},
           {label: "specific date", value: "date"}
@@ -2371,6 +2404,7 @@
           me.updateSortButton(me.scalarLensObject.sorts[me.editedSortIndex], $(me.element).find('.component-container').eq(me.scalarLensObject.components.length).find('.modifier-btn-group').eq(me.editedSortIndex))
           me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
           $('#sortModal').modal('hide');
+          $(me.element).find('.component-container').eq(me.scalarLensObject.components.length).find('button').trigger('focus');
         }
       });
 
@@ -2704,11 +2738,11 @@
       }
 
       this.populateDropdown($('#sort-ontology-button'), $('#sort-ontology-list'), sortObj['metadata-field'].split(':')[0], resetProperty,
-        '<li><a></a></li>', this.createOntologyList()
+        '<li><a tabindex="-1"></a></li>', this.createOntologyList()
         );
 
       this.populateDropdown($('#sort-alph-button'), $('#sort-order-list'), sortObj['sort-order'], onClick,
-        '<li><a></a></li>',
+        '<li><a tabindex="-1"></a></li>',
         [
           {label: "ascending", value: "ascending"},
           {label: "descending", value: "descending"}
@@ -2764,7 +2798,7 @@
       let onClick = function() {me.updateAlphabeticalSortForm(); };
 
       this.populateDropdown($('#sort-property-button'), $('#sort-property-list'), null, onClick,
-        '<li><a></a></li>', this.createPropertyList(ontologyName)
+        '<li><a tabindex="-1"></a></li>', this.createPropertyList(ontologyName)
       );
 
     }
@@ -2791,7 +2825,7 @@
       $('#sortModal').data('focusId', 'sort-creation-date-button');
 
       this.populateDropdown($('#sort-creation-date-button'), $('#sort-order-list'), sortObj['sort-order'], onClick,
-        '<li><a></a></li>',
+        '<li><a tabindex="-1"></a></li>',
         [
           {label: "ascending", value: "ascending"},
           {label: "descending", value: "descending"}
@@ -2835,7 +2869,7 @@
       $('#sortModal').data('focusId', 'sort-edit-date-button');
 
       this.populateDropdown($('#sort-edit-date-button'), $('#sort-order-list'), sortObj['sort-order'], onClick,
-        '<li><a></a></li>',
+        '<li><a tabindex="-1"></a></li>',
         [
           {label: "ascending", value: "ascending"},
           {label: "descending", value: "descending"}
@@ -2887,7 +2921,7 @@
       $('#sortModal').data('focusId', 'distance-latitude');
 
       this.populateDropdown($('#sort-distance-button'), $('#sort-order-list'), sortObj['sort-order'], onClick,
-        '<li><a></a></li>',
+        '<li><a tabindex="-1"></a></li>',
         [
           {label: "ascending", value: "ascending"},
           {label: "descending", value: "descending"}
@@ -2943,7 +2977,7 @@
       $('#sortModal').data('focusId', 'sort-relationship-button');
 
       this.populateDropdown($('#sort-relationship-button'), $('#sort-order-list'), sortObj['sort-order'], onClick,
-        '<li><a></a></li>',
+        '<li><a tabindex="-1"></a></li>',
         [
           {label: "ascending", value: "ascending"},
           {label: "descending", value: "descending"}
@@ -3020,11 +3054,11 @@
       $('#match-count-content').val(sortObj.content);
 
       this.populateDropdown($('#match-ontology-button'), $('#match-ontology-list'), sortObj["metadata-field"].split(':')[0], resetProperty,
-        '<li><a></a></li>', this.createOntologyList()
+        '<li><a tabindex="-1"></a></li>', this.createOntologyList()
       );
 
       this.populateDropdown($('#sort-match-button'), $('#sort-order-list'), sortObj['sort-order'], onClick,
-        '<li><a></a></li>',
+        '<li><a tabindex="-1"></a></li>',
         [
           {label: "ascending", value: "ascending"},
           {label: "descending", value: "descending"}
@@ -3081,7 +3115,7 @@
       let me = this;
       let onClick = function() { me.updateMatchCountSortForm(); };
       this.populateDropdown($('#match-property-button'), $('#match-property-list'), null, onClick,
-        '<li><a></a></li>', this.createPropertyList(ontologyName)
+        '<li><a tabindex="-1"></a></li>', this.createPropertyList(ontologyName)
       );
 
     }
@@ -3108,7 +3142,7 @@
       $('#sortModal').data('focusId', 'sort-visit-date-button');
 
       this.populateDropdown($('#sort-visit-date-button'), $('#sort-order-list'), sortObj['sort-order'], onClick,
-        '<li><a></a></li>',
+        '<li><a tabindex="-1"></a></li>',
         [
           {label: "ascending", value: "ascending"},
           {label: "descending", value: "descending"}
@@ -3143,8 +3177,9 @@
           break;
 
           case 'delete':
-          listItem = $('<li><a>' + option.label + '</a></li>').appendTo(listElement);
+          listItem = $('<li><a tabindex="-1">' + option.label + '</a></li>').appendTo(listElement);
           listItem.data('option', option).on('click', onClick);
+          listItem.find('a').on('keypress', function(e) { if (e.which == 13) $(this).trigger('click'); })
           break;
 
           default:
@@ -3167,6 +3202,7 @@
               buttonElement.data('option', option);
             }
           }
+          listItem.find('a').on('keypress', function(e) { if (e.which == 13) $(this).trigger('click'); })
           break;
 
         }
@@ -3233,7 +3269,7 @@
 
       if (header) {
         if (header.okToDelete) {
-          menuOptions.push({label: "Delete lens", value: "delete-lens"});
+          menuOptions.push({label: "Hide lens", value: "delete-lens"});
         }
       }
 
@@ -3342,7 +3378,7 @@
       };
 
       this.populateDropdown($(this.element).find('.option-menu-button'), $(this.element).find('.option-menu-list'), null, onClick,
-        '<li><a></a></li>', menuOptions);
+        '<li><a tabindex="-1"></a></li>', menuOptions);
     }
 
     ScalarLenses.prototype.duplicateLens = function() {
