@@ -1803,9 +1803,6 @@
                         page.bodyContent().append('<div class="body_copy"><p class="text-danger">The annotation editor could not be loaded because this is not a media page.</p></div>');
                     }
 
-                } else if ('lens' == extension) {
-                  this.addLensEditor();
-
                 } else if ('edit' == extension) {
                     // Nothing needed here
 

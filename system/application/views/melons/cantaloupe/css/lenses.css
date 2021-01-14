@@ -67,3 +67,7 @@
 #submitted-message a {
   text-decoration: underline;
 }
+.non-ideal-state-message {
+  font-size: 12px;
+  font-style: italic;
+}

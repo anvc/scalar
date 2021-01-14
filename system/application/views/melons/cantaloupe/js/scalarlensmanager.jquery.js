@@ -36,8 +36,9 @@
           $('You have reached the maximum of ' + this.maxLenses + ' lenses. To create another, you must first delete one in the Dashboard.').appendTo($('.my-private-lenses'));
         }
       }
-      $('heading').append('<p>Lenses are living snapshots of the content of a book, visualizing dynamic selections of pages and media. <a href="#">Learn more »</a></p>');
+      $('heading').append('<p>Lenses are living snapshots of the content of this project, visualizing dynamic selections of pages and media. <a href="#">Learn more »</a></p>');
       $('body').on('lensUpdated', (evt, lens) => { this.handleLensUpdated(evt, lens); });
+      $('.lens-edit-container>h4,.vis-container>h4').after('<div class="non-ideal-state-message caption_font">No lens selected.</div>');
       this.addSubmittedMessage();
       this.getLensData();
     }
@@ -134,6 +135,9 @@
           lens: lens,
           onLensResults: this.handleLensResults
         });
+        $('.lens-edit-container>.non-ideal-state-message,.vis-container>.non-ideal-state-message').hide();
+      } else {
+        $('.lens-edit-container>.non-ideal-state-message,.vis-container>.non-ideal-state-message').show();
       }
     }
 
@@ -290,20 +294,24 @@
       this.loggedIn ? $('.my-private-lenses').show() : $('.my-private-lenses').hide();
       otherPrivateLensArray.length > 0 && this.loggedIn ? $('.other-private-lenses').show() : $('.other-private-lenses').hide();
       submittedLensArray.length > 0 ? $('.submitted-lenses').show() : $('.submitted-lenses').hide();
-      publicLensArray.length > 0 ? $('.public-lenses').show() : $('.public-lenses').hide();
+      //publicLensArray.length > 0 ? $('.public-lenses').show() : $('.public-lenses').hide();
 
       // my private lenses
-      myPrivateLensArray.forEach(privateLensItem => {
-        let vizType = privateLensItem.visualization.type;
-        let lensLink = $('link#parent').attr('href') + privateLensItem.slug;
-        let markup = $(`
-          <li class="caption_font lens-item lens-${privateLensItem.slug}">
-            <a href="${lensLink}" target="_blank">${privateLensItem.title}</a>
-            <span class="viz-icon ${vizType}"></span>
-          </li>`
-        ).appendTo($('.my-private-lenses-list'));
-        markup.data('lens', privateLensItem);
-      });
+      if (myPrivateLensArray.length > 0) {
+        myPrivateLensArray.forEach(privateLensItem => {
+          let vizType = privateLensItem.visualization.type;
+          let lensLink = $('link#parent').attr('href') + privateLensItem.slug;
+          let markup = $(`
+            <li class="caption_font lens-item lens-${privateLensItem.slug}">
+              <a href="${lensLink}" target="_blank">${privateLensItem.title}</a>
+              <span class="viz-icon ${vizType}"></span>
+            </li>`
+          ).appendTo($('.my-private-lenses-list'));
+          markup.data('lens', privateLensItem);
+        });
+      } else {
+        $('.my-private-lenses-list').append('<div class="non-ideal-state-message caption_font">You have no private lenses.</div>');
+      }
 
       // other private lenses
       otherPrivateLensArray.forEach(privateLensItem => {
@@ -332,17 +340,21 @@
       });
 
       // public lenses
-      publicLensArray.forEach(publicLensItem => {
-        let vizType = publicLensItem.visualization.type;
-        let lensLink = $('link#parent').attr('href') + publicLensItem.slug;
-        let markup = $(`
-          <li class="caption_font lens-item lens-${publicLensItem.slug}">
-            <a href="${lensLink}" target="_blank">${publicLensItem.title}</a>
-            <span class="viz-icon ${vizType}"></span>
-          </li>`
-        ).appendTo($('.public-lenses-list'));
-        markup.data('lens', publicLensItem);
-      });
+      if (publicLensArray.length > 0) {
+        publicLensArray.forEach(publicLensItem => {
+          let vizType = publicLensItem.visualization.type;
+          let lensLink = $('link#parent').attr('href') + publicLensItem.slug;
+          let markup = $(`
+            <li class="caption_font lens-item lens-${publicLensItem.slug}">
+              <a href="${lensLink}" target="_blank">${publicLensItem.title}</a>
+              <span class="viz-icon ${vizType}"></span>
+            </li>`
+          ).appendTo($('.public-lenses-list'));
+          markup.data('lens', publicLensItem);
+        });
+      } else {
+        $('.public-lenses-list').append('<div class="non-ideal-state-message caption_font">No public lenses available.</div>');
+      }
 
       if (this.selectedLens == null) {
         if (data.length > 0) {

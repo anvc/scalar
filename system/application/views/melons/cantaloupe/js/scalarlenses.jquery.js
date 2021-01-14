@@ -3364,7 +3364,17 @@
           break;
 
           case 'export-lens':
-          me.exportCSV();
+          let okToExport = true;
+          if (me.lensRequest != null) {
+            if (me.lensRequest.status == undefined) {
+              okToExport = false;
+            }
+          }
+          if (okToExport) {
+            me.exportCSV();
+          } else {
+            alert('Please wait for lens data to finish loading before exporting.');
+          }
           break;
 
           case 'delete-lens':
@@ -3528,7 +3538,6 @@
         for (var url in this.lastResults.items) {
           if (scalarapi.model.nodesByURL[url] != null) {
             let node = scalarapi.model.nodesByURL[url];
-              console.log(node.baseType);
             let datum = {
               title: node.title,
               slug: node.slug,
