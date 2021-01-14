@@ -894,7 +894,7 @@ class Book extends MY_Controller {
 
 	}
 
-	private function lenses() {
+	private function manage_lenses() {
 		$this->data['view'] = __FUNCTION__;
 	}
 
