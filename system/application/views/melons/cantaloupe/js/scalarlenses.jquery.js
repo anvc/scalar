@@ -3576,28 +3576,32 @@
     ScalarLenses.prototype.deleteLens = function() {
       var result = confirm('Are you sure you wish to hide this lens from view?');
       if (result) {
-          // assemble params for the trash action
-          var pageData = {
-                  native:1,
-                  id:$('link#parent').attr('href'),
-                  api_key:'',
-                  action: 'DELETE',
-                  'scalar:urn': $('link#urn').attr('href')
-              };
-          // execute the trash action (i.e. make is_live=0)
-          scalarapi.savePage(pageData, function(result) {
-              for (var url in result) break;
-              url = url.substr(0, url.lastIndexOf('.'));
-              window.location.href=url;
-              return;
-          }, function(result) {
-              alert('An error occurred attempting to hide this lens: '+result);
-              var login = $('link#approot').attr('href').replace('application','login');
-              if ('/'==login.substr(login.length-1,1)) login = login.substr(0,login.length-1);
-              var url = $('link#parent').attr('href');
-              window.location.href=login+'?redirect_url='+encodeURIComponent(url);
-              return;
-          });
+        // assemble params for the trash action
+        var pageData = {
+          native:1,
+          id:$('link#parent').attr('href'),
+          api_key:'',
+          action: 'DELETE',
+          'scalar:urn': this.scalarLensObject.urn
+        };
+        // execute the trash action (i.e. make is_live=0)
+        scalarapi.savePage(pageData, function(result) {
+          for (var url in result) break;
+          url = url.substr(0, url.lastIndexOf('.'));
+          if (window.location.href.indexOf(url) != -1) {
+            window.location.href=url;
+          } else {
+            $('body').trigger('lensUpdated', null);
+          }
+          return;
+        }, function(result) {
+          alert('An error occurred attempting to hide this lens: '+result);
+          var login = $('link#approot').attr('href').replace('application','login');
+          if ('/'==login.substr(login.length-1,1)) login = login.substr(0,login.length-1);
+          var url = $('link#parent').attr('href');
+          window.location.href=login+'?redirect_url='+encodeURIComponent(url);
+          return;
+        });
       }
     }
 
@@ -3718,16 +3722,15 @@
 
     ScalarLenses.prototype.checkSavePrivileges = function() {
       this.canSave = false;
-      let currentPage = scalarapi.model.getCurrentPageNode();
       if (this.userLevel == 'scalar:Author') { // author
         // authors can't edit reader lenses
         this.canSave = this.scalarLensObject.userLevel != 'scalar:Reader';
       } else if (this.user_level == 'scalar:Reader') { // reader added to the book
-        if (this.userId == currentPage.author) {
+        if (this.userId == this.scalarLensObject.user_id) {
           this.canSave = true;
         }
       } else if (this.userId != 'unknown' && this.user_level == 'unknown') { // reader not added to the book
-        if (this.userId == currentPage.author) {
+        if (this.userId == this.scalarLensObject.user_id) {
           this.canSave = true;
         }
       }

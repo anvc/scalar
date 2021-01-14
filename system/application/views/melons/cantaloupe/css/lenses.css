@@ -49,9 +49,21 @@
   margin-top:4px;
   margin-right:10px;
 }
-##lens-manager span {
+#lens-manager span {
   vertical-align: middle;
 }
-.author-lenses-list li {
-
+#submitted-message {
+  font-size: 14px;
+  color: #3e88ab;
+  border: 1px solid #bde8f0;
+  border-radius: 4px;
+  margin-top: 15px;
+  padding: 20px;
+  line-height: 140%;
+}
+#submitted-message p {
+  margin-bottom: 10px;
+}
+#submitted-message a {
+  text-decoration: underline;
 }
