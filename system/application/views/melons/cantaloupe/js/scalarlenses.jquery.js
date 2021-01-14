@@ -3478,7 +3478,7 @@
         <div id="duplicate-copy-prompt">
           <div class="row">
             <div class="col-xs-10">
-              <p class="caption_font"><strong>You have made edits to this lens which has not been saved, since you are not its owner.</strong>
+              <p class="caption_font"><strong>You have made edits to this lens which have not been saved, since you are not its owner.</strong>
               Would you like to save these changes to your own copy of the lens?</p>
             </div>
             <div class="col-xs-2">

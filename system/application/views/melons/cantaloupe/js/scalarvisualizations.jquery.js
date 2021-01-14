@@ -241,7 +241,8 @@ window.scalarvis = { instanceCount: -1 };
       });
 
       // legend popover
-      if (base.getFormat() != "tagcloud") {
+      let format = base.getFormat();
+      if (format != "tagcloud" && format != "list" && format != "word-cloud" && format != "map") {
         visFooter.append(' | ');
         base.legendButton = $('<button class="btn btn-link btn-xs" data-toggle="popover" data-placement="top" >Legend</button>');
         visFooter.append(base.legendButton);
@@ -3972,7 +3973,7 @@ window.scalarvis = { instanceCount: -1 };
       }
 
       getHelpContent() {
-        return "The map will display any chosen content that contains geospatial metadata (e.g., dcterms:spatial). In the event that pages are part of a path, route lines will be drawn between each page."; // see other vis classes for examples
+        return "This visualization will display any selected content that contains geospatial metadata (dcterms:coverage, dcterms:spatial). In the event that pages are part of a path, route lines will be drawn between each page.";
       }
 
       // one-time visualization setup
@@ -4179,7 +4180,7 @@ window.scalarvis = { instanceCount: -1 };
       }
 
       getHelpContent() {
-        return "The Word Cloud displays the most commonly used words across main text content of the selected items. For example, if the word \"scholarship\" is present in the main text content of ten pages it will be displayed in the cloud larger than another word that is present in the text content of only five pages."; // see other vis classes for examples
+        return "This visualization shows the most commonly used words across the main text content of the selected items. For example, if the word \"scholarship\" is present in the main text content of ten pages it will be displayed larger than another word that is present in the text content of only five pages.";
       }
 
       // one-time visualization setup
@@ -4324,7 +4325,12 @@ window.scalarvis = { instanceCount: -1 };
       }
 
       getHelpContent() {
-        return "Some info about this visualization"; // see other vis classes for examples
+        var helpContent;
+        helpContent = "This visualization shows a list of content in this work.<ul>";
+        helpContent += "<li>Each row represents one piece of content.</li>" +
+          "<li>You can re-sort the list by clicking the headers.</li>" +
+          "<li>Click the title of any item to navigate to it.</li>";
+        return helpContent;
       }
 
       // one-time visualization setup
