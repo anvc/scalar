@@ -1319,33 +1319,39 @@ window.scalarvis = { instanceCount: -1 };
 
           // get relationships for each node
           // if we're in a modal that means there will never be more than one modifier
-          if (base.options.modal && base.options.lens.components[0].modifiers.length > 0) {
-            n = base.contentNodes.length;
-            for (i = 0; i < n; i++) {
-              node = base.contentNodes[i];
-              relNodes = [];
-              rels = [];
-              if (base.options.lens.components[0].modifiers[0].relationship == 'any-relationship') {
-                relNodes = node.getRelatedNodes(null, "both");
-                rels = node.getRelations(null, "both");
-                relNodes.forEach((relNode, index) => {
-                  if (base.options.lens.items[relNode.url]) {
-                    base.relatedNodes.push(relNode);
-                    base.relations.push(rels[index]);
-                  }
-                });
-              } else {
-                relNodes = node.getRelatedNodes(base.options.lens.components[0].modifiers[0]['content-types'][0], "both");
-                rels = node.getRelations(base.options.lens.components[0].modifiers[0]['content-types'][0], "both");
-                relNodes.forEach((relNode, index) => {
-                  if (base.options.lens.items[relNode.url]) {
-                    base.relatedNodes.push(relNode);
-                    base.relations.push(rels[index]);
-                  }
-                });
+          // this is needed since the lens doesn't return relationships
+          // since we don't know which node was returned from which part of the lens,
+          // we cast a wide net, possibly getting more relationships than we need
+          // any extra nodes will be filtered out below
+          if (base.options.modal) {
+            if (base.options.lens.components[0].modifiers.length > 0) {
+              n = base.contentNodes.length;
+              for (i = 0; i < n; i++) {
+                node = base.contentNodes[i];
+                relNodes = [];
+                rels = [];
+                if (base.options.lens.components[0].modifiers[0].relationship == 'any-relationship') {
+                  relNodes = node.getRelatedNodes(null, "both");
+                  rels = node.getRelations(null, "both");
+                  relNodes.forEach((relNode, index) => {
+                    if (base.options.lens.items[relNode.url]) {
+                      base.relatedNodes.push(relNode);
+                      base.relations.push(rels[index]);
+                    }
+                  });
+                } else {
+                  relNodes = node.getRelatedNodes(base.options.lens.components[0].modifiers[0]['content-types'][0], "both");
+                  rels = node.getRelations(base.options.lens.components[0].modifiers[0]['content-types'][0], "both");
+                  relNodes.forEach((relNode, index) => {
+                    if (base.options.lens.items[relNode.url]) {
+                      base.relatedNodes.push(relNode);
+                      base.relations.push(rels[index]);
+                    }
+                  });
+                }
+                node.connectionCount = rels.length;
+                base.maxConnections = Math.max(base.maxConnections, node.connectionCount);
               }
-              node.connectionCount = rels.length;
-              base.maxConnections = Math.max(base.maxConnections, node.connectionCount);
             }
           } else {
             // get relationships for each node
@@ -1371,6 +1377,15 @@ window.scalarvis = { instanceCount: -1 };
               base.relations = base.relations.concat(rels);
               node.connectionCount = rels.length;
               base.maxConnections = Math.max(base.maxConnections, node.connectionCount);
+            }
+          }
+
+          // filter out any related node not actually returned by the lens
+          n = base.relatedNodes.length;
+          for (i = n-1; i >= 0; i--) {
+            node = base.relatedNodes[i];
+            if (base.contentNodes.indexOf(node) == -1) {
+              base.relatedNodes.splice(i, 1);
             }
           }
           break;
