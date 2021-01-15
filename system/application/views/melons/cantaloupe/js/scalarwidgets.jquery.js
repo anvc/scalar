@@ -354,7 +354,7 @@
 				 base.renderLens = function($widget){
            //Grab the container for this widget
            var $element = $widget.data('element');
-           var visElement = $( '<div></div>' ).appendTo($element);
+           visElement = $( '<div><div class="caption_font">Loading data...</div></div>' ).appendTo($element);
            var descriptionElement = $widget.data('container').find('.media_description');
            base.getLensData($widget, visElement, descriptionElement);
          }
@@ -419,6 +419,7 @@
                  caption: descriptionElement,
                  lens: lensObject
              };
+             visElement.empty();
              visElement.scalarvis(visOptions);
            }
            descriptionElement.prepend('<span class="viz-icon lens"></span>');

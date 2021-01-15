@@ -2249,6 +2249,16 @@ window.scalarvis = { instanceCount: -1 };
         }
       }
 
+      updateNoResultsMessage(nodeArray) {
+         if (nodeArray.length == 0) {
+           if (base.visualization.find('.no-results-msg').length == 0) {
+             base.visualization.prepend('<div class="no-results-msg caption_font">No results to display.</div>');
+           }
+         } else {
+           base.visualization.find('.no-results-msg').remove();
+         }
+      }
+
       // override with your own version that returns HTML
       // to insert in the "About this visualization" popover
       getHelpContent() {
@@ -2307,6 +2317,8 @@ window.scalarvis = { instanceCount: -1 };
            } else {
              this.gridNodes = base.contentNodes.concat();
            }
+
+           this.updateNoResultsMessage(this.gridNodes);
 
            var index = this.gridNodes.indexOf(tocNode);
            if (index != -1) {
@@ -2684,6 +2696,7 @@ window.scalarvis = { instanceCount: -1 };
           this.root.descendants().forEach((d,i) => {
             d._children = d.children;
           })
+          this.updateNoResultsMessage(base.sortedNodes);
           this.container = base.svg.selectAll('g.container');
           // collapse all nodes except the root and its children
           this.branchExpand(this.root);
@@ -3002,6 +3015,8 @@ window.scalarvis = { instanceCount: -1 };
           this.size.width < this.size.height ? this.r -= 120 : this.r -= 60;
           var radiusMod = 1.55;
           this.textRadiusOffset = 10;
+
+          this.updateNoResultsMessage(base.sortedNodes);
 
           // arc generator
           this.arcs = d3.arc()
@@ -3643,6 +3658,8 @@ window.scalarvis = { instanceCount: -1 };
           this.forceLink.links(base.links);
           base.force.nodes(base.abstractedSortedNodes).alpha(.3);
 
+          this.updateNoResultsMessage(base.abstractedSortedNodes);
+
           this.container = base.svg.selectAll('g.container');
 
           this.linkSelection = this.container.selectAll('.link')
@@ -3910,66 +3927,66 @@ window.scalarvis = { instanceCount: -1 };
       draw() {
         super.draw();
 
-    	if (null == this.map) return;
+      	if (null == this.map) return;
 
-    	this.clearMarkers();
-    	var bounds = new google.maps.LatLngBounds();
-    	var urls = [];
-    	// Contents of paths connected by lines
-    	for (var j = 0; j < base.sortedNodes.length; j++) {
-    		if ('undefined' == typeof(base.sortedNodes[j].scalarTypes.path)) continue;
-    		var pathTitle = base.sortedNodes[j].getDisplayTitle();
-    		var pathCoordinates = [];
-    		for (var k = 0; k < base.sortedNodes[j].outgoingRelations.length; k++) {
-    			if (null == base.sortedNodes[j].outgoingRelations[k].index) continue;  // Not part of the path
-    			if (null == base.sortedNodes[j].outgoingRelations[k].target) continue;  // Not part of the path
-    			if (-1 == urls.indexOf(base.sortedNodes[j].outgoingRelations[k].target.url)) urls.push(base.sortedNodes[j].outgoingRelations[k].target.url);
-    			var title = '<p style="margin-bottom:8px;">'+base.sortedNodes[j].outgoingRelations[k].startString+' of the "'+pathTitle+'" path<br /><b><a href="'+base.sortedNodes[j].outgoingRelations[k].target.url+'">'+base.sortedNodes[j].outgoingRelations[k].target.getDisplayTitle()+'</a></b></p>';
-    			var thumbnail = base.sortedNodes[j].outgoingRelations[k].target.thumbnail;
-    			var description = base.sortedNodes[j].outgoingRelations[k].target.getDescription(true);
-    			if (null != thumbnail) title += '<img src="'+thumbnail+'" align="left" style="max-width:100px;max-height:100px;margin-right:12px;" />';
-    			if (description && description.length) title += '<p style="margin-bottom:8px;">'+description+'</p>';
-    			var icon = this.getIcon(base.sortedNodes[j].outgoingRelations[k].target.scalarTypes);
-    			var coords = this.drawMarkers(base.sortedNodes[j].outgoingRelations[k].target, title, icon);
-    	        if (coords.length) {
-    	        	for (var m = 0; m < coords.length; m++) {
-    	        		pathCoordinates.push(coords[m]);
-    	        		bounds.extend( new google.maps.LatLng(coords[m].lat, coords[m].lng) );
-    	        	};
-    	        }
-    		}
-    		var path_key = this.paths.length;
-            this.paths[path_key] = new google.maps.Polyline({
-                path: pathCoordinates,
-                geodesic: true,
-                strokeColor: '#0000FF',
-                strokeOpacity: 1.0,
-                strokeWeight: 2
-            });
-            this.paths[path_key].setMap(this.map);
-    	}
-    	// All other nodes
-    	for (var j = 0; j < base.sortedNodes.length; j++) {
-    		if (-1 != urls.indexOf(base.sortedNodes[j].url)) continue;
-    		var title = '<p style="margin-bottom:8px;"><b><a href="'+base.sortedNodes[j].url+'">'+base.sortedNodes[j].getDisplayTitle()+'</a></b></p>';
-			var thumbnail = base.sortedNodes[j].thumbnail;
-			var description = base.sortedNodes[j].getDescription(true);
-			if (null != thumbnail) title += '<img src="'+thumbnail+'" align="left" style="max-width:100px;max-height:100px;margin-right:12px;" />';
-			if (description && description.length) title += '<p style="margin-bottom:8px;">'+description+'</p>';
-        	var icon = this.getIcon(base.sortedNodes[j].scalarTypes);
-    		var coords = this.drawMarkers(base.sortedNodes[j], title, icon);
-    	    if (coords.length) {
-	        	for (var m = 0; m < coords.length; m++) {
-	        		bounds.extend( new google.maps.LatLng(coords[m].lat, coords[m].lng) );
-	        	};
-    	    }
-    	}
-    	this.map.fitBounds(bounds);
-    	if (!this.markers.length) {
-    		this.displayNoContentWarning();
-    	} else {
-    		this.removeNoContentWarning();
-    	}
+      	this.clearMarkers();
+      	var bounds = new google.maps.LatLngBounds();
+      	var urls = [];
+      	// Contents of paths connected by lines
+      	for (var j = 0; j < base.sortedNodes.length; j++) {
+      		if ('undefined' == typeof(base.sortedNodes[j].scalarTypes.path)) continue;
+      		var pathTitle = base.sortedNodes[j].getDisplayTitle();
+      		var pathCoordinates = [];
+      		for (var k = 0; k < base.sortedNodes[j].outgoingRelations.length; k++) {
+      			if (null == base.sortedNodes[j].outgoingRelations[k].index) continue;  // Not part of the path
+      			if (null == base.sortedNodes[j].outgoingRelations[k].target) continue;  // Not part of the path
+      			if (-1 == urls.indexOf(base.sortedNodes[j].outgoingRelations[k].target.url)) urls.push(base.sortedNodes[j].outgoingRelations[k].target.url);
+      			var title = '<p style="margin-bottom:8px;">'+base.sortedNodes[j].outgoingRelations[k].startString+' of the "'+pathTitle+'" path<br /><b><a href="'+base.sortedNodes[j].outgoingRelations[k].target.url+'">'+base.sortedNodes[j].outgoingRelations[k].target.getDisplayTitle()+'</a></b></p>';
+      			var thumbnail = base.sortedNodes[j].outgoingRelations[k].target.thumbnail;
+      			var description = base.sortedNodes[j].outgoingRelations[k].target.getDescription(true);
+      			if (null != thumbnail) title += '<img src="'+thumbnail+'" align="left" style="max-width:100px;max-height:100px;margin-right:12px;" />';
+      			if (description && description.length) title += '<p style="margin-bottom:8px;">'+description+'</p>';
+      			var icon = this.getIcon(base.sortedNodes[j].outgoingRelations[k].target.scalarTypes);
+      			var coords = this.drawMarkers(base.sortedNodes[j].outgoingRelations[k].target, title, icon);
+      	        if (coords.length) {
+      	        	for (var m = 0; m < coords.length; m++) {
+      	        		pathCoordinates.push(coords[m]);
+      	        		bounds.extend( new google.maps.LatLng(coords[m].lat, coords[m].lng) );
+      	        	};
+      	        }
+      		}
+      		var path_key = this.paths.length;
+              this.paths[path_key] = new google.maps.Polyline({
+                  path: pathCoordinates,
+                  geodesic: true,
+                  strokeColor: '#0000FF',
+                  strokeOpacity: 1.0,
+                  strokeWeight: 2
+              });
+              this.paths[path_key].setMap(this.map);
+      	}
+      	// All other nodes
+      	for (var j = 0; j < base.sortedNodes.length; j++) {
+      		if (-1 != urls.indexOf(base.sortedNodes[j].url)) continue;
+      		var title = '<p style="margin-bottom:8px;"><b><a href="'+base.sortedNodes[j].url+'">'+base.sortedNodes[j].getDisplayTitle()+'</a></b></p>';
+  			var thumbnail = base.sortedNodes[j].thumbnail;
+  			var description = base.sortedNodes[j].getDescription(true);
+  			if (null != thumbnail) title += '<img src="'+thumbnail+'" align="left" style="max-width:100px;max-height:100px;margin-right:12px;" />';
+  			if (description && description.length) title += '<p style="margin-bottom:8px;">'+description+'</p>';
+          	var icon = this.getIcon(base.sortedNodes[j].scalarTypes);
+      		var coords = this.drawMarkers(base.sortedNodes[j], title, icon);
+      	    if (coords.length) {
+  	        	for (var m = 0; m < coords.length; m++) {
+  	        		bounds.extend( new google.maps.LatLng(coords[m].lat, coords[m].lng) );
+  	        	};
+      	    }
+      	}
+      	this.map.fitBounds(bounds);
+      	if (!this.markers.length) {
+      		this.displayNoContentWarning();
+      	} else {
+      		this.removeNoContentWarning();
+      	}
       }
 
       getHelpContent() {
@@ -4010,7 +4027,7 @@ window.scalarvis = { instanceCount: -1 };
 
     	  base.visualization.find('.no-content-warning').remove();
     	  var $el = $('<div class="no-content-warning" style="position:absolute; z-index:999; top:0px; left:0px; right:0px; bottom:0px; text-align:center; color:#000000;"></div>').appendTo(base.visualization);
-    	  var $inner = $('<div style="background-color:rgba(255, 255, 255, 0.5); margin-top:100px; padding:30px 0px 30px 0px;">There is no geospatial metadata associated with the selected items.<br /><br /><button type="button" class="btn btn-primary btn-sm">Dismiss</button></div>').appendTo($el);
+    	  var $inner = $('<div style="background-color:rgba(255, 255, 255, 0.5); margin-top:100px; padding:30px 0px 30px 0px;">Either no items were returned, or no geospatial<br/>metadata could be found on the returned items.<br /><br /><button type="button" class="btn btn-primary btn-sm">Dismiss</button></div>').appendTo($el);
     	  $inner.find('button').on('click', function() {
     		  $(this).parent().remove();
     	  });
@@ -4218,6 +4235,7 @@ window.scalarvis = { instanceCount: -1 };
           		removeOverflowing: false
           	}
           });
+          this.updateNoResultsMessage(base.sortedNodes);
 
       }
 
@@ -4277,11 +4295,12 @@ window.scalarvis = { instanceCount: -1 };
       draw() {
         super.draw();
 
+        this.updateNoResultsMessage(base.contentNodes);
+
         var $wrapper = $('.visList:first');
         var $tbody = $wrapper.find('tbody');
         $wrapper.find('.visListRow').remove();
         var maxLength = 100;
-        console.log(base.contentNodes);
         for (var j = 0; j < base.contentNodes.length; j++) {
         	var url = base.contentNodes[j].url;
         	var title = base.contentNodes[j].current.title;

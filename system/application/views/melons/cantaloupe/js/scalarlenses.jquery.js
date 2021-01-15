@@ -3772,7 +3772,7 @@
 
         scalarapi.modifyPageAndRelations(baseProperties, pageData, relationData, () => {
           $('body').trigger('lensUpdated', this.scalarLensObject);
-          successHandler();
+          if (successHandler) successHandler();
         });
       } else {
         $('#duplicate-copy-prompt').addClass('show-lens-prompt');

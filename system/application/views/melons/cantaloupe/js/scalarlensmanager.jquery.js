@@ -136,6 +136,9 @@
           onLensResults: this.handleLensResults
         });
         $('.lens-edit-container>.non-ideal-state-message,.vis-container>.non-ideal-state-message').hide();
+        var visualization = $('.visualization');
+        visualization.empty();
+        visualization.append('<div class="caption_font">Loading data...</div>');
       } else {
         $('.lens-edit-container>.non-ideal-state-message,.vis-container>.non-ideal-state-message').show();
       }
@@ -211,12 +214,6 @@
     }
 
     ScalarLensManager.prototype.handleLensResults = function(lens) {
-      var visualization = $('.visualization');
-      if (visualization.length == 0) {
-        visualization = $('<div class="visualization"></div>').appendTo($('.vis-container'));
-      } else {
-        visualization.empty();
-      }
       var slugs = [];
       for (var url in lens.items) {
         if (scalarapi.model.nodesByURL[url] != null) {
@@ -230,7 +227,8 @@
             content: 'lens',
             lens: lens
         };
-        visualization.scalarvis(visOptions);
+        $('.visualization').empty();
+        $('.visualization').scalarvis(visOptions);
       }
     }
 

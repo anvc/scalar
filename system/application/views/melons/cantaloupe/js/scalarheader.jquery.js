@@ -1681,7 +1681,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             });
           }
 
-          lensMenu.append('<li class="vis_link"><a role="button" href="' + base.get_param(scalarapi.model.urlPrefix + 'lenses') + '"><span class="menuIcon" id="lensIcon"></span> ' + manageLinkTitle + '</a></li>');
+          lensMenu.append('<li class="vis_link"><a role="button" href="' + base.get_param(scalarapi.model.urlPrefix + 'manage_lenses') + '"><span class="menuIcon" id="lensIcon"></span> ' + manageLinkTitle + '</a></li>');
         };
 
         base.initSubmenus = function(el){

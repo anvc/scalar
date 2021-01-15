@@ -1733,24 +1733,27 @@
                   $.Deferred((deferred) => {
                     $(deferred.resolve);
                   })
-                ).done(() => { div.ScalarLenses({onLensResults: this.handleLensResults}) });
+                ).done(() => {
+                  var visualization = $('.visualization');
+                  if (visualization.length == 0) {
+                    visualization = $('<div id="lens-visualization" class="visualization"><div class="body_copy caption_font">Loading data...</div></div>').appendTo(page.bodyContent());
+                  } else {
+                    visualization.empty();
+                  }
+                  div.ScalarLenses({onLensResults: this.handleLensResults})
+                });
               }
             },
 
             handleLensResults: function(lensObject) {
-              var visualization = $('.visualization');
-              if (visualization.length == 0) {
-                visualization = $('<div class="visualization"></div>').appendTo(page.bodyContent());
-              } else {
-                visualization.empty();
-              }
               if (lensObject.visualization) {
                 var visOptions = {
                     modal: false,
                     content: 'lens',
                     lens: lensObject
                 };
-                visualization.scalarvis(visOptions);
+                $('#lens-visualization').empty();
+                $('#lens-visualization').scalarvis(visOptions);
               }
             },
 
