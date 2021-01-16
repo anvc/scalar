@@ -165,14 +165,15 @@ class Lens_model extends MY_Model {
 								case "distance":
 									$has_used_filter = true;
 									$from_arr = $this->get_pages_from_content_selector($component['content-selector'], $book_id);
-									$distance_in_meters = $modifier['quantity'];
+									$distance = $modifier['quantity'];
+									$units = $modifier['units'];
 									$items = $CI->versions->get_by_predicate($book_id, array('dcterms:spatial','dcterms:coverage'));
 									foreach ($from_arr as $from) {
 										$content = array();
 										$item = $this->filter_by_slug($items, $from->slug);
 										if (!empty($item)) {
 											$latlng = $this->get_latlng_from_item($item[0]);
-											$content = $this->filter_by_location($items, $latlng, $distance_in_meters);
+											$content = $this->filter_by_location($items, $latlng, $distance, $units);
 										}
 									}
 									break;
@@ -407,13 +408,15 @@ class Lens_model extends MY_Model {
     	
     }
     
-    public function filter_by_location($items, $location, $distance_in_meters) {
+    public function filter_by_location($items, $location, $distance, $units) {
     	
     	$arr = explode(',',$location);
     	$loc_lat = trim($arr[0]);
     	$loc_lng = trim($arr[1]);
     	$return = array();
     	
+    	$distance_in_meters = $this->get_distance_in_meters($distance, $units);
+
     	foreach ($items as $item) {
     		$latlng = $this->get_latlng_from_item($item);
     		if (empty($latlng)) continue;
@@ -426,6 +429,25 @@ class Lens_model extends MY_Model {
     	}
     	
     	return $return;
+    	
+    }
+    
+    public function get_distance_in_meters($distance, $units) {
+    	
+    	$distance_in_meters = 0;
+    	switch ($units) {
+    		case 'meters':
+    			$distance_in_meters = $distance;
+    			break;
+    		case 'kilometers':
+    			$distance_in_meters = $distance * 1000;
+    			break;
+    		case 'miles':
+    			$distance_in_meters = $distance * 1609.344;
+    			break;
+    	}
+    	
+    	return $distance_in_meters;
     	
     }
     
@@ -571,10 +593,11 @@ class Lens_model extends MY_Model {
     	
     	} elseif (isset($json['type']) && 'items-by-distance' == $json['type']) {
     		$CI =& get_instance();
-    		$distance_in_meters = $json['quantity'];
+    		$distance = $json['quantity'];
+    		$units = $json['units'];
     		$latlng = $json['coordinates'];
     		$items = $CI->versions->get_by_predicate($book_id, array('dcterms:spatial','dcterms:coverage'));
-    		$content = $this->filter_by_location($items, $latlng, $distance_in_meters);
+    		$content = $this->filter_by_location($items, $latlng, $distance, $units);
     		return $content;
     		
     	} elseif (isset($json['type']) && 'items-by-type' == $json['type'] && isset($json['content-type']) && 'table-of-contents' == $json['content-type']) {

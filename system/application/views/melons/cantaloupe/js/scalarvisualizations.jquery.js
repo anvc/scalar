@@ -4348,10 +4348,10 @@ window.scalarvis = { instanceCount: -1 };
           		$visList.find('.sm').show();
           		$visList.find('.md, .lg').hide();
           	} else if (width < 600) {  // md
-             		$visList.find('.sm, .md').show();
+             	$visList.find('.sm, .md').show();
           		$visList.find('.lg').hide();
           	} else {  // lg
-             		$visList.find('.sm, .md, .lg').show();
+             	$visList.find('.sm, .md, .lg').show();
           	}
           };
           $(window).off('resize', doSizing).on('resize', doSizing);
