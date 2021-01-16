@@ -128,7 +128,8 @@
         top: '50%', // Top position relative to parent in px
         right: '50%' // Left position relative to parent in px
       };
-      this.darkSpinner = new Spinner(spinner_options).spin();
+      this.darkSpinnerLeft = new Spinner(spinner_options).spin();
+      this.darkSpinnerRight = new Spinner(spinner_options).spin();
 
       this.bookId = $('link#book_id').attr('href');
       this.userLevel = 'unknown';
@@ -1410,11 +1411,13 @@
       return element;
     }
 
-    ScalarLenses.prototype.validateFilterData = function() {
+    ScalarLenses.prototype.validateFilterData = function(isSilent = false) {
       let passedValidation = true;
-      $('#filterModal div.validation-error').remove();
-      $('#filterModal .btn').removeClass('validation-error');
-      $('#filterModal input').removeClass('validation-error');
+      if (!isSilent) {
+        $('#filterModal div.validation-error').remove();
+        $('#filterModal .btn').removeClass('validation-error');
+        $('#filterModal input').removeClass('validation-error');
+      }
       let subtype = $('.filter-modal-content').data('filterType');
       let errorMessage;
       switch(subtype){
@@ -1422,9 +1425,9 @@
         case 'content-type':
           let contentTypes = $('#content-type-button').data('option').value;
           if (!contentTypes) {
-            passedValdiation = false;
+            passedValidation = false;
             errorMessage = 'You must select a content type.';
-            $('#content-type-button').addClass('validation-error');
+            if (!isSilent) $('#content-type-button').addClass('validation-error');
           }
         break;
 
@@ -1433,7 +1436,7 @@
           if (content.length < 1 || content == "") {
             passedValidation = false;
             errorMessage = 'You must enter some text to filter on.';
-            $('#content-input').addClass('validation-error');
+            if (!isSilent) $('#content-input').addClass('validation-error');
           }
         break;
 
@@ -1442,14 +1445,14 @@
           if (!relationshipType) {
             passedValidation = false;
             errorMessage = 'You must select a content type.';
-            $('#relationship-content-button').addClass('validation-error');
+            if (!isSilent) $('#relationship-content-button').addClass('validation-error');
           }
         break;
 
 
         case 'distance':
           let distanceInput = $('#distanceFilterQuantity').val();
-          $('#distanceFilterQuantity').addClass('validation-error');
+          if (!isSilent) $('#distanceFilterQuantity').addClass('validation-error');
           if (distanceInput.length < 1 || distanceInput == "" || distanceInput == null) {
             passedValidation = false;
             errorMessage = 'You must enter a distance.';
@@ -1466,7 +1469,7 @@
 
         case 'quantity':
           let quantityInput = parseFloat($('#filterQuantityValue').val());
-          $('#filterQuantityValue').addClass('validation-error');
+          if (!isSilent) $('#filterQuantityValue').addClass('validation-error');
           if (quantityInput < 0){
             passedValidation = false;
             errorMessage = 'Quantity must be a positive number.';
@@ -1486,7 +1489,7 @@
           if(metadataContentField.length < 1 || metadataContentField == ""){
             passedValidation = false;
             errorMessage = 'You must enter some text to filter on.';
-            $('#metadata-content').addClass('validation-error');
+            if (!isSilent) $('#metadata-content').addClass('validation-error');
           }
           if (!metadataOntology || !metadataProperty) {
             passedValidation = false;
@@ -1498,10 +1501,10 @@
             errorMessage += 'You must select a content type.';
           }
           if (!metadataOntology) {
-            $('#metadata-ontology-button').addClass('validation-error');
+            if (!isSilent) $('#metadata-ontology-button').addClass('validation-error');
           }
           if (!metadataProperty) {
-            $('#metadata-property-button').addClass('validation-error');
+            if (!isSilent) $('#metadata-property-button').addClass('validation-error');
           }
         break;
 
@@ -1516,12 +1519,12 @@
           if (quantityInputVisit < 0){
             passedValidation = false;
             errorMessage = 'Quantity must be a positive number.';
-            $('#visitdate-quantity').addClass('validation-error');
+            if (!isSilent) $('#visitdate-quantity').addClass('validation-error');
 
           } else if (isNaN(quantityInputVisit)) {
             passedValidation = false;
             errorMessage = 'Quantity must be a number.';
-            $('#visitdate-quantity').addClass('validation-error');
+            if (!isSilent) $('#visitdate-quantity').addClass('validation-error');
 
           } else if ($('#date-button').data('option').value == 'now') {
             let filterDate = new Date();
@@ -1529,7 +1532,7 @@
             if (filterDate.getTime() < earliestDate.getTime()) {
               passedValidation = false;
               errorMessage = 'Filter date cannot be more than six weeks in the past.';
-              $('#visitdate-quantity').addClass('validation-error');
+              if (!isSilent) $('#visitdate-quantity').addClass('validation-error');
             }
 
           } else if ($('#date-button').data('option').value == 'date') {
@@ -1537,21 +1540,21 @@
             if (isNaN(specificDate)) {
               passedValidation = false;
               errorMessage = 'Please enter a valid date.'
-              $('#visitdate-input').addClass('validation-error');
+              if (!isSilent) $('#visitdate-input').addClass('validation-error');
             } else {
               let filterDate = new Date($('#visitdate-input').val());
               filterDate = this.getEarlierDate(filterDate, filterUnits, quantityInputVisit);
               if (filterDate.getTime() < earliestDate.getTime()) {
                 passedValidation = false;
                 errorMessage = 'Filter date cannot be more than six weeks in the past.';
-                $('#visitdate-quantity').addClass('validation-error');
+                if (!isSilent) $('#visitdate-quantity').addClass('validation-error');
               }
             }
           }
         break;
 
       }
-      if (errorMessage) {
+      if (errorMessage && !isSilent) {
         $('#filterModal .filter-modal-content').append('<div class="validation-error">' + errorMessage + '</div>');
       }
       return passedValidation;
@@ -1734,18 +1737,23 @@
 
       // get the results from both and post
       let leftBadge = $('#filterModal .left-badge .counter');
+      let rightBadge = $('#filterModal .right-badge .counter');
       this.updateBadge(leftBadge, -1, 'dark');
+      this.updateBadge(rightBadge, -1, 'dark');
       this.getLensResults(preFilterLensObj, (data) => {
+
         let nodeCount = this.getNodeCount(data);
         this.updateBadge(leftBadge, nodeCount, 'dark');
         $('.filter-pre-quantity').text(nodeCount);
-      });
-      let rightBadge = $('#filterModal .right-badge .counter');
-      this.updateBadge(rightBadge, -1, 'dark');
-      this.getLensResults(postFilterLensObj, (data) => {
-        let nodeCount = this.getNodeCount(data);
-        this.updateBadge(rightBadge, nodeCount, 'dark');
-        $('.filter-post-quantity').text(nodeCount);
+        console.log('update left badge');
+
+        if (this.validateFilterData(true)) {
+          this.getLensResults(postFilterLensObj, (data) => {
+            let nodeCount = this.getNodeCount(data);
+            this.updateBadge(rightBadge, nodeCount, 'dark');
+            $('.filter-post-quantity').text(nodeCount);
+          });
+        }
       });
     }
 
@@ -3219,8 +3227,14 @@
 
     ScalarLenses.prototype.updateBadge = function(element, count, style) {
       if (element) {
-        let spinner = this.darkSpinner;
-        if (style == 'light') {
+        let spinner;
+        if (style == 'dark') {
+          if (element.hasClass('pull-left')) {
+            spinner = this.darkSpinnerLeft;
+          } else {
+            spinner = this.darkSpinnerRight;
+          }
+        } else {
           spinner = this.lightSpinner;
         }
         if (count == -1) {
@@ -3665,7 +3679,7 @@
           this.lastResults = data;
           this.updateBadge(this.primaryBadge, this.getNodeCount(data), 'light');
           if (success) {
-            success(data);
+            success(data, lensObject);
           }
         },
         error: function error(response) {

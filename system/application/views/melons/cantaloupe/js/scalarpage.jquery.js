@@ -1745,12 +1745,14 @@
               }
             },
 
-            handleLensResults: function(lensObject) {
-              if (lensObject.visualization) {
+            handleLensResults: function(returnedLensData, currentLens) {
+              // always update the visualization type to current since it could be out of date
+              returnedLensData.visualization = currentLens.visualization;
+              if (returnedLensData.visualization) {
                 var visOptions = {
                     modal: false,
                     content: 'lens',
-                    lens: lensObject
+                    lens: returnedLensData
                 };
                 $('#lens-visualization').empty();
                 $('#lens-visualization').scalarvis(visOptions);

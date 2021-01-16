@@ -1763,6 +1763,12 @@ input.validation-error {
 	padding: 1px 10px 2px;
   border:2px solid #ccc;
 	border-radius: 20px;
+	min-width: 30px;
+	min-height: 30px;
+}
+.counter .spinner {
+	top: 11px;
+	left: 3px;
 }
 .filter-arrow {
 	background-image:url(../images/right_arrow.png);
