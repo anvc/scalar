@@ -305,6 +305,7 @@
               <span class="viz-icon ${vizType}"></span>
             </li>`
           ).appendTo($('.my-private-lenses-list'));
+          markup.find('a').on('click', function(evt) { evt.stopPropagation(); }); // stop clicks on the link from selecting the lens
           markup.data('lens', privateLensItem);
         });
       } else {
@@ -321,6 +322,7 @@
             <span class="viz-icon ${vizType}"></span>
           </li>`
         ).appendTo($('.other-private-lenses-list'));
+        markup.find('a').on('click', function(evt) { evt.stopPropagation(); }); // stop clicks on the link from selecting the lens
         markup.data('lens', privateLensItem);
       });
 
@@ -334,6 +336,7 @@
             <span class="viz-icon ${vizType}"></span>
           </li>`
         ).appendTo($('.submitted-lenses-list'));
+        markup.find('a').on('click', function(evt) { evt.stopPropagation(); }); // stop clicks on the link from selecting the lens
         markup.data('lens', submittedLensItem);
       });
 
@@ -348,6 +351,7 @@
               <span class="viz-icon ${vizType}"></span>
             </li>`
           ).appendTo($('.public-lenses-list'));
+          markup.find('a').on('click', function(evt) { evt.stopPropagation(); }); // stop clicks on the link from selecting the lens
           markup.data('lens', publicLensItem);
         });
       } else {
