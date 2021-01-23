@@ -123,7 +123,9 @@ class Lens_model extends MY_Model {
 		if (!isset($CI->versions) || 'object'!=gettype($CI->versions)) $CI->load->model('version_model','versions');
 		if (empty($book_id)) throw new Exception("Invalud Book ID");
 		$how_to_combine = $this->get_operation_from_visualization($json['visualization']);
-		$pages_load_metadata = (isset($json['visualization']['type']) && $json['visualization']['type'] == 'map') ? true : false;
+		$pages_load_metadata = false;
+		if (isset($json['visualization']['type']) && $json['visualization']['type'] == 'map') $pages_load_metadata = true;
+		if (isset($json['visualization']['type']) && $json['visualization']['type'] == 'list') $pages_load_metadata = true;
 		$contents = array();
 		
 		if (isset($json['frozen']) && $json['frozen']) {
@@ -275,6 +277,9 @@ class Lens_model extends MY_Model {
 										if (!array_key_exists($contents[$j]->content_id, $json['history'])) unset($contents[$j]);
 									}
 								}
+								break;
+							case "content-types":
+								
 								break;
 						}
 					}

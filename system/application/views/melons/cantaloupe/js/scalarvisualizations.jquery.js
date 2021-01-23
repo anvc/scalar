@@ -4311,11 +4311,40 @@ window.scalarvis = { instanceCount: -1 };
         super.draw();
 
         this.updateNoResultsMessage(base.contentNodes);
+        
+        // Determine if there is a author/creator field to add based on metadata
+        var candidates = {
+        		"http://ns.exiftool.ca/IPTC/IPTC/1.0/By-line": "iptc:By-line",
+        		"http://ns.exiftool.ca/IPTC/IPTC/1.0/Writer-Editor": "iptc:Writer-Editor",
+        		"http://purl.org/dc/terms/creator": "dcterms:creator"
+        }
+        var counts = {};
+        for (var j = 0; j < base.contentNodes.length; j++) {
+        	for (var uri in candidates) {
+        		if ('undefined' != typeof(base.contentNodes[j].current.properties[uri])) {
+        			if ('undefined' == typeof(counts[uri])) counts[uri] = 0;
+        			counts[uri]++;
+        		}
+        	}
+        };
+        var fieldValue = 0;
+        var fieldToAdd = null;
+        for (var field in counts) {
+        	if (counts[field] > 0 && counts[field] > fieldValue) {
+        		fieldValue = counts[field];
+        		fieldToAdd = field;
+        	}
+        };
+        if (null != fieldToAdd && !$('.visList').find('td[prop="fieldToAdd"]').length) {
+        	$('.visList').find('td[prop="author"]').before('<td class="lg" prop="fieldToAdd"><a href="javascript:void(null);">'+candidates[fieldToAdd]+'</a></td>');
+        };
 
+        // Output rows
         var $wrapper = $('.visList:first');
         var $tbody = $wrapper.find('tbody');
         $wrapper.find('.visListRow').remove();
         var maxLength = 100;
+        var authorFields = {};
         for (var j = 0; j < base.contentNodes.length; j++) {
         	var url = base.contentNodes[j].url;
         	var title = base.contentNodes[j].current.title;
@@ -4337,6 +4366,10 @@ window.scalarvis = { instanceCount: -1 };
           	$row.append('<td class="sm" prop="title"><a href="'+url+'" target="_blank">'+title+'</a></td>');
           	$row.append('<td class="md" prop="description">'+description+'</td>');
           	$row.append('<td class="md" prop="content">'+content+'</td>');
+          	if (null != fieldToAdd) {
+          		var valueToAdd = ('undefined'!=typeof(base.contentNodes[j].current.properties[fieldToAdd])) ? base.contentNodes[j].current.properties[fieldToAdd][0].value : '';
+          		$row.append('<td class="lg" prop="fieldToAdd">'+valueToAdd+'</td>');
+          	};
           	$row.append('<td class="lg" prop="author"><a href="'+authorUrl+'" target="_blank">'+fullname+'</a></td>');
           	$row.append('<td class="lg" prop="lastEdited">'+lastEdited+'</td>');
           	$row.append('<td class="lg" prop="version" style="text-align:center;">'+versions+'</td>');
@@ -4356,6 +4389,7 @@ window.scalarvis = { instanceCount: -1 };
           };
           $(window).off('resize', doSizing).on('resize', doSizing);
           doSizing();
+          
       }
 
       getHelpContent() {
@@ -4369,6 +4403,7 @@ window.scalarvis = { instanceCount: -1 };
 
       // one-time visualization setup
       setupElement() {
+    	  
         this.hasBeenDrawn = true;
         base.visualization.empty(); // empty the element where this vis is to be shown
         base.visualization.css('height', this.size.height + 'px');
@@ -4386,7 +4421,7 @@ window.scalarvis = { instanceCount: -1 };
         $header.append('<td class="lg" prop="author"><a href="javascript:void(null);">Last Edited By</a></td>');
         $header.append('<td class="lg" prop="lastEdited"><a href="javascript:void(null);">Date Edited</a></td>');
         $header.append('<td class="lg" prop="version"><a href="javascript:void(null);">Version</a></td>');
-        $header.find('a').on('click', function() {
+        $header.on('click', 'a', function() {
         	var $this = $(this);
         	var index = $header.find('a').index($this);
         	if ($header.data('sortBy') != index) {
@@ -4404,6 +4439,7 @@ window.scalarvis = { instanceCount: -1 };
             }).appendTo($tbody);
         });
       }
+      
     }
 
     base.init();
