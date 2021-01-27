@@ -25,10 +25,10 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
  */
 class TagAwareAdapter implements TagAwareAdapterInterface, TagAwareCacheInterface, PruneableInterface, ResettableInterface
 {
-    const TAGS_PREFIX = "\0tags\0";
+    public const TAGS_PREFIX = "\0tags\0";
 
-    use ProxyTrait;
     use ContractsTrait;
+    use ProxyTrait;
 
     private $deferred = [];
     private $createCacheItem;
@@ -49,7 +49,6 @@ class TagAwareAdapter implements TagAwareAdapterInterface, TagAwareCacheInterfac
                 $item = new CacheItem();
                 $item->key = $key;
                 $item->value = $value;
-                $item->defaultLifetime = $protoItem->defaultLifetime;
                 $item->expiry = $protoItem->expiry;
                 $item->poolHash = $protoItem->poolHash;
 
@@ -94,8 +93,7 @@ class TagAwareAdapter implements TagAwareAdapterInterface, TagAwareCacheInterfac
         $this->invalidateTags = \Closure::bind(
             static function (AdapterInterface $tagsAdapter, array $tags) {
                 foreach ($tags as $v) {
-                    $v->defaultLifetime = 0;
-                    $v->expiry = null;
+                    $v->expiry = 0;
                     $tagsAdapter->saveDeferred($v);
                 }
 
@@ -151,6 +149,8 @@ class TagAwareAdapter implements TagAwareAdapterInterface, TagAwareCacheInterfac
 
     /**
      * {@inheritdoc}
+     *
+     * @return bool
      */
     public function hasItem($key)
     {
@@ -160,7 +160,14 @@ class TagAwareAdapter implements TagAwareAdapterInterface, TagAwareCacheInterfac
         if (!$this->pool->hasItem($key)) {
             return false;
         }
-        if (!$itemTags = $this->pool->getItem(static::TAGS_PREFIX.$key)->get()) {
+
+        $itemTags = $this->pool->getItem(static::TAGS_PREFIX.$key);
+
+        if (!$itemTags->isHit()) {
+            return false;
+        }
+
+        if (!$itemTags = $itemTags->get()) {
             return true;
         }
 
@@ -215,16 +222,36 @@ class TagAwareAdapter implements TagAwareAdapterInterface, TagAwareCacheInterfac
 
     /**
      * {@inheritdoc}
+     *
+     * @param string $prefix
+     *
+     * @return bool
      */
-    public function clear()
+    public function clear(/*string $prefix = ''*/)
     {
-        $this->deferred = [];
+        $prefix = 0 < \func_num_args() ? (string) func_get_arg(0) : '';
+
+        if ('' !== $prefix) {
+            foreach ($this->deferred as $key => $item) {
+                if (0 === strpos($key, $prefix)) {
+                    unset($this->deferred[$key]);
+                }
+            }
+        } else {
+            $this->deferred = [];
+        }
+
+        if ($this->pool instanceof AdapterInterface) {
+            return $this->pool->clear($prefix);
+        }
 
         return $this->pool->clear();
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @return bool
      */
     public function deleteItem($key)
     {
@@ -233,6 +260,8 @@ class TagAwareAdapter implements TagAwareAdapterInterface, TagAwareCacheInterfac
 
     /**
      * {@inheritdoc}
+     *
+     * @return bool
      */
     public function deleteItems(array $keys)
     {
@@ -247,6 +276,8 @@ class TagAwareAdapter implements TagAwareAdapterInterface, TagAwareCacheInterfac
 
     /**
      * {@inheritdoc}
+     *
+     * @return bool
      */
     public function save(CacheItemInterface $item)
     {
@@ -260,6 +291,8 @@ class TagAwareAdapter implements TagAwareAdapterInterface, TagAwareCacheInterfac
 
     /**
      * {@inheritdoc}
+     *
+     * @return bool
      */
     public function saveDeferred(CacheItemInterface $item)
     {
@@ -273,10 +306,22 @@ class TagAwareAdapter implements TagAwareAdapterInterface, TagAwareCacheInterfac
 
     /**
      * {@inheritdoc}
+     *
+     * @return bool
      */
     public function commit()
     {
         return $this->invalidateTags([]);
+    }
+
+    public function __sleep()
+    {
+        throw new \BadMethodCallException('Cannot serialize '.__CLASS__);
+    }
+
+    public function __wakeup()
+    {
+        throw new \BadMethodCallException('Cannot unserialize '.__CLASS__);
     }
 
     public function __destruct()
@@ -284,7 +329,7 @@ class TagAwareAdapter implements TagAwareAdapterInterface, TagAwareCacheInterfac
         $this->commit();
     }
 
-    private function generateItems($items, array $tagKeys)
+    private function generateItems(iterable $items, array $tagKeys)
     {
         $bufferedItems = $itemTags = [];
         $f = $this->setCacheItemTags;
@@ -300,7 +345,10 @@ class TagAwareAdapter implements TagAwareAdapterInterface, TagAwareCacheInterfac
             }
 
             unset($tagKeys[$key]);
-            $itemTags[$key] = $item->get() ?: [];
+
+            if ($item->isHit()) {
+                $itemTags[$key] = $item->get() ?: [];
+            }
 
             if (!$tagKeys) {
                 $tagVersions = $this->getTagVersions($itemTags);

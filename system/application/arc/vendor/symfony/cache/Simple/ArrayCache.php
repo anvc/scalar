@@ -20,7 +20,7 @@ use Symfony\Component\Cache\ResettableInterface;
 use Symfony\Component\Cache\Traits\ArrayTrait;
 use Symfony\Contracts\Cache\CacheInterface;
 
-@trigger_error(sprintf('The "%s" class is deprecated since Symfony 4.3, use "%s" and type-hint for "%s" instead.', ArrayCache::class, ArrayAdapter::class, CacheInterface::class), E_USER_DEPRECATED);
+@trigger_error(sprintf('The "%s" class is deprecated since Symfony 4.3, use "%s" and type-hint for "%s" instead.', ArrayCache::class, ArrayAdapter::class, CacheInterface::class), \E_USER_DEPRECATED);
 
 /**
  * @deprecated since Symfony 4.3, use ArrayAdapter and type-hint for CacheInterface instead.
@@ -66,13 +66,15 @@ class ArrayCache implements Psr16CacheInterface, LoggerAwareInterface, Resettabl
 
     /**
      * {@inheritdoc}
+     *
+     * @return iterable
      */
     public function getMultiple($keys, $default = null)
     {
         if ($keys instanceof \Traversable) {
             $keys = iterator_to_array($keys, false);
         } elseif (!\is_array($keys)) {
-            throw new InvalidArgumentException(sprintf('Cache keys must be array or Traversable, "%s" given', \is_object($keys) ? \get_class($keys) : \gettype($keys)));
+            throw new InvalidArgumentException(sprintf('Cache keys must be array or Traversable, "%s" given.', \is_object($keys) ? \get_class($keys) : \gettype($keys)));
         }
         foreach ($keys as $key) {
             if (!\is_string($key) || !isset($this->expiries[$key])) {
@@ -85,11 +87,13 @@ class ArrayCache implements Psr16CacheInterface, LoggerAwareInterface, Resettabl
 
     /**
      * {@inheritdoc}
+     *
+     * @return bool
      */
     public function deleteMultiple($keys)
     {
         if (!\is_array($keys) && !$keys instanceof \Traversable) {
-            throw new InvalidArgumentException(sprintf('Cache keys must be array or Traversable, "%s" given', \is_object($keys) ? \get_class($keys) : \gettype($keys)));
+            throw new InvalidArgumentException(sprintf('Cache keys must be array or Traversable, "%s" given.', \is_object($keys) ? \get_class($keys) : \gettype($keys)));
         }
         foreach ($keys as $key) {
             $this->delete($key);
@@ -100,6 +104,8 @@ class ArrayCache implements Psr16CacheInterface, LoggerAwareInterface, Resettabl
 
     /**
      * {@inheritdoc}
+     *
+     * @return bool
      */
     public function set($key, $value, $ttl = null)
     {
@@ -112,11 +118,13 @@ class ArrayCache implements Psr16CacheInterface, LoggerAwareInterface, Resettabl
 
     /**
      * {@inheritdoc}
+     *
+     * @return bool
      */
     public function setMultiple($values, $ttl = null)
     {
         if (!\is_array($values) && !$values instanceof \Traversable) {
-            throw new InvalidArgumentException(sprintf('Cache values must be array or Traversable, "%s" given', \is_object($values) ? \get_class($values) : \gettype($values)));
+            throw new InvalidArgumentException(sprintf('Cache values must be array or Traversable, "%s" given.', \is_object($values) ? \get_class($values) : \gettype($values)));
         }
         $valuesArray = [];
 
@@ -129,7 +137,7 @@ class ArrayCache implements Psr16CacheInterface, LoggerAwareInterface, Resettabl
         if (false === $ttl = $this->normalizeTtl($ttl)) {
             return $this->deleteMultiple(array_keys($valuesArray));
         }
-        $expiry = 0 < $ttl ? microtime(true) + $ttl : PHP_INT_MAX;
+        $expiry = 0 < $ttl ? microtime(true) + $ttl : \PHP_INT_MAX;
 
         foreach ($valuesArray as $key => $value) {
             if ($this->storeSerialized && null === $value = $this->freeze($value, $key)) {
@@ -154,6 +162,6 @@ class ArrayCache implements Psr16CacheInterface, LoggerAwareInterface, Resettabl
             return 0 < $ttl ? $ttl : false;
         }
 
-        throw new InvalidArgumentException(sprintf('Expiration date must be an integer, a DateInterval or null, "%s" given', \is_object($ttl) ? \get_class($ttl) : \gettype($ttl)));
+        throw new InvalidArgumentException(sprintf('Expiration date must be an integer, a DateInterval or null, "%s" given.', \is_object($ttl) ? \get_class($ttl) : \gettype($ttl)));
     }
 }

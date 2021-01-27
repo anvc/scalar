@@ -33,8 +33,8 @@ trait FilesystemTrait
         $time = time();
         $pruned = true;
 
-        foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($this->directory, \FilesystemIterator::SKIP_DOTS), \RecursiveIteratorIterator::LEAVES_ONLY) as $file) {
-            if (!$h = @fopen($file, 'rb')) {
+        foreach ($this->scanHashDir($this->directory) as $file) {
+            if (!$h = @fopen($file, 'r')) {
                 continue;
             }
 
@@ -59,7 +59,7 @@ trait FilesystemTrait
 
         foreach ($ids as $id) {
             $file = $this->getFile($id);
-            if (!file_exists($file) || !$h = @fopen($file, 'rb')) {
+            if (!file_exists($file) || !$h = @fopen($file, 'r')) {
                 continue;
             }
             if (($expiresAt = (int) fgets($h)) && $now >= $expiresAt) {
@@ -91,7 +91,7 @@ trait FilesystemTrait
     /**
      * {@inheritdoc}
      */
-    protected function doSave(array $values, $lifetime)
+    protected function doSave(array $values, int $lifetime)
     {
         $expiresAt = $lifetime ? (time() + $lifetime) : 0;
         $values = $this->marshaller->marshall($values, $failed);
@@ -103,9 +103,22 @@ trait FilesystemTrait
         }
 
         if ($failed && !is_writable($this->directory)) {
-            throw new CacheException(sprintf('Cache directory is not writable (%s)', $this->directory));
+            throw new CacheException(sprintf('Cache directory is not writable (%s).', $this->directory));
         }
 
         return $failed;
+    }
+
+    private function getFileKey(string $file): string
+    {
+        if (!$h = @fopen($file, 'r')) {
+            return '';
+        }
+
+        fgets($h); // expiry
+        $encodedKey = fgets($h);
+        fclose($h);
+
+        return rawurldecode(rtrim($encodedKey));
     }
 }

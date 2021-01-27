@@ -23,10 +23,10 @@ trait FilesystemCommonTrait
     private $directory;
     private $tmp;
 
-    private function init($namespace, $directory)
+    private function init(string $namespace, ?string $directory)
     {
         if (!isset($directory[0])) {
-            $directory = sys_get_temp_dir().'/symfony-cache';
+            $directory = sys_get_temp_dir().\DIRECTORY_SEPARATOR.'symfony-cache';
         } else {
             $directory = realpath($directory) ?: $directory;
         }
@@ -35,6 +35,8 @@ trait FilesystemCommonTrait
                 throw new InvalidArgumentException(sprintf('Namespace contains "%s" but only characters in [-+_.A-Za-z0-9] are allowed.', $match[0]));
             }
             $directory .= \DIRECTORY_SEPARATOR.$namespace;
+        } else {
+            $directory .= \DIRECTORY_SEPARATOR.'@';
         }
         if (!file_exists($directory)) {
             @mkdir($directory, 0777, true);
@@ -42,7 +44,7 @@ trait FilesystemCommonTrait
         $directory .= \DIRECTORY_SEPARATOR;
         // On Windows the whole path is limited to 258 chars
         if ('\\' === \DIRECTORY_SEPARATOR && \strlen($directory) > 234) {
-            throw new InvalidArgumentException(sprintf('Cache directory too long (%s)', $directory));
+            throw new InvalidArgumentException(sprintf('Cache directory too long (%s).', $directory));
         }
 
         $this->directory = $directory;
@@ -55,8 +57,12 @@ trait FilesystemCommonTrait
     {
         $ok = true;
 
-        foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($this->directory, \FilesystemIterator::SKIP_DOTS)) as $file) {
-            $ok = ($file->isDir() || $this->doUnlink($file) || !file_exists($file)) && $ok;
+        foreach ($this->scanHashDir($this->directory) as $file) {
+            if ('' !== $namespace && 0 !== strpos($this->getFileKey($file), $namespace)) {
+                continue;
+            }
+
+            $ok = ($this->doUnlink($file) || !file_exists($file)) && $ok;
         }
 
         return $ok;
@@ -82,14 +88,25 @@ trait FilesystemCommonTrait
         return @unlink($file);
     }
 
-    private function write($file, $data, $expiresAt = null)
+    private function write(string $file, string $data, int $expiresAt = null)
     {
         set_error_handler(__CLASS__.'::throwError');
         try {
             if (null === $this->tmp) {
-                $this->tmp = $this->directory.uniqid('', true);
+                $this->tmp = $this->directory.bin2hex(random_bytes(6));
             }
-            file_put_contents($this->tmp, $data);
+            try {
+                $h = fopen($this->tmp, 'x');
+            } catch (\ErrorException $e) {
+                if (false === strpos($e->getMessage(), 'File exists')) {
+                    throw $e;
+                }
+
+                $this->tmp = $this->directory.bin2hex(random_bytes(6));
+                $h = fopen($this->tmp, 'x');
+            }
+            fwrite($h, $data);
+            fclose($h);
 
             if (null !== $expiresAt) {
                 touch($this->tmp, $expiresAt);
@@ -101,7 +118,7 @@ trait FilesystemCommonTrait
         }
     }
 
-    private function getFile($id, $mkdir = false, string $directory = null)
+    private function getFile(string $id, bool $mkdir = false, string $directory = null)
     {
         // Use MD5 to favor speed over security, which is not an issue here
         $hash = str_replace('/', '-', base64_encode(hash('md5', static::class.$id, true)));
@@ -114,6 +131,38 @@ trait FilesystemCommonTrait
         return $dir.substr($hash, 2, 20);
     }
 
+    private function getFileKey(string $file): string
+    {
+        return '';
+    }
+
+    private function scanHashDir(string $directory): \Generator
+    {
+        if (!file_exists($directory)) {
+            return;
+        }
+
+        $chars = '+-ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
+        for ($i = 0; $i < 38; ++$i) {
+            if (!file_exists($directory.$chars[$i])) {
+                continue;
+            }
+
+            for ($j = 0; $j < 38; ++$j) {
+                if (!file_exists($dir = $directory.$chars[$i].\DIRECTORY_SEPARATOR.$chars[$j])) {
+                    continue;
+                }
+
+                foreach (@scandir($dir, \SCANDIR_SORT_NONE) ?: [] as $file) {
+                    if ('.' !== $file && '..' !== $file) {
+                        yield $dir.\DIRECTORY_SEPARATOR.$file;
+                    }
+                }
+            }
+        }
+    }
+
     /**
      * @internal
      */
@@ -122,6 +171,9 @@ trait FilesystemCommonTrait
         throw new \ErrorException($message, 0, $type, $file, $line);
     }
 
+    /**
+     * @return array
+     */
     public function __sleep()
     {
         throw new \BadMethodCallException('Cannot serialize '.__CLASS__);

@@ -20,7 +20,7 @@ use Symfony\Component\Cache\ResettableInterface;
 use Symfony\Component\Cache\Traits\AbstractTrait;
 use Symfony\Contracts\Cache\CacheInterface;
 
-@trigger_error(sprintf('The "%s" class is deprecated since Symfony 4.3, use "%s" and type-hint for "%s" instead.', AbstractCache::class, AbstractAdapter::class, CacheInterface::class), E_USER_DEPRECATED);
+@trigger_error(sprintf('The "%s" class is deprecated since Symfony 4.3, use "%s" and type-hint for "%s" instead.', AbstractCache::class, AbstractAdapter::class, CacheInterface::class), \E_USER_DEPRECATED);
 
 /**
  * @deprecated since Symfony 4.3, use AbstractAdapter and type-hint for CacheInterface instead.
@@ -45,7 +45,7 @@ abstract class AbstractCache implements Psr16CacheInterface, LoggerAwareInterfac
         $this->defaultLifetime = max(0, $defaultLifetime);
         $this->namespace = '' === $namespace ? '' : CacheItem::validateKey($namespace).':';
         if (null !== $this->maxIdLength && \strlen($namespace) > $this->maxIdLength - 24) {
-            throw new InvalidArgumentException(sprintf('Namespace must be %d chars max, %d given ("%s")', $this->maxIdLength - 24, \strlen($namespace), $namespace));
+            throw new InvalidArgumentException(sprintf('Namespace must be %d chars max, %d given ("%s").', $this->maxIdLength - 24, \strlen($namespace), $namespace));
         }
     }
 
@@ -69,6 +69,8 @@ abstract class AbstractCache implements Psr16CacheInterface, LoggerAwareInterfac
 
     /**
      * {@inheritdoc}
+     *
+     * @return bool
      */
     public function set($key, $value, $ttl = null)
     {
@@ -79,13 +81,15 @@ abstract class AbstractCache implements Psr16CacheInterface, LoggerAwareInterfac
 
     /**
      * {@inheritdoc}
+     *
+     * @return iterable
      */
     public function getMultiple($keys, $default = null)
     {
         if ($keys instanceof \Traversable) {
             $keys = iterator_to_array($keys, false);
         } elseif (!\is_array($keys)) {
-            throw new InvalidArgumentException(sprintf('Cache keys must be array or Traversable, "%s" given', \is_object($keys) ? \get_class($keys) : \gettype($keys)));
+            throw new InvalidArgumentException(sprintf('Cache keys must be array or Traversable, "%s" given.', \is_object($keys) ? \get_class($keys) : \gettype($keys)));
         }
         $ids = [];
 
@@ -105,11 +109,13 @@ abstract class AbstractCache implements Psr16CacheInterface, LoggerAwareInterfac
 
     /**
      * {@inheritdoc}
+     *
+     * @return bool
      */
     public function setMultiple($values, $ttl = null)
     {
         if (!\is_array($values) && !$values instanceof \Traversable) {
-            throw new InvalidArgumentException(sprintf('Cache values must be array or Traversable, "%s" given', \is_object($values) ? \get_class($values) : \gettype($values)));
+            throw new InvalidArgumentException(sprintf('Cache values must be array or Traversable, "%s" given.', \is_object($values) ? \get_class($values) : \gettype($values)));
         }
         $valuesById = [];
 
@@ -142,13 +148,15 @@ abstract class AbstractCache implements Psr16CacheInterface, LoggerAwareInterfac
 
     /**
      * {@inheritdoc}
+     *
+     * @return bool
      */
     public function deleteMultiple($keys)
     {
         if ($keys instanceof \Traversable) {
             $keys = iterator_to_array($keys, false);
         } elseif (!\is_array($keys)) {
-            throw new InvalidArgumentException(sprintf('Cache keys must be array or Traversable, "%s" given', \is_object($keys) ? \get_class($keys) : \gettype($keys)));
+            throw new InvalidArgumentException(sprintf('Cache keys must be array or Traversable, "%s" given.', \is_object($keys) ? \get_class($keys) : \gettype($keys)));
         }
 
         return $this->deleteItems($keys);
@@ -166,15 +174,15 @@ abstract class AbstractCache implements Psr16CacheInterface, LoggerAwareInterfac
             return 0 < $ttl ? $ttl : false;
         }
 
-        throw new InvalidArgumentException(sprintf('Expiration date must be an integer, a DateInterval or null, "%s" given', \is_object($ttl) ? \get_class($ttl) : \gettype($ttl)));
+        throw new InvalidArgumentException(sprintf('Expiration date must be an integer, a DateInterval or null, "%s" given.', \is_object($ttl) ? \get_class($ttl) : \gettype($ttl)));
     }
 
-    private function generateValues($values, &$keys, $default)
+    private function generateValues(iterable $values, array &$keys, $default): iterable
     {
         try {
             foreach ($values as $id => $value) {
                 if (!isset($keys[$id])) {
-                    $id = key($keys);
+                    throw new InvalidArgumentException(sprintf('Could not match value id "%s" to keys "%s".', $id, implode('", "', $keys)));
                 }
                 $key = $keys[$id];
                 unset($keys[$id]);

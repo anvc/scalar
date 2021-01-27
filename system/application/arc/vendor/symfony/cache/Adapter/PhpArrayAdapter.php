@@ -30,8 +30,8 @@ use Symfony\Contracts\Cache\CacheInterface;
  */
 class PhpArrayAdapter implements AdapterInterface, CacheInterface, PruneableInterface, ResettableInterface
 {
-    use PhpArrayTrait;
     use ContractsTrait;
+    use PhpArrayTrait;
 
     private $createCacheItem;
 
@@ -61,22 +61,17 @@ class PhpArrayAdapter implements AdapterInterface, CacheInterface, PruneableInte
      * This adapter takes advantage of how PHP stores arrays in its latest versions.
      *
      * @param string                 $file         The PHP file were values are cached
-     * @param CacheItemPoolInterface $fallbackPool Fallback when opcache is disabled
+     * @param CacheItemPoolInterface $fallbackPool A pool to fallback on when an item is not hit
      *
      * @return CacheItemPoolInterface
      */
     public static function create($file, CacheItemPoolInterface $fallbackPool)
     {
-        // Shared memory is available in PHP 7.0+ with OPCache enabled
-        if (filter_var(ini_get('opcache.enable'), FILTER_VALIDATE_BOOLEAN)) {
-            if (!$fallbackPool instanceof AdapterInterface) {
-                $fallbackPool = new ProxyAdapter($fallbackPool);
-            }
-
-            return new static($file, $fallbackPool);
+        if (!$fallbackPool instanceof AdapterInterface) {
+            $fallbackPool = new ProxyAdapter($fallbackPool);
         }
 
-        return $fallbackPool;
+        return new static($file, $fallbackPool);
     }
 
     /**
@@ -165,6 +160,8 @@ class PhpArrayAdapter implements AdapterInterface, CacheInterface, PruneableInte
 
     /**
      * {@inheritdoc}
+     *
+     * @return bool
      */
     public function hasItem($key)
     {
@@ -180,6 +177,8 @@ class PhpArrayAdapter implements AdapterInterface, CacheInterface, PruneableInte
 
     /**
      * {@inheritdoc}
+     *
+     * @return bool
      */
     public function deleteItem($key)
     {
@@ -195,6 +194,8 @@ class PhpArrayAdapter implements AdapterInterface, CacheInterface, PruneableInte
 
     /**
      * {@inheritdoc}
+     *
+     * @return bool
      */
     public function deleteItems(array $keys)
     {
@@ -225,6 +226,8 @@ class PhpArrayAdapter implements AdapterInterface, CacheInterface, PruneableInte
 
     /**
      * {@inheritdoc}
+     *
+     * @return bool
      */
     public function save(CacheItemInterface $item)
     {
@@ -237,6 +240,8 @@ class PhpArrayAdapter implements AdapterInterface, CacheInterface, PruneableInte
 
     /**
      * {@inheritdoc}
+     *
+     * @return bool
      */
     public function saveDeferred(CacheItemInterface $item)
     {
@@ -249,6 +254,8 @@ class PhpArrayAdapter implements AdapterInterface, CacheInterface, PruneableInte
 
     /**
      * {@inheritdoc}
+     *
+     * @return bool
      */
     public function commit()
     {
@@ -293,15 +300,22 @@ class PhpArrayAdapter implements AdapterInterface, CacheInterface, PruneableInte
     public static function throwOnRequiredClass($class)
     {
         $e = new \ReflectionException("Class $class does not exist");
-        $trace = $e->getTrace();
+        $trace = debug_backtrace();
         $autoloadFrame = [
             'function' => 'spl_autoload_call',
             'args' => [$class],
         ];
-        $i = 1 + array_search($autoloadFrame, $trace, true);
 
-        if (isset($trace[$i]['function']) && !isset($trace[$i]['class'])) {
-            switch ($trace[$i]['function']) {
+        if (\PHP_VERSION_ID >= 80000 && isset($trace[1])) {
+            $callerFrame = $trace[1];
+        } elseif (false !== $i = array_search($autoloadFrame, $trace, true)) {
+            $callerFrame = $trace[++$i];
+        } else {
+            throw $e;
+        }
+
+        if (isset($callerFrame['function']) && !isset($callerFrame['class'])) {
+            switch ($callerFrame['function']) {
                 case 'get_class_methods':
                 case 'get_class_vars':
                 case 'get_parent_class':

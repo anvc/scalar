@@ -78,10 +78,12 @@ trait AbstractTrait
      *
      * @return array|bool The identifiers that failed to be cached or a boolean stating if caching succeeded or not
      */
-    abstract protected function doSave(array $values, $lifetime);
+    abstract protected function doSave(array $values, int $lifetime);
 
     /**
      * {@inheritdoc}
+     *
+     * @return bool
      */
     public function hasItem($key)
     {
@@ -102,12 +104,22 @@ trait AbstractTrait
 
     /**
      * {@inheritdoc}
+     *
+     * @param string $prefix
+     *
+     * @return bool
      */
-    public function clear()
+    public function clear(/*string $prefix = ''*/)
     {
         $this->deferred = [];
         if ($cleared = $this->versioningIsEnabled) {
-            $namespaceVersion = substr_replace(base64_encode(pack('V', mt_rand())), static::NS_SEPARATOR, 5);
+            if ('' === $namespaceVersionToClear = $this->namespaceVersion) {
+                foreach ($this->doFetch([static::NS_SEPARATOR.$this->namespace]) as $v) {
+                    $namespaceVersionToClear = $v;
+                }
+            }
+            $namespaceToClear = $this->namespace.$namespaceVersionToClear;
+            $namespaceVersion = strtr(substr_replace(base64_encode(pack('V', mt_rand())), static::NS_SEPARATOR, 5), '/', '_');
             try {
                 $cleared = $this->doSave([static::NS_SEPARATOR.$this->namespace => $namespaceVersion], 0);
             } catch (\Exception $e) {
@@ -117,10 +129,13 @@ trait AbstractTrait
                 $this->namespaceVersion = $namespaceVersion;
                 $this->ids = [];
             }
+        } else {
+            $prefix = 0 < \func_num_args() ? (string) func_get_arg(0) : '';
+            $namespaceToClear = $this->namespace.$prefix;
         }
 
         try {
-            return $this->doClear($this->namespace) || $cleared;
+            return $this->doClear($namespaceToClear) || $cleared;
         } catch (\Exception $e) {
             CacheItem::log($this->logger, 'Failed to clear the cache: '.$e->getMessage(), ['exception' => $e]);
 
@@ -130,6 +145,8 @@ trait AbstractTrait
 
     /**
      * {@inheritdoc}
+     *
+     * @return bool
      */
     public function deleteItem($key)
     {
@@ -138,6 +155,8 @@ trait AbstractTrait
 
     /**
      * {@inheritdoc}
+     *
+     * @return bool
      */
     public function deleteItems(array $keys)
     {
@@ -221,7 +240,7 @@ trait AbstractTrait
      */
     protected static function unserialize($value)
     {
-        @trigger_error(sprintf('The "%s::unserialize()" method is deprecated since Symfony 4.2, use DefaultMarshaller instead.', __CLASS__), E_USER_DEPRECATED);
+        @trigger_error(sprintf('The "%s::unserialize()" method is deprecated since Symfony 4.2, use DefaultMarshaller instead.', __CLASS__), \E_USER_DEPRECATED);
 
         if ('b:0;' === $value) {
             return false;
@@ -231,15 +250,15 @@ trait AbstractTrait
             if (false !== $value = unserialize($value)) {
                 return $value;
             }
-            throw new \DomainException('Failed to unserialize cached value');
+            throw new \DomainException('Failed to unserialize cached value.');
         } catch (\Error $e) {
-            throw new \ErrorException($e->getMessage(), $e->getCode(), E_ERROR, $e->getFile(), $e->getLine());
+            throw new \ErrorException($e->getMessage(), $e->getCode(), \E_ERROR, $e->getFile(), $e->getLine());
         } finally {
             ini_set('unserialize_callback_func', $unserializeCallbackHandler);
         }
     }
 
-    private function getId($key)
+    private function getId($key): string
     {
         if ($this->versioningIsEnabled && '' === $this->namespaceVersion) {
             $this->ids = [];
@@ -249,7 +268,7 @@ trait AbstractTrait
                     $this->namespaceVersion = $v;
                 }
                 if ('1'.static::NS_SEPARATOR === $this->namespaceVersion) {
-                    $this->namespaceVersion = substr_replace(base64_encode(pack('V', time())), static::NS_SEPARATOR, 5);
+                    $this->namespaceVersion = strtr(substr_replace(base64_encode(pack('V', time())), static::NS_SEPARATOR, 5), '/', '_');
                     $this->doSave([static::NS_SEPARATOR.$this->namespace => $this->namespaceVersion], 0);
                 }
             } catch (\Exception $e) {

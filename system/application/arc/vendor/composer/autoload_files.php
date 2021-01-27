@@ -6,13 +6,14 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    '9c9a81795c809f4710dd20bec1e349df' => $vendorDir . '/joshcam/mysqli-database-class/MysqliDb.php',
-    '94df122b6b32ca0be78d482c26e5ce00' => $vendorDir . '/joshcam/mysqli-database-class/dbObject.php',
-    '20540fee703fb26b5e46ea2c1cb78d78' => $baseDir . '/ARC2.php',
-    'e98ae83aaf42bb653417458ae576b2d4' => $baseDir . '/ARC2_Class.php',
-    'c1bf40f92dcf21e0b8a469c0c90a013a' => $baseDir . '/ARC2_getFormat.php',
-    '3310f2d48ccb6a1d63ace2ff9974c51f' => $baseDir . '/ARC2_getPreferredFormat.php',
-    'ee274324607689550f35d8b41e0249a5' => $baseDir . '/ARC2_Graph.php',
-    '0a98b16bf36d5a42930e1567faf36d4a' => $baseDir . '/ARC2_Reader.php',
-    '9a394445f90dac3d0543f751921bfbce' => $baseDir . '/ARC2_Resource.php',
+    'a4a119a56e50fbb293281d9a48007e0e' => $vendorDir . '/symfony/polyfill-php80/bootstrap.php',
+    '71ecd0286a4e74fd8732297fb587023c' => $vendorDir . '/thingengineer/mysqli-database-class/MysqliDb.php',
+    'd383f1ec7b1e54a09cb53eb6fcf751e0' => $vendorDir . '/thingengineer/mysqli-database-class/dbObject.php',
+    '20540fee703fb26b5e46ea2c1cb78d78' => $vendorDir . '/semsol/arc2/ARC2.php',
+    'e98ae83aaf42bb653417458ae576b2d4' => $vendorDir . '/semsol/arc2/ARC2_Class.php',
+    'c1bf40f92dcf21e0b8a469c0c90a013a' => $vendorDir . '/semsol/arc2/ARC2_getFormat.php',
+    '3310f2d48ccb6a1d63ace2ff9974c51f' => $vendorDir . '/semsol/arc2/ARC2_getPreferredFormat.php',
+    'ee274324607689550f35d8b41e0249a5' => $vendorDir . '/semsol/arc2/ARC2_Graph.php',
+    '0a98b16bf36d5a42930e1567faf36d4a' => $vendorDir . '/semsol/arc2/ARC2_Reader.php',
+    '9a394445f90dac3d0543f751921bfbce' => $vendorDir . '/semsol/arc2/ARC2_Resource.php',
 );

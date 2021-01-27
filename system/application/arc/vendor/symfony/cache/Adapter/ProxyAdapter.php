@@ -25,14 +25,15 @@ use Symfony\Contracts\Cache\CacheInterface;
  */
 class ProxyAdapter implements AdapterInterface, CacheInterface, PruneableInterface, ResettableInterface
 {
-    use ProxyTrait;
     use ContractsTrait;
+    use ProxyTrait;
 
     private $namespace;
     private $namespaceLen;
     private $createCacheItem;
     private $setInnerItem;
     private $poolHash;
+    private $defaultLifetime;
 
     public function __construct(CacheItemPoolInterface $pool, string $namespace = '', int $defaultLifetime = 0)
     {
@@ -40,8 +41,9 @@ class ProxyAdapter implements AdapterInterface, CacheInterface, PruneableInterfa
         $this->poolHash = $poolHash = spl_object_hash($pool);
         $this->namespace = '' === $namespace ? '' : CacheItem::validateKey($namespace);
         $this->namespaceLen = \strlen($namespace);
+        $this->defaultLifetime = $defaultLifetime;
         $this->createCacheItem = \Closure::bind(
-            static function ($key, $innerItem) use ($defaultLifetime, $poolHash) {
+            static function ($key, $innerItem) use ($poolHash) {
                 $item = new CacheItem();
                 $item->key = $key;
 
@@ -52,13 +54,12 @@ class ProxyAdapter implements AdapterInterface, CacheInterface, PruneableInterfa
                 $item->value = $v = $innerItem->get();
                 $item->isHit = $innerItem->isHit();
                 $item->innerItem = $innerItem;
-                $item->defaultLifetime = $defaultLifetime;
                 $item->poolHash = $poolHash;
 
                 // Detect wrapped values that encode for their expiry and creation duration
                 // For compactness, these values are packed in the key of an array using
                 // magic numbers in the form 9D-..-..-..-..-00-..-..-..-5F
-                if (\is_array($v) && 1 === \count($v) && 10 === \strlen($k = key($v)) && "\x9D" === $k[0] && "\0" === $k[5] && "\x5F" === $k[9]) {
+                if (\is_array($v) && 1 === \count($v) && 10 === \strlen($k = (string) key($v)) && "\x9D" === $k[0] && "\0" === $k[5] && "\x5F" === $k[9]) {
                     $item->value = $v[$k];
                     $v = unpack('Ve/Nc', substr($k, 1, -1));
                     $item->metadata[CacheItem::METADATA_EXPIRY] = $v['e'] + CacheItem::METADATA_EXPIRY_OFFSET;
@@ -87,7 +88,7 @@ class ProxyAdapter implements AdapterInterface, CacheInterface, PruneableInterfa
                     $item["\0*\0value"] = ["\x9D".pack('VN', (int) (0.1 + $metadata[self::METADATA_EXPIRY] - self::METADATA_EXPIRY_OFFSET), $metadata[self::METADATA_CTIME])."\x5F" => $item["\0*\0value"]];
                 }
                 $innerItem->set($item["\0*\0value"]);
-                $innerItem->expiresAt(null !== $item["\0*\0expiry"] ? \DateTime::createFromFormat('U.u', sprintf('%.6f', $item["\0*\0expiry"])) : null);
+                $innerItem->expiresAt(null !== $item["\0*\0expiry"] ? \DateTime::createFromFormat('U.u', sprintf('%.6F', 0 === $item["\0*\0expiry"] ? \PHP_INT_MAX : $item["\0*\0expiry"])) : null);
             },
             null,
             CacheItem::class
@@ -139,6 +140,8 @@ class ProxyAdapter implements AdapterInterface, CacheInterface, PruneableInterfa
 
     /**
      * {@inheritdoc}
+     *
+     * @return bool
      */
     public function hasItem($key)
     {
@@ -147,14 +150,26 @@ class ProxyAdapter implements AdapterInterface, CacheInterface, PruneableInterfa
 
     /**
      * {@inheritdoc}
+     *
+     * @param string $prefix
+     *
+     * @return bool
      */
-    public function clear()
+    public function clear(/*string $prefix = ''*/)
     {
+        $prefix = 0 < \func_num_args() ? (string) func_get_arg(0) : '';
+
+        if ($this->pool instanceof AdapterInterface) {
+            return $this->pool->clear($this->namespace.$prefix);
+        }
+
         return $this->pool->clear();
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @return bool
      */
     public function deleteItem($key)
     {
@@ -163,6 +178,8 @@ class ProxyAdapter implements AdapterInterface, CacheInterface, PruneableInterfa
 
     /**
      * {@inheritdoc}
+     *
+     * @return bool
      */
     public function deleteItems(array $keys)
     {
@@ -177,6 +194,8 @@ class ProxyAdapter implements AdapterInterface, CacheInterface, PruneableInterfa
 
     /**
      * {@inheritdoc}
+     *
+     * @return bool
      */
     public function save(CacheItemInterface $item)
     {
@@ -185,6 +204,8 @@ class ProxyAdapter implements AdapterInterface, CacheInterface, PruneableInterfa
 
     /**
      * {@inheritdoc}
+     *
+     * @return bool
      */
     public function saveDeferred(CacheItemInterface $item)
     {
@@ -193,20 +214,22 @@ class ProxyAdapter implements AdapterInterface, CacheInterface, PruneableInterfa
 
     /**
      * {@inheritdoc}
+     *
+     * @return bool
      */
     public function commit()
     {
         return $this->pool->commit();
     }
 
-    private function doSave(CacheItemInterface $item, $method)
+    private function doSave(CacheItemInterface $item, string $method)
     {
         if (!$item instanceof CacheItem) {
             return false;
         }
         $item = (array) $item;
-        if (null === $item["\0*\0expiry"] && 0 < $item["\0*\0defaultLifetime"]) {
-            $item["\0*\0expiry"] = microtime(true) + $item["\0*\0defaultLifetime"];
+        if (null === $item["\0*\0expiry"] && 0 < $this->defaultLifetime) {
+            $item["\0*\0expiry"] = microtime(true) + $this->defaultLifetime;
         }
 
         if ($item["\0*\0poolHash"] === $this->poolHash && $item["\0*\0innerItem"]) {
@@ -225,7 +248,7 @@ class ProxyAdapter implements AdapterInterface, CacheInterface, PruneableInterfa
         return $this->pool->$method($innerItem);
     }
 
-    private function generateItems($items)
+    private function generateItems(iterable $items)
     {
         $f = $this->createCacheItem;
 
@@ -238,7 +261,7 @@ class ProxyAdapter implements AdapterInterface, CacheInterface, PruneableInterfa
         }
     }
 
-    private function getId($key)
+    private function getId($key): string
     {
         CacheItem::validateKey($key);
 
