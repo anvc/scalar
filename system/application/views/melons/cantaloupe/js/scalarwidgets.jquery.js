@@ -482,24 +482,25 @@
                      var node = nodes[ i ];
                      for ( var p in properties ) {
                        var property = properties[ p ];
-                       if ( node.current.properties[ property ] != null ) {
-                         var o = node.current.properties[ property ].length;
-                         for ( j = 0; j < o; j++ ) {
-                           var label = null;
-                           if(page.addMarkerFromLatLonStrToMap(
-                             node.current.properties[ property ][ j ].value,
-                             node.getDisplayTitle(),
-                             node.current.description,
-                             node.url,
-                             map,
-                             infoWindow,
-                             node.getAbsoluteThumbnailURL(),
-                             label,
-                             $gmaps,
-                             this_markers
-                           )){
-
-                             hasNodes = true;
+                       if (node.current) {
+                         if ( node.current.properties[ property ] != null ) {
+                           var o = node.current.properties[ property ].length;
+                           for ( j = 0; j < o; j++ ) {
+                             var label = null;
+                             if(page.addMarkerFromLatLonStrToMap(
+                               node.current.properties[ property ][ j ].value,
+                               node.getDisplayTitle(),
+                               node.current.description,
+                               node.url,
+                               map,
+                               infoWindow,
+                               node.getAbsoluteThumbnailURL(),
+                               label,
+                               $gmaps,
+                               this_markers
+                             )){
+                               hasNodes = true;
+                             }
                            }
                          }
                        }
