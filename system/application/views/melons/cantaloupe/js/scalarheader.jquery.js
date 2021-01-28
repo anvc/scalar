@@ -1659,7 +1659,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
               let lensLink = $('link#parent').attr('href') + privateLensItem.slug;
               let markup = $(`
                 <li class="lens">
-                  <a href="${lensLink}" target="_blank"><span class="title">${privateLensItem.title}</span>
+                  <a href="${lensLink}"><span class="title">${privateLensItem.title}</span>
                   <span class="viz-icon ${vizType}"></span>
                 </li>`
               ).appendTo(lensMenu);
@@ -1674,7 +1674,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
               let lensLink = $('link#parent').attr('href') + publicLensItem.slug;
               let markup = $(`
                 <li class="lens">
-                  <a href="${lensLink}" target="_blank"><span class="title">${publicLensItem.title}</span>
+                  <a href="${lensLink}"><span class="title">${publicLensItem.title}</span>
                   <span class="viz-icon ${vizType}"></span>
                 </li>`
               ).appendTo(lensMenu);
