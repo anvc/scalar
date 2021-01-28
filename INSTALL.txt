@@ -139,11 +139,10 @@ Updates we've made to incorporated libraries, kept here for reference if they ne
 CodeIgniter:
 1) In system/core/Input.php->_clean_input_keys(), change regex "/^[a-z0-9:_\/-]+$/i" to "/^[a-z0-9:_\/\-~@]+$/i"
 
-ARC2 (updated 2019-10-07 from https://github.com/semsol/arc2):
+ARC2 (updated 2021-01-27 from https://github.com/semsol/arc2):
 1) ARC2_Resource.php->getProps(): comment out "if (!isset($this->index[$s])) $this->fetchData($s);"
 2) ARC2_Store.php->hasHashColumn(): look for 'false' rather than 'null' from fetchRow() to keep the id2val table in check
 3) ARC2_StoreLoadQueryHandler.php->getStoredTermID(): replace "if (false !== empty($binaryValue))" with "if (1)" to keep the id2val table in check
-4) vendor/composer/joshcam/mysqli-database/MysqliDb.php->replacePlaceHolders(): supress warnings on "$val = $vals[$i++];" with "=@"
 
 Template (libraries/Template.php):
 1) Added add_meta() and supporting updates to regions arrays
