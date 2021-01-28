@@ -964,8 +964,8 @@ if($currentRole == 'commentator'){
 				<li role="presentation"><a role="menuitem" tabindex="-1" href="#thumbnail-pane" aria-controls="thumbnail-pane" data-toggle="tab">Thumbnail</a></li>
 				<li role="presentation" class="type_composite"><a role="menuitem" tabindex="-1" href="#banner-image-pane" aria-controls="#banner-image-pane" data-toggle="tab">Key Image</a></li>
 				<li role="presentation" class="type_composite"><a role="menuitem" tabindex="-1" href="#background-image-pane" aria-controls="background-image-pane" data-toggle="tab">Background Image</a></li>
-				<li role="presentation" class="type_composite"><a role="menuitem" tabindex="-1" href="#custom-css-pane" aria-controls="custom-css-pane" data-toggle="tab">CSS</a></li>
-				<li role="presentation" class="type_composite"><a role="menuitem" tabindex="-1" href="#custom-javascript-pane" aria-controls="custom-javascript-pane" data-toggle="tab">JavaScript</a></li>
+				<li role="presentation"><a role="menuitem" tabindex="-1" href="#custom-css-pane" aria-controls="custom-css-pane" data-toggle="tab">CSS</a></li>
+				<li role="presentation"><a role="menuitem" tabindex="-1" href="#custom-javascript-pane" aria-controls="custom-javascript-pane" data-toggle="tab">JavaScript</a></li>
 				<li role="presentation" class="type_composite"><a role="menuitem" tabindex="-1" href="#background-audio-pane" aria-controls="background-audio-pane" data-toggle="tab">Audio</a></li>
 			</ul>
 		</li>
