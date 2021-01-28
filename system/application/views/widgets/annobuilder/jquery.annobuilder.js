@@ -158,7 +158,6 @@ jQuery.AnnoBuilderModel = function() {
 		var n = this.annotations.length;
 		for (i=0; i<n; i++) {
 			annotation = this.annotations[i];
-			//console.log('compare: '+annotation.body.url+' '+url);
 			if ((annotation.body.url == url) && (annotation.type == scalarapi.model.relationTypes.annotation)) {
 				result = annotation;
 				break;
@@ -236,12 +235,30 @@ jQuery.AnnoBuilderController = function() {
 				if (annotation) {
 					$.annobuilder.controller.selectAnnotation(annotation);
 				}
-				$.annobuilder.view.builder.newAnnotationURL = null;
 			}
+
+      switch ($.annobuilder.model.node.current.mediaSource.contentType) {
+
+        case 'image':
+        // seeking on an image annotation clears the anno display, so don't do it
+        break;
+
+        case '3D':
+        if (annotation.body.url != $.annobuilder.view.builder.newAnnotationURL) {
+          $.annobuilder.model.mediaElement.seek( $.annobuilder.model.selectedAnnotation );
+        }
+        break;
+
+        default:
+        $.annobuilder.model.mediaElement.seek( $.annobuilder.model.selectedAnnotation );
+        break;
+      }
+
+      $.annobuilder.view.builder.newAnnotationURL = null;
 
 			// seeking on an image annotation clears the anno display, so don't do it
 			if ( $.annobuilder.model.node.current.mediaSource.contentType != 'image' ) {
-				$.annobuilder.model.mediaElement.seek( $.annobuilder.model.selectedAnnotation );
+
 			}
 
 		}
@@ -714,7 +731,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 				if (editTracking[annotation.body.url]) {
 					edits =  editTracking[annotation.body.url].edits;
 					annotationChip.data('edits', edits);
-					annotationChip.append('<p class="annotationTitle"><a href="javascript:;">X:'+edits.targetX+' Y:'+edits.targetY+' Z:'+edits.targetZ+'</a>&nbsp; <strong>'+edits.title+'</strong></p>');
+					annotationChip.append('<p class="annotationTitle"><a href="javascript:;">X:'+Math.round(edits.targetX)+' Y:'+Math.round(edits.targetY)+' Z:'+Math.round(edits.targetZ)+'</a>&nbsp; <strong>'+edits.title+'</strong></p>');
 				} else {
 					annotationChip.append('<p class="annotationTitle"><a href="javascript:;">'+annotation.startString+'</a>&nbsp; <strong>'+annotation.body.current.title+'</strong></p>');
 				}
@@ -894,7 +911,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 	/**
 	 * Updates the list of annotations.
 	 */
-	jQuery.AnnoBuilderInterfaceView.prototype.update = function( updateForm = true ) {
+	jQuery.AnnoBuilderInterfaceView.prototype.update = function( updateForm = true, allowSeek = true ) {
 
 		var me = this;
 
@@ -1007,13 +1024,15 @@ jQuery.AnnoBuilderInterfaceView = function() {
 								$('#annotationDescription').val(edits.description);
 								$('#annotationContent').val(edits.content);
 								dimensions = $.annobuilder.view.builder.parsePosition3D(edits.targetX, edits.targetY, edits.targetZ, edits.cameraX, edits.cameraY, edits.cameraZ, edits.roll, edits.fieldOfView);
-								me.showPosition3DAnnotation(edits.title, edits);
+						    //me.showPosition3DAnnotation(edits.title, edits);
 							} else {
 								$('#annotationTitle').val(annotation.body.current.title);
 								$('#annotationDescription').val(annotation.body.current.description);
 								$('#annotationContent').val(annotation.body.current.content);
 								dimensions = $.annobuilder.view.builder.parsePosition3D(annotation.properties.targetX, annotation.properties.targetY, annotation.properties.targetZ, annotation.properties.cameraX, annotation.properties.cameraY, annotation.properties.cameraZ, annotation.properties.roll, annotation.properties.fieldOfView);
-								me.showPosition3DAnnotation(annotation.body.getDisplayTitle(), annotation.properties);
+                /*if (me.newAnnotationURL != annotation.body.url) {
+    							me.showPosition3DAnnotation(annotation.body.getDisplayTitle(), annotation.properties);
+                }*/
 							}
 							$('#targetX').val(dimensions.targetX);
 							$('#targetY').val(dimensions.targetY);
@@ -1060,11 +1079,13 @@ jQuery.AnnoBuilderInterfaceView = function() {
 							me.showSpatialAnnotation(annotation.body.getDisplayTitle(), annotation.properties);
 						}
 					} else if ( $.annobuilder.model.node.current.mediaSource.contentType == '3D' ) {
-						if (edits) {
-							me.showPosition3DAnnotation(edits.title, edits);
-						} else {
-							me.showPosition3DAnnotation(annotation.body.getDisplayTitle(), annotation.properties);
-						}
+            if (me.newAnnotationURL != annotation.body.url && allowSeek) {
+              if (edits) {
+  							me.showPosition3DAnnotation(edits.title, edits);
+  						} else {
+  							me.showPosition3DAnnotation(annotation.body.getDisplayTitle(), annotation.properties);
+  						}
+            }
           }
 				}
 			});
@@ -1282,7 +1303,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 	/**
 	 * Adds the selected annotation to the list of "dirty" annotations.
 	 */
-	jQuery.AnnoBuilderInterfaceView.prototype.makeSelectedAnnotationDirty = function() {
+	jQuery.AnnoBuilderInterfaceView.prototype.makeSelectedAnnotationDirty = function(allowSeek = true) {
 		var annotation = $.annobuilder.model.selectedAnnotation;
 		if (annotation != null) {
 			if ($.annobuilder.view.builder.dirtyAnnotations.indexOf(annotation.id) == -1) {
@@ -1291,7 +1312,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 			this.footerControls.find('#saveLink').css('display', 'inline');
 			this.footerControls.find('#doneMessage').css('display', 'none');
 		}
-		$.annobuilder.view.builder.storeEdits();
+		$.annobuilder.view.builder.storeEdits(allowSeek);
 	}
 
 	/**
@@ -1322,7 +1343,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 			var row = me.annotationList.find('.annotationChip').eq(index);
 			row.find('strong').text($('#annotationTitle').val());
 			me.scrollToAnnotation(annotation, true);
-			me.makeSelectedAnnotationDirty(annotation);
+			me.makeSelectedAnnotationDirty(false);
 		}
 	}
 
@@ -1334,7 +1355,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 	jQuery.AnnoBuilderInterfaceView.prototype.handleEditDescription = function(event) {
 		var annotation = $.annobuilder.model.selectedAnnotation;
 		if (annotation != null) {
-			me.makeSelectedAnnotationDirty(annotation);
+			me.makeSelectedAnnotationDirty(false);
 		}
 	}
 
@@ -1346,7 +1367,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 	jQuery.AnnoBuilderInterfaceView.prototype.handleEditContent = function(event) {
 		var annotation = $.annobuilder.model.selectedAnnotation;
 		if (annotation != null) {
-			me.makeSelectedAnnotationDirty(annotation);
+			me.makeSelectedAnnotationDirty(false);
 		}
 	}
 
@@ -1364,7 +1385,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 				$('#taggedBy').append('<li><input type="hidden" data-urn="'+urn+'" name="tagged_by" value="'+slug+'" /><span class="tag_title">'+title+'</span>&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span></li>');
 			}
 			$('.tagged_by_msg, #taggedBy').show();
-			me.makeSelectedAnnotationDirty();
+			me.makeSelectedAnnotationDirty(false);
 			$('#taggedBy .remove a').on('click', me.handleRemoveTags);
 		}
 	}
@@ -1387,7 +1408,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 	jQuery.AnnoBuilderInterfaceView.prototype.handleEditDimensions = function(event) {
 		var annotation = $.annobuilder.model.selectedAnnotation;
 		if (annotation != null) {
-			me.makeSelectedAnnotationDirty(annotation);
+			me.makeSelectedAnnotationDirty();
 			me.sortAnnotations();
 			var index = me.indexForAnnotation(annotation);
 			var row = me.annotationList.find('.annotationChip').eq(index);
@@ -1412,7 +1433,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
   jQuery.AnnoBuilderInterfaceView.prototype.handleEditPosition3D = function(event) {
    var annotation = $.annobuilder.model.selectedAnnotation;
    if (annotation != null) {
-     me.makeSelectedAnnotationDirty(annotation);
+     me.makeSelectedAnnotationDirty();
      me.sortAnnotations();
      var index = me.indexForAnnotation(annotation);
      var row = me.annotationList.find('.annotationChip').eq(index);
@@ -1432,7 +1453,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 	jQuery.AnnoBuilderInterfaceView.prototype.handleEditLineExtents = function(event) {
 		var annotation = $.annobuilder.model.selectedAnnotation;
 		if (annotation != null) {
-			me.makeSelectedAnnotationDirty(annotation);
+			me.makeSelectedAnnotationDirty();
 			me.update( false );
 		}
 	}
@@ -1592,7 +1613,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 	/**
 	 * Saves the current annotation's edits to its annotationChip.
 	 */
-	jQuery.AnnoBuilderInterfaceView.prototype.storeEdits = function() {
+	jQuery.AnnoBuilderInterfaceView.prototype.storeEdits = function(allowSeek = true) {
 		var annotation = $.annobuilder.model.selectedAnnotation;
 		if (annotation != null) {
 			var index = $.annobuilder.view.builder.indexForAnnotation(annotation);
@@ -1658,7 +1679,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 			}
 			row.data('edits', edits);
 		}
-		me.update( false );
+		me.update( false, allowSeek );
 	}
 
 	/**
