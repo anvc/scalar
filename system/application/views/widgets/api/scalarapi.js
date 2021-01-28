@@ -1195,12 +1195,22 @@ ScalarAPI.prototype.saveManyRelations = function(data, completeCallback, stepCal
   var isFormData = false;
   for (var key in data) {
     if (data.hasOwnProperty(key)) {
-      if (data[key].toArray) {
-        let array = data[key].toArray();
+      let array;
+      if (data[key].toArray) { // if it's a jQuery set, convert it to an array
+        array = data[key].toArray();
+      } else if (Array.isArray(data[key])){
+        array = data[key];
+      }
+      if (array) {
         if (array.length > 0) {
-          if (array[0] instanceof Element) {
-            isFormData = true;
-            break;
+          if (array[0].toArray) { // if it's an array of jQuery sets, convert the first one to an array
+            array = array[0].toArray();
+          }
+          if (array.length > 0) {
+            if (array[0] instanceof Element) {
+              isFormData = true;
+              break;
+            }
           }
         }
       }
