@@ -1559,6 +1559,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								};
 							};
 						};
+						lastPage = true
 					} else {
 						for (var uri in _data) {
 							// Is a Version
@@ -1603,8 +1604,8 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								added_rows++;
 							};
 						};
+						lastPage = added_rows == 0;
 					};
-					lastPage = added_rows == 0;
 					promise.resolve();
 				});
 			}
