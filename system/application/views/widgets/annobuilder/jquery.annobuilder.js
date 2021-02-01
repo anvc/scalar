@@ -1024,15 +1024,11 @@ jQuery.AnnoBuilderInterfaceView = function() {
 								$('#annotationDescription').val(edits.description);
 								$('#annotationContent').val(edits.content);
 								dimensions = $.annobuilder.view.builder.parsePosition3D(edits.targetX, edits.targetY, edits.targetZ, edits.cameraX, edits.cameraY, edits.cameraZ, edits.roll, edits.fieldOfView);
-						    //me.showPosition3DAnnotation(edits.title, edits);
 							} else {
 								$('#annotationTitle').val(annotation.body.current.title);
 								$('#annotationDescription').val(annotation.body.current.description);
 								$('#annotationContent').val(annotation.body.current.content);
 								dimensions = $.annobuilder.view.builder.parsePosition3D(annotation.properties.targetX, annotation.properties.targetY, annotation.properties.targetZ, annotation.properties.cameraX, annotation.properties.cameraY, annotation.properties.cameraZ, annotation.properties.roll, annotation.properties.fieldOfView);
-                /*if (me.newAnnotationURL != annotation.body.url) {
-    							me.showPosition3DAnnotation(annotation.body.getDisplayTitle(), annotation.properties);
-                }*/
 							}
 							$('#targetX').val(dimensions.targetX);
 							$('#targetY').val(dimensions.targetY);

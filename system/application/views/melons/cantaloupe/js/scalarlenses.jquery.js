@@ -198,31 +198,30 @@
 
       /// HTML for Lens default state
       let lensHtml = $(
-         `<div class="row lens">
-           <div class="lens-editor">
-             <div class="col-xs-12">
-               <div class="lens-expand-container" data-toggle="collapse" data-target="">
-                 <div class="lens-icon-wrapper col-xs-1">
-                   <span class="lens-icon"></span>
-                 </div>
-                 <div class="lens-content col-xs-11">
+        `<div class="row lens">
+          <div class="lens-editor">
+            <div class="col-xs-12">
+              <div class="lens-expand-container" data-toggle="collapse" data-target="">
+                <div class="lens-icon-wrapper col-xs-1">
+                  <span class="lens-icon"></span>
+                </div>
+                <div class="lens-content col-xs-11">
                   <div class="row" style="margin:0;">
                     <div class="lens-header col-xs-12 no-bg">
-                       <h3 class="lens-title heading_font heading_weight col-xs-10" contenteditable="true">(Untitled lens)</h3>
-                       <div class="col-xs-2 no-padding">
-                          <div>
-                            <span class="pull-right badge"></span>
-                            <span class="pull-right snowflake"></span>
-                          </div>
-                       </div>
-                     </div>
-                   </div>
-                 <div class="lens-tags">
-               </div>
-             </div>
-           </div>
-         </div>`
-      );
+                      <h3 class="lens-title heading_font heading_weight col-xs-10" contenteditable="true">(Untitled lens)</h3>
+                      <div class="col-xs-2 no-padding">
+                      <div>
+                      <span class="pull-right badge"></span>
+                      <span class="pull-right snowflake"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="lens-tags">
+              </div>
+            </div>
+          </div>
+        </div>`);
 
       // On dropdown open
       $(document).on('shown.bs.dropdown', function(event) {
@@ -249,11 +248,13 @@
       });
 
       lensHtml.find('.lens-tags').append(this.addVisualizationButton());
+      lensHtml.append(this.addWaitModal());
       lensHtml.append(this.addContentTypeModal());
       lensHtml.append(this.addDistanceModal());
       lensHtml.append(this.addFilterModal());
       lensHtml.append(this.addSortModal());
       $(this.element).append(lensHtml);
+      //lensHtml.find('.lens-content').append('<div class="message">Some stuff</div>');
       lensHtml.find('.lens-content').append(this.addOptionsMenu())
       lensHtml.append(this.addOkModal());
       lensHtml.find('.lens-editor').append(this.addDuplicateCopyPrompt());
@@ -461,7 +462,7 @@
         me.saveLens(null);
         if (me.lastResults) {
           me.lastResults.visualization = me.scalarLensObject.visualization;
-          me.options.onLensResults(me.lastResults);
+          me.options.onLensResults(me.lastResults, me.scalarLensObject);
         }
       });
       element.find('li a').on('keypress', function(e) { if (e.which == 13) $(this).trigger('click'); })
@@ -1104,6 +1105,27 @@
 
         }
       });
+    }
+
+    ScalarLenses.prototype.addWaitModal = function() {
+      let element = $('<div id="wait-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="waitModalLabel">' +
+        '<div class="modal-dialog modal-sm" role="document">' +
+          '<div class="modal-content">' +
+            '<div class="modal-header"><h4 class="heading_font" id="wait-modal-title"></hr></div>' +
+            '<div class="modal-body caption_font" id="wait-modal-content"></div></div>' +
+        '</div>' +
+      '</div>');
+      return element;
+    }
+
+    ScalarLenses.prototype.showWaitModal = function(title, content) {
+      $('#wait-modal-title').text(title);
+      $('#wait-modal-content').text(content);
+      $('#wait-modal').modal('show');
+    }
+
+    ScalarLenses.prototype.hideWaitModal = function() {
+      $('#wait-modal').modal('hide');
     }
 
     // add content-type modal
@@ -3329,26 +3351,28 @@
             break;
 
           case 'freeze':
-            me.scalarLensObject.frozen = true;
-            $('.snowflake').show()
+            if (confirm('Note that while ‘freezing’ a lens saves the specific set of items it currently returns, those items can still be edited by authors in the future.')) {
+              me.scalarLensObject.frozen = true;
+              $('.snowflake').show()
 
-            if(me.scalarLensObject.frozen == true){
-              lensButtons.addClass('disabled');
-            }
-            // if frozen update lens object frozen-items
-            var slugs = [];
-            for (var url in this.scalarapi.model.nodesByURL) {
-              const nodesURL = scalarapi.model.nodesByURL[url];
-              if (nodesURL != null) {
-                if(nodesURL.slug === "" || nodesURL.slug === 'toc' || nodesURL.slug.includes('users/')){
-                  continue;
-                }
-                slugs.push(nodesURL.slug);
-                me.scalarLensObject["frozen-items"] = slugs;
-                //console.log(nodesURL)
+              if(me.scalarLensObject.frozen == true){
+                lensButtons.addClass('disabled');
               }
+              // if frozen update lens object frozen-items
+              var slugs = [];
+              for (var url in this.scalarapi.model.nodesByURL) {
+                const nodesURL = scalarapi.model.nodesByURL[url];
+                if (nodesURL != null) {
+                  if(nodesURL.slug === "" || nodesURL.slug === 'toc' || nodesURL.slug.includes('users/')){
+                    continue;
+                  }
+                  slugs.push(nodesURL.slug);
+                  me.scalarLensObject["frozen-items"] = slugs;
+                  //console.log(nodesURL)
+                }
+              }
+              me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
             }
-            me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
           break;
 
           case 'unfreeze':
@@ -3366,11 +3390,19 @@
           break;
 
           case 'create-path':
-            me.showModal('Are you sure you want to create a path?', function(){console.log()});
+          if (me.isLoadingComplete()) {
+            me.showModal('Are you sure you want to create a path from the contents of this lens?', () => { me.createItemFromLens('path'); });
+          } else {
+            alert('Please wait for lens data to finish loading before creating a path.');
+          }
           break;
 
           case 'create-tag':
-            me.showModal('Are you sure you want to create a tag?', function(){console.log()});
+          if (me.isLoadingComplete()) {
+            me.showModal('Are you sure you want to create a tag from the contents of this lens?', () => { me.createItemFromLens('tag'); });
+          } else {
+            alert('Please wait for lens data to finish loading before creating a tag.');
+          }
           break;
 
           case 'duplicate-lens':
@@ -3378,13 +3410,7 @@
           break;
 
           case 'export-lens':
-          let okToExport = true;
-          if (me.lensRequest != null) {
-            if (me.lensRequest.status == undefined) {
-              okToExport = false;
-            }
-          }
-          if (okToExport) {
+          if (me.isLoadingComplete()) {
             me.exportCSV();
           } else {
             alert('Please wait for lens data to finish loading before exporting.');
@@ -3405,6 +3431,71 @@
         '<li><a tabindex="-1"></a></li>', menuOptions);
     }
 
+    ScalarLenses.prototype.isLoadingComplete = function() {
+      let result = true;
+      if (this.lensRequest != null) {
+        if (this.lensRequest.status == undefined) {
+          result = false;
+        }
+      }
+      return result;
+    }
+
+    ScalarLenses.prototype.createItemFromLens = function(itemType) {
+      let relation = scalarapi.model.relationTypes[itemType].outgoingRel;
+      if (relation) {
+        let data = {
+  				'action': 'ADD',
+  				'native': '1',
+  				'id': this.userId,
+  				'api_key': '',
+  				'dcterms:title': this.scalarLensObject.title + ' (' + itemType + ')',
+  				'dcterms:description': '',
+  				'sioc:content': '',
+  				'rdf:type': 'http://scalar.usc.edu/2012/01/scalar-ns#Composite',
+          'scalar:child_urn': 'urn:scalar:book:' + this.bookId,
+          'scalar:child_type': 'http://scalar.usc.edu/2012/01/scalar-ns#Book',
+          'scalar:child_rel': 'page'
+  			};
+    		var error = (error) => {
+          console.log(error);
+          this.hideWaitModal();
+    			alert('An error occurred while creating the path.');
+    		}
+        this.showWaitModal('Create ' + itemType + ' from lens', 'This may take a few moments...');
+        scalarapi.savePage(data, response => {
+          var destinationUrl, urn;
+          for (var key in response) {
+            if (response.hasOwnProperty(key)) {
+              destinationUrl = scalarapi.stripEditionAndVersion(key.slice(0, key.length - 1));
+              var urn = response[key]["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value;
+              break;
+            }
+          }
+          let relationData = {
+            'action': 'RELATE',
+            'native': '1',
+            'id': this.userId,
+    				'api_key': '',
+            'scalar:urn': urn
+          };
+          relationData[relation] = [];
+          for (var url in this.lastResults.items) {
+            let item = this.lastResults.items[url];
+            if (item["http://open.vocab.org/terms/versionnumber"]) {
+              relationData[relation].push(item["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value);
+            }
+          }
+          scalarapi.saveManyRelations(relationData, () => {
+            this.hideWaitModal();
+            window.location.href = destinationUrl;
+          }, step => {
+            //console.log(step);
+          });
+        }, error);
+      }
+    }
+
     ScalarLenses.prototype.duplicateLens = function() {
       let duplicateJson = JSON.parse(JSON.stringify(this.scalarLensObject));
       duplicateJson.title += ' copy';
@@ -3412,7 +3503,7 @@
       delete duplicateJson.slug;
       delete duplicateJson.urn;
       delete duplicateJson.book_urn;
-			data = {
+			let data = {
 				'action': 'ADD',
 				'native': '1',
 				'id': this.userId,
@@ -3448,8 +3539,10 @@
         `<div class="modal fade caption_font okModal" role="dialog">
           <div class="modal-dialog">
             <div class="modal-content">
-              <div class="modal-body">
+              <div class="modal-header">
                 <h4 class="heading_font">Confirm</h4>
+              </div>
+              <div class="modal-body">
                 <div class="ok-modal-container">
                   <div class="ok-modal-content"><p>Are you sure?</p></div>
                 </div>
@@ -3655,7 +3748,7 @@
     }
 
     // get Lens results
-    ScalarLenses.prototype.getLensResults = function(lensObject, success){
+    ScalarLenses.prototype.getLensResults = function(lensObject, success) {
       this.updateBadge(this.primaryBadge, -1, 'light');
       lensObject.book_urn = 'urn:scalar:book:' + $('link#book_id').attr('href');
       this.updateHistoryDataForLens(lensObject);
