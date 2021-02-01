@@ -52,7 +52,7 @@ window.scalarvis = { instanceCount: -1 };
     base.VisualizationTypes = {
       'force-directed': 'Force-directed',
       'grid': 'Grid',
-      /*'list': 'List',*/
+      'list': 'List',
       'map': 'Map',
       'radial': 'Radial',
       'tree': 'Tree',
@@ -4311,7 +4311,7 @@ window.scalarvis = { instanceCount: -1 };
         super.draw();
 
         this.updateNoResultsMessage(base.contentNodes);
-        
+
         // Determine if there is a author/creator field to add based on metadata
         var candidates = {
         		"http://ns.exiftool.ca/IPTC/IPTC/1.0/By-line": "iptc:By-line",
@@ -4374,7 +4374,7 @@ window.scalarvis = { instanceCount: -1 };
           	$row.append('<td class="lg" prop="lastEdited">'+lastEdited+'</td>');
           	$row.append('<td class="lg" prop="version" style="text-align:center;">'+versions+'</td>');
           };
-          
+
           // Add/remove items from selectedNodes
           $('.visList').find('.visListRow').on('click', function() {
         	 var $this = $(this);
@@ -4390,7 +4390,7 @@ window.scalarvis = { instanceCount: -1 };
 	        	 $this.addClass('selected');
         	 }
           });
-          
+
           // Add/remove columns based on size of parent area
           var doSizing = function() {
           	var $visList = $('.visList');
@@ -4407,7 +4407,7 @@ window.scalarvis = { instanceCount: -1 };
           };
           $(window).off('resize', doSizing).on('resize', doSizing);
           doSizing();
-          
+
       }
 
       getHelpContent() {
@@ -4421,7 +4421,7 @@ window.scalarvis = { instanceCount: -1 };
 
       // one-time visualization setup
       setupElement() {
-    	  
+
         this.hasBeenDrawn = true;
         base.visualization.empty(); // empty the element where this vis is to be shown
         base.visualization.css('height', this.size.height + 'px');
@@ -4457,7 +4457,7 @@ window.scalarvis = { instanceCount: -1 };
             }).appendTo($tbody);
         });
       }
-      
+
     }
 
     base.init();
