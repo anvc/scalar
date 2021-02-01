@@ -4362,7 +4362,7 @@ window.scalarvis = { instanceCount: -1 };
           	var fullname = ('undefined' != typeof(base.options.lens) && 'undefined' != typeof(base.options.lens.users[authorId])) ? base.options.lens.users[authorId] : '';
           	var lastEdited = (base.contentNodes[j].current.created) ? base.contentNodes[j].current.created.substr(0, base.contentNodes[j].current.created.indexOf('T')) : '';
           	var versions = base.contentNodes[j].current.number;
-          	var $row = $('<tr class="visListRow"></div>').appendTo($tbody);
+          	var $row = $('<tr class="visListRow" data-index="'+j+'"></div>').appendTo($tbody);
           	$row.append('<td class="sm" prop="title"><a href="'+url+'" target="_blank">'+title+'</a></td>');
           	$row.append('<td class="md" prop="description">'+description+'</td>');
           	$row.append('<td class="md" prop="content">'+content+'</td>');
@@ -4374,6 +4374,24 @@ window.scalarvis = { instanceCount: -1 };
           	$row.append('<td class="lg" prop="lastEdited">'+lastEdited+'</td>');
           	$row.append('<td class="lg" prop="version" style="text-align:center;">'+versions+'</td>');
           };
+          
+          // Add/remove items from selectedNodes
+          $('.visList').find('.visListRow').on('click', function() {
+        	 var $this = $(this);
+        	 var isSelected = $this.hasClass('selected') ? true : false;
+        	 var index = parseInt($this.data('index'));
+        	 var node = base.contentNodes[index];
+        	 if (isSelected) {
+        		 var match = base.selectedNodes.indexOf(node);
+        		 base.selectedNodes.splice(match, 1);
+        		 $this.removeClass('selected');
+        	 } else {
+	        	 base.selectedNodes.push(node);
+	        	 $this.addClass('selected');
+        	 }
+          });
+          
+          // Add/remove columns based on size of parent area
           var doSizing = function() {
           	var $visList = $('.visList');
           	var width = parseInt($visList.parent().width());
