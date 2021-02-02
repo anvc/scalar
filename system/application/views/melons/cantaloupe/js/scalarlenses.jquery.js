@@ -1065,6 +1065,10 @@
             me.scalarLensObject.visualization.options.operation = 'or';
           }
           me.updateEditorDom();
+          console.log(me.scalarLensObject.components);
+          if (me.scalarLensObject.components.length == 2) {
+            me.showOkModal('Multiple content sources', '<p>Now that your lens includes more than one content source, you can use the gray menu at the top of the lens editor to determine how their results will be merged.</p><p>Selecting <strong>"the combination of"</strong> means all items from all sources will be returned, while <strong>"the intersection of"</strong> means that only the items the sources have in common will be returned.</p>', null);
+          }
           break;
 
           case 'Add filter':
@@ -3330,7 +3334,7 @@
 
           case 'create-path':
           if (me.isLoadingComplete()) {
-            me.showOkModal('Are you sure you want to create a path from the contents of this lens?', () => { me.createItemFromLens('path'); });
+            me.showOkModal('Create path from lens', 'Are you sure you want to create a path from the contents of this lens?', () => { me.createItemFromLens('path'); });
           } else {
             alert('Please wait for lens data to finish loading before creating a path.');
           }
@@ -3338,14 +3342,14 @@
 
           case 'create-tag':
           if (me.isLoadingComplete()) {
-            me.showOkModal('Are you sure you want to create a tag from the contents of this lens?', () => { me.createItemFromLens('tag'); });
+            me.showOkModal('Create tag from lens', 'Are you sure you want to create a tag from the contents of this lens?', () => { me.createItemFromLens('tag'); });
           } else {
             alert('Please wait for lens data to finish loading before creating a tag.');
           }
           break;
 
           case 'duplicate-lens':
-            me.showOkModal('Are you sure you want to duplicate this lens?', () => { me.duplicateLens(); });
+            me.showOkModal('Duplicate lens', 'Are you sure you want to duplicate this lens?', () => { me.duplicateLens(); });
           break;
 
           case 'export-lens':
@@ -3484,7 +3488,7 @@
               <div class="modal-body caption_font"></div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" data-dismiss="modal">Ok</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
               </div>
             </div>
           </div>
@@ -3504,11 +3508,17 @@
 
     }
 
-    ScalarLenses.prototype.showOkModal = function(message, okHandler){
+    ScalarLenses.prototype.showOkModal = function(title, message, okHandler){
       $('#okModal').modal('toggle');
-      $('#okModal .modal-body').text(message);
+      $('#okModal h4').text(title);
+      $('#okModal .modal-body').html(message);
+      if (!okHandler) {
+        $('#okModal .btn-default').hide();
+      } else {
+        $('#okModal .btn-default').show();
+      }
       $(this.element).find('.btn-primary').on('click', function(){
-          okHandler();
+        if (okHandler) okHandler();
       });
     }
 
