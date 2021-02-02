@@ -4304,7 +4304,7 @@ window.scalarvis = { instanceCount: -1 };
 
       constructor() {
         super();
-        // init any special properties needed for this visualization here
+        this.visList = null;
       }
 
       draw() {
@@ -4335,14 +4335,13 @@ window.scalarvis = { instanceCount: -1 };
         		fieldToAdd = field;
         	}
         };
-        if (null != fieldToAdd && !$('.visList').find('td[prop="fieldToAdd"]').length) {
-        	$('.visList').find('td[prop="author"]').before('<td class="lg" prop="fieldToAdd"><a href="javascript:void(null);">'+candidates[fieldToAdd]+'</a></td>');
+        if (null != fieldToAdd && !this.visList.find('td[prop="fieldToAdd"]').length) {
+        	this.visList.find('td[prop="author"]').before('<td class="lg" prop="fieldToAdd"><a href="javascript:void(null);">'+candidates[fieldToAdd]+'</a></td>');
         };
 
         // Output rows
-        var $wrapper = $('.visList:first');
-        var $tbody = $wrapper.find('tbody');
-        $wrapper.find('.visListRow').remove();
+        var $tbody = this.visList.find('tbody');
+        $tbody.find('.visListRow').remove();
         var maxLength = 100;
         var authorFields = {};
         for (var j = 0; j < base.contentNodes.length; j++) {
@@ -4362,7 +4361,8 @@ window.scalarvis = { instanceCount: -1 };
           	var fullname = ('undefined' != typeof(base.options.lens) && 'undefined' != typeof(base.options.lens.users[authorId])) ? base.options.lens.users[authorId] : '';
           	var lastEdited = (base.contentNodes[j].current.created) ? base.contentNodes[j].current.created.substr(0, base.contentNodes[j].current.created.indexOf('T')) : '';
           	var versions = base.contentNodes[j].current.number;
-          	var $row = $('<tr class="visListRow" data-index="'+j+'"></div>').appendTo($tbody);
+          	var isSelected = (base.selectedNodes.indexOf(base.contentNodes[j]) != -1) ? true : false;
+          	var $row = $('<tr class="visListRow '+((isSelected)?'selected':'')+'" data-index="'+j+'"></div>').appendTo($tbody);
           	$row.append('<td class="sm" prop="title"><a href="'+url+'" target="_blank">'+title+'</a></td>');
           	$row.append('<td class="md" prop="description">'+description+'</td>');
           	$row.append('<td class="md" prop="content">'+content+'</td>');
@@ -4376,7 +4376,7 @@ window.scalarvis = { instanceCount: -1 };
           };
 
           // Add/remove items from selectedNodes
-          $('.visList').find('.visListRow').on('click', function() {
+          this.visList.find('.visListRow').on('click', function() {
         	 var $this = $(this);
         	 var isSelected = $this.hasClass('selected') ? true : false;
         	 var index = parseInt($this.data('index'));
@@ -4388,25 +4388,21 @@ window.scalarvis = { instanceCount: -1 };
         	 } else {
 	        	 base.selectedNodes.push(node);
 	        	 $this.addClass('selected');
-        	 }
+        	 };
+        	 base.updateInspector();
           });
 
           // Add/remove columns based on size of parent area
-          var doSizing = function() {
-          	var $visList = $('.visList');
-          	var width = parseInt($visList.parent().width());
-          	if (width < 400) {  // sm
-          		$visList.find('.sm').show();
-          		$visList.find('.md, .lg').hide();
-          	} else if (width < 600) {  // md
-             	$visList.find('.sm, .md').show();
-          		$visList.find('.lg').hide();
-          	} else {  // lg
-             	$visList.find('.sm, .md, .lg').show();
-          	}
+          var width = parseInt(this.visList.parent().width());
+          if (width < 400) {  // sm
+        	  this.visList.find('.sm').show();
+        	  this.visList.find('.md, .lg').hide();
+          } else if (width < 600) {  // md
+        	  this.visList.find('.sm, .md').show();
+        	  this.visList.find('.lg').hide();
+          } else {  // lg
+        	  this.visList.find('.sm, .md, .lg').show();
           };
-          $(window).off('resize', doSizing).on('resize', doSizing);
-          doSizing();
 
       }
 
@@ -4430,8 +4426,8 @@ window.scalarvis = { instanceCount: -1 };
         if (!$('head').find('[href="'+css+'"]').length) $('head').append('<link rel="stylesheet" type="text/css" href="' + css + '">');
         var $overflow = $('<div style="overflow:auto;"></div>').appendTo(base.visualization);
         $overflow.height($overflow.parent().height());
-        var $wrapper = $('<table class="visList"></table>').appendTo($overflow);
-        var $tbody = $wrapper.append('<tbody></tbody>');
+        this.visList = $('<table class="visList"></table>').appendTo($overflow);
+        var $tbody = this.visList.append('<tbody></tbody>');
         var $header = $('<tr class="header"></tr>').appendTo($tbody);
         $header.append('<td class="sm" prop="title"><a href="javascript:void(null);">Title</a></td>');
         $header.append('<td class="md" prop="description"><a href="javascript:void(null);">Description</a></td>');
