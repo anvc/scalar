@@ -4209,16 +4209,6 @@ window.scalarvis = { instanceCount: -1 };
 
       draw() {
         super.draw();
-      }
-
-      getHelpContent() {
-        return "This visualization shows the most commonly used words across the main text content of the selected items. For example, if the word \"scholarship\" is present in the main text content of ten pages it will be displayed larger than another word that is present in the text content of only five pages.";
-      }
-
-      // one-time visualization setup
-      setupElement() {
-        this.hasBeenDrawn = true;
-        base.visualization.empty(); // empty the element where this vis is to be shown
         if ('undefined' == typeof($.fn.jQCloud)) {
 	        var approot = $('link#approot').attr('href');
 	        $('head').append('<link rel="stylesheet" type="text/css" href="' + approot + 'views/melons/cantaloupe/css/vis.css">');
@@ -4230,6 +4220,16 @@ window.scalarvis = { instanceCount: -1 };
         } else {
         	this.drawWordCloud();
         }
+      }
+
+      getHelpContent() {
+        return "This visualization shows the most commonly used words across the main text content of the selected items. For example, if the word \"scholarship\" is present in the main text content of ten pages it will be displayed larger than another word that is present in the text content of only five pages.";
+      }
+
+      // one-time visualization setup
+      setupElement() {
+        this.hasBeenDrawn = true;
+        base.visualization.empty(); // empty the element where this vis is to be shown
       }
 
       drawWordCloud() {
