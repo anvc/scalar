@@ -1303,7 +1303,11 @@ ScalarAPI.prototype.queueRelationsFromDataByType = function(data, types, isOutgo
       if (isOutgoing) {
         baseData['scalar:sort_number'] = index + 1;
       } else {
-        baseData['scalar:sort_number'] = data['has_container_sort_number'][index];
+        if (isFormData) {
+          baseData['scalar:sort_number'] = $(data['has_container_sort_number'][index]).val();
+        } else {
+          baseData['scalar:sort_number'] = data['has_container_sort_number'][index];
+        }
       }
       break;
 
