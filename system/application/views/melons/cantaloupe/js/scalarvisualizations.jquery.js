@@ -863,6 +863,7 @@ window.scalarvis = { instanceCount: -1 };
       base.svg = null;
       if (base.currentNode && base.currentNode.type.id != 'lens') {
         base.selectedNodes.push(base.currentNode);
+        base.loadNode(base.currentNode.slug, 0, 0, base.updateInspector);
         base.updateInspector();
       }
       base.hasBeenDrawn = false;
@@ -949,12 +950,15 @@ window.scalarvis = { instanceCount: -1 };
 
     };
 
-    base.loadNode = function(slug, ref, depth) {
+    base.loadNode = function(slug, ref, depth, success) {
       //console.log( 'load node' );
       if (depth == null) {
         depth = 1;
       }
-      scalarapi.loadNode(slug, true, base.parseNode, null, depth, ref, null, 0, 100, null, null, false);
+      scalarapi.loadNode(slug, true, function(d) {
+        if (success) success(d);
+        base.parseNode(d);
+      }, null, depth, ref, null, 0, 100, null, null, true);
     }
 
     base.parseNode = function(data) {
@@ -2361,6 +2365,7 @@ window.scalarvis = { instanceCount: -1 };
                    var index = base.selectedNodes.indexOf(d);
                    if (index == -1) {
                      base.selectedNodes.push(d);
+                     base.loadNode(d.slug, 0, 0, base.updateInspector);
                    } else {
                      base.selectedNodes.splice(index, 1);
                    }
@@ -2881,7 +2886,7 @@ window.scalarvis = { instanceCount: -1 };
               this.pathUpdate(this.root);
               if (base.isHierarchyNodeMaximized(d)) {
                 if (base.options.content == "current") {
-                  setTimeout(function() { base.loadNode(d.data.node.slug, false, 2); }, 500);
+                  setTimeout(function() { base.loadNode(d.data.node.slug, false, 2, base.updateInspector); }, 500);
                 }
               }
             }
@@ -3261,6 +3266,7 @@ window.scalarvis = { instanceCount: -1 };
           if (index == -1) {
             base.selectedHierarchyNodes.push(d.data.node);
           }
+          base.loadNode(d.data.node.slug, 0, 0, base.updateInspector);
         } else {
           base.selectedNodes.splice(index, 1);
           index = base.selectedHierarchyNodes.indexOf(d.data.node);
@@ -3706,7 +3712,7 @@ window.scalarvis = { instanceCount: -1 };
               if (index == -1) {
                 base.selectedNodes.push(d.node);
                 if (base.options.content == "current" || base.options.content == "lens") {
-                  base.loadNode(d.node.slug, false);
+                  base.loadNode(d.node.slug, false, 0, base.updateInspector);
                 }
               } else {
                 base.selectedNodes.splice(index, 1);
@@ -4087,6 +4093,7 @@ window.scalarvis = { instanceCount: -1 };
 	        $(this.markers[key]).data('infowindow', this.infowindows[key]).data('map', this.map);
           this.markers[key].addListener('click', (evt) => {
             base.selectedNodes = [obj];
+            base.loadNode(obj.slug, 0, 0, base.updateInspector);
             base.updateInspector();
           })
 	        this.markers[key].addListener('spider_click', function(evt) {
@@ -4209,19 +4216,19 @@ window.scalarvis = { instanceCount: -1 };
       }
 
       draw() {
-    	if (this.isDrawing) return;
-    	this.isDrawing = true;
+      if (this.isDrawing) return;
+      this.isDrawing = true;
         super.draw();
         if ('undefined' == typeof($.fn.jQCloud)) {
-	        var approot = $('link#approot').attr('href');
-	        $('head').append('<link rel="stylesheet" type="text/css" href="' + approot + 'views/melons/cantaloupe/css/vis.css">');
-	        $('head').append('<link rel="stylesheet" type="text/css" href="' + approot + 'views/widgets/jQCloud/jqcloud.min.css">');
-	        $.getScript(approot + 'views/widgets/jQCloud/jqcloud.min.js', () => {
-	        	base.visualization.addClass("tag_cloud caption_font");
-	        	this.drawWordCloud();
-	        });
+          var approot = $('link#approot').attr('href');
+          $('head').append('<link rel="stylesheet" type="text/css" href="' + approot + 'views/melons/cantaloupe/css/vis.css">');
+          $('head').append('<link rel="stylesheet" type="text/css" href="' + approot + 'views/widgets/jQCloud/jqcloud.min.css">');
+          $.getScript(approot + 'views/widgets/jQCloud/jqcloud.min.js', () => {
+            base.visualization.addClass("tag_cloud caption_font");
+            this.drawWordCloud();
+          });
         } else {
-        	this.drawWordCloud();
+          this.drawWordCloud();
         }
       }
 
@@ -4240,81 +4247,80 @@ window.scalarvis = { instanceCount: -1 };
           //base.visualization.css('width', this.size.width + 'px');
           if ('undefined' != typeof(base.visualization.jQCloud)) base.visualization.jQCloud('destroy');
           base.visualization.html('<div>Parsing data...</div>');
-      	  // Create array of words
+          // Create array of words
           var j = 0;
-	      setTimeout( () => {
-	    	  this.doDrawWordCloud(j, base.sortedNodes.length - 1);
-	      }, 1);
+        setTimeout( () => {
+          this.doDrawWordCloud(j, base.sortedNodes.length - 1);
+        }, 1);
 
       }
-      
+
       doDrawWordCloud(j, total) {
-    	  
-    	  var words = this.getWords(base.sortedNodes[j].current.content);
-    	  this.words = this.mergeWords(this.words, words);
-    	  if (j >= total) {
-    		  this.finishDrawWordCloud();
-    		  return;
-    	  };
-	      setTimeout( () => {
-	    	  this.doDrawWordCloud((j+1), total);
-	      }, 1);
-    	  
+        var words = this.getWords(base.sortedNodes[j].current.content);
+        this.words = this.mergeWords(this.words, words);
+        if (j >= total) {
+          this.finishDrawWordCloud();
+          return;
+        };
+        setTimeout( () => {
+          this.doDrawWordCloud((j+1), total);
+        }, 1);
+
       }
-      
+
       finishDrawWordCloud() {
-    	  
+
           base.visualization.empty();
           // Render cloud
           base.visualization.jQCloud(this.words, {
-          	afterCloudRender: function() {
-          		removeOverflowing: false
-          	}
+            afterCloudRender: function() {
+              removeOverflowing: false
+            }
           });
           this.updateNoResultsMessage(base.sortedNodes);
           this.isDrawing = false;
-          
+
       }
 
       getWords(content) {
 
-    	  if (!content) return [];
-    	  content = content.replace(/(<([^>]+)>)/ig," ");  // Strip tags
-    	  content = content.replace(/&nbsp;/g,' ');  // Non-breaking space to space
-    	  content = $('<textarea />').html(content).text();  // HTML entity decode
-    	  var words = content.split(' ');
-    	  return words;
+        if (!content) return [];
+        content = content.replace(/(<([^>]+)>)/ig," ");  // Strip tags
+        content = content.replace(/&nbsp;/g,' ');  // Non-breaking space to space
+        content = $('<textarea />').html(content).text();  // HTML entity decode
+        var words = content.split(' ');
+        return words;
 
       }
 
       mergeWords(arr1, arr2) {
 
-    	  for (var j = 0; j < arr2.length; j++) {
-    		  if (!arr2[j].length) continue;
-    		  var word = arr2[j].replace(/[^0-9a-zA-Z-]/g, '');
-    		  if (word.length < 3) continue;  // Remove empty or short
-    		  if (this.isAStopWord(word)) continue;  // Remove stop words
-    		  if (!isNaN(word) && word.length != 4) continue;  // Remove numbers if not a year
-    		  var wordIncluded = false;
-    		  for (var k = 0; k < arr1.length; k++) {
-    			  if (arr1[k].text.toLowerCase() == word.toLowerCase()) {
-    				  arr1[k].weight = arr1[k].weight + 1;
-    				  wordIncluded = true;
-    			  }
-    		  }
-    		  if (!wordIncluded) {
-    			  arr1.push({text:word, weight:1});
-    		  }
-    	  }
-    	  return arr1;
+        for (var j = 0; j < arr2.length; j++) {
+          if (!arr2[j].length) continue;
+          var word = arr2[j].replace(/[^0-9a-zA-Z-]/g, '');
+          if (word.length < 3) continue;  // Remove empty or short
+          if (this.isAStopWord(word)) continue;  // Remove stop words
+          if (!isNaN(word) && word.length != 4) continue;  // Remove numbers if not a year
+          var wordIncluded = false;
+          for (var k = 0; k < arr1.length; k++) {
+            if (arr1[k].text.toLowerCase() == word.toLowerCase()) {
+              arr1[k].weight = arr1[k].weight + 1;
+              wordIncluded = true;
+            }
+          }
+          if (!wordIncluded) {
+            arr1.push({text:word, weight:1});
+          }
+        }
+        return arr1;
 
       }
 
       isAStopWord(word) {
 
-    	  if (word.substr(0, 1) == '&') return true;
-    	  if (this.stopwords.indexOf(word.toLowerCase()) != -1) return true;
-    	  false;
+        if (word.substr(0, 1) == '&') return true;
+        if (this.stopwords.indexOf(word.toLowerCase()) != -1) return true;
+        false;
 
       }
     }
@@ -4411,7 +4417,8 @@ window.scalarvis = { instanceCount: -1 };
 	        	 base.selectedNodes.push(node);
 	        	 $this.addClass('selected');
         	 };
-        	 base.updateInspector();
+           base.loadNode(node.slug, 0, 0, base.updateInspector);
+  	       base.updateInspector();
           });
 
           // Add/remove columns based on size of parent area
