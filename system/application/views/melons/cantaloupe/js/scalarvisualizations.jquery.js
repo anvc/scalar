@@ -4153,6 +4153,7 @@ window.scalarvis = { instanceCount: -1 };
       constructor() {
         super();
         this.words = [];
+        this.isDrawing = false;
         this.stopwords = ['a', 'about', 'above', 'across', 'after', 'afterwards']  // https://programminghistorian.org/en/lessons/counting-frequencies
         this.stopwords += ['again', 'against', 'all', 'almost', 'alone', 'along']
         this.stopwords += ['already', 'also', 'although', 'always', 'am', 'among']
@@ -4208,6 +4209,8 @@ window.scalarvis = { instanceCount: -1 };
       }
 
       draw() {
+    	if (this.isDrawing) return;
+    	this.isDrawing = true;
         super.draw();
         if ('undefined' == typeof($.fn.jQCloud)) {
 	        var approot = $('link#approot').attr('href');
@@ -4229,7 +4232,6 @@ window.scalarvis = { instanceCount: -1 };
       // one-time visualization setup
       setupElement() {
         this.hasBeenDrawn = true;
-        base.visualization.empty(); // empty the element where this vis is to be shown
       }
 
       drawWordCloud() {
@@ -4237,12 +4239,31 @@ window.scalarvis = { instanceCount: -1 };
           base.visualization.css('height', this.size.height + 'px');
           //base.visualization.css('width', this.size.width + 'px');
           if ('undefined' != typeof(base.visualization.jQCloud)) base.visualization.jQCloud('destroy');
-          base.visualization.empty();
+          base.visualization.html('<div>Parsing data...</div>');
       	  // Create array of words
-          for (var j = 0; j < base.sortedNodes.length; j++) {
-          	var words = this.getWords(base.sortedNodes[j].current.content);
-          	this.words = this.mergeWords(this.words, words);
-          };
+          var j = 0;
+	      setTimeout( () => {
+	    	  this.doDrawWordCloud(j, base.sortedNodes.length - 1);
+	      }, 1);
+
+      }
+      
+      doDrawWordCloud(j, total) {
+    	  
+    	  var words = this.getWords(base.sortedNodes[j].current.content);
+    	  this.words = this.mergeWords(this.words, words);
+    	  if (j >= total) {
+    		  this.finishDrawWordCloud();
+    		  return;
+    	  };
+	      setTimeout( () => {
+	    	  this.doDrawWordCloud((j+1), total);
+	      }, 1);
+    	  
+      }
+      
+      finishDrawWordCloud() {
+    	  
           base.visualization.empty();
           // Render cloud
           base.visualization.jQCloud(this.words, {
@@ -4251,7 +4272,8 @@ window.scalarvis = { instanceCount: -1 };
           	}
           });
           this.updateNoResultsMessage(base.sortedNodes);
-
+          this.isDrawing = false;
+          
       }
 
       getWords(content) {
