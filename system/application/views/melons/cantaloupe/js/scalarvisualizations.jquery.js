@@ -950,14 +950,14 @@ window.scalarvis = { instanceCount: -1 };
 
     };
 
-    base.loadNode = function(slug, ref, depth, success) {
+    base.loadNode = function(slug, ref, depth, success = null, parseNode = true) {
       //console.log( 'load node' );
       if (depth == null) {
         depth = 1;
       }
       scalarapi.loadNode(slug, true, function(d) {
         if (success) success(d);
-        base.parseNode(d);
+        if (parseNode) base.parseNode(d);
       }, null, depth, ref, null, 0, 100, null, null, true);
     }
 
@@ -4093,7 +4093,7 @@ window.scalarvis = { instanceCount: -1 };
 	        $(this.markers[key]).data('infowindow', this.infowindows[key]).data('map', this.map);
           this.markers[key].addListener('click', (evt) => {
             base.selectedNodes = [obj];
-            base.loadNode(obj.slug, 0, 0, base.updateInspector);
+            base.loadNode(obj.slug, 0, 0, base.updateInspector, false);
             base.updateInspector();
           })
 	        this.markers[key].addListener('spider_click', function(evt) {
