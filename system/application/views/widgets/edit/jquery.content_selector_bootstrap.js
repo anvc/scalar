@@ -823,7 +823,15 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 						select = '<select class="btn btn-default" name="visrelations"><option value="all">All relationships</option><option value="parents-children">Parents and children</option><option value="none">No relationships</option></select>';
 						$('<div class="form-group row"><label class="text-right col-sm-4 col-sm-offset-2 control-label">What relationships would you like to visualize?</label><div class="col-sm-6">' + select + '</div></div>').appendTo($content);
 
-						select = '<select class="btn btn-default" name="visformat"><option value="grid">Grid</option><option value="tree">Tree</option><option value="radial">Radial</option><option value="force-directed">Force-directed</option></select>';
+						select = '<select class="btn btn-default" name="visformat">' +
+						'<option value="force-directed">Force-directed</option>' +
+						'<option value="grid">Grid</option>' +
+						'<option value="list">List</option>' +
+						'<option value="map">Map</option>' +
+						'<option value="radial">Radial</option>' +
+						'<option value="tree">Tree</option>' +
+						'<option value="word-cloud">Word cloud</option>' +
+						'</select>';
 						$('<div class="form-group row"><label class="text-right col-sm-4 col-sm-offset-2 control-label">What type of visualization would you like to use?</label><div class="col-sm-6">' + select + '</div></div>').appendTo($content);
 
 						if (isEdit) {
