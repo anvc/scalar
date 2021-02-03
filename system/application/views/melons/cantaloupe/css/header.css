@@ -231,6 +231,13 @@ a.headerIcon{
 	background-image: url(../images/icon_tag_light.png);
 }
 
+.navbar li>a>#currentIcon{
+	background-image: url(../images/icon_current.png);
+}
+.navbar li:hover>a>#currentIcon{
+	background-image: url(../images/icon_current_light.png);
+}
+
 .navbar li>a>#annotationIcon{
 	background-image: url(../images/icon_annotation.png);
 }

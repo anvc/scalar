@@ -260,6 +260,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                     '<li id="vis_menu" class="dropdown">'+
                                                         '<a role="button" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></span><span class="menuIcon" id="visIcon"></span>Visualizations</a>'+
                                                         '<ul class="dropdown-menu" role="menu">'+
+                                                            '<li class="vis_link" data-vistype="viscurrent"><a role="button"><span class="menuIcon" id="currentIcon"></span> Current</a></li>'+
                                                             '<li class="vis_link" data-vistype="vistoc"><a role="button"><span class="menuIcon" id="tocIcon"></span> Contents</a></li>'+
                                                             '<li class="vis_link" data-vistype="visconnections"><a role="button"><span class="menuIcon" id="connectionsIcon"></span> Connections</a></li>'+
                                                             '<li class="vis_link" data-vistype="visindex"><a role="button"><span class="menuIcon" id="gridIcon"></span> Grid</a></li>'+
@@ -791,6 +792,33 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                 "tag"
                               ],
                               "relationship": "child"
+                            }
+                          ]
+                        }
+                      ],
+                      "sorts": []
+                    }
+                    break;
+
+                    case "viscurrent":
+                    options.content = 'lens';
+                    options.lens = {
+                      "visualization": {
+                        "type": "force-directed",
+                        "options": {}
+                      },
+                      "components": [
+                        {
+                          "content-selector": {
+                            "type": "specific-items",
+                            "items": [ base.currentNode.slug ]
+                          },
+                          "modifiers": [
+                            {
+                              "type": "filter",
+                              "subtype": "relationship",
+                              "content-types": ["all-types"],
+                              "relationship": "any-relationship"
                             }
                           ]
                         }

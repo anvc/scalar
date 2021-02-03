@@ -607,7 +607,18 @@ window.scalarvis = { instanceCount: -1 };
       if (base.options.lens) {
         base.validateLens();
         base.visElement.find(".vis-type-control").val(base.options.lens.visualization.type);
-        base.visElement.find(".vis-content-control").val(base.options.lens.components[0]['content-selector']['content-type']);
+        let isCurrentVis = false;
+        let items = base.options.lens.components[0]["content-selector"].items;
+        if (items.length == 1) {
+          if (items[0] == base.currentNode.slug) {
+            isCurrentVis = true;
+          }
+        }
+        if (isCurrentVis) {
+          base.visElement.find(".vis-content-control").val('current');
+        } else {
+          base.visElement.find(".vis-content-control").val(base.options.lens.components[0]['content-selector']['content-type']);
+        }
         base.visElement.find(".vis-filter-control").val('none');
         base.visElement.find(".vis-sort-control").val('none');
         base.visElement.find(".vis-sort-order-control").val('none');

@@ -740,6 +740,8 @@
                         contextMarkup += '<p class="citation">Tagged by <a href="' + relation.body.url + '">&ldquo;' + relation.body.getDisplayTitle() + '&rdquo;</a></p>';
                     }
 
+                    contextMarkup += '<p><a id="visualize-this-link" href="javascript:;">Visualize this</a></p>';
+
                     $(".path-nav.info").remove();
                     if (contextMarkup != '') {
                         contextMarkup = '<div class="citations">' + contextMarkup + '</div>';
@@ -751,10 +753,46 @@
                             trigger: "click",
                             html: true,
                             content: contextMarkup,
-                            template: '<div class="context popover caption_font" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div>' });
-
+                            template: '<div class="context popover caption_font" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div>' }).on('inserted.bs.popover', function() {
+                              $('#visualize-this-link').on('click', function() {
+                                contextButton.popover('hide');
+                                page.visualizeCurrentPage();
+                              });
+                            });
                     }
                 }
+            },
+
+            visualizeCurrentPage: function() {
+              var options = {
+                modal: true
+              }
+              let currentNode = scalarapi.model.getCurrentPageNode();
+              options.content = 'lens';
+              options.lens = {
+                "visualization": {
+                  "type": "force-directed",
+                  "options": {}
+                },
+                "components": [
+                  {
+                    "content-selector": {
+                      "type": "specific-items",
+                      "items": [ currentNode.slug ]
+                    },
+                    "modifiers": [
+                      {
+                        "type": "filter",
+                        "subtype": "relationship",
+                        "content-types": ["all-types"],
+                        "relationship": "any-relationship"
+                      }
+                    ]
+                  }
+                ],
+                "sorts": []
+              }
+              $( '.modalVisualization' ).data( 'scalarvis' ).showModal( options );
             },
 
             allowAnyClickToDismissPopovers: function() {

@@ -371,7 +371,7 @@ small, aside {
 }
 
 a { color: #026697; text-decoration: none; }
-a:hover { text-decoration: underline; }
+a:hover { text-decoration: underline; cursor: pointer; }
 
 .bg_screen {
 	position: fixed;
