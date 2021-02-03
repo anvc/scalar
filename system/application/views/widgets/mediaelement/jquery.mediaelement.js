@@ -170,6 +170,17 @@ function YouTubeGetID(url){
 			}
 		}
 
+    /**
+     * Sends a message to the media element.
+     *
+		 * @param {String} message			Message to be sent.
+		 */
+    this.sendMessage = function(message) {
+      if (this.view.mediaObjectView.sendMessage) {
+        this.view.mediaObjectView.sendMessage(message);
+      }
+    }
+
 		/**
 		 * For time-based media, returns the current playback time.
 		 * @return	Returns the current playback time for temporal media in seconds.
@@ -5189,6 +5200,14 @@ function YouTubeGetID(url){
         "objectName": "ScalarCamera",
         "methodName": "SetTransform",
         "message": point_3d
+      });
+    }
+
+    jQuery.UnityWebGLObjectView.prototype.sendMessage = function(message) {
+      this.receiver.postMessage({
+        "objectName": "ScalarCamera",
+        "methodName": "HandleMessage",
+        "message": message
       });
     }
 

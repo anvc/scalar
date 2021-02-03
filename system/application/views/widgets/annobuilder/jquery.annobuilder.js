@@ -244,8 +244,10 @@ jQuery.AnnoBuilderController = function() {
         break;
 
         case '3D':
-        if (annotation.body.url != $.annobuilder.view.builder.newAnnotationURL) {
-          $.annobuilder.model.mediaElement.seek( $.annobuilder.model.selectedAnnotation );
+        if (annotation) {
+          if (annotation.body.url != $.annobuilder.view.builder.newAnnotationURL) {
+            $.annobuilder.model.mediaElement.seek( $.annobuilder.model.selectedAnnotation );
+          }
         }
         break;
 
@@ -1080,6 +1082,9 @@ jQuery.AnnoBuilderInterfaceView = function() {
   							me.showPosition3DAnnotation(edits.title, edits);
   						} else {
   							me.showPosition3DAnnotation(annotation.body.getDisplayTitle(), annotation.properties);
+                if (annotation.body.current.properties['http://purl.org/dc/terms/abstract']) {
+                  me.sendMessage(annotation.body.current.properties['http://purl.org/dc/terms/abstract'][0].value);
+                }
   						}
             }
           }
@@ -1192,6 +1197,17 @@ jQuery.AnnoBuilderInterfaceView = function() {
 	jQuery.AnnoBuilderInterfaceView.prototype.showPosition3DAnnotation = function(name, data) {
 		if ($.annobuilder.model.mediaElement.view.mediaObjectView.hasFrameLoaded) {
       $.annobuilder.model.mediaElement.seek(data);
+		}
+	}
+
+  /**
+	 * Sends a message to the media.
+	 *
+	 * @param message {String}			The message to be sent.
+	 */
+	jQuery.AnnoBuilderInterfaceView.prototype.sendMessage = function(message) {
+		if ($.annobuilder.model.mediaElement.view.mediaObjectView.hasFrameLoaded) {
+      $.annobuilder.model.mediaElement.sendMessage(message);
 		}
 	}
 
