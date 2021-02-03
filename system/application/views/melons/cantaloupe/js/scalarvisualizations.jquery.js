@@ -2188,7 +2188,10 @@ window.scalarvis = { instanceCount: -1 };
 
         case "grid":
           needsInstantiation = base.visInstance ? base.visInstance.constructor.name != 'GridVisualization' : true;
-          if (needsInstantiation) base.visInstance = new GridVisualization();
+          if (needsInstantiation) {
+            if (base.visInstance) base.visInstance.destroy();
+            base.visInstance = new GridVisualization();
+          }
           break;
 
         case "tree":
@@ -2197,32 +2200,50 @@ window.scalarvis = { instanceCount: -1 };
 
         case "radial":
           needsInstantiation = base.visInstance ? base.visInstance.constructor.name != 'RadialVisualization' : true;
-          if (needsInstantiation) base.visInstance = new RadialVisualization();
+          if (needsInstantiation) {
+            if (base.visInstance) base.visInstance.destroy();
+            base.visInstance = new RadialVisualization();
+          }
           break;
 
         case "force-directed":
           needsInstantiation = base.visInstance ? base.visInstance.constructor.name != 'ForceDirectedVisualization' : true;
-          if (needsInstantiation) base.visInstance = new ForceDirectedVisualization();
+          if (needsInstantiation) {
+            if (base.visInstance) base.visInstance.destroy();
+            base.visInstance = new ForceDirectedVisualization();
+          }
           break;
 
         case "tagcloud":
           needsInstantiation = base.visInstance ? base.visInstance.constructor.name != 'TagCloudVisualization' : true;
-          if (needsInstantiation) base.visInstance = new TagCloudVisualization();
+          if (needsInstantiation) {
+            if (base.visInstance) base.visInstance.destroy();
+            base.visInstance = new TagCloudVisualization();
+          }
           break;
 
         case "map":
           needsInstantiation = base.visInstance ? base.visInstance.constructor.name != 'MapVisualization' : true;
-          if (needsInstantiation) base.visInstance = new MapVisualization();
+          if (needsInstantiation) {
+            if (base.visInstance) base.visInstance.destroy();
+            base.visInstance = new MapVisualization();
+          }
           break;
 
         case "word-cloud":
           needsInstantiation = base.visInstance ? base.visInstance.constructor.name != 'WordCloudVisualization' : true;
-          if (needsInstantiation) base.visInstance = new WordCloudVisualization();
+          if (needsInstantiation) {
+            if (base.visInstance) base.visInstance.destroy();
+            base.visInstance = new WordCloudVisualization();
+          }
           break;
 
         case "list":
           needsInstantiation = base.visInstance ? base.visInstance.constructor.name != 'ListVisualization' : true;
-          if (needsInstantiation) base.visInstance = new ListVisualization();
+          if (needsInstantiation) {
+            if (base.visInstance) base.visInstance.destroy();
+            base.visInstance = new ListVisualization();
+          }
           break;
 
       }
@@ -2295,10 +2316,14 @@ window.scalarvis = { instanceCount: -1 };
         return 'This is sample help content.';
       }
 
-      // overrider with your own version that sets up the
-      // base.visualization element
+      // override to set up the base.visualization element
       setupElement() {
         // set up the element
+      }
+
+      // override to clean up the vis if neccessary
+      destroy() {
+        // clean up the vis
       }
 
     }
