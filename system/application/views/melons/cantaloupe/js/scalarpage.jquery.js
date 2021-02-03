@@ -740,7 +740,7 @@
                         contextMarkup += '<p class="citation">Tagged by <a href="' + relation.body.url + '">&ldquo;' + relation.body.getDisplayTitle() + '&rdquo;</a></p>';
                     }
 
-                    contextMarkup += '<p><a id="visualize-this-link" href="javascript:;">Visualize this</a></p>';
+                    contextMarkup += '<p><a id="visualize-this-link" href="javascript:;" class="btn btn-default btn-xs">Visualize...</a></p>';
 
                     $(".path-nav.info").remove();
                     if (contextMarkup != '') {
