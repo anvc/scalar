@@ -609,9 +609,11 @@ window.scalarvis = { instanceCount: -1 };
         base.visElement.find(".vis-type-control").val(base.options.lens.visualization.type);
         let isCurrentVis = false;
         let items = base.options.lens.components[0]["content-selector"].items;
-        if (items.length == 1) {
-          if (items[0] == base.currentNode.slug) {
-            isCurrentVis = true;
+        if (items) {
+          if (items.length == 1) {
+            if (items[0] == base.currentNode.slug) {
+              isCurrentVis = true;
+            }
           }
         }
         if (isCurrentVis) {
