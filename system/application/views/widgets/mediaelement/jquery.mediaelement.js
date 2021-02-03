@@ -2148,11 +2148,26 @@ function YouTubeGetID(url){
 		 */
 		this.doAutoSeek = function(me) {
 			me.seek(this.model.seekAnnotation);
+      this.sendMessage(this.annotationHasMessage(this.model.seekAnnotation));
 			// YouTube videos will play immediately on seeking unless we do this
 			if ( this.model.mediaSource.name == 'YouTube' ) {
 				me.pause();
 			}
 		}
+
+    this.sendMessage = function(message) {
+      if (this.mediaObjectView.sendMessage) {
+        this.mediaObjectView.sendMessage(message);
+      }
+    }
+
+    this.annotationHasMessage = function(annotation) {
+      let result = false;
+      if (annotation.body.current.properties['http://purl.org/dc/terms/abstract']) {
+        result = annotation.body.current.properties['http://purl.org/dc/terms/abstract'][0].value;
+      }
+      return result;
+    }
 
 		this.doInstantUpdate = function() {
 			me.startTimer(null, true);

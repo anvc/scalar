@@ -124,6 +124,20 @@
 				restoreState();
 			},
 
+      annotationHasMessage: function(annotation) {
+        let result = false;
+        if (annotation.body.current.properties['http://purl.org/dc/terms/abstract']) {
+          result = annotation.body.current.properties['http://purl.org/dc/terms/abstract'][0].value;
+        }
+        return result;
+      },
+
+      sendMessage: function(mediaelement, message) {
+    		if (message && mediaelement.view.mediaObjectView.hasFrameLoaded) {
+          mediaelement.sendMessage(message);
+    		}
+    	},
+
 			/**
 			 * Called when a mediaelement instance has gathered metadata about the media.
 			 *
@@ -174,6 +188,7 @@
 							row.on('click', function() {
 								var relation = $(this).data('relation');
 								mediaelement.seek(relation);
+                mediaDetails.sendMessage(mediaelement, mediaDetails.annotationHasMessage(relation));
 								mediaelement.play();
 							});
 						}

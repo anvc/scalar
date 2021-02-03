@@ -1669,6 +1669,20 @@
                 return mediaLinks;
             },
 
+            annotationHasMessage: function(annotation) {
+              let result = false;
+              if (annotation.body.current.properties['http://purl.org/dc/terms/abstract']) {
+                result = annotation.body.current.properties['http://purl.org/dc/terms/abstract'][0].value;
+              }
+              return result;
+            },
+
+            sendMessage: function(mediaelement, message) {
+          		if (message && mediaelement.view.mediaObjectView.hasFrameLoaded) {
+                mediaelement.sendMessage(message);
+          		}
+          	},
+
             // trigger media playback when links are clicked on
             handleMediaLinkClick: function(e) {
 
@@ -1684,8 +1698,8 @@
                         // the media if it isn't already playing
                         var annotationURL = $(this).data('targetAnnotation');
                         if (annotationURL != null) {
-
                             mediaelement.seek(mediaelement.model.initialSeekAnnotation);
+                            page.sendMessage(mediaelement, page.annotationHasMessage(mediaelement.model.initialSeekAnnotation));
                             if ((mediaelement.model.mediaSource.contentType != 'document') && (mediaelement.model.mediaSource.contentType != 'image')) {
                                 setTimeout(function() {
                                     if (!mediaelement.is_playing()) {
