@@ -276,18 +276,6 @@ function ScalarAPI() {
 				'Android': {extensions:['dzi'], format:'DZI', player:'OpenSeadragon', specifiesDimensions:false},
 				'Other': {extensions:['dzi'], format:'DZI', player:'OpenSeadragon', specifiesDimensions:false}
 			}},
-		'FlashVideo': {
-			name:'FlashVideo',
-			extensions:['flv'],
-			isProprietary:false,
-			contentType:'video',
-			browserSupport: {
-				'Mozilla': {extensions:['flv'], format:'Flash Video', player:'Flash', specifiesDimensions:false},
-				'Explorer': {extensions:['flv'], format:'Flash Video', player:'Flash', specifiesDimensions:false},
-				'Safari': {extensions:['flv'], format:'Flash Video', player:'Flash', specifiesDimensions:false},
-				'Chrome': {extensions:['flv'], format:'Flash Video', player:'Flash', specifiesDimensions:false},
-				'Other': {extensions:['flv'], format:'Flash Video', player:'Flash', specifiesDimensions:false}
-			}},
 		'GIF': {
 			name:'GIF',
 			extensions:['gif'],
@@ -341,19 +329,19 @@ function ScalarAPI() {
 				'Chrome': {extensions:[], format:'HyperCities Collection', player:'proprietary', specifiesDimensions:false},
 				'Other': {extensions:[], format:'HyperCities Collection', player:'proprietary', specifiesDimensions:false}
 			}},
-                'IIIF': {
-                    name: 'IIIF',
-                    extensions: [],
-                    isProprietary:false,
-                    contentType:'manifest',
-                    browserSupport: {
-                        'Mozilla': {extensions:[], format:'Manifest', player:'Mirador', specifiesDimensions:false},
-			'Explorer': {extensions:[], format:'Manifest', player:'Mirador', specifiesDimensions:false},
-			'MobileSafari': {extensions:[], format:'Manifest', player:'Mirador', specifiesDimensions:false},
-			'Safari': {extensions:[], format:'Manifest', player:'Mirador', specifiesDimensions:false},
-			'Chrome': {extensions:[], format:'Manifest', player:'Mirador', specifiesDimensions:false},
-			'Android': {extensions:[], format:'Manifest', player:'Mirador', specifiesDimensions:false},
-			'Other': {extensions:[], format:'Manifest', player:'Mirador', specifiesDimensions:false}
+    'IIIF': {
+      name: 'IIIF',
+      extensions: [],
+      isProprietary:false,
+      contentType:'manifest',
+      browserSupport: {
+        'Mozilla': {extensions:[], format:'Manifest', player:'Mirador', specifiesDimensions:false},
+  			'Explorer': {extensions:[], format:'Manifest', player:'Mirador', specifiesDimensions:false},
+  			'MobileSafari': {extensions:[], format:'Manifest', player:'Mirador', specifiesDimensions:false},
+  			'Safari': {extensions:[], format:'Manifest', player:'Mirador', specifiesDimensions:false},
+  			'Chrome': {extensions:[], format:'Manifest', player:'Mirador', specifiesDimensions:false},
+  			'Android': {extensions:[], format:'Manifest', player:'Mirador', specifiesDimensions:false},
+  			'Other': {extensions:[], format:'Manifest', player:'Mirador', specifiesDimensions:false}
 			}},
 		'JPEG': {
 			name:'JPEG',
@@ -621,17 +609,17 @@ function ScalarAPI() {
 			}},
 		'Vimeo': {
 			name:'Vimeo',
-			extensions:['flv'],
+			extensions:['mp4'],
 			isProprietary:true,
 			contentType:'video',
 			browserSupport: {
-				'Mozilla': {extensions:['flv'], format:'Flash Video', player:'proprietary', specifiesDimensions:false},
-				'Explorer': {extensions:['flv'], format:'Flash Video', player:'proprietary', specifiesDimensions:false},
+				'Mozilla': {extensions:['mp4'], format:'MPEG-4', player:'proprietary', specifiesDimensions:false},
+				'Explorer': {extensions:['mp4'], format:'MPEG-4', player:'proprietary', specifiesDimensions:false},
 				'MobileSafari': {extensions:['mp4'], format:'MPEG-4', player:'proprietary', specifiesDimensions:false},
 				'Safari': {extensions:['mp4'], format:'MPEG-4', player:'proprietary', specifiesDimensions:false},
-				'Chrome': {extensions:['flv'], format:'Flash Video', player:'proprietary', specifiesDimensions:false},
-				'Android': {extensions:['flv'], format:'Flash Video', player:'proprietary', specifiesDimensions:false},
-				'Other': {extensions:['flv'], format:'Flash Video', player:'proprietary', specifiesDimensions:false}
+				'Chrome': {extensions:['mp4'], format:'MPEG-4', player:'proprietary', specifiesDimensions:false},
+				'Android': {extensions:['mp4'], format:'MPEG-4', player:'proprietary', specifiesDimensions:false},
+				'Other': {extensions:['mp4'], format:'MPEG-4', player:'proprietary', specifiesDimensions:false}
 			}},
 		'WAV': {
 			name:'WAV',
@@ -659,17 +647,17 @@ function ScalarAPI() {
 			}},
 		'YouTube': {
 			name:'YouTube',
-			extensions:['flv'],
+			extensions:['mp4'],
 			isProprietary:true,
 			contentType:'video',
 			browserSupport: {
-				'Mozilla': {extensions:['flv'], format:'Flash Video', player:'proprietary', specifiesDimensions:false},
-				'Explorer': {extensions:['flv'], format:'Flash Video', player:'proprietary', specifiesDimensions:false},
+				'Mozilla': {extensions:['mp4'], format:'MPEG-4', player:'proprietary', specifiesDimensions:false},
+				'Explorer': {extensions:['mp4'], format:'MPEG-4', player:'proprietary', specifiesDimensions:false},
 				'MobileSafari': {extensions:['mp4'], format:'MPEG-4', player:'proprietary', specifiesDimensions:false},
 				'Safari': {extensions:['mp4'], format:'MPEG-4', player:'proprietary', specifiesDimensions:false},
-				'Chrome': {extensions:['flv'], format:'Flash Video', player:'proprietary', specifiesDimensions:false},
-				'Android': {extensions:['flv'], format:'Flash Video', player:'proprietary', specifiesDimensions:false},
-				'Other': {extensions:['flv'], format:'Flash Video', player:'proprietary', specifiesDimensions:false}
+				'Chrome': {extensions:['mp4'], format:'MPEG-4', player:'proprietary', specifiesDimensions:false},
+				'Android': {extensions:['mp4'], format:'MPEG-4', player:'proprietary', specifiesDimensions:false},
+				'Other': {extensions:['mp4'], format:'MPEG-4', player:'proprietary', specifiesDimensions:false}
 			}}
 	}
 
