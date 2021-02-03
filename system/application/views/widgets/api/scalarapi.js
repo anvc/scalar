@@ -1271,12 +1271,15 @@ ScalarAPI.prototype.queueRelationsFromDataByType = function(data, types, isOutgo
  * @private
  */
  ScalarAPI.prototype.getRelationBaseData = function(data, relation, urn, childUrn) {
-   return {
+   let baseData = {
      action:data['action'],'native':data['native'],'id':data['id'],api_key:data['api_key'],
      'scalar:urn':urn,
-     'scalar:child_urn':childUrn,
      'scalar:child_rel':this.model.relationTypes[relation].childRel
    }
+   if (relation != 'lens') {
+     baseData['scalar:child_urn'] = childUrn;
+   }
+   return baseData;
  }
 
  /**
@@ -1296,6 +1299,14 @@ ScalarAPI.prototype.queueRelationsFromDataByType = function(data, types, isOutgo
         } else {
           baseData['scalar:sort_number'] = data['has_container_sort_number'][index];
         }
+      }
+      break;
+
+      case 'grouped':
+      if (isFormData) {
+        baseData['scalar:contents'] = $(data['lens_of'][index]).val();
+      } else {
+        baseData['scalar:contents'] = data['lens_of'][index];
       }
       break;
 
