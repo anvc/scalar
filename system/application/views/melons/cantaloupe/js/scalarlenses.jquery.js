@@ -1160,7 +1160,7 @@
           if (contentSelector['content-type'] == 'comment') {
             contentSelector['content-type'] = 'reply';
           }
-          me.scalarLensObject.components[me.editedComponentIndex]["content-selector"] = contentSelector
+          me.scalarLensObject.components[me.editedComponentIndex]["content-selector"] = contentSelector;
           me.updateContentSelectorButton(me.scalarLensObject.components[me.editedComponentIndex]["content-selector"], $(me.element).find('.content-selector-btn-group').eq(me.editedComponentIndex))
           me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
           $('#modalByType').modal('hide');
@@ -1738,12 +1738,9 @@
       this.updateBadge(leftBadge, -1, 'dark');
       this.updateBadge(rightBadge, -1, 'dark');
       this.getLensResults(preFilterLensObj, (data) => {
-
         let nodeCount = this.getNodeCount(data);
         this.updateBadge(leftBadge, nodeCount, 'dark');
         $('.filter-pre-quantity').text(nodeCount);
-        console.log('update left badge');
-
         if (this.validateFilterData(true)) {
           this.getLensResults(postFilterLensObj, (data) => {
             let nodeCount = this.getNodeCount(data);
@@ -3242,6 +3239,7 @@
         {label: "Freeze", value: 'freeze'},
         {label: "Create path from lens", value: 'create-path'},
         {label: "Create tag from lens", value: 'create-tag'},
+        {label: "Clear lens", value: 'clear-lens'},
         {label: "Duplicate lens", value: "duplicate-lens"},
         {label: "Export to CSV", value: "export-lens"}
       )
@@ -3348,6 +3346,10 @@
           }
           break;
 
+          case 'clear-lens':
+            me.showOkModal('Clear lens', 'Are you sure you want to clear this lens?', () => { setTimeout(() => { me.clearLens(); }, 750) });
+          break;
+
           case 'duplicate-lens':
             me.showOkModal('Duplicate lens', 'Are you sure you want to duplicate this lens?', () => { me.duplicateLens(); });
           break;
@@ -3437,6 +3439,14 @@
           });
         }, error);
       }
+    }
+
+    ScalarLenses.prototype.clearLens = function() {
+      $(this.element).empty();
+      this.scalarLensObject = this.getDefaultJson();
+      this.getLensResults(this.scalarLensObject, this.options.onLensResults);
+      this.buildEditorDom();
+      this.updateEditorDom();
     }
 
     ScalarLenses.prototype.duplicateLens = function() {
