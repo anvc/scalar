@@ -51,7 +51,7 @@
 				'id': this.userId,
 				'api_key': '',
 				'dcterms:title': 'Lens: Untitled',
-				'dcterms:description': '',
+				'dcterms:description': 'A snapshot of the content of this project.',
 				'sioc:content': '',
 				'rdf:type': 'http://scalar.usc.edu/2012/01/scalar-ns#Composite',
         'scalar:child_urn': 'urn:scalar:book:' + this.bookId,
