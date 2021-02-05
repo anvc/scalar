@@ -50,7 +50,7 @@
 				'native': '1',
 				'id': this.userId,
 				'api_key': '',
-				'dcterms:title': 'Untitled lens',
+				'dcterms:title': 'Lens: Untitled',
 				'dcterms:description': '',
 				'sioc:content': '',
 				'rdf:type': 'http://scalar.usc.edu/2012/01/scalar-ns#Composite',
