@@ -479,8 +479,7 @@ $(document).ready(function() {
 			bootbox.confirm({
 				closeButton:false,
 				backdrop:true,
-				size:'small',
-				message: 'Changing the URL segment of this page will change its location on the web, which might cause problems for sites that link to this page.<br /><br />Do you wish to continue?',
+				message: '<strong>Changing the URL segment of this item will change its location on the web.</strong><br /><br />Media and text links to this item from within this Scalar project will be automatically updated. Scalar widgets that reference the item, however, will need to be updated manually. Changing the URL segment may also cause problems for external sites that link to this page.<br /><br />Do you wish to continue?',
 				callback: function(result) {
 					if (result) {
 						$this.data('confirmed',true);
