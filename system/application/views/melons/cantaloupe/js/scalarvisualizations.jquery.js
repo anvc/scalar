@@ -676,7 +676,7 @@ window.scalarvis = { instanceCount: -1 };
         case "comment":
         case "reply":
           var componentToHex = function(c) {
-            var hex = c.toString(16);
+            var hex = Math.round(c).toString(16);
             return hex.length == 1 ? "0" + hex : hex;
           }
           color = d3.rgb("#ffff33").darker();
@@ -2506,10 +2506,10 @@ window.scalarvis = { instanceCount: -1 };
                })
                .attr('class', 'pathDot')
                .attr('cx', (d) => {
-                 return d[base.instanceId].x + (this.boxSize * .5);
+                 return d[base.instanceId] ? d[base.instanceId].x + (this.boxSize * .5) : 0;
                })
                .attr('cy', (d) => {
-                 return d[base.instanceId].y + (this.boxSize * .5);
+                 return d[base.instanceId] ? d[base.instanceId].y + (this.boxSize * .5) : 0;
                })
                .attr('r', function(d, i) { return (i == 0) ? 5 : 3; });
 
@@ -2522,10 +2522,10 @@ window.scalarvis = { instanceCount: -1 };
                })
                .attr('class', 'pathDotText')
                .attr('dx', function(d) {
-                 return d[base.instanceId].x + 3;
+                 return d[base.instanceId] ? d[base.instanceId].x + 3 : 0;
                })
                .attr('dy', function(d) {
-                 return d[base.instanceId].y + this.boxSize - 3;
+                 return d[base.instanceId] ? d[base.instanceId].y + this.boxSize - 3 : 0;
                })
                .text(function(d, i) { return (i == 0) ? '' : i; });
 
@@ -2603,17 +2603,17 @@ window.scalarvis = { instanceCount: -1 };
          this.gridPathLayer.selectAll('path').attr('d', this.line);
          this.gridPathLayer.selectAll('circle.pathDot')
            .attr('cx', (d) => {
-             return d[base.instanceId].x + (this.boxSize * .5);
+             return d[base.instanceId] ? d[base.instanceId].x + (this.boxSize * .5) : 0;
            })
            .attr('cy', (d) => {
-             return d[base.instanceId].y + (this.boxSize * .5);
+             return d[base.instanceId] ? d[base.instanceId].y + (this.boxSize * .5) : 0;
            });
          this.gridPathLayer.selectAll('text.pathDotText')
            .attr('dx', (d) => {
-             return d[base.instanceId].x + 3;
+             return d[base.instanceId] ? d[base.instanceId].x + 3 : 0;
            })
            .attr('dy', (d) => {
-             return d[base.instanceId].y + this.boxSize - 3;
+             return d[base.instanceId] ? d[base.instanceId].y + this.boxSize - 3 : 0;
            });
 
          var visPos = base.visualization.position();
