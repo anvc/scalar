@@ -295,36 +295,40 @@ window.scalarvis = { instanceCount: -1 };
     };
 
     base.toggleInspector = function() {
-      base.inspectorVisible = !base.inspectorVisible;
-      if (base.inspectorVisible) {
-        base.inspector.removeClass('hidden');
-      } else {
-        base.inspector.addClass('hidden');
-      }
-      if (!base.visStarted) {
-        base.visualize();
-      } else {
-        base.filter();
-        base.draw();
+      if (!isMobile) {
+        base.inspectorVisible = !base.inspectorVisible;
+        if (base.inspectorVisible) {
+          base.inspector.removeClass('hidden');
+        } else {
+          base.inspector.addClass('hidden');
+        }
+        if (!base.visStarted) {
+          base.visualize();
+        } else {
+          base.filter();
+          base.draw();
+        }
       }
     }
 
     base.updateInspector = function() {
-      let visWidth = base.visElement.width();
-      if ((visWidth <= 700 && visWidth != 0) || base.getFormat() == 'word-cloud') {
-        if (base.inspectorVisible) {
-          base.toggleInspector();
+      if (!isMobile) {
+        let visWidth = base.visElement.width();
+        if ((visWidth <= 700 && visWidth != 0) || base.getFormat() == 'word-cloud') {
+          if (base.inspectorVisible) {
+            base.toggleInspector();
+          }
+          base.inspectorSpan.hide();
+        } else {
+          base.inspectorSpan.show();
         }
-        base.inspectorSpan.hide();
-      } else {
-        base.inspectorSpan.show();
-      }
-      base.inspector.empty();
-      if (base.selectedNodes.length > 0) {
-        let node = base.selectedNodes[base.selectedNodes.length - 1];
-        base.addInspectorInfoForNode(node);
-      } else {
-        base.inspector.append('<p>No items selected.</p>');
+        base.inspector.empty();
+        if (base.selectedNodes.length > 0) {
+          let node = base.selectedNodes[base.selectedNodes.length - 1];
+          base.addInspectorInfoForNode(node);
+        } else {
+          base.inspector.append('<p>No items selected.</p>');
+        }
       }
     }
 

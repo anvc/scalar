@@ -3216,7 +3216,7 @@
             <button  type="button" class="btn btn-default btn-md dropdown-toggle option-menu-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <span class="ellipsis"></span>
             </button>
-            <ul class="dropdown-menu option-menu-list"></ul>
+            <ul class="dropdown-menu dropdown-menu-right option-menu-list"></ul>
           </div>
         </div>`
       );
