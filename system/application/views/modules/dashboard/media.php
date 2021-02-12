@@ -297,18 +297,14 @@
 				<option value="">&nbsp;</option>
 				<optgroup label="Affiliated archives">
 					<option value="<?=$url_base?>import/critical_commons">Critical Commons</option>
-					<option value="<?=$url_base?>import/cuban_theater_digital_archive">Cuban Theater Digital Archive</option>
-					<option value="<?=$url_base?>import/hemispheric_institute">Hemispheric Institute</option>
 					<option value="<?=$url_base?>import/internet_archive">Internet Archive</option>
 					<option value="<?=$url_base?>import/shoah_foundation_vha_online">VHA Online</option>
 					<option value="<?=$url_base?>import/shoah_foundation_vha">VHA</option>
 				</optgroup>
 				<optgroup label="Other archives">
-					<option value="<?=$url_base?>import/the_metropolitan_museum_of_art">The Metropolitan Museum of Art</option>
 					<option value="<?=$url_base?>import/omeka">Omeka sites</option>
 					<option value="<?=$url_base?>import/omeka_s">Omeka S sites</option>
 					<option value="<?=$url_base?>import/soundcloud">SoundCloud</option>
-					<option value="<?=$url_base?>import/vimeo">Vimeo</option>
 					<option value="<?=$url_base?>import/youtube">YouTube</option>
 				</optgroup>
 				<optgroup label="Files, URLs">
