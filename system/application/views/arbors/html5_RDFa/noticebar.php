@@ -90,7 +90,7 @@ elseif (!empty($page->category) && in_array($page->category, $categories_display
 
 // Page or versions aren't visible
 if (isset($page->is_live) && !$page->is_live) {
-	echo '		<div class="error notice-hidden"><p>This page is hidden; viewable only by contributors. It can be removed in the Dashboard, or made visible again there or in the page editor.</p></div>'."\n";
+	echo '		<div class="error notice-hidden"><p>This page is hidden, viewable only by contributors. It can be removed in the Dashboard, or made visible there or in the page editor.</p></div>'."\n";
 }
 if ($view == 'versions' && $hide_versions) {
 	echo '		<div class="error notice-hidden"><p>Past versions are only viewable by '.$book->scope.' authors and editors.</p></div>'."\n";

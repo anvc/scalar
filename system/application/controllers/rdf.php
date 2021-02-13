@@ -274,7 +274,7 @@ class Rdf extends MY_Controller {
 				if (!empty($version)) $this->data['use_versions'][$content->content_id] = $version->version_id;
 			}
 			// Don't throw an error here if $content is empty, let through to return empty RDF
-			if (!empty($content) && !$content->is_live && !$this->login_is_book_admin($this->data['book']->book_id)) $content = null; // Protect
+			if (!empty($content) && !$content->is_live && !$this->login_is_book_admin($this->data['book']->book_id) && $content->user != $this->data['login']->user_id) $content = null; // Protect
 			$this->$object->index(
 			 						   $this->data['content'],
 									   array(

@@ -218,7 +218,6 @@ class MY_Controller extends CI_Controller {
 
 	/**
 	 * Test a user level against logged-in status
-	 * @param 	int $book_id
 	 * @param	str $level
 	 * @return 	bool
 	 */
@@ -232,14 +231,18 @@ class MY_Controller extends CI_Controller {
 
 	/**
 	 * Protect a book against a user level
-	 * @param 	int $book_id
 	 * @param	str	$level
 	 * @return 	null
 	 */
 
-	protected function protect_book($level='Editor') {
+	protected function protect_book($level='Editor', $user_id=0) {
 
-		if (!$this->login_is_book_admin($level)) $this->kickout();
+		$kickout = true;
+		 
+		if (!empty($user_id) && $this->data['login']->user_id == $user_id) $kickout = false;
+		if ($this->login_is_book_admin($level)) $kickout = false;
+		
+		if ($kickout) $this->kickout();
 
 	}
 

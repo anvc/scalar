@@ -109,7 +109,7 @@ class Book extends MY_Controller {
 			if ('login_status'==$this->data['url_params']['page_first_segment']) return $this->login_status();  // Ajax login check
 			// Load page based on slug
 			$page = $this->pages->get_by_slug($this->data['book']->book_id, $this->data['slug']);
-			if ($page && !$page->is_live) $this->protect_book('Reader');
+			if ($page && !$page->is_live) $this->protect_book('Reader', $page->user);
 			$page_not_found = false;
 			$this->data['tklabels'] = $this->tklabels();
 			if (!empty($page)) {
