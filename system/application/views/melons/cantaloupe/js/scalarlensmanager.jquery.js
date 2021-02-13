@@ -29,7 +29,11 @@
       if (this.loggedIn) {
         let temp = $('link#logged_in').attr('href').split('/');
         this.userId = parseInt(temp[temp.length - 1]);
-        if ((this.userLevel == 'reader' && this.myLenses.length < this.maxLenses) || this.userLevel != 'reader') {
+        var is_connected_to_book = ($('link#user_level').length) ? true : false;
+        if (!is_connected_to_book) {
+            this.addLensButton = $('<button class="btn btn-sm btn-primary">Add lens</button>').appendTo($('.my-private-lenses'));
+            this.addLensButton.on('click', () => { this.addLensByUserId() });
+      	} else if ((this.userLevel == 'reader' && this.myLenses.length < this.maxLenses) || this.userLevel != 'reader') {
           this.addLensButton = $('<button class="btn btn-sm btn-primary">Add lens</button>').appendTo($('.my-private-lenses'));
           this.addLensButton.on('click', () => { this.addLens() });
         } else {
@@ -70,7 +74,68 @@
 
   		scalarapi.savePage(data, () => { this.getLensData() }, error);
     }
+    
+    ScalarLensManager.prototype.addLensByUserId = function() {
+    	
+    	var data = {		
+    	    action : 'add',
+    		'dcterms:title' : 'Lens: Untitled',
+    		'dcterms:description' : '',  
+    		'sioc:content' : '',
+    		contents : JSON.stringify(this.getDefaultLensJson()),
+    		user : this.userId
+    	};
+    	
+    	$.ajax({
+    		type: "POST",
+    		url: $('link#parent').attr('href') + 'save_lens_page_by_user_id',
+    		data: data,
+    		success: function(json) {
+    			if ('undefined' != typeof(json['error'])) {
+    				alert('There was an error: ' + json['error']);
+    				return;
+    			};
+    			alert('Page created!');
+    		},
+    		error: function(err) {
+    			alert('There was an error connecting to the server');
+    		},
+    		dataType: 'json'
+    	});
+    	
+    }
 
+    ScalarLensManager.prototype.updateLensByUserID = function() {
+    	
+    	var data = {		
+        	action : 'update',
+        	'dcterms:title' : this.selectedLens.title,
+        	'dcterms:description' : '',  
+        	'sioc:content' : '',
+        	contents : JSON.stringify(this.selectedLens),
+        	user : this.userId,
+        	'scalar:urn': this.selectedLens.urn.replace('lens','version'),
+        };
+        	
+        $.ajax({
+        	type: "POST",
+        	url: $('link#parent').attr('href') + 'save_lens_page_by_user_id',
+        	data: data,
+        	success: function(json) {
+        		if ('undefined' != typeof(json['error'])) {
+        			alert('There was an error: ' + json['error']);
+        			return;
+        		};
+        		alert('Page created!');
+        	},
+        	error: function(err) {
+        		alert('There was an error connecting to the server');
+        	},
+        	dataType: 'json'
+        });
+    	
+    }
+    
     ScalarLensManager.prototype.getDefaultLensJson = function(){
       return {
         "submitted": false,

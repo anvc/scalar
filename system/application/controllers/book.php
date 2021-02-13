@@ -323,6 +323,94 @@ class Book extends MY_Controller {
 		exit;
 
 	}
+	
+	// Save new, hidden Lens pages based on a logged-in-user's ID
+	// This is a special case; we didn't want to corrupt the security of the Save API and its native (session) vs non-native (api_key) authentication
+	private function save_lens_page_by_user_id() {
+		
+		header('Content-type: application/json');
+		$return = array();
+		$this->load->model('lens_model', 'lenses');
+		
+		try {
+			
+			// Either logged in or not
+			$action      =@ trim($_POST['action']);
+			$title       =@ trim($_POST['dcterms:title']);
+			$description =@ trim($_POST['dcterms:description']);
+			$content     =@ trim($_POST['sioc:content']);
+			$lens 		 =@ trim($_POST['contents']);
+			$user_id     =@ (int) trim($_POST['user']);
+			
+			if (empty($action)) throw new Exception('Action is a required field');
+			if (empty($title)) throw new Exception('Lens title is a required field');
+			if (empty($lens)) throw new Exception('Lens content is a required field');
+			if (empty($user_id)) throw new Exception('User is a required field');
+			
+			$user = $this->users->get_by_user_id($user_id);
+			if (!$user) throw new Exception('Could not find user');
+			if ($user->user_id != $this->data['login']->user_id) throw new Exception('Could not match your user ID with your login session.  You could be logged out.');
+			$fullname = $user->fullname;
+			if (empty($fullname)) throw new Exception('Logged in user does not have a name');
+			
+			if ('add' == $action) {
+				
+				// Save page
+				$save = array();
+				$save['book_id'] = $this->data['book']->book_id;
+				$save['user_id'] = $user_id;
+				$save['title'] = $title;    // for creating slug
+				$save['type'] = 'composite';
+				$save['is_live'] = 0;
+				$content_id = $this->pages->create($save);
+				if (empty($content_id)) throw new Exception('Could not save the new content');
+				
+				// Save version
+				$save = array();
+				$save['user_id'] = $user_id;
+				$save['title'] = $title;
+				$save['description'] = $description;
+				$save['content'] = $content;
+				$save['attribution'] = $this->versions->build_attribution($fullname, $this->input->server('REMOTE_ADDR'));
+				$version_id = $this->versions->create($content_id, $save);
+				if (empty($version_id)) throw new Exception('Could not save the new version');  // TODO: delete prev made content
+				
+				// Save relation
+				if (!$this->lenses->save_children($version_id, array($lens))) throw new Exception('Could not save relation');
+				
+			} elseif ('update' == $action) {
+				
+				// Content ID
+				$urn        =@ trim($_POST['scalar:urn']);
+				if (empty($urn)) throw new Exception('scalar:urn is a required field');
+				$content_id = array_pop(explode(':', $urn)); 
+				
+				// Save version
+				$save = array();
+				$save['user_id'] = $user_id;
+				$save['title'] = $title;
+				$save['description'] = $description;
+				$save['content'] = $content;
+				$save['attribution'] = $this->versions->build_attribution($fullname, $this->input->server('REMOTE_ADDR'));
+				$version_id = $this->versions->create($content_id, $save);
+				if (empty($version_id)) throw new Exception('Could not save the new version');  // TODO: delete prev made content
+				
+				// Save relation
+				if (!$this->lenses->save_children($version_id, array($lens))) throw new Exception('Could not save relation');
+				
+			} else {
+				throw new Exception('Invalid action');
+			}
+			
+		} catch (Exception $e) {
+			$return['error'] =  $e->getMessage();
+		}
+		
+		echo json_encode($return);
+		exit;
+		
+		
+	}
 
 	// Tags (list all tags in cloud)
 	private function tags() {

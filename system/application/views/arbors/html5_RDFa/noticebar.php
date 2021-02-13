@@ -25,7 +25,7 @@ if(!$page_by_contributor){  // Don't designate an attribution if the page is by 
 }
 
 // Version has an attribution and should therefore state that it's by that other author
-if (!empty($attribution)) {
+if (!empty($attribution) && (!isset($page->versions[$page->version_index]->is_lens_of) || empty($page->versions[$page->version_index]->is_lens_of))) {
 	// Figure out what to call the page
 	$page_name = ($page->type=='composite')?'page':'content';
 	if (!empty($page->versions[$page->version_index]->path_of)) $page_name = 'path';
