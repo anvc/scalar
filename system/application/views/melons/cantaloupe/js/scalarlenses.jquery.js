@@ -138,6 +138,7 @@
       this.userId = 'unknown';
       if ($('link#logged_in').length > 0) {
         this.userId = $('link#logged_in').attr('href');
+        this.userId = parseInt(this.userId.substr(this.userId.lastIndexOf('/')+1));
       }
 
       if (this.options.lens) {
@@ -3795,7 +3796,7 @@
         if (this.userId == this.scalarLensObject.user_id) {
           this.canSave = true;
         }
-      } else if (this.userId != 'unknown' && this.user_level == 'unknown') { // reader not added to the book
+      } else if (this.userId != 'unknown' && this.userLevel == 'unknown') { // reader not added to the book
         if (this.userId == this.scalarLensObject.user_id) {
           this.canSave = true;
         }
@@ -3804,6 +3805,12 @@
 
     ScalarLenses.prototype.saveLens = function(successHandler){
       //console.log(JSON.stringify(this.scalarLensObject, null, 2));
+    	
+      if (this.userId != 'unknown' && this.userLevel == 'unknown') {  // reader not added to the book
+    	  this.updateLensByUserId(successHandler);
+    	  return;
+      }
+    	
       this.scalarLensObject.user_level = this.userLevel;
       this.baseURL = $('link#parent').attr('href');
       if (this.canSave == true) {
@@ -3833,6 +3840,38 @@
       } else {
         $('#duplicate-copy-prompt').addClass('show-lens-prompt');
       }
+    }
+    
+    ScalarLenses.prototype.updateLensByUserId = function(successHandler) {
+    	
+    	var data = {		
+        	action : 'update',
+        	'dcterms:title' : this.scalarLensObject.title,
+        	'dcterms:description' : '',  
+        	'sioc:content' : '',
+        	contents : JSON.stringify(this.scalarLensObject),
+        	user : this.userId,
+        	'scalar:urn': this.scalarLensObject.urn.replace('lens','version'),
+        };
+        	
+        $.ajax({
+        	type: "POST",
+        	url: $('link#parent').attr('href') + 'save_lens_page_by_user_id',
+        	data: data,
+        	success: function(json) {
+        		if ('undefined' != typeof(json['error'])) {
+        			alert('There was an error: ' + json['error']);
+        			return;
+        		};
+                $('body').trigger('lensUpdated', this.scalarLensObject);
+                if (successHandler) successHandler();
+        	},
+        	error: function(err) {
+        		alert('There was an error connecting to the server');
+        	},
+        	dataType: 'json'
+        });
+    	
     }
 
     ScalarLenses.prototype.handleContentSelected = function(nodes){

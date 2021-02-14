@@ -378,12 +378,25 @@ class Book extends MY_Controller {
 				// Save relation
 				if (!$this->lenses->save_children($version_id, array($lens))) throw new Exception('Could not save relation');
 				
+				$_content = $this->pages->get($content_id);
+				$return['slug'] = $_content->slug;
+				
 			} elseif ('update' == $action) {
 				
-				// Content ID
-				$urn        =@ trim($_POST['scalar:urn']);
-				if (empty($urn)) throw new Exception('scalar:urn is a required field');
-				$content_id = array_pop(explode(':', $urn)); 
+				// Version ID
+				$version_urn =@ trim($_POST['scalar:urn']);
+				if (empty($version_urn)) throw new Exception('scalar:urn is a required field');
+				$arr = explode(':', $version_urn);
+				$version_id = (int) array_pop($arr);
+				$version = $this->versions->get($version_id, null, false);
+				if (empty($version)) throw new Exception('Could not find version');
+				
+				// Content_id
+				$content_id = (int) $version->content_id;
+				$_content = $this->pages->get($content_id);
+				if (empty($_content)) throw new Exception('Could not find content');
+				if ($_content->user != $user_id) throw new Exception('Only the creator of the page can edit the page');
+				$return['slug'] = $_content->slug;
 				
 				// Save version
 				$save = array();
@@ -395,7 +408,7 @@ class Book extends MY_Controller {
 				$version_id = $this->versions->create($content_id, $save);
 				if (empty($version_id)) throw new Exception('Could not save the new version');  // TODO: delete prev made content
 				
-				// Save relation
+				// Save Lens relation
 				if (!$this->lenses->save_children($version_id, array($lens))) throw new Exception('Could not save relation');
 				
 			} else {
@@ -408,7 +421,6 @@ class Book extends MY_Controller {
 		
 		echo json_encode($return);
 		exit;
-		
 		
 	}
 

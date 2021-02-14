@@ -77,12 +77,15 @@
     
     ScalarLensManager.prototype.addLensByUserId = function() {
     	
+    	var json = this.getDefaultLensJson();
+    	json.user_id = this.userId;
+    	
     	var data = {		
     	    action : 'add',
     		'dcterms:title' : 'Lens: Untitled',
     		'dcterms:description' : '',  
     		'sioc:content' : '',
-    		contents : JSON.stringify(this.getDefaultLensJson()),
+    		contents : JSON.stringify(json),
     		user : this.userId
     	};
     	
@@ -95,44 +98,14 @@
     				alert('There was an error: ' + json['error']);
     				return;
     			};
-    			alert('Page created!');
+    			var url = $('link#parent').attr('href') + json['slug'];
+    			window.open(url, '_blank');
     		},
     		error: function(err) {
     			alert('There was an error connecting to the server');
     		},
     		dataType: 'json'
     	});
-    	
-    }
-
-    ScalarLensManager.prototype.updateLensByUserID = function() {
-    	
-    	var data = {		
-        	action : 'update',
-        	'dcterms:title' : this.selectedLens.title,
-        	'dcterms:description' : '',  
-        	'sioc:content' : '',
-        	contents : JSON.stringify(this.selectedLens),
-        	user : this.userId,
-        	'scalar:urn': this.selectedLens.urn.replace('lens','version'),
-        };
-        	
-        $.ajax({
-        	type: "POST",
-        	url: $('link#parent').attr('href') + 'save_lens_page_by_user_id',
-        	data: data,
-        	success: function(json) {
-        		if ('undefined' != typeof(json['error'])) {
-        			alert('There was an error: ' + json['error']);
-        			return;
-        		};
-        		alert('Page created!');
-        	},
-        	error: function(err) {
-        		alert('There was an error connecting to the server');
-        	},
-        	dataType: 'json'
-        });
     	
     }
     
