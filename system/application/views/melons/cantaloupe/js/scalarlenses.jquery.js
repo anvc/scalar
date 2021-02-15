@@ -3809,6 +3809,9 @@
       if (this.userId != 'unknown' && this.userLevel == 'unknown') {  // reader not added to the book
     	  this.updateLensByUserId(successHandler);
     	  return;
+      } else if (this.userLevel == 'scalar:Reader') {  // reader added to the book
+    	  this.updateLensByUserId(successHandler);
+    	  return;
       }
     	
       this.scalarLensObject.user_level = this.userLevel;

@@ -33,7 +33,10 @@
         if (!is_connected_to_book) {
             this.addLensButton = $('<button class="btn btn-sm btn-primary">Add lens</button>').appendTo($('.my-private-lenses'));
             this.addLensButton.on('click', () => { this.addLensByUserId() });
-      	} else if ((this.userLevel == 'reader' && this.myLenses.length < this.maxLenses) || this.userLevel != 'reader') {
+      	} else if ((this.userLevel == 'scalar:Reader' && this.myLenses.length < this.maxLenses)) {
+          this.addLensButton = $('<button class="btn btn-sm btn-primary">Add lens</button>').appendTo($('.my-private-lenses'));
+          this.addLensButton.on('click', () => { this.addLensByUserId() });
+      	} else if (this.userLevel != 'scalar:Reader') {
           this.addLensButton = $('<button class="btn btn-sm btn-primary">Add lens</button>').appendTo($('.my-private-lenses'));
           this.addLensButton.on('click', () => { this.addLens() });
         } else {

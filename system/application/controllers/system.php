@@ -138,7 +138,7 @@ class System extends MY_Controller {
 			$this->set_user_book_perms();
 			$is_book_admin = $this->login_is_book_admin();
 			$logged_in_user_id = (isset($this->data['login']->user_id)) ? (int) $this->data['login']->user_id : 0;
-			$lenses = $this->lenses->get_all_with_lens($book_id);
+			$lenses = $this->lenses->get_all_with_lens($book_id, null, null, false);
 			$this->data['content'] = array();
 			for ($j = count($lenses)-1; $j >= 0; $j--) {
 				$lens = json_decode($lenses[$j]->lens);
