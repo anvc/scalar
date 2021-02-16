@@ -80,6 +80,7 @@
     
     ScalarLensManager.prototype.addLensByUserId = function() {
     	
+    	var self = this;
     	var json = this.getDefaultLensJson();
     	json.user_id = this.userId;
     	
@@ -102,7 +103,7 @@
     				return;
     			};
     			var url = $('link#parent').attr('href') + json['slug'];
-    			window.open(url, '_blank');
+    			self.getLensData();
     		},
     		error: function(err) {
     			alert('There was an error connecting to the server');
