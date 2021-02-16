@@ -3592,27 +3592,27 @@
         });
       } else {
         let data = [];
-        let defaultProps = ['title', 'slug', 'description', 'content', 'created', 'author', 'baseType', 'url', 'urn'];
+        let defaultProps = ['dcterms:title', 'scalar:slug', 'dcterms:description', 'sioc:content', 'dcterms:created', 'scalar:author', 'scalar:baseType', 'scalar:url', 'scalar:urn'];
         let keys = defaultProps.concat();
         for (var url in this.lastResults.items) {
           if (scalarapi.model.nodesByURL[url] != null) {
             let node = scalarapi.model.nodesByURL[url];
             let datum = {
-              title: node.title,
-              slug: node.slug,
-              description: node.current.description,
-              //content: node.current.content,
-              created: node.current.created,
-              author: node.current.author,
-              baseType: [node.baseType],
-              url: node.url,
-              urn: node.current.urn
+              "dcterms:title": node.title,
+              "scalar:slug": node.slug,
+              "dcterms:description": node.current.description,
+              "dcterms:created": node.current.created,
+              "scalar:author": node.current.author,
+              "scalar:baseType": [node.baseType],
+              "scalar:url": node.url,
+              "scalar:urn": node.current.urn
             };
             scalarapi.model.versionPropertyMap.forEach(propData => {
               if (node.current.properties[propData.uri]) {
                 for (let i in node.current.properties[propData.uri]) {
                   let value = node.current.properties[propData.uri][i];
-                  let propName = propData.property;
+                  //let propName = propData.property;
+                  let propName = scalarapi.toNS(propData.uri);
                   if (defaultProps.indexOf(propName) == -1) {
                     if (!datum[propName]) {
                       datum[propName] = [];
@@ -3805,7 +3805,7 @@
 
     ScalarLenses.prototype.saveLens = function(successHandler){
       //console.log(JSON.stringify(this.scalarLensObject, null, 2));
-    	
+
       if (this.userId != 'unknown' && this.userLevel == 'unknown') {  // reader not added to the book
     	  this.updateLensByUserId(successHandler);
     	  return;
@@ -3813,7 +3813,7 @@
     	  this.updateLensByUserId(successHandler);
     	  return;
       }
-    	
+
       this.scalarLensObject.user_level = this.userLevel;
       this.baseURL = $('link#parent').attr('href');
       if (this.canSave == true) {
@@ -3844,19 +3844,19 @@
         $('#duplicate-copy-prompt').addClass('show-lens-prompt');
       }
     }
-    
+
     ScalarLenses.prototype.updateLensByUserId = function(successHandler) {
-    	
-    	var data = {		
+
+    	var data = {
         	action : 'update',
         	'dcterms:title' : this.scalarLensObject.title,
-        	'dcterms:description' : '',  
+        	'dcterms:description' : '',
         	'sioc:content' : '',
         	contents : JSON.stringify(this.scalarLensObject),
         	user : this.userId,
         	'scalar:urn': this.scalarLensObject.urn.replace('lens','version'),
         };
-        	
+
         $.ajax({
         	type: "POST",
         	url: $('link#parent').attr('href') + 'save_lens_page_by_user_id',
@@ -3874,7 +3874,7 @@
         	},
         	dataType: 'json'
         });
-    	
+
     }
 
     ScalarLenses.prototype.handleContentSelected = function(nodes){

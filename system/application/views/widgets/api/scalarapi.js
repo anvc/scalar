@@ -1171,6 +1171,15 @@ ScalarAPI.prototype.decimalSecondsToHMMSS = function(seconds, showMilliseconds) 
 	//return h + 'h ' + mString + 'm ' + sString + 's';
 }
 
+ScalarAPI.prototype.toNS = function(uri) {
+  for (var prefix in scalarapi.model.namespaces) {
+    if (scalarapi.model.namespaces[prefix] == uri.substr(0,scalarapi.model.namespaces[prefix].length)) {
+      return uri.replace(scalarapi.model.namespaces[prefix], prefix+':');
+    }
+  }
+  return false;
+};
+
 /**
  * saveManyRelations, queueManyRelations, runManyRelations
  * A basic Ajax queue for saving relationships, as the save API presently saves one relationship at a time
@@ -3736,7 +3745,7 @@ ScalarVersion.prototype.parseData = function(data, node) {
 	// populate auxiliary properties
 	var notAuxPropBecauseOfPrefix = function(uri) {
 		var prefixes = ['tk'];
-		var prefix = toNS(uri).split(':')[0];
+		var prefix = scalarapi.toNS(uri).split(':')[0];
 		if (prefixes.indexOf(prefix) != -1) return true;
 		return false;
 	};
@@ -3746,19 +3755,11 @@ ScalarVersion.prototype.parseData = function(data, node) {
 		}
 		return false;
 	};
-	var toNS = function(uri) {
-		for (var prefix in scalarapi.model.namespaces) {
-			if (scalarapi.model.namespaces[prefix] == uri.substr(0,scalarapi.model.namespaces[prefix].length)) {
-				return uri.replace(scalarapi.model.namespaces[prefix], prefix+':');
-			}
-		}
-		return false;
-	};
 	for (var p in data.json) {
-		if (isVersionProperty(p) || !toNS(p) || notAuxPropBecauseOfPrefix(p)) continue;
-		if (this.auxProperties[toNS(p)] == null) this.auxProperties[toNS(p)] = [];
+		if (isVersionProperty(p) || !scalarapi.toNS(p) || notAuxPropBecauseOfPrefix(p)) continue;
+		if (this.auxProperties[scalarapi.toNS(p)] == null) this.auxProperties[scalarapi.toNS(p)] = [];
 		for (j = 0; j < data.json[p].length; j++) {
-			this.auxProperties[toNS(p)].push(data.json[p][j].value);
+			this.auxProperties[scalarapi.toNS(p)].push(data.json[p][j].value);
 		}
 	}
 
