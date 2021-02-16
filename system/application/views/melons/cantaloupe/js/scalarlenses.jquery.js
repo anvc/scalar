@@ -3601,6 +3601,7 @@
               "dcterms:title": node.title,
               "scalar:slug": node.slug,
               "dcterms:description": node.current.description,
+              "sioc:content": node.current.content,
               "dcterms:created": node.current.created,
               "scalar:author": node.current.author,
               "scalar:baseType": [node.baseType],
@@ -3611,7 +3612,6 @@
               if (node.current.properties[propData.uri]) {
                 for (let i in node.current.properties[propData.uri]) {
                   let value = node.current.properties[propData.uri][i];
-                  //let propName = propData.property;
                   let propName = scalarapi.toNS(propData.uri);
                   if (defaultProps.indexOf(propName) == -1) {
                     if (!datum[propName]) {
