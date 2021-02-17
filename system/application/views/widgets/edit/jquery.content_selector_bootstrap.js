@@ -2812,6 +2812,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				var type_display_name = 'Users';
 			} else if  (scalarapi.model.scalarTypes[opts.types[t]]) {
 				var type_display_name = scalarapi.model.scalarTypes[opts.types[t]].plural;
+				type_display_name = type_display_name.charAt(0).toUpperCase() + type_display_name.slice(1);
 			} else {
 				var type_display_name = opts.types[t].charAt(0).toUpperCase() + opts.types[t].slice(1);
 			}
