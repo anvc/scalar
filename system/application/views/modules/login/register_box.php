@@ -13,7 +13,7 @@ $this->template->add_js("\nvar strong_password_enabled=".$this->config->item('st
 <?$this->template->add_js('system/application/views/arbors/admin/admin.js')?>
 <script>
 $(document).ready(function() {
-$('input[name="password"]').on('keyup', function() {
+	$('input[name="password"]').on('keyup', function() {
 	    if (!strong_password_enabled) return;
 		var passwd = $(this).val();
 		var $bar = $('.strong_password_bar');

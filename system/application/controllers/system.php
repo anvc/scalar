@@ -328,6 +328,7 @@ class System extends MY_Controller {
 		$this->login->do_logout(true);
 		$this->data['title'] = $this->lang->line('install_name').': Reset Password';
 		$this->data['norobots'] = true;
+		$this->data['create_login_error'] = null;
 
 		$reset_string =@ $_REQUEST['key'];
 		if (empty($reset_string)) header('Location: '.base_url());
@@ -351,10 +352,11 @@ class System extends MY_Controller {
 					try {
 						$this->users->set_password_from_form_fields($user->user_id, $_POST);
 						$this->users->save_reset_string($user->user_id, '');
+						header('Location: '.confirm_slash(base_url()).'system/login?msg=2');
+						exit;
 					} catch (Exception $e) {
 	    				$this->data['create_login_error'] = $e->getMessage();
 					}
-					header('Location: '.confirm_slash(base_url()).'system/login?msg=2');
 				}
 			}
 		}
