@@ -169,6 +169,7 @@ class User_model extends MY_Model {
         $uname_field = $this->config->item('ldap_uname_field');
         $filter = $this->config->item('ldap_filter');
         $use_ad = $this->config->item('use_ad_ldap');
+        $set_referrals = $this->config->item('set_ldap_referrals');
         $ad_bind_user = $this->config->item('ad_bind_user');
         $ad_bind_pass = $this->config->item('ad_bind_pass');
 
@@ -183,9 +184,8 @@ class User_model extends MY_Model {
 
         ldap_set_option($ldapCon, LDAP_OPT_PROTOCOL_VERSION, 3);
 
-        if ( $use_ad === true ) {
-            ldap_set_option($ldapCon, LDAP_OPT_REFERRALS, 0);
-        }
+        if( $set_referrals !== null )
+            ldap_set_option($ldapCon, LDAP_OPT_REFERRALS, (int) $set_referrals );
 
         if ( !ldap_start_tls($ldapCon) ) {
             throw new Exception('Unable to start TLS on LDAP connection');
