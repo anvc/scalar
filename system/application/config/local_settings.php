@@ -101,6 +101,12 @@ $config['ldap_filter'] = (getenv('SCALAR_LDAP_FILTER') ? getenv('SCALAR_LDAP_FIL
 $config['use_ad_ldap'] = (getenv('SCALAR_USE_AD_LDAP') ? getenv('SCALAR_USE_AD_LDAP') : false);  // Default: off
 $config['ad_bind_user'] = (getenv('SCALAR_AD_BIND_USER') ? getenv('SCALAR_AD_BIND_USER') : "");  // Use LDAP Distinguished Name
 $config['ad_bind_pass'] = (getenv('SCALAR_AD_BIND_PASS') ? getenv('SCALAR_AD_BIND_PASS') : "");
+   // explicity enable/disable ldap referrals. Expects 1 or 0. If not set, defaults to previous behavior, which is:
+   // if AD is active, turn referrals OFF, otherwise, don't set the value
+if( getenv('SCALAR_SET_LDAP_REFERRALS') )
+	$config['set_ldap_referrals'] = getenv('SCALAR_SET_LDAP_REFERRALS');
+else
+	$config['set_ldap_referrals'] = ($config['use_ad_ldap']) ? 0 : null;	
 
 // Emails
 $config['email_replyto_address'] = (getenv('SCALAR_EMAIL_REPLYTO_ADDRESS') ? getenv('SCALAR_EMAIL_REPLYTO_ADDRESS') : ''); 
