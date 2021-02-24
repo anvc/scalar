@@ -146,6 +146,7 @@ class System extends MY_Controller {
 				$user_level = (isset($lens->user_level)) ? $lens->user_level : null;
 				$user_id = (int) $lenses[$j]->user;  // This is the creator of the content node
 				$lens->user_id = $user_id;
+				$lens->hidden = ($lenses[$j]->is_live) ? false : true;
 				if ($is_book_admin && $user_level == 'scalar:Author') {
 					$this->data['content'][] = $lens;
 				} elseif ($is_public) {
@@ -177,8 +178,8 @@ class System extends MY_Controller {
 				if (empty($this->data['book'])) die ('{"error":"Could not find a book associated with the JSON payload"}');
 				// Get items from JSON
 				$json['items'] = $this->lenses->get_nodes_from_json($book_id, $json, confirm_slash(base_url()).$this->data['book']->slug);
-				// Return version title and slug
 				if (isset($json['urn'])) {
+					// Return version title and slug
 					$urn_arr = explode(':', $json['urn']);
 					$version_id = $urn_arr[count($urn_arr)-1];
 					$version = $this->versions->get($version_id, '', false);
@@ -186,6 +187,9 @@ class System extends MY_Controller {
 						$json['title'] = $version->title;
 						$page = $this->pages->get($version->content_id);
 						$json['slug'] = $page->slug;
+						// Hidden or not
+						$content = $this->pages->get($version->content_id);
+						$json['hidden'] = ($content->is_live) ? false : true;
 					}
 				}
 				// Return users

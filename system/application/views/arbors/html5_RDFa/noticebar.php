@@ -90,7 +90,11 @@ elseif (!empty($page->category) && in_array($page->category, $categories_display
 
 // Page or versions aren't visible
 if (isset($page->is_live) && !$page->is_live) {
-	echo '		<div class="error notice-hidden"><p>This page is hidden, viewable only by contributors. It can be removed in the Dashboard, or made visible there or in the page editor.</p></div>'."\n";
+	if (isset($page->versions[$page->version_index]->is_lens_of) && !empty($page->versions[$page->version_index]->is_lens_of)) {
+		echo '		<div class="notice"><p>This Lens is hidden, viewable only by contributors.</p></div>'."\n";
+	} else {
+		echo '		<div class="error notice-hidden"><p>This page is hidden, viewable only by contributors. It can be removed in the Dashboard, or made visible there or in the page editor.</p></div>'."\n";
+	}
 }
 if ($view == 'versions' && $hide_versions) {
 	echo '		<div class="error notice-hidden"><p>Past versions are only viewable by '.$book->scope.' authors and editors.</p></div>'."\n";
