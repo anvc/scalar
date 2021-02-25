@@ -3617,7 +3617,11 @@
                       datum[propName] = [];
                       if (keys.indexOf(propName) == -1) keys.push(propName);
                     }
-                    datum[propName].push(value.value);
+                    let proxyValue = value.value;
+                    if (propName == 'prov:wasAttributedTo') {
+                      proxyValue = $('link#parent').attr('href') + proxyValue;
+                    }
+                    datum[propName].push(proxyValue);
                   }
                 }
               }
