@@ -3592,7 +3592,8 @@
         });
       } else {
         let data = [];
-        let defaultProps = ['dcterms:title', 'scalar:slug', 'dcterms:description', 'sioc:content', 'dcterms:created', 'scalar:author', 'scalar:baseType', 'scalar:url', 'scalar:urn'];
+        let defaultProps = ['dcterms:title', 'scalar:slug', 'dcterms:description', 'sioc:content', 'dcterms:created', 'scalar:url', 'scalar:urn'];
+        let propsToIgnore = ['rdf:type','scalar:baseType','scalar:defaultView']
         let keys = defaultProps.concat();
         for (var url in this.lastResults.items) {
           if (scalarapi.model.nodesByURL[url] != null) {
@@ -3603,8 +3604,6 @@
               "dcterms:description": node.current.description,
               "sioc:content": node.current.content,
               "dcterms:created": node.current.created,
-              "scalar:author": node.current.author,
-              "scalar:baseType": [node.baseType],
               "scalar:url": node.url,
               "scalar:urn": node.current.urn
             };
@@ -3613,7 +3612,7 @@
                 for (let i in node.current.properties[propData.uri]) {
                   let value = node.current.properties[propData.uri][i];
                   let propName = scalarapi.toNS(propData.uri);
-                  if (defaultProps.indexOf(propName) == -1) {
+                  if (defaultProps.indexOf(propName) == -1 && propsToIgnore.indexOf(propName) == -1) {
                     if (!datum[propName]) {
                       datum[propName] = [];
                       if (keys.indexOf(propName) == -1) keys.push(propName);
