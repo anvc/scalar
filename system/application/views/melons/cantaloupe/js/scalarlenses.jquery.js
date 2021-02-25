@@ -3592,8 +3592,8 @@
         });
       } else {
         let data = [];
-        let defaultProps = ['dcterms:title', 'scalar:slug', 'dcterms:description', 'sioc:content', 'dcterms:created', 'scalar:url', 'scalar:urn'];
-        let propsToIgnore = ['rdf:type','scalar:baseType','scalar:defaultView']
+        let defaultProps = ['dcterms:title', 'scalar:slug', 'dcterms:description', 'sioc:content', 'dcterms:created', 'cp:url', 'scalar:urn'];
+        let propsToIgnore = ['rdf:type','scalar:baseType','scalar:defaultView','scalar:url']
         let keys = defaultProps.concat();
         for (var url in this.lastResults.items) {
           if (scalarapi.model.nodesByURL[url] != null) {
@@ -3604,7 +3604,7 @@
               "dcterms:description": node.current.description,
               "sioc:content": node.current.content,
               "dcterms:created": node.current.created,
-              "scalar:url": node.url,
+              "cp:url": node.url,
               "scalar:urn": node.current.urn
             };
             scalarapi.model.versionPropertyMap.forEach(propData => {
