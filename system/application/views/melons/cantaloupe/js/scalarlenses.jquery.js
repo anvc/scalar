@@ -3391,13 +3391,17 @@
 
     ScalarLenses.prototype.createItemFromLens = function(itemType) {
       let relation = scalarapi.model.relationTypes[itemType].outgoingRel;
+      let title = this.scalarLensObject.title + ' (' + itemType + ')';
+      if (title.indexOf('Lens: ') != -1) {
+        title = title.substr(6);
+      }
       if (relation) {
         let data = {
   				'action': 'ADD',
   				'native': '1',
   				'id': this.userId,
   				'api_key': '',
-  				'dcterms:title': this.scalarLensObject.title + ' (' + itemType + ')',
+  				'dcterms:title': title,
   				'dcterms:description': '',
   				'sioc:content': '',
   				'rdf:type': 'http://scalar.usc.edu/2012/01/scalar-ns#Composite',
