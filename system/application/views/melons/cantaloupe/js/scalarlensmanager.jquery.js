@@ -60,6 +60,7 @@
 				'dcterms:title': 'Lens: Untitled',
 				'dcterms:description': 'A snapshot of the content of this project.',
 				'sioc:content': '',
+        'scalar:metadata:is_live': '0',
 				'rdf:type': 'http://scalar.usc.edu/2012/01/scalar-ns#Composite',
         'scalar:child_urn': 'urn:scalar:book:' + this.bookId,
         'scalar:child_type': 'http://scalar.usc.edu/2012/01/scalar-ns#Book',
@@ -85,10 +86,11 @@
     	json.user_id = this.userId;
 
     	var data = {
-    	    action : 'add',
+    	   action : 'add',
     		'dcterms:title' : 'Lens: Untitled',
     		'dcterms:description' : '',
     		'sioc:content' : '',
+        'scalar:metadata:is_live': '0',
     		contents : JSON.stringify(json),
     		user : this.userId
     	};

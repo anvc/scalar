@@ -3278,22 +3278,22 @@
           case 'make-public':
             me.scalarLensObject.hidden = false;
             $(menuOptions).find('li').text()
-            me.saveLens(() => me.getLensResults(me.scalarLensObject, (e) => {
+            me.saveLens(() => me.getLensResults(me.scalarLensObject, (evt, lens) => {
               if (scalarapi.model.getCurrentPageNode()) {
                 location.reload();
               } else {
-                me.options.onLensResults(e)
+                me.options.onLensResults(evt, lens)
               }
             }));
           break;
 
           case 'make-private':
             me.scalarLensObject.hidden = true;
-            me.saveLens(() => me.getLensResults(me.scalarLensObject, () => {
+            me.saveLens(() => me.getLensResults(me.scalarLensObject, (evt, lens) => {
               if (scalarapi.model.getCurrentPageNode()) {
                 location.reload();
               } else {
-                me.options.onLensResults(e)
+                me.options.onLensResults(evt, lens)
               }
             }));
             break;
@@ -3835,13 +3835,13 @@
         	type: "POST",
         	url: $('link#parent').attr('href') + 'save_lens_page_by_user_id',
         	data: data,
-        	success: function(json) {
+        	success: (json) => {
         		if ('undefined' != typeof(json['error'])) {
         			alert('There was an error: ' + json['error']);
         			return;
         		};
-                $('body').trigger('lensUpdated', this.scalarLensObject);
-                if (successHandler) successHandler();
+            $('body').trigger('lensUpdated', this.scalarLensObject);
+            if (successHandler) successHandler();
         	},
         	error: function(err) {
         		alert('There was an error connecting to the server');
