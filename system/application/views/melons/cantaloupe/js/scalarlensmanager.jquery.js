@@ -77,22 +77,22 @@
 
   		scalarapi.savePage(data, () => { this.getLensData() }, error);
     }
-    
+
     ScalarLensManager.prototype.addLensByUserId = function() {
-    	
+
     	var self = this;
     	var json = this.getDefaultLensJson();
     	json.user_id = this.userId;
-    	
-    	var data = {		
+
+    	var data = {
     	    action : 'add',
     		'dcterms:title' : 'Lens: Untitled',
-    		'dcterms:description' : '',  
+    		'dcterms:description' : '',
     		'sioc:content' : '',
     		contents : JSON.stringify(json),
     		user : this.userId
     	};
-    	
+
     	$.ajax({
     		type: "POST",
     		url: $('link#parent').attr('href') + 'save_lens_page_by_user_id',
@@ -110,13 +110,13 @@
     		},
     		dataType: 'json'
     	});
-    	
+
     }
-    
+
     ScalarLensManager.prototype.getDefaultLensJson = function(){
       return {
         "submitted": false,
-        "public": false,
+        "hidden": true,
         "frozen": false,
         "frozen-items": [],
         "visualization": {
@@ -312,7 +312,7 @@
           lens.submitted = true; // temporary
           this.count++;
         }*/
-        if (lens.public) {
+        if (!lens.hidden) {
           publicLensArray.push(lens);
         } else {
           if (lens.user_id == this.userId) {

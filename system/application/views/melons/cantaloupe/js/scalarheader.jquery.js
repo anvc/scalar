@@ -1668,7 +1668,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             $('#lenses_menu').remove();
           } else {
             data.forEach(lens => {
-              if (lens.public) {
+              if (!lens.hidden) {
                 publicLensArray.push(lens);
               } else if (lens.user_id == base.userId) {
                 privateLensArray.push(lens);
@@ -1699,7 +1699,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
 
             // public lenses
             if (publicLensArray.length > 0) {
-              lensMenu.append('<li class="header"><h2>Author Lenses</h2></li>');
+              lensMenu.append('<li class="header"><h2>Public Lenses</h2></li>');
               publicLensArray.forEach(publicLensItem => {
                 let vizType = publicLensItem.visualization.type;
                 let lensLink = $('link#parent').attr('href') + publicLensItem.slug;

@@ -177,7 +177,7 @@
       return {
         "urn": $('link#urn').attr('href').replace("version", "lens"),
         "submitted": false,
-        "public": false,
+        "hidden": true,
         "frozen": false,
         "frozen-items": [],
         "visualization": {
@@ -3245,28 +3245,22 @@
         {label: "Export to CSV", value: "export-lens"}
       )
 
-      if (header) {
-        if (header.okToDelete) {
-          menuOptions.push({label: "Hide lens", value: "delete-lens"});
-        }
-      }
-
       switch(userLevel){
         case 'scalar:Author':
           menuOptions.unshift(
             {label: "Make public", value: "make-public"},
           )
-          if(me.scalarLensObject.public === true){
+          if(!me.scalarLensObject.hidden){
             menuOptions[0];
             menuOptions[0] = {label: "Make private", value: "make-private"}
           }
-          if(me.scalarLensObject.frozen === true){
+          if(me.scalarLensObject.frozen){
             menuOptions[1].delete;
             menuOptions[1] = {label: "Unfreeze", value: "unfreeze"}
           }
         break;
         case 'scalar:Reader':
-          if(me.scalarLensObject.frozen === true){
+          if(me.scalarLensObject.frozen){
             menuOptions[0].delete;
             menuOptions[0] = {label: "Unfreeze", value: "unfreeze"}
           }
@@ -3282,14 +3276,26 @@
         switch(option.value){
 
           case 'make-public':
-            me.scalarLensObject.public = true;
+            me.scalarLensObject.hidden = false;
             $(menuOptions).find('li').text()
-            me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
+            me.saveLens(() => me.getLensResults(me.scalarLensObject, (e) => {
+              if (scalarapi.model.getCurrentPageNode()) {
+                location.reload();
+              } else {
+                me.options.onLensResults(e)
+              }
+            }));
           break;
 
           case 'make-private':
-            me.scalarLensObject.public = false;
-            me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
+            me.scalarLensObject.hidden = true;
+            me.saveLens(() => me.getLensResults(me.scalarLensObject, () => {
+              if (scalarapi.model.getCurrentPageNode()) {
+                location.reload();
+              } else {
+                me.options.onLensResults(e)
+              }
+            }));
             break;
 
           case 'freeze':
@@ -3361,10 +3367,6 @@
           } else {
             alert('Please wait for lens data to finish loading before exporting.');
           }
-          break;
-
-          case 'delete-lens':
-          me.deleteLens();
           break;
 
         }
@@ -3644,38 +3646,6 @@
       }
     }
 
-    ScalarLenses.prototype.deleteLens = function() {
-      var result = confirm('Are you sure you wish to hide this lens from view?');
-      if (result) {
-        // assemble params for the trash action
-        var pageData = {
-          native:1,
-          id:$('link#parent').attr('href'),
-          api_key:'',
-          action: 'DELETE',
-          'scalar:urn': this.scalarLensObject.urn
-        };
-        // execute the trash action (i.e. make is_live=0)
-        scalarapi.savePage(pageData, function(result) {
-          for (var url in result) break;
-          url = url.substr(0, url.lastIndexOf('.'));
-          if (window.location.href.indexOf(url) != -1) {
-            window.location.href=url;
-          } else {
-            $('body').trigger('lensUpdated', null);
-          }
-          return;
-        }, function(result) {
-          alert('An error occurred attempting to hide this lens: '+result);
-          var login = $('link#approot').attr('href').replace('application','login');
-          if ('/'==login.substr(login.length-1,1)) login = login.substr(0,login.length-1);
-          var url = $('link#parent').attr('href');
-          window.location.href=login+'?redirect_url='+encodeURIComponent(url);
-          return;
-        });
-      }
-    }
-
     // author can review submitted lenses, make them public or not
     ScalarLenses.prototype.reviewSubmittedLenses = function(){
       let element = $(`
@@ -3829,7 +3799,8 @@
           action: 'UPDATE',
           'scalar:urn': this.scalarLensObject.urn,
           uriSegment: this.scalarLensObject.slug,
-          'dcterms:title': this.scalarLensObject.title
+          'dcterms:title': this.scalarLensObject.title,
+          'scalar:metadata:is_live': this.scalarLensObject.hidden ? '0' : '1'
         };
         var relationData = {};
         relationData[this.baseURL + this.scalarLensObject.slug + 'null'] = {
