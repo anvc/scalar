@@ -175,52 +175,59 @@
 
 			handleTimer: function() {
 
-				var node, scrolledPosition, block,
-					scrollTop = $( document ).scrollTop();
-					n = contentBlocks.length;
+        if (gallery.doneCheckingBlocks) {
 
-				for ( var i = ( n - 1 ); i >= 0; i-- ) {
+          gallery.doneCheckingBlocks = false;
 
-					block = contentBlocks[ i ];
-					node = block.data( 'node' );
-					scrolledPosition = block.offset().top - scrollTop;
-					//console.log(node.slug+' '+block.position().top+' '+$( document ).scrollTop()+' '+scrolledPosition);
+  				var node, scrolledPosition, block,
+  					scrollTop = $( document ).scrollTop();
+  					n = contentBlocks.length;
 
-					if ( ( scrolledPosition > 0 ) && ( scrolledPosition < window.innerHeight ) ) {
+  				for ( var i = ( n - 1 ); i >= 0; i-- ) {
 
-						//console.log('load '+node.slug.replace( "/", "-" ));
+  					block = contentBlocks[ i ];
+  					node = block.data( 'node' );
+  					scrolledPosition = block.offset().top - scrollTop;
+  					//console.log(node.slug+' '+block.position().top+' '+$( document ).scrollTop()+' '+scrolledPosition);
 
-						if ( node.baseType != "http://scalar.usc.edu/2012/01/scalar-ns#Media" ) {
-							block.append( spinnerElement.clone() );
-							scalarapi.loadNode( node.slug, true, function( data ) {
+  					if ( ( scrolledPosition > 0 ) && ( scrolledPosition < window.innerHeight ) ) {
 
-								var node, index, children;
+  						//console.log('load '+node.slug.replace( "/", "-" ));
 
-								// get first property to find the node we loaded; technically we shouldn't
-								// rely on browsers to deliver the properties in a certain order, but...
-								for ( var prop in data ) {
-									break;
-								}
-								node = scalarapi.getNode( prop );
-								gallery.addImagesForNode( node );
+  						if ( node.baseType != "http://scalar.usc.edu/2012/01/scalar-ns#Media" ) {
+  							block.append( spinnerElement.clone() );
+  							scalarapi.loadNode( node.slug, true, function( data ) {
 
-							}, function() {
-								console.log('an error occurred while retrieving structured gallery info.');
-							}, 1, true, 'path,tag' );
+  								var node, index, children;
 
-						} else {
-							gallery.addImagesForNode( node );
-						}
+  								// get first property to find the node we loaded; technically we shouldn't
+  								// rely on browsers to deliver the properties in a certain order, but...
+  								for ( var prop in data ) {
+  									break;
+  								}
+  								node = scalarapi.getNode( prop );
+  								gallery.addImagesForNode( node );
 
-						index = contentBlocks.indexOf( block );
-						contentBlocks.splice( index, 1 );
+  							}, function() {
+  								console.log('an error occurred while retrieving structured gallery info.');
+  							}, 1, true, 'path,tag' );
 
-					}
-				}
+  						} else {
+  							gallery.addImagesForNode( node );
+  						}
 
-				if ( n == 0 ) {
-					clearInterval( interval );
-				}
+  						index = contentBlocks.indexOf( block );
+  						contentBlocks.splice( index, 1 );
+
+  					}
+  				}
+
+  				if ( n == 0 ) {
+  					clearInterval( interval );
+  				}
+
+          gallery.doneCheckingBlocks = true;
+        }
 			},
 
 			addHeaderForNode: function( node ) {
@@ -290,7 +297,7 @@
 
 				if (node.current.description != undefined) {
 					alttext = node.current.description.replace(/"/g, '&#34;');
-					alttext = alttext.replace(/([^"\\]*(?:\\.[^"\\]*)*)"/g, '$1\\"');
+					if (alttext != null) alttext = alttext.replace(/([^"\\]*(?:\\.[^"\\]*)*)"/g, '$1\\"');
 				} else {
 					alttext = '';
 				}
@@ -334,6 +341,7 @@
 
 			addMedia: function() {
 				$( '#gallery_content' ).empty();
+        gallery.doneCheckingBlocks = true;
 				interval = setInterval(gallery.handleTimer, 100);
 				children = gallery.getChildrenOfType( scalarapi.model.getCurrentPageNode(), relationships, 'all');
 				gallery.createContentBlocks();
