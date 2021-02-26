@@ -3593,7 +3593,7 @@
       } else {
         let data = [];
         let defaultProps = ['dcterms:title', 'scalar:slug', 'dcterms:description', 'sioc:content', 'dcterms:created', 'cp:url', 'scalar:urn'];
-        let propsToIgnore = ['rdf:type','scalar:baseType','scalar:defaultView','scalar:url']
+        let propsToIgnore = ['rdf:type','scalar:baseType','scalar:defaultView','scalar:url','dcterms:isVersionOf']
         let keys = defaultProps.concat();
         for (var url in this.lastResults.items) {
           if (scalarapi.model.nodesByURL[url] != null) {
