@@ -2,6 +2,7 @@
   padding-left: 7.2rem;
   padding-right: 7.2rem;
   margin-top: -2rem;
+  font-size: 14px;
 }
 #lenses .lens-title {
   margin-top:0 !important;
@@ -10,6 +11,9 @@
   background:#ccc;
   height:120px;
   width:100%;
+}
+#lenses p {
+  font-size: 16px;
 }
 #lens-manager ul li {
   text-decoration: none;

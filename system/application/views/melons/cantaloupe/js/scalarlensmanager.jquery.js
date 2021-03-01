@@ -29,25 +29,38 @@
       if (this.loggedIn) {
         let temp = $('link#logged_in').attr('href').split('/');
         this.userId = parseInt(temp[temp.length - 1]);
-        var is_connected_to_book = ($('link#user_level').length) ? true : false;
-        if (!is_connected_to_book) {
-            this.addLensButton = $('<button class="btn btn-sm btn-primary">Add lens</button>').appendTo($('.my-private-lenses'));
-            this.addLensButton.on('click', () => { this.addLensByUserId() });
-      	} else if ((this.userLevel == 'scalar:Reader' && this.myLenses.length < this.maxLenses)) {
-          this.addLensButton = $('<button class="btn btn-sm btn-primary">Add lens</button>').appendTo($('.my-private-lenses'));
-          this.addLensButton.on('click', () => { this.addLensByUserId() });
-      	} else if (this.userLevel != 'scalar:Reader') {
-          this.addLensButton = $('<button class="btn btn-sm btn-primary">Add lens</button>').appendTo($('.my-private-lenses'));
-          this.addLensButton.on('click', () => { this.addLens() });
-        } else {
-          $('You have reached the maximum of ' + this.maxLenses + ' lenses. To create another, you must first delete one in the Dashboard.').appendTo($('.my-private-lenses'));
-        }
       }
+      this.isConnectedToBook = ($('link#user_level').length) ? true : false;
       $('heading').append('<p>Lenses are living snapshots of the content of this project, visualizing dynamic selections of pages and media. <a href="#">Learn more »</a></p>');
       $('body').on('lensUpdated', (evt, lens) => { this.handleLensUpdated(evt, lens); });
       $('.lens-edit-container>h4,.vis-container>h4').after('<div class="non-ideal-state-message caption_font">No lens selected.</div>');
       this.addSubmittedMessage();
       this.getLensData();
+    }
+
+    ScalarLensManager.prototype.updateAddLensButton = function() {
+      if (this.addLensButton) this.addLensButton.remove();
+      console.log(this.loggedIn,this.myLenses.length,this.userLevel);
+      if (this.loggedIn) {
+        if (!this.isConnectedToBook) {
+          if (this.myLenses.length < this.maxLenses) {
+            this.addLensButton = $('<button class="btn btn-sm btn-primary">Add lens</button>').appendTo($('.my-private-lenses'));
+            this.addLensButton.on('click', () => { this.addLensByUserId() });
+          } else {
+            this.addLensButton = $('<div class="caption_font">You have reached the maximum of ' + this.maxLenses + ' lenses.</div>').appendTo($('.my-private-lenses'));
+          }
+      	} else if (this.userLevel == 'scalar:Reader') {
+          if (this.myLenses.length < this.maxLenses) {
+            this.addLensButton = $('<button class="btn btn-sm btn-primary">Add lens</button>').appendTo($('.my-private-lenses'));
+            this.addLensButton.on('click', () => { this.addLensByUserId() });
+          } else {
+            this.addLensButton = $('<div class="caption_font">You have reached the maximum of ' + this.maxLenses + ' lenses.</div>').appendTo($('.my-private-lenses'));
+          }
+      	} else {
+          this.addLensButton = $('<button class="btn btn-sm btn-primary">Add lens</button>').appendTo($('.my-private-lenses'));
+          this.addLensButton.on('click', () => { this.addLens() });
+        }
+      }
     }
 
     ScalarLensManager.prototype.addLens = function() {
@@ -412,6 +425,8 @@
         this.updateLensHighlight();
         this.updateSubmittedMessage(this.selectedLens);
       }
+
+      this.updateAddLensButton();
 
       var me = this;
       // display lens when clicked
