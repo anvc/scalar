@@ -116,6 +116,18 @@ class Lens_model extends MY_Model {
 		
 	}
 	
+	public function set_submitted_to($version_id, $bool=false, $comment='') {
+		
+		$contents = $this->get_children($version_id);
+		if (empty($contents)) throw new Exception('Could not find Lens for the version');
+		$contents = json_decode($contents, true);
+		$contents['submitted'] = true;
+		$contents['submitted_comment'] = $comment;
+		$this->save_children($version_id, array($contents));
+		return true;
+		
+	}
+	
 	public function get_nodes_from_json($book_id=0, $json='', $prefix='') {
 		
 		$CI =& get_instance();

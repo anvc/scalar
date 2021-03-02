@@ -3244,7 +3244,7 @@
         {label: "Duplicate lens", value: "duplicate-lens"},
         {label: "Export to CSV", value: "export-lens"}
       )
-
+      
       switch(userLevel){
         case 'scalar:Author':
           menuOptions.unshift(
@@ -3264,6 +3264,10 @@
             menuOptions[0].delete;
             menuOptions[0] = {label: "Unfreeze", value: "unfreeze"}
           }
+          menuOptions.push( {label: "Submit to authors", value: 'submit-lens'}, );  // TODO: only show if not already submitted
+        break;
+        case 'unknown':
+          menuOptions.push( {label: "Submit to authors", value: 'submit-lens'}, );  // TODO: only show if not already submitted
         break;
 
       }
@@ -3334,7 +3338,7 @@
           break;
 
           case 'submit-lens':
-            // modal
+        	  me.showOkModal('Submit lens', 'Are you sure you want to submit this lens?', () => { me.submitLens(); });
           break;
 
           case 'create-path':
@@ -3454,6 +3458,37 @@
       this.getLensResults(this.scalarLensObject, this.options.onLensResults);
       this.buildEditorDom();
       this.updateEditorDom();
+    }
+    
+    ScalarLenses.prototype.submitLens = function() {
+    	
+    	var sysroot = $('link#approot').attr('href').replace('application/','');
+    	var api = sysroot + 'api/commit_lens_submission';
+    	
+    	// TODO: don't proceed if lens is already submitted
+    	
+    	var data = {
+    		user_id : this.userId,
+    		urn : this.scalarLensObject.urn,
+    		comment : 'Please consider this Lens for public view.'  // TODO
+    	};
+    	
+    	$.ajax({
+    		type: "POST",
+    		url: api,
+    		data: data,
+    		success: function(result) {
+
+    			if ('undefined' != typeof(result['error'])) {
+    				alert('There was an error: ' + result['error']);
+    				return;
+    			}
+    			alert('success!');
+    			// Email sent (if it can) + JSON submittted field set to true
+    		},
+    		dataType: 'json'
+    	});
+    	
     }
 
     ScalarLenses.prototype.duplicateLens = function() {

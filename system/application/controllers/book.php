@@ -119,7 +119,7 @@ class Book extends MY_Controller {
 					if (!empty($version) && null == $this->data['use_versions']) $this->data['use_versions'] = array();
 					if (!empty($version)) $this->data['use_versions'][$page->content_id] = $version->version_id;
 				}
-				// Build (hierarchical) RDF object for the page's version(s)
+				// Build (hierarchical) RDF object for the page's most recent version
 				$settings = array(
 								 	'book'         => $this->data['book'],
 									'content'      => $page,

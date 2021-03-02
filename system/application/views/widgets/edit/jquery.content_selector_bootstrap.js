@@ -1649,7 +1649,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			"rec": 0,
 			"ref": 0,
 			"defaultType": 'composite',
-			"types": ['composite', 'media', 'path', 'tag', 'annotation', 'reply', 'term'],
+			"types": ['composite', 'media', 'path', 'tag', 'annotation', 'reply', 'lens', 'term'],
 			"resultsPerPage": 50,
 			"allowChildren": false,
 			"selected": [],
@@ -2808,6 +2808,8 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				var type_display_name = 'Pages';
 			} else if (opts.types[t] == 'reply') {
 				var type_display_name = 'Comments';
+			} else if (opts.types[t] == 'lens') {
+				var type_display_name = 'Lenses';
 			} else if (opts.types[t] == 'users') {
 				var type_display_name = 'Users';
 			} else if  (scalarapi.model.scalarTypes[opts.types[t]]) {

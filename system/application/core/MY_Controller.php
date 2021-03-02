@@ -305,6 +305,28 @@ class MY_Controller extends CI_Controller {
 	}
 	
 	/**
+	 * Test whether the language file contains the right email fields
+	 * @return bool
+	 */
+	
+	protected function can_email($type='') {
+		
+		// TODO: test for existance of SMTP?
+		
+		$host = $this->config->item('smtp_host');
+		if (!$host || empty($host)) return false;
+		
+		switch($type) {
+			case 'lens_submitted':
+				if (!$this->lang->line('email.lens_submitted_subject')) return false;
+				return true;
+				break;
+		}
+		return false;
+		
+	}
+	
+	/**
 	 * Test whether the editorial workflow feature is turned on for the current book
 	 * @return bool
 	 */

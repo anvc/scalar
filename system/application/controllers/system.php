@@ -1224,6 +1224,38 @@ class System extends MY_Controller {
 				$this->versions->reorder_versions($content_id);
 				$this->data['content'] = $this->versions->get_all($content_id);
 				break;
+			case 'commit_lens_submission':
+				$this->load->model('page_model', 'pages');
+				$this->load->model('version_model', 'versions');
+				$user_id = (isset($_POST['user_id'])) ? (int) $_POST['user_id'] : null;
+				if (empty($user_id)) die ('{"error":"Invalid user ID"}');
+				$version_urn = (isset($_POST['urn'])) ? $_POST['urn'] : null;
+				if (empty($version_urn)) die ('{"error":"Invalid URN"}');
+				$arr = explode(':', $version_urn);
+				$version_id = array_pop($arr);
+				if (empty($version_id)) die ('{"error":"Invalid version ID"}');
+				$version = $this->versions->get($version_id, null, true);
+				if (empty($version)) die ('{"error":"Invalid version"}');
+				$comment = (isset($_POST['comment'])) ? trim($_POST['comment']) : '';
+				$book_id = $this->versions->get_book($version_id);
+				$book = $this->books->get($book_id, true);
+				$book->contributors = $book->users;
+				if (empty($book)) die ('{"error":"Invalid book"}');
+				$content_id = $this->versions->get_content_id($version_id);
+				if (empty($content_id)) die ('{"error":"Invalid content ID"}');
+				$content = $this->pages->get($content_id);
+				if ($content->user != $user_id) die ('{"error":"Only the creator of a Lens can submit it"}');
+				if ($this->can_email('lens_submitted')) {
+					$this->load->library('SendMail', 'sendmail');
+					$this->sendmail->lens_submitted($book, array(
+						'title' => $version->title,
+						'comment' => $comment
+					));
+				}
+				$this->load->model('lens_model', 'lenses');
+				$this->lenses->set_submitted_to($version_id, true, $comment);
+				$this->data['content'] = $version;
+				break;
 			case 'create_edition':
 				$book_id =@ (int) $_REQUEST['book_id'];
 				$this->data['book'] = $this->books->get($book_id);

@@ -206,6 +206,7 @@
 			<option value="tag"<?=('tag'==$default_rel_type)?' selected':''?>>Tags</option>
 			<option value="annotation"<?=('annotation'==$default_rel_type)?' selected':''?>>Annotations</option>
 			<option value="reply"<?=('reply'==$default_rel_type)?' selected':''?>>Comments</option>
+			<option value="lens"<?=('lens'==$default_rel_type)?' selected':''?>>Lenses</option>
 		</select>
 		</form>
 
