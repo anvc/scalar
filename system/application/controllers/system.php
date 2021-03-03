@@ -144,10 +144,13 @@ class System extends MY_Controller {
 				$lens = json_decode($lenses[$j]->lens);
 				$is_public = (isset($lens->public) && $lens->public) ? true : false;
 				$user_level = (isset($lens->user_level)) ? $lens->user_level : null;
+				$submitted = (isset($lens->submitted) && $lens->submitted) ? true : false;
 				$user_id = (int) $lenses[$j]->user;  // This is the creator of the content node
 				$lens->user_id = $user_id;
 				$lens->hidden = ($lenses[$j]->is_live) ? false : true;
 				if ($is_book_admin && $user_level == 'scalar:Author') {
+					$this->data['content'][] = $lens;
+				} elseif ($is_book_admin && $submitted) {
 					$this->data['content'][] = $lens;
 				} elseif ($is_public) {
 					$this->data['content'][] = $lens;
