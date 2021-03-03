@@ -202,7 +202,7 @@
 
     ScalarLensManager.prototype.addSubmittedMessage = function() {
       this.submittedMessage = $('<div id="submitted-message" class="bg-info">'+
-        '<div style="float:right; width:140px;">'+
+        '<div style="float:right; width:140px; margin-left: 10px;">'+
         '<button id="reject-lens-btn" class="btn btn-block btn-default">Reject submission</button>'+
         '<button id="accept-lens-btn" class="btn btn-block btn-primary">Make lens public</button></div>'+
         '<p><strong>Submitted by:</strong> <span id="submitted-lens-user"></span></p>'+
@@ -223,7 +223,7 @@
       comments.text(message);
       /*let user = $('#submitted-lens-user');
       user.html(lens.users[lens.user_id]);*/
-      if (!lens) {
+      if (!lens || this.userLevel != 'scalar:Author') {
         this.submittedMessage.hide();
       } else {
         if (lens.submitted) {
@@ -235,11 +235,13 @@
     }
 
     ScalarLensManager.prototype.rejectLens = function() {
+      delete this.selectedLens.submitted_comment
       this.selectedLens.submitted = false;
       this.saveLens();
     }
 
     ScalarLensManager.prototype.acceptLens = function() {
+      delete this.selectedLens.submitted_comment
       this.selectedLens.submitted = false;
       this.saveLens();
 
@@ -341,7 +343,9 @@
             otherPrivateLensArray.push(lens);
           }
           if (lens.submitted) {
-            submittedLensArray.push(lens);
+            if (this.userLevel == 'scalar:Author' || lens.user_id == this.userId) {
+              submittedLensArray.push(lens);
+            }
           }
         }
         if (lens.user_id == this.userId) {

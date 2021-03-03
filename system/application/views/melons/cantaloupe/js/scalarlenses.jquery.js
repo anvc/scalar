@@ -250,6 +250,7 @@
       //lensHtml.find('.lens-content').append('<div class="message">Some stuff</div>');
       lensHtml.find('.lens-content').append(this.addOptionsMenu())
       lensHtml.append(this.addOkModal());
+      lensHtml.append(this.addSubmitModal());
       lensHtml.find('.lens-editor').append(this.addDuplicateCopyPrompt());
       lensHtml.find('.lens-editor').append(this.reviewSubmittedLenses());
       lensHtml.append(this.duplicateLensForCurrentUser())
@@ -3265,7 +3266,7 @@
       if (canEditLens) {
         if (this.userLevel == 'scalar:Reader' || this.userLevel == 'unknown') {
           if (!this.scalarLensObject.submitted) {
-            menuOptions.push( {label: "Submit to authors", value: 'submit-lens'}, );  // TODO: only show if not already submitted
+            menuOptions.push( {label: "Submit to authors", value: 'submit-lens'}, );
           }
         }
       }
@@ -3336,7 +3337,7 @@
           break;
 
           case 'submit-lens':
-        	  me.showOkModal('Submit lens', 'Are you sure you want to submit this lens?', () => { me.submitLens(); });
+        	  me.showSubmitModal(() => { me.submitLens(); });
           break;
 
           case 'create-path':
@@ -3463,25 +3464,24 @@
     	var sysroot = $('link#approot').attr('href').replace('application/','');
     	var api = sysroot + 'api/commit_lens_submission';
 
-    	// TODO: don't proceed if lens is already submitted
-
     	var data = {
     		user_id : this.userId,
     		urn : this.scalarLensObject.urn,
-    		comment : 'Please consider this Lens for public view.'  // TODO
+    		comment : $('#submission-comments').val()
     	};
 
     	$.ajax({
     		type: "POST",
     		url: api,
     		data: data,
-    		success: function(result) {
-
+    		success: (result) => {
     			if ('undefined' != typeof(result['error'])) {
     				alert('There was an error: ' + result['error']);
     				return;
     			}
-    			alert('success!');
+          this.scalarLensObject.submitted = true;
+          this.updateOptionsMenu();
+    			alert('The lens was submitted successfully.');
     			// Email sent (if it can) + JSON submittted field set to true
     		},
     		dataType: 'json'
@@ -3526,7 +3526,6 @@
       }, error);
     }
 
-    // ok modal
     ScalarLenses.prototype.addOkModal = function() {
       let element = $(
         `<div id="okModal" class="modal fade caption_font" role="dialog">
@@ -3569,6 +3568,50 @@
       }
       $(this.element).find('.btn-primary').on('click', function(){
         if (okHandler) okHandler();
+      });
+    }
+
+    ScalarLenses.prototype.addSubmitModal = function() {
+      let element = $(
+        `<div id="submitModal" class="modal fade caption_font" role="dialog">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h4 class="heading_font heading_weight">Submit lens</h4>
+              </div>
+              <div class="modal-body caption_font">
+                <p>If you think this lens might be useful to others, you can submit it to the authors, and they may add it to the project’s public lenses.</p>
+                <p>To submit, enter a short description of the lens and its significance below, and click OK.</p>
+                <br/>
+                <textarea id="submission-comments" name="submissionComments" rows="4" cols="50" maxlength="300" placeholder="Enter description here..."></textarea>
+                <p>If your lens is approved, a copy of it will be made public, while your own copy will remain private to you.</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+              </div>
+            </div>
+          </div>
+        </div>`
+      )
+
+      var me = this;
+
+      element.on('shown.bs.modal', function () {
+        element.find('.modal-footer .btn-primary').trigger('focus');
+      });
+      element.find('.modal-footer .btn-primary').onTab(function() {
+  			element.find('.modal-footer .btn-default').trigger('focus');
+  		});
+
+      return element;
+
+    }
+
+    ScalarLenses.prototype.showSubmitModal = function(submitHandler){
+      $('#submitModal').modal('toggle');
+      $(this.element).find('.btn-primary').on('click', function(){
+        if (submitHandler) submitHandler();
       });
     }
 
