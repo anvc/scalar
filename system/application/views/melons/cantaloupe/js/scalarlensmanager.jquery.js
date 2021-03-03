@@ -234,7 +234,7 @@
       }
     }
 
-    ScalarLensManager.unsubmitSelectedLens = function() {
+    ScalarLensManager.prototype.unsubmitSelectedLens = function() {
       delete this.selectedLens.submitted_comment
       this.selectedLens.submitted = false;
       this.saveLens();
@@ -335,12 +335,13 @@
         if (!lens.hidden) {
           publicLensArray.push(lens);
         } else {
-          if (lens.user_id == this.userId) {
-            myPrivateLensArray.push(lens);
-          } else if (lens.user_level != 'scalar:Reader' && lens.user_level != 'unknown') {
-            otherPrivateLensArray.push(lens);
-          }
-          if (lens.submitted) {
+          if (!lens.submitted) {
+            if (lens.user_id == this.userId) {
+              myPrivateLensArray.push(lens);
+            } else if (lens.user_level != 'scalar:Reader' && lens.user_level != 'unknown') {
+              otherPrivateLensArray.push(lens);
+            }
+          } else {
             if (this.userLevel == 'scalar:Author' || lens.user_id == this.userId) {
               submittedLensArray.push(lens);
             }
