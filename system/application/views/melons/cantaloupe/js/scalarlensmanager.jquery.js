@@ -208,7 +208,7 @@
         '<p><strong>Submitted by:</strong> <span id="submitted-lens-user"></span></p>'+
         '<p><strong>Comments:</strong> <span id="submitted-lens-comments"></span></p>'+
         '</div>').appendTo($('.lens-edit-container'));
-      $('#reject-lens-btn').on('click', (evt) => { this.rejectLens(evt); });
+      $('#reject-lens-btn').on('click', (evt) => { this.unsubmitSelectedLens(evt); });
       $('#accept-lens-btn').on('click', (evt) => { this.acceptLens(evt); });
     }
 
@@ -234,16 +234,14 @@
       }
     }
 
-    ScalarLensManager.prototype.rejectLens = function() {
+    ScalarLensManager.unsubmitSelectedLens = function() {
       delete this.selectedLens.submitted_comment
       this.selectedLens.submitted = false;
       this.saveLens();
     }
 
     ScalarLensManager.prototype.acceptLens = function() {
-      delete this.selectedLens.submitted_comment
-      this.selectedLens.submitted = false;
-      this.saveLens();
+      this.unsubmitSelectedLens();
 
       var duplicateJson = JSON.parse(JSON.stringify(this.selectedLens));
       duplicateJson.user_level = this.userLevel;
