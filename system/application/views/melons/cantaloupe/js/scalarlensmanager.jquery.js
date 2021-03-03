@@ -213,19 +213,19 @@
     }
 
     ScalarLensManager.prototype.updateSubmittedMessage = function(lens) {
-      let comments = $('#submitted-lens-comments');
-      let message = '[No comments submitted]';
-      if (lens.submitted_comment) {
-        if (lens.submitted_comment.trim() != '') {
-          message = '“' + lens.submitted_comment + '”';
-        }
-      }
-      comments.text(message);
-      /*let user = $('#submitted-lens-user');
-      user.html(lens.users[lens.user_id]);*/
       if (!lens || this.userLevel != 'scalar:Author') {
         this.submittedMessage.hide();
-      } else {
+      } else if (lens) {
+        let comments = $('#submitted-lens-comments');
+        let message = '[No comments submitted]';
+        if (lens.submitted_comment) {
+          if (lens.submitted_comment.trim() != '') {
+            message = '“' + lens.submitted_comment + '”';
+          }
+        }
+        comments.text(message);
+        /*let user = $('#submitted-lens-user');
+        user.html(lens.users[lens.user_id]);*/
         if (lens.submitted) {
           this.submittedMessage.show();
         } else {
