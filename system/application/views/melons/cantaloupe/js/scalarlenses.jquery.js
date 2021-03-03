@@ -187,7 +187,9 @@
         "components": [],
         "sorts": [],
         "title": currentPageNode.title,
-        "slug": currentPageNode.slug
+        "slug": currentPageNode.slug,
+        "user_id": this.userId,
+        "user_level": this.userLevel
       };
     }
 
@@ -1066,7 +1068,6 @@
             me.scalarLensObject.visualization.options.operation = 'or';
           }
           me.updateEditorDom();
-          console.log(me.scalarLensObject.components);
           if (me.scalarLensObject.components.length == 2) {
             me.showOkModal('Multiple content sources', '<p>Now that your lens includes more than one content source, you can use the gray menu at the top of the lens editor to determine how their results will be merged.</p><p>Selecting <strong>"the combination of"</strong> means all items from all sources will be returned, while <strong>"the intersection of"</strong> means that only the items the sources have in common will be returned.</p>', null);
           }
@@ -3233,43 +3234,40 @@
     ScalarLenses.prototype.updateOptionsMenu = function() {
 
       let me = this;
-      let userLevel = this.userLevel;
       let menuOptions = [];
+      let canEditLens = this.scalarLensObject.user_id == this.userId;
 
-      menuOptions.push(
-        {label: "Freeze", value: 'freeze'},
-        {label: "Create path from lens", value: 'create-path'},
-        {label: "Create tag from lens", value: 'create-tag'},
-        {label: "Clear lens", value: 'clear-lens'},
-        {label: "Duplicate lens", value: "duplicate-lens"},
-        {label: "Export to CSV", value: "export-lens"}
-      )
-      
-      switch(userLevel){
-        case 'scalar:Author':
-          menuOptions.unshift(
-            {label: "Make public", value: "make-public"},
+      if (canEditLens) {
+        if (this.userLevel == 'scalar:Author') {
+          if (this.scalarLensObject.hidden) {
+            menuOptions.push({label: "Make public", value: "make-public"});
+          } else {
+            menuOptions.push({label: "Make private", value: "make-private"});
+          }
+        }
+        if (this.scalarLensObject.frozen) {
+          menuOptions.push({label: "Unfreeze", value: "unfreeze"});
+        } else {
+          menuOptions.push({label: "Freeze", value: 'freeze'});
+        }
+        if (this.userLevel == 'scalar:Author') {
+          menuOptions.push(
+            {label: "Create path from lens", value: 'create-path'},
+            {label: "Create tag from lens", value: 'create-tag'}
           )
-          if(!me.scalarLensObject.hidden){
-            menuOptions[0];
-            menuOptions[0] = {label: "Make private", value: "make-private"}
+        }
+        menuOptions.push({label: "Clear lens", value: 'clear-lens'});
+        if (this.userLevel == 'scalar:Author') {
+          menuOptions.push({label: "Duplicate lens", value: "duplicate-lens"})
+        }
+      }
+      menuOptions.push({label: "Export to CSV", value: "export-lens"});
+      if (canEditLens) {
+        if (this.userLevel == 'scalar:Reader' || this.userLevel == 'unknown') {
+          if (!this.scalarLensObject.submitted) {
+            menuOptions.push( {label: "Submit to authors", value: 'submit-lens'}, );  // TODO: only show if not already submitted
           }
-          if(me.scalarLensObject.frozen){
-            menuOptions[1].delete;
-            menuOptions[1] = {label: "Unfreeze", value: "unfreeze"}
-          }
-        break;
-        case 'scalar:Reader':
-          if(me.scalarLensObject.frozen){
-            menuOptions[0].delete;
-            menuOptions[0] = {label: "Unfreeze", value: "unfreeze"}
-          }
-          menuOptions.push( {label: "Submit to authors", value: 'submit-lens'}, );  // TODO: only show if not already submitted
-        break;
-        case 'unknown':
-          menuOptions.push( {label: "Submit to authors", value: 'submit-lens'}, );  // TODO: only show if not already submitted
-        break;
-
+        }
       }
 
       let onClick = function(evt) {
@@ -3459,20 +3457,20 @@
       this.buildEditorDom();
       this.updateEditorDom();
     }
-    
+
     ScalarLenses.prototype.submitLens = function() {
-    	
+
     	var sysroot = $('link#approot').attr('href').replace('application/','');
     	var api = sysroot + 'api/commit_lens_submission';
-    	
+
     	// TODO: don't proceed if lens is already submitted
-    	
+
     	var data = {
     		user_id : this.userId,
     		urn : this.scalarLensObject.urn,
     		comment : 'Please consider this Lens for public view.'  // TODO
     	};
-    	
+
     	$.ajax({
     		type: "POST",
     		url: api,
@@ -3488,7 +3486,7 @@
     		},
     		dataType: 'json'
     	});
-    	
+
     }
 
     ScalarLenses.prototype.duplicateLens = function() {

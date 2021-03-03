@@ -40,7 +40,6 @@
 
     ScalarLensManager.prototype.updateAddLensButton = function() {
       if (this.addLensButton) this.addLensButton.remove();
-      console.log(this.loggedIn,this.myLenses.length,this.userLevel);
       if (this.loggedIn) {
         if (!this.isConnectedToBook) {
           if (this.myLenses.length < this.maxLenses) {
@@ -96,7 +95,6 @@
 
     	var self = this;
     	var json = this.getDefaultLensJson();
-    	json.user_id = this.userId;
 
     	var data = {
     	   action : 'add',
@@ -142,6 +140,7 @@
         "sorts": [],
         "title": "Untitled lens",
         "slug": "untitled-lens",
+        "user_id": this.userId,
         "user_level": this.userLevel
       };
     }
@@ -206,14 +205,24 @@
         '<div style="float:right; width:140px;">'+
         '<button id="reject-lens-btn" class="btn btn-block btn-default">Reject submission</button>'+
         '<button id="accept-lens-btn" class="btn btn-block btn-primary">Make lens public</button></div>'+
-        '<p><strong>Submitted by:</strong> Erik Loyer (<a href="#">erikcloyer@gmail.com</a>)</p>'+
-        '<p><strong>Comments:</strong> “Hi, I thought readers might find this lens valuable. Thanks for considering.”</p>'+
+        '<p><strong>Submitted by:</strong> <span id="submitted-lens-user"></span></p>'+
+        '<p><strong>Comments:</strong> <span id="submitted-lens-comments"></span></p>'+
         '</div>').appendTo($('.lens-edit-container'));
       $('#reject-lens-btn').on('click', (evt) => { this.rejectLens(evt); });
       $('#accept-lens-btn').on('click', (evt) => { this.acceptLens(evt); });
     }
 
     ScalarLensManager.prototype.updateSubmittedMessage = function(lens) {
+      let comments = $('#submitted-lens-comments');
+      let message = '[No comments submitted]';
+      if (lens.submitted_comment) {
+        if (lens.submitted_comment.trim() != '') {
+          message = '“' + lens.submitted_comment + '”';
+        }
+      }
+      comments.text(message);
+      /*let user = $('#submitted-lens-user');
+      user.html(lens.users[lens.user_id]);*/
       if (!lens) {
         this.submittedMessage.hide();
       } else {
@@ -323,16 +332,12 @@
 
       // build sidebar list
       data.forEach((lens, index) => {
-        /*if (index == 0 && this.count == 0) {
-          lens.submitted = true; // temporary
-          this.count++;
-        }*/
         if (!lens.hidden) {
           publicLensArray.push(lens);
         } else {
           if (lens.user_id == this.userId) {
             myPrivateLensArray.push(lens);
-          } else {
+          } else if (lens.user_level != 'scalar:Reader' && lens.user_level != 'unknown') {
             otherPrivateLensArray.push(lens);
           }
           if (lens.submitted) {
