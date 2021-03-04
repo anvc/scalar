@@ -224,8 +224,8 @@
           }
         }
         comments.text(message);
-        /*let user = $('#submitted-lens-user');
-        user.html(lens.users[lens.user_id]);*/
+        let user = $('#submitted-lens-user');
+        user.html(lens.user.fullname + ' (<a href="mailto:' + lens.user.email + '">' + lens.user.email + '</a>)');
         if (lens.submitted) {
           this.submittedMessage.show();
         } else {
