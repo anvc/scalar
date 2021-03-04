@@ -297,6 +297,7 @@ text.visit-button {
 
 .info_box .content p {
     margin: 0;
+		font-size: 1.2rem !important;
 }
 
 .info_box .content a.btn {

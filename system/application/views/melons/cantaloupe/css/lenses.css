@@ -64,6 +64,7 @@
   margin-top: 15px;
   padding: 20px;
   line-height: 140%;
+  min-height: 115px;
 }
 #submitted-message p {
   margin-bottom: 10px;
