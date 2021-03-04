@@ -1261,10 +1261,13 @@ class System extends MY_Controller {
 				if (empty($content_id)) die ('{"error":"Invalid content ID"}');
 				$content = $this->pages->get($content_id);
 				if ($content->user != $user_id) die ('{"error":"Only the creator of a Lens can submit it"}');
+				$user = $this->users->get_by_user_id($user_id);
+				if (empty($user)) die ('{"error":"Could not find the user"}');
 				if ($this->can_email('lens_submitted')) {
 					$this->load->library('SendMail', 'sendmail');
 					$this->sendmail->lens_submitted($book, array(
 						'title' => $version->title,
+						'fullname' => $user->fullname,
 						'comment' => $comment
 					));
 				}

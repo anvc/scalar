@@ -73,13 +73,14 @@ class SendMail {
     public function lens_submitted($book, $data) {
     	
     	$title       =@ trim($data['title']);
+    	$fullname    =@ trim($data['fullname']);
 		$comment 	 =@ trim($data['comment']);
     	$book_url	 = confirm_slash(base_url()).$book->slug;
     	$book_title  =@ strip_tags($book->title);
     	$msg = '';
     	$arr = array();
     	
-    	if (!empty($title)) $msg .= '<b>'.$title.'</b>'."\n";
+    	if (!empty($title)) $msg .= '<b>'.$title.'</b> by '.$fullname."\n";
     	if (!empty($comment)) $msg .= $comment."\n\n";
     	
     	$author_emails = array();
