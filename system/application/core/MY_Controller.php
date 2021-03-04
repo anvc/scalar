@@ -239,7 +239,7 @@ class MY_Controller extends CI_Controller {
 
 		$kickout = true;
 		 
-		if (!empty($user_id) && $this->data['login']->user_id == $user_id) $kickout = false;
+		if (!empty($user_id) && isset($this->data['login']->user_id) && $this->data['login']->user_id == $user_id) $kickout = false;
 		if ($this->login_is_book_admin($level)) $kickout = false;
 		
 		if ($kickout) $this->kickout();
