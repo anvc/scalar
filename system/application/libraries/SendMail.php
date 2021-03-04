@@ -69,9 +69,9 @@ class SendMail {
     	return true;
 
     }
-    
+
     public function lens_submitted($book, $data) {
-    	
+
     	$title       =@ trim($data['title']);
     	$fullname    =@ trim($data['fullname']);
 		$comment 	 =@ trim($data['comment']);
@@ -79,17 +79,17 @@ class SendMail {
     	$book_title  =@ strip_tags($book->title);
     	$msg = '';
     	$arr = array();
-    	
+
     	if (!empty($title)) $msg .= '<b>'.$title.'</b> by '.$fullname."\n";
     	if (!empty($comment)) $msg .= $comment."\n\n";
-    	
+
     	$author_emails = array();
     	foreach ($book->contributors as $author) {
     		if (strtolower($author->relationship) != 'author') continue;
     		$author_emails[] = $author->email;
     	}
     	if (empty($author_emails)) return false;
-    	
+
     	$arr['from'] = 'no-reply@'.$this->domain_name();
     	$arr['fromName'] = $this->install_name();
     	$arr['to'] = $author_emails;
@@ -98,14 +98,14 @@ class SendMail {
     	$arr['subject'] = sprintf($this->CI->lang->line('email.lens_submitted_subject'),$book_title);
     	$arr['msg']  = sprintf($this->CI->lang->line('email.lens_submitted_intro'),$book_title)."\n\n";
     	$arr['msg'] .= $msg;
-    	$arr['msg'] .= $this->CI->lang->line('email.lens_submitted_outro')."\n";
-    	$arr['msg'] .= '<a href="'.$book_url.'">'.$book_url.'</a>'."\n\n";
+    	$arr['msg'] .= $this->CI->lang->line('email.lens_submitted_outro')."\n\n";
+    	$arr['msg'] .= '<a href="'.$book_url.'/manage-lenses">'.$book_url.'/manage-lenses</a>'."\n\n";
     	$arr['msg'] .= $this->CI->lang->line('email.lens_submitted_footer');
-    	
+
     	$this->send($arr);
-    	
+
     	return true;
-    	
+
     }
 
     private function send($arr=array()) {
@@ -172,7 +172,7 @@ class SendMail {
     	return $install_name;
 
 	}
-	
+
 	private function from_address() {
 		$from_address = $this->CI->config->item('email_from_address');
 		if($from_address) {
