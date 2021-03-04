@@ -148,6 +148,10 @@ class System extends MY_Controller {
 				$user_id = (int) $lenses[$j]->user;  // This is the creator of the content node
 				$lens->user_id = $user_id;
 				$lens->hidden = ($lenses[$j]->is_live) ? false : true;
+				$lens->user = array();
+				$user = $this->users->get_by_user_id($user_id);
+				$lens->user['fullname'] = $user->fullname;
+				if ($is_book_admin) $lens->user['email'] = $user->email;
 				if ($is_book_admin && $user_level == 'scalar:Author') {
 					$this->data['content'][] = $lens;
 				} elseif ($is_book_admin && $submitted) {
@@ -179,6 +183,8 @@ class System extends MY_Controller {
 				if (empty($book_id)) die ('{"error":"Could not find a book ID associated with JSON payload"}');
 				$this->data['book'] = $this->books->get($book_id);
 				if (empty($this->data['book'])) die ('{"error":"Could not find a book associated with the JSON payload"}');
+				$this->set_user_book_perms();
+				$is_book_admin = $this->login_is_book_admin();
 				// Get items from JSON
 				$json['items'] = $this->lenses->get_nodes_from_json($book_id, $json, confirm_slash(base_url()).$this->data['book']->slug);
 				if (isset($json['urn'])) {
@@ -193,6 +199,13 @@ class System extends MY_Controller {
 						// Hidden or not
 						$content = $this->pages->get($version->content_id);
 						$json['hidden'] = ($content->is_live) ? false : true;
+						// User
+						$json['user'] = array();
+						if ($is_book_admin) {
+							$user = $this->users->get_by_user_id($json['user_id']);
+							$json['user']['fullname'] = $user->fullname;
+							if ($is_book_admin) $json['user']['email'] = $user->email;
+						}
 					}
 				}
 				// Return users
