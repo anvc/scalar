@@ -1390,7 +1390,7 @@
                     if (can_show_versions && currentEditionName == null) $par.append('<a href="' + scalarapi.model.urlPrefix + currentNode.slug + '.versions" title="View all versions">All versions</a> | ');
                     $par.append('<a href="' + scalarapi.model.urlPrefix + currentNode.slug + '.meta" title="View metadata for this page">Metadata</a><br />');
                 }
-                $par.append('<a href="http://scalar.usc.edu/scalar"><img src="' + page.options.root_url + '/images/scalar_logo_small.png" width="18" height="16"/></a>');
+                $par.append('<a href="http://scalar.usc.edu/scalar"><img src="' + page.options.root_url + '/images/scalar_logo_small.png" width="18" height="16" alt="Scalar logo"/></a>');
                 $par.append(' Powered by <a href="http://scalar.usc.edu/scalar">Scalar</a> (<a href="https://github.com/anvc/scalar">' + $('link#scalar_version').attr('href').trim() + '</a>) | ');
                 $par.append('<a href="http://scalar.usc.edu/terms-of-service/">Terms of Service</a> | ');
                 $par.append('<a href="http://scalar.usc.edu/privacy-policy/">Privacy Policy</a> | ');
@@ -1404,7 +1404,7 @@
             },
 
             setupScreenedBackground: function() {
-                var screen = $('<div class="bg_screen"><img src="' + page.options.root_url + '/images/1x1white_trans.png" width="100%" height="100%"/></div>').prependTo('body');
+                var screen = $('<div class="bg_screen"><img src="' + page.options.root_url + '/images/1x1white_trans.png" width="100%" height="100%" alt=""/></div>').prependTo('body');
                 screen.css('backgroundImage', $('body').css('backgroundImage'));
                 $('body').css('backgroundImage', 'none');
             },

@@ -275,7 +275,7 @@ window.scalarvis = { instanceCount: -1 };
         base.inspectorButton.on('click', base.toggleInspector);
 
         visFooter.append(' | ');
-        base.fullScreenButton = $('<button class="btn btn-link btn-xs"><img style="margin-top: -1px;" src="' + modules_uri + '/cantaloupe/images/fs_icon@2x.png" width="15" height="12"/> Full screen</button>');
+        base.fullScreenButton = $('<button class="btn btn-link btn-xs"><img style="margin-top: -1px;" src="' + modules_uri + '/cantaloupe/images/fs_icon@2x.png" width="15" height="12" alt=""/> Full screen</button>');
         visFooter.append(base.fullScreenButton);
         base.fullScreenButton.on('click', base.enterFullScreen);
       }

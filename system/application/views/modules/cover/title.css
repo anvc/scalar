@@ -11,20 +11,27 @@ body {
   font-size: 1.25em;
 }
 
+.cover {
+	margin-top: 30px;
+	margin-bottom:10px;
+}
+
 .cover .title {
-	background: url(scalar_logo.png) no-repeat;
-	padding-top: 10px;
-	margin-top: 30px;	
-	margin-bottom:20px; 
+	display: inline-block;
+	margin-top: 0;
 	padding-bottom:0px;
-	padding-left: 95px;
-	height: 68px;
+	padding-left: 15px;
 	font-size: 36px;
 	font-weight: 400;
 }
 
+.cover img {
+	vertical-align: -22px;
+	width: 75px;
+}
+
 .dashboard_title {
-	margin-bottom:0px !important;	
+	margin-bottom:0px !important;
 }
 
 .book_form select {

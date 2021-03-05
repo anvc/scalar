@@ -27,7 +27,7 @@ function print_books($books, $is_large=false) {
 			if (!$user->list_in_index) continue;
 			$authors[] = $user->fullname;
 		}
-		echo '<li><a href="'.$uri.'"><img class="book_icon'.(($is_large)?'':' small').'" src="'.confirm_base($thumbnail).'" /></a><h4><a href="'.$uri.'">'.$title.'</a></h4>';
+		echo '<li><a href="'.$uri.'"><img class="book_icon'.(($is_large)?'':' small').'" src="'.confirm_base($thumbnail).'" alt="Thumbnail image for Scalar project"/></a><h4><a href="'.$uri.'">'.$title.'</a></h4>';
 		if (count($authors)) {
 			echo implode(', ',$authors);
 			echo "<br />";
