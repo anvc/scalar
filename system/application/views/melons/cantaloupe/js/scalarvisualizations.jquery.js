@@ -108,11 +108,11 @@ window.scalarvis = { instanceCount: -1 };
         base.$el.attr({
           'tabindex': '-1',
           'role': 'dialog',
-          'aria-labelledby': 'myModalLabel'
+          'aria-labelledby': 'vis-modal-title'
         });
         base.$el.append('<div class="modal-dialog modal-lg modal-xlg"><div class="modal-content index_modal"></div></div>');
         var modalContent = base.$el.find('.modal-content');
-        var header = $('<header class="modal-header"><h2 class="modal-title heading_font heading_weight">Visualization</h2><button tabindex="10000" type="button" title="Close" class="close" data-dismiss="modal"><span>Close</span></button></header>').appendTo(modalContent);
+        var header = $('<header class="modal-header"><h2 id="vis-modal-title" class="modal-title heading_font heading_weight">Visualization</h2><button tabindex="10000" type="button" title="Close" class="close" data-dismiss="modal"><span>Close</span></button></header>').appendTo(modalContent);
         var body = $('<div class="modal-body"></div>').appendTo(modalContent);
         base.visElement = $('<div class="modalVisualization"></div>').appendTo(body);
 
@@ -173,27 +173,27 @@ window.scalarvis = { instanceCount: -1 };
 
         base.controls = $('<div class="vis-controls form-inline form-group-sm"></div>').appendTo(base.visElement);
 
-        var controls_html = '<div class="vis-control-header"><b>Type</b></br><select class="vis-type-control form-control">';
+        var controls_html = '<div id="vis-type-label" class="vis-control-header"><b>Type</b></br><select aria-labelledby="vis-type-label" class="vis-type-control form-control">';
         for (var prop in base.VisualizationTypes) {
           controls_html += '<option value="' + prop + '">' + base.VisualizationTypes[prop] + '</option>';
         }
         controls_html += '</select></div> ' +
-          '<div class="vis-control-header"><b>Content</b></br><select class="vis-content-control form-control">';
+          '<div id="vis-content-label" class="vis-control-header"><b>Content</b></br><select aria-labelledby="vis-content-label" class="vis-content-control form-control">';
         for (var prop in base.VisualizationContent) {
           controls_html += '<option value="' + prop + '">' + base.VisualizationContent[prop] + '</option>';
         }
         controls_html += '</select> ' +
-          '<select class="vis-filter-control form-control">';
+          '<select aria-labelledby="vis-content-label" class="vis-filter-control form-control">';
         for (var prop in base.VisualizationFilters) {
           controls_html += '<option value="' + prop + '">' + base.VisualizationFilters[prop] + '</option>';
         }
         controls_html += '</select></div> ' +
-          '<div class="vis-control-header"><b>Sort</b></br><select class="vis-sort-control form-control">';
+          '<div id="vis-sort-label" class="vis-control-header"><b>Sort</b></br><select aria-labelledby="vis-sort-label" class="vis-sort-control form-control">';
         for (var prop in base.VisualizationSorts) {
           controls_html += '<option value="' + prop + '">' + base.VisualizationSorts[prop] + '</option>';
         }
         controls_html += '</select> ' +
-          '<select class="vis-sort-order-control form-control">' +
+          '<select aria-labelledby="vis-sort-label" class="vis-sort-order-control form-control">' +
           '<option value="none">Select order...</option>' +
           '<option value="ascending">ascending</option>' +
           '<option value="descending">descending</option>' +

@@ -167,7 +167,7 @@ function scalarrecent_clear() {
 
 /**
  * scalarrecent_get_more_recent_than()
- * str  timestamp 
+ * str  timestamp
  * Get all nodes that were committed more recently than the passed timestamp
  */
 
@@ -187,19 +187,19 @@ function scalarrecent_get_more_recent_than(humanStr) {
 			if (!scalarrecent_is_more_recent_than(date, humanStr)) continue;
 			obj[uri] = json[uri];
 		}
-		
+
 		return obj;
-	
+
 }
 
 /**
  * scalarrecent_rdf_to_ids()
- * obj  rdf 
+ * obj  rdf
  * Convert RDF-JSON nodes to an object of content_ids:timestamps
  */
 
 function scalarrecent_rdf_to_ids(rdf) {
-	
+
 	var obj = {};
 	for (var uri in rdf) {
 		if ('undefined' == typeof(rdf[uri]['http://scalar.usc.edu/2012/01/scalar-ns#urn'])) continue;
@@ -210,7 +210,7 @@ function scalarrecent_rdf_to_ids(rdf) {
 		obj[version_id] = timestamp;
 	}
 	return obj;
-	
+
 }
 
 /**
@@ -363,7 +363,7 @@ function scalarrecent_rdf_to_html($this, json, user_url, max_to_show) {
 			classes.push(node['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'][k]['value']);
 		}
 		// Append
-		var $li = $('<li id="'+uri+'" title="'+htmlspecialchars(desc)+'"><a href="javascript:;">'+title+' &nbsp; <small>'+diff+'</small></a></li>')
+		var $li = $('<li id="'+uri+'" title="'+htmlspecialchars(desc)+'"><a role="menuitem" href="javascript:;">'+title+' &nbsp; <small>'+diff+'</small></a></li>')
 		$history.append($li);
 		for (var k in classes) {
 			$li.attr('typeof', ((($li.attr('typeof'))?$li.attr('typeof')+' ':'')+classes[k]) );
@@ -603,7 +603,7 @@ function scalarrecent_no_version(uri) {
 }
 
 function scalarrecent_time_diff( tstart, tend ) {
-	
+
 	  var diff = Math.floor((tend - tstart) / 1000);
 	  var units = [
 	    { d: 60, l: "seconds", m: "second", amount: 0 },
@@ -618,7 +618,7 @@ function scalarrecent_time_diff( tstart, tend ) {
 		var unit = (amount==1) ? units[i].m : units[i].l;
 	    diff = Math.floor(diff / units[i].d);
 	  }
-	  
+
 	  var str = units[3].amount + ' ' + ((units[3].amount==1)?units[3].m:units[3].l) + ' ';
 	  str += units[2].amount + ' ' + ((units[2].amount==1)?units[2].m:units[2].l);
 	  if (units[3].amount < 1) {
@@ -631,14 +631,14 @@ function scalarrecent_time_diff( tstart, tend ) {
 		  str = 'less than a minute';
 	  }
 	  return str;
-	  
+
 }
 
 function scalarrecent_is_more_recent_than(date, humanStr) {
-	
+
 	var humanStr_is_numeric = !isNaN(parseFloat(humanStr)) && isFinite(humanStr);
 	if (!humanStr_is_numeric) {  // E.g., '3 days'
-	
+
 		var diff = Math.floor((Date.now() - date) / 1000);
 		var units = [
 			{ d: 60, l: "seconds", m: "second", amount: 0 },
@@ -646,27 +646,27 @@ function scalarrecent_is_more_recent_than(date, humanStr) {
 			{ d: 24, l: "hours", m: "hour", amount: 0 },
 			{ d: 7, l: "days", m: "day", amount: 0 }
 			];
-	
+
 		for (var i = 0; i < units.length; ++i) {
 			var amount = (diff % units[i].d);
 			units[i].amount = amount;
 			var unit = (amount==1) ? units[i].m : units[i].l;
 			diff = Math.floor(diff / units[i].d);
 		}
-		
+
 		if (humanStr.toLowerCase().indexOf('hours') != -1 || humanStr.toLowerCase().indexOf('hour') != -1) {
 			if (units[3].amount > 0) return false;
 			if (units[2].amount <= parseInt(humanStr)) return true;
 		} else if (humanStr.toLowerCase().indexOf('days') != -1 || humanStr.toLowerCase().indexOf('day') != -1) {
 			if (units[3].amount <= parseInt(humanStr)) return true;
 		}
-		
+
 	} else {
-		
+
 		if (humanStr < date) return true;
-		
+
 	}
-	
+
 	return false;
-	
+
 }

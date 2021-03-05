@@ -220,7 +220,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                 '</a>'+
                                             '</li>'+
                                             '<li class="dropdown mainMenu">'+
-                                                '<a class="dropdown-toggle headerIcon" data-toggle="dropdown" role="button" aria-expanded="false">'+
+                                                '<a class="dropdown-toggle headerIcon" data-toggle="dropdown" role="menuitem" aria-expanded="false">'+
                                                     '<span class="visible-xs">Table of Contents</span>'+
                                                 '</a>'+
                                                 '<ul class="dropdown-menu mainMenuDropdown" role="menu">'+
@@ -235,47 +235,47 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                             '</ol>'+
                                                         '</li>'+
                                                         '<li class="bottom index_link static dropdown" id="indexLink">'+
-                                                            '<a role="button"><span class="menuIcon" id="indexIcon"></span>Index</a>'+
+                                                            '<a role="menuitem"><span class="menuIcon" id="indexIcon"></span>Index</a>'+
                                                         '</li>'+
                                                     '</div>'+
                                                     '<div id="mainMenuSubmenus" class="tocMenu"></div>'+
                                                 '</ul>'+
                                             '</li>'+
                                             '<li class="dropdown" id="navMenu">'+
-                                                '<a class="dropdown-toggle headerIcon" data-toggle="dropdown" role="button" aria-expanded="false" id="wayfindingIcon">'+
+                                                '<a class="dropdown-toggle headerIcon" data-toggle="dropdown" role="menuitem" aria-expanded="false" id="wayfindingIcon">'+
                                                     '<span class="visible-xs">Wayfinding</span>'+
                                                 '</a>'+
                                                 '<ul class="dropdown-menu" role="menu">'+
                                                     '<li id="recent_menu" class="dropdown">'+
-                                                        '<a role="button" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></span><span class="menuIcon" id="recentIcon"></span>Recent</a>'+
+                                                        '<a role="menuitem" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></span><span class="menuIcon" id="recentIcon"></span>Recent</a>'+
                                                         '<ul class="dropdown-menu" role="menu">'+
                                                             '<li><i class="loader"></i></li>'+
                                                         '</ul>'+
                                                     '</li>'+
                                                     (lenses_are_active ? '<li id="lenses_menu" class="dropdown">'+
-                                                        '<a role="button" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></span><span class="menuIcon" id="lensIcon"></span>Lenses</a>'+
+                                                        '<a role="menuitem" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></span><span class="menuIcon" id="lensIcon"></span>Lenses</a>'+
                                                         '<ul class="dropdown-menu" role="menu">'+
                                                         '</ul>'+
                                                     '</li>' : '')+
                                                     '<li id="vis_menu" class="dropdown">'+
-                                                        '<a role="button" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></span><span class="menuIcon" id="visIcon"></span>Visualizations</a>'+
+                                                        '<a role="menuitem" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></span><span class="menuIcon" id="visIcon"></span>Visualizations</a>'+
                                                         '<ul class="dropdown-menu" role="menu">'+
-                                                            '<li class="vis_link" data-vistype="viscurrent"><a role="button"><span class="menuIcon" id="currentIcon"></span> Current</a></li>'+
-                                                            '<li class="vis_link" data-vistype="vistoc"><a role="button"><span class="menuIcon" id="tocIcon"></span> Contents</a></li>'+
-                                                            '<li class="vis_link" data-vistype="visconnections"><a role="button"><span class="menuIcon" id="connectionsIcon"></span> Connections</a></li>'+
-                                                            '<li class="vis_link" data-vistype="visindex"><a role="button"><span class="menuIcon" id="gridIcon"></span> Grid</a></li>'+
-                                                            '<li class="vis_link" data-vistype="visradial"><a role="button"><span class="menuIcon" id="radialIcon"></span> Radial</a></li>'+
-                                                            '<li class="vis_link" data-vistype="vispath"><a role="button"><span class="menuIcon" id="pathIcon"></span> Path</a></li>'+
-                                                            '<li class="vis_link" data-vistype="vismedia"><a role="button"><span class="menuIcon" id="mediaIcon"></span> Media</a></li>'+
-                                                            '<li class="vis_link" data-vistype="vistag"><a role="button"><span class="menuIcon" id="tagIcon"></span> Tag</a></li>'+
+                                                            '<li class="vis_link" data-vistype="viscurrent"><a role="menuitem"><span class="menuIcon" id="currentIcon"></span> Current</a></li>'+
+                                                            '<li class="vis_link" data-vistype="vistoc"><a role="menuitem"><span class="menuIcon" id="tocIcon"></span> Contents</a></li>'+
+                                                            '<li class="vis_link" data-vistype="visconnections"><a role="menuitem"><span class="menuIcon" id="connectionsIcon"></span> Connections</a></li>'+
+                                                            '<li class="vis_link" data-vistype="visindex"><a role="menuitem"><span class="menuIcon" id="gridIcon"></span> Grid</a></li>'+
+                                                            '<li class="vis_link" data-vistype="visradial"><a role="menuitem"><span class="menuIcon" id="radialIcon"></span> Radial</a></li>'+
+                                                            '<li class="vis_link" data-vistype="vispath"><a role="menuitem"><span class="menuIcon" id="pathIcon"></span> Path</a></li>'+
+                                                            '<li class="vis_link" data-vistype="vismedia"><a role="menuitem"><span class="menuIcon" id="mediaIcon"></span> Media</a></li>'+
+                                                            '<li class="vis_link" data-vistype="vistag"><a role="menuitem"><span class="menuIcon" id="tagIcon"></span> Tag</a></li>'+
                                                         '</ul>'+
                                                     '</li>'+
                                                     '<li id="scalar_menu" class="dropdown">'+
-                                                        '<a role="button" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></span><span class="menuIcon" id="scalarIcon"></span>Scalar</a>'+
+                                                        '<a role="menuitem" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></span><span class="menuIcon" id="scalarIcon"></span>Scalar</a>'+
                                                         '<ul class="dropdown-menu" role="menu">'+
-                                                            '<li><a href="http://scalar.usc.edu/">About Scalar</a></li>'+
-                                                            '<li><a href="http://scalar.usc.edu/works/guide2" target="_scalar">User\'s Guide</a></li>'+
-                                                            '<li><a href="'+base.get_param(index_url)+'">More Scalar Projects</a></li>'+
+                                                            '<li><a role="menuitem" href="http://scalar.usc.edu/">About Scalar</a></li>'+
+                                                            '<li><a role="menuitem" href="http://scalar.usc.edu/works/guide2" target="_scalar">User\'s Guide</a></li>'+
+                                                            '<li><a role="menuitem" href="'+base.get_param(index_url)+'">More Scalar Projects</a></li>'+
                                                         '</ul>'+
                                                     '</li>'+
                                                 '</ul>'+
@@ -292,7 +292,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                 '<form class="navbar-form" role="search" action="./">'+
                                                     '<div class="form-group">'+
                                                         '<input title="Search this book" type="text" class="form-control" placeholder="Search this book...">'+
-                                                        '<input type="submit" class="hidden_submit">'+
+                                                        '<input type="submit" class="hidden_submit" value="Search">'+
                                                     '</div>'+
                                                   '</form>'+
                                             '</li>'+
@@ -317,12 +317,12 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                 :'')+
                                             (base.is_author?
                                                 '<li class="dropdown" id="ScalarHeaderImport" class="hidden-xs">'+
-                                                    '<a class="dropdown-toggle headerIcon" data-toggle="dropdown" role="button" aria-expanded="false" id="importIcon" title="Import menu. Roll over to show import options.">'+
+                                                    '<a class="dropdown-toggle headerIcon" data-toggle="dropdown" role="menuitem" aria-expanded="false" id="importIcon" title="Import menu. Roll over to show import options.">'+
                                                         '<span class="visible-xs">Import</span>'+
                                                     '</a>'+
                                                     '<ul class="dropdown-menu" role="menu" id="ScalarHeaderMenuImportList">'+
                                                         '<li class="dropdown">'+
-                                                            '<a role="button" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></span>Affiliated archives</a>'+
+                                                            '<a role="menuitem" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></span>Affiliated archives</a>'+
                                                             '<ul class="dropdown-menu" role="menu">'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/critical_commons') + '">Critical Commons</a></li>'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/internet_archive') + '">Internet Archive</a></li>'+
@@ -331,7 +331,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                             '</ul>'+
                                                         '</li>'+
                                                         '<li class="dropdown">'+
-                                                            '<a role="button" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></span>Other archives</a>'+
+                                                            '<a role="menuitem" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></span>Other archives</a>'+
                                                             '<ul class="dropdown-menu" role="menu">'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/omeka') + '">Omeka sites</a></li>'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/omeka_s') + '">Omeka S sites</a></li>'+
@@ -340,17 +340,17 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                             '</ul>'+
                                                         '</li>'+
                                                         '<li class="dropdown">'+
-                                                        	'<a role="button" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></span>Files and URLs</a>'+
+                                                        	'<a role="menuitem" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></span>Files and URLs</a>'+
                                                         	'<ul class="dropdown-menu" role="menu">'+
 		                                                        '<li class="dropdown">'+
-		                                                            '<a role="button" href="' + base.get_param(scalarapi.model.urlPrefix + 'upload') + '">Upload media files</a>'+
+		                                                            '<a role="menuitem" href="' + base.get_param(scalarapi.model.urlPrefix + 'upload') + '">Upload media files</a>'+
 		                                                        '</li>'+
 		                                                        '<li class="dropdown">'+
-		                                                            '<a role="button" href="' + base.get_param(scalarapi.model.urlPrefix + 'new.edit?type=media&') + '">Link to media files</a>'+
+		                                                            '<a role="menuitem" href="' + base.get_param(scalarapi.model.urlPrefix + 'new.edit?type=media&') + '">Link to media files</a>'+
 		                                                        '</li>'+
 		                                                        /*
 		                                                        '<li class="dropdown">'+
-	                                                        		'<a role="button" href="' + base.get_param(scalarapi.model.urlPrefix + 'criticalcommons') + '">Upload to Critical Commons</a>'+
+	                                                        		'<a role="menuitem" href="' + base.get_param(scalarapi.model.urlPrefix + 'criticalcommons') + '">Upload to Critical Commons</a>'+
 	                                                        	'</li>'+
 	                                                        	*/
 	                                                        '</ul>'+
@@ -364,7 +364,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                 ('<li id="ScalarHeaderOptions"><a href="' + system_uri + '/dashboard?book_id=' + base.bookId + '&zone=style#tabs-style" class="headerIcon" id="optionsIcon" title="Options button. Click to access the Dashboard."><span class="hidden-sm hidden-md hidden-lg">Dashboard</span></a></li>')
                                             :'')+
                                             '<li class="dropdown" id="userMenu">'+
-                                                '<a class="dropdown-toggle headerIcon" data-toggle="dropdown" role="button" aria-expanded="false" id="userIcon" title="User menu. Roll over to show account options.">'+
+                                                '<a class="dropdown-toggle headerIcon" data-toggle="dropdown" role="menuitem" aria-expanded="false" id="userIcon" title="User menu. Roll over to show account options.">'+
                                                     '<span class="visible-xs">User</span>'+
                                                 '</a>'+
                                                 '<ul class="dropdown-menu" role="menu" id="ScalarHeaderMenuUserList">'+
@@ -373,7 +373,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                         '</ul>'+
                                     '</div>'+
                                 '</div>';
-            base.mobileTOCMenu = $('<div id="mobileMainMenuSubmenus" class="heading_font tocMenu"><div class="toc"><header class="mainMenu"><a class="headerIcon"><span class="visible-xs">Table of Contents</span></a></header><footer><div class="footer_content"><button class="btn back text-center"></button><button class="btn close_menu text-center"><span class="menuIcon closeIcon"></span></button></div></footer></div><div class="pages"></div></div>').appendTo('body');
+            base.mobileTOCMenu = $('<div id="mobileMainMenuSubmenus" class="heading_font tocMenu"><div class="toc"><header class="mainMenu"><a class="headerIcon"><span class="visible-xs">Table of Contents</span></a></header><footer><div class="footer_content"><button class="btn back text-center"><img src="../system/application/views/melons/cantaloupe/images/back_icon.png" width="30" alt="Go back"/></button><button class="btn close_menu text-center"><img src="../system/application/views/melons/cantaloupe/images/close_menu_icon.png" width="30" alt="Close all submenus"/></span></button></div></footer></div><div class="pages"></div></div>').appendTo('body');
             base.mobileTOCMenu.find('.close_menu, header>a').on('click', function(e){
                 $('#mobileMainMenuSubmenus').removeClass('active');
                 $('.mainMenuDropdown, #ScalarHeaderMenu').css({
@@ -1632,11 +1632,11 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 redirect_url = encodeURIComponent(window.location.href);
             }
             if (base.logged_in){
-                userList.append('<li><a href="' + base.get_param(addTemplateToURL(system_uri + '/dashboard?'+((base.is_author||base.is_editor)?'book_id=' + base.book_id + '&' : '')+'zone=user#tabs-user', 'cantaloupe')) + '">Account</a></li>');
-                userList.append('<li><a href="' + base.get_param(addTemplateToURL(system_uri+'/logout?action=do_logout&redirect_url='+redirect_url + '&', 'cantaloupe')) + '">Sign out</a></li>');
+                userList.append('<li><a role="menuitem" href="' + base.get_param(addTemplateToURL(system_uri + '/dashboard?'+((base.is_author||base.is_editor)?'book_id=' + base.book_id + '&' : '')+'zone=user#tabs-user', 'cantaloupe')) + '">Account</a></li>');
+                userList.append('<li><a role="menuitem" href="' + base.get_param(addTemplateToURL(system_uri+'/logout?action=do_logout&redirect_url='+redirect_url + '&', 'cantaloupe')) + '">Sign out</a></li>');
             } else {
-                userList.append('<li><a href="' + base.get_param(addTemplateToURL(system_uri+'/login?redirect_url='+redirect_url + '&', 'cantaloupe')) + '">Sign in</a></li>');
-                userList.append('<li><a href="' + base.get_param(addTemplateToURL(system_uri+'/register?redirect_url='+redirect_url + '&', 'cantaloupe')) + '">Register</a></li>');
+                userList.append('<li><a role="menuitem" href="' + base.get_param(addTemplateToURL(system_uri+'/login?redirect_url='+redirect_url + '&', 'cantaloupe')) + '">Sign in</a></li>');
+                userList.append('<li><a role="menuitem" href="' + base.get_param(addTemplateToURL(system_uri+'/register?redirect_url='+redirect_url + '&', 'cantaloupe')) + '">Register</a></li>');
             }
         }
 
@@ -1712,7 +1712,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
               });
             }
 
-            lensMenu.append('<li class="vis_link"><a role="button" href="' + base.get_param(scalarapi.model.urlPrefix + 'manage_lenses') + '"><span class="menuIcon" id="lensIcon"></span> ' + manageLinkTitle + '</a></li>');
+            lensMenu.append('<li class="vis_link"><a role="menuitem" href="' + base.get_param(scalarapi.model.urlPrefix + 'manage_lenses') + '"><span class="menuIcon" id="lensIcon"></span> ' + manageLinkTitle + '</a></li>');
           }
 
         };

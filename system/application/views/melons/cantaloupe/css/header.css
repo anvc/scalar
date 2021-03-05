@@ -21,6 +21,7 @@ body.in_menu{
 	width: 1px;
 	height: 1px;
 	position: absolute;
+	color: black;
 }
 
 .navbar a, #mobileMainMenuSubmenus a{
@@ -333,6 +334,7 @@ a.headerIcon{
 	line-height: 5rem;
 	overflow: hidden;
 	text-overflow: ellipsis;
+	color: #dddddf;
 }
 #desktopTitleWrapper{
 	height: 5rem;
@@ -974,11 +976,11 @@ i.loader{
 		left: 0;
 		top: 0;
 		bottom: 0;
-		width: 5rem;
+		/*width: 5rem;
 		background-image: url(../images/back_icon.png);
 		background-repeat: no-repeat;
 		background-position: center;
-		background-size: 3rem;
+		background-size: 3rem;*/
 	}
 	#mobileMainMenuSubmenus footer .close_menu{
 		width: 100%;
@@ -992,10 +994,10 @@ i.loader{
 		text-transform: none;
 	}
 	.navbar .closeIcon, #mobileMainMenuSubmenus .closeIcon {
-	  background-image: url(../images/icon_close_light.png);
+	  /*background-image: url(../images/icon_close_light.png);
 	  background-size: 4rem;
 	  height: 5rem;
-	  width: 5rem;
+	  width: 5rem;*/
 	  margin-right: 0;
 	}
 	#mobileMainMenuSubmenus{
