@@ -99,7 +99,7 @@ class SendMail {
     	$arr['msg']  = sprintf($this->CI->lang->line('email.lens_submitted_intro'),$book_title)."\n\n";
     	$arr['msg'] .= $msg;
     	$arr['msg'] .= $this->CI->lang->line('email.lens_submitted_outro')."\n\n";
-    	$arr['msg'] .= '<a href="'.$book_url.'/manage-lenses">'.$book_url.'/manage-lenses</a>'."\n\n";
+    	$arr['msg'] .= '<a href="'.$book_url.'/manage_lenses">'.$book_url.'/manage_lenses</a>'."\n\n";
     	$arr['msg'] .= $this->CI->lang->line('email.lens_submitted_footer');
 
     	$this->send($arr);
