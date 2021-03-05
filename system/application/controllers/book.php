@@ -380,6 +380,7 @@ class Book extends MY_Controller {
 				
 				$_content = $this->pages->get($content_id);
 				$return['slug'] = $_content->slug;
+				$return['urn'] = $this->versions->urn($version_id);
 				
 			} elseif ('update' == $action) {
 				
@@ -407,6 +408,7 @@ class Book extends MY_Controller {
 				$save['attribution'] = $this->versions->build_attribution($fullname, $this->input->server('REMOTE_ADDR'));
 				$version_id = $this->versions->create($content_id, $save);
 				if (empty($version_id)) throw new Exception('Could not save the new version');  // TODO: delete prev made content
+				$return['urn'] = $this->versions->urn($version_id);
 				
 				// Save Lens relation
 				if (!$this->lenses->save_children($version_id, array($lens))) throw new Exception('Could not save relation');

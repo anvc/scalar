@@ -188,11 +188,11 @@ class System extends MY_Controller {
 				// Get items from JSON
 				$json['items'] = $this->lenses->get_nodes_from_json($book_id, $json, confirm_slash(base_url()).$this->data['book']->slug);
 				if (isset($json['urn'])) {
-					// Return version title and slug
 					$urn_arr = explode(':', $json['urn']);
 					$version_id = $urn_arr[count($urn_arr)-1];
 					$version = $this->versions->get($version_id, '', false);
 					if (!empty($version)) {
+						// Return version title and slug
 						$json['title'] = $version->title;
 						$page = $this->pages->get($version->content_id);
 						$json['slug'] = $page->slug;
@@ -1273,7 +1273,7 @@ class System extends MY_Controller {
 				}
 				$this->load->model('lens_model', 'lenses');
 				$this->lenses->set_submitted_to($version_id, true, $comment);
-				$this->data['content'] = $version;
+				$this->data['content'] = $this->lenses->get_children($version_id);
 				break;
 			case 'create_edition':
 				$book_id =@ (int) $_REQUEST['book_id'];

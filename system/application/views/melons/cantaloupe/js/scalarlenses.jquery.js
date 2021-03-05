@@ -3921,8 +3921,10 @@
         			alert('There was an error: ' + json['error']);
         			return;
         		};
-            $('body').trigger('lensUpdated', this.scalarLensObject);
-            if (successHandler) successHandler();
+    			var urn = json['urn'];
+    			// TODO: update the local Lens JSON to use the the new URN, which has been incremented with the update
+        		$('body').trigger('lensUpdated', this.scalarLensObject);
+        		if (successHandler) successHandler();
         	},
         	error: function(err) {
         		alert('There was an error connecting to the server');
