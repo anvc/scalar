@@ -2,9 +2,11 @@
 <head>
 <title>404 Page Not Found</title>
 <style type="text/css">
+@import url(//fonts.googleapis.com/css?family=Lato:400,900,400italic,900italic);
+
 body {
 	margin: 0px 0px 0px 0px;
-	font-family: 'Lucida Grande', 'Lucida Sans Unicode', sans-serif;
+	font-family: 'Lato', Arial, sans-serif;
 	color: #000000;
 	font-size: 0.8em;
 	background-color: #ffffff;
@@ -60,19 +62,19 @@ a {
 				<tbody>
 					<tr>
 						<td class="login_header" colspan="2">
-							<img src="<?=confirm_slash(base_url())?>/system/application/views/modules/login/scalar_logo.png" alt="scalar_logo" width="75" height="68">
+							<img src="<?=confirm_slash(base_url())?>/system/application/views/modules/login/scalar_logo.png" alt="Scalar logo" width="75" height="68">
 							<h4><?php echo $heading; ?></h4>
 							<?php echo $message; ?>
 						</td>
 					</tr>
 				</tbody>
-			</table>			
+			</table>
 			<div class="login_footer">
-				<a href="<?=base_url()?>">Return to index</a> | 
+				<a href="<?=base_url()?>">Return to index</a> |
 				<a href="http://scalar.usc.edu/terms-of-service/" target="_blank">Terms of Service</a>
 			</div>
 		</div>
-		<br clear="both">	
+		<br clear="both">
 	</div>
 	<br clear="both">
 </div>

@@ -40,7 +40,7 @@ $this->template->add_js('system/application/views/arbors/admin/jquery-3.4.1.min.
 		<table class="form_fields">
 			<tr>
 				<td class="login_header" colspan="2">
-					<img src="application/views/modules/login/scalar_logo.png" alt="scalar_logo" width="75" height="68" />
+					<img src="application/views/modules/login/scalar_logo.png" alt="Scalar logo" width="75" height="68" />
 					<h4>Please sign in below</h4>
 				</td>
 			</tr>

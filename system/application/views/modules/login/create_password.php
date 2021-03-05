@@ -50,7 +50,7 @@ $(window).ready(function() {
 		<table class="form_fields">
 			<tr>
 				<td class="login_header" colspan="2">
-					<img src="application/views/modules/login/scalar_logo.png" alt="scalar_logo" width="75" height="68" />
+					<img src="application/views/modules/login/scalar_logo.png" alt="Scalar logo" width="75" height="68" />
 					<h4>Please enter your login email address, and set a new password below.</h4>
 				</td>
 			</tr>

@@ -52,7 +52,7 @@ if (isset($_POST['registration_key'])) $registration_key = trim(htmlspecialchars
 		<table class="form_fields">
 			<tr>
 				<td class="login_header" colspan="2">
-					<img src="application/views/modules/login/scalar_logo.png" alt="scalar_logo" width="75" height="68" />
+					<img src="application/views/modules/login/scalar_logo.png" alt="Scalar logo" width="75" height="68" />
 					<h4>Please register a new account below</h4>
 				</td>
 			</tr>

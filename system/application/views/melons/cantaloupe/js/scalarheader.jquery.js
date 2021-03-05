@@ -291,7 +291,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                             '<li id="ScalarHeaderMenuSearchForm">'+
                                                 '<form class="navbar-form" role="search" action="./">'+
                                                     '<div class="form-group">'+
-                                                        '<input type="text" class="form-control" placeholder="Search this book...">'+
+                                                        '<input title="Search this book" type="text" class="form-control" placeholder="Search this book...">'+
                                                         '<input type="submit" class="hidden_submit">'+
                                                     '</div>'+
                                                   '</form>'+
