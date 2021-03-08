@@ -74,5 +74,22 @@
 }
 .non-ideal-state-message {
   font-size: 12px;
+  line-height: 150%;
   font-style: italic;
+}
+.lens-edit-container {
+  margin-top: 34px;
+}
+.lens-edit-container .non-ideal-state-message {
+  margin-top: 150px;
+  text-align: center;
+  color: #595959;
+  font-style: normal;
+}
+.lens-edit-container .non-ideal-state-message img {
+  width: 64px;
+  margin-bottom: 20px;
+}
+.lens-vis-container {
+  margin-top: 20px;
 }

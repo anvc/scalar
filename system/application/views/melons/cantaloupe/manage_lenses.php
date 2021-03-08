@@ -37,11 +37,13 @@
 		</div>
 		<div class="col-sm-8 heading_font">
 			<div class="lens-edit-container">
-				<h4>Edit</h4>
+				<div class="non-ideal-state-message caption_font">
+					<img src="../system/application/views/melons/cantaloupe/images/icon_lens_lrg.png" alt="Lens icon"/>
+					<p>Select or create a lens to begin.</p>
+				</div>
 				<div class="page-lens-editor"></div>
 			</div>
-			<div class="vis-container">
-				<h4>Preview</h4>
+			<div class="lens-vis-container">
 				<div class="visualization"></div>
 			</div>
 		</div>

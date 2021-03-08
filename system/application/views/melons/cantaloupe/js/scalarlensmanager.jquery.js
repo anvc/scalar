@@ -31,9 +31,8 @@
         this.userId = parseInt(temp[temp.length - 1]);
       }
       this.isConnectedToBook = ($('link#user_level').length) ? true : false;
-      $('heading').append('<p>Lenses are living snapshots of the content of this project, visualizing dynamic selections of pages and media. <a href="#">Learn more »</a></p>');
+      $('heading').append('<p><strong>Lenses allow you to search and visualize the content of this project.</strong> Authors may create and publish lenses for everyone to use, and you can create your own privately. <a href="#">Learn more »</a></p>');
       $('body').on('lensUpdated', (evt, lens) => { this.handleLensUpdated(evt, lens); });
-      $('.lens-edit-container>h4,.vis-container>h4').after('<div class="non-ideal-state-message caption_font">No lens selected.</div>');
       this.addSubmittedMessage();
       this.getLensData();
     }
@@ -191,12 +190,12 @@
           lens: lens,
           onLensResults: this.handleLensResults
         });
-        $('.lens-edit-container>.non-ideal-state-message,.vis-container>.non-ideal-state-message').hide();
+        $('.lens-edit-container>.non-ideal-state-message').hide();
         var visualization = $('.visualization');
         visualization.empty();
         visualization.append('<div class="caption_font">Loading data...</div>');
       } else {
-        $('.lens-edit-container>.non-ideal-state-message,.vis-container>.non-ideal-state-message').show();
+        $('.lens-edit-container>.non-ideal-state-message').show();
       }
     }
 
@@ -225,7 +224,9 @@
         }
         comments.text(message);
         let user = $('#submitted-lens-user');
-        user.html(lens.user.fullname + ' (<a href="mailto:' + lens.user.email + '">' + lens.user.email + '</a>)');
+        if (lens.user) {
+          user.html(lens.user.fullname + ' (<a href="mailto:' + lens.user.email + '">' + lens.user.email + '</a>)');
+        }
         if (lens.submitted) {
           this.submittedMessage.show();
         } else {
@@ -326,10 +327,6 @@
       let submittedLensArray = [];
       let publicLensArray = [];
 
-      if (!this.count) {
-        this.count = 0;
-      }
-
       // build sidebar list
       data.forEach((lens, index) => {
         if (!lens.hidden) {
@@ -374,7 +371,7 @@
           markup.data('lens', privateLensItem);
         });
       } else {
-        $('.my-private-lenses-list').append('<div class="non-ideal-state-message caption_font">You have no private lenses.</div>');
+        $('.my-private-lenses-list').append('<div class="non-ideal-state-message caption_font">You currently have no private lenses.</div>');
       }
 
       // other private lenses
@@ -420,7 +417,7 @@
           markup.data('lens', publicLensItem);
         });
       } else {
-        $('.public-lenses-list').append('<div class="non-ideal-state-message caption_font">No public lenses available.</div>');
+        $('.public-lenses-list').append('<div class="non-ideal-state-message caption_font">The authors have not created any public lenses for this project.</div>');
       }
 
       if (this.selectedLens == null) {

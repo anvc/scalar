@@ -1664,56 +1664,52 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
           let privateLensArray = [];
           let publicLensArray = [];
 
-          if (data.length == 0 && !base.is_author && !base.is_editor) {
-            $('#lenses_menu').remove();
-          } else {
-            data.forEach(lens => {
-              if (!lens.hidden) {
-                publicLensArray.push(lens);
-              } else if (lens.user_id == base.userId) {
-                privateLensArray.push(lens);
-              }
-            });
-            let lensMenu = $('#lenses_menu>ul');
-            lensMenu.empty();
-
-            let manageLinkTitle = "Browse Lenses";
-            if (base.is_author || base.is_editor) {
-              manageLinkTitle = "Manage Lenses";
+          data.forEach(lens => {
+            if (!lens.hidden) {
+              publicLensArray.push(lens);
+            } else if (lens.user_id == base.userId) {
+              privateLensArray.push(lens);
             }
+          });
+          let lensMenu = $('#lenses_menu>ul');
+          lensMenu.empty();
 
-            // private lenses
-            if (privateLensArray.length > 0) {
-              lensMenu.append('<li class="header"><h2>My Private Lenses</h2></li>');
-              privateLensArray.forEach(privateLensItem => {
-                let vizType = privateLensItem.visualization.type;
-                let lensLink = $('link#parent').attr('href') + privateLensItem.slug;
-                let markup = $(`
-                  <li class="lens">
-                    <a href="${lensLink}"><span class="title">${privateLensItem.title}</span>
-                    <span class="viz-icon ${vizType}"></span>
-                  </li>`
-                ).appendTo(lensMenu);
-              });
-            }
-
-            // public lenses
-            if (publicLensArray.length > 0) {
-              lensMenu.append('<li class="header"><h2>Public Lenses</h2></li>');
-              publicLensArray.forEach(publicLensItem => {
-                let vizType = publicLensItem.visualization.type;
-                let lensLink = $('link#parent').attr('href') + publicLensItem.slug;
-                let markup = $(`
-                  <li class="lens">
-                    <a href="${lensLink}"><span class="title">${publicLensItem.title}</span>
-                    <span class="viz-icon ${vizType}"></span>
-                  </li>`
-                ).appendTo(lensMenu);
-              });
-            }
-
-            lensMenu.append('<li class="vis_link"><a role="menuitem" href="' + base.get_param(scalarapi.model.urlPrefix + 'manage_lenses') + '"><span class="menuIcon" id="lensIcon"></span> ' + manageLinkTitle + '</a></li>');
+          let manageLinkTitle = "Browse Lenses";
+          if (base.is_author || base.is_editor) {
+            manageLinkTitle = "Manage Lenses";
           }
+
+          // private lenses
+          if (privateLensArray.length > 0) {
+            lensMenu.append('<li class="header"><h2>My Private Lenses</h2></li>');
+            privateLensArray.forEach(privateLensItem => {
+              let vizType = privateLensItem.visualization.type;
+              let lensLink = $('link#parent').attr('href') + privateLensItem.slug;
+              let markup = $(`
+                <li class="lens">
+                  <a href="${lensLink}"><span class="title">${privateLensItem.title}</span>
+                  <span class="viz-icon ${vizType}"></span>
+                </li>`
+              ).appendTo(lensMenu);
+            });
+          }
+
+          // public lenses
+          if (publicLensArray.length > 0) {
+            lensMenu.append('<li class="header"><h2>Public Lenses</h2></li>');
+            publicLensArray.forEach(publicLensItem => {
+              let vizType = publicLensItem.visualization.type;
+              let lensLink = $('link#parent').attr('href') + publicLensItem.slug;
+              let markup = $(`
+                <li class="lens">
+                  <a href="${lensLink}"><span class="title">${publicLensItem.title}</span>
+                  <span class="viz-icon ${vizType}"></span>
+                </li>`
+              ).appendTo(lensMenu);
+            });
+          }
+
+          lensMenu.append('<li class="vis_link"><a role="menuitem" href="' + base.get_param(scalarapi.model.urlPrefix + 'manage_lenses') + '"><span class="menuIcon" id="lensIcon"></span> ' + manageLinkTitle + '</a></li>');
 
         };
 
