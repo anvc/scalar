@@ -3921,8 +3921,7 @@
         			alert('There was an error: ' + json['error']);
         			return;
         		};
-    			var urn = json['urn'];
-    			// TODO: update the local Lens JSON to use the the new URN, which has been incremented with the update
+    			  this.scalarLensObject.urn = json['urn'];
         		$('body').trigger('lensUpdated', this.scalarLensObject);
         		if (successHandler) successHandler();
         	},

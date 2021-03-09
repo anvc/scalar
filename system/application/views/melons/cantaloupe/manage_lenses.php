@@ -39,7 +39,7 @@
 			<div class="lens-edit-container">
 				<div class="non-ideal-state-message caption_font">
 					<img src="../system/application/views/melons/cantaloupe/images/icon_lens_lrg.png" alt="Lens icon"/>
-					<p>Select or create a lens to begin.</p>
+					<p>Sign in and select or create a lens to begin.</p>
 				</div>
 				<div class="page-lens-editor"></div>
 			</div>
