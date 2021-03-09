@@ -467,9 +467,8 @@
       } else {
         button.text(this.visualizationOptions[visualizationObj.type].text).prepend('<span class="viz-icon '  + visualizationObj.type + ' light"</span>').append('<span class="caret"></span>')
       }
-
-      $(this.element).find('.dropdown-menu li').removeClass('active');
-      $(this.element).find('.dropdown-menu li').each(function() {
+      button.parent().find('.dropdown-menu li').removeClass('active');
+      button.parent().find('.dropdown-menu li').each(function() {
         let listItemValue = $(this).text().toLowerCase();
         if(listItemValue == visualizationObj.type){
           $(this).addClass('active');
@@ -524,7 +523,6 @@
     }
 
     ScalarLenses.prototype.updateContentSelectorButton = function(contentSelectorObj, element){
-
       var me = this;
       let onClick = function (evt) {
         let buttonGroup = $(evt.target).parent().parent().parent();
@@ -2386,7 +2384,6 @@
       // cancel click handler
       element.find('.cancel').on('click', function(){
         let currentButton = $(me.element).find('.component-container').eq(me.editedSortIndex).find('.modifier-btn-group').eq(me.editedSortIndex);
-        //$(currentButton).find('.dropdown-menu li.active').removeClass('active');
       });
 
       return element;
