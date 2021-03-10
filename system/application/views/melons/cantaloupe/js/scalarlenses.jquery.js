@@ -801,9 +801,11 @@
             case 'content':
               buttonText = 'that ';
               if (filterObj.operator == 'exclusive') {
-                buttonText += 'don’t include “';
+                buttonText += 'don’t contain “';
               } else if (filterObj.operator == 'inclusive') {
-                buttonText += 'include “';
+                buttonText += 'contain “';
+              } else if (filterObj.operator == 'exact-match') {
+                buttonText += 'exactly match “';
               }
               buttonText += filterObj.content + '”';
             break;
@@ -844,9 +846,11 @@
 
               let operatorText;
               if(metadataOperator == 'inclusive'){
-                operatorText = 'include'
+                operatorText = 'contain'
               } else if(metadataOperator == 'exclusive'){
-                operatorText = 'does not include'
+                operatorText = 'don’t contain'
+              } else if(metadataOperator == 'exact-match'){
+                operatorText = 'exactly match'
               }
               buttonText = `that ${operatorText} “${metadataContent}” in ${metadataProperty.split(':')[1]}`;
             break;
@@ -1955,8 +1959,9 @@
       this.populateDropdown($('#operator-button'), $('#operator-list'), filterObj.operator, onClick,
         '<li><a tabindex="-1"></a></li>',
         [
-          {label: "include", value: "inclusive"},
-          {label: "don’t include", value: "exclusive"}
+          {label: "contain", value: "inclusive"},
+          {label: "don’t contain", value: "exclusive"},
+          {label: "exactly match", value: "exact-match"}
         ]);
 
       $('#content-input').val(filterObj.content).on('change', onClick);
@@ -2174,8 +2179,9 @@
       this.populateDropdown($('#operator-button'), $('#operator-list'), filterObj.operator, onClick,
         '<li><a tabindex="-1"></a></li>',
         [
-          {label: "include", value: "inclusive"},
-          {label: "do not include", value: "exclusive"}
+          {label: "contain", value: "inclusive"},
+          {label: "don’t contain", value: "exclusive"},
+          {label: "exactly match", value: "exact-match"}
         ]);
 
       // save metadata content value
