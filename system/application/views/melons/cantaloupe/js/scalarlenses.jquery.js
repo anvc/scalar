@@ -172,10 +172,7 @@
     }
 
     ScalarLenses.prototype.getDefaultJson = function(){
-      // the Lens object
-      let currentPageNode = scalarapi.model.getCurrentPageNode();
-      return {
-        "urn": $('link#urn').attr('href').replace("version", "lens"),
+      let json = {
         "submitted": false,
         "hidden": true,
         "frozen": false,
@@ -186,11 +183,18 @@
         },
         "components": [],
         "sorts": [],
-        "title": currentPageNode.title,
-        "slug": currentPageNode.slug,
+        "title": "Untitled lens",
+        "slug": "untitled-lens",
         "user_id": this.userId,
         "user_level": this.userLevel
       };
+      let currentPageNode = scalarapi.model.getCurrentPageNode();
+      if (currentPageNode) {
+        json.urn = currentPageNode.current.urn;
+        json.title = currentPageNode.title;
+        json.slug = currentPageNode.slug;
+      }
+      return json;
     }
 
     ScalarLenses.prototype.buildEditorDom = function (){
@@ -3450,7 +3454,11 @@
 
     ScalarLenses.prototype.clearLens = function() {
       $(this.element).empty();
-      this.scalarLensObject = this.getDefaultJson();
+      let json = this.getDefaultJson();
+      json.urn = this.scalarLensObject.urn;
+      json.title = this.scalarLensObject.title;
+      json.slug = this.scalarLensObject.slug;
+      this.scalarLensObject = json;
       this.getLensResults(this.scalarLensObject, this.options.onLensResults);
       this.buildEditorDom();
       this.updateEditorDom();
