@@ -24,15 +24,6 @@
  * @version             1.0
  */
 
-function lens_timestamp_cmp_asc($a, $b) {
-	if ($a->timestamp == $b->timestamp) return 0;
-	return ($a->timestamp < $b->timestamp) ? -1 : 1;
-}
-function lens_timestamp_cmp_desc($a, $b) {
-	if ($a->timestamp == $b->timestamp) return 0;
-	return ($a->timestamp < $b->timestamp) ? 1 : -1;
-}
-
 class Lens_model extends MY_Model {
 
 	private $urn_template = 'urn:scalar:lens:$1';
@@ -238,6 +229,7 @@ class Lens_model extends MY_Model {
 									$has_used_filter = true;
 									$operator = (isset($modifier['operator']) && 'exclusive'==$modifier['operator']) ? 'exclusive' : 'inclusive';
 									$types = (isset($modifier['content-types'])) ? $modifier['content-types'] : array();
+									if (!is_array($types)) $types = array($types);
 									if (isset($modifier['content-type'])) $types[] = $modifier['content-type'];
 									switch ($operator) {
 										case 'exclusive':
@@ -291,7 +283,7 @@ class Lens_model extends MY_Model {
 								}
 								break;
 							case "content-types":
-								
+								// TODO: is this needed? content-types are filtered above
 								break;
 						}
 					}
@@ -303,16 +295,59 @@ class Lens_model extends MY_Model {
 		if (isset($json['sorts'])) {
 			foreach ($json['sorts'] as $sort) {
 				switch ($sort['sort-type']) {
-					case "match-count":
-						
-						break;
 					case "alphabetical":
 						$field = $sort['metadata-field'];
 						$direction = ('descending' == $sort['sort-order']) ? 'desc' : 'asc';
 						$contents = $this->sort_by_predicate($contents, $field, $direction);
 						break;
+					case "creation-date":
+						$direction = ('descending' == $sort['sort-order']) ? 'desc' : 'asc';
+						$contents = $this->sort_by_predicate($contents, 'dcterms:created', $direction, true);
+						break;
+					case "edit-date":
+						$direction = ('descending' == $sort['sort-order']) ? 'desc' : 'asc';
+						$contents = $this->sort_by_predicate($contents, 'dcterms:created', $direction);
+						break;
 					case "distance":
-						
+						$direction = ('descending' == $sort['sort-order']) ? 'desc' : 'asc';
+						$arr = explode(',',$sort['content']);
+						$loc_lat = trim($arr[0]);
+						$loc_lng = trim($arr[1]);
+						for ($j = 0; $j < count($contents); $j++) {
+							$contents[$j]->distance = 0;
+							$latlng = $this->get_latlng_from_item($contents[$j]);
+							if (empty($latlng)) continue;
+							$arr = explode(',',$latlng);
+							$dest_lat = trim($arr[0]);
+							$dest_lng = trim($arr[1]);
+							$dest_distance_in_meters = latlng_distance($loc_lat, $loc_lng, $dest_lat, $dest_lng);
+							$contents[$j]->distance = $dest_distance_in_meters;
+						}
+						usort($contents, "lens_distance_cmp_".$direction);
+						break;
+					case "type":
+						$direction = (isset($sort['sort-order']) && 'descending' == $sort['sort-order']) ? 'desc' : 'asc';
+						for ($j = 0; $j < count($contents); $j++) {
+							$contents[$j]->relation_type = $this->get_relation_type($contents[$j]);
+						}
+						usort($contents, "lens_relation_type_cmp_".$direction);
+						break;
+						break;
+					case "relationship-count":
+						$direction = ('descending' == $sort['sort-order']) ? 'desc' : 'asc';
+						for ($j = 0; $j < count($contents); $j++) {
+							$contents[$j]->num_relations = $this->get_num_relations($contents[$j]);
+						}
+						usort($contents, "lens_relationship_count_cmp_".$direction);
+						break;
+					case "match-count":
+						$direction = ('descending' == $sort['sort-order']) ? 'desc' : 'asc';
+						$field = $sort['metadata-field'];
+						$match = $sort['content'];
+						for ($j = 0; $j < count($contents); $j++) {
+							$contents[$j]->string_matches = $this->get_num_string_matches($contents[$j], $field, $match);
+						}
+						usort($contents, "lens_string_matches_cmp_".$direction);
 						break;
 					case "visit-date":
 						$direction = ('descending' == $sort['sort-order']) ? 'desc' : 'asc';
@@ -325,9 +360,6 @@ class Lens_model extends MY_Model {
 							}
 						}
 						usort($contents, "lens_timestamp_cmp_".$direction);
-						break;
-					case "type":
-						
 						break;
 				}
 			}
@@ -446,6 +478,93 @@ class Lens_model extends MY_Model {
     	}
     	
     	return $return;
+    	
+    }
+    
+    public function get_num_relations($item, $book_id=0) {
+    	
+    	$CI =& get_instance();
+    	$num = 0;
+    	
+    	// get parent version ID
+    	$version = $this->versions->get_single($item->content_id, null, '', false);
+    	$version_id = $version->version_id;
+    	
+    	// get references
+    	$types = $CI->config->item('ref');
+    	foreach ($types as $type_p) {
+    		$type = rtrim($type_p, "s");
+    		if (!isset($CI->$type_p) || 'object'!=gettype($CI->$type_p)) $CI->load->model($type.'_model',$type_p);
+    		$items = $CI->$type_p->get_children($version_id, '', '', true, null);
+			$num = $num + count($items);
+			$items = $CI->$type_p->get_parents($version_id, '', '', true, null);
+			$num = $num + count($items);
+   		}
+   		
+    	// get parents
+    	$types = $CI->config->item('rel');
+    	foreach ($types as $type_p) {
+    		$type = rtrim($type_p, "s");
+    		if ($type == 'replie') $type = 'reply';
+    		if (!isset($CI->$type_p) || 'object'!=gettype($CI->$type_p)) $CI->load->model($type.'_model',$type_p);
+    		$items = $CI->$type_p->get_parents($version_id, '', '', true, null);
+    		$num = $num + count($items);
+    	}
+    	
+    	// get children
+    	$types = $CI->config->item('rel');
+    	foreach ($types as $type_p) {
+    		$type = rtrim($type_p, "s");
+    		if ($type == 'replie') $type = 'reply';
+    		if (!isset($CI->$type_p) || 'object'!=gettype($CI->$type_p)) $CI->load->model($type.'_model',$type_p);
+    		$items = $CI->$type_p->get_children($version_id, '', '', true, null);
+    		$num = $num + count($items);
+    	}
+    	
+    	return $num;
+    	
+    }
+    
+    public function get_relation_type($item) {
+    	
+    	$CI =& get_instance();
+		$the_type = 'page';
+		if ($item->type == 'media') $the_type= 'media';
+    	
+    	// get parent version ID
+    	$version = $this->versions->get_single($item->content_id, null, '', false);
+    	$version_id = $version->version_id;
+    	
+    	// get references
+    	$types = $CI->config->item('ref');
+    	foreach ($types as $type_p) {
+    		$type = rtrim($type_p, "s");
+    		if (!isset($CI->$type_p) || 'object'!=gettype($CI->$type_p)) $CI->load->model($type.'_model',$type_p);
+    		$items = $CI->$type_p->get_children($version_id, '', '', true, null);
+    		if (count($items)) $the_type= 'reference';
+    	}
+    	
+    	// get parents
+    	$types = $CI->config->item('rel');
+    	foreach ($types as $type_p) {
+    		$type = rtrim($type_p, "s");
+    		if ($type == 'replie') $type = 'reply';
+    		if (!isset($CI->$type_p) || 'object'!=gettype($CI->$type_p)) $CI->load->model($type.'_model',$type_p);
+    		$items = $CI->$type_p->get_parents($version_id, '', '', true, null);
+    		if (count($items)) $the_type= $type;
+    	}
+    	
+    	// get children
+    	$types = $CI->config->item('rel');
+    	foreach ($types as $type_p) {
+    		$type = rtrim($type_p, "s");
+    		if ($type == 'replie') $type = 'reply';
+    		if (!isset($CI->$type_p) || 'object'!=gettype($CI->$type_p)) $CI->load->model($type.'_model',$type_p);
+    		$items = $CI->$type_p->get_children($version_id, '', '', true, null);
+    		if (count($items)) $the_type= $type;
+    	}
+    	
+    	return $the_type;
     	
     }
     
@@ -687,8 +806,6 @@ class Lens_model extends MY_Model {
 	    			$relational_content = $this->$model->get_children($version_id, '', '', true);
 	    			if (empty($relational_content)) unset($content[$key]);
     			}
-    		} elseif ('table-of-contents'==$content_type) {
-				// TODO
     		}
     	} elseif (isset($component['content-selector'])) {
     		$items = $component['content-selector']['items'];
@@ -715,13 +832,17 @@ class Lens_model extends MY_Model {
     	
     }
     
-    public function sort_by_predicate($contents, $field, $dir='asc') {
+    public function sort_by_predicate($contents, $field, $dir='asc', $field_is_in_content=false) {
     	
-    	// Check "built-in" fields
+    	// Check "built-in" Version fields
     	$rdf_fields = $this->config->item('rdf_fields');
     	if (in_array($field, $rdf_fields)) {
     		$name = array_search($field, $rdf_fields);
-    		usort($contents, array(new LensFieldCmpClosure($name, $dir), "call"));
+    		if ($field_is_in_content) {
+    			usort($contents, array(new LensContentFieldCmpClosure($name, $dir), "call"));
+    		} else {
+    			usort($contents, array(new LensVersionFieldCmpClosure($name, $dir), "call"));
+    		}
     		return $contents;
     		
     	// Check RDF fields
@@ -734,6 +855,34 @@ class Lens_model extends MY_Model {
     		$uri = $base.$name;
     		usort($contents, array(new LensRDFCmpClosure($uri, $dir), "call"));
     		return $contents;
+    	}
+    	
+    }
+    
+    public function get_num_string_matches($item, $field='', $match='') {
+    	
+    	// Check "built-in" fields
+    	$rdf_fields = $this->config->item('rdf_fields');
+    	if (in_array($field, $rdf_fields)) {
+    		$name = array_search($field, $rdf_fields);
+    		if (isset($item->{$name})) {
+    			return substr_count(strtolower($item->{$name}), $match);
+    		} elseif (isset($item->versions[0]->{$name})) {
+    			return substr_count(strtolower($item->versions[0]->{$name}), $match);
+    		}
+    		
+    		// Check RDF fields
+    	} else {
+    		$ns = $this->config->item('namespaces');
+    		$arr = explode(':', $field);
+    		$prefix = $arr[0];
+    		$name =@ $arr[1];
+    		$base = (array_key_exists($prefix, $ns)) ? $ns[$prefix] : '';
+    		$uri = $base.$name;
+    		if (isset($item->versions[0]->rdf[$uri]) && isset($item->versions[0]->rdf[$uri][0]['value'])) {
+    			return substr_count(strtolower($item->versions[0]->rdf[$uri][0]['value']), $match);
+    		}
+    		return 0;
     	}
     	
     }
@@ -853,14 +1002,63 @@ class Lens_model extends MY_Model {
 
 }
 
+/** 
+ * Sorting functions
+ */
+
+function lens_timestamp_cmp_asc($a, $b) {
+	if ($a->timestamp == $b->timestamp) return 0;
+	return ($a->timestamp < $b->timestamp) ? -1 : 1;
+}
+function lens_timestamp_cmp_desc($a, $b) {
+	if ($a->timestamp == $b->timestamp) return 0;
+	return ($a->timestamp < $b->timestamp) ? 1 : -1;
+}
+
+function lens_distance_cmp_asc($a, $b) {
+	if ($a->distance == $b->distance) return 0;
+	return ($a->distance< $b->distance) ? -1 : 1;
+}
+function lens_distance_cmp_desc($a, $b) {
+	if ($a->distance== $b->distance) return 0;
+	return ($a->distance< $b->distance) ? 1 : -1;
+}
+
+function lens_relationship_count_cmp_asc($a, $b) {
+	if ($a->num_relations== $b->num_relations) return 0;
+	return ($a->num_relations< $b->num_relations) ? -1 : 1;
+}
+function lens_relationship_count_cmp_desc($a, $b) {
+	if ($a->num_relations == $b->num_relations) return 0;
+	return ($a->num_relations< $b->num_relations) ? 1 : -1;
+}
+
+function lens_relation_type_cmp_asc($a, $b) {
+	if ($a->relation_type == $b->relation_type) return 0;
+	return ($a->relation_type< $b->relation_type) ? -1 : 1;
+}
+function lens_relation_type_cmp_desc($a, $b) {
+	if ($a->relation_type== $b->relation_type) return 0;
+	return ($a->relation_type< $b->relation_type) ? 1 : -1;
+}
+
+function lens_string_matches_cmp_asc($a, $b) {
+	if ($a->string_matches == $b->string_matches) return 0;
+	return ($a->string_matches< $b->string_matches) ? -1 : 1;
+}
+function lens_string_matches_cmp_desc($a, $b) {
+	if ($a->string_matches== $b->string_matches) return 0;
+	return ($a->string_matches< $b->string_matches) ? 1 : -1;
+}
+
 /**
  * Sorting functions that can be passed variables
  * https://stackoverflow.com/questions/8230538/pass-extra-parameters-to-usort-callback
  */
 
-function lens_field_cmp($a, $b, $meta, $dir='asc') {
-	$name_a = $a->versions[0]->{$meta};
-	$name_b = $b->versions[0]->{$meta};
+function lens_content_field_cmp($a, $b, $meta, $dir='asc') {
+	$name_a = $a->{$meta};
+	$name_b = $b->{$meta};
 	if ('desc' == $dir) {
 		return strcasecmp($name_b, $name_a);
 	} else {
@@ -868,7 +1066,7 @@ function lens_field_cmp($a, $b, $meta, $dir='asc') {
 	}
 }
 
-class LensFieldCmpClosure {
+class LensContentFieldCmpClosure {
 	private $meta;
 	private $dir;
 	
@@ -878,7 +1076,31 @@ class LensFieldCmpClosure {
 	}
 	
 	function call( $a, $b ) {
-		return lens_field_cmp($a, $b, $this->meta, $this->dir);
+		return lens_content_field_cmp($a, $b, $this->meta, $this->dir);
+	}
+}
+
+function lens_version_field_cmp($a, $b, $meta, $dir='asc') {
+	$name_a = $a->versions[0]->{$meta};
+	$name_b = $b->versions[0]->{$meta};
+	if ('desc' == $dir) {
+		return strcasecmp($name_b, $name_a);
+	} else {
+		return strcasecmp($name_a, $name_b);
+	}
+}
+
+class LensVersionFieldCmpClosure {
+	private $meta;
+	private $dir;
+	
+	function __construct( $meta, $dir ) {
+		$this->meta = $meta;
+		$this->dir = $dir;
+	}
+	
+	function call( $a, $b ) {
+		return lens_version_field_cmp($a, $b, $this->meta, $this->dir);
 	}
 }
 

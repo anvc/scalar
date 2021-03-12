@@ -4425,7 +4425,7 @@ window.scalarvis = { instanceCount: -1 };
           	var content = ('undefined'!=typeof(base.contentNodes[j].current.content) && null!==base.contentNodes[j].current.content) ? base.contentNodes[j].current.content : '';
           	if (content.length > maxLength) content = content.substr(0, maxLength) + '...';
           	content = content.replace(/(<([^>]+)>)/gi, "");
-          	var author = base.contentNodes[j].current.author;  // Most recent version
+          	var author = base.contentNodes[j].current.properties['http://www.w3.org/ns/prov#wasAttributedTo'][0].value;  // Most recent version
           	var authorUrl = $('link#parent').attr('href') + author ;
           	var authorId = parseInt(authorUrl.substr(authorUrl.lastIndexOf('/')+1));
           	var fullname = ('undefined' != typeof(base.options.lens) && 'undefined' != typeof(base.options.lens.users[authorId])) ? base.options.lens.users[authorId] : '';
