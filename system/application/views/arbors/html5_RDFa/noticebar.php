@@ -92,7 +92,7 @@ elseif (!empty($page->category) && in_array($page->category, $categories_display
 if (isset($page->is_live) && !$page->is_live) {
 	if (isset($page->versions[$page->version_index]->is_lens_of) && !empty($page->versions[$page->version_index]->is_lens_of)) {
 		if ($page_by_contributor) {
-			echo '		<div class="notice"><p>This Lens is hidden, viewable since you are a book author.</p></div>'."\n";
+			echo '		<div class="notice"><p>This Lens is hidden, viewable since you are a book contributor.</p></div>'."\n";
 		} else {
 			echo '		<div class="notice"><p>This Lens is hidden, viewable since you created the page.</p></div>'."\n";
 		}
