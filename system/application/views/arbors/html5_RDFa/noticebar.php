@@ -10,7 +10,7 @@ $categories_display_notice = array('review', 'commentary');
 // Check the page creator against the book's contributors
 $page_by_contributor = false;
 foreach ($book->contributors as $contrib) {
-	if ($contrib->user_id == $page->user->user_id) {
+	if ($contrib->user_id == $page->user->user_id && $contrib->relationship != 'reader') {
 		$page_by_contributor = true;
 		break;
 	}
@@ -90,7 +90,7 @@ elseif (!empty($page->category) && in_array($page->category, $categories_display
 
 // Page or versions aren't visible
 if (isset($page->is_live) && !$page->is_live) {
-	if (isset($page->versions[$page->version_index]->is_lens_of) && !empty($page->versions[$page->version_index]->is_lens_of)) {
+	if (!$page_by_contributor && isset($page->versions[$page->version_index]->is_lens_of) && !empty($page->versions[$page->version_index]->is_lens_of)) {
 		echo '		<div class="notice"><p>This Lens is hidden, viewable only by contributors.</p></div>'."\n";
 	} else {
 		echo '		<div class="error notice-hidden"><p>This page is hidden, viewable only by contributors. It can be removed in the Dashboard, or made visible there or in the page editor.</p></div>'."\n";
