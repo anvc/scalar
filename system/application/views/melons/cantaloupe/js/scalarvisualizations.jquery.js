@@ -4258,15 +4258,15 @@ window.scalarvis = { instanceCount: -1 };
       }
 
       draw() {
-      if (this.isDrawing) return;
-      this.isDrawing = true;
+    	if (this.isDrawing) return;
+    	this.isDrawing = true;
         super.draw();
+        base.visualization.addClass("tag_cloud caption_font");
         if ('undefined' == typeof($.fn.jQCloud)) {
           var approot = $('link#approot').attr('href');
           $('head').append('<link rel="stylesheet" type="text/css" href="' + approot + 'views/melons/cantaloupe/css/vis.css">');
           $('head').append('<link rel="stylesheet" type="text/css" href="' + approot + 'views/widgets/jQCloud/jqcloud.min.css">');
           $.getScript(approot + 'views/widgets/jQCloud/jqcloud.min.js', () => {
-            base.visualization.addClass("tag_cloud caption_font");
             this.drawWordCloud();
           });
         } else {
@@ -4288,7 +4288,7 @@ window.scalarvis = { instanceCount: -1 };
           base.visualization.css('height', this.size.height + 'px');
           //base.visualization.css('width', this.size.width + 'px');
           if ('undefined' != typeof(base.visualization.jQCloud)) base.visualization.jQCloud('destroy');
-          base.visualization.html('<div>Parsing data...</div>');
+          base.visualization.html('<div style="font-weight:normal;">Parsing data...</div>');
           // Create array of words
           var j = 0;
         setTimeout( () => {
