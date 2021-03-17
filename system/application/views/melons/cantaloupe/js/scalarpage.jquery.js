@@ -3204,6 +3204,14 @@
                                                   "path"
                                                 ],
                                                 "relationship": "child"
+                                              },
+                                              {
+                                                "type": "filter",
+                                                "subtype": "relationship",
+                                                "content-types": [
+                                                  "path"
+                                                ],
+                                                "relationship": "child"
                                               }
                                             ]
                                           }
@@ -3259,6 +3267,14 @@
                                               "items": [currentNode.slug]
                                             },
                                             "modifiers": [
+                                              {
+                                                "type": "filter",
+                                                "subtype": "relationship",
+                                                "content-types": [
+                                                  "tag"
+                                                ],
+                                                "relationship": "child"
+                                              },
                                               {
                                                 "type": "filter",
                                                 "subtype": "relationship",

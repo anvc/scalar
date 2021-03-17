@@ -152,7 +152,6 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
 
             base.currentNode = scalarapi.model.getCurrentPageNode();
 
-
             base.userId = 'unknown';
             if(base.logged_in){
                 //While we are logged in, check what our user level is, and set the appropriate bools
@@ -650,6 +649,13 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                               ],
                               "relationship": "child"
                           }]
+                        },
+                        {
+                          "content-selector": {
+                            "type": "items-by-type",
+                            "content-type": "all-content"
+                          },
+                          "modifiers": []
                         }
                       ],
                       "sorts": []
@@ -734,6 +740,14 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                 "path"
                               ],
                               "relationship": "child"
+                            },
+                            {
+                              "type": "filter",
+                              "subtype": "relationship",
+                              "content-types": [
+                                "path"
+                              ],
+                              "relationship": "child"
                             }
                           ]
                         }
@@ -792,6 +806,14 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                 "tag"
                               ],
                               "relationship": "child"
+                            },
+                            {
+                              "type": "filter",
+                              "subtype": "relationship",
+                              "content-types": [
+                                "path"
+                              ],
+                              "relationship": "child"
                             }
                           ]
                         }
@@ -811,7 +833,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                         {
                           "content-selector": {
                             "type": "specific-items",
-                            "items": [ base.currentNode.slug ]
+                            "items": []
                           },
                           "modifiers": [
                             {
@@ -824,6 +846,9 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                         }
                       ],
                       "sorts": []
+                    }
+                    if (base.currentNode) {
+                      options.lens.components[0]['content-selector'].items.push(base.currentNode.slug);
                     }
                     break;
                 }
