@@ -3097,6 +3097,7 @@ function ScalarNode(url, json, versionData) {
 	this.incomingRelations = [];
 	this.outgoingRelations = [];
 	this.scalarTypes = {};
+	this.sorts = {};
 
 	this.parseData(json, versionData);
 
@@ -3202,6 +3203,14 @@ ScalarNode.prototype.parseData = function(json, versionData) {
 	if (this.slug == "toc") {
 		this.scalarTypes.toc = scalarapi.model.scalarTypes.toc;
 	}
+	
+	// if there is incoming data related to sorts, put that into the object
+	this.sorts = {};
+	if ('undefined' != typeof(json.created)) this.sorts.created = json.created;
+	if ('undefined' != typeof(json.relation_type)) this.sorts.relationType = json.relation_type;
+	if ('undefined' != typeof(json.num_relations)) this.sorts.numRelations = json.num_relations;
+	if ('undefined' != typeof(json.string_matches)) this.sorts.stringMatches = json.string_matches;
+	if ('undefined' != typeof(json.visit_date)) this.sorts.visitDate = json.visit_date;
 
 }
 

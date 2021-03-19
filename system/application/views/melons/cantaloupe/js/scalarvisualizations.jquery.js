@@ -4445,6 +4445,7 @@ window.scalarvis = { instanceCount: -1 };
         var maxLength = 100;
         var authorFields = {};
         for (var j = 0; j < base.contentNodes.length; j++) {
+        	// Fields
         	var url = base.contentNodes[j].url;
         	var title = base.contentNodes[j].current.title;
         	if (null===title) continue;
@@ -4462,6 +4463,7 @@ window.scalarvis = { instanceCount: -1 };
           	var lastEdited = (base.contentNodes[j].current.created) ? base.contentNodes[j].current.created.substr(0, base.contentNodes[j].current.created.indexOf('T')) : '';
           	var versions = base.contentNodes[j].current.number;
           	var isSelected = (base.selectedNodes.indexOf(base.contentNodes[j]) != -1) ? true : false;
+          	// Output rows
           	var $row = $('<tr class="visListRow '+((isSelected)?'selected':'')+'" data-index="'+j+'"></div>').appendTo($tbody);
           	$row.append('<td class="sm" prop="title"><a href="'+url+'" target="_blank">'+title+'</a></td>');
           	$row.append('<td class="md" prop="description">'+description+'</td>');
@@ -4473,6 +4475,33 @@ window.scalarvis = { instanceCount: -1 };
           	$row.append('<td class="lg" prop="author"><a href="'+authorUrl+'" target="_blank">'+fullname+'</a></td>');
           	$row.append('<td class="lg" prop="lastEdited">'+lastEdited+'</td>');
           	$row.append('<td class="lg" prop="version" style="text-align:center;">'+versions+'</td>');
+          	// Sort-specific fields
+          	if ('undefined' != typeof(base.contentNodes[j].sorts) && 'undefined' != typeof(base.contentNodes[j].sorts.created)) {
+          		if (!this.visList.find('td[prop="created"]').length) this.visList.find('.header').append('<td class="md" prop="created" style="text-align:center;"><a href="javascript:void(null);">Date Created</a></td>');
+          		$row.append('<td class="md" prop="created" style="text-align:center;">'+base.contentNodes[j].sorts.created.split(" ")[0]+'</td>');
+          	};
+          	if ('undefined' != typeof(base.contentNodes[j].sorts) && 'undefined' != typeof(base.contentNodes[j].sorts.relationType)) {
+          		if (!this.visList.find('td[prop="relationType"]').length) this.visList.find('.header').append('<td class="md" prop="relationType" style="text-align:center;"><a href="javascript:void(null);">Item Type</a></td>');
+          		$row.append('<td class="md" prop="relationType" style="text-align:center;">'+base.contentNodes[j].sorts.relationType+'</td>');
+          	};
+          	if ('undefined' != typeof(base.contentNodes[j].sorts) && 'undefined' != typeof(base.contentNodes[j].sorts.numRelations)) {
+          		if (!this.visList.find('td[prop="numRelations"]').length) this.visList.find('.header').append('<td class="md" prop="numRelations" style="text-align:center;"><a href="javascript:void(null);"># Relations</a></td>');
+          		$row.append('<td class="md" prop="numRelations" style="text-align:center;">'+base.contentNodes[j].sorts.numRelations+'</td>');
+          	};
+          	if ('undefined' != typeof(base.contentNodes[j].sorts) && 'undefined' != typeof(base.contentNodes[j].sorts.stringMatches)) {
+          		if (!this.visList.find('td[prop="stringMatches"]').length) this.visList.find('.header').append('<td class="md" prop="stringMatches" style="text-align:center;"><a href="javascript:void(null);">Matches</a></td>');
+          		$row.append('<td class="md" prop="stringMatches" style="text-align:center;">'+base.contentNodes[j].sorts.stringMatches+'</td>');
+          	};
+          	if ('undefined' != typeof(base.contentNodes[j].sorts) && 'undefined' != typeof(base.contentNodes[j].sorts.visitDate)) {
+          		if (!this.visList.find('td[prop="visitDate"]').length) this.visList.find('.header').append('<td class="md" prop="visitDate" style="text-align:center;"><a href="javascript:void(null);">Visit Date</a></td>');
+          		var date = '';
+          		if (base.contentNodes[j].sorts.visitDate != 0) {
+          			var date = new Date(parseInt(base.contentNodes[j].sorts.visitDate));
+          			date = (date.getMonth()+1)+"/"+date.getDate()+"/"+date.getFullYear();
+          			// +" "+date.getHours()+":"+date.getMinutes()+":"+date.getSeconds();
+          		}
+          		$row.append('<td class="md" prop="visitDate" style="text-align:center;">'+date+'</td>');
+          	};
           };
 
           // Add/remove items from selectedNodes
@@ -4489,8 +4518,8 @@ window.scalarvis = { instanceCount: -1 };
 	        	 base.selectedNodes.push(node);
 	        	 $this.addClass('selected');
         	 };
-           base.loadNode(node.slug, 0, 0, base.updateInspector);
-  	       base.updateInspector();
+             base.loadNode(node.slug, 0, 0, base.updateInspector);
+  	         base.updateInspector();
           });
 
           // Add/remove columns based on size of parent area

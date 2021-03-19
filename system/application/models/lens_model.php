@@ -292,6 +292,7 @@ class Lens_model extends MY_Model {
 		}
 		
 		// Sorts
+		$sort_by_creation_date = false;
 		if (isset($json['sorts'])) {
 			foreach ($json['sorts'] as $sort) {
 				switch ($sort['sort-type']) {
@@ -301,6 +302,7 @@ class Lens_model extends MY_Model {
 						$contents = $this->sort_by_predicate($contents, $field, $direction);
 						break;
 					case "creation-date":
+						$sort_by_creation_date = true;
 						$direction = ('descending' == $sort['sort-order']) ? 'desc' : 'asc';
 						$contents = $this->sort_by_predicate($contents, 'dcterms:created', $direction, true);
 						break;
@@ -354,12 +356,12 @@ class Lens_model extends MY_Model {
 						for ($j = 0; $j < count($contents); $j++) {
 							$content_id = $contents[$j]->content_id;
 							if (isset($json['history']) && isset($json['history'][$content_id])) {
-								$contents[$j]->timestamp = $json['history'][$content_id];
+								$contents[$j]->visit_date = (int) $json['history'][$content_id];
 							} else {
-								$contents[$j]->timestamp = 0;
+								$contents[$j]->visit_date = 0;
 							}
 						}
-						usort($contents, "lens_timestamp_cmp_".$direction);
+						usort($contents, "lens_visit_date_cmp_".$direction);
 						break;
 				}
 			}
@@ -374,6 +376,12 @@ class Lens_model extends MY_Model {
 			$page->versions[0]->version_of = $uri;
 			$return[$uri] = $CI->pages->rdf($page);
 			$return[$version_uri] = $CI->versions->rdf($page->versions[0]);
+			// Sort-specific fields
+			if (isset($page->relation_type)) $return[$uri]['relation_type'] = $page->relation_type;
+			if (isset($page->num_relations)) $return[$uri]['num_relations'] = $page->num_relations;
+			if (isset($page->string_matches)) $return[$uri]['string_matches'] = $page->string_matches;
+			if (isset($page->visit_date)) $return[$uri]['visit_date'] = $page->visit_date;
+			if ($sort_by_creation_date) $return[$uri]['created'] = $page->created;
 		}
 		
 		$return = $this->rdf_ns_to_uri($return);
@@ -535,17 +543,18 @@ class Lens_model extends MY_Model {
     	$version = $this->versions->get_single($item->content_id, null, '', false);
     	$version_id = $version->version_id;
     	
-    	// get references
-    	$types = $CI->config->item('ref');
+    	// Get types
+    	$types = array('tags', 'annotations', 'replies');
     	foreach ($types as $type_p) {
     		$type = rtrim($type_p, "s");
+    		if ($type == 'replie') $type = 'reply';
     		if (!isset($CI->$type_p) || 'object'!=gettype($CI->$type_p)) $CI->load->model($type.'_model',$type_p);
     		$items = $CI->$type_p->get_children($version_id, '', '', true, null);
-    		if (count($items)) $the_type= 'reference';
+    		if (count($items)) $the_type= $type;
     	}
     	
-    	// get parents
-    	$types = $CI->config->item('rel');
+    	// Path always wins
+    	$types = array('paths');
     	foreach ($types as $type_p) {
     		$type = rtrim($type_p, "s");
     		if ($type == 'replie') $type = 'reply';
@@ -554,15 +563,7 @@ class Lens_model extends MY_Model {
     		if (count($items)) $the_type= $type;
     	}
     	
-    	// get children
-    	$types = $CI->config->item('rel');
-    	foreach ($types as $type_p) {
-    		$type = rtrim($type_p, "s");
-    		if ($type == 'replie') $type = 'reply';
-    		if (!isset($CI->$type_p) || 'object'!=gettype($CI->$type_p)) $CI->load->model($type.'_model',$type_p);
-    		$items = $CI->$type_p->get_children($version_id, '', '', true, null);
-    		if (count($items)) $the_type= $type;
-    	}
+		// Ignore references
     	
     	return $the_type;
     	
@@ -1006,13 +1007,13 @@ class Lens_model extends MY_Model {
  * Sorting functions
  */
 
-function lens_timestamp_cmp_asc($a, $b) {
-	if ($a->timestamp == $b->timestamp) return 0;
-	return ($a->timestamp < $b->timestamp) ? -1 : 1;
+function lens_visit_date_cmp_asc($a, $b) {
+	if ($a->visit_date == $b->visit_date) return 0;
+	return ($a->visit_date< $b->visit_date) ? -1 : 1;
 }
-function lens_timestamp_cmp_desc($a, $b) {
-	if ($a->timestamp == $b->timestamp) return 0;
-	return ($a->timestamp < $b->timestamp) ? 1 : -1;
+function lens_visit_date_cmp_desc($a, $b) {
+	if ($a->visit_date== $b->visit_date) return 0;
+	return ($a->visit_date< $b->visit_date) ? 1 : -1;
 }
 
 function lens_distance_cmp_asc($a, $b) {

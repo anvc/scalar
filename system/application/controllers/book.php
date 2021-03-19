@@ -334,6 +334,8 @@ class Book extends MY_Controller {
 		
 		try {
 			
+			// TODO: throttle to five per session
+			
 			// Either logged in or not
 			$action      =@ trim($_POST['action']);
 			$title       =@ trim($_POST['dcterms:title']);

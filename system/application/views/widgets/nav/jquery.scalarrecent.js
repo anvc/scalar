@@ -336,15 +336,27 @@ function scalarrecent_rdf_to_html($this, json, user_url, max_to_show) {
 		scalarrecent_clear();
 		return $this.append('<p>No history yet</p>');
 	}
+
 	var nodes = json[user_url]['http://scalar.usc.edu/2012/01/scalar-ns#has_viewed'];
 	if (nodes.length < 1) return $this.append('<p>No history yet</p>');
+	
+	for (var j = 0; j < nodes.length; j++) {
+		var uri = nodes[j].value;
+		var date = parseInt( json[uri]['http://purl.org/dc/terms/date'][0].value );
+		nodes[j].date = date;
+	}
+	nodes.sort(function(a, b){
+		var x = a['date'];
+		var y = b['date'];
+		return y-x;
+	});
 
 	var $history = $('<ul class="history_content"></ul>');
 	$this.append($history);
 
 	var uris = [];
 	var count = 1;
-	for (var j = (nodes.length-1); j >= 0; j--) {  // reverse order, so that that top of the list is most recent
+	for (var j = 0; j < nodes.length; j++) {
 		var uri = nodes[j].value;
 		if (uris.indexOf(uri)!=-1) continue;
 		uris.push(uri);
@@ -356,7 +368,6 @@ function scalarrecent_rdf_to_html($this, json, user_url, max_to_show) {
 		var desc = node['http://purl.org/dc/terms/description'][0]['value'];
 		var date = ('undefined' != typeof(node['http://purl.org/dc/terms/date'])) ? node['http://purl.org/dc/terms/date'][0]['value'] : '';
 		var diff = (date.length) ? scalarrecent_time_diff(date, Date.now()) : '';
-		if (j == nodes.length-1) diff = 'now';
 		// Classes
 		var classes = new Array;
 		for (var k in node['http://www.w3.org/1999/02/22-rdf-syntax-ns#type']) {
@@ -604,33 +615,25 @@ function scalarrecent_no_version(uri) {
 
 function scalarrecent_time_diff( tstart, tend ) {
 
-	  var diff = Math.floor((tend - tstart) / 1000);
-	  var units = [
-	    { d: 60, l: "seconds", m: "second", amount: 0 },
-	    { d: 60, l: "minutes", m: "minute", amount: 0 },
-	    { d: 24, l: "hours", m: "hour", amount: 0 },
-	    { d: 7, l: "days", m: "day", amount: 0 }
-	  ];
-
-	  for (var i = 0; i < units.length; ++i) {
-		var amount = (diff % units[i].d);
-		units[i].amount = amount;
-		var unit = (amount==1) ? units[i].m : units[i].l;
-	    diff = Math.floor(diff / units[i].d);
-	  }
-
-	  var str = units[3].amount + ' ' + ((units[3].amount==1)?units[3].m:units[3].l) + ' ';
-	  str += units[2].amount + ' ' + ((units[2].amount==1)?units[2].m:units[2].l);
-	  if (units[3].amount < 1) {
-		  str = units[2].amount + ' ' + ((units[2].amount==1)?units[2].m:units[2].l);
-	  }
-	  if (units[3].amount < 1 && units[2].amount < 1) {
-		  str = units[1].amount + ' ' + ((units[1].amount==1)?units[1].m:units[1].l);
-	  }
-	  if (units[3].amount < 1 && units[2].amount < 1 && units[1].amount < 1) {
-		  str = 'less than a minute';
-	  }
-	  return str;
+    date1 = new Date( parseInt(tstart) );
+    date2 = new Date( parseInt(tend) );
+    var res = Math.abs(date1 - date2) / 1000;
+    
+    var days = Math.floor(res / 86400);                       
+    var hours = Math.floor(res / 3600) % 24;        
+    var minutes = Math.floor(res / 60) % 60;  
+    var seconds = res % 60; 
+    
+    if (!days && !hours && !minutes) {
+    	if (seconds < 2) return 'Now';
+    } else if (days) {
+    	return days + ' day'+((days>1)?'s':'')+' ';
+    } else if (hours) {
+    	return hours + ' hour'+((hours>1)?'s':'')+' ';
+    } else if (minutes) {
+    	return minutes + ' minute'+((minutes>1)?'s':'')+' ';
+    }
+	return Math.round(seconds) + ' second'+((seconds>1)?'s':'');
 
 }
 
@@ -639,27 +642,22 @@ function scalarrecent_is_more_recent_than(date, humanStr) {
 	var humanStr_is_numeric = !isNaN(parseFloat(humanStr)) && isFinite(humanStr);
 	if (!humanStr_is_numeric) {  // E.g., '3 days'
 
-		var diff = Math.floor((Date.now() - date) / 1000);
-		var units = [
-			{ d: 60, l: "seconds", m: "second", amount: 0 },
-			{ d: 60, l: "minutes", m: "minute", amount: 0 },
-			{ d: 24, l: "hours", m: "hour", amount: 0 },
-			{ d: 7, l: "days", m: "day", amount: 0 }
-			];
-
-		for (var i = 0; i < units.length; ++i) {
-			var amount = (diff % units[i].d);
-			units[i].amount = amount;
-			var unit = (amount==1) ? units[i].m : units[i].l;
-			diff = Math.floor(diff / units[i].d);
-		}
-
-		if (humanStr.toLowerCase().indexOf('hours') != -1 || humanStr.toLowerCase().indexOf('hour') != -1) {
-			if (units[3].amount > 0) return false;
-			if (units[2].amount <= parseInt(humanStr)) return true;
-		} else if (humanStr.toLowerCase().indexOf('days') != -1 || humanStr.toLowerCase().indexOf('day') != -1) {
-			if (units[3].amount <= parseInt(humanStr)) return true;
-		}
+	    date1 = new Date( parseInt(date) );
+	    date2 = Date.now();
+	    var res = Math.abs(date1 - date2) / 1000;
+	    
+	    var days = Math.floor(res / 86400);                       
+	    var hours = Math.floor(res / 3600) % 24;        
+	    var minutes = Math.floor(res / 60) % 60;  
+	    var seconds = res % 60;
+	    
+	    if (humanStr.indexOf('days') != -1 || humanStr.indexOf('day') != -1) {
+	    	var numDays = parseInt(humanStr);
+	    	if (!days) return true;
+	    	if (days < numDays) return true;
+	    }
+	    
+	    return false;
 
 	} else {
 
