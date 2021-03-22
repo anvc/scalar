@@ -92,25 +92,25 @@ elseif (!empty($page->category) && in_array($page->category, $categories_display
 if (isset($page->is_live) && !$page->is_live) {
 	if (isset($page->versions[$page->version_index]->is_lens_of) && !empty($page->versions[$page->version_index]->is_lens_of)) {
 		if ($page_by_contributor) {
-			echo '		<div class="notice"><p>This Lens is hidden, viewable since you are a book contributor.</p></div>'."\n";
+			echo '		<div class="notice"><p>This Lens is hidden to the public, and visible to you as a book contributor.</p></div>'."\n";
 		} else {
-			echo '		<div class="notice"><p>This Lens is hidden, viewable since you created the page.</p></div>'."\n";
+			echo '		<div class="notice"><p>This Lens is hidden to the public, and visible to you since you created the page.</p></div>'."\n";
 		}
 	} else {
-		echo '		<div class="error notice-hidden"><p>This page is hidden, viewable only by contributors. It can be removed in the Dashboard, or made visible there or in the page editor.</p></div>'."\n";
+		echo '		<div class="error notice-hidden"><p>This page is hidden to the public, visible only to contributors. It can be removed in the Dashboard, or made visible there or in the page editor.</p></div>'."\n";
 	}
 }
 if ($view == 'versions' && $hide_versions) {
-	echo '		<div class="error notice-hidden"><p>Past versions are only viewable by '.$book->scope.' authors and editors.</p></div>'."\n";
+	echo '		<div class="error notice-hidden"><p>Past versions are only visible to '.$book->scope.' authors and editors.</p></div>'."\n";
 }
 if ($view == 'meta' && $hide_versions && isset($_GET['versions']) && 1==$_GET['versions']) {
-	echo '		<div class="error notice-hidden"><p>Past versions are only viewable by '.$book->scope.' authors and editors.</p></div>'."\n";
+	echo '		<div class="error notice-hidden"><p>Past versions are only visible to '.$book->scope.' authors and editors.</p></div>'."\n";
 }
 
 // Page is paywalled
 // NOTE: this is removed, though hidden rather than commented out so that JS could bring it back if an author wishes
 if (isset($page->paywall) && $page->paywall) {
-	echo '		<div class="notice notice-paywall" style="display:none;"><p>This page is behind a paywall, but is viewable due to your logged in credentials.</p></div>'."\n";
+	echo '		<div class="notice notice-paywall" style="display:none;"><p>This page is behind a paywall, but is visible to you because of your credentials.</p></div>'."\n";
 }
 
 // RDF Attributes do not work in IE <= 9
