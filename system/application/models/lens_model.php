@@ -149,16 +149,25 @@ class Lens_model extends MY_Model {
 									$has_used_filter = true;
 									$field = trim($modifier['metadata-field']);
 									$value = trim($modifier['content']);
-									$operator = (isset($modifier['operator']) && 'exclusive'==$modifier['operator']) ? 'exclusive' : 'inclusive';
+									$operators = array('exclusive', 'inclusive', 'exact-match');
+									$operator = (isset($modifier['operator']) && in_array($modifier['operator'], $operators)) ? $modifier['operator'] : $operators[0];
 									switch ($operator) {
 										case 'exclusive':
 											$content = (!empty($content)) ? $content : $this->get_pages_from_content_selector($component['content-selector'], $book_id);
-											$to_subtract = $CI->versions->get_by_predicate($book_id, $field, false, null, $value);
+											$to_subtract = $CI->versions->get_by_predicate($book_id, $field, false, null, $value, false);
 											$content = $this->subtract_content($content, $to_subtract);
 											$content = $this->do_versions($content, $pages_load_metadata);
 											break;
 										case 'inclusive':
-											$content_with_predicate = $CI->versions->get_by_predicate($book_id, $field, false, null, $value);
+											$content_with_predicate = $CI->versions->get_by_predicate($book_id, $field, false, null, $value, false);
+											if (!empty($content)) {
+												$content = $this->combine_items($content, $content_with_predicate, 'and');
+											} else {
+												$content = $this->filter_by_content_selector($content_with_predicate, $component);
+											}
+											break;
+										case 'exact-match':
+											$content_with_predicate = $CI->versions->get_by_predicate($book_id, $field, false, null, $value, true);
 											if (!empty($content)) {
 												$content = $this->combine_items($content, $content_with_predicate, 'and');
 											} else {

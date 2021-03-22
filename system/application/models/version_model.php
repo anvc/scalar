@@ -315,7 +315,7 @@ class Version_model extends MY_Model {
     /**
      * Search the for versions that have a certain predicate $p (and, if sent, search its value for $o
      */
-    public function get_by_predicate($book_id=0, $p='', $all_versions=false, $id_array=null, $o='') {
+    public function get_by_predicate($book_id=0, $p='', $all_versions=false, $id_array=null, $o='', $exact_match=false) {
     	
     	$ci =& get_instance();
     	if (!is_array($p)) $p = array($p);
@@ -334,13 +334,21 @@ class Version_model extends MY_Model {
     			}
     			for ($j = count($content)-1; $j >= 0; $j--) {  // Exclude words within words (e.g., japan in japanese)
     				if (isset($content[$j]->versions[0]->{$field})) {
-    					$arr = explode(' ', strtolower($content[$j]->versions[0]->{$field}));
-    					if (!in_array($o, $arr)) unset($content[$j]); 
-    					//if (!stristr($content[$j]->versions[0]->{$field}, $o)) unset($content[$j]); 
+    					if ($exact_match) {
+    						$string = preg_replace("/[^\w\s]/", " ", strtolower($content[$j]->versions[0]->{$field}));
+    						$arr = explode(' ', $string);
+    						if (!in_array($o, $arr)) unset($content[$j]); 
+    					} else {
+    						if (!stristr($content[$j]->versions[0]->{$field}, $o)) unset($content[$j]);
+    					}
     				} elseif (isset($content[$j]->{$field})) {
-    					$arr = explode(' ', strtolower($content[$j]->{$field}));
-    					if (!in_array($o, $arr)) unset($content[$j]); 
-    					//if (!stristr($content[$j]->{$field}, $o)) unset($content[$j]); 
+    					if ($exact_match) {
+    						$string = preg_replace("/[^\w\s]/", " ", strtolower($content[$j]->{$field}));
+    						$arr = explode(' ', $string);
+    						if (!in_array($o, $arr)) unset($content[$j]);
+    					} else {
+    						if (!stristr($content[$j]->{$field}, $o)) unset($content[$j]);
+    					}
     				} else {
     					unset($content[$j]); 
     				}

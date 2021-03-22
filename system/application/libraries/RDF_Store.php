@@ -79,7 +79,7 @@ class RDF_Store {
      * Select based on a predicate
      */
     
-    public function get_urns_from_predicate($p_arr=array(), $in_version_urns=array()) {
+    public function get_urns_from_predicate($p_arr=array(), $in_version_urns=array(), $exact_match=false) {
     	
     	if (!is_array($p_arr)) $p_arr= array($p_arr);
     	for ($j = 0; $j < count($p_arr); $j++) {
@@ -124,7 +124,7 @@ class RDF_Store {
      * Look for versions that match the predicate and a search on the object
      */
     
-    public function get_urns_from_predicate_and_object($p_arr=array(), $o='', $in_version_urns=array()) {
+    public function get_urns_from_predicate_and_object($p_arr=array(), $o='', $in_version_urns=array(), $exact_match=false) {
     	
     	if (!is_array($p_arr)) $p_arr= array($p_arr);
     	for ($j = 0; $j < count($p_arr); $j++) {
@@ -152,7 +152,7 @@ class RDF_Store {
     	$q .= '
                FILTER ('.implode(' || ',$list).') . ';
     	$q .= '
-               FILTER (regex (?o,"'.$o.'","i")) . ';  // TODO: match word, exclude word within word
+               FILTER (regex (?o,"'.$o.'","i")) . ';  // TODO: this is 'contains' but not 'exact match'
     	$q .= '
               }';
     	
