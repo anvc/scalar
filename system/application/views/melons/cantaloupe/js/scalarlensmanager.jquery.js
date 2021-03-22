@@ -138,7 +138,7 @@
         "components": [],
         "sorts": [],
         "title": "Untitled lens",
-        "slug": "untitled-lens",
+        "slug": "lens",
         "user_id": this.userId,
         "user_level": this.userLevel
       };
