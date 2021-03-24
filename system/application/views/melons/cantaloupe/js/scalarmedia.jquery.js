@@ -377,9 +377,11 @@
 			if($(m.link).is('[data-annotations]') || annotationWhiteList){
 				if(!annotationWhiteList){
 					annotationWhiteList = [];
-				}else if(typeof annotationWhiteList === "string"){
+				} else if (typeof annotationWhiteList === "string") {
 					annotationWhiteList = annotationWhiteList.split(",");
-				}
+				} else if (typeof annotationWhiteList === "number") {
+          annotationWhiteList = [annotationWhiteList.toString()];
+        }
 				var temp_annotations = [];
 				for(var i = 0; i < annotations.length; i++){
 					if(annotationWhiteList.indexOf(annotations[i].body.slug)!=-1){

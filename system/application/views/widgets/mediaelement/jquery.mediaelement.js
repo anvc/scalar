@@ -1929,9 +1929,11 @@ function YouTubeGetID(url){
 			if($(this.link).is('[data-annotations]') || annotationWhiteList){
 				if(!annotationWhiteList){
 					annotationWhiteList = [];
-				}else if(typeof annotationWhiteList === "string"){
+				} else if (typeof annotationWhiteList === "string") {
 					annotationWhiteList = annotationWhiteList.split(",");
-				}
+				} else if (typeof annotationWhiteList === "number") {
+          annotationWhiteList = [annotationWhiteList.toString()];
+        }
 				var temp_annotations = [];
 				for(var i = 0; i < this.annotations.length; i++){
 					if(annotationWhiteList.indexOf(this.annotations[i].body.slug)!=-1){
