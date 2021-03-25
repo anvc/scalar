@@ -370,7 +370,7 @@ class Version_model extends MY_Model {
 	    	
 	    	// Get all URNs that have the object in the predicate value
 	    	if (!empty($o)) {
-	    		$version_urns = $ci->rdf_store->get_urns_from_predicate_and_object($p, $o, $book_version_urns);
+	    		$version_urns = $ci->rdf_store->get_urns_from_predicate_and_object($p, $o, $book_version_urns, $exact_match);
 	    	// Get all URNs that have the predicate
 	    	} else {
 	    		$version_urns = $ci->rdf_store->get_urns_from_predicate($p, $book_version_urns);

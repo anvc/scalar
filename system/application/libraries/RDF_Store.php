@@ -79,7 +79,7 @@ class RDF_Store {
      * Select based on a predicate
      */
     
-    public function get_urns_from_predicate($p_arr=array(), $in_version_urns=array(), $exact_match=false) {
+    public function get_urns_from_predicate($p_arr=array(), $in_version_urns=array()) {
     	
     	if (!is_array($p_arr)) $p_arr= array($p_arr);
     	for ($j = 0; $j < count($p_arr); $j++) {
@@ -152,12 +152,21 @@ class RDF_Store {
     	$q .= '
                FILTER ('.implode(' || ',$list).') . ';
     	$q .= '
-               FILTER (regex (?o,"'.$o.'","i")) . ';  // TODO: this is 'contains' but not 'exact match'
+               FILTER (regex (?o,"'.$o.'","i")) . ';  // this is 'contains' but not 'exact match'
     	$q .= '
               }';
     	
     	$rows = $this->store->query($q, 'rows');
     	if (!is_array($rows)) return false;
+    	
+    	if ($exact_match) {
+    		for ($j = count($rows)-1; $j >= 0; $j--) {
+    			$string = preg_replace("/[^\w\s]/", " ", strtolower($rows[$j]['o']));
+    			$arr = explode(' ', $string);
+    			if (!in_array($o, $arr)) unset($rows[$j]);
+    		}
+    	}
+    	
     	$return = array();
     	foreach ($rows as $row) {
     		$return[] = $row['s'];
