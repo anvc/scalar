@@ -603,6 +603,7 @@ class System extends MY_Controller {
 					}
 					$get .= 'action=added';
 					if (isset($_REQUEST['hash'])) $get .= $_REQUEST['hash'];
+					log_message('error', 'Scalar: Admin user added user: ' . $array['fullname'] . ', with email: ' . $array['email'] . ' from IP: ' . $this->getUserIpAddr().'.');
 					header('Location: '.$this->base_url.$get);
 					exit;
 				case 'do_delete':  // Admin: All Users & All Books
@@ -660,6 +661,7 @@ class System extends MY_Controller {
 								$this->books->delete($book->book_id);
 							}
 						}
+						log_message('error', 'Scalar: Admin user deleted user id: ' . $user . ', from IP address: ' . $this->getUserIpAddr().'.');
 						$this->users->delete($user_id);
 					}
 					// Don't bresk
@@ -889,7 +891,7 @@ class System extends MY_Controller {
 			}
 			if (empty($dashboard) || !file_exists(APPPATH.'views/modules/'.$dashboard)) $dashboard = 'dashboard';
 		}
-		
+
 		$this->template->set_template('admin');
 		$this->template->write_view('content', 'modules/'.$dashboard.'/content', $this->data);
 		$this->template->render();
