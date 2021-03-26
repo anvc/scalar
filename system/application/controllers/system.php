@@ -199,9 +199,9 @@ class System extends MY_Controller {
 						// Hidden or not
 						$content = $this->pages->get($version->content_id);
 						$json['hidden'] = ($content->is_live) ? false : true;
-						// User
+						// User, for using the fullname in the front-end
 						$json['user'] = array();
-						if ($is_book_admin) {
+						if ($is_book_admin && isset($json['user_id'])) {
 							$user = $this->users->get_by_user_id($json['user_id']);
 							$json['user']['fullname'] = $user->fullname;
 							if ($is_book_admin) $json['user']['email'] = $user->email;
