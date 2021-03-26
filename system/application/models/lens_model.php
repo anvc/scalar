@@ -568,7 +568,7 @@ class Lens_model extends MY_Model {
     		$type = rtrim($type_p, "s");
     		if ($type == 'replie') $type = 'reply';
     		if (!isset($CI->$type_p) || 'object'!=gettype($CI->$type_p)) $CI->load->model($type.'_model',$type_p);
-    		$items = $CI->$type_p->get_parents($version_id, '', '', true, null);
+    		$items = $CI->$type_p->get_children($version_id, '', '', true, null);
     		if (count($items)) $the_type= $type;
     	}
     	
