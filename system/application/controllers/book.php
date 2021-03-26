@@ -498,7 +498,7 @@ class Book extends MY_Controller {
 		$this->data['prev'] = (@!empty($_GET['prev'])) ? $_GET['prev'] : null;
 
 		// Check to make sure URLs have a valid host
-		if ((filter_var($this->data['prev'],FILTER_VALIDATE_URL,FILTER_FLAG_HOST_REQUIRED) === FALSE) || (filter_var($this->data['link'],FILTER_VALIDATE_URL,FILTER_FLAG_HOST_REQUIRED) === FALSE)) {
+		if ((filter_var($this->data['prev'],FILTER_VALIDATE_URL) === FALSE) || (filter_var($this->data['link'],FILTER_VALIDATE_URL) === FALSE)) {
 			$this->kickout();
 		}
 
