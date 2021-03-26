@@ -262,11 +262,12 @@
     	$filename = strip_tags($filename);
     	$filename = str_replace(" ","-",$filename);
     	if (strlen($filename) > $max_length) $filename = substr($filename, 0, $max_length);
-    	if ($allow_forward_slash) {  // TODO: presently book slugs are hard-wired to only be one URL segment
+    	if ($allow_forward_slash) {
 			$filename =@ preg_replace('/[^A-Za-z0-9-_\/]/', '', $filename);
     	} else {
     		$filename =@ preg_replace('/[^A-Za-z0-9-_]/', '', $filename);
     	}
+    	if (!strlen($filename)) $filename = 'page';
 		$filename = strtolower($filename);
 		if (in_array($filename, $reserved_words)) $filename .= '-1';
    		return $filename;
