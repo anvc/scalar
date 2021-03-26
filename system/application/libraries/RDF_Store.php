@@ -161,9 +161,10 @@ class RDF_Store {
     	
     	if ($exact_match) {
     		for ($j = count($rows)-1; $j >= 0; $j--) {
-    			$string = preg_replace("/[^\w\s]/", " ", strtolower($rows[$j]['o']));
-    			$arr = explode(' ', $string);
-    			if (!in_array($o, $arr)) unset($rows[$j]);
+    			$string = ' '.preg_replace("/[^\w\s]/", " ", strtolower($rows[$j]['o'])).' ';
+    			//$arr = explode(' ', $string);
+    			//if (!in_array($o, $arr)) unset($rows[$j]);
+    			if (!strstr($string, ' '.strtolower(trim($o)).' ')) unset($rows[$j]);
     		}
     	}
     	

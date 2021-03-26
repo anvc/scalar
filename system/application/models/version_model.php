@@ -335,17 +335,19 @@ class Version_model extends MY_Model {
     			for ($j = count($content)-1; $j >= 0; $j--) {  // Exclude words within words (e.g., japan in japanese)
     				if (isset($content[$j]->versions[0]->{$field})) {
     					if ($exact_match) {
-    						$string = preg_replace("/[^\w\s]/", " ", strtolower($content[$j]->versions[0]->{$field}));
-    						$arr = explode(' ', $string);
-    						if (!in_array($o, $arr)) unset($content[$j]); 
+    						$string = ' '.preg_replace("/[^\w\s]/", " ", strtolower($content[$j]->versions[0]->{$field})).' ';
+    						//$arr = explode(' ', $string);
+    						//if (!in_array($o, $arr)) unset($content[$j]); 
+    						if (!strstr($string, ' '.strtolower(trim($o)).' ')) unset($content[$j]);
     					} else {
     						if (!stristr($content[$j]->versions[0]->{$field}, $o)) unset($content[$j]);
     					}
     				} elseif (isset($content[$j]->{$field})) {
     					if ($exact_match) {
-    						$string = preg_replace("/[^\w\s]/", " ", strtolower($content[$j]->{$field}));
-    						$arr = explode(' ', $string);
-    						if (!in_array($o, $arr)) unset($content[$j]);
+    						$string = ' '.preg_replace("/[^\w\s]/", " ", strtolower($content[$j]->{$field})).' ';
+    						//$arr = explode(' ', $string);
+    						//if (!in_array($o, $arr)) unset($content[$j]);
+    						if (!strstr($string, ' '.strtolower(trim($o)).' ')) unset($content[$j]);
     					} else {
     						if (!stristr($content[$j]->{$field}, $o)) unset($content[$j]);
     					}
