@@ -333,38 +333,40 @@ window.scalarvis = { instanceCount: -1 };
     }
 
     base.addInspectorInfoForNode = function(node) {
-      base.inspector.append('<h3 class="inspector-title heading_weight">' + node.title + '</h3>');
-      let inspectorInfo;
-      if (node.scalarTypes.page != null) {
-        inspectorInfo = $('<div class="page-preview">' +
-          '<p class="inspector-description"></p>' +
-          '<div class="inspector-buttons">' +
-            '<a class="btn btn-primary btn-xs view-node-btn" role="button" target="_blank" href="' + node.url + '">View page</a> ' +
-          '</div>' +
-          '<h4>Details</h4>' +
-          '<div class="citations citations_metadata"></div>' +
-        '</div>').appendTo(base.inspector);
-      } else {
-        let thumbnailClass = 'inspector-thumbnail';
-        let thumbnailUrl = '#';
-        if (node.thumbnail) {
-          thumbnailUrl = node.thumbnail;
+      if (node) {
+        base.inspector.append('<h3 class="inspector-title heading_weight">' + node.title + '</h3>');
+        let inspectorInfo;
+        if (node.scalarTypes.page != null) {
+          inspectorInfo = $('<div class="page-preview">' +
+            '<p class="inspector-description"></p>' +
+            '<div class="inspector-buttons">' +
+              '<a class="btn btn-primary btn-xs view-node-btn" role="button" target="_blank" href="' + node.url + '">View page</a> ' +
+            '</div>' +
+            '<h4>Details</h4>' +
+            '<div class="citations citations_metadata"></div>' +
+          '</div>').appendTo(base.inspector);
         } else {
-          thumbnailClass += ' hidden';
+          let thumbnailClass = 'inspector-thumbnail';
+          let thumbnailUrl = '#';
+          if (node.thumbnail) {
+            thumbnailUrl = node.thumbnail;
+          } else {
+            thumbnailClass += ' hidden';
+          }
+          inspectorInfo = $('<div class="media-preview">' +
+            '<p class="inspector-description"></p>' +
+            '<img class="' + thumbnailClass + '" src="' + thumbnailUrl + '" alt="' + node.current.description + '" />' +
+            '<div class="inspector-buttons">' +
+              '<a class="btn btn-primary btn-xs view-node-btn" role="button" target="_blank" href="' + node.url + '">View media page</a> ' +
+              '<a class="btn btn-primary btn-xs view-media-btn" role="button" target="_blank" href="' + node.current.sourceFile + '">View source file</a>' +
+            '</div>' +
+            '<h4>Details</h4>' +
+            '<div class="citations citations_metadata"></div>' +
+          '</div>').appendTo(base.inspector);
         }
-        inspectorInfo = $('<div class="media-preview">' +
-          '<p class="inspector-description"></p>' +
-          '<img class="' + thumbnailClass + '" src="' + thumbnailUrl + '" alt="' + node.current.description + '" />' +
-          '<div class="inspector-buttons">' +
-            '<a class="btn btn-primary btn-xs view-node-btn" role="button" target="_blank" href="' + node.url + '">View media page</a> ' +
-            '<a class="btn btn-primary btn-xs view-media-btn" role="button" target="_blank" href="' + node.current.sourceFile + '">View source file</a>' +
-          '</div>' +
-          '<h4>Details</h4>' +
-          '<div class="citations citations_metadata"></div>' +
-        '</div>').appendTo(base.inspector);
+        inspectorInfo.find('.inspector-description').html(node.current.description);
+        addMetadataTableForNodeToElement(node, inspectorInfo.find('.citations_metadata'));
       }
-      inspectorInfo.find('.inspector-description').html(node.current.description);
-      addMetadataTableForNodeToElement(node, inspectorInfo.find('.citations_metadata'));
     }
 
     base.enterFullScreen = function() {
@@ -1610,6 +1612,8 @@ window.scalarvis = { instanceCount: -1 };
               if (base.options.lens.components.length === 1 && base.options.lens.components[0]['content-selector'].type === 'items-by-type') {
                 if (base.options.lens.components[0]['content-selector']['content-type'] == 'all-content') {
                   topLevelType = false;
+                } else {
+                  topLevelType = base.options.lens.components[0]['content-selector']['content-type'];
                 }
                 if (base.options.lens.components[0]['content-selector'].type === 'specific-items' && base.options.lens.components[0]['content-selector'].items.length === 1) {
                   topLevelType = false;
