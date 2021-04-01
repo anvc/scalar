@@ -123,13 +123,6 @@ Scalar Transfer Tool available in a different repository: https://github.com/Mic
 Simply download the package then place the ZIP's contents into the system/application/plugins/transfer folder.   
 It will then be available to users at Dashboard > Import/Export.  
 
-One last thing: Scalar authors can upload files to your server under Import > Local Media Files (the files are 
-placed in the directory corresponding to their book's URL segment).  We strongly suggest protecting your 
-filesystem against potentially malicious uploads, such as *.php files.  We have a template for this in place in 
-the root folder's .htaccess file.  Edit, uncomment the "malicious file uploads" rewrites, and set appropriate 
-fields to let through requests to system files.  Test by uploading a .php file -- when viewing the file you 
-should see Scalar's 404 in the media player.
-
 Enjoy!
 
 -------------------------------------------------------------------------------------------
