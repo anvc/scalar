@@ -3274,14 +3274,6 @@
                                                   "tag"
                                                 ],
                                                 "relationship": "child"
-                                              },
-                                              {
-                                                "type": "filter",
-                                                "subtype": "relationship",
-                                                "content-types": [
-                                                  "tag"
-                                                ],
-                                                "relationship": "child"
                                               }
                                             ]
                                           }
