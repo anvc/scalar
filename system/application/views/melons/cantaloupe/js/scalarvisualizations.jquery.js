@@ -995,6 +995,17 @@ window.scalarvis = { instanceCount: -1 };
       }, null, depth, ref, null, 0, 100, null, null, true);
     }
 
+    base.removeRelatedNodesFromManuallyLoaded = function(node) {
+      let relatedNodes = node.getRelatedNodes(null, 'both');
+      relatedNodes.forEach(node => {
+        let index = base.manuallyLoadedNodes.indexOf(node);
+        if (index != -1) {
+          base.manuallyLoadedNodes.splice(index, 1);
+        }
+      });
+      base.parseNode(node);
+    }
+
     base.parseNode = function(data) {
       base.filter();
       base.draw(true);
@@ -1428,7 +1439,7 @@ window.scalarvis = { instanceCount: -1 };
             }
           }
 
-          // filter out any related node not actually returned by the lens
+          // filter out any related node not actually returned by the lens or requested by the user
           n = base.relatedNodes.length;
           for (i = n-1; i >= 0; i--) {
             node = base.relatedNodes[i];
@@ -3792,8 +3803,7 @@ window.scalarvis = { instanceCount: -1 };
                 }
               } else {
                 base.selectedNodes.splice(index, 1);
-                base.filter();
-                base.draw();
+                base.removeRelatedNodesFromManuallyLoaded(d.node);
               }
               base.updateInspector();
               this.updateGraph();
