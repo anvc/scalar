@@ -1701,8 +1701,8 @@ window.scalarvis = { instanceCount: -1 };
       // add the current node
       if (base.isVisOfCurrentPage()){
         indexType = { name: "", id: "current" };
-        var nodeForCurrentContent = {title:indexType.name, type:indexType.id, isTopLevel:true, index:0, size:1, parent:types, maximizedAngle:360, children:[], descendantCount:1};
-        types.children.push(nodeForCurrentContent);
+        var nodeForCurrentContent = {title:indexType.name, type:indexType.id, isTopLevel:true, index:0, size:1, parent:base.hierarchy, maximizedAngle:360, children:[], descendantCount:1};
+        base.hierarchy.children.push(nodeForCurrentContent);
         nodeForCurrentContent.children = setChildren(nodeForCurrentContent, [ base.currentNode ]);
       }
 
@@ -2825,7 +2825,7 @@ window.scalarvis = { instanceCount: -1 };
         if (!base.isVisOfCurrentPage()) {
           helpContent = "This visualization shows <b>how content is interconnected</b> in this work.<ul>";
         } else {
-          helpContent = "This visualization shows how <b>&ldquo;" + currentNode.getDisplayTitle() + "&rdquo;</b> is connected to other content in this work.<ul>";
+          helpContent = "This visualization shows how <b>&ldquo;" + base.currentNode.getDisplayTitle() + "&rdquo;</b> is connected to other content in this work.<ul>";
         }
         helpContent += "<li>Each circle represents a piece of content, color-coded by type.</li>" +
           "<li>Click and hold to drag.</li>" +
