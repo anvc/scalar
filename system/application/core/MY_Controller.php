@@ -197,7 +197,7 @@ class MY_Controller extends CI_Controller {
 		// Never use an Edition URL if requesting a Version
 		if (null !== $edition_num && null !== $this->data['url_params']['version_num']) $version_num = null;
 		
-		// Redirect a book URL or incorrect edition URL to the home page
+		// Redirect a book URL or incorrect edition URL to the same page, but in or out of the edition
 		if (empty($this->data['url_params']['page_segments']) || $edition_num != $this->data['url_params']['edition_num'] || $version_num != $this->data['url_params']['version_num']) {
 			$redirect_to = base_url().$this->data['url_params']['book_segment'];
 			$redirect_to .= ((null !== $edition_num) ? '.'.$edition_num : '') . '/';

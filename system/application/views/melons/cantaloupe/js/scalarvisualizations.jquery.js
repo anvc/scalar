@@ -4063,14 +4063,14 @@ window.scalarvis = { instanceCount: -1 };
       	        }
       		}
       		var path_key = this.paths.length;
-              this.paths[path_key] = new google.maps.Polyline({
-                  path: pathCoordinates,
-                  geodesic: true,
-                  strokeColor: '#0000FF',
-                  strokeOpacity: 1.0,
-                  strokeWeight: 2
-              });
-              this.paths[path_key].setMap(this.map);
+            this.paths[path_key] = new google.maps.Polyline({
+                path: pathCoordinates,
+                geodesic: true,
+                strokeColor: '#0000FF',
+                strokeOpacity: 1.0,
+                strokeWeight: 2
+            });
+            this.paths[path_key].setMap(this.map);
       	}
       	// All other nodes
       	for (var j = 0; j < base.sortedNodes.length; j++) {
@@ -4172,23 +4172,23 @@ window.scalarvis = { instanceCount: -1 };
 		    	});
   				this.oms.addMarker(this.markers[key]);
   				// Infowindow
-	        this.infowindows[key] = new google.maps.InfoWindow({
-	            content: title,
-	            maxWidth: 300
-	        });
-	        $(this.markers[key]).data('infowindow', this.infowindows[key]).data('map', this.map);
-          this.markers[key].addListener('click', (evt) => {
-            base.selectedNodes = [obj];
-            base.loadNode(obj.slug, 0, 0, base.updateInspector, false);
-            base.updateInspector();
-          })
-	        this.markers[key].addListener('spider_click', function(evt) {
-	        	var infowindow = $(this).data('infowindow');
-	        	var map = $(this).data('map');
-	        	infowindow.open(map, this);
-	        });
+  				this.infowindows[key] = new google.maps.InfoWindow({
+  					content: title,
+  					maxWidth: 300
+  				});
+  				$(this.markers[key]).data('infowindow', this.infowindows[key]).data('map', this.map);
+  				this.markers[key].addListener('click', (evt) => {
+  					base.selectedNodes = [obj];
+  					base.loadNode(obj.slug, 0, 0, base.updateInspector, false);
+  					base.updateInspector();
+  				});
+  				this.markers[key].addListener('spider_click', function(evt) {
+  					var infowindow = $(this).data('infowindow');
+  					var map = $(this).data('map');
+  					infowindow.open(map, this);
+  				});
   			};
-        return coords;
+  			return coords;
       }
 
       getCoords(obj) {
@@ -4452,7 +4452,7 @@ window.scalarvis = { instanceCount: -1 };
         if (null != fieldToAdd && !this.visList.find('td[prop="fieldToAdd"]').length) {
         	this.visList.find('td[prop="author"]').before('<td class="lg" prop="fieldToAdd"><a href="javascript:void(null);">'+candidates[fieldToAdd]+'</a></td>');
         };
-
+console.log('output rows');
         // Output rows
         var $tbody = this.visList.find('tbody');
         $tbody.find('.visListRow').remove();
@@ -4520,7 +4520,7 @@ window.scalarvis = { instanceCount: -1 };
 
           // Add/remove items from selectedNodes
           this.visList.find('.visListRow').on('click', function() {
-        	 var $this = $(this);
+         	 var $this = $(this);
         	 var isSelected = $this.hasClass('selected') ? true : false;
         	 var index = parseInt($this.data('index'));
         	 var node = base.contentNodes[index];
@@ -4532,7 +4532,6 @@ window.scalarvis = { instanceCount: -1 };
 	        	 base.selectedNodes.push(node);
 	        	 $this.addClass('selected');
         	 };
-             base.loadNode(node.slug, 0, 0, base.updateInspector);
   	         base.updateInspector();
           });
 

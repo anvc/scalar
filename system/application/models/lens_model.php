@@ -788,6 +788,7 @@ class Lens_model extends MY_Model {
     				break;
     		}
     		$content = $this->$model->get_all($this->data['book']->book_id, $type, $category, true, null);
+    		// TODO: this is returning phantom relational content because there's no check that the children are the most recent versions
     		return $content;
     		
     	}
