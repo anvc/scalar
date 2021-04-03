@@ -4452,7 +4452,7 @@ window.scalarvis = { instanceCount: -1 };
         if (null != fieldToAdd && !this.visList.find('td[prop="fieldToAdd"]').length) {
         	this.visList.find('td[prop="author"]').before('<td class="lg" prop="fieldToAdd"><a href="javascript:void(null);">'+candidates[fieldToAdd]+'</a></td>');
         };
-console.log('output rows');
+
         // Output rows
         var $tbody = this.visList.find('tbody');
         $tbody.find('.visListRow').remove();
