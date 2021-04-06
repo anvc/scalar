@@ -94,7 +94,7 @@ Class Api extends CI_Controller {
 		$this->_payload_to_auth_data();
 
  		//All requests to this controller must be accompanied by authentication credentials and a valid action
- 		if(!$this->_load_auth_data()) $this->_output_error(StatusCodes::HTTP_UNAUTHORIZED);
+ 		if(!$this->_load_auth_data()) $this->_output_error(StatusCodes::HTTP_UNAUTHORIZED, 'Invalid auth data');
 
  		$this->load->library('session');
  		$this->load->model('user_model', 'users');
