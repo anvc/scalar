@@ -504,7 +504,7 @@ Class Api extends CI_Controller {
 
 	private function _load_delete_data(){
 		foreach($this->delete_fields as $idx) $this->data[$idx] = $this->input->post($idx);
-		if(!$this->data[$idx]) $this->output_error(StatusCodes::HTTP_BAD_REQUEST, 'Incomplete or missing field.');
+		if(!$this->data[$idx]) $this->_output_error(StatusCodes::HTTP_BAD_REQUEST, 'Incomplete or missing field.');
 		$arr = explode(':', $this->data['scalar:urn']); // Avoid E_STRICT pass by reference warning
 		if($this->versions->get_book(array_pop($arr)) != $this->user->book_id){
 			$this->_output_error(StatusCodes::HTTP_UNAUTHORIZED, 'You do not have permission to modify this node');
