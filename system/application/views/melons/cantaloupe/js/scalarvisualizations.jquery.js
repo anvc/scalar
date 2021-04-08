@@ -609,6 +609,20 @@ window.scalarvis = { instanceCount: -1 };
       if (!base.options.lens.components[0].modifiers) base.options.lens.components[0].modifiers = [];
     }
 
+    base.isVisOfSinglePage = function() {
+      if (base.options.content == 'current') {
+        return true;
+      } else if (base.options.content == 'lens') {
+        let items = base.options.lens.components[0]["content-selector"].items;
+        if (items) {
+          if (base.options.lens.components[0]['content-selector'].type == 'specific-items' && items.length == 1) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
     base.isVisOfCurrentPage = function() {
       if (base.options.content == 'current') {
         return true;
@@ -1620,14 +1634,18 @@ window.scalarvis = { instanceCount: -1 };
                 }
               })
               let topLevelType = true;
-              if (base.options.lens.components.length === 1 && base.options.lens.components[0]['content-selector'].type === 'items-by-type') {
-                if (base.options.lens.components[0]['content-selector']['content-type'] == 'all-content') {
-                  topLevelType = false;
-                } else {
-                  topLevelType = base.options.lens.components[0]['content-selector']['content-type'];
-                }
-                if (base.options.lens.components[0]['content-selector'].type === 'specific-items' && base.options.lens.components[0]['content-selector'].items.length === 1) {
-                  topLevelType = false;
+              if (base.options.lens.components.length === 1) {
+                let component = base.options.lens.components[0];
+                if (component['content-selector'].type === 'items-by-type') {
+                  if (component['content-selector']['content-type'] == 'all-content') {
+                    topLevelType = true;
+                  } else {
+                    topLevelType = component['content-selector']['content-type'];
+                  }
+                } else if (component['content-selector'].type === 'specific-items') {
+                  if (component['content-selector'].items.length === 1) {
+                    topLevelType = false;
+                  }
                 }
               }
               base.updateTypeHierarchy(false, true, topLevelType, hasToc);
@@ -1776,19 +1794,31 @@ window.scalarvis = { instanceCount: -1 };
         }
       }*/
 
-      if (base.isVisOfCurrentPage()) {
+      if (base.isVisOfSinglePage()) {
 
         // replace the root node with the current node if showing types
         // is not a priority
-        if (topLevelType) {
-          base.hierarchy = {
-            title: base.currentNode.title,
-            shortTitle: base.currentNode.shortTitle,
-            showsTitle: true,
-            node: base.currentNode,
-            type: base.currentNode.type.id,
-            children: null
-          };
+        if (!topLevelType) {
+          if (base.isVisOfCurrentPage()) {
+            base.hierarchy = {
+              title: base.currentNode.title,
+              shortTitle: base.currentNode.shortTitle,
+              showsTitle: true,
+              node: base.currentNode,
+              type: base.currentNode.type.id,
+              children: null
+            };
+          } else {
+            let node = scalarapi.getNode(base.options.lens.components[0]['content-selector'].items[0]);
+            base.hierarchy = {
+              title: node.title,
+              shortTitle: node.shortTitle,
+              showsTitle: true,
+              node: node,
+              type: node.type.id,
+              children: null
+            };
+          }
           if (includeRelations) {
             base.addRelationsForHierarchyNode(base.hierarchy);
           }
@@ -1814,13 +1844,17 @@ window.scalarvis = { instanceCount: -1 };
 
         case "lens":
           if (topLevelType) {
-            if (base.isVisOfCurrentPage()) {
+            if (base.isVisOfSinglePage()) {
               typeList = [];
             } else {
               typeList = [topLevelType];
             }
           } else {
-            typeList = base.canonicalTypeOrder;
+            if (base.isVisOfSinglePage()) {
+              typeList = [];
+            } else {
+              typeList = base.canonicalTypeOrder;
+            }
           }
           break;
 
@@ -2036,7 +2070,7 @@ window.scalarvis = { instanceCount: -1 };
               // if this is a lens, don't include items not returned by the lens
               if (base.options.content == 'lens') {
                 if (base.options.lens.items) {
-                  if (!base.options.lens.items[destNode.url]) {
+                  if (base.contentNodes.indexOf(destNode) == -1 && base.manuallyLoadedNodes.indexOf(destNode) == -1) {
                     okToProcess = false;
                   }
                 }
