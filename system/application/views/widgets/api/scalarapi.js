@@ -3203,7 +3203,7 @@ ScalarNode.prototype.parseData = function(json, versionData) {
 	if (this.slug == "toc") {
 		this.scalarTypes.toc = scalarapi.model.scalarTypes.toc;
 	}
-	
+
 	// if there is incoming data related to sorts, put that into the object
 	this.sorts = {};
 	if ('undefined' != typeof(json.created)) this.sorts.created = json.created;
@@ -3303,13 +3303,15 @@ ScalarNode.prototype.addRelation = function(relation) {
 		if (this.outgoingRelations.indexOf(relation) == -1) {
 			n = this.outgoingRelations.length;
 			for (i=0; i<n; i++) {
-        if (this.outgoingRelations[i].target == relation.target) {
-          this.outgoingRelations[i] = relation;
-					foundExisting = true;
-        } else if (this.outgoingRelations[i].target && relation.target) {
-          if (this.outgoingRelations[i].target.slug == relation.target.slug) {
+        if (this.outgoingRelations[i].type == relation.type) {
+          if (this.outgoingRelations[i].target == relation.target) {
             this.outgoingRelations[i] = relation;
   					foundExisting = true;
+          } else if (this.outgoingRelations[i].target && relation.target) {
+            if (this.outgoingRelations[i].target.slug == relation.target.slug) {
+              this.outgoingRelations[i] = relation;
+    					foundExisting = true;
+            }
           }
         }
 			}
@@ -3332,13 +3334,15 @@ ScalarNode.prototype.addRelation = function(relation) {
 
 			n = this.incomingRelations.length;
 			for (i=0; i<n; i++) {
-        if (this.incomingRelations[i].body == relation.body) {
-          this.incomingRelations[i] = relation;
-					foundExisting = true;
-        } else if (this.incomingRelations[i].body && relation.body) {
-          if (this.incomingRelations[i].body.slug == relation.body.slug) {
+        if (this.incomingRelations[i].type == relation.type) {
+          if (this.incomingRelations[i].body == relation.body) {
             this.incomingRelations[i] = relation;
   					foundExisting = true;
+          } else if (this.incomingRelations[i].body && relation.body) {
+            if (this.incomingRelations[i].body.slug == relation.body.slug) {
+              this.incomingRelations[i] = relation;
+    					foundExisting = true;
+            }
           }
         }
 			}
