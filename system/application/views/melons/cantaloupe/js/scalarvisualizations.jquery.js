@@ -4123,6 +4123,13 @@ window.scalarvis = { instanceCount: -1 };
       	    }
       	}
       	this.map.fitBounds(bounds);
+      	google.maps.event.addListener(this.map, 'idle', () => {  // Prevent map from being zoomed out so far it gets buggy
+      	   var zoom = parseInt(this.map.getZoom());
+      	   if (zoom < 1) {
+      		   this.map.setCenter(new google.maps.LatLng(0, 0));
+      		   this.map.setZoom(1);
+      	   }
+      	});
       	if (!this.markers.length) {
       		this.displayNoContentWarning();
       	} else {
