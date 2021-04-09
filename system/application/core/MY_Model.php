@@ -209,6 +209,7 @@ class MY_Model extends CI_Model {
 		if (!empty($is_live)) $this->db->where($this->pages_table.'.is_live', 1);
 		$this->db->order_by($orderby, $orderdir);
 		$query = $this->db->get();
+		if ($this->db->_error_message()) echo 'Database error: '.$this->db->_error_message();
 		$result = $query->result();
 		$remove = array();
     	for ($j = 0; $j < count($result); $j++) {

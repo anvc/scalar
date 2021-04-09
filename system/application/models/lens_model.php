@@ -756,6 +756,7 @@ class Lens_model extends MY_Model {
     	} elseif (isset($json['type']) && 'items-by-type' == $json['type']) {
     		$content_type = $json['content-type'];
     		$type = $category = null;
+    		$is_relational_table = false;
     		switch ($content_type) {
     			case 'all-content':
     			case 'content':
@@ -785,13 +786,16 @@ class Lens_model extends MY_Model {
     				$this->load->helper('inflector');
     				$this->load->model($content_type.'_model', plural($content_type));
     				$model = plural($content_type);
+    				$is_relational_table = true;
     				break;
     		}
     		$content = $this->$model->get_all($this->data['book']->book_id, $type, $category, true, null);
-    		foreach ($content as $key => $row) {
-    			$version = $this->versions->get_single($row->content_id, null, '', false);
-    			$relational_content = $this->$model->get_children($version->version_id, '', '', true);
-    			if (empty($relational_content)) unset($content[$key]);
+    		if ($is_relational_table) {  // Make sure every node returned is most recent version
+	    		foreach ($content as $key => $row) {
+	    			$version = $this->versions->get_single($row->content_id, null, '', false);
+	    			$relational_content = $this->$model->get_children($version->version_id, '', '', true);
+	    			if (empty($relational_content)) unset($content[$key]);
+	    		}
     		}
     		return $content;
     		
