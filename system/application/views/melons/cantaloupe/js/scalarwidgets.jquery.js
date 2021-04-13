@@ -277,6 +277,7 @@
            var visType = $widget.data( 'visformat' ) || "force-directed";
            var content = $widget.data( 'viscontent' ) || "all";
            if (content == 'all') content = 'all-content';
+           if (content == 'toc') content = 'table-of-contents';
 
            var modifiers = [];
            var contentTypes;

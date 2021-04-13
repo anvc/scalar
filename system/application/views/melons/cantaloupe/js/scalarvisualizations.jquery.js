@@ -4369,30 +4369,35 @@ window.scalarvis = { instanceCount: -1 };
       }
 
       drawWordCloud() {
-
-          base.visualization.css('height', this.size.height + 'px');
-          //base.visualization.css('width', this.size.width + 'px');
-          if ('undefined' != typeof(base.visualization.jQCloud)) base.visualization.jQCloud('destroy');
-          base.visualization.html('<div style="font-weight:normal;">Parsing data...</div>');
-          // Create array of words
-          var j = 0;
+        base.visualization.css('height', this.size.height + 'px');
+        //base.visualization.css('width', this.size.width + 'px');
+        if ('undefined' != typeof(base.visualization.jQCloud)) base.visualization.jQCloud('destroy');
+        base.visualization.html('<div style="font-weight:normal;">Parsing data...</div>');
+        // Create array of words
+        var j = 0;
         setTimeout( () => {
-          this.doDrawWordCloud(j, base.sortedNodes.length - 1);
+          this.doDrawWordCloud(j);
         }, 1);
-
       }
 
-      doDrawWordCloud(j, total) {
-        var words = this.getWords(base.sortedNodes[j].current.content);
-        this.words = this.mergeWords(this.words, words);
-        if (j >= total) {
+      doDrawWordCloud(j) {
+        if (j >= base.sortedNodes.length) {
           this.finishDrawWordCloud();
           return;
         };
-        setTimeout( () => {
-          this.doDrawWordCloud((j+1), total);
-        }, 1);
-
+        if (base.sortedNodes[j]) {
+          if (base.sortedNodes[j].current.content) {
+            var words = this.getWords(base.sortedNodes[j].current.content);
+            this.words = this.mergeWords(this.words, words);
+          }
+          setTimeout( () => {
+            this.doDrawWordCloud(j+1);
+          }, 1);
+        } else {
+          setTimeout( () => {
+            this.doDrawWordCloud(j);
+          }, 10);
+        }
       }
 
       finishDrawWordCloud() {
