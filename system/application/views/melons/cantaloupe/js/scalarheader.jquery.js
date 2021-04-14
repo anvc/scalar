@@ -1704,6 +1704,8 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             manageLinkTitle = "Manage Lenses";
           }
 
+          lensMenu.append('<li class="vis_link"><a role="menuitem" href="' + base.get_param(scalarapi.model.urlPrefix + 'manage_lenses') + '"><span class="menuIcon" id="lensIcon"></span> ' + manageLinkTitle + '</a></li>');
+
           // private lenses
           if (privateLensArray.length > 0) {
             lensMenu.append('<li class="header"><h2>My Private Lenses</h2></li>');
@@ -1733,8 +1735,6 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
               ).appendTo(lensMenu);
             });
           }
-
-          lensMenu.append('<li class="vis_link"><a role="menuitem" href="' + base.get_param(scalarapi.model.urlPrefix + 'manage_lenses') + '"><span class="menuIcon" id="lensIcon"></span> ' + manageLinkTitle + '</a></li>');
 
         };
 
