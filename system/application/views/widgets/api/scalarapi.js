@@ -2583,6 +2583,7 @@ function ScalarModel(options) {
 		{property:'audio', uri:'http://scalar.usc.edu/2012/01/scalar-ns#audio', type:'string'},
 		{property:'isLive', uri:'http://scalar.usc.edu/2012/01/scalar-ns#isLive', type:'int'},
 		{property:'paywall', uri:'http://scalar.usc.edu/2012/01/scalar-ns#paywall', type:'string'},
+    {property:'author', uri:'http://www.w3.org/ns/prov#wasAttributedTo', type:'string'},
 		{property:'wasAttributedTo', uri:'http://www.w3.org/ns/prov#wasAttributedTo', type:'string'}
 	];
 
@@ -2613,6 +2614,7 @@ function ScalarModel(options) {
 		{property:'isLive', uri:'http://scalar.usc.edu/2012/01/scalar-ns#isLive', type:'int'},
 		{property:'paywall', uri:'http://scalar.usc.edu/2012/01/scalar-ns#paywall', type:'string'},
 		{property:'fullname', uri:'http://scalar.usc.edu/2012/01/scalar-ns#fullname', type:'string'},
+ 		{property:'author', uri:'http://www.w3.org/ns/prov#wasAttributedTo', type:'string'},
 		{property:'wasAttributedTo', uri:'http://www.w3.org/ns/prov#wasAttributedTo', type:'string'},
 		{property:'references', uri:'http://purl.org/dc/terms/references', type:'string'},
 		{property:'isReferencedBy', uri:'http://purl.org/dc/terms/isReferencedBy', type:'string'},
