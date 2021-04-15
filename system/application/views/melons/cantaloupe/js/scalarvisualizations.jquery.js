@@ -4386,7 +4386,7 @@ window.scalarvis = { instanceCount: -1 };
           return;
         };
         if (base.sortedNodes[j]) {
-          if (base.sortedNodes[j].current.content) {
+          if (base.sortedNodes[j].current) {
             var words = this.getWords(base.sortedNodes[j].current.content);
             this.words = this.mergeWords(this.words, words);
           }
