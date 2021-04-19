@@ -1050,7 +1050,6 @@
 
            if ( inline ) {
 
-
              $slot.addClass(align+'_slot');
              $widget.after( $slot );
              $widget.hide();
@@ -1059,7 +1058,7 @@
 
                // wrap the widget in a body copy element so its alignment happens inside the
                // dimensions of the body copy
-               if (!$slot.parent().hasClass('body_copy')) {
+               if ($slot.parents('.body_copy').length == 0) {
                  $slot.wrap('<div class="body_copy"></div>');
                }
 
