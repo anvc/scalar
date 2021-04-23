@@ -142,7 +142,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
 
         base.init = function(){
             base.dataType = scalarapi.getFileExtension(window.location.href);
-            if(['edit','versions','history','meta','annotation_editor'].indexOf(base.dataType)===-1){
+            if(['edit','versions','history','meta','annotation_editor','manage_lenses'].indexOf(base.dataType)===-1){
               base.dataType = 'normal';
             }
             //Replace undefined options with defaults...
@@ -308,7 +308,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                             (base.okToAdd?
                                                 '<li id="ScalarHeaderNew"><a class="headerIcon" href="' + base.get_param(scalarapi.model.urlPrefix + 'new.edit')+'" id="newIcon" title="New page button. Click to create a new page."><span class="visible-xs">New page</span></a></li>'
                                                 :'')+
-                                            (base.okToCopyEdit&&!base.isEditorialPathPage?
+                                            (base.okToCopyEdit&&!base.isEditorialPathPage&&base.currentNode!=null?
                                                 '<li id="ScalarHeaderEdit"><a class="headerIcon" href="' + scalarapi.stripEdition(base.get_param(scalarapi.model.urlPrefix + base.current_slug + '.edit')) + '" id="editIcon" title="Edit button. Click to edit the current page or media."><span class="visible-xs">Edit page</span></a></li>'
                                                 :'')+
                                             (base.okToAdd?
@@ -358,7 +358,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                 '</li>'
                                                 :'')+
                                             ((base.is_author||base.is_editor)?
-                                                (base.okToDelete&&!base.isEditorialPathPage?'<li id="ScalarHeaderDelete"><a class="headerIcon" id="deleteIcon" title="Delete"><span class="visible-xs">Delete page</span></a></li>':'')+
+                                                (base.okToDelete&&!base.isEditorialPathPage&&base.currentNode!=null?'<li id="ScalarHeaderDelete"><a class="headerIcon" id="deleteIcon" title="Delete"><span class="visible-xs">Delete page</span></a></li>':'')+
                                                 (base.editorialWorkflowEnabled&&!base.isEditorialPathPage&&scalarapi.getEdition(document.location.href) == -1?'<li id="ScalarHeaderEditorialPath"><a href="' + base.get_param(scalarapi.model.urlPrefix + 'editorialpath') + '" class="headerIcon" id="editorialPathIcon" title="Editorial path. Click to access the editorial path for this book."><span class="hidden-sm hidden-md hidden-lg">Editorial path</span></a></li>':'')+
                                                 ('<li id="ScalarHeaderOptions"><a href="' + system_uri + '/dashboard?book_id=' + base.bookId + '&zone=style#tabs-style" class="headerIcon" id="optionsIcon" title="Options button. Click to access the Dashboard."><span class="hidden-sm hidden-md hidden-lg">Dashboard</span></a></li>')
                                             :'')+
@@ -424,13 +424,13 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             //type requests (ex: meta or versions) - remove these as necessary
 
             var remove_edit_icons = [];
-            if(['edit','versions','history','annotation_editor'].indexOf(base.dataType)!==-1){
+            if(['edit','versions','history','annotation_editor','manage_lenses'].indexOf(base.dataType)!==-1){
               remove_edit_icons.push('#ScalarHeaderAnnotate');
             }
-            if(['edit','versions','history','annotation_editor'].indexOf(base.dataType)!==-1){
+            if(['edit','versions','history','annotation_editor','manage_lenses'].indexOf(base.dataType)!==-1){
               remove_edit_icons.push('#ScalarHeaderEdit');
             }
-            if(['versions','history','annotation_editor'].indexOf(base.dataType)!==-1){
+            if(['versions','history','annotation_editor','manage_lenses'].indexOf(base.dataType)!==-1){
               remove_edit_icons.push('#ScalarHeaderDelete');
             }
 
