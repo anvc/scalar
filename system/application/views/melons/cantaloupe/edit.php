@@ -1305,7 +1305,7 @@ if($currentRole == 'commentator'){
 		<div id="banner-image-pane" role="tabpanel" class="tab-pane<?=$canChangeState?'':' editingDisabled'?>">
 			<div class="row p">
 				<div class="col-md-8">
-					<p>Choose an image from your library to use as the primary visual for the Image Header, Splash, and Book Splash layouts:</p>
+					<p>Choose an image from your library to use as the primary visual for the Image Header, Visual Path, Splash, and Book Splash layouts:</p>
 						<div class="form-group">
 						<select id="choose_banner" name="scalar:banner" class="form-control"><option value="">Choose an image</option><?
 		  				$matched = false;
