@@ -379,6 +379,10 @@ class Lens_model extends MY_Model {
 		$return = array();
 		if (empty($contents)) return $return;
 		foreach ($contents as $content_id => $page) {
+			if (empty($page->versions) || !isset($page->versions[0]) || empty($page->versions[0])) {
+				unset($contents[$content_id]);
+				continue;
+			}
 			$uri = $prefix.'/'.$page->slug;
 			$version_uri = $uri.'.'.$page->versions[0]->version_num;
 			$page->has_version = $version_uri;
