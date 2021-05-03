@@ -330,6 +330,7 @@ img.path-nav { width: 3.2rem; }
 .path-nav.up { left: 2.4rem; top: 7rem; }
 .path-nav.down { right: 2.4rem; top: inherit; bottom: 2rem; }
 .path-nav.info { right: 2.4rem; top: 7rem; cursor: pointer; }
+.path-nav.info.hypothesis_active { right:4.75rem; }
 .path-nav.info.multi { opacity: .6; }
 .path-nav-popover { font-size: 1.4rem; text-align: center; }
 /* fix for right side popovers falling off the screen */
