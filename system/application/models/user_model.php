@@ -474,6 +474,7 @@ class User_model extends MY_Model {
     	
 		$data = array('fullname' => $fullname, 'email' => $email);
 		$this->db->insert($this->users_table, $data);
+		if ($this->db->_error_message()) echo 'Database error: '.$this->db->_error_message();
 		$user_id = $this->db->insert_id();
 		$user = $this->get_by_user_id($user_id);
 		
