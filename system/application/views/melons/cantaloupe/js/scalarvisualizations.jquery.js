@@ -2377,6 +2377,7 @@ window.scalarvis = { instanceCount: -1 };
       // call using super.draw() from your draw method
       draw() {
         this.updateSize();
+        base.visualization.removeClass('scrollable');
         base.visualization.css('width', this.size.width + 'px');
         if (!this.hasBeenDrawn && base.visElement.width() > 0) {
           base.helpButton.attr('data-content', this.getHelpContent());
@@ -2428,12 +2429,15 @@ window.scalarvis = { instanceCount: -1 };
 
        draw() {
          super.draw();
+         if (this.isFullScreen) {
+           base.visualization.addClass('scrollable');
+         }
          if (base.svg != null) {
            this.itemsPerRow = Math.floor((this.size.width - 1) / this.colWidth);
            this.colScale = d3.scaleLinear([0, this.itemsPerRow], [0, this.itemsPerRow * this.colWidth]);
-           var unitWidth = Math.max(this.colScale(1) - this.colScale(0), 36);
+           var unitWidth = Math.max(this.colScale(1) - this.colScale(0), this.boxSize);
            var rowCount = Math.ceil(base.sortedNodes.length / this.itemsPerRow);
-           var visHeight = rowCount * 46;
+           var visHeight = rowCount * (this.boxSize + 10);
            this.rowScale = d3.scaleLinear([0, rowCount], [0, visHeight]);
            var unitHeight = this.rowScale(1) - this.rowScale(0);
            var fullHeight = unitHeight * rowCount + 20;

@@ -77,6 +77,10 @@ article .visualization { margin-bottom: 2.4rem; position: relative; }
 	overflow-x: hidden;
 }
 
+.scalarvis.scrollable {
+	overflow-y: auto;
+}
+
 .scalarvis.bounded {
 	border: 1px solid #ccc;
 }
