@@ -1094,7 +1094,7 @@ a.nav_btn:hover {
 /*.disabled { opacity: 0.25; }*/
 
 .results_list { margin-top: 2rem; position: relative; overflow-y: auto;height: 390px;}
-.results_list.search_results { margin-top: 0; }
+.results_list.search_results { margin-top: 0; clear: both; }
 .dialog.index .results_list { margin-top: 14.2rem; }
 .results_list table { width: 100%; }
 .results_list td { height: 3rem; overflow: hidden; padding: .5rem; }
