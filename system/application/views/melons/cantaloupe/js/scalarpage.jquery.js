@@ -3531,7 +3531,7 @@
                                     $("#"+slugProxy).append('<div style="visibility:hidden; clear:both; height:1px; overflow:hidden;"></div>');
                                 }
                             }
-                            okToAddExtras = false;
+                            okToAddExtras = true;
                             break;
                     }
 
