@@ -3971,6 +3971,14 @@ function YouTubeGetID(url){
 
 				//Convert code elements to ordered lists
 				code.html("<ol class='plain'>" + code.html().replace(/\n/g, "<li>").trim() + "</ol>");
+
+  			//Added styling to make text media feel a bit more like code media (sizing, padding, etc.)
+  			$('#'+this.frameId).contents().find('body ol').css({
+  					'color': 'black',
+  					'text-shadow': '0',
+  					'font-size': '13px',
+  					'padding':'13px 0px'
+  			}).find('li').css('padding','0 13px 0 49.4px');
 			}
 
 			code.find('li').each(function() {
@@ -3978,14 +3986,6 @@ function YouTubeGetID(url){
 			});
 
 			$('#'+this.frameId)[0].contentWindow.document.body.innerHTML = code.html();
-
-			//Added styling to make text media feel a bit more like code media (sizing, padding, etc.)
-			$('#'+this.frameId).contents().find('body ol').css({
-					'color': 'black',
-					'text-shadow': '0',
-					'font-size': '13px',
-					'padding':'13px 0px'
-			}).find('li').css('padding','0 13px 0 49.4px');
 
 			var approot = $('link#approot').attr('href');
 			var cssLink = document.createElement("link")
