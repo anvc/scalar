@@ -242,7 +242,7 @@ window.scalarvis = { instanceCount: -1 };
 
       // legend popover
       let format = base.getFormat();
-      if (format != "tagcloud" && format != "list" && format != "word-cloud" && format != "map") {
+      if (format != "tagcloud" && format != "list" && format != "word-cloud") {
         visFooter.append(' | ');
         base.legendButton = $('<button class="btn btn-link btn-xs" data-toggle="popover" data-placement="top" >Legend</button>');
         visFooter.append(base.legendButton);
