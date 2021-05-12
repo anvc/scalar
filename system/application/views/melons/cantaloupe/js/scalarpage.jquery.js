@@ -2467,7 +2467,10 @@
                             map: map,
                             html: contentString,
                             title: title,
-                            icon: src
+                            icon: {
+                		    			url: src,
+                              scaledSize: new google.maps.Size(40,40)
+                		    		}
                         });
                         google.maps.event.addListener(marker, 'click', function() {
                             infoWindow.setContent(this.html);
@@ -2497,7 +2500,7 @@
                 }
 
                 var fontSize = 16,
-                    imageWidth = imageHeight = 45;
+                    imageWidth = imageHeight = 80;
 
                 if (number >= 1000) {
                     fontSize = 11;

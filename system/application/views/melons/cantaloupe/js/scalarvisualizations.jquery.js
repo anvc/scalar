@@ -4218,7 +4218,8 @@ window.scalarvis = { instanceCount: -1 };
 		    		/* map: this.map, */
 		    		title: title,
 		    		icon: {
-		    			url: icon
+		    			url: icon,
+              scaledSize: new google.maps.Size(40,40)
 		    		}
 		    	});
   				this.oms.addMarker(this.markers[key]);
@@ -4277,8 +4278,8 @@ window.scalarvis = { instanceCount: -1 };
 
       generateIcon(type) {
 
-          var imageWidth = 45;
-          var imageHeight = 45;
+          var imageWidth = 80;
+          var imageHeight = 80;
 
           var svg = d3.select(document.createElement('div')).append('svg')
               .attr('width', '60')
