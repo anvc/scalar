@@ -1637,8 +1637,8 @@ window.scalarvis = { instanceCount: -1 };
               if (base.options.lens.components.length === 1) {
                 let component = base.options.lens.components[0];
                 if (component['content-selector'].type === 'items-by-type') {
-                  if (component['content-selector']['content-type'] == 'all-content') {
-                    topLevelType = true;
+                  if (component['content-selector']['content-type'] === 'all-content') {
+                    topLevelType = false;
                   } else {
                     topLevelType = component['content-selector']['content-type'];
                   }
@@ -4093,38 +4093,38 @@ window.scalarvis = { instanceCount: -1 };
       			if (description && description.length) title += '<p style="margin-bottom:8px;">'+description+'</p>';
       			var icon = this.getIcon(base.sortedNodes[j].outgoingRelations[k].target.scalarTypes);
       			var coords = this.drawMarkers(base.sortedNodes[j].outgoingRelations[k].target, title, icon);
-      	        if (coords.length) {
-      	        	for (var m = 0; m < coords.length; m++) {
-      	        		pathCoordinates.push(coords[m]);
-      	        		bounds.extend( new google.maps.LatLng(coords[m].lat, coords[m].lng) );
-      	        	};
-      	        }
+  	        if (coords.length) {
+  	        	for (var m = 0; m < coords.length; m++) {
+  	        		pathCoordinates.push(coords[m]);
+  	        		bounds.extend( new google.maps.LatLng(coords[m].lat, coords[m].lng) );
+  	        	};
+  	        }
       		}
       		var path_key = this.paths.length;
-            this.paths[path_key] = new google.maps.Polyline({
-                path: pathCoordinates,
-                geodesic: true,
-                strokeColor: '#0000FF',
-                strokeOpacity: 1.0,
-                strokeWeight: 2
-            });
-            this.paths[path_key].setMap(this.map);
+          this.paths[path_key] = new google.maps.Polyline({
+              path: pathCoordinates,
+              geodesic: true,
+              strokeColor: '#0000FF',
+              strokeOpacity: 1.0,
+              strokeWeight: 2
+          });
+          this.paths[path_key].setMap(this.map);
       	}
       	// All other nodes
       	for (var j = 0; j < base.sortedNodes.length; j++) {
       		if (-1 != urls.indexOf(base.sortedNodes[j].url)) continue;
       		var title = '<p style="margin-bottom:8px;"><b><a href="'+base.sortedNodes[j].url+'">'+base.sortedNodes[j].getDisplayTitle()+'</a></b></p>';
-  			var thumbnail = base.sortedNodes[j].thumbnail;
-  			var description = base.sortedNodes[j].getDescription(true);
-  			if (null != thumbnail) title += '<img src="'+thumbnail+'" align="left" style="max-width:100px;max-height:100px;margin-right:12px;" />';
-  			if (description && description.length) title += '<p style="margin-bottom:8px;">'+description+'</p>';
-          	var icon = this.getIcon(base.sortedNodes[j].scalarTypes);
+    			var thumbnail = base.sortedNodes[j].thumbnail;
+    			var description = base.sortedNodes[j].getDescription(true);
+    			if (null != thumbnail) title += '<img src="'+thumbnail+'" align="left" style="max-width:100px;max-height:100px;margin-right:12px;" />';
+    			if (description && description.length) title += '<p style="margin-bottom:8px;">'+description+'</p>';
+        	var icon = this.getIcon(base.sortedNodes[j].scalarTypes);
       		var coords = this.drawMarkers(base.sortedNodes[j], title, icon);
-      	    if (coords.length) {
-  	        	for (var m = 0; m < coords.length; m++) {
-  	        		bounds.extend( new google.maps.LatLng(coords[m].lat, coords[m].lng) );
-  	        	};
-      	    }
+    	    if (coords.length) {
+	        	for (var m = 0; m < coords.length; m++) {
+	        		bounds.extend( new google.maps.LatLng(coords[m].lat, coords[m].lng) );
+	        	};
+    	    }
       	}
       	this.map.fitBounds(bounds);
       	google.maps.event.addListener(this.map, 'idle', () => {  // Prevent map from being zoomed out so far it gets buggy
@@ -4193,15 +4193,16 @@ window.scalarvis = { instanceCount: -1 };
       }
 
       clearMarkers() {
-    	this.markers.forEach(function(marker) {
-    	  marker.setMap(null);
-    	});
-    	this.markers = [];
-    	this.infowindows = {};
+      	this.markers.forEach(function(marker) {
+      	  marker.setMap(null);
+      	});
+      	this.markers = [];
+      	this.infowindows = {};
       }
 
       drawMarkers(obj, title, icon) {
   	  	var coords = this.getCoords(obj);
+        if (coords.length) console.log(obj.slug,coords);
   			if (!coords.length) return false;
   			for (var j = 0; j < coords.length; j++) {
   				var coord = coords[j];
