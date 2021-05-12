@@ -395,20 +395,27 @@
         clearTimeout(saveTimeout);
         saveTimeout = setTimeout(() => {
           me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
+          saveTimeout = 0;
         }, 2000);
       });
 
       lensTitle.addEventListener('keydown', (evt) => {
         if (evt.keyCode === 13) {
           evt.preventDefault();
-          clearTimeout(saveTimeout);
-          me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
+          if (saveTimeout !== 0) {
+            clearTimeout(saveTimeout);
+            saveTimeout = 0;
+            me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
+          }
         }
       });
 
       $('.lens-title').on('focusout', function(ev) {
-        clearTimeout(saveTimeout);
-        me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
+        if (saveTimeout !== 0) {
+          clearTimeout(saveTimeout);
+          saveTimeout = 0;
+          me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
+        }
       });
     }
 
