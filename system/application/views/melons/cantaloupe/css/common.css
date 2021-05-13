@@ -1271,7 +1271,6 @@ a.cke_dialog_ui_button { padding: 6px 0 !important; }
 }
 .media_options_bootbox .annotationTableWrapper{
 		border: 1px solid #ccc;
-	  border-radius: 4px;
 }
 .media_options_bootbox .table-fixed tbody {
   max-height: 200px;
@@ -1298,15 +1297,6 @@ a.cke_dialog_ui_button { padding: 6px 0 !important; }
 .media_options_bootbox .featuredAnnotation{
 	display: none;
 }
-.media_options_bootbox .featuredAnnotation select{
-	width: 100%;
-	line-height: 3rem;
-	height: 3rem;
-	font-size: 1.75rem;
-	margin-top: 1.5rem;
-}
-
-
 
 #wysiwygNewFeatures{
 	font-size: 1.4rem;
