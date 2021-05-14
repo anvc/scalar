@@ -69,6 +69,7 @@
 				'id': this.userId,
 				'api_key': '',
 				'dcterms:title': 'Lens: Untitled',
+        'scalar:metadata:slug': 'lens',
 				'dcterms:description': 'A snapshot of the content of this project.',
 				'sioc:content': '',
         'scalar:metadata:is_live': '0',
@@ -98,6 +99,7 @@
     	var data = {
     	   action : 'add',
     		'dcterms:title' : 'Lens: Untitled',
+        'scalar:metadata:slug': 'lens',
     		'dcterms:description' : '',
     		'sioc:content' : '',
         'scalar:metadata:is_live': '0',
@@ -161,7 +163,7 @@
       var pageData = {
         action: 'UPDATE',
         'scalar:urn': this.selectedLens.urn,
-        uriSegment: this.selectedLens.slug,
+        'scalar:metadata:slug': this.selectedLens.slug,
         'dcterms:title': this.selectedLens.title
       };
       var relationData = {};

@@ -2467,7 +2467,10 @@
                             map: map,
                             html: contentString,
                             title: title,
-                            icon: src
+                            icon: {
+                		    			url: src,
+                              scaledSize: new google.maps.Size(40,40)
+                		    		}
                         });
                         google.maps.event.addListener(marker, 'click', function() {
                             infoWindow.setContent(this.html);
@@ -2497,7 +2500,7 @@
                 }
 
                 var fontSize = 16,
-                    imageWidth = imageHeight = 45;
+                    imageWidth = imageHeight = 80;
 
                 if (number >= 1000) {
                     fontSize = 11;
@@ -2533,7 +2536,7 @@
                 var g = svg.append('g')
 
                 var path = g.append('path')
-                    .attr('transform', 'matrix(0.03,0,0,0.03,5,6)')
+                    .attr('transform', 'matrix(0.03,0,0,0.03,9,6)')
                     .attr('d', 'M730.94,1839.63C692.174,1649.33 623.824,1490.96 541.037,1344.19C479.63,1235.32 408.493,1134.83 342.673,1029.25C320.701,994.007 301.739,956.774 280.626,920.197C238.41,847.06 204.182,762.262 206.357,652.265C208.482,544.792 239.565,458.581 284.387,388.093C358.106,272.158 481.588,177.104 647.271,152.124C782.737,131.7 909.746,166.206 999.814,218.872C1073.41,261.91 1130.41,319.399 1173.73,387.152C1218.95,457.868 1250.09,541.412 1252.7,650.384C1254.04,706.214 1244.9,757.916 1232.02,800.802C1218.99,844.211 1198.03,880.497 1179.38,919.256C1142.97,994.915 1097.33,1064.24 1051.52,1133.6C915.083,1340.21 787.024,1550.91 730.94,1839.63L730.94,1839.63Z')
                     .attr('fill', 'url(#grad)')
                     .attr('stroke-width', 40)
@@ -2541,14 +2544,14 @@
 
                 if (number != null) {
                     var text = g.append('text')
-                        .attr('dx', 27)
+                        .attr('dx', 31)
                         .attr('dy', 32)
                         .attr('text-anchor', 'middle')
                         .attr('style', 'font-size:' + fontSize + 'px; fill: #000; font-family: Lato, Arial, sans-serif; font-weight: bold')
                         .text(number);
                 } else {
                     var circles = svg.append('circle')
-                        .attr('cx', '27.2')
+                        .attr('cx', '31.2')
                         .attr('cy', '27.2')
                         .attr('r', '5')
                         .style('fill', 'rgb(90,20,16)');

@@ -117,7 +117,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
 			for (var option_name in opts.data) {
 				if(option_name!='annotations' && option_name!='node'){
-					var $option = $('<div class="form-group"><label class="col-sm-3 control-label">'+ucwords(dash_to_space(option_name))+': </label><div class="col-sm-9"><select class="form-control" name="'+option_name+'"></select></div></div>');
+					var $option = $('<div class="form-group"><label class="col-sm-3 control-label">'+ucwords(dash_to_space(option_name))+' </label><div class="col-sm-9"><select class="form-control" name="'+option_name+'"></select></div></div>');
 					for (var j = 0; j < opts.data[option_name].length; j++) {
 						$option.find('select:first').append('<option value="'+opts.data[option_name][j]+'">'+ucwords(dash_to_space(opts.data[option_name][j]))+'</option>');
 					}
@@ -128,11 +128,11 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				}
 			}
 			if(hasAnnotationOption){
-				var $annotationSelection = $('<div class="annotationContainer"><div class="bg-info" style="padding:1rem;margin-bottom:1rem">This media has annotations. Select which annotations (if any) you want to be displayed.</div><div class="form-group">'+
-																		 		'<label class="col-sm-3 control-label">Annotations: </label>'+
-																				'<div class="col-sm-9 annotationSelection"><div class="annotationTableWrapper"><table class="table table-fixed table-striped table-hover"><thead><tr><th class="col-xs-3 text-center">&nbsp;&nbsp;<a href="#" class="annotationSelectionShowAll text-muted"><i class="glyphicon glyphicon-eye-open"></a></th><th class="col-xs-9">Annotation Title</th></tr></thead><tbody></tbody></table></div>'+
-																				'</div></div><div class="featuredAnnotation"><div class="form-group"><div class="col-xs-12">Choose an annotation to be highlighted when the page loads, or select \'None\'.</div>'+
-																				'<label class="col-sm-3 control-label">Featured Annotation:</label><div class="col-sm-9"><select><option value="none" class="none">None</option></select></div></div>');
+				var $annotationSelection = $('<div class="annotationContainer"><div class="form-group"><div class="col-sm-3"></div><div class="col-sm-9" id="annotation-info">This media has annotations. Select which annotations (if any) you want to be displayed.<br/></div></div><div class="form-group">' +
+					'<label class="col-sm-3 control-label">Annotations</label>' +
+					'<div class="col-sm-9 annotationSelection"><div class="annotationTableWrapper"><table class="table table-fixed table-striped table-hover"><thead><tr><th class="col-xs-3 text-center">&nbsp;&nbsp;<a href="#" class="annotationSelectionShowAll text-muted"><i class="glyphicon glyphicon-eye-open"></a></th><th class="col-xs-9">Annotation Title</th></tr></thead><tbody></tbody></table></div>' +
+					'</div></div><div class="featuredAnnotation"><div class="form-group"><div class="col-sm-3"></div><div class="col-sm-9">Choose an annotation to be featured when the page loads, or select \'None\'.</div></div>' +
+					'<div class="form-group"><label class="col-sm-3 control-label">Featured</label><div class="col-sm-9"><select class="form-control"><option value="none" class="none">None</option></select></div></div>');
 
         $annotationSelection.find('.annotationSelectionShowAll').on('click', function(e){
 					e.preventDefault();
@@ -157,7 +157,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								var node = scalarapi.getNode(slug);
 								var annotated_by = node.getRelatedNodes('annotation', 'incoming');
 								if(annotated_by.length == 0){
-									$annotationSelection.find('div.bg-info, .featuredAnnotation').remove();
+									$annotationSelection.find('#annotation-info, .featuredAnnotation').remove();
 									$annotationSelection.find('.annotationSelection').html('<p class="text-muted">This media does not contain any annotations.</p>');
 									return;
 								}

@@ -242,7 +242,7 @@ window.scalarvis = { instanceCount: -1 };
 
       // legend popover
       let format = base.getFormat();
-      if (format != "tagcloud" && format != "list" && format != "word-cloud" && format != "map") {
+      if (format != "tagcloud" && format != "list" && format != "word-cloud") {
         visFooter.append(' | ');
         base.legendButton = $('<button class="btn btn-link btn-xs" data-toggle="popover" data-placement="top" >Legend</button>');
         visFooter.append(base.legendButton);
@@ -1637,8 +1637,8 @@ window.scalarvis = { instanceCount: -1 };
               if (base.options.lens.components.length === 1) {
                 let component = base.options.lens.components[0];
                 if (component['content-selector'].type === 'items-by-type') {
-                  if (component['content-selector']['content-type'] == 'all-content') {
-                    topLevelType = true;
+                  if (component['content-selector']['content-type'] === 'all-content') {
+                    topLevelType = false;
                   } else {
                     topLevelType = component['content-selector']['content-type'];
                   }
@@ -4067,6 +4067,13 @@ window.scalarvis = { instanceCount: -1 };
         this.markers = [];
         this.infowindows = [];
         this.paths = [];
+        this.icons = {}
+        this.generateIcon('page');
+        this.generateIcon('media');
+        this.generateIcon('reply');
+        this.generateIcon('tag');
+        this.generateIcon('annotation');
+        this.generateIcon('path');
       }
 
       draw() {
@@ -4082,49 +4089,50 @@ window.scalarvis = { instanceCount: -1 };
       		if ('undefined' == typeof(base.sortedNodes[j].scalarTypes.path)) continue;
       		var pathTitle = base.sortedNodes[j].getDisplayTitle();
       		var pathCoordinates = [];
-      		for (var k = 0; k < base.sortedNodes[j].outgoingRelations.length; k++) {
-      			if (null == base.sortedNodes[j].outgoingRelations[k].index) continue;  // Not part of the path
-      			if (null == base.sortedNodes[j].outgoingRelations[k].target) continue;  // Not part of the path
-      			if (-1 == urls.indexOf(base.sortedNodes[j].outgoingRelations[k].target.url)) urls.push(base.sortedNodes[j].outgoingRelations[k].target.url);
-      			var title = '<p style="margin-bottom:8px;">'+base.sortedNodes[j].outgoingRelations[k].startString+' of the "'+pathTitle+'" path<br /><b><a href="'+base.sortedNodes[j].outgoingRelations[k].target.url+'">'+base.sortedNodes[j].outgoingRelations[k].target.getDisplayTitle()+'</a></b></p>';
-      			var thumbnail = base.sortedNodes[j].outgoingRelations[k].target.thumbnail;
-      			var description = base.sortedNodes[j].outgoingRelations[k].target.getDescription(true);
+          let relations = base.sortedNodes[j].getRelations('path', 'outgoing');
+      		for (var k = 0; k < relations.length; k++) {
+      			if (null == relations[k].index) continue;  // Not part of the path
+      			if (null == relations[k].target) continue;  // Not part of the path
+      			if (-1 == urls.indexOf(relations[k].target.url)) urls.push(relations[k].target.url);
+      			var title = '<p style="margin-bottom:8px;">'+relations[k].startString+' of the "'+pathTitle+'" path<br /><b><a href="'+relations[k].target.url+'">'+relations[k].target.getDisplayTitle()+'</a></b></p>';
+      			var thumbnail = relations[k].target.thumbnail;
+      			var description = relations[k].target.getDescription(true);
       			if (null != thumbnail) title += '<img src="'+thumbnail+'" align="left" style="max-width:100px;max-height:100px;margin-right:12px;" />';
       			if (description && description.length) title += '<p style="margin-bottom:8px;">'+description+'</p>';
-      			var icon = this.getIcon(base.sortedNodes[j].outgoingRelations[k].target.scalarTypes);
-      			var coords = this.drawMarkers(base.sortedNodes[j].outgoingRelations[k].target, title, icon);
-      	        if (coords.length) {
-      	        	for (var m = 0; m < coords.length; m++) {
-      	        		pathCoordinates.push(coords[m]);
-      	        		bounds.extend( new google.maps.LatLng(coords[m].lat, coords[m].lng) );
-      	        	};
-      	        }
+      			var icon = this.getIcon(relations[k].target.scalarTypes);
+      			var coords = this.drawMarkers(relations[k].target, title, icon);
+  	        if (coords.length) {
+  	        	for (var m = 0; m < coords.length; m++) {
+  	        		pathCoordinates.push(coords[m]);
+  	        		bounds.extend( new google.maps.LatLng(coords[m].lat, coords[m].lng) );
+  	        	};
+  	        }
       		}
       		var path_key = this.paths.length;
-            this.paths[path_key] = new google.maps.Polyline({
-                path: pathCoordinates,
-                geodesic: true,
-                strokeColor: '#0000FF',
-                strokeOpacity: 1.0,
-                strokeWeight: 2
-            });
-            this.paths[path_key].setMap(this.map);
+          this.paths[path_key] = new google.maps.Polyline({
+              path: pathCoordinates,
+              geodesic: true,
+              strokeColor: d3.rgb(base.highlightColorScale('path')),
+              strokeOpacity: 1.0,
+              strokeWeight: 2
+          });
+          this.paths[path_key].setMap(this.map);
       	}
       	// All other nodes
       	for (var j = 0; j < base.sortedNodes.length; j++) {
       		if (-1 != urls.indexOf(base.sortedNodes[j].url)) continue;
       		var title = '<p style="margin-bottom:8px;"><b><a href="'+base.sortedNodes[j].url+'">'+base.sortedNodes[j].getDisplayTitle()+'</a></b></p>';
-  			var thumbnail = base.sortedNodes[j].thumbnail;
-  			var description = base.sortedNodes[j].getDescription(true);
-  			if (null != thumbnail) title += '<img src="'+thumbnail+'" align="left" style="max-width:100px;max-height:100px;margin-right:12px;" />';
-  			if (description && description.length) title += '<p style="margin-bottom:8px;">'+description+'</p>';
-          	var icon = this.getIcon(base.sortedNodes[j].scalarTypes);
+    			var thumbnail = base.sortedNodes[j].thumbnail;
+    			var description = base.sortedNodes[j].getDescription(true);
+    			if (null != thumbnail) title += '<img src="'+thumbnail+'" align="left" style="max-width:100px;max-height:100px;margin-right:12px;" />';
+    			if (description && description.length) title += '<p style="margin-bottom:8px;">'+description+'</p>';
+        	var icon = this.getIcon(base.sortedNodes[j].scalarTypes);
       		var coords = this.drawMarkers(base.sortedNodes[j], title, icon);
-      	    if (coords.length) {
-  	        	for (var m = 0; m < coords.length; m++) {
-  	        		bounds.extend( new google.maps.LatLng(coords[m].lat, coords[m].lng) );
-  	        	};
-      	    }
+    	    if (coords.length) {
+	        	for (var m = 0; m < coords.length; m++) {
+	        		bounds.extend( new google.maps.LatLng(coords[m].lat, coords[m].lng) );
+	        	};
+    	    }
       	}
       	this.map.fitBounds(bounds);
       	google.maps.event.addListener(this.map, 'idle', () => {  // Prevent map from being zoomed out so far it gets buggy
@@ -4162,42 +4170,40 @@ window.scalarvis = { instanceCount: -1 };
       }
 
       setupMap() {
-    	this.map = new google.maps.Map(base.visualization[0], {
-          center: {lat: -25.344, lng: 131.036},
-          zoom: 4
-       	});
-    	this.oms = new OverlappingMarkerSpiderfier(this.map, {  // https://github.com/jawj/OverlappingMarkerSpiderfier
+      	this.map = new google.maps.Map(base.visualization[0], {
+            center: {lat: -25.344, lng: 131.036},
+            zoom: 4
+         	});
+      	this.oms = new OverlappingMarkerSpiderfier(this.map, {  // https://github.com/jawj/OverlappingMarkerSpiderfier
     		  markersWontMove: true,
     		  markersWontHide: false,
     		  basicFormatEvents: true,
     		  keepSpiderfied: true
     		});
-    	this.draw();
+        this.oms.legColors.usual['hybrid'] = this.oms.legColors.usual['satellite'] = this.oms.legColors.usual['terrain'] = this.oms.legColors.usual['roadmap'] = d3.rgb(base.highlightColorScale('path'));
+        this.oms.legColors.highlighted['hybrid'] = this.oms.legColors.highlighted['satellite'] = this.oms.legColors.highlighted['terrain'] = this.oms.legColors.highlighted['roadmap'] = 'black';
+    	   this.draw();
       }
 
       displayNoContentWarning() {
-
     	  base.visualization.find('.no-content-warning').remove();
     	  var $el = $('<div class="no-content-warning" style="position:absolute; z-index:999; top:0px; left:0px; right:0px; bottom:0px; text-align:center; color:#000000;"></div>').appendTo(base.visualization);
     	  var $inner = $('<div style="background-color:rgba(255, 255, 255, 0.5); margin-top:100px; padding:30px 0px 30px 0px;">Either no items were returned, or no geospatial<br/>metadata could be found on the returned items.<br /><br /><button type="button" class="btn btn-primary btn-sm">Dismiss</button></div>').appendTo($el);
     	  $inner.find('button').on('click', function() {
     		  $(this).parent().remove();
     	  });
-
       }
 
       removeNoContentWarning() {
-
     	  base.visualization.find('.no-content-warning').remove();
-
       }
 
       clearMarkers() {
-    	this.markers.forEach(function(marker) {
-    	  marker.setMap(null);
-    	});
-    	this.markers = [];
-    	this.infowindows = {};
+      	this.markers.forEach(function(marker) {
+      	  marker.setMap(null);
+      	});
+      	this.markers = [];
+      	this.infowindows = {};
       }
 
       drawMarkers(obj, title, icon) {
@@ -4212,7 +4218,8 @@ window.scalarvis = { instanceCount: -1 };
 		    		/* map: this.map, */
 		    		title: title,
 		    		icon: {
-		    			url: icon
+		    			url: icon,
+              scaledSize: new google.maps.Size(40,40)
 		    		}
 		    	});
   				this.oms.addMarker(this.markers[key]);
@@ -4269,16 +4276,81 @@ window.scalarvis = { instanceCount: -1 };
     	  return coords;
       }
 
+      generateIcon(type) {
+
+          var imageWidth = 80;
+          var imageHeight = 80;
+
+          var svg = d3.select(document.createElement('div')).append('svg')
+              .attr('width', '60')
+              .attr('height', '60')
+              .attr('viewBox', '0 0 60 60');
+
+          var gradient = svg.append("defs")
+              .append("linearGradient")
+              .attr("id", "grad")
+              .attr("x1", "0%")
+              .attr("y1", "0%")
+              .attr("x2", "0%")
+              .attr("y2", "100%");
+
+          gradient.append("stop")
+              .attr("offset", "0%")
+              .attr("stop-color", d3.rgb(base.highlightColorScale(type)).brighter())
+              .attr("stop-opacity", 1);
+
+          gradient.append("stop")
+              .attr("offset", "100%")
+              .attr("stop-color", d3.rgb(base.highlightColorScale(type)))
+              .attr("stop-opacity", 1);
+
+          var g = svg.append('g')
+
+          var path = g.append('path')
+              .attr('transform', 'matrix(0.03,0,0,0.03,8,6)')
+              .attr('d', 'M730.94,1839.63C692.174,1649.33 623.824,1490.96 541.037,1344.19C479.63,1235.32 408.493,1134.83 342.673,1029.25C320.701,994.007 301.739,956.774 280.626,920.197C238.41,847.06 204.182,762.262 206.357,652.265C208.482,544.792 239.565,458.581 284.387,388.093C358.106,272.158 481.588,177.104 647.271,152.124C782.737,131.7 909.746,166.206 999.814,218.872C1073.41,261.91 1130.41,319.399 1173.73,387.152C1218.95,457.868 1250.09,541.412 1252.7,650.384C1254.04,706.214 1244.9,757.916 1232.02,800.802C1218.99,844.211 1198.03,880.497 1179.38,919.256C1142.97,994.915 1097.33,1064.24 1051.52,1133.6C915.083,1340.21 787.024,1550.91 730.94,1839.63L730.94,1839.63Z')
+              .attr('fill', 'url(#grad)')
+              .attr('stroke-width', 40)
+              .attr('stroke', d3.rgb(base.highlightColorScale(type)).darker());
+
+          var circles = svg.append('circle')
+              .attr('cx', '30.2')
+              .attr('cy', '27.2')
+              .attr('r', '5')
+              .style('fill', 'rgb(90,20,16)');
+
+          var svgNode = g.node().parentNode.cloneNode(true),
+              image = new Image();
+
+          d3.select(svgNode).select('clippath').remove();
+
+          var xmlSource = (new XMLSerializer()).serializeToString(svgNode);
+
+          image.onload = ((imageWidth, imageHeight) => {
+              var canvas = document.createElement('canvas'),
+                  context = canvas.getContext('2d'),
+                  dataURL;
+              d3.select(canvas)
+                  .attr('width', imageWidth)
+                  .attr('height', imageHeight);
+              context.drawImage(image, 0, 0, imageWidth, imageHeight);
+              dataURL = canvas.toDataURL();
+              this.icons[type] = dataURL;
+          }).bind(this, imageWidth, imageHeight);
+
+          image.src = 'data:image/svg+xml;base64,' + btoa(encodeURIComponent(xmlSource).replace(/%([0-9A-F]{2})/g, function(match, p1) {
+              return String.fromCharCode('0x' + p1);
+          }));
+      }
+
       getIcon(types) {
-
-    	var icon = $('link#approot').attr('href') + 'views/melons/cantaloupe/images/orange-dot.png';  // page
-      	if ('undefined' != typeof(types.media)) icon = $('link#approot').attr('href') + 'views/melons/cantaloupe/images/green-dot.png';
-      	if ('undefined' != typeof(types.reply)) icon = $('link#approot').attr('href') + 'views/melons/cantaloupe/images/gray-dot.png';
-      	if ('undefined' != typeof(types.tag)) icon = $('link#approot').attr('href') + 'views/melons/cantaloupe/images/red-dot.png';
-      	if ('undefined' != typeof(types.annotation)) icon = $('link#approot').attr('href') + 'views/melons/cantaloupe/images/purple-dot.png';
-      	if ('undefined' != typeof(types.path)) icon = $('link#approot').attr('href') + 'views/melons/cantaloupe/images/blue-dot.png';
+        var icon = this.icons.page;
+        if ('undefined' != typeof(types.media)) icon = this.icons.media;
+      	if ('undefined' != typeof(types.reply)) icon = this.icons.reply;
+      	if ('undefined' != typeof(types.tag)) icon = this.icons.tag;
+      	if ('undefined' != typeof(types.annotation)) icon = this.icons.annotation;
+      	if ('undefined' != typeof(types.path)) icon = this.icons.path;
       	return icon;
-
       }
 
     }
