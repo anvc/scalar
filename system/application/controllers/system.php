@@ -142,9 +142,9 @@ class System extends MY_Controller {
 			$this->data['content'] = array();
 			for ($j = count($lenses)-1; $j >= 0; $j--) {
 				$lens = json_decode($lenses[$j]->lens);
-				$is_public = (isset($lens->public) && $lens->public) ? true : false;
 				$user_level = (isset($lens->user_level)) ? $lens->user_level : null;
 				$submitted = (isset($lens->submitted) && $lens->submitted) ? true : false;
+				$is_public = ($lenses[$j]->is_live) ? true : false; // Whether the lens is public or not is based on whether the page is public or not
 				$user_id = (int) $lenses[$j]->user;  // This is the creator of the content node
 				$lens->user_id = $user_id;
 				$lens->hidden = ($lenses[$j]->is_live) ? false : true;
