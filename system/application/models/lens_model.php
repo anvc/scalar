@@ -481,6 +481,9 @@ class Lens_model extends MY_Model {
     public function filter_by_location($items, $location, $distance, $units) {
     	
     	$arr = explode(',',$location);
+    	if (count($arr) != 2) {
+    		print_r($arr);
+    	}
     	$loc_lat = trim($arr[0]);
     	$loc_lng = trim($arr[1]);
     	$return = array();
