@@ -659,6 +659,7 @@ function scalarrecent_is_more_recent_than(date, humanStr) {
 	    	if (days < numDays) return true;
 	    } else if (humanStr.indexOf('weeks') != -1 || humanStr.indexOf('week') != -1) {
 	    	var numWeeks = parseInt(humanStr);
+	    	console.log('weeks: ' + weeks + ' numWeeks: ' + numWeeks);
 	    	if (!numWeeks) return true;
 	    	if (weeks < numWeeks) return true;
 	    } else if (humanStr.indexOf('hours') != -1 || humanStr.indexOf('hour') != -1) {
