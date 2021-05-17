@@ -651,7 +651,6 @@ function scalarrecent_is_more_recent_than(date, humanStr) {
 	    var minutes = Math.floor(res / 60) % 60;  
 	    var seconds = res % 60;
 	    var weeks = (res / 86400) / 7;
-	    var hours = (res / 86400) * 24;
 	    
 	    if (humanStr.indexOf('days') != -1 || humanStr.indexOf('day') != -1) {
 	    	var numDays = parseInt(humanStr);
@@ -659,7 +658,6 @@ function scalarrecent_is_more_recent_than(date, humanStr) {
 	    	if (days < numDays) return true;
 	    } else if (humanStr.indexOf('weeks') != -1 || humanStr.indexOf('week') != -1) {
 	    	var numWeeks = parseInt(humanStr);
-	    	console.log('weeks: ' + weeks + ' numWeeks: ' + numWeeks);
 	    	if (!numWeeks) return true;
 	    	if (weeks < numWeeks) return true;
 	    } else if (humanStr.indexOf('hours') != -1 || humanStr.indexOf('hour') != -1) {
