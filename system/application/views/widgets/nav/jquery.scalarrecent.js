@@ -650,7 +650,9 @@ function scalarrecent_is_more_recent_than(date, humanStr) {
 	    var hours = Math.floor(res / 3600) % 24;        
 	    var minutes = Math.floor(res / 60) % 60;  
 	    var seconds = res % 60;
+	    
 	    var weeks = (res / 86400) / 7;
+	    hours = (days * 24) + hours;
 	    
 	    if (humanStr.indexOf('days') != -1 || humanStr.indexOf('day') != -1) {
 	    	var numDays = parseInt(humanStr);
