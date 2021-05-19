@@ -812,7 +812,7 @@
               } else if (filterObj.operator == 'inclusive') {
                 buttonText += 'contain “';
               } else if (filterObj.operator == 'exact-match') {
-                buttonText += 'exactly match “';
+                buttonText += 'match “';
               }
               buttonText += filterObj.content + '”';
             break;
@@ -857,7 +857,7 @@
               } else if(metadataOperator == 'exclusive'){
                 operatorText = 'don’t contain'
               } else if(metadataOperator == 'exact-match'){
-                operatorText = 'exactly match'
+                operatorText = 'match'
               }
               buttonText = `that ${operatorText} “${metadataContent}” in ${metadataProperty.split(':')[1]}`;
             break;
@@ -1083,7 +1083,7 @@
           }
           me.updateEditorDom();
           if (me.scalarLensObject.components.length == 2) {
-            me.showOkModal('Multiple content sources', '<p>Now that your lens includes more than one content source, you can use the gray menu at the top of the lens editor to determine how their results will be merged.</p><p>Selecting <strong>"the combination of"</strong> means all items from all sources will be returned, while <strong>"the intersection of"</strong> means that only the items the sources have in common will be returned.</p>', null);
+            me.showOkModal('Multiple content sources', '<p>Now that your lens includes more than one content source, you can use the gray menu at the top of the lens editor to determine how their results will be merged.</p><p>Selecting <strong>“the combination of”</strong> means all items from all sources will be returned, while <strong>“the intersection of”</strong> means that only the items the sources have in common will be returned.</p>', null);
           }
           break;
 
@@ -1968,7 +1968,7 @@
         [
           {label: "contain", value: "inclusive"},
           {label: "don’t contain", value: "exclusive"},
-          {label: "exactly match", value: "exact-match"}
+          {label: "case-insensitive match", value: "exact-match"}
         ]);
 
       $('#content-input').val(filterObj.content).on('change', onClick);
@@ -2188,7 +2188,7 @@
         [
           {label: "contain", value: "inclusive"},
           {label: "don’t contain", value: "exclusive"},
-          {label: "exactly match", value: "exact-match"}
+          {label: "case-insensitive match", value: "exact-match"}
         ]);
 
       // save metadata content value
@@ -3954,6 +3954,10 @@
     ScalarLenses.prototype.handleContentSelected = function(nodes){
       if (nodes && nodes.length != 0){
         let nodeTitles = nodes.map(node => node.slug);
+        if (Array.isArray(this.scalarLensObject.components[this.editedComponentIndex]['content-selector'])) {
+          // if a lens is saved without content being selected, content-selector will come back as an array -- make sure it's an object
+          this.scalarLensObject.components[this.editedComponentIndex]['content-selector'] = {};
+        }
         this.scalarLensObject.components[this.editedComponentIndex]["content-selector"].type = 'specific-items';
         this.scalarLensObject.components[this.editedComponentIndex]["content-selector"].items = nodeTitles;
         const contentSelections = this.scalarLensObject.components[this.editedComponentIndex]["content-selector"]
