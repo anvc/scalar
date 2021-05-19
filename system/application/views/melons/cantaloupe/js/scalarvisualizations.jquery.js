@@ -2348,6 +2348,7 @@ window.scalarvis = { instanceCount: -1 };
       constructor() {
         this.hasBeenDrawn = false;
         this.size = {width:0, height:0};
+        this.updateNoResultsMessage();
       }
 
       // no need to call directly
@@ -2387,13 +2388,17 @@ window.scalarvis = { instanceCount: -1 };
       }
 
       updateNoResultsMessage(nodeArray) {
-         if (nodeArray.length == 0) {
-           if (base.visualization.find('.no-results-msg').length == 0) {
-             base.visualization.prepend('<div class="no-results-msg caption_font">One moment...</div>');
-           }
-         } else {
-           base.visualization.find('.no-results-msg').remove();
-         }
+        if (!nodeArray) {
+          if (base.visualization.find('.no-results-msg').length == 0) {
+            base.visualization.prepend('<div class="no-results-msg caption_font">One moment...</div>');
+          }
+        } else if (nodeArray.length == 0) {
+          if (base.visualization.find('.no-results-msg').length == 0) {
+            base.visualization.prepend('<div class="no-results-msg caption_font">No results to visualize.</div>');
+          }
+        } else {
+          base.visualization.find('.no-results-msg').remove();
+        }
       }
 
       // override with your own version that returns HTML
