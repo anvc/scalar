@@ -1860,6 +1860,7 @@
         $('#content-type-list li.active').each(function(items){
            typeFilterArray.push($(this).data('option').value)
         });
+        console.log(typeFilterArray);
         $('#content-type-button').data('option', { value: typeFilterArray });
         me.updateTypeFilterForm();
       }
@@ -1882,21 +1883,21 @@
           {label: "comments", value: "reply"}
         ]);
 
-        let contentList = $('#content-type-list li');
-        let contentArray = filterObj["content-types"];
-        contentList.each(function(i, item)  {
-          if(contentArray.indexOf($(item).data('option').value) != -1 ){
-            $(contentList[i]).addClass('active');
+      let contentList = $('#content-type-list li');
+      let contentArray = filterObj["content-types"];
+      contentList.each(function(i, item)  {
+        if(contentArray.indexOf($(item).data('option').value) != -1 ){
+          $(contentList[i]).addClass('active');
+        }
+      })
+
+      if(contentArray.length == 1){
+        $('#content-type-list li').each(function(){
+          if($(this).data('option').value == contentArray[0]) {
+            $('#content-type-button').text($(this).data('option').label).append('<span class="caret"></span>');
           }
         })
-
-        if(contentArray.length == 1){
-          $('#content-type-list li').each(function(){
-            if($(this).data('option').value == contentArray[0]) {
-              $('#content-type-button').text($(this).data('option').label).append('<span class="caret"></span>');
-            }
-          })
-        }
+      }
 
       return element;
     }
@@ -3155,6 +3156,7 @@
     // populate a dropdown
     ScalarLenses.prototype.populateDropdown = function(buttonElement, listElement, currentData, onClick, markup, options) {
       listElement.empty();
+      let values = [];
       options.forEach((option, index) => {
         let listItem;
         switch (option.value) {
@@ -3183,8 +3185,9 @@
           if (currentData) {
             if (Array.isArray(currentData)) {
               if (currentData.indexOf(option.value) != -1) {
-                buttonElement.data('option', option);
+                values.push(option.value);
               }
+              buttonElement.data('option', {value:values});
             } else if (currentData == option.value) {
               buttonElement.data('option', option);
             }
