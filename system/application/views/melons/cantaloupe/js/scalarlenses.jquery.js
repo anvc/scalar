@@ -72,7 +72,7 @@
         'tag': {'parent': 'tag', 'child': 'tagged by', 'any-relationship':'tag or are tagged by'},
         'annotation': {'parent': 'annotate', 'child': 'annotated by', 'any-relationship':'annotate or are annotated by'},
         'reference': {'parent': 'reference', 'child': 'referenced by', 'any-relationship':'reference or are referenced by'},
-        'comment': {'parent': 'comment on', 'child': 'commented on by', 'any-relationship':'comment on or are commented on by'}
+        'reply': {'parent': 'comment on', 'child': 'commented on by', 'any-relationship':'comment on or are commented on by'}
       };
 
       this.inclusivePluralRelationshipDescriptors = { // describe the related items as added to an existing plural set
@@ -81,7 +81,7 @@
         'tag': {'parent': 'and their tags', 'child': 'and the items they tag', 'any-relationship':'and their tag relations'},
         'annotation': {'parent': 'and their annotations', 'child': 'and the items they annotate', 'any-relationship':'and their annotation relations'},
         'reference': {'parent': 'and their referencers', 'child': 'and the media they reference', 'any-relationship':'and their media relations'},
-        'comment': {'parent': 'and their comments', 'child': 'and the items they comment on', 'any-relationship':'and their comment relations'}
+        'reply': {'parent': 'and their comments', 'child': 'and the items they comment on', 'any-relationship':'and their comment relations'}
       };
 
       this.inclusiveSingularRelationshipDescriptors = { // describe the related items as added to an existing single item
@@ -90,7 +90,7 @@
         'tag': {'parent': 'and its tags', 'child': 'and the items it tags', 'any-relationship':'and its tag relations'},
         'annotation': {'parent': 'and its annotations', 'child': 'and the items it annotates', 'any-relationship':'and its annotation relations'},
         'reference': {'parent': 'and its referencers', 'child': 'and the media it references', 'any-relationship':'and its media relations'},
-        'comment': {'parent': 'and its comments', 'child': 'and the items it comments on', 'any-relationship':'and its comment relations'}
+        'reply': {'parent': 'and its comments', 'child': 'and the items it comments on', 'any-relationship':'and its comment relations'}
       };
 
       var spinner_options = {
@@ -1614,7 +1614,7 @@
           filterObj = {
             "type":"filter",
             "subtype":"relationship",
-            "content-types": [$('#relationship-content-button').data('option').value],
+            "content-types": $('#relationship-content-button').data('option').value ? $('#relationship-content-button').data('option').value : [],
             "relationship": $('#relationship-type-button').data('option').value
           }
         break;
@@ -1997,11 +1997,11 @@
         <div class="filterByRelationship">
           <p class="filter-text-desc">Add any items that are</p>
           <div class="btn-group"><button type="button" id="relationship-content-button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
-              Select type..<span class="caret"></span></button>
+              Select type<span class="caret"></span></button>
             <ul id="relationship-content-list" class="dropdown-menu"></ul>
           </div>
           <div class="btn-group"><button id="relationship-type-button" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
-              Select relationship...<span class="caret"></span></button>
+              Select relationship<span class="caret"></span></button>
             <ul id="relationship-type-list" class="dropdown-menu"></ul>
           </div>
           <p id="human-readable-text">(<span class="human-readable-relationship"></span>) any of these <span class="filter-pre-quantity">0</span> items</p>
@@ -2020,7 +2020,7 @@
           {label: "tag", value: "tag"},
           {label: "annotation", value: "annotation"},
           {label: "media", value: "reference"},
-          {label: "comment", value: "comment"}
+          {label: "comment", value: "reply"}
         ]);
 
       this.populateDropdown($('#relationship-type-button'), $('#relationship-type-list'), filterObj.relationship, onClick,
@@ -2041,8 +2041,8 @@
       // update relationship content type menu
       let relationshipContentButton = $('#relationship-content-button');
       option = relationshipContentButton.data('option');
-      if (!option) { // if nothing selected yet, create a placeholder option
-        option = {label: 'Select type(s)', value: null};
+      if (option.value.length == 0) { // if nothing selected yet, create a placeholder option
+        option = {label: 'Select type(s)', value: []};
         relationshipContentButton.data('option', option);
       }
       relationshipContentButton.text(option.label).append('<span class="caret"></span>');
@@ -2058,8 +2058,8 @@
       relationshipTypeButton.text(option.label).append('<span class="caret"></span>');
       let relationshipType = option.value;
 
-      if (relationshipContent) {
-        $('.human-readable-relationship').text('i.e. ' + this.exclusiveRelationshipDescriptors[relationshipContent][relationshipType]);
+      if (relationshipContent.length > 0) {
+        $('.human-readable-relationship').text('i.e. ' + this.exclusiveRelationshipDescriptors[relationshipContent[0]][relationshipType]);
       } else {
         $('.human-readable-relationship').text('no relationship selected');
       }
@@ -3179,15 +3179,27 @@
           }
           this.getInnermostChild(listItem).text(option.label);
           listItem.data('option', option).on('click', function(evt){
-            buttonElement.data('option', $(this).data('option'));
+            let thisOption = $(this).data('option');
+            if (Array.isArray(currentData)) {
+              buttonElement.data('option', {label:thisOption.label, value:[thisOption.value]});
+            } else {
+              buttonElement.data('option', thisOption);
+            }
             onClick(evt);
           });
           if (currentData) {
             if (Array.isArray(currentData)) {
-              if (currentData.indexOf(option.value) != -1) {
+              let index = currentData.indexOf(option.value);
+              if (index != -1) {
                 values.push(option.value);
               }
-              buttonElement.data('option', {value:values});
+              if (values.length == 1) {
+                if (index != -1) {
+                  buttonElement.data('option', {label: option.label, value:values});
+                }
+              } else {
+                buttonElement.data('option', {value:values});
+              }
             } else if (currentData == option.value) {
               buttonElement.data('option', option);
             }
