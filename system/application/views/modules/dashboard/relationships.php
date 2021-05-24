@@ -207,6 +207,7 @@
 			<option value="annotation"<?=('annotation'==$default_rel_type)?' selected':''?>>Annotations</option>
 			<option value="reply"<?=('reply'==$default_rel_type)?' selected':''?>>Comments</option>
 			<option value="lens"<?=('lens'==$default_rel_type)?' selected':''?>>Lenses</option>
+			<option value="hidden"<?=('hidden'==$default_rel_type)?' selected':''?>>Hidden</option>
 		</select>
 		</form>
 

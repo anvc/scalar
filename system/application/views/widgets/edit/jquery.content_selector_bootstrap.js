@@ -1624,6 +1624,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			name: 4,
 			description: 6,
 			url: 4,
+			email: 4,
 			homepage: 4,
 			preview: 2,
 			include_children: 2,
@@ -1648,7 +1649,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			"rec": 0,
 			"ref": 0,
 			"defaultType": 'composite',
-			"types": ['composite', 'media', 'path', 'tag', 'annotation', 'reply', 'lens', 'term'],
+			"types": ['composite', 'media', 'path', 'tag', 'annotation', 'reply', 'lens', 'hidden'],  /* 'term' */
 			"resultsPerPage": 50,
 			"allowChildren": false,
 			"selected": [],
@@ -2061,6 +2062,10 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								break;
 							case 'url':
 								rowHTML += '<td class="' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'">/' + item.slug + '</td>';
+								break;
+							case 'email': // foaf:homepage
+								var email = ('undefined' != typeof(item.content['http://xmlns.com/foaf/0.1/mbox']) && item.content['http://xmlns.com/foaf/0.1/mbox'][0].value.length) ? item.content['http://xmlns.com/foaf/0.1/mbox'][0].value : '<i>Emails are suppressed</i>';
+								rowHTML += '<td class="' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'">' + email + '</td>';
 								break;
 							case 'homepage': // foaf:homepage
 								var homepage = ('undefined' != typeof(item.content['http://xmlns.com/foaf/0.1/homepage']) && item.content['http://xmlns.com/foaf/0.1/homepage'][0].value.length) ? item.content['http://xmlns.com/foaf/0.1/homepage'][0].value : '';

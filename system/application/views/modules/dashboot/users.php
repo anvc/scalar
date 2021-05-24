@@ -17,7 +17,7 @@ $(document).ready(function() {
 	var height = parseInt($(window).height()) - parseInt($selector.offset().top) - 10;
 	$selector.height(height + 'px');
 	node_options = {  /* global */
-		fields:["name",'homepage','role','listed','order','edit','bio_contributions'],
+		fields:["name",'email','homepage','role','listed','order','edit','bio_contributions'],
 		types:['users'],
 		displayHeading:false,
 		deleteOptions:deleteOptions,

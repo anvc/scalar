@@ -4094,7 +4094,7 @@ window.scalarvis = { instanceCount: -1 };
       		if ('undefined' == typeof(base.sortedNodes[j].scalarTypes.path)) continue;
       		var pathTitle = base.sortedNodes[j].getDisplayTitle();
       		var pathCoordinates = [];
-          let relations = base.sortedNodes[j].getRelations('path', 'outgoing');
+            let relations = base.sortedNodes[j].getRelations('path', 'outgoing');
       		for (var k = 0; k < relations.length; k++) {
       			if (null == relations[k].index) continue;  // Not part of the path
       			if (null == relations[k].target) continue;  // Not part of the path
@@ -4106,31 +4106,31 @@ window.scalarvis = { instanceCount: -1 };
       			if (description && description.length) title += '<p style="margin-bottom:8px;">'+description+'</p>';
       			var icon = this.getIcon(relations[k].target.scalarTypes);
       			var coords = this.drawMarkers(relations[k].target, title, icon);
-  	        if (coords.length) {
-  	        	for (var m = 0; m < coords.length; m++) {
-  	        		pathCoordinates.push(coords[m]);
-  	        		bounds.extend( new google.maps.LatLng(coords[m].lat, coords[m].lng) );
-  	        	};
-  	        }
+  	            if (coords.length) {
+  	            	for (var m = 0; m < coords.length; m++) {
+  	        	    	pathCoordinates.push(coords[m]);
+  	        	    	bounds.extend( new google.maps.LatLng(coords[m].lat, coords[m].lng) );
+  	            	};
+  	            }
       		}
       		var path_key = this.paths.length;
-          this.paths[path_key] = new google.maps.Polyline({
-              path: pathCoordinates,
-              geodesic: true,
-              strokeColor: d3.rgb(base.highlightColorScale('path')),
-              strokeOpacity: 1.0,
-              strokeWeight: 2
-          });
-          this.paths[path_key].setMap(this.map);
+      		this.paths[path_key] = new google.maps.Polyline({
+      			path: pathCoordinates,
+      			geodesic: true,
+      			strokeColor: d3.rgb(base.highlightColorScale('path')),
+      			strokeOpacity: 1.0,
+      			strokeWeight: 2
+      		});
+      		this.paths[path_key].setMap(this.map);
       	}
       	// All other nodes
       	for (var j = 0; j < base.sortedNodes.length; j++) {
       		if (-1 != urls.indexOf(base.sortedNodes[j].url)) continue;
       		var title = '<p style="margin-bottom:8px;"><b><a href="'+base.sortedNodes[j].url+'">'+base.sortedNodes[j].getDisplayTitle()+'</a></b></p>';
-    			var thumbnail = base.sortedNodes[j].thumbnail;
-    			var description = base.sortedNodes[j].getDescription(true);
-    			if (null != thumbnail) title += '<img src="'+thumbnail+'" align="left" style="max-width:100px;max-height:100px;margin-right:12px;" />';
-    			if (description && description.length) title += '<p style="margin-bottom:8px;">'+description+'</p>';
+    		var thumbnail = base.sortedNodes[j].thumbnail;
+    		var description = base.sortedNodes[j].getDescription(true);
+    		if (null != thumbnail) title += '<img src="'+thumbnail+'" align="left" style="max-width:100px;max-height:100px;margin-right:12px;" />';
+    		if (description && description.length) title += '<p style="margin-bottom:8px;">'+description+'</p>';
         	var icon = this.getIcon(base.sortedNodes[j].scalarTypes);
       		var coords = this.drawMarkers(base.sortedNodes[j], title, icon);
     	    if (coords.length) {
@@ -4224,7 +4224,7 @@ window.scalarvis = { instanceCount: -1 };
 		    		title: title,
 		    		icon: {
 		    			url: icon,
-              scaledSize: new google.maps.Size(40,40)
+		    			scaledSize: new google.maps.Size(40,40)
 		    		}
 		    	});
   				this.oms.addMarker(this.markers[key]);

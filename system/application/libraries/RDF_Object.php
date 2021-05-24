@@ -297,7 +297,8 @@ class RDF_Object {
 	 	// Users
 		foreach ($settings['users'] as $row) {
 			if ($settings['u_all']==self::USERS_LISTED && !$row->list_in_index) continue;
-			$this->_safely_write_rdf($return, $settings['base_uri'].'users/'.$row->user_id, $CI->users->rdf($row));
+			$can_show_email = ($CI->users->is_a(strtolower($CI->data['user_level']), 'reviewer')) ? true : false;
+			$this->_safely_write_rdf($return, $settings['base_uri'].'users/'.$row->user_id, $CI->users->rdf($row, '', $can_show_email));
 		}
 
 	 	// Table of contents nodes
