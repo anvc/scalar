@@ -136,8 +136,12 @@ class Lens_model extends MY_Model {
 		}
 
 		foreach ($json['components'] as $component) {
-			$content = array();
-			$has_used_filter = false;
+			$contents = array();
+			// Content selector
+			if (isset($component['content-selector'])) {
+				$contents = $this->get_pages_from_content_selector($component['content-selector'], $book_id);
+				$contents = $this->do_versions($contents, $pages_load_metadata);
+			}
 			// Modifiers that get content
 			if (isset($component['modifiers'])) {
 				foreach ($component['modifiers'] as $modifier) {
@@ -146,59 +150,43 @@ class Lens_model extends MY_Model {
 							switch ($modifier['subtype']) {
 								case "metadata":
 								case "content":
-									$has_used_filter = true;
 									$field = trim($modifier['metadata-field']);
 									$value = trim($modifier['content']);
 									$operators = array('exclusive', 'inclusive', 'exact-match');
 									$operator = (isset($modifier['operator']) && in_array($modifier['operator'], $operators)) ? $modifier['operator'] : $operators[0];
 									switch ($operator) {
 										case 'exclusive':
-											$content = (!empty($content)) ? $content : $this->get_pages_from_content_selector($component['content-selector'], $book_id);
 											$to_subtract = $CI->versions->get_by_predicate($book_id, $field, false, null, $value, false);
-											$content = $this->subtract_content($content, $to_subtract);
-											$content = $this->do_versions($content, $pages_load_metadata);
+											$contents = $this->subtract_content($contents, $to_subtract);
+											$contents = $this->do_versions($contents, $pages_load_metadata);
 											break;
 										case 'inclusive':
-											$content_with_predicate = $CI->versions->get_by_predicate($book_id, $field, false, null, $value, false);
-											if (!empty($content)) {
-												$content = $this->combine_items($content, $content_with_predicate, 'and');
-											} else {
-												$content = $this->filter_by_content_selector($content_with_predicate, $component);
-											}
+											$contents_with_predicate = $CI->versions->get_by_predicate($book_id, $field, false, null, $value, false);
+											$contents = $this->combine_items($contents, $contents_with_predicate, 'and'); 
 											break;
 										case 'exact-match':
-											$content_with_predicate = $CI->versions->get_by_predicate($book_id, $field, false, null, $value, true);
-											if (!empty($content)) {
-												$content = $this->combine_items($content, $content_with_predicate, 'and');
-											} else {
-												$content = $this->filter_by_content_selector($content_with_predicate, $component);
-											}
+											$contents_with_predicate = $CI->versions->get_by_predicate($book_id, $field, false, null, $value, true);
+											$contents = $this->combine_items($contents, $contents_with_predicate, 'and');
 											break;
 									}
 									break;
 								case "distance":
-									$has_used_filter = true;
-									$from_arr = $this->get_pages_from_content_selector($component['content-selector'], $book_id);
 									$distance = $modifier['quantity'];
 									$units = $modifier['units'];
 									$items = $CI->versions->get_by_predicate($book_id, array('dcterms:spatial','dcterms:coverage'));
-									foreach ($from_arr as $from) {
-										$content = array();
+									foreach ($contents as $from) {
 										$item = $this->filter_by_slug($items, $from->slug);
 										if (!empty($item)) {
 											$latlng = $this->get_latlng_from_item($item[0]);
-											$content = $this->filter_by_location($items, $latlng, $distance, $units);
+											$contents = array_merge($contents, $this->filter_by_location($items, $latlng, $distance, $units));
 										}
 									}
 									break;
 								case "relationship":
-									$has_used_filter = true;
-									$from_arr = (!empty($content)) ? $content : $this->get_pages_from_content_selector($component['content-selector'], $book_id);
-									foreach ($from_arr as $page) {
+									foreach ($contents as $page) {
 										$version = $CI->versions->get_single($page->content_id, $page->recent_version_id, null, false);
 										if (empty($version)) continue;
 										$page->versions = array($version);
-										$content[] = $page;
 										$types = $modifier['content-types'];
 										if (isset($types[0]) && 'all-types' == $types[0]) {
 											$types = array_merge($CI->config->item('rel'), $CI->config->item('ref'));
@@ -219,7 +207,7 @@ class Lens_model extends MY_Model {
 													$page = $CI->pages->get($item->child_content_id);
 													$page->versions = array();
 													$page->versions[] = $CI->versions->get_single($page->content_id, $page->recent_version_id, null, (($pages_load_metadata)?true:false));
-													$content[] = $page;
+													$contents[] = $page;
 												}
 											}
 											if ('any-relationship' == $parent_or_child || 'parent' == $parent_or_child) {
@@ -228,53 +216,40 @@ class Lens_model extends MY_Model {
 													$page = $CI->pages->get($item->parent_content_id);
 													$page->versions = array();
 													$page->versions[] = $CI->versions->get_single($page->content_id, $page->recent_version_id, null, (($pages_load_metadata)?true:false));
-													$content[] = $page;
+													$contents[] = $page;
 												}
 											}
 										}
 									}
 									break;
 								case "content-type":
-									$has_used_filter = true;
 									$operator = (isset($modifier['operator']) && 'exclusive'==$modifier['operator']) ? 'exclusive' : 'inclusive';
 									$types = (isset($modifier['content-types'])) ? $modifier['content-types'] : array();
 									if (!is_array($types)) $types = array($types);
 									if (isset($modifier['content-type'])) $types[] = $modifier['content-type'];
 									switch ($operator) {
 										case 'exclusive':
-											$content = (!empty($content)) ? $content : $this->get_pages_from_content_selector($component['content-selector'], $book_id);
 											foreach ($types as $type) {
 												$to_subtract = $this->get_pages_of_type($type, $book_id);
-												$content = $this->subtract_content($content, $to_subtract);
+												$contents = $this->subtract_content($contents, $to_subtract);
 											}
-											$content = $this->do_versions($content, $pages_load_metadata);
 											break;
 										case 'inclusive':
 											foreach ($types as $type) {
-												$content = $this->get_pages_of_type($type, $book_id);
-												$content = $this->do_versions($content, $pages_load_metadata);
-												$content = $this->filter_by_content_selector($content, $component);
+												$contents = $this->filter_by_type($contents, $type);
 											}
 											break;
-										}
+									}
+									$contents = $this->do_versions($contents, $pages_load_metadata);
 									break;
 							}
 							break;
 					}
 				}
 			}
-			// If there were no modifiers that get content, revert to the content selector
-			if (!$has_used_filter && isset($component['content-selector'])) {
-				$content = $this->get_pages_from_content_selector($component['content-selector'], $book_id);
-				$content = $this->do_versions($content, $pages_load_metadata);
-			}
-			// Combine content that has been gathered
-			$contents[] = $content;
 		}
 		
-		$contents = $this->combine_contents($contents, $how_to_combine);
-		
-		// Filters
+		// Modifiers that filter content
 		foreach ($json['components'] as $component) {
 			if (isset($component['modifiers'])) {
 				foreach ($component['modifiers'] as $modifier) {
@@ -290,9 +265,6 @@ class Lens_model extends MY_Model {
 										if (!array_key_exists($contents[$j]->content_id, $json['history'])) unset($contents[$j]);
 									}
 								}
-								break;
-							case "content-types":
-								// TODO: is this needed? content-types are filtered above
 								break;
 						}
 					}
@@ -810,31 +782,23 @@ class Lens_model extends MY_Model {
     	
     }
     
-    public function filter_by_content_selector($content, $component) {
-    	
-    	if (isset($component['content-selector']) && empty($component['content-selector']['items'])) {
-    		$content_type = $component['content-selector']['content-type'];
-    		if ('page' == $content_type) $content_type = 'composite';
-    		if ('all-content' == $content_type) {
-	    		// Nothing to filter
-    		} elseif ('composite' == $content_type || 'media' == $content_type) {
-	    		foreach ($content as $key => $row) {
-	    			if ($row->type != $content_type) unset($content[$key]);
-	    		}
-    		} elseif ('annotation'==$content_type||'reply'==$content_type||'tag'==$content_type||'path'==$content_type||'reference'==$content_type) {
-    			$this->load->helper('inflector');
-    			$model = plural($content_type);
-    			if (!isset($this->$model) || empty($this->$model)) $this->load->model($content_type.'_model', $model);
-    			foreach ($content as $key => $row) {
-    				$version_id = $row->versions[0]->version_id;
-	    			$relational_content = $this->$model->get_children($version_id, '', '', true);
-	    			if (empty($relational_content)) unset($content[$key]);
-    			}
-    		}
-    	} elseif (isset($component['content-selector'])) {
-    		$items = $component['content-selector']['items'];
+    public function filter_by_type($content, $content_type) {
+
+    	if ('page' == $content_type) $content_type = 'composite';
+    	if ('all-content' == $content_type) {
+	    	// Nothing to filter
+    	} elseif ('composite' == $content_type || 'media' == $content_type) {
+	    	foreach ($content as $key => $row) {
+	    		if ($row->type != $content_type) unset($content[$key]);
+	    	}
+    	} elseif ('annotation'==$content_type||'reply'==$content_type||'tag'==$content_type||'path'==$content_type||'reference'==$content_type) {
+    		$this->load->helper('inflector');
+    		$model = plural($content_type);
+    		if (!isset($this->$model) || empty($this->$model)) $this->load->model($content_type.'_model', $model);
     		foreach ($content as $key => $row) {
-    			if (!in_array($row->slug, $items)) unset($content[$key]);
+    			$version_id = $row->versions[0]->version_id;
+	    		$relational_content = $this->$model->get_children($version_id, '', '', true);
+	    		if (empty($relational_content)) unset($content[$key]);
     		}
     	}
 

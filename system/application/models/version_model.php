@@ -313,7 +313,7 @@ class Version_model extends MY_Model {
     }
     
     /**
-     * Search the for versions that have a certain predicate $p (and, if sent, search its value for $o
+     * Search the for versions that have a certain predicate $p (and, if sent, search its value for $o)
      */
     public function get_by_predicate($book_id=0, $p='', $all_versions=false, $id_array=null, $o='', $exact_match=false) {
     	
