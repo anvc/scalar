@@ -366,6 +366,7 @@ class Version_model extends MY_Model {
 	    	for ($j = 0; $j < count($pages); $j++) {
 	    		$pages[$j]->versions = array($this->get_single($pages[$j]->content_id, $pages[$j]->recent_version_id, $sq='', false));
 	    		for ($k = 0; $k < count($pages[$j]->versions); $k++) {
+	    			if (!$pages[$j]->versions) continue;
 	    			$book_version_urns[] = $this->urn($pages[$j]->versions[$k]->version_id);
 	    		}
 	    	}
