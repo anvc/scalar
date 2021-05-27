@@ -461,10 +461,14 @@
         me.updateVisualizationButton(me.scalarLensObject.visualization);
         // no need to do the lens call if all we're changing is the vis, but we still
         // need to let the hosting page know that a change happened
-        me.saveLens(null);
-        if (me.lastResults) {
-          me.lastResults.visualization = me.scalarLensObject.visualization;
-          me.options.onLensResults(me.lastResults, me.scalarLensObject);
+        if (me.scalarLensObject.visualization.type == 'map') {
+          me.saveLens(() => me.getLensResults(me.scalarLensObject, me.options.onLensResults));
+        } else {
+          me.saveLens(null);
+          if (me.lastResults) {
+            me.lastResults.visualization = me.scalarLensObject.visualization;
+            me.options.onLensResults(me.lastResults, me.scalarLensObject);
+          }
         }
       });
       element.find('li a').on('keypress', function(e) { if (e.which == 13) $(this).trigger('click'); })

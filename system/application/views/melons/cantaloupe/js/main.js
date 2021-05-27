@@ -383,7 +383,9 @@ function addMetadataTableForNodeToElement(node, element) {
   // basic Scalar properties
   var table = $( '<table></table>' ).appendTo(element);
   table.append('<tr><td>Scalar URL</td><td><a href="'+node.url+'">'+node.url+'</a> (version '+node.current.number+')</td></tr>');
-  table.append('<tr><td>Source URL</td><td><a href="'+node.current.sourceFile+'" target="_blank">'+node.current.sourceFile+'</a> ('+node.current.mediaSource.contentType+'/'+node.current.mediaSource.name+')</td></tr>');
+  if (node.current.sourceFile) {
+    table.append('<tr><td>Source URL</td><td><a href="'+node.current.sourceFile+'" target="_blank">'+node.current.sourceFile+'</a> ('+node.current.mediaSource.contentType+'/'+node.current.mediaSource.name+')</td></tr>');
+  }
   table.append('<tr><td>dcterms:title</td><td>'+node.getDisplayTitle()+'</td></tr>');
   if (null!=node.current.description) table.append('<tr><td>dcterms:description</td><td>'+linkify(node.current.description)+'</td></tr>');
   if ('undefined'!=typeof(node.current.properties['http://ns.exiftool.ca/IPTC/IPTC/1.0/By-line'])) {
