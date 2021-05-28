@@ -188,10 +188,12 @@
       $('.lens-edit-container').append(this.submittedMessage);
       this.updateSubmittedMessage(lens);
       if (lens) {
-        div.ScalarLenses({
+        if (this.lensEditor) this.lensEditor.abort();
+        let element = div.ScalarLenses({
           lens: lens,
           onLensResults: this.handleLensResults
         });
+        this.lensEditor = $(element).data('lensEditor');
         $('.lens-edit-container>.non-ideal-state-message').hide();
         var visualization = $('.visualization');
         visualization.empty();

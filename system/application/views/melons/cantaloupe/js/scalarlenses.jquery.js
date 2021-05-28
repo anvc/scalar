@@ -8,6 +8,7 @@
 
     function ScalarLenses(element, options) {
         this.element = element;
+        $(this.element).data('lensEditor', this);
         this.options = $.extend( {}, defaults, options);
         this._defaults = defaults;
         this._name = pluginName;
@@ -3821,6 +3822,10 @@
     	     console.log('There was an error attempting to communicate with the server.');
         }
       });
+    }
+
+    ScalarLenses.prototype.abort = function() {
+      if (this.lensRequest) this.lensRequest.abort();
     }
 
     ScalarLenses.prototype.updateHistoryDataForLens = function(lensObject) {
