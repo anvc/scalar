@@ -136,11 +136,11 @@ class Lens_model extends MY_Model {
 		}
 
 		foreach ($json['components'] as $component) {
-			$contents = array();
+			$my_contents = array();
 			// Content selector
 			if (isset($component['content-selector'])) {
-				$contents = $this->get_pages_from_content_selector($component['content-selector'], $book_id);
-				$contents = $this->do_versions($contents, $pages_load_metadata);
+				$my_contents = $this->get_pages_from_content_selector($component['content-selector'], $book_id);
+				$my_contents = $this->do_versions($my_contents, $pages_load_metadata);
 			}
 			// Modifiers that get content
 			if (isset($component['modifiers'])) {
@@ -157,16 +157,16 @@ class Lens_model extends MY_Model {
 									switch ($operator) {
 										case 'exclusive':
 											$to_subtract = $CI->versions->get_by_predicate($book_id, $field, false, null, $value, false);
-											$contents = $this->subtract_content($contents, $to_subtract);
-											$contents = $this->do_versions($contents, $pages_load_metadata);
+											$my_contents = $this->subtract_content($my_contents, $to_subtract);
+											$my_contents = $this->do_versions($my_contents, $pages_load_metadata);
 											break;
 										case 'inclusive':
-											$contents_with_predicate = $CI->versions->get_by_predicate($book_id, $field, false, null, $value, false);
-											$contents = $this->combine_items($contents, $contents_with_predicate, 'and'); 
+											$my_contents_with_predicate = $CI->versions->get_by_predicate($book_id, $field, false, null, $value, false);
+											$my_contents = $this->combine_items($my_contents, $my_contents_with_predicate, 'and'); 
 											break;
 										case 'exact-match':
-											$contents_with_predicate = $CI->versions->get_by_predicate($book_id, $field, false, null, $value, true);
-											$contents = $this->combine_items($contents, $contents_with_predicate, 'and');
+											$my_contents_with_predicate = $CI->versions->get_by_predicate($book_id, $field, false, null, $value, true);
+											$my_contents = $this->combine_items($my_contents, $my_contents_with_predicate, 'and');
 											break;
 									}
 									break;
@@ -174,16 +174,16 @@ class Lens_model extends MY_Model {
 									$distance = $modifier['quantity'];
 									$units = $modifier['units'];
 									$items = $CI->versions->get_by_predicate($book_id, array('dcterms:spatial','dcterms:coverage'));
-									foreach ($contents as $from) {
+									foreach ($my_contents as $from) {
 										$item = $this->filter_by_slug($items, $from->slug);
 										if (!empty($item)) {
 											$latlng = $this->get_latlng_from_item($item[0]);
-											$contents = array_merge($contents, $this->filter_by_location($items, $latlng, $distance, $units));
+											$my_contents = array_merge($my_contents, $this->filter_by_location($items, $latlng, $distance, $units));
 										}
 									}
 									break;
 								case "relationship":
-									foreach ($contents as $page) {
+									foreach ($my_contents as $page) {
 										$version = $CI->versions->get_single($page->content_id, $page->recent_version_id, null, false);
 										if (empty($version)) continue;
 										$page->versions = array($version);
@@ -207,7 +207,7 @@ class Lens_model extends MY_Model {
 													$page = $CI->pages->get($item->child_content_id);
 													$page->versions = array();
 													$page->versions[] = $CI->versions->get_single($page->content_id, $page->recent_version_id, null, (($pages_load_metadata)?true:false));
-													$contents[] = $page;
+													$my_contents[] = $page;
 												}
 											}
 											if ('any-relationship' == $parent_or_child || 'parent' == $parent_or_child) {
@@ -216,7 +216,7 @@ class Lens_model extends MY_Model {
 													$page = $CI->pages->get($item->parent_content_id);
 													$page->versions = array();
 													$page->versions[] = $CI->versions->get_single($page->content_id, $page->recent_version_id, null, (($pages_load_metadata)?true:false));
-													$contents[] = $page;
+													$my_contents[] = $page;
 												}
 											}
 										}
@@ -231,22 +231,23 @@ class Lens_model extends MY_Model {
 										case 'exclusive':
 											foreach ($types as $type) {
 												$to_subtract = $this->get_pages_of_type($type, $book_id);
-												$contents = $this->subtract_content($contents, $to_subtract);
+												$my_contents = $this->subtract_content($my_contents, $to_subtract);
 											}
 											break;
 										case 'inclusive':
 											foreach ($types as $type) {
-												$contents = $this->filter_by_type($contents, $type);
+												$my_contents = $this->filter_by_type($my_contents, $type);
 											}
 											break;
 									}
-									$contents = $this->do_versions($contents, $pages_load_metadata);
+									$my_contents = $this->do_versions($my_contents, $pages_load_metadata);
 									break;
 							}
 							break;
 					}
 				}
 			}
+			$contents = $this->combine_items($contents, $my_contents, $how_to_combine); 
 		}
 		
 		// Modifiers that filter content
@@ -618,26 +619,6 @@ class Lens_model extends MY_Model {
     		default:  // or
     			return array_merge($contents, $content);
     	}
-    	
-    }
-    
-    public function combine_contents($contents, $operator) {
-
-    	$return = array();
-    	switch ($operator) {
-    		case "and":
-    			if (!isset($contents[0])) return $return;
-    			$return = $contents[0];
-				for ($j = 1; $j < count($contents); $j++) {
-					$return = $this->combine_items($return, $contents[$j], 'and');
-				}
-				break;
-    		default:  // or
-    			foreach ($contents as $items) {
-    				$return = array_merge($return, $items);
-    			}
-    	}
-    	return $return;
     	
     }
     
