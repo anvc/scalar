@@ -2889,7 +2889,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 		};
 
 		$nodeSelectorTableBody.on('scroll', function() {
-			if ($(this).scrollTop() + $(this).innerHeight() >= $(this)[0].scrollHeight && !lastPage) {
+			if (Math.ceil($(this).scrollTop() + $(this).innerHeight()) >= $(this)[0].scrollHeight && !lastPage) {
 				var promise = $.Deferred();
 				var $dialogue_container = $(this).parents('.node_selector');
 				var opts = $dialogue_container.data('opts');
