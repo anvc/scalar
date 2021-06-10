@@ -1429,6 +1429,7 @@ window.scalarvis = { instanceCount: -1 };
           } else {
             // get relationships for each node
             n = base.contentNodes.length;
+            //console.log('content nodes: '+n);
             for (i = 0; i < n; i++) {
               node = base.contentNodes[i];
               relNodes = node.getRelatedNodes(null, "both");
@@ -1461,6 +1462,8 @@ window.scalarvis = { instanceCount: -1 };
               base.relatedNodes.splice(i, 1);
             }
           }
+
+          //console.log('related: '+base.relatedNodes.length);
           break;
 
         case "toc":
@@ -2205,6 +2208,7 @@ window.scalarvis = { instanceCount: -1 };
     };
 
     base.updateActiveNodes = function() {
+      //console.log('update active nodes');
 
       var i, n, newActiveNodes, node, index;
 
@@ -2213,6 +2217,8 @@ window.scalarvis = { instanceCount: -1 };
       } else {
         newActiveNodes = base.selectedNodes.concat();
       }
+
+      //console.log(base.activeNodes,newActiveNodes);
 
       // handle node persistence; adding new and removing old
       n = base.activeNodes.length;
@@ -2739,90 +2745,190 @@ window.scalarvis = { instanceCount: -1 };
 
          var visPos = base.visualization.position();
 
-         infoBox.enter().append('div')
-           .attr('class', 'info_box')
-           .style('left', (d) => { return (d[base.instanceId].x + visPos.left + (this.boxSize * .5)) + 'px'; })
-           .style('top', (d) => { return (d[base.instanceId].y + visPos.top + this.boxSize + 5) + 'px'; })
-           .html(base.nodeInfoBox);
-
-         infoBox.style('left', (d) => { return (d[base.instanceId].x + visPos.left + (this.boxSize * .5)) + 'px'; })
-           .style('top', (d) => { return (d[base.instanceId].y + visPos.top + this.boxSize + 5) + 'px'; })
-           .html(base.nodeInfoBox);
-
-         infoBox.exit().remove();
+          infoBox.join(
+            enter => enter.append('div')
+              .attr('class', 'info_box')
+              .style('left', (d) => { return (d[base.instanceId].x + visPos.left + (this.boxSize * .5)) + 'px'; })
+              .style('top', (d) => { return (d[base.instanceId].y + visPos.top + this.boxSize + 5) + 'px'; })
+              .html(base.nodeInfoBox),
+            update => update.style('left', (d) => { return (d[base.instanceId].x + visPos.left + (this.boxSize * .5)) + 'px'; })
+              .style('top', (d) => { return (d[base.instanceId].y + visPos.top + this.boxSize + 5) + 'px'; })
+              .html(base.nodeInfoBox),
+            exit => exit.remove()
+          );
 
          // connections
          var linkGroup = this.gridLinkLayer.selectAll('g.linkGroup')
            .data(base.activeNodes);
 
-         // create a container group for each node's connections
-         var linkEnter = linkGroup
-           .enter().append('g')
-           .attr('width', this.size.width)
-           .attr('height', base.svg.attr('height'))
-           .attr('class', 'linkGroup')
-           .attr('pointer-events', 'none');
-
-         linkGroup.exit().remove();
-
-         // draw connection lines
-         linkEnter.selectAll('line.connection')
-           .data((d) => {
-             var relationArr = [];
-             var relations = d.outgoingRelations.concat(d.incomingRelations);
-             var relation;
-             var i;
-             var n = relations.length;
-             for (i = 0; i < n; i++) {
-               relation = relations[i];
-               if (relation.type.id == base.options.relations || base.options.relations == "all" || base.options.content == "lens") {
-                 if (relation.type.id != 'path' && this.gridNodes.indexOf(relation.body) != -1 && this.gridNodes.indexOf(relation.target) != -1) {
-                   if (!relation.body.scalarTypes.toc) {
-                     relationArr.push(relations[i]);
+         var linkEnter = linkGroup.join(
+           enter => {
+             // container group for each node's connections
+             enter.append('g')
+               .attr('width', this.size.width)
+               .attr('height', base.svg.attr('height'))
+               .attr('class', 'linkGroup')
+               .attr('pointer-events', 'none')
+            // draw connection lines
+             enter.selectAll('line.connection')
+               .data((d) => {
+                 var relationArr = [];
+                 var relations = d.outgoingRelations.concat(d.incomingRelations);
+                 var relation;
+                 var i;
+                 var n = relations.length;
+                 for (i = 0; i < n; i++) {
+                   relation = relations[i];
+                   if (relation.type.id == base.options.relations || base.options.relations == "all" || base.options.content == "lens") {
+                     if (relation.type.id != 'path' && this.gridNodes.indexOf(relation.body) != -1 && this.gridNodes.indexOf(relation.target) != -1) {
+                       if (!relation.body.scalarTypes.toc) {
+                         relationArr.push(relations[i]);
+                       }
+                     }
                    }
                  }
-               }
-             }
-             return relationArr;
-           })
-           .enter().append('line')
-             .attr('class', 'connection')
-             .attr('x1', (d) => { return d.body[base.instanceId].x + (this.boxSize * .5); })
-             .attr('y1', (d) => { return d.body[base.instanceId].y + (this.boxSize * .5); })
-             .attr('x2', (d) => { return d.target[base.instanceId].x + (this.boxSize * .5); })
-             .attr('y2', (d) => { return d.target[base.instanceId].y + (this.boxSize * .5); })
-             .attr('stroke-width', 1)
-             .attr('stroke-dasharray', '1,2')
-             .attr('stroke', function(d) { return base.highlightColorScale((d.type.id == 'reference') ? 'media' : d.type.id); });
-
-         // draw connection dots
-         linkEnter.selectAll('circle.connectionDot')
-           .data((d) => {
-             var nodeArr = [];
-             var relations = d.outgoingRelations.concat(d.incomingRelations);
-             var relation;
-             var i;
-             var n = relations.length;
-             for (i = 0; i < n; i++) {
-               relation = relations[i];
-               if (relation.type.id == base.options.relations || base.options.relations == "all" || base.options.content == "lens") {
-                 if ((relation.type.id != 'path') && (this.gridNodes.indexOf(relation.body) != -1) && (this.gridNodes.indexOf(relation.target) != -1)) {
-                   if (!relation.body.scalarTypes.toc) {
-                     nodeArr.push({ role: 'body', node: relation.body, type: relation.type });
-                     nodeArr.push({ role: 'target', node: relation.target, type: relation.type });
+                 return relationArr;
+               })
+               .join(
+                 enter => enter.append('line')
+                   .attr('class', 'connection')
+                   .attr('x1', (d) => { return d.body[base.instanceId].x + (this.boxSize * .5); })
+                   .attr('y1', (d) => { return d.body[base.instanceId].y + (this.boxSize * .5); })
+                   .attr('x2', (d) => { return d.target[base.instanceId].x + (this.boxSize * .5); })
+                   .attr('y2', (d) => { return d.target[base.instanceId].y + (this.boxSize * .5); })
+                   .attr('stroke-width', 1)
+                   .attr('stroke-dasharray', '1,2')
+                   .attr('stroke', function(d) { return base.highlightColorScale((d.type.id == 'reference') ? 'media' : d.type.id); }),
+                update => update.attr('class', 'connection')
+                  .attr('x1', (d) => { return d.body[base.instanceId].x + (this.boxSize * .5); })
+                  .attr('y1', (d) => { return d.body[base.instanceId].y + (this.boxSize * .5); })
+                  .attr('x2', (d) => { return d.target[base.instanceId].x + (this.boxSize * .5); })
+                  .attr('y2', (d) => { return d.target[base.instanceId].y + (this.boxSize * .5); })
+                  .attr('stroke-width', 1)
+                  .attr('stroke-dasharray', '1,2')
+                  .attr('stroke', function(d) { return base.highlightColorScale((d.type.id == 'reference') ? 'media' : d.type.id); }),
+                exit => exit.remove()
+               )
+             // draw connection dots
+             enter.selectAll('circle.connectionDot')
+               .data((d) => {
+                 var nodeArr = [];
+                 var relations = d.outgoingRelations.concat(d.incomingRelations);
+                 var relation;
+                 var i;
+                 var n = relations.length;
+                 for (i = 0; i < n; i++) {
+                   relation = relations[i];
+                   if (relation.type.id == base.options.relations || base.options.relations == "all" || base.options.content == "lens") {
+                     if ((relation.type.id != 'path') && (this.gridNodes.indexOf(relation.body) != -1) && (this.gridNodes.indexOf(relation.target) != -1)) {
+                       if (!relation.body.scalarTypes.toc) {
+                         nodeArr.push({ role: 'body', node: relation.body, type: relation.type });
+                         nodeArr.push({ role: 'target', node: relation.target, type: relation.type });
+                       }
+                     }
                    }
                  }
-               }
-             }
-             return nodeArr;
-           })
-           .enter().append('circle')
-           .attr('fill', function(d) { return base.highlightColorScale((d.type.id == 'reference') ? 'media' : d.type.id); })
-           .attr('class', 'connectionDot')
-           .attr('cx', (d) => { return d.node[base.instanceId].x + (this.boxSize * .5); })
-           .attr('cy', (d) => { return d.node[base.instanceId].y + (this.boxSize * .5); })
-           .attr('r', (d, i) => { return (d.role == 'body') ? 5 : 3; });
-
+                 return nodeArr;
+               })
+               .join(
+                 enter => enter.append('circle')
+                   .attr('fill', function(d) { return base.highlightColorScale((d.type.id == 'reference') ? 'media' : d.type.id); })
+                   .attr('class', 'connectionDot')
+                   .attr('cx', (d) => { return d.node[base.instanceId].x + (this.boxSize * .5); })
+                   .attr('cy', (d) => { return d.node[base.instanceId].y + (this.boxSize * .5); })
+                   .attr('r', (d, i) => { return (d.role == 'body') ? 5 : 3; }),
+                 update => update.attr('fill', function(d) { return base.highlightColorScale((d.type.id == 'reference') ? 'media' : d.type.id); })
+                   .attr('class', 'connectionDot')
+                   .attr('cx', (d) => { return d.node[base.instanceId].x + (this.boxSize * .5); })
+                   .attr('cy', (d) => { return d.node[base.instanceId].y + (this.boxSize * .5); })
+                   .attr('r', (d, i) => { return (d.role == 'body') ? 5 : 3; }),
+                 exit => exit.remove()
+               )
+           },
+           // update is largely redundant here (but needed), possible refactor oppty
+           update => {
+             // container group for each node's connections
+             update.append('g')
+               .attr('width', this.size.width)
+               .attr('height', base.svg.attr('height'));
+             // draw connection lines
+             update.selectAll('line.connection')
+               .data((d) => {
+                 var relationArr = [];
+                 var relations = d.outgoingRelations.concat(d.incomingRelations);
+                 var relation;
+                 var i;
+                 var n = relations.length;
+                 for (i = 0; i < n; i++) {
+                   relation = relations[i];
+                   if (relation.type.id == base.options.relations || base.options.relations == "all" || base.options.content == "lens") {
+                     if (relation.type.id != 'path' && this.gridNodes.indexOf(relation.body) != -1 && this.gridNodes.indexOf(relation.target) != -1) {
+                       if (!relation.body.scalarTypes.toc) {
+                         relationArr.push(relations[i]);
+                       }
+                     }
+                   }
+                 }
+                 return relationArr;
+               })
+               .join(
+                 enter => enter.append('line')
+                   .attr('class', 'connection')
+                   .attr('x1', (d) => { return d.body[base.instanceId].x + (this.boxSize * .5); })
+                   .attr('y1', (d) => { return d.body[base.instanceId].y + (this.boxSize * .5); })
+                   .attr('x2', (d) => { return d.target[base.instanceId].x + (this.boxSize * .5); })
+                   .attr('y2', (d) => { return d.target[base.instanceId].y + (this.boxSize * .5); })
+                   .attr('stroke-width', 1)
+                   .attr('stroke-dasharray', '1,2')
+                   .attr('stroke', function(d) { return base.highlightColorScale((d.type.id == 'reference') ? 'media' : d.type.id); }),
+                update => update.attr('class', 'connection')
+                  .attr('x1', (d) => { return d.body[base.instanceId].x + (this.boxSize * .5); })
+                  .attr('y1', (d) => { return d.body[base.instanceId].y + (this.boxSize * .5); })
+                  .attr('x2', (d) => { return d.target[base.instanceId].x + (this.boxSize * .5); })
+                  .attr('y2', (d) => { return d.target[base.instanceId].y + (this.boxSize * .5); })
+                  .attr('stroke-width', 1)
+                  .attr('stroke-dasharray', '1,2')
+                  .attr('stroke', function(d) { return base.highlightColorScale((d.type.id == 'reference') ? 'media' : d.type.id); }),
+                exit => exit.remove()
+               )
+             // draw connection dots
+             update.selectAll('circle.connectionDot')
+               .data((d) => {
+                 var nodeArr = [];
+                 var relations = d.outgoingRelations.concat(d.incomingRelations);
+                 var relation;
+                 var i;
+                 var n = relations.length;
+                 for (i = 0; i < n; i++) {
+                   relation = relations[i];
+                   if (relation.type.id == base.options.relations || base.options.relations == "all" || base.options.content == "lens") {
+                     if ((relation.type.id != 'path') && (this.gridNodes.indexOf(relation.body) != -1) && (this.gridNodes.indexOf(relation.target) != -1)) {
+                       if (!relation.body.scalarTypes.toc) {
+                         nodeArr.push({ role: 'body', node: relation.body, type: relation.type });
+                         nodeArr.push({ role: 'target', node: relation.target, type: relation.type });
+                       }
+                     }
+                   }
+                 }
+                 return nodeArr;
+               })
+               .join(
+                 enter => enter.append('circle')
+                   .attr('fill', function(d) { return base.highlightColorScale((d.type.id == 'reference') ? 'media' : d.type.id); })
+                   .attr('class', 'connectionDot')
+                   .attr('cx', (d) => { return d.node[base.instanceId].x + (this.boxSize * .5); })
+                   .attr('cy', (d) => { return d.node[base.instanceId].y + (this.boxSize * .5); })
+                   .attr('r', (d, i) => { return (d.role == 'body') ? 5 : 3; }),
+                 update => update.attr('fill', function(d) { return base.highlightColorScale((d.type.id == 'reference') ? 'media' : d.type.id); })
+                   .attr('class', 'connectionDot')
+                   .attr('cx', (d) => { return d.node[base.instanceId].x + (this.boxSize * .5); })
+                   .attr('cy', (d) => { return d.node[base.instanceId].y + (this.boxSize * .5); })
+                   .attr('r', (d, i) => { return (d.role == 'body') ? 5 : 3; }),
+                 exit => exit.remove()
+               )
+           },
+           exit => exit.remove()
+         );
        }
     }
 
