@@ -288,7 +288,7 @@ window.scalarvis = { instanceCount: -1 };
 
       $('body').on('delayedResize', function() {
         if (((base.options.modal && base.modalIsOpen) || !base.options.modal) && (base.getFormat() != "tagcloud")) {
-          base.visualize();
+          base.visualize(true);
         }
       });
 
@@ -878,7 +878,7 @@ window.scalarvis = { instanceCount: -1 };
     }
 
     // boots/reboots the visualization with the current options
-    base.visualize = function() {
+    base.visualize = function(preserveExistingNodes = false) {
 
       base.clear();
 
@@ -893,15 +893,17 @@ window.scalarvis = { instanceCount: -1 };
       base.maxNodesPerType = 0;
       base.startTime = new Date();
       base.loadingMsgShown = false;
-      base.contentNodes = [];
-      base.activeNodes = [];
-      base.manuallyLoadedNodes = [];
+      if (!preserveExistingNodes) {
+        base.contentNodes = [];
+        base.activeNodes = [];
+        base.manuallyLoadedNodes = [];
+        base.relatedNodes = [];
+        base.relations = [];
+        base.sortedNodes = [];
+      }
       base.rolloverNode = null;
-      base.relations = [];
       base.links = [];
       base.linksBySlug = {};
-      base.relatedNodes = [];
-      base.sortedNodes = [];
       base.nodesBySlug = {};
       base.svg = null;
       if (base.currentNode && base.currentNode.type.id != 'lens') {
@@ -1011,12 +1013,17 @@ window.scalarvis = { instanceCount: -1 };
 
     base.removeRelatedNodesFromManuallyLoaded = function(node) {
       let relatedNodes = node.getRelatedNodes(null, 'both');
+      let removedNodes = [];
       relatedNodes.forEach(node => {
-        let index = base.manuallyLoadedNodes.indexOf(node);
-        if (index != -1) {
-          base.manuallyLoadedNodes.splice(index, 1);
+        if (base.selectedNodes.indexOf(node) == -1 && base.contentNodes.indexOf(node) == -1) {
+          let index = base.manuallyLoadedNodes.indexOf(node);
+          if (index != -1) {
+            removedNodes.push(node);
+            base.manuallyLoadedNodes.splice(index, 1);
+          }
         }
       });
+      removedNodes.forEach(node => base.removeRelatedNodesFromManuallyLoaded(node));
       base.parseNode(node);
     }
 
@@ -1429,7 +1436,6 @@ window.scalarvis = { instanceCount: -1 };
           } else {
             // get relationships for each node
             n = base.contentNodes.length;
-            //console.log('content nodes: '+n);
             for (i = 0; i < n; i++) {
               node = base.contentNodes[i];
               relNodes = node.getRelatedNodes(null, "both");
@@ -1441,16 +1447,20 @@ window.scalarvis = { instanceCount: -1 };
             }
           }
 
+          // get relationships for each selected node that we haven't already gotten
           n = base.selectedNodes.length;
           for (i = n-1; i >= 0; i--) {
             node = base.selectedNodes[i];
-            if (base.contentNodes.indexOf(node) != -1) {
+            if (base.contentNodes.indexOf(node) == -1) {
               relNodes = node.getRelatedNodes(null, "both");
               rels = node.getRelations(null, "both");
               base.relatedNodes = base.relatedNodes.concat(relNodes);
               base.relations = base.relations.concat(rels);
               node.connectionCount = rels.length;
               base.maxConnections = Math.max(base.maxConnections, node.connectionCount);
+              if (base.relatedNodes.indexOf(node) == -1) {
+                base.relatedNodes.push(node);
+              }
             }
           }
 
@@ -1462,8 +1472,6 @@ window.scalarvis = { instanceCount: -1 };
               base.relatedNodes.splice(i, 1);
             }
           }
-
-          //console.log('related: '+base.relatedNodes.length);
           break;
 
         case "toc":
