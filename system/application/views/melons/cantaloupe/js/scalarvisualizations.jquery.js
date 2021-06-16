@@ -3510,7 +3510,7 @@ window.scalarvis = { instanceCount: -1 };
           if (index == -1) {
             base.selectedHierarchyNodes.push(d.data);
           }
-          base.loadNode(d.data.node.slug, 0, 0, base.updateInspector);
+          //base.loadNode(d.data.node.slug, 0, 0, base.updateInspector);
         } else {
           base.selectedNodes.splice(index, 1);
           index = base.selectedHierarchyNodes.indexOf(d.data);
