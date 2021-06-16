@@ -900,6 +900,7 @@ window.scalarvis = { instanceCount: -1 };
         base.relatedNodes = [];
         base.relations = [];
         base.sortedNodes = [];
+        base.visInstance = null;
       }
       base.rolloverNode = null;
       base.links = [];
@@ -917,7 +918,6 @@ window.scalarvis = { instanceCount: -1 };
       base.hierarchy = null;
       base.selectedHierarchyNodes = null;
       base.processedNodesForHierarchy = [];
-      base.visInstance = null;
 
       base.visualization.css('height', '');
 
@@ -3506,14 +3506,14 @@ window.scalarvis = { instanceCount: -1 };
         index = base.selectedNodes.indexOf(d.data.node);
         if (index == -1) {
           base.selectedNodes.push(d.data.node);
-          index = base.selectedHierarchyNodes.indexOf(d.data.node);
+          index = base.selectedHierarchyNodes.indexOf(d.data);
           if (index == -1) {
-            base.selectedHierarchyNodes.push(d.data.node);
+            base.selectedHierarchyNodes.push(d.data);
           }
           base.loadNode(d.data.node.slug, 0, 0, base.updateInspector);
         } else {
           base.selectedNodes.splice(index, 1);
-          index = base.selectedHierarchyNodes.indexOf(d.data.node);
+          index = base.selectedHierarchyNodes.indexOf(d.data);
           if (index != -1) {
             base.selectedHierarchyNodes.splice(index, 1);
           }
