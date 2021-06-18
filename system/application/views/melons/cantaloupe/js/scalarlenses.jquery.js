@@ -769,13 +769,11 @@
 
       // on reload, add active class to dropdown list item
       let list = element.find('.dropdown-menu li');
+      list.removeClass('active');
       for(let i = 0; i < 7; i++){
         let listItemValue = $(list[i]).data('option').value;
         if(listItemValue == filterObj.subtype){
           $(list[i]).addClass('active');
-        }
-        if(listItemValue == 'delete'){
-          $(list[i]).removeClass('active');
         }
       }
 
