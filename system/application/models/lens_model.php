@@ -135,6 +135,7 @@ class Lens_model extends MY_Model {
 			return $this->frozen_items($book_id, $json, $prefix, $pages_load_metadata);
 		}
 
+		$count = 0;
 		foreach ($json['components'] as $component) {
 			echo 'CONTENTS: ';
 			print_r($contents);
@@ -249,7 +250,12 @@ class Lens_model extends MY_Model {
 					}
 				}
 			}
-			$contents = $this->combine_items($contents, $my_contents, $how_to_combine); 
+			if (!$count) {
+				$contents = $my_contents;
+			} else {
+				$contents = $this->combine_items($contents, $my_contents, $how_to_combine);
+			}
+			$count++;
 		}
 		
 		// Modifiers that filter content
