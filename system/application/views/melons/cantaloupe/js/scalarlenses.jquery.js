@@ -1863,7 +1863,6 @@
         $('#content-type-list li.active').each(function(items){
            typeFilterArray.push($(this).data('option').value)
         });
-        console.log(typeFilterArray);
         $('#content-type-button').data('option', { value: typeFilterArray });
         me.updateTypeFilterForm();
       }
