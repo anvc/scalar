@@ -136,6 +136,8 @@ class Lens_model extends MY_Model {
 		}
 
 		foreach ($json['components'] as $component) {
+			echo 'CONTENTS: ';
+			print_r($contents);
 			$my_contents = array();
 			// Content selector
 			if (isset($component['content-selector'])) {
@@ -600,10 +602,6 @@ class Lens_model extends MY_Model {
     	switch ($operator) {
     		case "and":
     			$keys_to_remove = array();
-    			echo 'CONTENTS:';
-    			print_r($contents);
-    			echo 'CONTENT: ';
-    			print_r($content);
     			foreach ($contents as $key => $row) {
     				$exists = false;
     				foreach ($content as $content_key => $content_row) {
@@ -616,8 +614,6 @@ class Lens_model extends MY_Model {
     					$keys_to_remove[] = $key;
     				}
     			}
-    			echo 'Keys to remove: ';
-    			print_r($keys_to_remove);
     			foreach ($keys_to_remove as $key) {
     				unset($contents[$key]);
     			}
