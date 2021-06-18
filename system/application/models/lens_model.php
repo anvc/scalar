@@ -137,8 +137,6 @@ class Lens_model extends MY_Model {
 
 		$count = 0;
 		foreach ($json['components'] as $component) {
-			echo 'CONTENTS: ';
-			print_r($contents);
 			$my_contents = array();
 			// Content selector
 			if (isset($component['content-selector'])) {
