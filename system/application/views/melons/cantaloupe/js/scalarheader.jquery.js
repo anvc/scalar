@@ -263,10 +263,12 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                             '<li class="vis_link" data-vistype="vistoc"><a role="menuitem"><span class="menuIcon" id="tocIcon"></span> Contents</a></li>'+
                                                             '<li class="vis_link" data-vistype="visconnections"><a role="menuitem"><span class="menuIcon" id="connectionsIcon"></span> Connections</a></li>'+
                                                             '<li class="vis_link" data-vistype="visindex"><a role="menuitem"><span class="menuIcon" id="gridIcon"></span> Grid</a></li>'+
+                                                            '<li class="vis_link" data-vistype="vismap"><a role="menuitem"><span class="menuIcon" id="mapIcon"></span> Map</a></li>'+
                                                             '<li class="vis_link" data-vistype="visradial"><a role="menuitem"><span class="menuIcon" id="radialIcon"></span> Radial</a></li>'+
                                                             '<li class="vis_link" data-vistype="vispath"><a role="menuitem"><span class="menuIcon" id="pathIcon"></span> Path</a></li>'+
                                                             '<li class="vis_link" data-vistype="vismedia"><a role="menuitem"><span class="menuIcon" id="mediaIcon"></span> Media</a></li>'+
                                                             '<li class="vis_link" data-vistype="vistag"><a role="menuitem"><span class="menuIcon" id="tagIcon"></span> Tag</a></li>'+
+                                                            '<li class="vis_link" data-vistype="viswordcloud"><a role="menuitem"><span class="menuIcon" id="wordCloudIcon"></span> Word Cloud</a></li>'+
                                                         '</ul>'+
                                                     '</li>'+
                                                     '<li id="scalar_menu" class="dropdown">'+
@@ -713,6 +715,46 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                               ],
                               "relationship": "any-relationship"
                           }]
+                        }
+                      ],
+                      "sorts": []
+                    }
+                    break;
+
+                    case "vismap":
+                    options.content = 'lens';
+                    options.lens = {
+                      "visualization": {
+                        "type": "map",
+                        "options": {}
+                      },
+                      "components": [
+                        {
+                          "content-selector": {
+                            "type": "items-by-type",
+                            "content-type": "all-content"
+                          },
+                          "modifiers": []
+                        }
+                      ],
+                      "sorts": []
+                    }
+                    break;
+
+                    case "viswordcloud":
+                    options.content = 'lens';
+                    options.lens = {
+                      "visualization": {
+                        "type": "word-cloud",
+                        "options": {}
+                      },
+                      "components": [
+                        {
+                          "content-selector": {
+                            "type": "items-by-type",
+                            "content-type": "page"
+                          },
+                          "modifiers": []
                         }
                       ],
                       "sorts": []
