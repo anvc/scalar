@@ -40,7 +40,7 @@ class Api_login_model extends User_model {
 		$api_key = sha1(trim($api));		//TODO: This should really use crypt() for security, but unsure of install environment
 
 		if(!$result = $this->get_by_email_and_api($email, $api_key)) return false;
-		
+
 		if ($result->book_id != $book_id) return false;
 		
 		if($result->is_super=='1') return false;

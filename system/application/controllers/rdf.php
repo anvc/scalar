@@ -62,7 +62,7 @@ class Rdf extends MY_Controller {
 			};
 		}
 		// Format (e.g., 'xml', 'json')
-		$allowable_formats = array('xml'=>'xml', 'json'=>'json','rdfxml'=>'xml','rdfjson'=>'json','turtle'=>'turtle','jsonld'=>'jsonld','oac'=>'oac');
+		$allowable_formats = array('xml'=>'xml', 'json'=>'json','rdfxml'=>'xml','rdfjson'=>'json','turtle'=>'turtle','jsonld'=>'jsonld','oac'=>'oac','iiif'=>'iiif');
 		$this->data['format'] = (isset($_REQUEST['format']) && array_key_exists($_REQUEST['format'],$allowable_formats)) ? $allowable_formats[$_REQUEST['format']] : $allowable_formats[key($allowable_formats)];
 		$ext = get_ext($this->uri->uri_string());
 		$this->data['format'] = (!empty($ext) && array_key_exists($ext,$allowable_formats)) ? $allowable_formats[$ext] : $this->data['format'];
@@ -255,6 +255,10 @@ class Rdf extends MY_Controller {
 				case 'oac':
 					$this->load->library( 'OAC_Object', 'oac_object' );
 					$object = 'oac_object';
+					break;
+				case 'iiif':
+					$this->load->library( 'IIIF_Object', 'iiif_object' );
+					$object = 'iiif_object';
 					break;
 				default:
 					$object = 'rdf_object';

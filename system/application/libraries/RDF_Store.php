@@ -155,7 +155,7 @@ class RDF_Store {
                FILTER (regex (?o,"'.$o.'","i")) . ';  // this is 'contains' but not 'exact match'
     	$q .= '
               }';
-    	
+
     	$rows = $this->store->query($q, 'rows');
     	if (!is_array($rows)) return false;
     	
