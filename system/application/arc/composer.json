@@ -1,0 +1,5 @@
+{
+    "require": {
+        "semsol/arc2": "^2.5"
+    }
+}

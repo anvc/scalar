@@ -1,0 +1,73 @@
+#lenses {
+  padding-left: 7.2rem;
+  padding-right: 7.2rem;
+  margin-top: -2rem;
+}
+#lenses .lens-title {
+  margin-top:0 !important;
+}
+.lens-list-item {
+  background:#ccc;
+  height:120px;
+  width:100%;
+}
+#lens-manager ul li {
+  text-decoration: none;
+  list-style-type: none;
+  cursor:pointer;
+  margin-left:-10px;
+  margin-right:10px;
+  padding:2px 0;
+}
+#lens-manager ul li:hover {
+  background:#d9edf7;
+}
+#lens-manager ul li:active{
+  background:#c7e6f6;
+}
+#lens-manager ul li.lens-item.highlight {
+  background: #c7e6f6;
+}
+#lens-manager ul li a {
+  font-size:12px;
+  padding-left:10px;
+  padding-right:10px;
+}
+#lens-manager .btn-primary.add-lens-btn,
+#lens-manager .btn-primary.add-lens-btn:hover  {
+  background: #3b82c0;
+  border: 1px solid #457db8;
+  padding:2px 11px;
+}
+#lens-manager .viz-icon {
+  float:right;
+  margin-top:6px;
+}
+#lens-manager .badge {
+  float:right;
+  font-weight:100;
+  margin-top:4px;
+  margin-right:10px;
+}
+#lens-manager span {
+  vertical-align: middle;
+}
+#submitted-message {
+  font-size: 14px;
+  color: #3e88ab;
+  border: 1px solid #bde8f0;
+  border-radius: 4px;
+  margin-top: 15px;
+  padding: 20px;
+  line-height: 140%;
+}
+#submitted-message p {
+  margin-bottom: 10px;
+}
+#submitted-message a {
+  text-decoration: underline;
+}
+.non-ideal-state-message {
+  font-size: 12px;
+  font-style: italic;
+}

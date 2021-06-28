@@ -22,7 +22,7 @@
 * @projectDescription	Wrapper for ARC2
 * @abstract				ARC2 has its own resource helper, but this class includes methods for making interaction with it more direct (such as getting or saving resources)
 * @author				Craig Dietrich
-* @version				2.1
+* @version				2.2
 * @requires				This has been built as a CodeIgniter Library class, so assumes certain CI functions (such as base_url())
 * @todo					By booting up ARC2 in the constructor here, I think we're creating two connections to MySQL on one page load (this + the one CodeIgniter began earlier)
 */
@@ -53,6 +53,7 @@ class RDF_Store {
 		);
 
 		$this->store =@ ARC2::getStore($config);
+		//$this->store->createDBCon();
 		if (!$this->store->isSetUp()) $this->store->setUp();
 
 		$this->ns = $ci->config->item('namespaces');
@@ -73,7 +74,98 @@ class RDF_Store {
 		return $rs['result'][$urn];
 
     }
+    
+    /**
+     * Select based on a predicate
+     */
+    
+    public function get_urns_from_predicate($p_arr=array(), $in_version_urns=array()) {
+    	
+    	if (!is_array($p_arr)) $p_arr= array($p_arr);
+    	for ($j = 0; $j < count($p_arr); $j++) {
+    		if (strstr($p_arr[$j], '//')) $p_arr[$j]= '<' . $p_arr[$j]. '>';
+    		$p_arr[$j] = '
+               { ?s '.$p_arr[$j].' ?o }';
+    	}
+    	
+    	
+    	$list = array();
+    	foreach ($in_version_urns as $urn) {
+    		$list[] = '?s = "'.$urn.'"';
+    	}
+    	
+    	$q = '';
+    	foreach ($this->ns as $prefix => $uri) {
+    		$q .= 'PREFIX '.$prefix.': <'.$uri.'> . '."\n";
+    	}
+    	
+    	$q .= '
+              SELECT *
+              WHERE {';
+		
+		$q .= implode(' UNION ', $p_arr);
+    	
+		$q .= '
+               FILTER ('.implode(' || ',$list).') . ';
+    	$q .= '
+              }';
 
+    	$rows = $this->store->query($q, 'rows');
+    	if (!is_array($rows)) return false;
+    	$return = array();
+    	foreach ($rows as $row) {
+    		$return[] = $row['s'];
+    	}
+    	return $return;
+    	
+    }
+    
+    /**
+     * Look for versions that match the predicate and a search on the object
+     */
+    
+    public function get_urns_from_predicate_and_object($p_arr=array(), $o='', $in_version_urns=array()) {
+    	
+    	if (!is_array($p_arr)) $p_arr= array($p_arr);
+    	for ($j = 0; $j < count($p_arr); $j++) {
+    		if (strstr($p_arr[$j], '//')) $p_arr[$j]= '<' . $p_arr[$j]. '>';
+    		$p_arr[$j] = '
+               { ?s '.$p_arr[$j].' ?o }';
+    	}
+    	
+    	$list = array();
+    	foreach ($in_version_urns as $urn) {
+    		$list[] = '?s = "'.$urn.'"';
+    	}
+    	
+    	$q = '';
+    	foreach ($this->ns as $prefix => $uri) {
+    		$q .= 'PREFIX '.$prefix.': <'.$uri.'> . '."\n";
+    	}
+    	
+    	$q .= '
+              SELECT *
+              WHERE {';
+
+    	$q .= implode(' UNION ', $p_arr);
+    	
+    	$q .= '
+               FILTER ('.implode(' || ',$list).') . ';
+    	$q .= '
+               FILTER (regex (?o,"'.$o.'","i")) . ';  // TODO: match word, exclude word within word
+    	$q .= '
+              }';
+    	
+    	$rows = $this->store->query($q, 'rows');
+    	if (!is_array($rows)) return false;
+    	$return = array();
+    	foreach ($rows as $row) {
+    		$return[] = $row['s'];
+    	}
+    	return $return;
+    	
+    }
+    
 	/**
 	 * Save an array of fields and values for a single node by URN
 	 */
@@ -126,15 +218,15 @@ class RDF_Store {
 
 		if (empty($urn)) return true;
 
-		 $q = 'DELETE {
+		$q = 'DELETE {
 				<'.$urn.'> ?p ?o .
-		 }';
-		 $done = $this->store->query($q);
-		 if ($errs = $this->store->getErrors()) {
-			 print_r($errs);
-		 }
+		}';
+		$done = $this->store->query($q);
+		if ($errs = $this->store->getErrors()) {
+			print_r($errs);
+		}
 
-		 return true;
+		return true;
 
 	}
 
@@ -168,6 +260,11 @@ class RDF_Store {
 			case 'turtle':
 				$parser =@ ARC2::getRDFParser();
 				$doc =@ $parser->toTurtle( $index, $this->ns );
+				break;
+			case 'jsonld':
+				$conf = array('ns' => $this->ns, 'serializer_prettyprint_container' => true); // , 'serializer_type_nodes' => true
+				$ser =@ ARC2::getJSONLDSerializer($conf);
+				$doc =@ $ser->getSerializedIndex( $index );
 				break;
 			default:  // xml
 				$conf = array('ns' => $this->ns, 'serializer_prettyprint_container' => true); // , 'serializer_type_nodes' => true

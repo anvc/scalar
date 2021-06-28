@@ -25,38 +25,38 @@
 
 			rel_type = $('#formRelType').find('[name="relType"] option:selected').val();  // Global
 
-			$('#check_all').click(function() {
+			$('#check_all').on('click', function() {
 				var check_all = ($(this).is(':checked')) ? true : false;
 				$('.table_wrapper').find('input[type="checkbox"]').prop('checked', check_all);
 			});
 
 			$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:rel_type,start:null,results:null,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination,paywall:false,no_content_msg:'There is no content of this type<br />You can select a different category using the pulldown above'});
 
-   			$(window).resize(function() { resizeList(); });
+   			$(window).on('resize', function() { resizeList(); });
    			resizeList();
 
-   			$('#formRelType').submit(function() {
+   			$('#formRelType').on('submit', function() {
    				rel_type = $(this).find('[name="relType"] option:selected').val();
    				$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:rel_type,start:null,results:null,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,pagination_func:pagination,paywall:false,no_content_msg:'There is no content of this type<br />You can select a different category using the pulldown above'});
 				$('#add_term_btn').find('span:first').html(rel_type);
    				return false;
    			});
-   			$('#formRelType').find('[name="relType"]').change(function() {
+   			$('#formRelType').find('[name="relType"]').on('change', function() {
    	   			var $this = $(this);
-   	   			$this.closest('form').submit();
-   	   			$this.blur();
+   	   			$this.closest('form').trigger('submit');
+   	   			$this.trigger('blur');
    			});
-   			$('#formRelTypeReload a').click(function() {
+   			$('#formRelTypeReload a').on('click', function() {
    	   			var $this = $(this);
-   	   			$this.closest('form').submit();
-   	   			$this.blur();
+   	   			$this.closest('form').trigger('submit');
+   	   			$this.trigger('blur');
    			});
 
    			$('body').on('rowSaved', function() {
 				pagination();
    			});
 
-   			$('#add_term_btn').click(function() {
+   			$('#add_term_btn').on('click', function() {
    				$('<div></div>').content_selector({parent:book_uri,changeable:true,multiple:true,onthefly:true,msg:'Selected pages will be added to the <b>'+rel_type+'</b> category',callback:function(nodes){
    					console.log(nodes);
    					$('.table_wrapper:first').html('<div id="loading">Saving</div>');
@@ -110,7 +110,7 @@
 			// Get versions
 			if (!$the_link.data('is_open')) {
 				$the_link.data('orig_html', $the_link.html());
-				$the_link.blur();
+				$the_link.trigger('blur');
 				var $the_row = $('#row_'+content_id)
 				$.get('api/get_versions', {content_id:content_id}, function(data) {
 					var $next = $the_link.parent().parent().next();
@@ -137,7 +137,7 @@
 					    }
 						var $reorder = $('<tr><td></td><td colspan="3"><a href="javascript:;" class="generic_button">Reset version numbers</a></td><td colspan="2"</td></tr>');
 						$data_row.after($reorder);
-						$reorder.find('a:first').click(function() {
+						$reorder.find('a:first').on('click', function() {
 							if (!confirm('Are you sure you wish to reset version numbers? This might break links to specific versions in your book.')) return false;
 							$.get('api/reorder_versions', {content_id:content_id}, function(data) {
 								get_versions(content_id, the_link);  // close
@@ -145,7 +145,7 @@
 							});
 						});
 						$the_link.html('Hide');
-						$the_link.blur();
+						$the_link.trigger('blur');
 						$the_link.data('is_open',true);
 					}
 					$('body').on("contentUpdated",function(e,update_opts) {
@@ -174,7 +174,7 @@
 				if ($next.hasClass('version_wrapper')) $next.remove();
 				$the_link.html('View');
 				$the_link.data('is_open',false);
-				$the_link.blur();
+				$the_link.trigger('blur');
 			}
 		}
 

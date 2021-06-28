@@ -25,7 +25,7 @@ if(!$page_by_contributor){  // Don't designate an attribution if the page is by 
 }
 
 // Version has an attribution and should therefore state that it's by that other author
-if (!empty($attribution)) {
+if (!empty($attribution) && (!isset($page->versions[$page->version_index]->is_lens_of) || empty($page->versions[$page->version_index]->is_lens_of))) {
 	// Figure out what to call the page
 	$page_name = ($page->type=='composite')?'page':'content';
 	if (!empty($page->versions[$page->version_index]->path_of)) $page_name = 'path';
@@ -90,7 +90,7 @@ elseif (!empty($page->category) && in_array($page->category, $categories_display
 
 // Page or versions aren't visible
 if (isset($page->is_live) && !$page->is_live) {
-	echo '		<div class="error notice-hidden"><p>This page is hidden and is only viewable by '.$book->scope.' contributors.&nbsp; It can be made visible in the page editor or in the Dashboard.</p></div>'."\n";
+	echo '		<div class="error notice-hidden"><p>This page is hidden, viewable only by contributors. It can be removed in the Dashboard, or made visible there or in the page editor.</p></div>'."\n";
 }
 if ($view == 'versions' && $hide_versions) {
 	echo '		<div class="error notice-hidden"><p>Past versions are only viewable by '.$book->scope.' authors and editors.</p></div>'."\n";

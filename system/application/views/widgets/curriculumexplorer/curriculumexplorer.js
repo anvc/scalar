@@ -1,7 +1,7 @@
 
 
 function curriculumexplorer(node) {
-	
+
 	var $wrapper = $('<div class="curriculum_explorer paragraph_wrapper"><div class="loading">Loading...</div></div>').appendTo("span[property='sioc:content']");
 	if (!node.current.sourceFile || !node.current.sourceFile.length) {
 		alert('A JSON file needs to be present as the page\'s Media URL for this view to operate.');
@@ -50,11 +50,15 @@ function curriculumexplorer(node) {
 		html += '      <button class="btn btn-default dropdown-toggle select_page_btn" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"><span id="ce-select-page">Select a page</span> <span class="caret"></span></button>';
 		html += '      <ul id="ce-pages" class="dropdown-menu"></ul>';
 		html += '    </div><br />';
-		html += '    <div id="ce-content" style="margin-top:18px;">';
-		html += '      <img src="'+empty_img+'" alt="" id="ce-content-image" class="img-thumbnail" align="left">';
-		html += '      <h4><a href="" id="ce-content-title">&nbsp;</a></h4>';
-		html += '      <div id="ce-content-desc"></div>';
-		html += '      <a id="ce-content-button" class="btn btn-default btn-sm" href="">Go to page</a>';
+		html += '    <div id="ce-content" class="row">';
+		html += '      <div class="col-xs-4">';
+		html += '        <img src="'+empty_img+'" alt="" id="ce-content-image" align="left">';
+		html += '      </div>';
+		html += '      <div class="col-xs-8">';
+		html += '        <h4><a href="" id="ce-content-title">&nbsp;</a></h4>';
+		html += '        <div id="ce-content-desc"></div>';
+		html += '        <a id="ce-content-button" class="btn btn-default btn-sm" href="">Go to page</a>';
+		html += '      </div>';
 		html += '    </div>';
 		html += '  </div>';
 		html += '</div>';
@@ -84,7 +88,7 @@ function curriculumexplorer(node) {
 			$('#ce-paths').append('<li data-index="'+j+'"><a href="javascript:void(null);" data-index="'+j+'">'+paths[j].charAt(0).toUpperCase()+paths[j].slice(1)+'</a></li>');
 		};
 		// Events
-		$('#ce-grades').find('a').click(function() {
+		$('#ce-grades').find('a').on('click', function() {
 			var $this = $(this);
 			$('#ce-select-grade').html( $this.html()).data('index', $(this).data('index') );
 			$('#ce-grades').find('li').removeClass('active');
@@ -93,11 +97,11 @@ function curriculumexplorer(node) {
 			set_pages();
 			set_goals();
 		});
-		$('#ce-subjects').find('input[type="checkbox"]').change(function() {
+		$('#ce-subjects').find('input[type="checkbox"]').on('change', function() {
 			set_pages();
 			set_goals();
 		});
-		$('#ce-paths').find('a').click(function() {
+		$('#ce-paths').find('a').on('click', function() {
 			var path_index = parseInt($(this).data('index'));
 			commit_path(path_index);
 		});
@@ -105,7 +109,7 @@ function curriculumexplorer(node) {
 		var set_subjects = function() {
 			var grade_index = parseInt($('#ce-select-grade').data('index'));
 			$('#ce-subjects').find('input[type="checkbox"]').each(function() {  // Enable all subjects
-				$(this).removeProp('disabled').parent().css('color','initial').css('cursor','pointer').css('-webkit-text-fill-color','initial');
+				$(this).prop('disabled',false).parent().css('color','initial').css('cursor','pointer').css('-webkit-text-fill-color','initial');
 			});
 			if (isNaN(grade_index)) return;
 			$('#ce-subjects').find('input[type="checkbox"]').each(function() {  // Disable all subjects
@@ -113,9 +117,9 @@ function curriculumexplorer(node) {
 			});
 			for (var j = 0; j < json.connections.length; j++) {  // Enable subjects connected to the chosen grade
 				if (grade_index != json.connections[j].gradeIndex) continue;
-				$('#ce-subjects').find('input[type="checkbox"][value="'+json.connections[j].subjectIndex+'"]').removeProp('disabled').parent().css('color','initial').css('cursor','pointer').css('-webkit-text-fill-color','initial');
+				$('#ce-subjects').find('input[type="checkbox"][value="'+json.connections[j].subjectIndex+'"]').prop('disabled',false).parent().css('color','initial').css('cursor','pointer').css('-webkit-text-fill-color','initial');
 			};
-			$('#ce-subjects').find('input[type="checkbox"][disabled]').removeProp('checked');
+			$('#ce-subjects').find('input[type="checkbox"][disabled]').prop('checked',false);
 		}
 		var set_pages = function() {
 			$('#ce-pages').find('li').removeClass('disabled');
@@ -140,7 +144,7 @@ function curriculumexplorer(node) {
 			});
 			var $disabled_and_active = $('#ce-pages').find('li.disabled.active');  // If an active page becomes disabled, revert to first item
 			if ($disabled_and_active.length) {
-				$('#ce-pages').find('a:first').click();
+				$('#ce-pages').find('a:first').trigger('click');
 			}
 		};
 		var set_goals = function() {
@@ -153,7 +157,7 @@ function curriculumexplorer(node) {
 				var slugs = [];
 				$('#ce-pages').find('li').each(function() {
 					var $this = $(this);
-					if ($this.data('slug').length) slugs.push($this.data('slug')); 
+					if ($this.data('slug').length) slugs.push($this.data('slug'));
 				});
 			};
 			var gradeIndex = parseInt($('#ce-select-grade').data('index'));  // Chosen grade
@@ -163,8 +167,8 @@ function curriculumexplorer(node) {
 				var gradeIndexes = [];
     			$('#ce-grades').find('li').each(function() {
 					var $this = $(this);
-					if (!isNaN(parseInt($this.data('index')))) gradeIndexes.push(parseInt($this.data('index'))); 
-    			});                     				
+					if (!isNaN(parseInt($this.data('index')))) gradeIndexes.push(parseInt($this.data('index')));
+    			});
 			};
 			var subjectIndexes = [];  // Chosen subjects
 			$('#ce-subjects').find('input[type="checkbox"]:checked').each(function() {
@@ -267,7 +271,7 @@ function curriculumexplorer(node) {
         		};
         		set_pages();
         		set_goals();
-        		$('#ce-pages').find('a').click(function() {
+        		$('#ce-pages').find('a').on('click', function() {
         			var $this = $(this);
         			if ($this.parent().hasClass('disabled')) return;
         			$('#ce-content-image').prop('src', empty_img);
@@ -284,7 +288,7 @@ function curriculumexplorer(node) {
         				$('#ce-content-image').prop('src', fields.banner);
         				$('#ce-content-title').html(fields.title.replace(/(<([^>]+)>)/ig,"")).attr('href', fields.content_uri);
         				var desc = (fields.description.length > fields.content.length) ? fields.description.replace(/(<([^>]+)>)/ig,"") : fields.content.replace(/(<([^>]+)>)/ig,"");
-        				if (desc.length > 250) desc = desc.substr(0, 250) + '...';
+        				if (desc.length > 300) desc = desc.substr(0, 300) + '...';
         				$('#ce-content-desc').html(desc);
         				$('#ce-content-button').show().attr('href', fields.content_uri);
         			};
@@ -306,5 +310,5 @@ function curriculumexplorer(node) {
         };
 	  }
 	});
-	
+
 };

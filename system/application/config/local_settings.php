@@ -35,7 +35,6 @@ $config['storage_adapter_options'] = array(
 //    'forceSSL'     => (bool) (getenv('SCALAR_S3_FORCE_SSL') ? getenv('SCALAR_S3_FORCE_SSL') : ''),
 //);
 
-
 // ReCAPTCHA key (leave blank for no ReCAPTCHA)
 $config['recaptcha_public_key'] = (getenv('SCALAR_RECAPTCHA_PUBLIC_KEY') ? getenv('SCALAR_RECAPTCHA_PUBLIC_KEY') : '');
 $config['recaptcha_private_key'] = (getenv('SCALAR_RECAPTCHA_PRIVATE_KEY') ? getenv('SCALAR_RECAPTCHA_PRIVATE_KEY') : '');
@@ -47,6 +46,20 @@ $config['recaptcha2_secret_key'] = (getenv('SCALAR_RECAPTCHA2_SECRET_KEY') ? get
 // Register key (leave blank if no register key required, e.g., array())
 // One of the strings placed in this array will be required in order for new users to register
 $config['register_key'] = array();
+
+// Max login attempts (e.g., 10) and the penalty wait time in seconds (e.g., 120)
+$config['max_login_attempts'] = 6;
+$config['max_login_attempts_penalty_seconds'] = 120;
+
+// To enable two-factor authentication (using the Google Authenticator), enter a salt string here
+// The string needs to be a 'base32' string 'without equals signs at the end' or the QR barcode will not work
+$config['google_authenticator_salt'] = '';
+
+// Enable stronger-password verification (min 16 characters, can't use previous passwords)
+$config['strong_password'] = false;
+
+// If 'strong_password' is enabled, number of days until the user is requested to reset their password (e.g., 60)
+$config['strong_password_days_to_reset'] = 60;
 
 // Soundcloud key
 $config['soundcloud_id'] = (getenv('SCALAR_SOUNDCLOUD_ID') ? getenv('SCALAR_SOUNDCLOUD_ID') : '');
@@ -78,14 +91,22 @@ $config['registration_key_msg'] = '';
 
 // LDAP authentication settings
 $config['use_ldap'] = (getenv('SCALAR_USE_LDAP') ? getenv('SCALAR_USE_LDAP') : false);  // Default: off
-$config['ldap_server'] = (getenv('SCALAR_LDAP_SERVER') ? getenv('SCALAR_LDAP_SERVER') : "ldap.server.name");
+$config['ldap_server'] = (getenv('SCALAR_LDAP_SERVER') ? getenv('SCALAR_LDAP_SERVER') : "ldap://ldap.server.name");  // Use 'ldap://' prefix even if connecting to ldaps
 $config['ldap_port'] = (getenv('SCALAR_LDAP_PORT') ? getenv('SCALAR_LDAP_PORT') : 389);
 $config['ldap_basedn'] = (getenv('SCALAR_LDAP_BASEDN') ? getenv('SCALAR_LDAP_BASEDN') : "dc=organization,dc=tld");
-$config['ldap_uname_field'] = (getenv('SCALAR_LDAP_UNAME_FIELD') ? getenv('SCALAR_LDAP_UNAME_FIELD') : "uid");
+$config['ldap_uname_field'] = (getenv('SCALAR_LDAP_UNAME_FIELD') ? getenv('SCALAR_LDAP_UNAME_FIELD') : "uid");  // Default 'uid', For AD use 'sAMAccountName'
+$config['ldap_filter'] = (getenv('SCALAR_LDAP_FILTER') ? getenv('SCALAR_LDAP_FILTER') : '');
+
+// Active Directory LDAP settings
+$config['use_ad_ldap'] = (getenv('SCALAR_USE_AD_LDAP') ? getenv('SCALAR_USE_AD_LDAP') : false);  // Default: off
+$config['ad_bind_user'] = (getenv('SCALAR_AD_BIND_USER') ? getenv('SCALAR_AD_BIND_USER') : "");  // Use LDAP Distinguished Name
+$config['ad_bind_pass'] = (getenv('SCALAR_AD_BIND_PASS') ? getenv('SCALAR_AD_BIND_PASS') : "");
 
 // Emails
 $config['email_replyto_address'] = (getenv('SCALAR_EMAIL_REPLYTO_ADDRESS') ? getenv('SCALAR_EMAIL_REPLYTO_ADDRESS') : ''); 
 $config['email_replyto_name'] = (getenv('SCALAR_EMAIL_REPLYTO_NAME') ? getenv('SCALAR_EMAIL_REPLYTO_NAME') : '');
+$config['email_from_address'] = (getenv('SCALAR_EMAIL_FROM_ADDRESS') ? getenv('SCALAR_EMAIL_FROM_ADDRESS') : '');
+
 // SMTP (leave smtp_host field empty to use phpmailer instead). If using Gmail, you may need to enable access in security settings.
 $config['smtp_host'] = (getenv('SCALAR_SMTP_HOST') ? getenv('SCALAR_SMTP_HOST') : ''); 
 $config['smtp_auth'] = true; 
@@ -119,6 +140,9 @@ $config['override_edit_page_default_tab'] = array(
     'media' => '#metadata-pane'  // media pages
   )
 );
+
+// Load local_settings_custom.php, if it exists, to allow overrides via a separate file.
+if (file_exists(dirname(__FILE__).'/local_settings_custom.php')) { include 'local_settings_custom.php'; }
 
 //EOF
 

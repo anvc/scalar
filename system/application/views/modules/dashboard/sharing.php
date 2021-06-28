@@ -3,8 +3,8 @@
 <script>
 $(window).ready(function() {
 
-    $('.save_changes').next('a').click(function() {
-    	$('#sharing_form').submit();
+    $('.save_changes').next('a').on('click', function() {
+    	$('#sharing_form').trigger('submit');
     	return false;
     });
 
@@ -15,18 +15,20 @@ $(window).ready(function() {
 	var email_authors = ('undefined'==typeof($title.children(":first").attr('data-email-authors'))) ? 0 : 1;
 	var hypothesis = ('undefined'==typeof($title.children(":first").attr('data-hypothesis'))) ? 0 : 1;
 	var thoughtmesh = ('undefined'==typeof($title.children(":first").attr('data-thoughtmesh'))) ? 0 : 1;
+	var semantic_annotation_tool = ('undefined'==typeof($title.children(":first").attr('data-semantic-annotation-tool'))) ? 0 : 1;
 	$('#duplicatable').val(is_duplicatable);
 	$('#joinable').val(is_joinable);
 	$('#hypothesis').val(hypothesis);
 	$('#thoughtmesh').val(thoughtmesh);
+	$('#semantic-annotation-tool').val(semantic_annotation_tool);
 	$('#auto-approve').val(auto_approve);
 	$('#email-authors').val(email_authors);
 
-	$('#duplicatable, #joinable, #hypothesis,#thoughtmesh,#auto-approve,#email-authors').change(function() {
+	$('#duplicatable, #joinable, #hypothesis,#thoughtmesh,#semantic-annotation-tool,#auto-approve,#email-authors').on('change', function() {
 		var $title = $('<div>'+$('input[name="title"]').val()+'</div>');
 		if (!$title.children(':first').is('span')) $title.contents().wrap('<span></span>');
 		var $span = $title.children(':first');
-		var prop_arr = ['duplicatable', 'joinable', 'hypothesis', 'thoughtmesh','auto-approve','email-authors'];
+		var prop_arr = ['duplicatable', 'joinable', 'hypothesis', 'thoughtmesh','semantic-annotation-tool','auto-approve','email-authors'];
 		var all_false = true;
 		for (var j in prop_arr) {
 			var prop = prop_arr[j];
@@ -97,7 +99,7 @@ $(window).ready(function() {
 	echo "</td>\n";
 	echo "</tr>\n";
 	echo '<tr typeof="books">';
-	echo '<td><p>Reviewability</p>';
+	echo '<td><p>Reviewability<br />&amp; Readability</p>';
 	echo '</td>'."\n";
 	echo '<td style="vertical-align:middle;" colspan="2">';
 	echo '<p>';
@@ -118,6 +120,10 @@ $(window).ready(function() {
 		echo '<br /><small>A widget will be added to the footer of each Scalar 2 page in your book adding <a href="http://thoughtmesh.net/" target="_blank">Thoughtmesh</a> page interconnections</small>';
 		echo '</p>';
 	}
+	echo '<p>';
+	echo 'Use <a href="http://mediaecology.dartmouth.edu/" target="_blank">MEP</a>\'s <a href="http://mediaecology.dartmouth.edu/wp/projects/technology/the-semantic-annotation-tool" target="_blank">Semantic Annotation Tool</a> rather than the browser\'s player for HTML5 videos &nbsp;<select id="semantic-annotation-tool"><option value="0" selected>No</option><option value="1">Yes</option></select>';
+	echo '<br /><small>The Semantic Annotation Tool (SAT) presents video annotations in an expanded area that is Accessible to the visually impared, along with other features</small>';
+	echo '</p>';
 	echo "</td>\n";
 	echo "</tr>\n";
 	echo '<td><p>Joinability</p>';

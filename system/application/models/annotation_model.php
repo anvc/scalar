@@ -50,8 +50,9 @@ class Annotation_model extends MY_Model {
 			if (isset($fields->start_line_num) && !empty($fields->start_line_num)) $cardinal .= $fields->start_line_num.'-';
 			if (isset($fields->end_line_num) && !empty($fields->end_line_num)) $cardinal .= $fields->end_line_num;
 			if (isset($fields->points) && !empty($fields->points)) $cardinal .= preg_replace("/[^a-zA-Z0-9]+/", "", $fields->points);
+			if (isset($fields->position_3d) && !empty($fields->position_3d)) $cardinal .= preg_replace("/[^a-zA-Z0-9]+/", "", $fields->position_3d);
 		}
-		
+
 		$return = str_replace('$1', $pk_1, $this->urn_template);
 		$return = str_replace('$2', $pk_2, $return);
 		$return = str_replace('$3', $cardinal, $return);
@@ -77,7 +78,7 @@ class Annotation_model extends MY_Model {
 
 	}
 
-    public function save_children($parent_version_id=0, $array=array(), $start_seconds=array(), $end_seconds=array(), $start_line_nums=array(), $end_line_nums=array(), $points=array()) {
+    public function save_children($parent_version_id=0, $array=array(), $start_seconds=array(), $end_seconds=array(), $start_line_nums=array(), $end_line_nums=array(), $points=array(), $position_3d=array(), $additional=array()) {
 
     	// Insert new relationships
     	$j = 0;
@@ -86,11 +87,13 @@ class Annotation_model extends MY_Model {
     		if (isURN($version_urn)) $child_version_id = $this->page_urn_to_content_id($version_urn);
     		if (empty($child_version_id)) continue;
 
-    		$_start_seconds = (!empty($start_seconds[$j])) ? $start_seconds[$j] : 0;
-    		$_end_seconds   = (!empty($end_seconds[$j])) ? $end_seconds[$j] : 0;
-    		$_start_line_num = (!empty($start_line_nums[$j])) ? $start_line_nums[$j] : 0;
-    		$_end_line_num   = (!empty($end_line_nums[$j])) ? $end_line_nums[$j] : 0;
-    		$_points        = (!empty($points[$j])) ? $points[$j] : '';
+    		$_start_seconds = (isset($start_seconds[$j]) && !empty($start_seconds[$j])) ? $start_seconds[$j] : 0;
+    		$_end_seconds   = (isset($end_seconds[$j]) && !empty($end_seconds[$j])) ? $end_seconds[$j] : 0;
+    		$_start_line_num = (isset($start_line_nums[$j]) && !empty($start_line_nums[$j])) ? $start_line_nums[$j] : 0;
+    		$_end_line_num   = (isset($end_line_nums[$j]) && !empty($end_line_nums[$j])) ? $end_line_nums[$j] : 0;
+    		$_points        = (isset($points[$j]) && !empty($points[$j])) ? $points[$j] : '';
+    		$_position_3d   = (isset($position_3d[$j]) && !empty($position_3d[$j])) ? $position_3d[$j] : '';
+    		$_additional	= (isset($additional[$j]) && !empty($additional[$j])) ? $additional[$j] : '';
 
 			$data = array(
  				'parent_version_id' => $parent_version_id,
@@ -99,8 +102,10 @@ class Annotation_model extends MY_Model {
  				'end_seconds' => $_end_seconds,
 	 			'start_line_num' => $_start_line_num,
 	 			'end_line_num' => $_end_line_num,
- 				'points' => $_points
+ 				'points' => $_points,
+ 				'position_3d' => $_position_3d
             );
+			if (!empty($_additional)) $data['additional'] = $_additional;  // Database field a late addition
 			$this->db->insert($this->annotations_table, $data);
 
 			$j++;
@@ -110,7 +115,7 @@ class Annotation_model extends MY_Model {
 
     }
 
-    public function save_parents($child_version_id=0, $array=array(), $start_seconds=array(), $end_seconds=array(), $start_line_nums=array(), $end_line_nums=array(), $points=array()) {
+    public function save_parents($child_version_id=0, $array=array(), $start_seconds=array(), $end_seconds=array(), $start_line_nums=array(), $end_line_nums=array(), $points=array(), $position_3d=array(), $additional=array()) {
 
     	// Insert new relationships
     	$j = 0;
@@ -124,6 +129,8 @@ class Annotation_model extends MY_Model {
     		$_start_line_num = (isset($start_line_nums[$j])) ? $start_line_nums[$j] : 0;
     		$_end_line_num   = (isset($end_line_nums[$j])) ? $end_line_nums[$j] : 0;
     		$_points         = (isset($points[$j])) ? $points[$j] : '';
+    		$_position_3d    = (isset($position_3d[$j])) ? $position_3d[$j] : '';
+    		$_additional	 = (isset($additional[$j])) ? $additional[$j] : '';
 
 			$data = array(
 	 			'parent_version_id' => $parent_version_id,
@@ -133,8 +140,9 @@ class Annotation_model extends MY_Model {
 	 			'start_line_num' => $_start_line_num,
 	 			'end_line_num' => $_end_line_num,
 	 			'points' => $_points,
-	           );
-
+	 			'position_3d' => $_position_3d,
+	        );
+			if (!empty($_additional)) $data['additional'] = $_additional;  // Database field a late addition
 			$this->db->insert($this->annotations_table, $data);
 
 			$j++;

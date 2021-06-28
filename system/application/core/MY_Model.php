@@ -44,6 +44,7 @@ class MY_Model extends CI_Model {
 	var $references_table = 'rel_referenced';
 	var $replies_table = 'rel_replied';
 	var $tags_table = 'rel_tagged';
+	var $lenses_table = 'rel_grouped';
 	var $whitelist_table = 'whitelist';
 	var $book_urn_template = 'urn:scalar:book:$1';
 	var $page_urn_template = 'urn:scalar:content:$1';
@@ -335,31 +336,6 @@ class MY_Model extends CI_Model {
 
 	}
 
-	/**
-	 * Convert a string to safe URI slug
-	 */
-
-    public function safe_slug($slug='', $book_id=0, $content_id=0) {
-
-    	if (!$this->slug_exists($slug, $book_id, $content_id)) return $slug;
-
-    	$has_numerical_ext = is_numeric(substr($slug, strrpos($slug, '-')+1)) ? true : false;
-    	if ($has_numerical_ext) {
-    		$slug = substr($slug, 0, strrpos($slug, '-'));
-    	}
-    	
-    	$j = 1;
-    	$adj_slug = $slug.'-'.$j;
-
-    	while ($this->slug_exists($adj_slug, $book_id, $content_id)) {
-    		$j++;
-    		$adj_slug = $slug.'-'.$j;
-    	}
-
-    	return $adj_slug;
-
-    }
-
     /**
      * Return the top version for a content node
      */
@@ -429,32 +405,6 @@ class MY_Model extends CI_Model {
     	$result = $query->result();
     	$version_num = $result[0]->version_num;
     	return $version_num;
-
-    }
-
-	/**
-	 * Deterine whether a slug exists in the database
-	 */
-
-    protected function slug_exists() {
-    	
-    	list($slug, $book_id, $content_id) = array_pad(func_get_args(), 3, null);
-    	if (empty($slug)) $slug = '';
-    	if (empty($book_id)) $book_id = 0;
-    	if (empty($content_id)) $content_id = 0;
-
-     	$this->db->select('*');
-    	$this->db->from($this->pages_table);
-    	if (!empty($content_id)) $this->db->where('content_id !=', $content_id);
-    	$this->db->where('slug', $slug);
-    	$this->db->where('book_id', $book_id);
-    	$this->db->limit(1);
-    	$query = $this->db->get();
-    	if ($query->num_rows > 0) {
-    		$result = $query->result();
-    		return (int) $result[0]->content_id;
-    	}
-    	return false;
 
     }
 

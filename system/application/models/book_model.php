@@ -95,9 +95,9 @@ class Book_model extends MY_Model {
     	return $book;
 
     }
-    
+
     public function get_by_slug($uri='') {
-    	
+
     	$query = $this->db->get_where($this->books_table, array('slug'=>$uri));
     	$result = $query->result();
     	if (!isset($result[0])) return null;
@@ -106,11 +106,11 @@ class Book_model extends MY_Model {
     		if (isset($result[$j]->editions) && !empty($result[$j]->editions)) $result[$j]->editions = unserialize($result[$j]->editions);
     	}
     	return $result[0];
-    	
+
     }
-    
+
     public function get_by_urn($urn='') {
-    	
+
     	$pk = (int) $this->urn_to_pk($urn);
     	$query = $this->db->get_where($this->books_table, array('page_id'=>$pk), 1);
     	$result = $query->result();
@@ -120,7 +120,7 @@ class Book_model extends MY_Model {
     		if (isset($result[$j]->editions) && !empty($result[$j]->editions)) $result[$j]->editions = unserialize($result[$j]->editions);
     	}
     	return $result[0];
-    	
+
     }
 
     public function get_by_content_id($content_id) {
@@ -310,7 +310,7 @@ class Book_model extends MY_Model {
     		 "AND A.book_id = $book_id " .
     		 "AND A.type='media' " .
     	     "AND A.is_live = 1 " .
-    		 "AND (B.url LIKE '%.gif' OR B.url LIKE '%.jpg' OR B.url LIKE '%.jpeg' OR B.url LIKE '%.png' OR B.url LIKE '%JPEG%' ".$add_str.") " .
+    		 "AND (B.url LIKE '%.gif%' OR B.url LIKE '%.jpg%' OR B.url LIKE '%.jpeg%' OR B.url LIKE '%.png%' OR B.url LIKE '%JPEG%' ".$add_str.") " .
     		 "ORDER BY B.title ASC, B.version_num ASC";
     	$query = $this->db->query($q);
     	$result = $query->result();
@@ -511,7 +511,7 @@ class Book_model extends MY_Model {
 
     	$uri = $orig = safe_name($title, false);  // Don't allow forward slashes
     	$count = 1;
- 		while (file_exists($uri)) {
+ 		while ($this->slug_exists($uri)) {
  			$uri = create_suffix($orig, $count);
  			$count++;
  		}
@@ -538,10 +538,16 @@ class Book_model extends MY_Model {
 			throw new Exception('no_dir_created');
 		}
 
-		$this->db->insert($this->books_table, $data);
-		$book_id = $this->db->insert_id();
+		$result = $this->db->insert($this->books_table, $data);
+		if ($result === false) {
+			log_message('error', "Error inserting book into {$this->books_table}: [Errno:{$this->db->_error_number()}] {$this->db->_error_message()}");
+			throw new Exception("error_add_book");
+		}
 
-		if (!empty($user_id)) $this->save_users($book_id, array($user_id), 'author');
+		$book_id = $this->db->insert_id();
+		if (!empty($user_id)) {
+			$this->save_users($book_id, array($user_id), 'author');
+		}
 
     	return $book_id;
 
@@ -718,9 +724,12 @@ class Book_model extends MY_Model {
 				}
 
 				// Update hard URLs in version contet + thumbnail and background fields
-				$old = confirm_slash(base_url()).confirm_slash($slug);
-				$new = confirm_slash(base_url()).confirm_slash($array['slug']);
-				// List of versions for this book
+				$media_url = $this->config->item('media_url') ? $this->config->item('media_url') : base_url();
+				$old = confirm_slash($media_url).confirm_slash($slug);
+				$new = confirm_slash($media_url).confirm_slash($array['slug']);
+
+                                // List of versions for this book
+
 				$this->db->select($this->versions_table.'.version_id');
 				$this->db->from($this->versions_table);
 				$this->db->join($this->pages_table, $this->versions_table.'.content_id='.$this->pages_table.'.content_id');
@@ -744,9 +753,14 @@ class Book_model extends MY_Model {
 					foreach ($result as $row) $book_page_ids[] = $row->content_id;
 				}
 				// Run the rewrites
-				$query = $this->db->query("UPDATE ".$dbprefix.$this->versions_table." SET content = replace(content, ".$this->db->escape($old).", ".$this->db->escape($new).") WHERE version_id IN (".implode(',',$book_version_ids).")");
-				$query = $this->db->query("UPDATE ".$dbprefix.$this->pages_table." SET thumbnail = replace(thumbnail, ".$this->db->escape($old).", ".$this->db->escape($new).") WHERE content_id IN (".implode(',',$book_page_ids).")");
-				$query = $this->db->query("UPDATE ".$dbprefix.$this->pages_table." SET background = replace(background, ".$this->db->escape($old).", ".$this->db->escape($new).") WHERE content_id IN (".implode(',',$book_page_ids).")");
+                                $replace_old_new = $this->db->escape($old).', '.$this->db->escape($new);
+				$query = $this->db->query("UPDATE ".$dbprefix.$this->versions_table." SET content = REPLACE(content, $replace_old_new), url = REPLACE(url, $replace_old_new) WHERE version_id IN (".implode(',',$book_version_ids).")");
+				$query = $this->db->query("UPDATE ".$dbprefix.$this->pages_table." SET thumbnail = REPLACE(thumbnail, $replace_old_new), background = REPLACE(background, $replace_old_new), banner = REPLACE(banner, $replace_old_new) WHERE content_id IN (".implode(',',$book_page_ids).")");
+				$query = $this->db->query("UPDATE ".$dbprefix.$this->books_table." SET thumbnail = REPLACE(thumbnail, $replace_old_new), publisher_thumbnail = REPLACE(publisher_thumbnail, $replace_old_new) WHERE book_id = $book_id");
+
+				// Preserve the book property rewrites
+				unset($array['thumbnail']);
+				unset($array['publisher_thumbnail']); 
 			}
 
 	    }
@@ -930,10 +944,15 @@ class Book_model extends MY_Model {
 
     }
 
-    public function slug_exists($slug='') {
-
-    	return ((file_exists($slug)) ? true : false);
-
+	/**
+	 * Determine whether a book slug exists in the database.
+	 */
+    public function slug_exists($slug) {
+	    $result = $this->db->get_where($this->books_table, array('slug' => $slug));
+	    if($result->num_rows > 0) {
+		    return true;
+	    }
+	    return false;
     }
 
 	private function getStorage($bookSlug) {

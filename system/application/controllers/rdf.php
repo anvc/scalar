@@ -22,7 +22,7 @@
  * @projectDescription		RDF API controller for displaying RDF graphs based on REST (GET) queries
  * @return					On success outputs RDF-JSON or RDF-XML; errors are processed as HTTP response codes
  * @author					Craig Dietrich
- * @version					3.1
+ * @version					3.2
  */
 
 class Rdf extends MY_Controller {
@@ -55,7 +55,6 @@ class Rdf extends MY_Controller {
 			$this->data['base_uri'] = confirm_slash(base_url());
 		} else {  // Book was found
 			$this->data['base_uri'] = confirm_slash(base_url()).confirm_slash($this->data['book']->slug);
-			// TODO: provide api_key authentication like api.php
 			$this->set_user_book_perms();
 			if (!$this->data['book']->url_is_public && !$this->login_is_book_admin('reader')) {
 				header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));
@@ -63,7 +62,7 @@ class Rdf extends MY_Controller {
 			};
 		}
 		// Format (e.g., 'xml', 'json')
-		$allowable_formats = array('xml'=>'xml', 'json'=>'json','rdfxml'=>'xml','rdfjson'=>'json','turtle'=>'turtle');
+		$allowable_formats = array('xml'=>'xml', 'json'=>'json','rdfxml'=>'xml','rdfjson'=>'json','turtle'=>'turtle','jsonld'=>'jsonld','oac'=>'oac');
 		$this->data['format'] = (isset($_REQUEST['format']) && array_key_exists($_REQUEST['format'],$allowable_formats)) ? $allowable_formats[$_REQUEST['format']] : $allowable_formats[key($allowable_formats)];
 		$ext = get_ext($this->uri->uri_string());
 		$this->data['format'] = (!empty($ext) && array_key_exists($ext,$allowable_formats)) ? $allowable_formats[$ext] : $this->data['format'];
@@ -78,6 +77,11 @@ class Rdf extends MY_Controller {
 			if (!in_array(plural(strtolower($res)), $this->models)) continue;
 			$this->data['restrict'][] = (string) plural(strtolower($res));
 		}
+		if (in_array('reference', $restrict) || in_array('references', $restrict)) $this->data['restrict'][] = 'references';
+		// Include ARC tables ("Additional Metadata")?
+		$this->data['include_meta'] = (isset($_REQUEST['meta']) && 0 === (int) $_REQUEST['meta']) ? false : true;
+		$this->data['meta_recursion'] = (isset($_REQUEST['metarec']) && is_numeric($_REQUEST['metarec'])) ? (int) $_REQUEST['metarec']: null;
+		if (is_int($this->data['meta_recursion'])) $this->data['include_meta'] = true;
 		// Display all versions?
 		$this->data['versions'] = (isset($_REQUEST['versions']) && $_REQUEST['versions']) ? true : false;
 		if ($this->books->is_hide_versions($this->data['book']) && !$this->login_is_book_admin()) $this->data['versions'] = false;
@@ -148,6 +152,95 @@ class Rdf extends MY_Controller {
 	}
 
 	/**
+	 * Get pages based on queries of the semantic (ARC) tables
+	 */
+	
+	public function query() {
+
+		if (empty($this->data['book'])) {
+			header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));
+			exit;
+		}
+		$this->set_url_params();
+		$type = $category = null;
+		$rel = RDF_Object::REL_CHILDREN_ONLY;
+		$method = (isset($_REQUEST['method']) && !empty($_REQUEST['method'])) ? trim($_REQUEST['method']) : null;
+		$field = (isset($_REQUEST['field']) && !empty($_REQUEST['field'])) ? trim($_REQUEST['field']) : null;
+		if (empty($method)) {
+			header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));
+			exit;
+		} elseif (empty($field)) {
+			header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));
+			exit;
+		}
+		$this->load->library('RDF_Store', 'rdf_store');
+		switch ($method) {
+			case 'hasPredicate':
+				$content = $this->versions->get_by_predicate($this->data['book']->book_id, $field, $this->data['versions']);
+				break;
+			case 'objectLiteralContains':
+				$value = (isset($_REQUEST['value']) && !empty($_REQUEST['value'])) ? trim($_REQUEST['value']) : null;
+				if (empty($value)) {
+					header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));
+					exit;
+				}
+				$content = $this->versions->get_by_predicate($this->data['book']->book_id, $field, $this->data['versions'], null, $value);
+				break;
+			case 'pagesDistanceFromPageInMeters':
+				$value = (isset($_REQUEST['value']) && !empty($_REQUEST['value'])) ? (int) trim($_REQUEST['value']) : null;
+				if (empty($value)) {
+					header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));
+					exit;
+				}
+				$this->load->model( 'lens_model', 'lenses' );
+				$content = $this->versions->get_by_predicate($this->data['book']->book_id, array('dcterms:spatial','dcterms:coverage'), $this->data['versions'], null);
+				$item = $this->lenses->filter_by_slug($content, $field);
+				if (!count($item)) {
+					header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));
+					exit;
+				}
+				$latlng = $this->lenses->get_latlng_from_item($item[0]);
+				$content = $this->lenses->filter_by_location($content, $latlng, $value);
+				break;
+			default:
+				header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));
+				exit;
+		}
+		$this->rdf_object->index(
+				$this->data['content'],
+				array(
+						'book'			=> $this->data['book'],
+						'content'		=> $content,
+						'base_uri'		=> $this->data['base_uri'],
+						'use_versions' => $this->data['use_versions'],
+						'use_versions_restriction' => ($this->editorial_is_on() && (null!==$this->data['url_params']['edition_index'] || !$this->login_is_book_admin())) ? RDF_OBJECT::USE_VERSIONS_EDITORIAL : RDF_OBJECT::USE_VERSIONS_INCLUSIVE,
+						'method'		=> __FUNCTION__.'/'.$method.'/'.$field,
+						'restrict'		=> $this->data['restrict'],
+						'rel'			=> $rel,
+						'sq'			=> $this->data['sq'],
+						'versions'		=> (($this->data['versions'])?RDF_Object::VERSIONS_ALL:RDF_Object::VERSIONS_MOST_RECENT),
+						'ref'			=> (($this->data['references'])?RDF_Object::REFERENCES_ALL:RDF_Object::REFERENCES_NONE),
+						'prov'			=> (($this->data['provenance'])?RDF_Object::PROVENANCE_ALL:RDF_Object::PROVENANCE_NONE),
+						'pagination'   => $this->data['pagination'],
+						'max_recurses' => $this->data['recursion'],
+						'meta'			=> $this->data['include_meta'],
+						'max_meta_recs'=> $this->data['meta_recursion'],
+						'paywall_msg'	=> $this->can_bypass_paywall(),
+						'editorial_state' => ((isset($this->data['editorial_state']))?$this->data['editorial_state']:null),
+						'tklabeldata'	=> $this->tklabels(),
+						'tklabels' 	=> (($this->data['tklabels'])?RDF_Object::TKLABELS_ALL:RDF_Object::TKLABELS_NONE),
+						'is_book_admin'=> $this->login_is_book_admin()
+				)
+		);
+		$this->rdf_object->serialize($this->data['content'], $this->data['format']);
+		$this->template->set_template('blank');
+		$this->template->write_view('content', 'modules/data/'.$this->data['format'], $this->data);
+		$this->template->render();
+		
+		
+	}
+	
+	/**
 	 * Output information about a page
 	 */
 
@@ -158,6 +251,14 @@ class Rdf extends MY_Controller {
 			exit;
 		}
 		try {
+			switch ($this->data['format']) {
+				case 'oac':
+					$this->load->library( 'OAC_Object', 'oac_object' );
+					$object = 'oac_object';
+					break;
+				default:
+					$object = 'rdf_object';
+			}
 			$this->set_url_params();
 			$this->data['slug'] = implode('/',array_slice(array_no_edition($this->uri->segments), array_search(__FUNCTION__, array_no_edition($this->uri->segments))));
 			$this->data['slug']= str_replace($this->data['book']->slug.'/', '', $this->data['slug']);
@@ -173,8 +274,8 @@ class Rdf extends MY_Controller {
 				if (!empty($version)) $this->data['use_versions'][$content->content_id] = $version->version_id;
 			}
 			// Don't throw an error here if $content is empty, let through to return empty RDF
-			if (!empty($content) && !$content->is_live && !$this->login_is_book_admin($this->data['book']->book_id)) $content = null; // Protect
-			$this->rdf_object->index(
+			if (!empty($content) && !$content->is_live && !$this->login_is_book_admin($this->data['book']->book_id) && $content->user != $this->data['login']->user_id) $content = null; // Protect
+			$this->$object->index(
 			 						   $this->data['content'],
 									   array(
 						                 'book'         => $this->data['book'],
@@ -189,13 +290,16 @@ class Rdf extends MY_Controller {
 									     'prov'			=> (($this->data['provenance'])?RDF_Object::PROVENANCE_ALL:RDF_Object::PROVENANCE_NONE),
 				                         'pagination'   => $this->data['pagination'],
 				                         'max_recurses' => $this->data['recursion'],
+									   	 'meta'			=> $this->data['include_meta'],
+									   	 'max_meta_recs'=> $this->data['meta_recursion'],
 									   	 'paywall_msg'	=> $this->can_bypass_paywall(),
+									   	 'lens_recurses'=> (($this->can_save_lenses()) ? $this->data['recursion']: RDF_Object::LENSES_NONE),
 									   	 'tklabeldata'	=> $this->tklabels(),
 									   	 'tklabels' 	=> (($this->data['tklabels'])?RDF_Object::TKLABELS_ALL:RDF_Object::TKLABELS_NONE),
 									   	 'is_book_admin'=> $this->login_is_book_admin()
 									   )
 			                        );
-			$this->rdf_object->serialize($this->data['content'], $this->data['format']);
+			$this->$object->serialize($this->data['content'], $this->data['format']);
 		} catch (Exception $e) {
 			header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_INTERNAL_SERVER_ERROR));
 			exit;
@@ -204,6 +308,75 @@ class Rdf extends MY_Controller {
 		$this->template->write_view('content', 'modules/data/'.$this->data['format'], $this->data);
 		$this->template->render();
 
+	}
+	
+	/**
+	 * Output information about a media-page based on a file URL
+	 */
+	
+	public function file() {
+
+		if (empty($this->data['book'])) {
+			header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_NOT_FOUND));
+			exit;
+		}
+		try {
+			switch ($this->data['format']) {
+				case 'oac':
+					$this->load->library( 'OAC_Object', 'oac_object' );
+					$object = 'oac_object';
+					break;
+				default:
+					$object = 'rdf_object';
+			}
+			$this->set_url_params();
+			$this->data['url'] = implode('/',array_slice($this->uri->segments, array_search(__FUNCTION__, $this->uri->segments)));
+			// TODO: past versions?
+			$content = $this->pages->get_by_version_url($this->data['book']->book_id, $this->data['url'], true);
+			if (!empty($content)) {
+				foreach ($content as $content_id => $row) {
+					if (!$row->is_live && !$this->login_is_book_admin($this->data['book']->book_id)) {
+						unset($content[$content_id]);  // Protect
+					}
+				}
+				if (!$this->data['versions']) {
+					foreach ($content as $content_id => $row) {
+						$content[$content_id]->versions = array(array_shift($content[$content_id]->versions));
+					}
+				}
+			}
+			$this->$object->index(
+					$this->data['content'],
+					array(
+							'book'         => $this->data['book'],
+							'content'      => $content,
+							'use_versions'	=> $this->data['use_versions'],
+							'use_versions_restriction' => ($this->editorial_is_on() && (null!==$this->data['url_params']['edition_index'] || !$this->login_is_book_admin())) ? RDF_OBJECT::USE_VERSIONS_EDITORIAL : RDF_OBJECT::USE_VERSIONS_INCLUSIVE,
+							'base_uri'     => $this->data['base_uri'],
+							'method'		=> __FUNCTION__.'/'.$this->data['url'],
+							'restrict'     => $this->data['restrict'],
+							'versions'     => (($this->data['versions'])?RDF_Object::VERSIONS_ALL:RDF_Object::VERSIONS_MOST_RECENT),
+							'ref'          => (($this->data['references'])?RDF_Object::REFERENCES_ALL:RDF_Object::REFERENCES_NONE),
+							'prov'			=> (($this->data['provenance'])?RDF_Object::PROVENANCE_ALL:RDF_Object::PROVENANCE_NONE),
+							'pagination'   => $this->data['pagination'],
+							'max_recurses' => $this->data['recursion'],
+							'meta'			=> $this->data['include_meta'],
+							'max_meta_recs' => $this->data['meta_recursion'],
+							'paywall_msg'	=> $this->can_bypass_paywall(),
+							'tklabeldata'	=> $this->tklabels(),
+							'tklabels' 	=> (($this->data['tklabels'])?RDF_Object::TKLABELS_ALL:RDF_Object::TKLABELS_NONE),
+							'is_book_admin'=> $this->login_is_book_admin()
+					)
+					);
+			$this->$object->serialize($this->data['content'], $this->data['format']);
+		} catch (Exception $e) {
+			header(StatusCodes::httpHeaderFor(StatusCodes::HTTP_INTERNAL_SERVER_ERROR));
+			exit;
+		}
+		$this->template->set_template('blank');
+		$this->template->write_view('content', 'modules/data/'.$this->data['format'], $this->data);
+		$this->template->render();
+		
 	}
 
 	/**
@@ -248,6 +421,7 @@ class Rdf extends MY_Controller {
 				case 'tag':
 				case 'path':
 				case 'reference':
+				case 'lens':
 					$this->load->model($class.'_model', plural($class));
 					$model = plural($class);
 					break;
@@ -310,6 +484,9 @@ class Rdf extends MY_Controller {
 			                           	 'prov'			=> (($this->data['provenance'])?RDF_Object::PROVENANCE_ALL:RDF_Object::PROVENANCE_NONE),
 			                         	 'pagination'   => $this->data['pagination'],
 			                         	 'max_recurses' => $this->data['recursion'],
+			                           	 'lens_recurses'=> (($this->can_save_lenses()) ? 0 : RDF_Object::LENSES_NONE),
+			                           	 'meta'			=> $this->data['include_meta'],
+			                           	 'max_meta_recs'=> $this->data['meta_recursion'],
 			                             'paywall_msg'	=> $this->can_bypass_paywall(),
 			                           	 'editorial_state' => ((isset($this->data['editorial_state']))?$this->data['editorial_state']:null),
 			                           	 'tklabeldata'	=> $this->tklabels(),

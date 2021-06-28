@@ -47,7 +47,7 @@
              base.currentNode = scalarapi.model.getCurrentPageNode();
              //60% of (page height minus header and H1 height)
              maxWidgetHeight = Math.floor((window.innerHeight-179)*.6);
-             $(window).resize(function(){
+             $(window).on('resize', function(){
                maxWidgetHeight = Math.floor((window.innerHeight-179)*.6);
              });
          };
@@ -80,17 +80,16 @@
 										base.pendingWidgets.timeline = [];
 										$.getScript(modules_uri+'/cantaloupe/js/date-utils.min.js',function(){
 											$.getScript(modules_uri+'/cantaloupe/js/timeline.min.js',function(){
-
 												loadedTimeline = true;
 												for(var i = 0; i < base.pendingWidgets.timeline.length; i++){
 														base.pendingWidgets.timeline[i].resolve();
 												}
-
 											});
 										});
 									}
                   //Create a deferred object and add it to a list of promises
-									var promise = $.Deferred().then($.proxy(function(){
+									var promise = $.Deferred();
+                  promise.then($.proxy(function(){
   									base.renderTimeline($(this));
   								},$widget));
 									base.pendingWidgets.timeline.push(promise);
@@ -101,6 +100,9 @@
 							case 'visualization':
 								base.renderVisualization($widget);
 								break;
+              case 'lens':
+                base.renderLens($widget);
+                break;
 							case 'map':
                 if(typeof page.pendingDeferredScripts.GoogleMaps == 'undefined'){
                     page.pendingDeferredScripts.GoogleMaps = [];
@@ -111,12 +113,14 @@
                             page.pendingDeferredScripts.GoogleMaps[i].resolve();
                         }
                     });
+                    promise = $.Deferred();
+                    page.pendingDeferredScripts.GoogleMaps.push(promise);
+                    $.when(promise).then($.proxy(function(){
+                        base.renderMap($widget);
+                    },this));
+                } else {
+                  base.renderMap($widget);
                 }
-                promise = $.Deferred();
-                page.pendingDeferredScripts.GoogleMaps.push(promise);
-                $.when(promise).then($.proxy(function(){
-                    base.renderMap($widget);
-                },this));
 								break;
 							case 'carousel':
 								base.renderCarousel($widget);
@@ -270,16 +274,156 @@
 
            var visElement = $( '<div></div>' ).appendTo($element);
 
+           var visType = $widget.data( 'visformat' ) || "force-directed";
+           var content = $widget.data( 'viscontent' ) || "all";
+           if (content == 'all') content = 'all-content';
+
+           var modifiers = [];
+           var contentTypes;
+           var relations = $widget.data( 'visrelations' ) || "all";
+           switch (relations) {
+
+             case 'all':
+             contentTypes = ['all-types'];
+             relations = 'any-relationship';
+             modifiers.push({
+               "type": "filter",
+               "subtype": "relationship",
+               "content-types": contentTypes,
+               "relationship": relations
+             });
+             break;
+
+             case 'parents-children':
+             if (content == 'current') {
+               contentTypes = ['all-types'];
+             } else {
+               contentTypes = [content];
+             }
+             relations = 'any-relationship';
+             modifiers.push({
+               "type": "filter",
+               "subtype": "relationship",
+               "content-types": contentTypes,
+               "relationship": relations
+             });
+             break;
+
+             case 'none':
+             // no filter needed
+             break;
+
+           }
+
+           var lensObj = {
+             "visualization": {
+               "type": visType,
+               "options": {}
+             },
+             "components": [
+               {
+                 "content-selector": null,
+                 "modifiers": modifiers
+               }
+             ],
+           }
+
+           if (content == 'current') {
+             lensObj.components[0]['content-selector'] = {
+               "type": "specific-items",
+               "items": [base.currentNode.slug]
+             };
+           } else {
+             lensObj.components[0]['content-selector'] = {
+               "type": "items-by-type",
+               "content-type": content
+             };
+           }
+
            var options = {
                modal: false,
                widget: true,
-               content : $widget.data( 'viscontent' ) || "all",
-               relations : $widget.data( 'visrelations' ) || "all",
-               format : $widget.data( 'visformat' ) || "force-directed"
+               content : 'lens',
+               lens: lensObj
            }
 
            visElement.scalarvis( options );
 				 };
+
+         //Handle lenses inserted into this page
+				 base.renderLens = function($widget){
+           //Grab the container for this widget
+           var $element = $widget.data('element');
+           visElement = $( '<div><div class="caption_font">Loading data...</div></div>' ).appendTo($element);
+           var descriptionElement = $widget.data('container').find('.media_description');
+           base.getLensData($widget, visElement, descriptionElement);
+         }
+
+         base.getLensData = function($widget, visElement, descriptionElement){
+           let bookId = $('link#book_id').attr('href');
+           let baseURL = $('link#approot').attr('href').replace('application', 'lenses');
+           let mainURL = `${baseURL}?book_id=${bookId}`;
+           $.ajax({
+             url:mainURL,
+             type: "GET",
+             dataType: 'json',
+             contentType: 'application/json',
+             async: true,
+             context: this,
+             success: function(response) {
+               let data = response;
+               let slug = $widget.data('nodes');
+               if (data.length > 0) {
+                 data.forEach(lens => {
+                   if (lens.slug == slug) {
+                     let url = $('link#approot').attr('href').replace('application/','') + 'lenses';
+                     $.ajax({
+                       url: url,
+                       type: "POST",
+                       dataType: 'json',
+                       contentType: 'application/json',
+                       data: JSON.stringify(lens),
+                       async: true,
+                       context: this,
+                       success: (data) => {
+                         if ('undefined' != typeof(data.error)) {
+                           console.log('There was an error attempting to get Lens data: '+data.error);
+                           return;
+                         };
+                         scalarapi.parsePagesByType(data.items);
+                        base.handleLensResults(data, visElement, descriptionElement)
+                       },
+                       error: function error(response) {
+                          console.log('There was an error attempting to communicate with the server.');
+                       }
+                     });
+                   }
+                 });
+               } else {
+                 descriptionElement.parent().prepend('Unable to load lens; it may not have been made public yet.');
+               }
+             },
+             error: function error(response) {
+                console.log('There was an error attempting to communicate with the server.');
+                console.log(response);
+             }
+           });
+         }
+
+         base.handleLensResults = function(lensObject, visElement, descriptionElement) {
+           if (lensObject.visualization) {
+             var visOptions = {
+                 modal: false,
+                 widget: true,
+                 content: 'lens',
+                 caption: descriptionElement,
+                 lens: lensObject
+             };
+             visElement.empty();
+             visElement.scalarvis(visOptions);
+           }
+           descriptionElement.prepend('<span class="viz-icon lens"></span>');
+         }
 
 				 //Handle Google Maps inserted into this page
 				 base.renderMap = function($widget){
@@ -299,8 +443,10 @@
                       height += 100;
                    }
                  }
-
-                 height -= $(this).data('container').find('.mediaElementFooter').outerHeight();
+                 var footer = $(this).data('container').find('.mediaElementFooter');
+                 if (footer.outerHeight() != null) {
+                   height -= $(this).data('container').find('.mediaElementFooter').outerHeight();
+                 }
 
                  $gmaps.height(height);
 
@@ -336,24 +482,25 @@
                      var node = nodes[ i ];
                      for ( var p in properties ) {
                        var property = properties[ p ];
-                       if ( node.current.properties[ property ] != null ) {
-                         var o = node.current.properties[ property ].length;
-                         for ( j = 0; j < o; j++ ) {
-                           var label = null;
-                           if(page.addMarkerFromLatLonStrToMap(
-                             node.current.properties[ property ][ j ].value,
-                             node.getDisplayTitle(),
-                             node.current.description,
-                             node.url,
-                             map,
-                             infoWindow,
-                             node.getAbsoluteThumbnailURL(),
-                             label,
-                             $gmaps,
-                             this_markers
-                           )){
-
-                             hasNodes = true;
+                       if (node.current) {
+                         if ( node.current.properties[ property ] != null ) {
+                           var o = node.current.properties[ property ].length;
+                           for ( j = 0; j < o; j++ ) {
+                             var label = null;
+                             if(page.addMarkerFromLatLonStrToMap(
+                               node.current.properties[ property ][ j ].value,
+                               node.getDisplayTitle(),
+                               node.current.description,
+                               node.url,
+                               map,
+                               infoWindow,
+                               node.getAbsoluteThumbnailURL(),
+                               label,
+                               $gmaps,
+                               this_markers
+                             )){
+                               hasNodes = true;
+                             }
                            }
                          }
                        }
@@ -407,11 +554,13 @@
                     //var height_adjust = (1/.6)*.7;
                     var timelineHeight = (base.options.maxWidgetHeight,maxWidgetHeight) + 100;
                   }
-                  timelineHeight -= $(this).data('container').find('.mediaElementFooter').outerHeight();
+                  var footer = $(this).data('container').find('.mediaElementFooter');
+                  if (footer.outerHeight() != null) {
+                    timelineHeight -= $(this).data('container').find('.mediaElementFooter').outerHeight();
+                  }
                   $timeline.height(timelineHeight - 10);
                   var zoom = $widget.data('zoom')?$widget.data('zoom'):2;
                   var timeline = new TL.Timeline($timeline[0],$(this).data('timeline'),{width:$timeline.width()+200,scale_factor:zoom});
-
                   $(this).off("slotCreated");
                 });
 
@@ -467,9 +616,7 @@
                             url : currentNode.sourceFile,
                             thumbnail : thumbnail_url
                           };
-
-                          var mediaType = TL.MediaType(entry.media);
-
+                          var mediaType = TL.lookupMediaType(entry.media);
 
                           if(mediaType.type=='imageblank' && thumbnail_url != null){
                             entry.media.url = thumbnail_url;
@@ -523,44 +670,46 @@
              var $widget = this;
 
              $widget.on('slotCreated',function(){
-               //Carousel rendering content
-               base.carouselCount++;
-               var carouselId = "carousel-" + base.carouselCount;
-               var $carousel = $('<div id="' + carouselId + '" class="carousel slide" data-interval="false" style=""></div>').appendTo($element);
-               var $wrapper = $( '<div class="carousel-inner" role="listbox"></div>' ).appendTo( $carousel );
+             //Carousel rendering content
+             base.carouselCount++;
+             var carouselId = "carousel-" + base.carouselCount;
+             var $carousel = $('<div id="' + carouselId + '" class="carousel slide" data-interval="false" style=""></div>').appendTo($element);
+             var $wrapper = $( '<div class="carousel-inner" role="listbox"></div>' ).appendTo( $carousel );
 
-               if ( page.adaptiveMedia == "mobile" ) {
-                 var galleryHeight = 300;
-               } else {
-                 // this magic number matches a similar one in the calculateContainerSize method of jquery.mediaelement.js;
-                 // keeping them synced up helps keep media vertically aligned in galleries
-                 if($widget.parents('.placeholder').length > 0){
-                  var galleryHeight = Math.min(200,base.options.maxWidgetHeight,maxWidgetHeight);
-                 }else{
-                  var galleryHeight = Math.min(base.options.maxWidgetHeight,maxWidgetHeight);
-                 }
-
-                 if($widget.data('container').data('size') == 'full'){
-                    galleryHeight += 100;
-                 }
+             if ( page.adaptiveMedia == "mobile" ) {
+               var galleryHeight = 300;
+             } else {
+               // this magic number matches a similar one in the calculateContainerSize method of jquery.mediaelement.js;
+               // keeping them synced up helps keep media vertically aligned in galleries
+               if($widget.parents('.placeholder').length > 0){
+                var galleryHeight = Math.min(200,base.options.maxWidgetHeight,maxWidgetHeight);
+               }else{
+                var galleryHeight = Math.min(base.options.maxWidgetHeight,maxWidgetHeight);
                }
-               $carousel.css('min-height',galleryHeight+'px');
-               var media_nodes = [];
-               var index = 0;
-               var calculateMediaNodes = function(nodes){
+
+               if($widget.data('container').data('size') == 'full'){
+                  galleryHeight += 100;
+               }
+             }
+             $carousel.css('min-height',galleryHeight+'px');
+             var media_nodes = [];
+             var index = 0;
+              var calculateMediaNodes = function(nodes){
                 var n = nodes.length;
                 for ( var i = 0; i < n; i++ ) {
-                      var node = nodes[i];
-                      if(typeof node.scalarTypes.media != 'undefined'){
-                          media_nodes[index++] = node;
+                  var node = nodes[i];
+                  if (node.scalarTypes != undefined) {
+                    if(typeof node.scalarTypes.media != 'undefined'){
+                      media_nodes[index++] = node;
+                    }
+                    if(typeof node.children != "undefined"){
+                      for(var t in node.children){
+                        calculateMediaNodes(node.children[t]);
                       }
-                      if(typeof node.children != "undefined"){
-                        for(var t in node.children){
-                          calculateMediaNodes(node.children[t]);
-                        }
-                      }
+                    }
+                  }
                 }
-               }
+              }
 
                calculateMediaNodes($widget.data('node'));
 
@@ -595,7 +744,7 @@
                                 '<a href="javascript:;" >' + node.getDisplayTitle() + '</a>' + ($widget.data('hide_numbering') != undefined ? '' : (' (' + (i + 1) + '/' + n + ')')) +
                                 '</span></div>');
                         }
-                        item.find('a').data('node', node).click(function() {
+                        item.find('a').data('node', node).on('click', function() {
                           if ($('.media_details').css('display') == 'none') {
                               page.mediaDetails.show($(this).data('node'));
                           }
@@ -625,7 +774,7 @@
        							'</a>' );
 
                   $carousel.carousel( { interval: false } );
-                  $carousel.find('.carousel-control').click(function(e){
+                  $carousel.find('.carousel-control').on('click', function(e){
                     e.stopPropagation();
                     e.preventDefault();
                     $carousel = $(this).parents('.carousel');
@@ -977,20 +1126,20 @@
               var caption_type = $widget.data('caption');
               if(caption_type=='custom_text'){
                 $descriptionPane.html('<p>'+$widget.data('custom_caption')+'</p>').css('display','block');
-              }else {
+              } else {
                 (function($widget,$descriptionPane,caption_type,slug){
                   var load_caption = function(node){
                     switch ( caption_type ) {
 
               				case 'title':
-              				description = node.getDisplayTitle();
+              				description = '<div><a href="' + node.url + '"><strong>' + node.getDisplayTitle() + '</strong></a></div>';
               				break;
 
               				case 'title_and_description':
               				if ( node.current.description != null ) {
-              					description = '<strong>' + node.getDisplayTitle() + '</strong><br>' + node.current.description;
+              					description = '<div><a href="' + node.url + '"><strong>' + node.getDisplayTitle() + '</strong></a><br>' + node.current.description + '</div>';
               				} else {
-              					description = node.getDisplayTitle();
+              					description = '<div><a href="' + node.url + '"><strong>' + node.getDisplayTitle() + '</strong></a></div>';
               				}
               				break;
 
@@ -1029,7 +1178,7 @@
             //$(window).on('resize',$.proxy(function(){widgets.calculateSize($(this));},$widget));
             base.calculateSize($widget);
 
-            $widget.click(function(){
+            $widget.on('click', function(){
 
               var scroll_buffer = 100;
               var scroll_time = 750;

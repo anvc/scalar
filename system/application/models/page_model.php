@@ -82,6 +82,7 @@ class Page_model extends MY_Model {
     	$this->db->where($this->pages_table.'.book_id', $book_id);
     	$this->db->where('('.$this->db->dbprefix($this->versions_table).'.title LIKE \'%'.$terms .'%\' OR '. $this->db->dbprefix($this->versions_table).'.description LIKE \'%'. $terms.'%\')');
     	if (!empty($type)) $this->db->where($this->pages_table.'.type',$type);
+    	if (!empty($is_live)) $this->db->where($this->pages_table.'.is_live', 1);
     	$this->db->order_by($this->pages_table.'.slug');
     	// Adding URL and content slows the search down to the order of magnitude of the get_all() approach
  		$query = $this->db->get();
@@ -204,25 +205,42 @@ class Page_model extends MY_Model {
     public function get_by_version_url($book_id=0, $url='', $is_live=false) {
 
     	$return = array();
+    	$ci=&get_instance();
+    	$ci->load->model("version_model","versions");
 
+    	// Get all versions
     	$this->db->select($this->versions_table.'.*');
     	$this->db->from($this->versions_table);
+    	$this->db->join($this->pages_table, $this->pages_table.'.content_id='.$this->versions_table.'.content_id');
+    	$this->db->join($this->books_table, $this->books_table.'.book_id='.$this->pages_table.'.book_id');
+    	$this->db->where($this->books_table.'.book_id', $book_id);
     	$this->db->where($this->versions_table.'.url', $url);
+    	if (!empty($is_live)) $this->db->where($this->pages_table.'.is_live', 1);
     	$this->db->order_by($this->versions_table.'.version_id', 'desc');
     	$query = $this->db->get();
     	if (!$query->num_rows) return null;
     	$result = $query->result();
-
-    	foreach ($result as $row) {
-			if (!array_key_exists($row->content_id, $return)) {
-				$content = $this->get($row->content_id);
-				if (empty($content)) continue;
-				$return[$row->content_id] = $content;
-				$return[$row->content_id]->versions = array();
-			}
-			$return[$row->content_id]->versions[] = $row;
+    	
+    	// Group by content ID
+    	for ($j = 0; $j < count($result); $j++) {
+    		if (!array_key_exists($result[$j]->content_id, $return)) {
+    			$return[$result[$j]->content_id] = (object) array();
+    			$return[$result[$j]->content_id]->versions = array();
+    		}
+    		$result[$j]->urn = $ci->versions->urn($result[$j]->version_id);
+    		$result[$j]->attribution = unserialize_recursive($result[$j]->attribution);
+    		$result[$j]->rdf = $ci->rdf_store->get_by_urn('urn:scalar:version:'.$result[$j]->version_id);
+    		$result[$j]->citation = '';
+    		$return[$result[$j]->content_id]->versions[] = $result[$j];
     	}
 
+    	foreach ($return as $content_id => $row) {
+    		$content = $this->get($content_id);
+    		$content->versions = $return[$content_id]->versions;
+    		$content->version_index = 0;
+    		$return[$content_id] = $content;
+    	}
+    	
     	return $return;
 
     }
@@ -435,12 +453,63 @@ class Page_model extends MY_Model {
 		if (isset($array['custom_scripts']))  	$data['custom_scripts'] = (is_array($array['custom_scripts'])) ? $array['custom_scripts'][0] : $array['custom_scripts'];
 		if (isset($array['audio']))  			$data['audio'] = (is_array($array['audio'])) ? $array['audio'][0] : $array['audio'];
 
-    	$this->db->insert($this->pages_table, $data);
+    	$result = $this->db->insert($this->pages_table, $data);
+    	// if ($result === false || !empty($this->db->_error_message())) echo 'Error: '.$this->db->_error_message()."\n";
 
     	$id = $this->db->insert_id();
     	return $id;
 
     }
+
+	/**
+	 * Convert a string to safe URI slug
+	 */
+	public function safe_slug($slug='', $book_id=0, $content_id=0) {
+
+		if (!$this->slug_exists($slug, $book_id, $content_id)) return $slug;
+
+		$has_numerical_ext = is_numeric(substr($slug, strrpos($slug, '-')+1)) ? true : false;
+		if ($has_numerical_ext) {
+			$slug = substr($slug, 0, strrpos($slug, '-'));
+		}
+
+		$j = 1;
+		$adj_slug = $slug.'-'.$j;
+
+		while ($this->slug_exists($adj_slug, $book_id, $content_id)) {
+			$j++;
+			$adj_slug = $slug.'-'.$j;
+		}
+
+		return $adj_slug;
+
+	}
+
+	/**
+	 * Deterine whether a slug exists in the database
+	 */
+
+	protected function slug_exists() {
+
+		list($slug, $book_id, $content_id) = array_pad(func_get_args(), 3, null);
+		if (empty($slug)) $slug = '';
+		if (empty($book_id)) $book_id = 0;
+		if (empty($content_id)) $content_id = 0;
+
+		$this->db->select('*');
+		$this->db->from($this->pages_table);
+		if (!empty($content_id)) $this->db->where('content_id !=', $content_id);
+		$this->db->where('slug', $slug);
+		$this->db->where('book_id', $book_id);
+		$this->db->limit(1);
+		$query = $this->db->get();
+		if ($query->num_rows > 0) {
+			$result = $query->result();
+			return (int) $result[0]->content_id;
+		}
+		return false;
+
+	}
 
 }
 ?>

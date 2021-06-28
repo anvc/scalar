@@ -82,7 +82,7 @@ td.styling_last {text-align:right; padding-right:0px;}
 }
 
 .tabs table td {
-  padding:10px 10px 10px 10px;
+  padding:10px 10px 10px 10px !important;
   vertical-align: top !important;
 }
 .trim_padding td {
@@ -93,6 +93,20 @@ td.styling_last {text-align:right; padding-right:0px;}
   padding-right:0px !important;
 }
 
+table.tablesorter {
+	font-size: 1.1em !important;
+	font-family: 'Lato', Arial, sans-serif !important;
+}
+table.tablesorter th {
+	padding: 6px 11px 6px 11px !important;
+}
+table.tablesorter .tablesorter-header-inner {
+	font-size:0.8rem !important;
+}
+.ui-state-active, .ui-widget-content .ui-state-active, .ui-widget-header .ui-state-active, a.ui-button:active, .ui-button:active, .ui-button.ui-state-active:hover {
+	background-color:#cccccc;
+	border-color:#aaaaaa;	
+}
 .ui-widget {
     font-family: 'Lucida Grande','Lucida Sans Unicode',sans-serif !important;
     font-size: 1em;
@@ -103,6 +117,8 @@ td.styling_last {text-align:right; padding-right:0px;}
 .add_book_form input[type="text"] {margin-bottom:5px;}
 .add_book_form input[type="submit"] {margin-top:5px;}
 .add_book_form select {margin-top:3px;}
+
+.notice-change-password {margin:0px 30px 10px 30px; background-color:#f2dede; font-size:14px; border:solid 1px #ebccd1; border-radius:5px; padding:10px 8px 10px 8px; text-align:center; color:#b84442;}
 
 .select_box {
 	z-index:9;
@@ -170,3 +186,6 @@ td.styling_last {text-align:right; padding-right:0px;}
 
 input[name="is_duplicate"] {margin-right:8px; margin-left:16px;}
 
+.strong_password_bar {visibility:hidden; border-top:solid 1px #aaaaaa; display:inline-block; margin-top:12px; padding:6px 6px 5px 6px; min-width:400px;}
+.strong_password_weak {background-color:#f9e46d;}
+.strong_password_strong {background-color:#6df977;}

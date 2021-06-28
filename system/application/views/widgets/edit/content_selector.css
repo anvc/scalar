@@ -36,6 +36,7 @@
 .media_options_bootbox {z-index:1500; overflow:auto;}
 .media_options_bootbox .buttons {text-align:right; padding:10px 0px 0px 0px; margin:0;}
 .media_options_bootbox .buttons input:first-of-type {visibility:hidden;}
+.media_options_bootbox .modal-header h5, .widget_selector_bootbox .modal-header h5 {font-size:20px;}
 
 /* Style for generic (not Bootstrap) modal */
 
@@ -205,7 +206,7 @@
 .node_selector .node_search input[type="text"]{
 	border-right: 0;
 }
-.modal-dialog .modal-body{
+.content_selector_bootbox .modal-body{
 	overflow-x: hidden;
 	overflow-y: auto;
 }
@@ -335,8 +336,8 @@
 	display: inline;
 }
 .node_filter .node_types>.filter_spinner .spinner_container{
-	position: absolute; 
-	top: 50%; 
+	position: absolute;
+	top: 50%;
 	left: 50%;
 }
 .node_selector .panel-heading hr{

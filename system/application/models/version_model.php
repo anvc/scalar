@@ -82,7 +82,7 @@ class Version_model extends MY_Model {
   				$unset = true;
   			} elseif ($am_in_book && $this->data['mode'] != 'editing') {
   				$unset = true;
-  			} elseif (!$am_in_book && !$am_in_api && 'author' != strtolower($this->data['user_level']) && 'editor' != strtolower($this->data['user_level'])) {
+  			} elseif (!$am_in_book && !$am_in_api && isset($this->data['user_level']) && 'author' != strtolower($this->data['user_level']) && 'editor' != strtolower($this->data['user_level'])) {
   				$unset = true;	
   			}
   			if ($unset) {
@@ -116,7 +116,7 @@ class Version_model extends MY_Model {
 	/**
 	 * Return a version row based on a version ID; sending an optional search query will filter the result
 	 */
-    public function get($version_id=0, $sq='') {
+  	public function get($version_id=0, $sq='', $include_metadata=true) {
 
     	$ci =& get_instance();  // for use with the rdf_store
 
@@ -127,7 +127,7 @@ class Version_model extends MY_Model {
     	$result = $query->result();
     	$result[0]->urn = $this->urn($result[0]->version_id);
     	$result[0]->attribution = unserialize_recursive($result[0]->attribution);
-    	$result[0]->rdf = $ci->rdf_store->get_by_urn('urn:scalar:version:'.$result[0]->version_id);
+    	$result[0]->rdf = ($include_metadata) ? $ci->rdf_store->get_by_urn('urn:scalar:version:'.$result[0]->version_id) : null;
     	$result[0]->citation = '';
 
         if (!empty($sq)) {
@@ -144,10 +144,10 @@ class Version_model extends MY_Model {
      * Return the most recent version which can be cut off by a datetime
      * If 2nd argument is passed, it'll either be the specific version ID or a request to save the result to content's recent_version_id
      */
-    public function get_single($content_id=0, $version_id=null, $sq='') {
+    public function get_single($content_id=0, $version_id=null, $sq='', $include_metadata=true) {
 
 		if (!empty($version_id)) {
-			$result = self::get($version_id, $sq);
+			$result = self::get($version_id, $sq, $include_metadata);
 			if (null!==$result) return $result;
 		}
 
@@ -161,7 +161,7 @@ class Version_model extends MY_Model {
     	$result = $query->result();
     	$result[0]->urn = $this->urn($result[0]->version_id);
     	$result[0]->attribution = unserialize_recursive($result[0]->attribution);
-    	$result[0]->rdf = $ci->rdf_store->get_by_urn('urn:scalar:version:'.$result[0]->version_id);
+    	$result[0]->rdf = ($include_metadata) ? $ci->rdf_store->get_by_urn('urn:scalar:version:'.$result[0]->version_id) : null;
     	$result[0]->citation = '';
 
         if (!empty($sq)) {
@@ -181,7 +181,7 @@ class Version_model extends MY_Model {
 	/**
 	 * Return version(s) given a content ID
 	 */
-    public function get_all($content_id=0, $limit=null, $sq='') {
+    public function get_all($content_id=0, $limit=null, $sq='', $include_metadata=true) {
 
 		$ci =& get_instance();  // for use with the rdf_store
 
@@ -205,7 +205,7 @@ class Version_model extends MY_Model {
     	foreach ($result as $key => $value) {
     		$result[$key]->urn = $this->urn($result[$key]->version_id);
     		$result[$key]->attribution = unserialize_recursive($result[$key]->attribution);
-    		$result[$key]->rdf = $ci->rdf_store->get_by_urn('urn:scalar:version:'.$result[$key]->version_id);
+    		$result[$key]->rdf = ($include_metadata) ? $ci->rdf_store->get_by_urn('urn:scalar:version:'.$result[$key]->version_id) : null;
     	}
 
     	return $result;
@@ -309,6 +309,91 @@ class Version_model extends MY_Model {
     	}
     	
     	return $return;
+    	
+    }
+    
+    /**
+     * Search the for versions that have a certain predicate $p (and, if sent, search its value for $o
+     */
+    public function get_by_predicate($book_id=0, $p='', $all_versions=false, $id_array=null, $o='') {
+    	
+    	$ci =& get_instance();
+    	if (!is_array($p)) $p = array($p);
+    	
+    	// Check if the predicate is a "built in" field
+    	$rdf_fields = $this->config->item('rdf_fields');
+    	if (isset($p[0]) && in_array($p[0], $rdf_fields)) {  // TODO: more than one $p
+    		if (empty($o)) {
+    			// TODO: return every page in the book where there is a value
+    			die("Return all pages that have the field");
+    		} else {
+    			$field = array_search($p[0], $rdf_fields);
+    			$content = $ci->pages->get_all($book_id, null, null, true, null);
+    			for ($j = 0; $j < count($content); $j++) {
+    				$content[$j]->versions = array($this->get_single($content[$j]->content_id, $content[$j]->recent_version_id, null, false));
+    			}
+    			for ($j = count($content)-1; $j >= 0; $j--) {  // Exclude words within words (e.g., japan in japanese)
+    				if (isset($content[$j]->versions[0]->{$field})) {
+    					$arr = explode(' ', strtolower($content[$j]->versions[0]->{$field}));
+    					if (!in_array($o, $arr)) unset($content[$j]); 
+    					//if (!stristr($content[$j]->versions[0]->{$field}, $o)) unset($content[$j]); 
+    				} elseif (isset($content[$j]->{$field})) {
+    					$arr = explode(' ', strtolower($content[$j]->{$field}));
+    					if (!in_array($o, $arr)) unset($content[$j]); 
+    					//if (!stristr($content[$j]->{$field}, $o)) unset($content[$j]); 
+    				} else {
+    					unset($content[$j]); 
+    				}
+    			}
+    		}
+    	
+    	// Otherwise, search metadata fields
+    	} else {
+    	
+	    	// Get all URNs in the book
+	    	$book_version_urns = array();
+	    	$pages = $ci->pages->get_all($book_id, null, null, true, $id_array);
+	    	for ($j = 0; $j < count($pages); $j++) {
+	    		$pages[$j]->versions = array($this->get_single($pages[$j]->content_id, $pages[$j]->recent_version_id, $sq='', false));
+	    		for ($k = 0; $k < count($pages[$j]->versions); $k++) {
+	    			$book_version_urns[] = $this->urn($pages[$j]->versions[$k]->version_id);
+	    		}
+	    	}
+	    	
+	    	// Get all URNs that have the object in the predicate value
+	    	if (!empty($o)) {
+	    		$version_urns = $ci->rdf_store->get_urns_from_predicate_and_object($p, $o, $book_version_urns);
+	    	// Get all URNs that have the predicate
+	    	} else {
+	    		$version_urns = $ci->rdf_store->get_urns_from_predicate($p, $book_version_urns);
+	    	}
+	
+	    	rsort($version_urns, SORT_NATURAL);
+	    	$content = array();
+	    	foreach ($version_urns as $version_urn) {
+	    		$version_urn_arr = explode(':', $version_urn);
+	    		$version_id = (int) array_pop($version_urn_arr);
+	    		$version = $this->versions->get($version_id, null, false);  // Get without metadata
+	    		if (!isset($content[$version->content_id])) {
+	    			$row = $this->pages->get($version->content_id);
+	    			if (empty($row)) continue;
+	    			$row->versions = array();
+	    			$content[$row->content_id] = $row;
+	    		}
+	    		$content[$version->content_id]->versions[] = $version;
+	    	}
+	    	
+    	}
+    	
+    	// Reload versions with metadata
+    	if (!$all_versions) {
+    		foreach ($content as $content_id => $row) {
+    			 $top_version = reset($content[$content_id]->versions);
+    			 $content[$content_id]->versions = array($this->versions->get($top_version->version_id, null, true));  // Get with metadata
+    		}
+    	}
+    	
+    	return $content;
     	
     }
 
@@ -594,10 +679,11 @@ class Version_model extends MY_Model {
     /**
      * Make an assumption on whether or not the URL field is local or external
      */
-    public function url_is_local($url) {
+    public function url_is_local($url, $base_uri='') {
 
     	$arr = parse_url($url);
     	if (!isset($arr['scheme']) || empty($arr['scheme'])) return true;
+    	if (!empty($base_uri) && $base_uri == substr($url, 0, strlen($base_uri))) return true;
     	return false;
 
     }
@@ -605,7 +691,7 @@ class Version_model extends MY_Model {
 	/**
 	 * Filter a DB result of versions based on a search query (an array of terms)
 	 */
-    public function filter_result_i($result, $sq) {
+    public function filter_result_i($result, $sq, $field=null) {
 
     	$result = (array) $result;
     	$results = array();
@@ -669,6 +755,36 @@ class Version_model extends MY_Model {
     	}
     	return false;
 
+    }
+    
+    /**
+     * Remove duplicates from id2val table
+     */
+    public function normalize_predicate_table() {
+    	
+    	$predicate_lowest_id = array();
+    	$query = $this->db->query("SELECT * FROM scalar_store_id2val");
+    	$results = $query->result();
+    	foreach ($results as $row) {
+    		$id = (int) $row->id;
+    		$p = $row->val;
+    		if (!array_key_exists($p, $predicate_lowest_id)) {
+    			$predicate_lowest_id[$p] = $id;
+    		} else {
+    			if ($id < $predicate_lowest_id[$p]) $predicate_lowest_id[$p] = $id;
+    		}
+    	}
+    	foreach ($results as $row) {
+    		$id = (int) $row->id;
+    		$p = $row->val;
+    		$should_be_id = (int) $predicate_lowest_id[$p];
+    		if ($id != $should_be_id) {
+    			$query = $this->db->query("DELETE FROM scalar_store_id2val WHERE id = ".$id);
+    			$query = $this->db->query("UPDATE scalar_store_triple SET p = ".$should_be_id." WHERE p = ".$id);
+    		}
+    	}
+    	return $predicate_lowest_id;
+    	
     }
 
 }

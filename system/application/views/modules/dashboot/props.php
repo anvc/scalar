@@ -27,14 +27,14 @@ $(document).ready(function() {
 		$(this).closest('.input-group').find('input[type="text"]').val(label);
     });
  	// Convert checkboxes to hidden inputs (so zero values can be sent through post)
-    $('#url_is_public_el, #display_in_index_el').change(function() {
+    $('#url_is_public_el, #display_in_index_el').on('change', function() {
     	var $el = $(this);
     	var name = $el.attr('id').replace('_el','');
     	var value = ($el.is(':checked')) ? 1 : 0;
     	$el.parent().find('input[name="'+name+'"]').val(value);
     });
     // Thumb upload change
-    $('input[name="upload_publisher_thumb"]').change(function() {
+    $('input[name="upload_publisher_thumb"]').on('change', function() {
         var oFReader = new FileReader();
         oFReader.readAsDataURL(this.files[0]);
         oFReader.onload = function(oFREvent) {
@@ -42,7 +42,7 @@ $(document).ready(function() {
         };
     });
     // Warn user about changing the book slug
-    $('input[name="slug"]').data('orig-value',$('input[name="slug"]').val()).keydown(function() {
+    $('input[name="slug"]').data('orig-value',$('input[name="slug"]').val()).on('keydown', function() {
 		var $this = $(this);
 		if ($this.data('active')) return;
 		$this.data('active',true);
@@ -50,7 +50,7 @@ $(document).ready(function() {
 			BootstrapDialog.show({
 				type: 'type-warning',
 				title: 'Warning',
-	            message: 'Changing the URL segment of the book will change its location on the web, which will make the old book URL unavailable.  Do you wish to continue?',
+	            message: 'Changing the URL segment of the project will change its location on the web, which will make its old URLs, any uploaded media, and any existing bookmarks inaccessible. Do you wish to continue?',
 	            buttons: [{
 	                label: 'Cancel',
 	                cssClass: 'btn-default',
@@ -59,7 +59,7 @@ $(document).ready(function() {
 						$this.data('confirmed',false);
 						dialog.close();
 						$this.val($this.data('orig-value'));
-						$this.blur();
+						$this.trigger('blur');
 	                }
 	            }, {
 	                label: 'Continue',
@@ -68,7 +68,7 @@ $(document).ready(function() {
 	                	$this.data('active',false);
 						$this.data('confirmed',true);
 						dialog.close();
-						$this.focus();
+						$this.trigger('focus');
 	                }
 	            }]
 	        });
@@ -84,21 +84,23 @@ $(document).ready(function() {
 		var email_authors = ('undefined'==typeof($title.children(":first").attr('data-email-authors'))) ? false : true;
 		var hypothesis = ('undefined'==typeof($title.children(":first").attr('data-hypothesis'))) ? false : true;
 		var thoughtmesh = ('undefined'==typeof($title.children(":first").attr('data-thoughtmesh'))) ? false : true;
+		var semantic_annotation_tool = ('undefined'==typeof($title.children(":first").attr('data-semantic-annotation-tool'))) ? false : true;
 		$('#duplicatable').prop('checked', is_duplicatable);
 		$('#hide-versions').prop('checked', hide_versions);
 		$('#joinable').prop('checked', is_joinable);
 		$('#hypothesis').prop('checked', hypothesis);
 		$('#thoughtmesh').prop('checked', thoughtmesh);
+		$('#semantic-annotation-tool').prop('checked', semantic_annotation_tool);
 		$('#auto-approve').prop('checked', auto_approve);
 		$('#email-authors').prop('checked', email_authors);
     };
     title_init_values();
-    $('input[name="title"]').change(title_init_values);
-	$('#duplicatable,#hide-versions,#joinable,#hypothesis,#thoughtmesh,#auto-approve,#email-authors').change(function() {
+    $('input[name="title"]').trigger('change', title_init_values);
+	$('#duplicatable,#hide-versions,#joinable,#hypothesis,#thoughtmesh,#semantic-annotation-tool,#auto-approve,#email-authors').on('change', function() {
 		var $title = $('<div>'+$('input[name="title"]').val()+'</div>');
 		if (!$title.children(':first').is('span')) $title.contents().wrap('<span></span>');
 		var $span = $title.children(':first');
-		var prop_arr = ['duplicatable', 'hide-versions', 'joinable', 'hypothesis', 'thoughtmesh', 'auto-approve','email-authors'];
+		var prop_arr = ['duplicatable', 'hide-versions', 'joinable', 'hypothesis', 'thoughtmesh', 'semantic-annotation-tool', 'auto-approve','email-authors'];
 		for (var j in prop_arr) {
 			var prop = prop_arr[j];
 			var make_true = ($('#'+prop).is(':checked')) ? true : false;
@@ -116,7 +118,7 @@ $(document).ready(function() {
 	// Main menu
 	book_versions = JSON.parse($("#book_versions").text());  // global
 	set_versions(book_versions);
-	$('#toc-wrapper').find('button').click(function() {
+	$('#toc-wrapper').find('button').on('click', function() {
 		select_versions();
 	});
 });
@@ -140,7 +142,7 @@ function set_versions(nodes) {
 	if (!$versions.length) $versions = $('<ul class="list-group"></ul>').prependTo($wrapper);
 	$versions.empty();
 	var ids = [];
-	$versions.find('li').unbind("mouseover").each(function() {
+	$versions.find('li').off("mouseover").each(function() {
 		ids.push($(this).data('version_id'));
 	});
 	for (var j = 0; j < nodes.length; j++) {
@@ -150,15 +152,15 @@ function set_versions(nodes) {
 		var $input = $('<input type="hidden" name="book_version_'+nodes[j].versions[0].version_id+'" value="1" />').appendTo($item);
 		$item.data('version_id', nodes[j].versions[0].version_id);
 		$item.data('node', nodes[j]);
-		$close.click(function() {
+		$close.on('click', function() {
 			$(this).closest('li').remove();
 			set_version_numbers();
 		});
 	};
 	set_version_numbers();
-	$versions.find('li').find('.glyphicon:first').mouseover(function() {
+	$versions.find('li').find('.glyphicon:first').on('mouseover', function() {
 		$(this).closest('li').addClass('list-group-item-info');
-	}).mouseout(function() {
+	}).on('mouseout', function() {
 		$(this).closest('li').removeClass('list-group-item-info')
 	});
 	$versions.sortable({
@@ -303,19 +305,26 @@ function select_versions() {
 		  </div>
         </div>
       </div>
-      <!--
       <div class="form-group form-group-bottom-margin">
         <label for="comments" class="col-sm-2 control-label">Plugins</label>
         <div class="col-sm-10">
+          <!--
 		  <div class="checkbox">
 		    <label>
 		      <input type="checkbox" id="thoughtmesh" value="1">
 		      Add <a href="http://thoughtmesh.net/" target="_blank">ThoughtMesh</a> to the footer
 		    </label>
 		  </div>
+		  -->
+		  <div class="checkbox">
+		    <label>
+		      <input type="checkbox" id="semantic-annotation-tool" value="1">
+		      Use <a href="http://mediaecology.dartmouth.edu/" target="_blank">MEP</a>'s 
+		      <a href="http://mediaecology.dartmouth.edu/wp/projects/technology/the-semantic-annotation-tool" target="_blank">Semantic Annotation Tool</a> rather than the browser's player for HTML5 videos
+		    </label>
+		  </div>
         </div>
       </div>
-      -->
       <div class="form-group">
         <label for="toc" class="col-sm-2 control-label">Table of Contents</label>
         <div class="col-sm-5" id="toc-wrapper">
@@ -370,4 +379,3 @@ function select_versions() {
     </section>
   </div>
 </div>
-

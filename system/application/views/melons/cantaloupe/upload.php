@@ -6,7 +6,7 @@ $js = <<<END
 
 $( document ).ready(function() {
 	// "replace" functionality
-	$('select[name="replace"]').change(function() {
+	$('select[name="replace"]').on('change', function() {
 		$('#loading').show();
 		document.getElementById('submit_button').disabled = true;
 		var title = ($(this).find('option:selected').val().length) ? $(this).find('option:selected').text() : '';
@@ -24,7 +24,7 @@ $( document ).ready(function() {
 		}
 	}
 	// Additional metadata
-	$('.add_additional_metadata:first').click(function() {
+	$('.add_additional_metadata:first').on('click', function() {
 		$('#metadata_rows_parent').show();
 		var ontologies_url = $('link#approot').attr('href').replace('/system/application/','')+'/system/ontologies';
 		var tklabels = ('undefined' != typeof(window['tklabels'])) ? window['tklabels'] : null;
@@ -102,6 +102,7 @@ function insert_rel_fields(current_urn, current_slug) {
         if (current_uri==data[s]['http://www.openannotation.org/ns/hasBody'][0].value) {
         	fields.push({name:'annotation_of',value:get_urn_from_uri(data,data[s]['http://www.openannotation.org/ns/hasTarget'][0].value)});
         	var points = data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.substr(data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#xywh=')+6);
+					var position_3d = data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.substr(data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#pos3d=')+8);
         	var line_num = data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.substr(data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#line=')+6);
         	var start_line_num = (-1!=data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#line=')) ? line_num.split(',')[0] : 0;
         	var end_line_num = (-1!=data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#line=')) ? line_num.split(',')[1] : 0;
@@ -109,13 +110,15 @@ function insert_rel_fields(current_urn, current_slug) {
         	var start_seconds = (-1!=data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#npt=')) ? seconds.split(',')[0] : 0;
         	var end_seconds = (-1!=data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#npt=')) ? seconds.split(',')[1] : 0;
         	fields.push({name:'annotation_of_points',value:points});
-			fields.push({name:'annotation_of_start_line_num',value:start_line_num});
-			fields.push({name:'annotation_of_end_line_num',value:end_line_num});
-			fields.push({name:'annotation_of_start_seconds',value:start_seconds});
-			fields.push({name:'annotation_of_end_seconds',value:end_seconds});
+					fields.push({name:'annotation_of_position_3d',value:position_3d});
+					fields.push({name:'annotation_of_start_line_num',value:start_line_num});
+					fields.push({name:'annotation_of_end_line_num',value:end_line_num});
+					fields.push({name:'annotation_of_start_seconds',value:start_seconds});
+					fields.push({name:'annotation_of_end_seconds',value:end_seconds});
         } else {
         	fields.push({name:'has_annotation',value:get_urn_from_uri(data,data[s]['http://www.openannotation.org/ns/hasBody'][0].value)});
         	var points = data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.substr(data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#xywh=')+6);
+					var position_3d = data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.substr(data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#pos3d=')+8);
         	var line_num = data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.substr(data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#line=')+6);
         	var start_line_num = (-1!=data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#line=')) ? line_num.split(',')[0] : 0;
         	var end_line_num = (-1!=data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#line=')) ? line_num.split(',')[1] : 0;
@@ -123,10 +126,11 @@ function insert_rel_fields(current_urn, current_slug) {
         	var start_seconds = (-1!=data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#npt=')) ? seconds.split(',')[0] : 0;
         	var end_seconds = (-1!=data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#npt=')) ? seconds.split(',')[1] : 0;
         	fields.push({name:'has_annotation_points',value:points});
-			fields.push({name:'has_annotation_start_line_num',value:start_line_num});
-			fields.push({name:'has_annotation_end_line_num',value:end_line_num});
-			fields.push({name:'has_annotation_start_seconds',value:start_seconds});
-			fields.push({name:'has_annotation_end_seconds',value:end_seconds});
+					fields.push({name:'has_annotation_position_3d',value:position_3d});
+					fields.push({name:'has_annotation_start_line_num',value:start_line_num});
+					fields.push({name:'has_annotation_end_line_num',value:end_line_num});
+					fields.push({name:'has_annotation_start_seconds',value:start_seconds});
+					fields.push({name:'has_annotation_end_seconds',value:end_seconds});
         }
       }
       // Tags
@@ -271,14 +275,15 @@ Other supported formats: 3gp, aif, flv, mov, mpg, oga, tif, webm<br />
 		<label><input type="radio" name="name_policy" value="title" CHECKED />&nbsp; Create from title</label>
 	</td></tr>
 	<tr><td class="field">Replace existing</td><td>
-		<select name="replace" class="form-control"><option rel="" value="">-- choose an existing local media file to replace with this upload</option><?
+		<select name="replace" class="form-control" style="max-width:570px;"><option rel="" value="">-- choose an existing local media file to replace with this upload</option><?
 	  	foreach($book_media as $book_media_row) {
 	  		if (!isset($book_media_row->versions) || empty($book_media_row->versions)) continue;
-	  		if (!$this->versions->url_is_local($book_media_row->versions[0]->url)) continue;
+	  		if (!isset($book_media_row->versions[0])) continue;
+	  		if (!$this->versions->url_is_local($book_media_row->versions[0]->url, $base_uri)) continue;
 	  		echo '<option ';
 	  		echo 'rel="'.$book_media_row->slug.'" ';
+	  		echo 'title="'.htmlspecialchars($book_media_row->versions[0]->url).'" ';
 	  		echo 'value="'.$this->versions->urn($book_media_row->versions[0]->version_id).'">';
-	  		if (!isset($book_media_row->versions[0])) continue;
 	  		echo $book_media_row->versions[0]->title;
 	  		echo '</option>';
 	  	}
@@ -289,6 +294,11 @@ Other supported formats: 3gp, aif, flv, mov, mpg, oga, tif, webm<br />
 		<small>IPTC or ID3 fields embedded in the file will auto-populate during upload</small>
 	</td></tr>
 	<tr id="metadata_rows_parent"><td class="field"></td><td><div id="metadata_rows"></div></td></tr>
+        <tr><td>IIIF</td><td>
+		<div class="checkbox">
+			<label><input type="checkbox" id="media_file_url_iiif" name="iiif-url" /> Is IIIF manifest</label>
+		</div>
+	</td></tr>
 	<tr><td class="field">Choose file</td><td>
 		<!-- <input type="file" name="source_file" /> -->
 		<label class="btn btn-grey" for="my-file-selector">

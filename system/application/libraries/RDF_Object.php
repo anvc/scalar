@@ -41,18 +41,21 @@ class RDF_Object {
 	const NO_PAGINATION = null;
 	const PROVENANCE_ALL = 1;
 	const PROVENANCE_NONE = null;
+	const METADATA_ALL = true;
+	const METADATA_NONE = false;
 	const TKLABELS_ALL = 1;
 	const TKLABELS_NONE = 0;
+	const LENSES_NONE = null;
 	const USERS_ALL = 1;
 	const USERS_LISTED = 2;
 	const USE_VERSIONS_INCLUSIVE = 0;
 	const USE_VERSIONS_EXCLUSIVE = 1;
 	const USE_VERSIONS_EDITORIAL = 2;
 	public $ns = array();
-	private $version_cache = array();
-	private $user_cache = array();
-	private $rel_fields = array('sort_number','start_seconds','end_seconds','start_line_num','end_line_num','points','datetime','paragraph_num');
-	private $defaults = array(
+	protected $version_cache = array();
+	protected $user_cache = array();
+	protected $rel_fields = array('sort_number','start_seconds','end_seconds','start_line_num','end_line_num','points','position_3d','additional','datetime','paragraph_num');
+	protected $defaults = array(
 		'books'			=> null,
 		'book'			=> null,
 		'users'			=> null,
@@ -70,12 +73,14 @@ class RDF_Object {
 		'use_versions_restriction' => self::USE_VERSIONS_INCLUSIVE,
 		'max_recurses'	=> 0,
 		'num_recurses'	=> 0,
+		'meta' 			=> self::METADATA_ALL,
 		'total'			=> 0,
 		'anon_name'		=> 'anonymous',
 		'u_all'			=> self::USERS_LISTED,
 		'editorial_state' => null,
 		'tklabeldata'	=> null,
 		'tklabels'		=> self::TKLABELS_NONE,
+		'lens_recurses'	=> self::LENSES_NONE,
 		'is_book_admin' => false
 	);
 
@@ -120,6 +125,8 @@ class RDF_Object {
 			$append = '#line='.$content->start_line_num.','.$content->end_line_num;
 		} elseif (!empty($content->points)) {
 			$append = '#xywh='.$content->points;
+		} elseif (!empty($content->position_3d)) {
+			$append = '#pos3d='.$content->position_3d;
 		} elseif (!empty($content->datetime)) {
 			$append = '#datetime='.rdf_timestamp($content->datetime);
 			if (!empty($content->paragraph_num)) $append .= '&paragraph='.$content->paragraph_num;
@@ -193,13 +200,13 @@ class RDF_Object {
 
     }
 
-    private function _system($settings) {
+    protected function _system($settings) {
 
     	throw new Exception('System by value is not yet supported');
 
     }
 
-    private function _system_by_ref(&$return, $settings) {
+    protected function _system_by_ref(&$return, $settings) {
 
     	$CI =& get_instance();
     	if ('object'!=gettype($CI->books)) $CI->load->model('book_model','books');
@@ -221,13 +228,13 @@ class RDF_Object {
 
     }
 
-    private function _book($settings) {
+    protected function _book($settings) {
 
     	throw new Exception('Book by value is not yet supported');
 
     }
 
-    private function _book_by_ref(&$return, $settings) {
+    protected function _book_by_ref(&$return, $settings) {
 
 		$CI =& get_instance();
 		if ('object'!=gettype($CI->books)) $CI->load->model('book_model','books');
@@ -259,7 +266,7 @@ class RDF_Object {
 			$user_base = $settings['base_uri'].'users/'.$row->user_id;
 			$settings['book']->users[] = $user_base.$this->annotation_append($row);
 		}
-		
+
 		// Editions
 		if (isset($settings['book']->editions) && !empty($settings['book']->editions)) {
 			$settings['book']->has_edition = array();
@@ -290,7 +297,7 @@ class RDF_Object {
 	 	// Users
 		foreach ($settings['users'] as $row) {
 			if ($settings['u_all']==self::USERS_LISTED && !$row->list_in_index) continue;
-			$return[$settings['base_uri'].'users/'.$row->user_id] = $CI->users->rdf($row);
+			$this->_safely_write_rdf($return, $settings['base_uri'].'users/'.$row->user_id, $CI->users->rdf($row));
 		}
 
 	 	// Table of contents nodes
@@ -298,12 +305,12 @@ class RDF_Object {
 			foreach ($row->versions as $version) {
 				$row->has_version[] = $settings['base_uri'].$row->slug.'.'.$version->version_num;
 			}
-			$return[$settings['base_uri'].$row->slug] = $CI->pages->rdf($row, $settings['base_uri']);
+			$this->_safely_write_rdf($return, $settings['base_uri'].$row->slug, $CI->pages->rdf($row, $settings['base_uri']));
 			foreach ($row->versions as $version) {
 				$return[$settings['base_uri'].$row->slug.'.'.$version->version_num] = $CI->versions->rdf($version, $settings['base_uri']);
 			}
 		}
-		
+
 		// Edition nodes
 		if (isset($settings['book']->editions) && !empty($settings['book']->editions)) {
 			for ($j = count($settings['book']->editions)-1; $j >= 0; $j--) {
@@ -314,7 +321,7 @@ class RDF_Object {
 
     }
 
-    private function _index($settings=array()) {
+    protected function _index($settings=array()) {
 
     	$settings = $this->_settings($settings);
 		if (empty($settings['content'])) return $settings['content'];
@@ -336,7 +343,7 @@ class RDF_Object {
 
     }
 
-    private function _index_by_ref(&$return, $settings) {
+    protected function _index_by_ref(&$return, $settings) {
 
     	$settings = $this->_settings($settings);
 		if (empty($settings['content'])) return;
@@ -346,11 +353,11 @@ class RDF_Object {
 		$count = 0;
 		$skips = 0;
 		foreach ($settings['content'] as $row) {
-	  
+
 			// The logic below is adaptable to results with or without versions already include; full search (get_all()) and quick search (search_with_recent_version_id())
-			
+
 			$temp_return = array();
-			
+
 			if (!empty($settings['pagination']) && $count >= $settings['pagination']['results']) break;
 
 			if (!empty($settings['sq']) && empty($row->versions)) {
@@ -360,13 +367,13 @@ class RDF_Object {
 					continue;
 				}
 			}
-			
+
 			if (!empty($settings['pagination']) && $settings['pagination']['start'] > $skips) {
 				$settings['total']--;
 				$skips++;
 				continue;
 			}
-			
+
 			if (!empty($temp_return)) {
 				$return = array_merge((array)$return,(array)$temp_return);
 			} else {
@@ -389,7 +396,7 @@ class RDF_Object {
 
     }
 
-	private function _content($row, $settings) {
+	protected function _content($row, $settings) {
 
 		// Grab list of relationship models
 		$CI =& get_instance();
@@ -401,12 +408,13 @@ class RDF_Object {
 			$use_version_id = $this->_use_version($settings['use_versions'], $row->content_id);
 			if (false===$use_version_id && $settings['use_versions_restriction'] >= self::USE_VERSIONS_EXCLUSIVE) return null;
 			if (self::VERSIONS_ALL === $settings['versions']) {
-				$row->versions = $CI->versions->get_all($row->content_id, null, $settings['sq']);
+				$row->versions = $CI->versions->get_all($row->content_id, null, $settings['sq'], $settings['meta']);
 			} else {
 				$row->versions[0] = $CI->versions->get_single(
 					$row->content_id,
 					(!empty($use_version_id))?$use_version_id:$row->recent_version_id,
-					$settings['sq']
+					$settings['sq'],
+					$settings['meta']
 				);
 			}
 			if ($settings['use_versions_restriction'] == self::USE_VERSIONS_EDITORIAL) {
@@ -438,7 +446,7 @@ class RDF_Object {
 
 	}
 
-    private function _content_by_ref(&$return, $row, $settings) {
+    protected function _content_by_ref(&$return, $row, $settings) {
 
 		if ($this->_uri_exists($return, $settings['base_uri'].$row->slug)) return;
 
@@ -466,12 +474,13 @@ class RDF_Object {
 			if (false===$use_version_id && $settings['use_versions_restriction'] >= self::USE_VERSIONS_EXCLUSIVE) return null;
 			$versions = array();
 			if (self::VERSIONS_ALL === $settings['versions']) {
-				$versions = $CI->versions->get_all($row->content_id, null, $settings['sq']);
+				$versions = $CI->versions->get_all($row->content_id, null, $settings['sq'], $settings['meta']);
 			} else {
 				$versions[0] = $CI->versions->get_single(
 					$row->content_id,
 					(!empty($use_version_id))?$use_version_id:$row->recent_version_id,
-					$settings['sq']
+					$settings['sq'],
+					$settings['meta']
 				);
 				if (empty($versions[0])) unset($versions[0]);
 			}
@@ -489,7 +498,7 @@ class RDF_Object {
 		}
 
 		if (!count($versions)) return;
-		
+
 		// If editorial_state is present only pass through versions that match
 		if (!empty($settings['editorial_state'])) {
 			if (!isset($versions[0]->editorial_state)) return;
@@ -517,6 +526,12 @@ class RDF_Object {
 				foreach ($nodes as $node) {
 					$versions[$key]->references[] = $settings['base_uri'].$node->child_content_slug;
 				}
+			}
+			// Lenses
+			if ($settings['lens_recurses'] !== self::LENSES_NONE && $settings['lens_recurses'] >= $settings['num_recurses']) {
+				if (!isset($CI->lenses) || empty($CI->lenses)) $CI->load->model('lens_model', 'lenses');
+				$json = $CI->lenses->get_children($version->version_id);
+				if (!empty($json)) $versions[$key]->is_lens_of = $json;
 			}
 			// User
 			if ($settings['prov']) {
@@ -588,7 +603,7 @@ class RDF_Object {
 
     }
 
-	private function _provenance($page, $settings) {
+	protected function _provenance($page, $settings) {
 
 		if (!$settings['prov']) return $page;
   		$CI =& get_instance();
@@ -636,7 +651,7 @@ class RDF_Object {
 
 	}
 
-	private function _provenance_by_ref(&$return, $row, $versions, $settings) {
+	protected function _provenance_by_ref(&$return, $row, $versions, $settings) {
 
 		if (!$settings['prov']) return;
   		$CI =& get_instance();
@@ -683,8 +698,8 @@ class RDF_Object {
 		}
 
 	}
-	
-	private function _tklabels($page, $settings) {
+
+	protected function _tklabels($page, $settings) {
 
 		if (!$settings['tklabels'] || empty($settings['tklabeldata'])) return $page;
 		$CI =& get_instance();
@@ -713,12 +728,12 @@ class RDF_Object {
 				}
 			}
 		}
-		
+
 		return $page;
-		
+
 	}
-	
-	private function _tklabels_by_ref(&$return, $row, $versions, $settings) {
+
+	protected function _tklabels_by_ref(&$return, $row, $versions, $settings) {
 
 		if (!$settings['tklabels'] || empty($settings['tklabeldata'])) return;
 		$CI =& get_instance();
@@ -749,10 +764,10 @@ class RDF_Object {
 				if (!$this->_uri_exists($return, $uri)) $return[$uri] = $CI->versions->rdf((object) $tklabel);
 			}
 		}
-		
+
 	}
 
-	private function _pagination($page, $settings) {
+	protected function _pagination($page, $settings) {
 
 		$CI =& get_instance();
 		$models = $CI->config->item('rel');
@@ -836,7 +851,7 @@ class RDF_Object {
 
 	}
 
-	private function _pagination_by_ref(&$return, $settings) {
+	protected function _pagination_by_ref(&$return, $settings) {
 
 		if (empty($return)) return;
 
@@ -862,14 +877,14 @@ class RDF_Object {
 
 	}
 
-	private function _relationships($row, $settings) {
+	protected function _relationships($row, $settings) {
 
 		$CI =& get_instance();
 		$models = $CI->config->item('rel');
 		$ref_models = $CI->config->item('ref');
 		if ('array'!=gettype($models)) throw new Exception('Could not locate relationship configuration');
 		if (!empty($ref_models)) $models = array_merge($models, $ref_models);
-		
+
 		for ($j = 0; $j < count($row->versions); $j++) {
 			$version_id = $row->versions[$j]->version_id;
 			foreach ($models as $model) {
@@ -895,13 +910,18 @@ class RDF_Object {
 					}
 				}
 			}
+			if ($settings['lens_recurses'] !== self::LENSES_NONE && $settings['lens_recurses'] == $settings['num_recurses']) {
+				if (!isset($CI->lenses) || empty($CI->lenses)) $CI->load->model('lens_model', 'lenses');
+				$json = $CI->lenses->get_children($version_id);
+				if (!empty($json)) $row->versions[$j]->is_lens_of = $json;
+			}
 		}
 
 		return $row;
 
 	}
 
-    private function _relationships_by_ref(&$return, $versions, $settings) {
+    protected function _relationships_by_ref(&$return, $versions, $settings) {
 
 		if (empty($versions)) return;
 		if ($settings['num_recurses'] >= $settings['max_recurses']) return;
@@ -939,16 +959,22 @@ class RDF_Object {
 
     }
 
-	private function _annotation_parent($annotation, $settings) {
+	protected function _annotation_parent($annotation, $settings) {
 
 		$CI =& get_instance();
 		if ('object'!=gettype($CI->pages)) $CI->load->model('page_model','pages');
+
+		if ($settings['use_versions'] == null) {
+			$settings['use_versions'] = false;
+		}
 
 		$content = $CI->pages->get_by_slug($settings['book']->book_id, $annotation->parent_content_slug);
 		$settings['rel'] = self::REL_CHILDREN_ONLY;
 		$settings['versions'] = self::VERSIONS_MOST_RECENT;
 		if ($settings['use_versions_restriction'] == self::USE_VERSIONS_INCLUSIVE && null!==$settings['use_versions'] && !isset($settings['use_versions'][$annotation->parent_content_id])) {
 			$settings['use_versions'][$annotation->parent_content_id] = $annotation->parent_version_id;
+		} elseif (!array_key_exists($annotation->parent_content_id, $settings['use_versions'])) {
+			return null;
 		} elseif ($settings['use_versions_restriction'] >= self::USE_VERSIONS_EXCLUSIVE && null!==$settings['use_versions'] && $settings['use_versions'][$annotation->parent_content_id] != $annotation->parent_version_id) {
 			return null;
 		}
@@ -966,7 +992,7 @@ class RDF_Object {
 
 	}
 
-	private function _annotation_parent_by_ref(&$return, $annotation, $target_uri, $settings) {
+	protected function _annotation_parent_by_ref(&$return, $annotation, $target_uri, $settings) {
 
 		$CI =& get_instance();
 		if ('object'!=gettype($CI->pages)) $CI->load->model('page_model','pages');
@@ -982,7 +1008,7 @@ class RDF_Object {
 			if ($settings['use_versions_restriction'] == self::USE_VERSIONS_INCLUSIVE && null!==$settings['use_versions'] && !isset($settings['use_versions'][$annotation->parent_content_id])) {
 				$settings['use_versions'][$annotation->parent_content_id] = $annotation->parent_version_id;
 			}
-			if ($settings['use_versions_restriction'] >= self::USE_VERSIONS_EXCLUSIVE && $settings['use_versions'][$annotation->parent_content_id] != $annotation->parent_version_id) {
+			if ($settings['use_versions_restriction'] >= self::USE_VERSIONS_EXCLUSIVE && null!==$settings['use_versions'] && $settings['use_versions'][$annotation->parent_content_id] != $annotation->parent_version_id) {
 				// Don't do anything
 			} else {
 				++$settings['num_recurses'];
@@ -996,7 +1022,7 @@ class RDF_Object {
 
 	}
 
-	private function _annotation_child($annotation, $settings) {
+	protected function _annotation_child($annotation, $settings) {
 
 		$CI =& get_instance();
 		if ('object'!=gettype($CI->pages)) $CI->load->model('page_model','pages');
@@ -1023,12 +1049,12 @@ class RDF_Object {
 
 	}
 
-	private function _annotation_child_by_ref(&$return, $annotation, $body_uri, $settings) {
+	protected function _annotation_child_by_ref(&$return, $annotation, $body_uri, $settings) {
 
 		$CI =& get_instance();
 		if ('object'!=gettype($CI->pages)) $CI->load->model('page_model','pages');
 		if ('object'!=gettype($CI->annotations)) $CI->load->model('annotation_model','annotations');
-		
+
 		$annotation->has_body = $body_uri;
 		$target_base = $settings['base_uri'].$annotation->child_content_slug.'.'.$annotation->child_version_num;
 		$annotation->has_target = $target_base.$this->annotation_append($annotation);
@@ -1040,7 +1066,7 @@ class RDF_Object {
 			if ($settings['use_versions_restriction'] == self::USE_VERSIONS_INCLUSIVE && null!==$settings['use_versions'] && !isset($settings['use_versions'][$annotation->child_content_id])) {
 				$settings['use_versions'][$annotation->child_content_id] = $annotation->child_version_id;
 			}
-			if ($settings['use_versions_restriction'] >= self::USE_VERSIONS_EXCLUSIVE && $settings['use_versions'][$annotation->child_content_id] != $annotation->child_version_id) {
+			if ($settings['use_versions_restriction'] >= self::USE_VERSIONS_EXCLUSIVE && null!==$settings['use_versions'] && $settings['use_versions'][$annotation->child_content_id] != $annotation->child_version_id) {
 				// Don't do anything
 			} else {
 				++$settings['num_recurses'];
@@ -1054,7 +1080,7 @@ class RDF_Object {
 
 	}
 
-	private function _annotation_category_by_ref(&$return, $version, $settings) {  // E.g., "review", "commentary"
+	protected function _annotation_category_by_ref(&$return, $version, $settings) {  // E.g., "review", "commentary"
 
 		$CI =& get_instance();
 		if ('object'!=gettype($CI->pages)) $CI->load->model('page_model','pages');
@@ -1068,28 +1094,28 @@ class RDF_Object {
 
 	}
 
-	private function _settings($settings=array()) {
+	protected function _settings($settings=array()) {
 
 		return array_merge($this->defaults, $settings);
 
 	}
 
-	private function _uri_exists($return, $uri='') {
+	protected function _uri_exists($return, $uri='') {
 
 		if (empty($return)) return false;
 		if (array_key_exists($uri, $return)) return true;
 		return false;
 
 	}
-	
-	private function _safely_write_rdf(&$return, $uri, $rdf) {
-		
+
+	protected function _safely_write_rdf(&$return, $uri, $rdf) {
+
 		if (!$this->_uri_exists($return, $uri)) $return[$uri] = $rdf;
 		$return[$uri] = array_merge($return[$uri], $rdf);
-		
+
 	}
 
-	private function _object_exists($s, $p, $o) {
+	protected function _object_exists($s, $p, $o) {
 
 		if (!array_key_exists($p,$s)) return false;
 		foreach ($s[$p] as $rdf_type) {
@@ -1098,13 +1124,13 @@ class RDF_Object {
 		return false;
 
 	}
-	
-	private function _use_version($use_versions, $content_id) {
-		
+
+	protected function _use_version($use_versions, $content_id) {
+
 		if (!is_array($use_versions)) return null;
 		if (!isset($use_versions[$content_id])) return false;
 		return (int) $use_versions[$content_id];
-		
+
 	}
 
 }

@@ -54,6 +54,7 @@ table .p > td {padding-top:12px;}
 table .b > td:first-of-type {padding-top:10px;}
 div.p {padding-top:8px;}
 .content_selector .howto {font-size:16px !important;}
+#edit_content { overflow: hidden; }
 #edit_content td {padding-right:9px;} /* CKEditor extends to the right */
 #edit_content .cke_combo_text {width:18px !important;} /* Header pulldown */
 tr#select_view td, tr#relationships td, tr#styling td, tr#metadata td {vertical-align:top;}
@@ -156,8 +157,8 @@ $(document).ready(function() {
 	// If the type is passed via GET
 	checkTypeSelect();
 	if (-1!=document.location.href.indexOf('new.edit') && -1!=document.location.href.indexOf('type=media')) {
-		$("#type_text").removeAttr('checked');
-		$("#type_media").attr("checked", "checked");
+		$("#type_text").prop('checked', false);
+		$("#type_media").prop("checked", true);
 		checkTypeSelect();
 	}
 	// Relationships (path, comment, annotation, tag)
@@ -170,7 +171,7 @@ $(document).ready(function() {
 		$('.path_of_continue_msg').show();
 	}
 	var path_of_continue_msg = $('.path_of_continue_msg');
-	path_of_continue_msg.find('a:first').click(function() {
+	path_of_continue_msg.find('a:first').on('click', function() {
 		$('<div></div>').content_selector({changeable:true,multiple:false,msg:'Choose a page to continue to',callback:function(node){
 			var urn = node.content["http://scalar.usc.edu/2012/01/scalar-ns#urn"][0].value;
 			var content_id = urn.substr(urn.lastIndexOf(':')+1);
@@ -179,11 +180,11 @@ $(document).ready(function() {
 			path_of_continue_msg.find('.title').html(title);
 		}});
 	});
-	path_of_continue_msg.find('a:last').click(function() {
+	path_of_continue_msg.find('a:last').on('click', function() {
 		path_of_continue_msg.find('input[name="scalar:continue_to_content_id"]').val('');
 		path_of_continue_msg.find('.title').html('[no destination set]');
 	});
-	$('.path_of_msg').find('a').click(function() {
+	$('.path_of_msg').find('a').on('click', function() {
 		$('<div></div>').content_selector({changeable:true,multiple:true,onthefly:true,msg:'Choose contents of the path',callback:function(nodes){
 			for (var j = 0; j < nodes.length; j++) {
 				var slug = nodes[j].slug;
@@ -198,7 +199,7 @@ $(document).ready(function() {
 	if ($('#reply_of').find('li').length) {
 		$('.reply_of_msg').show();
 	}
-	$('.reply_of_msg').find('a').click(function() {
+	$('.reply_of_msg').find('a').on('click', function() {
 		$('<div></div>').content_selector({changeable:true,multiple:true,onthefly:true,msg:'Choose items to be commented on',callback:function(nodes){
 			for (var j = 0; j < nodes.length; j++) {
 				var slug = nodes[j].slug;
@@ -212,7 +213,7 @@ $(document).ready(function() {
 	if ($('#annotation_of').find('li').length) {
 		$('.annotation_of_msg').show();
 	}
-	$('.annotation_of_msg').find('a').click(function() {
+	$('.annotation_of_msg').find('a').on('click', function() {
 		$('<div></div>').content_selector({type:'media',changeable:false,multiple:true,msg:'Choose items to be annotated',callback:function(nodes){
 			for (var j = 0; j < nodes.length; j++) {
 				var slug = nodes[j].slug;
@@ -221,6 +222,15 @@ $(document).ready(function() {
 				var annotation_type = scalarapi.parseMediaSource(url).contentType;
 				var annotation = $('<li><input type="hidden" name="annotation_of" value="'+slug+'" />'+title+'&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span><br /></li>').appendTo('#annotation_of');
 				switch (annotation_type) {
+					case "3D":
+						var str = '<div class="form-inline"><div class="form-group"><label>Target X, Y, Z, Camera X, Y,, Roll, Field of View (degrees) &nbsp; <input class="form-control" type="text" name="annotation_of_position_3d" value="0,0,0,1,1,1,0,60" /></label></div></div>';
+						str += '<input type="hidden" name="annotation_of_start_line_num" value="" />';
+						str += '<input type="hidden" name="annotation_of_end_line_num" value="" />';
+						str += '<input type="hidden" name="annotation_of_start_seconds" value="" />';
+						str += '<input type="hidden" name="annotation_of_end_seconds" value="" />';
+						str += '<input type="hidden" name="annotation_of_points" value="" />';
+						annotation.append('<div>'+str+'</div>');
+						break;
 					case "audio":
 					case "video":
 						var str = '<div class="form-inline"><div class="form-group"><label>Start seconds&nbsp; <input class="form-control" type="text" style="width:75px;" name="annotation_of_start_seconds" value="" /></label>';
@@ -228,6 +238,7 @@ $(document).ready(function() {
 						str += '<input type="hidden" name="annotation_of_start_line_num" value="" />';
 						str += '<input type="hidden" name="annotation_of_end_line_num" value="" />';
 						str += '<input type="hidden" name="annotation_of_points" value="" />';
+						str += '<input type="hidden" name="annotation_of_position_3d" value="" />';
 						annotation.append('<div>'+str+'</div>');
 						break;
 					case "html":
@@ -238,6 +249,7 @@ $(document).ready(function() {
 						str += '<input type="hidden" name="annotation_of_start_seconds" value="" />';
 						str += '<input type="hidden" name="annotation_of_end_seconds" value="" />';
 						str += '<input type="hidden" name="annotation_of_points" value="" />';
+						str += '<input type="hidden" name="annotation_of_position_3d" value="" />';
 						annotation.append('<div>'+str+'</div>');
 						break;
 					case "image":
@@ -247,6 +259,7 @@ $(document).ready(function() {
 						str += '<input type="hidden" name="annotation_of_end_line_num" value="" />';
 						str += '<input type="hidden" name="annotation_of_start_seconds" value="" />';
 						str += '<input type="hidden" name="annotation_of_end_seconds" value="" />';
+						str += '<input type="hidden" name="annotation_of_position_3d" value="" />';
 						annotation.append('<div>'+str+'</div>');
 						break;
 					default:
@@ -261,7 +274,7 @@ $(document).ready(function() {
 	if ($('#tag_of').find('li').length) {
 		$('.tag_of_msg').show();
 	}
-	$('.tag_of_msg').find('a').click(function() {
+	$('.tag_of_msg').find('a').on('click', function() {
 		$('<div></div>').content_selector({changeable:true,multiple:true,onthefly:true,msg:'Choose items to be tagged',callback:function(nodes){
 			for (var j = 0; j < nodes.length; j++) {
 				var title = nodes[j].version["http://purl.org/dc/terms/title"][0].value;
@@ -275,7 +288,7 @@ $(document).ready(function() {
 	if ($('#has_tag').find('li').length) {
 		$('.has_tag_msg').show();
 	}
-	$('.has_tag_msg').find('a').click(function() {
+	$('.has_tag_msg').find('a').on('click', function() {
 		$('<div></div>').content_selector({changeable:true,multiple:true,onthefly:true,msg:'Choose items that tag the current page',callback:function(nodes){
 			for (var j = 0; j < nodes.length; j++) {
 				var title = nodes[j].version["http://purl.org/dc/terms/title"][0].value;
@@ -299,7 +312,7 @@ $(document).ready(function() {
 			}
 		}
 	});
-	$('#script-confirm .submit, #style-confirm .submit').click(function() {
+	$('#script-confirm .submit, #style-confirm .submit').on('click', function() {
 		$(this).parents('#style-confirm,#script-confirm').data('confirmed',true).modal('hide');
 	})
 	// Taxonomies for title typeahead
@@ -350,22 +363,36 @@ $(document).ready(function() {
 	var chosen_thumb = choose_thumb.find('option:selected').val();
 	if (chosen_thumb.length) thumbnail.val(chosen_thumb);
 	if (thumbnail.val().length) choose_thumb.parent().parent().append('<div class="well"><img src="'+((-1==thumbnail.val().indexOf('://'))?$('link[id="parent"]').attr('href')+thumbnail.val():thumbnail.val())+'" class="thumb_preview" /></div>');
-	choose_thumb.change(function() {
+	choose_thumb.on('change', function() {
 		thumbnail.val($(this).find('option:selected').val());
 		$(this).parent().parent().find('.thumb_preview').parent().remove();
 		var url = thumbnail.val();
 		if ((url.indexOf('://') == -1) && (url != '')) { url = $('link[id="parent"]').attr('href') + url; }
 		$(this).parent().parent().append('<div class="well"><img src="'+url+'" class="thumb_preview" /></div>');
 	});
-	thumbnail.change(function() {
+	thumbnail.on('change', function() {
 		$(this).parent().parent().find('.thumb_preview').parent().remove();
 		if ((url.indexOf('://') == -1) && (url != '')) { url = $('link[id="parent"]').attr('href') + url; }
 		$(this).parent().parent().append('<div class="well"><img src="'+url+'" class="thumb_preview" /></div>');
 	});
+	var check_use_media_file_url = function() {
+	 	var media_file_url_val = $('#media_file_url').val();
+		var $use_media_file = $('#use-the-media-file-url');
+		$use_media_file.show();
+		if (!media_file_url_val.length) $use_media_file.hide();
+		if (-1==media_file_url_val.indexOf('.jpg')&&-1==media_file_url_val.indexOf('.png')&&-1==media_file_url_val.indexOf('.gif')&&-1==media_file_url_val.indexOf('JPEG')) $use_media_file.hide();
+		$use_media_file.off('click').on('click', function() {
+			$use_media_file.closest('div').find('input').val(media_file_url_val);
+		});
+	};
+	check_use_media_file_url();
+	$('#media_file_url').on('change', function() {
+		check_use_media_file_url();
+	});
 	// Background
 	var choose_background = $('#choose_background');
 	var chosen_background = choose_background.find('option:selected').val();
-	choose_background.change(function() {
+	choose_background.on('change', function() {
 		$(this).parent().parent().find('.thumb_preview').parent().remove();
 		chosen_background = choose_background.find('option:selected').val();
 		if ((chosen_background.indexOf('://') == -1) && (chosen_background != '')) { chosen_background = $('link[id="parent"]').attr('href') + chosen_background; }
@@ -374,41 +401,41 @@ $(document).ready(function() {
 	// Banner
 	var choose_banner = $('#choose_banner');
 	var chosen_banner = choose_banner.find('option:selected').val();
-	choose_banner.change(function() {
+	choose_banner.on('change', function() {
 		$(this).parent().parent().find('.well').remove();
 		chosen_banner = choose_banner.find('option:selected').val();
 		if (chosen_banner.length) {
 			if ((chosen_banner.indexOf('://') == -1) && (chosen_banner != '')) { chosen_banner = $('link[id="parent"]').attr('href') + chosen_banner; }
 			$(this).parent().parent().append('<div class="well"><img src="'+chosen_banner+'" class="thumb_preview" /></div>');
-			$(this).parent().parent().find('.thumb_preview').load(function() {
+			$(this).parent().parent().find('.thumb_preview').on('load', function() {
 				// ...
-			}).error(function() {
-				$(this).replaceWith('<span>Item is a MP4 video, now experimentally supported as a Key Image. The video might not play as expected across all platforms.</span>');
+			}).on('error', function() {
+				$(this).replaceWith('<span>Item is an MP4 video, now experimentally supported as a Key Image. The video might not play as expected across all platforms.</span>');
 			});
 		};
 	});
-	choose_banner.change();
+	choose_banner.trigger('change');
 	// Predefined CSS
 	if ('undefined'!=window['predefined_css'] && !$.isEmptyObject(window['predefined_css'])) {
     	$('textarea[name="scalar:custom_style"]').predefined({msg:'Insert predefined CSS:',data:window['predefined_css']});
 	}
 	// Protect from clicking away from edit page
-	$('a').not('form a').click(function() {
+	$('a').not('form a').on('click', function() {
 		if (!confirm('Are you sure you wish to leave this page? Any unsaved changes will be lost.')) return false;
 	});
 	// Additional metadata
-	$('.add_additional_metadata:first').click(function() {
+	$('.add_additional_metadata:first').on('click', function() {
 		var ontologies_url = $('link#approot').attr('href').replace('/system/application/','')+'/system/ontologies';
 		var tklabels = ('undefined' != typeof(window['tklabels'])) ? window['tklabels'] : null;
 		$('#metadata_rows').add_metadata({title:'Add additional metadata',ontologies_url:ontologies_url,tklabels:tklabels,scope:scope});
 	});
-	$('.add_additional_tklabels:first').click(function() {
+	$('.add_additional_tklabels:first').on('click', function() {
 		var ontologies_url = $('link#approot').attr('href').replace('/system/application/','')+'/system/ontologies';
 		var tklabels = ('undefined' != typeof(window['tklabels'])) ? window['tklabels'] : null;
 		$('#metadata_rows').add_metadata({title:'Add additional metadata',ontologies_url:ontologies_url,tklabels:tklabels,active:'tk',scope:scope});
 	});
 	$('#metadata_rows').populate_metadata_from_localstorage();
-	$('.populate_exif_fields:first').click(function() {
+	$('.populate_exif_fields:first').on('click', function() {
 		if (!confirm('This feature will find any IPTC or ID3 metadata fields embedded in the file, and add the field/values as additional metadata. IPTC metadata is typically embedded in JPEG and TIFF files, and ID3 in MP3 fles, by external applications. Do you wish to continue?')) return;
 		var url = $('input[name="scalar:url"]').val();
 		if (!url.length || url == 'http://') {
@@ -440,11 +467,11 @@ $(document).ready(function() {
 	});
 	// Badges
 	badges();
-	$('a[role="tab"] .badge').closest('a').click(function() { badges(); });
+	$('a[role="tab"] .badge').closest('a').on('click', function() { badges(); });
 	// Slug
 	var $slug = $('[name="scalar:slug"]');
 	if ($slug.val().length) {
-		$slug.data('orig',$slug.val()).keydown(function() {
+		$slug.data('orig',$slug.val()).on('keydown', function() {
 			var $this = $(this);
 			if ($this.data('confirmed')) return true;
 			if ($this.data('is_open')) return true;
@@ -452,8 +479,7 @@ $(document).ready(function() {
 			bootbox.confirm({
 				closeButton:false,
 				backdrop:true,
-				size:'small',
-				message: 'Changing the URL segment of this page will change its location on the web, which might cause problems for sites that link to this page.<br /><br />Do you wish to continue?',
+				message: '<strong>Changing the URL segment of this item will change its location on the web.</strong><br /><br />Media and text links to this item from within this Scalar project will be automatically updated. Scalar widgets that reference the item, however, will need to be updated manually. Changing the URL segment may also cause problems for external sites that link to this page.<br /><br />Do you wish to continue?',
 				callback: function(result) {
 					if (result) {
 						$this.data('confirmed',true);
@@ -477,9 +503,9 @@ $(document).ready(function() {
 	if ('undefined' != typeof(default_tabs)) {
 		var selected =  $("input:radio[name='rdf:type']:checked").val();
 		if (selected.indexOf('Composite')!=-1 && 'undefined'!=typeof(default_tabs['composite'])) {
-			if ($('a[href="'+default_tabs['composite']+'"]').length) $('a[href="'+default_tabs['composite']+'"]').click();
+			if ($('a[href="'+default_tabs['composite']+'"]').length) $('a[href="'+default_tabs['composite']+'"]').trigger('click');
         } else if (selected.indexOf('Media')!=-1 && 'undefined'!=typeof(default_tabs['media'])) {
-			if ($('a[href="'+default_tabs['media']+'"]').length) $('a[href="'+default_tabs['media']+'"]').click();
+			if ($('a[href="'+default_tabs['media']+'"]').length) $('a[href="'+default_tabs['media']+'"]').trigger('click');
         }
     };
 	// Editorial state
@@ -501,7 +527,7 @@ $(document).ready(function() {
 		}
 	}
 	if($('link#editorial_workflow').length > 0){
-		$('.state_dropdown li>a').click(function(e){
+		$('.state_dropdown li>a').on('click', function(e){
     		e.preventDefault();
     		$(this).parents('ul').find('a.active').removeClass('active');
     		$(this).addClass('active');
@@ -514,7 +540,7 @@ $(document).ready(function() {
 	$('body').on('savedPage',function(e){
 		$('.form-horizontal, #edit_content, .tab-pane, .saveButtons, #editorialToolsPanel .btn').toggleClass('editingDisabled',!editorialStates[$('#editorial_state').val()].canEdit);
 	});
-	$('#editorialStateConfirmationSave').click(function(e){
+	$('#editorialStateConfirmationSave').on('click', function(e){
 		e.preventDefault();
 		if(validate_edit_form($(this).data('$form'),$(this).data('no_action'))){
 			$('body').trigger('savedPage');
@@ -532,7 +558,7 @@ $(document).ready(function() {
 		initial_state = $('#editorial_state').val();
 		return false;
 	});
-	$('#editorialNewDraftConfirmationSave').click(function(e){
+	$('#editorialNewDraftConfirmationSave').on('click', function(e){
 		e.preventDefault();
 		$('#editorial_state').val('draft');
 		if(validate_edit_form($(this).data('$form'),$(this).data('no_action'))){
@@ -593,7 +619,7 @@ var editorialStates = {
 
 //If we're using the editorial state, first check to make sure if we have changed the editorial state - if so, alert re: that first
 function change_editorial_state_then_save($form){
-	$('.state_dropdown li:last-child>a').click();
+	$('.state_dropdown li:last-child>a').trigger('click');
 	confirm_editorial_state_then_save($form);
 }
 function confirm_editorial_state_then_save($form, no_action){
@@ -639,10 +665,11 @@ function checkTypeSelect() {
 		$('#select_view').select_view({data:media_views,default_value:$('link#default_view').attr('href')});
 	}
 }
-// Set Badges for Relationship tab
+// Set Badges for Relationship and Metadata tabs
 function badges() {
+    // Relationships
 	var total = 0;
-	$('.badge').each(function() {
+	$('.relationships-dropdown .badge').each(function() {
 		var self = $(this);
 		var j = 0;
 		switch(self.parent().attr('href')) {
@@ -662,7 +689,19 @@ function badges() {
 		self.html(((j>0)?j:''));
 		total = total + j;
 	});
-	$('a[role="tab"] .badge').html(((total>0)?total:''));
+	$('.relationships-dropdown .badge:first').html(((total>0)?total:''));
+    // Metadata
+	total = 0;
+	$('#metadata_rows input[type="text"]').each(function() {
+	  if ($(this).val().length) total++;
+    });
+	$meta_badge = $('a[href="#metadata-pane"] .badge');
+	$meta_badge.text(total);
+	if (!total) {
+		$meta_badge.hide();
+	} else {
+		$meta_badge.show();
+	};
 };
 END;
 
@@ -871,6 +910,14 @@ if($currentRole == 'commentator'){
 	</div>
 <? endif ?>
 </div>
+<div class="type_media form-horizontal<?=$canChangeState?'':' editingDisabled'?>">
+	<div class="checkbox">
+		<label>
+			<input type="checkbox" id="media_file_url_iiif" name="iiif-url" <?=strpos($file_url, '?iiif-manifest=1')?'checked':''?> />
+			Is IIIF manifest
+	    </label>
+	</div>
+</div>
 <table>
 <tr id="edit_content" class="p type_composite<?=$canChangeState?'':' editingDisabled'?>">
 	<td colspan="2">
@@ -879,12 +926,12 @@ if($currentRole == 'commentator'){
 				<strong>Notice:</strong> There are unsaved query changes—please save page to commit.
 			</div>
 		<?php } ?>
-		<?php /* if(!isset($_COOKIE['hide_widgets_alert'])){ ?>
+		<?php  if(!isset($_COOKIE['hide_widgets_alert']) && $this->config->item('index_msg') != ''){ ?>
 		<div id="wysiwygNewFeatures" class="alert alert-info alert-dismissible caption_font" role="alert" style="">
 		  <button type="button" class="close" data-dismiss="alert" aria-label="Close">&times;</button>
-		  <strong>Check out our latest feature – Scalar widgets.</strong><hr /> Widgets are modular interface elements that provide additional navigation, visualization, and media options for your readers. To add widgets to a page use the two new buttons in the toolbar below (the ones that look like puzzle pieces). For step-by-step instructions on adding widgets see our <a href="http://scalar.usc.edu/works/guide2/working-with-widgets" target="_blank">User’s Guide</a>. Feel free to <a href="http://scalar.usc.edu/contact/" target="_blank">contact us</a> if you have any questions.
+		  <? echo($this->config->item('index_msg')); ?>
 		</div>
-		<?php } */ ?>
+		<?php }  ?>
 		<textarea id="editor" wrap="soft" name="sioc:content" style="visibility:hidden;"<?php if(isset($book->editorial_is_on) && $book->editorial_is_on === '1' && !$canChangeState){ echo ' data-readonly="true"';} ?>>
 		<?php
 		if (isset($page->version_index)):
@@ -903,7 +950,7 @@ if($currentRole == 'commentator'){
 <div id="editor-tabpanel" role="tabpanel" class="p">
 	<ul id="editor-tabs" class="nav nav-tabs" role="tablist">
 		<li role="presentation" class="active"><a href="#layout-pane" aria-controls="layout-pane" role="tab" data-toggle="tab">Layout</a></li>
-		<li role="presentation" class="dropdown"><a class="dropdown-toggle" href="#" role="tab" data-toggle="dropdown">Relationships <span class="badge"></span><span class="caret"></span></a>
+		<li role="presentation" class="dropdown relationships-dropdown"><a class="dropdown-toggle" href="#" role="tab" data-toggle="dropdown">Relationships <span class="badge"></span><span class="caret"></span></a>
 			<ul class="dropdown-menu" role="menu">
 				<li role="presentation"><a role="menuitem" tabindex="-1" href="#path-pane" aria-controls="path-pane" data-toggle="tab"><span class="path_icon"></span> Path <span class="badge"></span></a></li>
 				<li role="presentation"><a role="menuitem" tabindex="-1" href="#comment-pane" aria-controls="comment-pane" data-toggle="tab"><span class="reply_icon"></span> Comment <span class="badge"></span></a></li>
@@ -916,13 +963,13 @@ if($currentRole == 'commentator'){
 				<li role="presentation"><a role="menuitem" tabindex="-1" href="#thumbnail-pane" aria-controls="thumbnail-pane" data-toggle="tab">Thumbnail</a></li>
 				<li role="presentation" class="type_composite"><a role="menuitem" tabindex="-1" href="#banner-image-pane" aria-controls="#banner-image-pane" data-toggle="tab">Key Image</a></li>
 				<li role="presentation" class="type_composite"><a role="menuitem" tabindex="-1" href="#background-image-pane" aria-controls="background-image-pane" data-toggle="tab">Background Image</a></li>
-				<li role="presentation" class="type_composite"><a role="menuitem" tabindex="-1" href="#custom-css-pane" aria-controls="custom-css-pane" data-toggle="tab">CSS</a></li>
-				<li role="presentation" class="type_composite"><a role="menuitem" tabindex="-1" href="#custom-javascript-pane" aria-controls="custom-javascript-pane" data-toggle="tab">JavaScript</a></li>
+				<li role="presentation"><a role="menuitem" tabindex="-1" href="#custom-css-pane" aria-controls="custom-css-pane" data-toggle="tab">CSS</a></li>
+				<li role="presentation"><a role="menuitem" tabindex="-1" href="#custom-javascript-pane" aria-controls="custom-javascript-pane" data-toggle="tab">JavaScript</a></li>
 				<li role="presentation" class="type_composite"><a role="menuitem" tabindex="-1" href="#background-audio-pane" aria-controls="background-audio-pane" data-toggle="tab">Audio</a></li>
 			</ul>
 		</li>
 		<li role="presentation"><a href="#properties-pane" aria-controls="properties-pane" role="tab" data-toggle="tab">Properties</a></li>
-		<li role="presentation"><a href="#metadata-pane" aria-controls="metadata-pane" role="tab" data-toggle="tab">Metadata</a></li>
+		<li role="presentation"><a href="#metadata-pane" aria-controls="metadata-pane" role="tab" data-toggle="tab">Metadata <span class="badge"></span></a></li>
 	</ul>
 	<div class="tab-content">
 
@@ -1064,22 +1111,32 @@ if($currentRole == 'commentator'){
 							if (!empty($node->versions[0]->start_seconds) || !empty($node->versions[0]->end_seconds)) {
 								echo '<div class="form-inline"><div class="form-group"><label>Start seconds&nbsp; <input class="form-control" onblur="check_start_end_values(this, $(this).nextAll(\'input:first\'))" type="text" style="width:75px;" name="annotation_of_start_seconds" value="'.$node->versions[0]->start_seconds.'" /></label>';
 								echo '<label>End seconds&nbsp; <input class="form-control" onblur="check_start_end_values($(this).prevAll(\'input:first\'), this)" type="text" style="width:75px;" name="annotation_of_end_seconds" value="'.$node->versions[0]->end_seconds.'" /></label></div></div>';
-								echo '<input type="hidden" name="annotation_of_start_line_num[]" value="'.@$node->versions[0]->start_line_num.'" />';
-								echo '<input type="hidden" name="annotation_of_end_line_num[]" value="'.@$node->versions[0]->end_line_num.'" />';
-								echo '<input type="hidden" name="annotation_of_points[]" value="'.@$node->versions[0]->points.'" />';
+								echo '<input type="hidden" name="annotation_of_start_line_num" value="'.@$node->versions[0]->start_line_num.'" />';
+								echo '<input type="hidden" name="annotation_of_end_line_num" value="'.@$node->versions[0]->end_line_num.'" />';
+								echo '<input type="hidden" name="annotation_of_points" value="'.@$node->versions[0]->points.'" />';
+								echo '<input type="hidden" name="annotation_of_position_3d" value="'.@$node->versions[0]->position_3d.'" />';
 							} elseif (!empty($node->versions[0]->start_line_num) || !empty($node->versions[0]->end_line_num)) {
 								echo '<div class="form-inline"><div class="form-group"><label>Start line&nbsp; <input class="form-control" onblur="check_start_end_values(this, $(this).nextAll(\'input:first\'))" type="text" style="width:75px;" name="annotation_of_start_line_num" value="'.$node->versions[0]->start_line_num.'" /></label>';
 								echo '<label for="annotation_of_end_line_num">End line&nbsp; <input id="annotation_of_end_line_num" class="form-control" onblur="check_start_end_values($(this).prevAll(\'input:first\'), this)" type="text" style="width:75px;" name="annotation_of_end_line_num" value="'.$node->versions[0]->end_line_num.'" /></label></div></div>';
 								echo '<input type="hidden" name="annotation_of_start_seconds" value="'.@$node->versions[0]->start_seconds.'" />';
 								echo '<input type="hidden" name="annotation_of_end_seconds" value="'.@$node->versions[0]->end_seconds.'" />';
 								echo '<input type="hidden" name="annotation_of_points" value="'.@$node->versions[0]->points.'" />';
+								echo '<input type="hidden" name="annotation_of_position_3d" value="'.@$node->versions[0]->position_3d.'" />';
 							} elseif (!empty($node->versions[0]->points)) {
 								echo '<div class="form-inline"><div class="form-group"><label>Left (x), Top (y), Width, Height&nbsp; <input type="text" class="form-control" name="annotation_of_points" value="'.$node->versions[0]->points.'" /></label></div></div>';
 								echo '<input type="hidden" name="annotation_of_start_seconds" value="'.@$node->versions[0]->start_seconds.'" />';
 								echo '<input type="hidden" name="annotation_of_end_seconds" value="'.@$node->versions[0]->end_seconds.'" />';
 								echo '<input type="hidden" name="annotation_of_start_line_num" value="'.@$node->versions[0]->start_line_num.'" />';
 								echo '<input type="hidden" name="annotation_of_end_line_num" value="'.@$node->versions[0]->end_line_num.'" />';
+								echo '<input type="hidden" name="annotation_of_position_3d" value="'.@$node->versions[0]->position_3d.'" />';
 								echo '<small>May be pixel or percentage values; for percentage add "%" after each value.</small>';
+							} elseif (!empty($node->versions[0]->position_3d)) {
+								echo '<div class="form-inline"><div class="form-group"><label>Target X, Y, Z, Camera X, Y, Z, Roll, Field of View (degrees)&nbsp; <input type="text" class="form-control" name="annotation_of_position_3d" value="'.$node->versions[0]->position_3d.'" /></label></div></div>';
+								echo '<input type="hidden" name="annotation_of_start_seconds" value="'.@$node->versions[0]->start_seconds.'" />';
+								echo '<input type="hidden" name="annotation_of_end_seconds" value="'.@$node->versions[0]->end_seconds.'" />';
+								echo '<input type="hidden" name="annotation_of_start_line_num" value="'.@$node->versions[0]->start_line_num.'" />';
+								echo '<input type="hidden" name="annotation_of_end_line_num" value="'.@$node->versions[0]->end_line_num.'" />';
+								echo '<input type="hidden" name="annotation_of_points" value="'.@$node->versions[0]->points.'" />';
 							}
 							echo '</li>'."\n";
 						}
@@ -1107,19 +1164,29 @@ if($currentRole == 'commentator'){
 							echo '<input type="hidden" name="has_annotation_start_line_num" value="'.@$node->versions[0]->start_line_num.'" />';
 							echo '<input type="hidden" name="has_annotation_end_line_num" value="'.@$node->versions[0]->end_line_num.'" />';
 							echo '<input type="hidden" name="has_annotation_points" value="'.@$node->versions[0]->points.'" />';
+							echo '<input type="hidden" name="has_annotation_position_3d" value="'.@$node->versions[0]->position_3d.'" />';
 						} elseif (!empty($node->versions[0]->start_line_num) || !empty($node->versions[0]->end_line_num)) {
 							echo 'Start line #: <input type="text" style="width:75px;" name="has_annotation_start_line_num" value="'.$node->versions[0]->start_line_num.'" />';
 							echo '&nbsp; End line #<input type="text" style="width:75px;" name="has_annotation_end_line_num" value="'.$node->versions[0]->end_line_num.'" />';
 							echo '<input type="hidden" name="has_annotation_start_seconds" value="'.@$node->versions[0]->start_seconds.'" />';
 							echo '<input type="hidden" name="has_annotation_end_seconds" value="'.@$node->versions[0]->end_seconds.'" />';
 							echo '<input type="hidden" name="has_annotation_points" value="'.@$node->versions[0]->points.'" />';
+							echo '<input type="hidden" name="has_annotation_position_3d" value="'.@$node->versions[0]->position_3d.'" />';
 						} elseif (!empty($node->versions[0]->points)) {
 							echo 'Left (x), Top (y), Width, Height: <input type="text" style="width:125px;" name="has_annotation_points" value="'.$node->versions[0]->points.'" />';
 							echo '<input type="hidden" name="has_annotation_start_seconds" value="'.@$node->versions[0]->start_seconds.'" />';
 							echo '<input type="hidden" name="has_annotation_end_seconds" value="'.@$node->versions[0]->end_seconds.'" />';
 							echo '<input type="hidden" name="has_annotation_start_line_num" value="'.@$node->versions[0]->start_line_num.'" />';
 							echo '<input type="hidden" name="has_annotation_end_line_num" value="'.@$node->versions[0]->end_line_num.'" />';
+							echo '<input type="hidden" name="has_annotation_position_3d" value="'.@$node->versions[0]->position_3d.'" />';
 							echo '<br /><small>May be pixel or percentage values; for percentage add "%" after each value.</small>';
+						} elseif (!empty($node->versions[0]->position_3d)) {
+							echo 'Target X, Y, Z, Camera X, Y, Z, Roll, Field of View (degrees): <input type="text" style="width:125px;" name="has_annotation_position_3d" value="'.$node->versions[0]->position_3d.'" />';
+							echo '<input type="hidden" name="has_annotation_start_seconds" value="'.@$node->versions[0]->start_seconds.'" />';
+							echo '<input type="hidden" name="has_annotation_end_seconds" value="'.@$node->versions[0]->end_seconds.'" />';
+							echo '<input type="hidden" name="has_annotation_start_line_num" value="'.@$node->versions[0]->start_line_num.'" />';
+							echo '<input type="hidden" name="has_annotation_end_line_num" value="'.@$node->versions[0]->end_line_num.'" />';
+							echo '<input type="hidden" name="has_annotation_points" value="'.@$node->versions[0]->points.'" />';
 						}
 						echo '&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span>';
 						echo '</li>';
@@ -1189,7 +1256,7 @@ if($currentRole == 'commentator'){
 
 		<div id="thumbnail-pane" role="tabpanel" class="tab-pane<?=$canChangeState?'':' editingDisabled'?>">
 			<div class="row p">
-				<div class="col-md-8">
+				<div class="col-md-10">
 					<div class="form-group">
 						<label for="choose_thumbnail">Choose an image from your library to use as a thumbnail for this page:</label>
 			  			<select id="choose_thumbnail" class="form-control"><option value="">Choose an image</option><?
@@ -1207,8 +1274,8 @@ if($currentRole == 'commentator'){
 					</div>
 					-->
 					<div class="form-group">
-			  			<label for="enter_thumbnail_url">Or enter any image URL:</label>
-			  			<input id="enter_thumbnail_url" class="form-control" type="text" name="scalar:thumbnail" value="<?=@$page->thumbnail?>" />
+			  			<label for="enter_thumbnail_url" style="display:block;">Or enter any image URL:<a href="javascript:void(null);" id="use-the-media-file-url" style="font-size:12px;float:right;">Use the Media file URL</a></label>
+			  			<input id="enter_thumbnail_url" class="form-control"type="text" name="scalar:thumbnail" value="<?=@$page->thumbnail?>" />
 					</div>
 	  			</div>
 			</div>
@@ -1457,11 +1524,15 @@ if (isset($page->version_index)):
 	if (!empty($page->versions[$page->version_index]->has_references)) {
 		foreach ($page->versions[$page->version_index]->has_references as $node) {
 			echo '<input type="hidden" name="has_reference" value="'.$node->slug.'" />';
-			echo '<input type="hidden" name="has_reference_reference_text" value="'.htmlspecialchars(@$node->versions[0]->reference_text).'" />';
+			echo '<input type="hidden" name="has_reference_reference_text" value="'.htmlspecialchars(@$node->versions[0]->reference_text).'" />'."\n";
 		}
 	}
 	// Table of Contents
-	echo '<input type="hidden" name="scalar:sort_number" value="'.$page->versions[$page->version_index]->sort_number.'" />';
+	echo '<input type="hidden" name="scalar:sort_number" value="'.$page->versions[$page->version_index]->sort_number.'" />'."\n";
+	// Is lens of
+	if (!empty($page->versions[$page->version_index]->is_lens_of)) {
+		echo '<input type="hidden" name="lens_of" value="'.htmlspecialchars($page->versions[$page->version_index]->is_lens_of).'" />'."\n";
+	}
 endif;
 ?>
 </form>
@@ -1534,7 +1605,7 @@ endif;
   </div>
 </div>
 <script>
-	$('#wysiwygNewFeatures .close').click(function(){
+	$('#wysiwygNewFeatures .close').on('click', function(){
 		var cookie_days = 0;
 		var cookie_months = 1;
 		var d = new Date();

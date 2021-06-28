@@ -14,15 +14,6 @@ Statically (e,g; S3::getObject(...)):
 S3::setAuth($awsAccessKey, $awsSecretKey);
 ```
 
-### AWS V4 Signature
-
-```php
-$s3->setSignatureVersion('v4);
-```
-Or statically
-```php
-S3::setSignatureVersion('v4');
-```
 
 ### Object Operations
 
@@ -107,19 +98,3 @@ Delete an empty bucket:
 S3::deleteBucket($bucketName)
 ```
 
-### Progress Function
-
-Add a progress function when S3 downloading / uploading 
-
-```php
-S3::setProgressFunction('progress');
-
-function progress($resource,$download_size, $downloaded, $upload_size, $uploaded)
-{
-    if($download_size > 0)
-         echo $downloaded / $download_size  * 100;
-    ob_flush();
-    flush();
-    sleep(1); // just to see effect
-}
-```

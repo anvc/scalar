@@ -1,28 +1,71 @@
 
 div.visualization { text-align: left; }
-h1.visualization { margin-bottom: 1.2rem; }
+article .visualization { margin-bottom: 2.4rem; position: relative; }
 
-.vis_footer.bounded, .loadingMsg.bounded {
-	padding-left: 0;
-	padding-right: 0;
-	margin-right: 0;
-	margin-left: 0;
+.progress {
+	height:2px;
+	margin-bottom:0px;
 }
-
-.progressbar {
-	height: 8px;
+.progress-bar {
+	height: 2px;
 	margin-bottom: 5px;
 }
-
 .loadingMsg {
 	font-size: 1.2rem;
 	color: #666;
 	vertical-align: middle;
 	display: none;
 }
-
 .loadingMsg > p {
-	margin-bottom: 4px;
+	margin-top:3px;
+	margin-bottom: 8px;
+}
+
+.vis_inspector {
+	width: 330px;
+	position: absolute;
+	top: 0;
+	right: 0;
+	height: calc(100% - 37px);
+	overflow-y: auto;
+	line-height: 100%;
+	background-color: white;
+}
+.modalVisualization .vis_inspector {
+	margin-top: 70px;
+	height: calc(100% - 107px);
+	padding: 15px 15px 15px 15px;
+}
+.vis_widget .vis_inspector {
+	padding: 15px;
+	background-color: #eee;
+}
+.visualization .vis_inspector {
+	padding: 15px 0;
+	margin-left: 15px;
+	width: 300px;
+	height: calc(100% - 32px);
+	margin-right: 7.2rem;
+	border-bottom: 1px solid #ccc;
+}
+.vis_inspector h3 {
+	margin-top: 0;
+}
+.vis_inspector h4 {
+	margin-top: 20px;
+	margin-bottom: 10px;
+}
+.inspector-buttons {
+	margin-bottom: 10px;
+}
+.inspector-thumbnail {
+	max-width: 100%;
+	margin-bottom: 10px;
+	border: 1px solid #ccc;
+}
+.vis_inspector p {
+	margin-bottom: 10px;
+	line-height: 120%;
 }
 
 .scalarvis {
@@ -30,7 +73,7 @@ h1.visualization { margin-bottom: 1.2rem; }
 	margin-bottom: 10px;
 	background-color: #fff;
 	min-height: 300px;
-	overflow-y: auto;
+	overflow-y: hidden;
 	overflow-x: hidden;
 }
 
@@ -38,25 +81,41 @@ h1.visualization { margin-bottom: 1.2rem; }
 	border: 1px solid #ccc;
 }
 
+.scalarvis .no-results-msg {
+	color: #333;
+	font-weight: normal;;
+	font-size: 14px;
+	margin-bottom: 10px;
+}
+
+.scalarvis.bounded .no-results-msg {
+	margin-left: 10px;
+	margin-top: 10px;
+}
+
 .scalarvis:-webkit-full-screen {
 	width: 100% !important;
 	height: 100% !important;
 	margin: 0;
+	padding: 10px !important;
 }
 .scalarvis:-moz-full-screen {
 	width: 100% !important;
 	height: 100% !important;
 	margin: 0;
+	padding: 10px !important;
 }
 .scalarvis:-ms-fullscreen {
 	width: 100% !important;
 	height: 100% !important;
 	margin: 0;
+	padding: 10px !important;
 }
 .scalarvis:fullscreen {
 	width: 100% !important;
 	height: 100% !important;
 	margin: 0;
+	padding: 10px !important;
 }
 
 .visualization form {
@@ -100,11 +159,38 @@ h1.visualization { margin-bottom: 1.2rem; }
 }
 
 .vis_footer {
-	margin-bottom: 2.4rem;
+	margin-bottom: 0rem;
+	padding-right: .8rem;
 	text-align: right;
 	font-size: 1.4rem;
 	line-height: 140%;
 	color: #666;
+}
+
+.vis_footer p {
+	margin-bottom: 0;
+}
+
+.widget_slot.full .vis_footer {
+	padding-left: 7.2rem;
+}
+
+.vis_footer.bounded, .loadingMsg.bounded {
+	padding-left: 0;
+	padding-right: 0;
+	margin-right: 0;
+	margin-left: 0;
+}
+
+.vis_footer .media_description {
+	text-align: left;
+	margin-top: 0;
+	margin-bottom: 5px;
+	font-size: 12px;
+}
+
+.vis_footer .btn-xs {
+	padding: 0;
 }
 
 .selectedLabel {
@@ -148,6 +234,12 @@ svg {
 	pointer-events: none;
 	font-size: 1.2rem;
 	font-weight: normal;
+}
+
+.vis-control-header {
+	font-size: 14px;
+	display: inline-block;
+	margin-right: 5px;
 }
 
 rect.visit-button {
@@ -219,5 +311,17 @@ text.visit-button {
 	height: 7px;
 }
 
-.tag_cloud { font-weight: 700; }
+.tag_cloud { font-weight: 700; cursor: default; }
 div.jqcloud a:hover { color: inherit !important; }
+
+.vis-loading-msg {
+	position: absolute;
+	width: 160px;
+	top: 100px;
+	left: calc(50% - 100px);
+	padding: 10px;
+	border: 1px solid #aaa;
+	background: white;
+	text-align: center;
+	display: none;
+}

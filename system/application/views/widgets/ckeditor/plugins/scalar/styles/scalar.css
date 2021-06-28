@@ -28,10 +28,16 @@ a.inline.inlineWidget[data-widget="card"] {
 	background-size: auto 75%;
 	background-image:url(../../../../../melons/cantaloupe/images/widget_image_card.png);
 }
-
 a.inline.inlineWidget[data-widget="summary"] {
 	background-size: auto 75%;
 	background-image:url(../../../../../melons/cantaloupe/images/widget_image_summary.png);
 }
-
+a.inline.inlineNote {
+	background-size: auto 75%;
+	background-image:url(../../../../../melons/cantaloupe/images/widget_image_note.png) !important;
+}
 .cke_editable ol, .cke_editable ul, .cke_editable dl { padding: 0 18px; }
+
+.cke_editable div { margin-bottom: 10px; }
+
+.cke_editable div.hanging-indent { padding-left: 22px; text-indent: -22px; }

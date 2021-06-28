@@ -1,28 +1,28 @@
 /**
- * Scalar    
+ * Scalar
  * Copyright 2013 The Alliance for Networking Visual Culture.
  * http://scalar.usc.edu/scalar
  * Alliance4NVC@gmail.com
  *
- * Licensed under the Educational Community License, Version 2.0 
- * (the "License"); you may not use this file except in compliance 
+ * Licensed under the Educational Community License, Version 2.0
+ * (the "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
- * 
- * http://www.osedu.org/licenses/ECL-2.0 
- * 
+ *
+ * http://www.osedu.org/licenses/ECL-2.0
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an "AS IS"
  * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing
- * permissions and limitations under the License.       
- */  
+ * permissions and limitations under the License.
+ */
 
 /**
  * @projectDescription  Draw content tables from RDF API
  * @author              Craig Dietrich
  * @version             1.0
  * @required			Instantiated scalarapi obj (default: window['scalarapi'])
- */ 
+ */
 
 (function($) {
 
@@ -34,9 +34,9 @@
     		start: null,
     		results: null,
     		wrapper: null,
-    		hide_columns: [], 
+    		hide_columns: [],
     		expand_column: {name:'Versions',func:null},
-    		cut_long_text_to: 50,	
+    		cut_long_text_to: 50,
     		cut_long_content_to: 150,
     		resize_wrapper_func: null,
     		tablesorter_func: null,
@@ -44,11 +44,11 @@
     		paywall: false,
     		no_content_msg: 'There is no content of this type'
       };
-    
+
 	var scalardashboardtable_methods = {
-			
+
 		init : function(options) {
-	
+
 			try {
 				$.fn.scalardashboardtable('setup', options);
 				$.fn.scalardashboardtable('content', options);
@@ -59,7 +59,7 @@
 				    });
 				    $open_content = $('#row_'+vars['content-id']);
 				    if($open_content.length !== 0) {
-					    $open_content.find('a.view_versions').click();
+					    $open_content.find('a.view_versions').trigger('click');
 						$('.table_wrapper').animate({
 					        scrollTop: $open_content.offset().top
 					    }, 2000);
@@ -71,11 +71,11 @@
 			} catch(err) {
 				$.fn.scalardashboardtable('error', err, options);
 			}
-			 
+
 		},
-		
+
 		paginate : function(options) {
-			
+
 			options = $.extend(defaults, options);
 			options = $.fn.scalardashboardtable('set_hide_columns', options);
 			window['scalarapi'] = new ScalarAPI();
@@ -90,13 +90,13 @@
 					$.fn.scalardashboardtable('init', options);
 				};
 				var error = function() { };
-				options.scalarapi.loadNodesByType(options.query_type, 1, success, error, 0, 0, null, options.start, options.results, 1);
+				options.scalarapi.loadNodesByType(options.query_type, 1, success, error, 0, 0, null, options.start, options.results, 1, false);
 			});
-			
-		},	
-		
+
+		},
+
 		search : function(options) {
-			
+
 			options = $.extend(defaults, options);
 			options = $.fn.scalardashboardtable('set_hide_columns', options);
 			window['scalarapi'] = new ScalarAPI();
@@ -110,17 +110,17 @@
 					$.fn.scalardashboardtable('init', options);
 				};
 				var error = function() { };
-				options.scalarapi.nodeSearch(options.sq, success, error, 0, 0, 0, null, null, 1, null, options.s_all);
+				options.scalarapi.nodeSearch(options.sq, success, error, 0, 0, 0, null, null, 1, null, options.s_all, ((options.s_all)?1:false));
 			});
-			
-		},			
-		
-		error : function(err, options) {
-			
-			$('<div><p>'+err+'</p></div>').addClass('error').appendTo(options.error_el);
-			
+
 		},
-		
+
+		error : function(err, options) {
+
+			$('<div><p>'+err+'</p></div>').addClass('error').appendTo(options.error_el);
+
+		},
+
 		setup : function(options) {
 
 			var $table = $('<table cellspacing="0" cellpadding="0" class="tablesorter"><thead></thead><tbody></tbody></table>');
@@ -128,7 +128,7 @@
 			$head = $table.find('.head');
 			$head.append('<th></th>');
 			$head.append('<th style="display:none;"></th>');
-			$head.append('<th>Live?&nbsp; </th>');
+			$head.append('<th style="text-align:center;">Live?&nbsp; </th>');
 			if (-1==options.hide_columns.indexOf('category')) $head.append('<th>Category</th>');
 			if (-1==options.hide_columns.indexOf('thumbnail')) $head.append('<th>Thumb</th>');
 			$head.append('<th>URL</th>');
@@ -137,15 +137,15 @@
 			if (-1==options.hide_columns.indexOf('content')) $head.append('<th>Content</th>');
 			if (-1==options.hide_columns.indexOf('url')) $head.append('<th>Filename</th>');
 			$head.append('<th>Created</th>');
-			if (-1==options.hide_columns.indexOf('user')) $head.append('<th>User</th>');
+			if (-1==options.hide_columns.indexOf('user')) $head.append('<th style="text-align:center;">User</th>');
 			if (options.paywall) $head.append('<th>Paywall?</th>');
-			$head.append('<th style="white-space:nowrap;">'+options.expand_column.name+'</th>');
+			$head.append('<th style="white-space:nowrap;text-align:center;">'+options.expand_column.name+'</th>');
 			$(options.wrapper).html($table);
-			
+
 		},
-		
+
 		content : function(options) {
-	
+
 			var $tbody = $(options.wrapper).find('tbody:first');
 			var nodes = options.scalarapi.model.getNodes();
 			if (!nodes.length) {
@@ -157,14 +157,13 @@
 				var queryType = $.fn.scalardashboardtable('get_type_from_querytype',options.query_type);
 				if (queryType && nodes[j].baseType!=queryType) continue;
 				options.scalarapi.model.numNodes++;
-				console.log(nodes[j]);
 				var id = nodes[j].urn.slice(nodes[j].urn.lastIndexOf(':')+1);
 				var version_id = nodes[j].current.urn.slice(nodes[j].urn.lastIndexOf(':')+1);
 				var d = nodes[j].created.slice(0, nodes[j].created.indexOf('T'));
 				var author = nodes[j].author;
 				var creator = (author && author.length) ? author.slice(author.lastIndexOf('/')+1) : 0;
-				var is_live = ('undefined'==typeof(nodes[j].isLive)||1!=parseInt(nodes[j].isLive)) ? false : true; 
-				var paywall = ('undefined'==typeof(nodes[j].paywall)||1!=parseInt(nodes[j].paywall)) ? false : true; 
+				var is_live = ('undefined'==typeof(nodes[j].isLive)||1!=parseInt(nodes[j].isLive)) ? false : true;
+				var paywall = ('undefined'==typeof(nodes[j].paywall)||1!=parseInt(nodes[j].paywall)) ? false : true;
 				var category = ('undefined'==typeof(nodes[j].current.properties["http://scalar.usc.edu/2012/01/scalar-ns#category"])) ? '' : nodes[j].current.properties["http://scalar.usc.edu/2012/01/scalar-ns#category"][0].value;
 				var $tr = $('<tr class="bottom_border" id="row_'+id+'" typeof="pages"></tr>');
 				$tbody.append($tr);
@@ -178,7 +177,11 @@
 				$tr.append('<td class="editable boolean" property="is_live" style="text-align:center;width:65px;">'+((is_live)?'1':'0')+'</td>');
 				if (-1==options.hide_columns.indexOf('category')) $tr.append('<td class="editable enum {\'review\',\'commentary\',\'term\'}" property="category">'+category+'</td>');
 				var thumb_str = '<td property="thumbnail">';
-				if (nodes[j].thumbnail && nodes[j].thumbnail.length) thumb_str += '<a target="_blank" href="'+nodes[j].current.sourceFile+'"><img src="'+nodes[j].thumbnail+'" /></a>';
+				if (nodes[j].thumbnail && nodes[j].thumbnail.length) {
+					var thumb = nodes[j].thumbnail;
+					if (-1 == thumb.indexOf('//')) thumb = book_uri + thumb;
+					thumb_str += '<a target="_blank" href="'+nodes[j].current.sourceFile+'"><img src="'+thumb+'" /></a>';
+				}
 				thumb_str += '</td>';
 				if (-1==options.hide_columns.indexOf('thumbnail')) $tr.append(thumb_str);
 				$tr.append('<td class="editable has_link uri_link" property="slug" style="max-width:200px;overflow:hidden;"><a href="'+options.book_uri+nodes[j].slug+'">'+nodes[j].slug+(('index'==nodes[j].slug)?'<span class="home_page"> (home page)</span>':'')+'</a></td>');
@@ -194,11 +197,11 @@
 				if (options.paywall) $tr.append('<td class="editable boolean" property="paywall" style="text-align:center;width:65px;">'+((paywall)?'1':'0')+'</td>');
 				var func_name = (null==options.expand_column.func) ? 'get_versions' : options.expand_column.func;
 				$tr.append('<td style="white-space:nowrap;text-align:center;"><a href="javascript:;" onclick="'+func_name+'('+id+','+version_id+',this);" class="view_versions generic_button">View</a></td>');
-				$tr.append('</tr>');			
+				$tr.append('</tr>');
 			}
-			
+
 		},
-		
+
 		set_hide_columns : function(options) {
 
 			if ('page'==options.query_type) {
@@ -213,30 +216,30 @@
 				options.hide_columns = ['thumbnail','content','url'];
 			}
 			return options;
-			
+
 		},
-		
+
 		get_type_from_querytype : function(query_type) {
-	
+
 			if ('media'==query_type) return 'http://scalar.usc.edu/2012/01/scalar-ns#Media';
 			if ('page'==query_type) return 'http://scalar.usc.edu/2012/01/scalar-ns#Composite';
 			return false;
-			
+
 		},
-		
+
 		cut_string : function(s, n) {
-			
+
 			if (!s || null == s || !s.length) return '';
 			s = $.fn.scalardashboardtable('strip_tags', s);
 			var cut = s.indexOf(' ', n);
 		    if(cut==-1) return s;
 		    return s.substring(0, cut)+'...';
-		    
+
 		},
-		
+
 		// http://phpjs.org/functions/basename/
 		basename : function(path, suffix) {
-			
+
 			  if (!path || !path.length) return '';  // Added by Craig
 			  var b = path;
 			  var lastChar = b.charAt(b.length - 1);
@@ -247,10 +250,10 @@
 			  if (typeof suffix === 'string' && b.substr(b.length - suffix.length) == suffix) {
 			    b = b.substr(0, b.length - suffix.length);
 			  }
-			  return b;			
-			
+			  return b;
+
 		},
-		
+
 		// http://phpjs.org/functions/strip_tags/
 		// Edited to replace with space (' ') rather than empty string ('') to avoid long string resulting
 		strip_tags : function(input, allowed) {
@@ -265,10 +268,10 @@
 			      return allowed.indexOf('<' + $1.toLowerCase() + '>') > -1 ? $0 : ' ';
 			    });
 		}
-		
+
 	};
 
-	$.fn.scalardashboardtable = function(methodOrOptions) {		
+	$.fn.scalardashboardtable = function(methodOrOptions) {
 
 		if ( scalardashboardtable_methods[methodOrOptions] ) {
 			return scalardashboardtable_methods[ methodOrOptions ].apply( this, Array.prototype.slice.call( arguments, 1 ));
@@ -277,8 +280,8 @@
 			return scalardashboardtable_methods.init.apply( this, arguments );
 		} else {
 			$.error( 'Method ' +  methodOrOptions + ' does not exist.' );
-		}    
-		
+		}
+
 	};
-	
+
 })(jQuery);

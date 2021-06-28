@@ -33,7 +33,8 @@ $config['namespaces'] = array(
 						'dwc'		=> 'http://rs.tdwg.org/dwc/terms/',
 						'vra'		=> 'http://purl.org/vra/',
 						'cp'		=> 'http://scalar.cdla.oxycreates.org/commonplace/terms/',
-						'tk'		=> 'http://localcontexts.org/tk/'  /* Temp */
+						'tk'		=> 'http://localcontexts.org/tk/',  /* Temp */
+						'gpano'		=> 'http://ns.google.com/photos/1.0/panorama/'
 					   );
 
 // Internet Archive allowable filetypes when importing
@@ -92,6 +93,7 @@ $config['rdf_fields'] = array(
 		'citation' =>				'scalar:citation',
 		'category' =>               'scalar:category',
 		'has_edition' =>			'scalar:hasEdition',
+		'is_lens_of' =>				'scalar:isLensOf',
 		'version_num' => 			'ov:versionnumber',
 		'content' => 				'sioc:content',
 		'users' =>					'sioc:has_owner',
@@ -542,7 +544,7 @@ $config['ontologies']['vra'] = array(
 		'height',
 		'imageOf',
 		'inventoryLevel',
-		'isRelatedRo',
+		'isRelatedTo',
 		'largerContextFor',
 		'length',
 		'locationOf',
@@ -605,5 +607,29 @@ $config['ontologies']['cp'] = array(
 	'institution',
 	'publisher',
 	'date'
+);
+$config['ontologies']['gpano'] = array(
+		'UsePanoramaViewer',
+		'CaptureSoftware',
+		'StitchingSoftware',
+		'ProjectionType',
+		'PoseHeadingDegrees',
+		'PosePitchDegrees',
+		'PoseRollDegrees',
+		'InitialViewHeadingDegrees',
+		'InitialViewPitchDegrees',
+		'InitialViewRollDegrees',
+		'InitialHorizontalFOVDegrees',
+		'FirstPhotoDate',
+		'LastPhotoDate',
+		'SourcePhotosCount',
+		'ExposureLockUsed',
+		'CroppedAreaImageWidthPixels',
+		'CroppedAreaImageHeightPixels',
+		'FullPanoWidthPixels',
+		'FullPanoHeightPixels',
+		'CroppedAreaLeftPixels',
+		'CroppedAreaTopPixels',
+		'InitialCameraDolly'
 );
 ?>

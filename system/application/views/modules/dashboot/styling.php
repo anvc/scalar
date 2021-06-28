@@ -33,7 +33,7 @@ $(document).ready(function() {
     if (!book_melon.length) book_melon = active_melon;
 	select_interface(book_melon);
     // Thumb upload change
-    $('input[name="upload_thumb"]').change(function() {
+    $('input[name="upload_thumb"]').on('change', function() {
         var oFReader = new FileReader();
         oFReader.readAsDataURL(this.files[0]);
         oFReader.onload = function(oFREvent) {
@@ -63,7 +63,7 @@ $(document).ready(function() {
 							dialog.close();
 							$this.data('open', false);
 							$this.val($this.data('orig-value'));
-							$this.blur();
+							$this.trigger('blur');
 		                }
 		            }, {
 		                label: 'Continue',
@@ -72,15 +72,15 @@ $(document).ready(function() {
 							$this.data('confirmed',true);
 							dialog.close();
 							$this.data('open', false);
-							$this.focus();
+							$this.trigger('focus');
 		                }
 		            }]
 		        });
 			}
 		}
     };
-    $('textarea[name="custom_style"]').data('orig-value',$('textarea[name="custom_style"]').val()).keydown(html_warning);
-    $('textarea[name="custom_js"]').data('orig-value',$('textarea[name="custom_js"]').val()).keydown(html_warning);
+    $('textarea[name="custom_style"]').data('orig-value',$('textarea[name="custom_style"]').val()).on('keydown', html_warning);
+    $('textarea[name="custom_js"]').data('orig-value',$('textarea[name="custom_js"]').val()).on('keydown', html_warning);
     // Background image
     var set_background_preview = function() {
 		var $select = $('#background');
@@ -94,7 +94,7 @@ $(document).ready(function() {
 		$preview.find('img').attr('src', url);
 		$preview.show();
     };
-    $('#background').change(set_background_preview);
+    $('#background').on('change', set_background_preview);
     set_background_preview();
 });
 //Select the reader interface (Scalar 1, Scalar 2, ...)
@@ -104,7 +104,7 @@ function select_interface(melon) {
 	$wrapper.empty();
     var $template = $('<span><select style="width:auto;margin-right:8px;float:left;" class="form-control" name="template"></select></span>').appendTo($wrapper);
     var $whats_this = $('<label style="margin-right:12px;" class="control-label label-text"><small><a class="whatsthis" href="javascript:void(null);">What\'s this?</a></small></label>').appendTo($template);
-	$whats_this.find('a').click(function() {
+	$whats_this.find('a').on('click', function() {
 		var $modal = $('#selectInterfaceModal');
 		if (!$modal.data('propagated')) {
 			$modal.data('propagated',true);
@@ -114,12 +114,12 @@ function select_interface(melon) {
 				$div.append('<img class="img-responsive" src="'+$('#approot').attr('href')+interfaces[j].meta.thumb_app_path+'" />');
 				$div.append('<div class="radio"><label><input type="radio" name="interfaceOptions" value="'+interfaces[j]['meta']['slug']+'"'+((melon==interfaces[j]['meta']['slug'])?' checked':'')+((!interfaces[j]['meta']['is_selectable'])?' disabled':'')+'> <strong>'+interfaces[j]['meta']['name']+'</strong><br />'+interfaces[j]['meta']['description']+'</label></div>');
 			};
-			$modal.find('img').click(function() {
-				$(this).parent().find('input[type="radio"]').click();
+			$modal.find('img').on('click', function() {
+				$(this).parent().find('input[type="radio"]').trigger('click');
 			});
-			$modal.find('button:last').click(function() {
+			$modal.find('button:last').on('click', function() {
 				var checked = $modal.find("input[type='radio']:checked").val();
-				$('select[name="template"]').val(checked).change();
+				$('select[name="template"]').val(checked).trigger('change');
 				$modal.modal('hide');
 			});
 		};
@@ -130,7 +130,7 @@ function select_interface(melon) {
     	if (melon==interfaces[j]['meta']['slug']) melon_obj = interfaces[j];
 		$('<option'+((melon==interfaces[j]['meta']['slug'])?' selected':'')+((!interfaces[j]['meta']['is_selectable'])?' disabled':'')+' value="'+interfaces[j]['meta']['slug']+'">'+interfaces[j]['meta']['name']+'</option>').appendTo($template.find('select:first'));
     };
-    $template.find('select:first').change(function() {
+    $template.find('select:first').on('change', function() {
 		var selected = $(this).find(':selected').val();
 		select_interface(selected);
     });
@@ -147,7 +147,7 @@ function select_interface(melon) {
 		var margin_nav = ('undefined'==typeof($title.children(":first").attr('data-margin-nav'))) ? false : true;
 		$wrapper.append('<br clear="both" />');
 		var $margin_nav = $('<div class="checkbox" style="display:block;"><label for="margin-nav"><input type="checkbox" id="margin-nav" value="1" /> Display navigation buttons in margins?</label></div>').appendTo($wrapper);
-		$wrapper.find('#margin-nav').prop('checked', margin_nav).change(function() {
+		$wrapper.find('#margin-nav').prop('checked', margin_nav).on('change', function() {
 			var $title = $('<div>'+$('input[name="title"]').val()+'</div>');
 			if (!$title.children(':first').is('span')) $title.contents().wrap('<span></span>');
 			var $span = $title.children(':first');

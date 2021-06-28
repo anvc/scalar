@@ -1,18 +1,18 @@
 /*
  * Added by Craig
  */
-  
+
 function nl2br (str) {
-	var breakTag = '<br>'; 
-	str = (str + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1'+breakTag+'$2'); 
-	str = (str + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, ''); 
+	var breakTag = '<br>';
+	str = (str + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1'+breakTag+'$2');
+	str = (str + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '');
 	return str;
-}  
+}
 
 function br2nl(str) {
     return str.replace(/<br\s*\/?>/mg,"\n");
 };
- 
+
 /**
  * WYSIWYG - jQuery plugin 0.6
  *
@@ -134,7 +134,7 @@ function br2nl(str) {
 
             if ( self.constructor == Wysiwyg && szURL && szURL.length > 0 )
             {
-                if ($.browser.msie) self.focus();
+                //if ($.browser.msie) self.focus();
                 if ( attributes )
                 {
                     self.editorDoc.execCommand('insertImage', false, '#jwysiwyg#');
@@ -167,7 +167,7 @@ function br2nl(str) {
 
                 if ( selection.length > 0 )
                 {
-                    if ($.browser.msie) self.focus();
+                    //if ($.browser.msie) self.focus();
                     self.editorDoc.execCommand('unlink', false, []);
                     self.editorDoc.execCommand('createLink', false, szURL);
                 }
@@ -182,7 +182,7 @@ function br2nl(str) {
 
             if ( self.constructor == Wysiwyg && szHTML && szHTML.length > 0 )
             {
-                if ($.browser.msie)
+                /*if ($.browser.msie)
                 {
                     self.focus();
                     self.editorDoc.execCommand('insertImage', false, '#jwysiwyg#');
@@ -193,9 +193,9 @@ function br2nl(str) {
                     }
                 }
                 else
-                {
+                {*/
                     self.editorDoc.execCommand('insertHTML', false, szHTML);
-                }
+                //}
             }
         },
 
@@ -242,13 +242,13 @@ function br2nl(str) {
 
             separator06 : { separator : true },
 
-            h1mozilla : { visible : true && $.browser.mozilla, className : 'h1', command : 'heading', arguments : ['h1'], tags : ['h1'], tooltip : "Header 1" },
+            /*h1mozilla : { visible : true && $.browser.mozilla, className : 'h1', command : 'heading', arguments : ['h1'], tags : ['h1'], tooltip : "Header 1" },
             h2mozilla : { visible : true && $.browser.mozilla, className : 'h2', command : 'heading', arguments : ['h2'], tags : ['h2'], tooltip : "Header 2" },
-            h3mozilla : { visible : true && $.browser.mozilla, className : 'h3', command : 'heading', arguments : ['h3'], tags : ['h3'], tooltip : "Header 3" },
+            h3mozilla : { visible : true && $.browser.mozilla, className : 'h3', command : 'heading', arguments : ['h3'], tags : ['h3'], tooltip : "Header 3" },*/
 
-            h1 : { visible : true && !( $.browser.mozilla ), className : 'h1', command : 'formatBlock', arguments : ['<H1>'], tags : ['h1'], tooltip : "Header 1" },
-            h2 : { visible : true && !( $.browser.mozilla ), className : 'h2', command : 'formatBlock', arguments : ['<H2>'], tags : ['h2'], tooltip : "Header 2" },
-            h3 : { visible : true && !( $.browser.mozilla ), className : 'h3', command : 'formatBlock', arguments : ['<H3>'], tags : ['h3'], tooltip : "Header 3" },
+            h1 : { visible : true /*&& !( $.browser.mozilla )*/, className : 'h1', command : 'formatBlock', arguments : ['<H1>'], tags : ['h1'], tooltip : "Header 1" },
+            h2 : { visible : true /*&& !( $.browser.mozilla )*/, className : 'h2', command : 'formatBlock', arguments : ['<H2>'], tags : ['h2'], tooltip : "Header 2" },
+            h3 : { visible : true /*&& !( $.browser.mozilla )*/, className : 'h3', command : 'formatBlock', arguments : ['<H3>'], tags : ['h3'], tooltip : "Header 3" },
 
             separator04 : { visible : true, separator : true },
 
@@ -273,10 +273,10 @@ function br2nl(str) {
 							if (source_url.length==0) return alert('There was a problem resolving the resource URL. Please try again.');
 							fn(source_url, scalar_url, version_urn, data_fields);
 							return true;
-						}	
+						}
 						_callback.funcname = 'insertMediaLink';
 						listeditor_add(null, _callback, 'media', true, true);
-						
+
                     } else if ( this.options.messages.nonSelection )
                         alert(this.options.messages.nonSelection);
                 },
@@ -297,7 +297,7 @@ function br2nl(str) {
                     	}
                     	theHTML += ">"+selection+"</a>";
 
-                        if ($.browser.msie)
+                        /*if ($.browser.msie)
                         {
                             this.focus();
                             this.editorDoc.execCommand('insertImage', false, '#jwysiwyg#');
@@ -308,9 +308,9 @@ function br2nl(str) {
                             }
                         }
                         else
-                        {
+                        {*/
                         	this.editorDoc.execCommand('insertHTML', false, theHTML);
-                        }
+                        //}
                     }
                     else if ( this.options.messages.nonSelection )
                         alert(this.options.messages.nonSelection);
@@ -324,7 +324,7 @@ function br2nl(str) {
             	visible: true,
             	exec: function(){
 
-						var fn = jQuery.proxy(Wysiwyg.TOOLBAR.insertMediaelement.exec, this);						
+						var fn = jQuery.proxy(Wysiwyg.TOOLBAR.insertMediaelement.exec, this);
 						var _callback = function($list, title, scalar_url, source_url, content_urn, version_urn, annotation_type, annotation_of_scalar_url, annotation_of_source_url, data_fields) {
 							// scalar_url -> resource
 							// source_url -> href
@@ -332,15 +332,15 @@ function br2nl(str) {
 							if (source_url.length==0) return alert('There was a problem resolving the resource URL. Please try again.');
 							fn(source_url, scalar_url, version_urn, data_fields);
 							return true;
-						}			
+						}
 						_callback.funcname = 'insertMediaelement';
-						listeditor_add(null, _callback, 'media', true, true);					
-                    	
+						listeditor_add(null, _callback, 'media', true, true);
+
                 },
 
                 tags : ['a'],
                 tooltip : "Add inline Scalar media file (for display directly within the text)"
-            },   
+            },
             // Scalar
             insertMediaelement : {
                 visible : false,
@@ -350,19 +350,19 @@ function br2nl(str) {
 		            	for (var field in data_fields) {
 		            		theHTML += " data-"+field+"='"+data_fields[field]+"'";
 		            	}
-		            	theHTML += "></a>";            	
-                           
+		            	theHTML += "></a>";
+
                         this.focus();
                         this.editorDoc.execCommand('insertImage', false, '#jwysiwyg#');
                         var img = this.getElementByAttributeValue('img', 'src', '#jwysiwyg#');
                         if (img) {
                            $(img).replaceWith(theHTML);
-                        }      
+                        }
                 },
 
                 tags : ['img'],
                 tooltip : "Add inline Scalar media file (for display directly within the text)"
-            },                       
+            },
             // Scalar
             initiateAnnotation : {
             	visible: true,
@@ -380,10 +380,10 @@ function br2nl(str) {
 							if (annotation_of_source_url.length==0) return alert('There was a problem resolving the annotation type. Please try again.');
 							fn(scalar_url, annotation_of_scalar_url, annotation_of_source_url, version_urn, data_fields);
 							return true;
-						}		
+						}
 						_callback.funcname = 'insertAnnotation';
-						listeditor_add(null, _callback, 'annotation', true, true);					
-                  	
+						listeditor_add(null, _callback, 'annotation', true, true);
+
                     } else if ( this.options.messages.nonSelection )
                         alert(this.options.messages.nonSelection);
                 },
@@ -403,8 +403,8 @@ function br2nl(str) {
                     		theHTML += " data-"+field+"='"+data_fields[field]+"'"
                     	}
                     	theHTML += ">"+selection+"</a>";
-                    	
-                        if ($.browser.msie)
+
+                        /*if ($.browser.msie)
                         {
                             this.focus();
                             this.editorDoc.execCommand('insertImage', false, '#jwysiwyg#');
@@ -415,9 +415,9 @@ function br2nl(str) {
                             }
                         }
                         else
-                        {
+                        {*/
                         	this.editorDoc.execCommand('insertHTML', false, theHTML);
-                        }
+                        //}
                     }
                     else if ( this.options.messages.nonSelection )
                         alert(this.options.messages.nonSelection);
@@ -425,7 +425,7 @@ function br2nl(str) {
 
                 tags : ['span'],
                 tooltip : "Add reference to Scalar media annotation (media will be cued to the annotation in views that allow media)"
-            },             
+            },
             // Scalar
             initiateInlineAnnotation : {
             	visible: true,
@@ -442,10 +442,10 @@ function br2nl(str) {
 							if (annotation_of_source_url.length==0) return alert('There was a problem resolving the annotation type. Please try again.');
 							fn(scalar_url, annotation_of_scalar_url, annotation_of_source_url, version_urn, data_fields);
 							return true;
-						}				
+						}
 						_callback.funcname = 'insertInlineAnnotation';
-						listeditor_add(null, _callback, 'annotation', true, true);					
-                  	
+						listeditor_add(null, _callback, 'annotation', true, true);
+
                 },
 
                 tags : ['span'],
@@ -455,27 +455,27 @@ function br2nl(str) {
             insertInlineAnnotation:{
             	visible: false,
             	exec: function(scalar_url, annotation_of_scalar_url, annotation_of_source_url, version_urn, data_fields){
-            	
+
                     	var theHTML = "<a class='inline' href='"+annotation_of_source_url+"#"+scalar_url+"' resource='"+annotation_of_scalar_url+"'";
 		            	for (var field in data_fields) {
 		            		theHTML += " data-"+field+"='"+data_fields[field]+"'";
-		            	}                   	
+		            	}
                     	theHTML += "></a>";
-                    	
+
                         this.focus();
                         if (!strip_tags(this.editorDoc.body.innerHTML).length) this.editorDoc.body.innerHTML = '[EDITOR_INSERT_PADDING]';
                         this.editorDoc.execCommand('insertImage', false, '#jwysiwyg#');
                         var img = this.getElementByAttributeValue('img', 'src', '#jwysiwyg#');
                         if (img) {
                            $(img).replaceWith(theHTML);
-                        }    
+                        }
                         this.editorDoc.body.innerHTML = this.editorDoc.body.innerHTML.replace('[EDITOR_INSERT_PADDING]', '');
 
                 },
 
                 tags : ['span'],
                 tooltip : "Add inline Scalar annotation (media will be displayed inline [e.g., not in sidebar] and will be cued to the annotation)"
-            },               
+            },
             // Scalar
             initiateNote : {
             	visible: true,
@@ -488,10 +488,10 @@ function br2nl(str) {
 							if (scalar_url.length==0) return alert('There was a problem resolving the Scalar URL. Please try again.');
 							fn(source_url, scalar_url, version_urn, data_fields);
 							return true;
-						}				
+						}
 						_callback.funcname = 'insertNote';
-						listeditor_add(null, _callback, null, false, true);		
-                    	
+						listeditor_add(null, _callback, null, false, true);
+
                     } else if ( this.options.messages.nonSelection )
                         alert(this.options.messages.nonSelection);
                 },
@@ -506,11 +506,11 @@ function br2nl(str) {
             		var selection = $(this.editor).documentSelection();
                     if ( selection.length > 0 )
                     {
-                    	
+
                     	var theHTML = "<span class='note' rev='scalar:has_note' resource='"+scalar_url+"'";
 		            	for (var field in data_fields) {
 		            		theHTML += " data-"+field+"='"+data_fields[field]+"'";
-		            	}           	
+		            	}
                     	theHTML += ">"+selection+"</span>";
 
                     	if (1) {   // Always route to this approach; Chrome seems to have a problem with the insert if its at the end of a paragraph
@@ -533,8 +533,8 @@ function br2nl(str) {
 
                 tags : ['span'],
                 tooltip : "Add a note (specially-colored link to another Scalar page)"
-            },       
-            // Scalar   
+            },
+            // Scalar
             initiateInternalLink : {
             	visible: true,
             	exec: function(){
@@ -546,17 +546,17 @@ function br2nl(str) {
 							if (scalar_url.length==0) return alert('There was a problem resolving the Scalar URL. Please try again.');
 							fn(source_url, scalar_url, version_urn, data_fields);
 							return true;
-						}					
+						}
 						_callback.funcname = 'createInternalLink';
-						listeditor_add(null, _callback, null, false, true);											
-                    	
+						listeditor_add(null, _callback, null, false, true);
+
                     } else if ( this.options.messages.nonSelection )
                         alert(this.options.messages.nonSelection);
                 },
 
                 tags : ['a'],
                 tooltip : "Add a link to a Scalar page or media file (link only; media will not be displayed)"
-            },            
+            },
             // Scalar
             createInternalLink : {
                 visible : false,
@@ -566,14 +566,14 @@ function br2nl(str) {
 
                     if ( selection.length > 0 )
                     {
-                    
+
                     	var theHTML = "<a href='"+scalar_url+"'";
                     	for (var field in data_fields) {
                     		theHTML += " data-"+field+"='"+data_fields[field]+"'"
-                    	}                    	
+                    	}
                     	theHTML += ">"+selection+"</a>";
-                    	
-                        if ($.browser.msie)
+
+                        /*if ($.browser.msie)
                         {
                             this.focus();
                             this.editorDoc.execCommand('insertImage', false, '#jwysiwyg#');
@@ -584,10 +584,10 @@ function br2nl(str) {
                             }
                         }
                         else
-                        {
+                        {*/
                         	this.editorDoc.execCommand('insertHTML', false, theHTML);
-                        }                    
-                   
+                        //}
+
                     }
                     else if ( this.options.messages.nonSelection )
                         alert(this.options.messages.nonSelection);
@@ -595,7 +595,7 @@ function br2nl(str) {
 
                 tags : ['a'],
                 tooltip : "Add a link to a Scalar page or media file (link only; media will not be displayed)"
-            },    
+            },
             // Scalar
             createLink : {
                 visible : true,
@@ -605,13 +605,13 @@ function br2nl(str) {
 
                     if ( selection.length > 0 )
                     {
-                        if ( $.browser.msie )
+                        /*if ( $.browser.msie )
                         {
                             this.focus();
                             this.editorDoc.execCommand('createLink', true, null);
                         }
                         else
-                        {
+                        {*/
                             var szURL = prompt('URL', 'http://');
 
                             if ( szURL && szURL.length > 0 )
@@ -619,7 +619,7 @@ function br2nl(str) {
                                 this.editorDoc.execCommand('unlink', false, []);
                                 this.editorDoc.execCommand('createLink', false, szURL);
                             }
-                        }
+                        //}
                     }
                     else if ( this.options.messages.nonSelection )
                         alert(this.options.messages.nonSelection);
@@ -627,8 +627,8 @@ function br2nl(str) {
 
                 tags : ['a'],
                 tooltip : "Insert external link"
-            },      
-          
+            },
+
             // Note, this feature is discouraged because presentlationly it doesn't take advantage of Scalar's text-media relationships
             /*
             initiateInsertImage : {
@@ -637,7 +637,7 @@ function br2nl(str) {
 
 						var fn = jQuery.proxy(Wysiwyg.TOOLBAR.insertImage.exec, this);
 						//fn(szURI);
-						
+
 						var _callback = function($list, title, scalar_url, source_url, content_urn, version_urn, annotation_type, annotation_of_scalar_url, annotation_of_source_url) {
 							if (scalar_url.length==0) return alert('There was a problem resolving the Scalar URL. Please try again.');
 							if (source_url.length==0) return alert('There was a problem resolving the resource URL. Please try again.');
@@ -653,26 +653,26 @@ function br2nl(str) {
 							$div.append('<b>Width in pixels</b> (leave blank to maintain the image\'s default width):&nbsp; &nbsp;<input type="text" name="image_width" value="" style="width:50px;" />');
 							$div.append('<br /><br /><br />');
 							$div.append('<input type="button" value="Save and insert image" class="generic_button" />');
-							$('body').append($div);		
+							$('body').append($div);
 							$div.css('left', ($(window).width()/2) - ($div.width()/2) );
 							$div.css('top', ($(window).height()/2) - ($div.height()/2) );
-							$div.find("input[type='button']").click(function() {
+							$div.find("input[type='button']").on('click', function() {
 								var class_name = $div.find('input[name=image_align]:checked').val();
 								var width = $div.find('input[name=image_width]').val();
 								$div.remove();
 								fn(source_url, scalar_url, class_name, width);
 							});
-							return true;					
+							return true;
 
-						}					
-						
-						listeditor_add(null, _callback, 'image',  true, true);					
-                    	
+						}
+
+						listeditor_add(null, _callback, 'image',  true, true);
+
                 },
 
                 tags : ['a'],
                 tooltip : "Insert inline Scalar image (for display directly within text and with no Scalar media wrapper)"
-            },   
+            },
 
             insertImage : {
                 visible : false,
@@ -693,31 +693,31 @@ function br2nl(str) {
                         else
                         {
                         	this.editorDoc.execCommand('insertHTML', false, theHTML);
-                        }     
+                        }
                 },
 
                 tags : ['img'],
                 tooltip : "Insert inline Scalar image (for display directly within text and with no Scalar media wrapper)"
-            },   
-            */                
-            
+            },
+            */
+
 			separator07 : { visible : true, separator : true },
 
             initiateCode : {
             	visible: true,
             	exec: function() {
-   
+
 						var fn = jQuery.proxy(Wysiwyg.TOOLBAR.insertCode.exec, this);
 						//fn(szURI);
 						$('.editor_generic_popup').remove();
 						var $div = $('<div class="editor_generic_popup"></div>'); // global
 						$('body').append($div);
-						$div.css('left', (parseInt($(window).width()/2)-$div.outerWidth()/2)+'px' );					
+						$div.css('left', (parseInt($(window).width()/2)-$div.outerWidth()/2)+'px' );
 						$div.css('top', (parseInt($(window).height()/2)-$div.outerHeight()/2 + parseInt($(window).scrollTop()) )+'px' );
 						$div.append('Add your code snippet below (indentation will be preserved)');
 						$div.append('<textarea style="width:100%;height:200px;margin-bottom:6px;" name="code_snippet"></textarea>');
 						$div.append('<input type="button" value="Insert" style="border:solid 1px #aaaaaa;" /><span style="float:right;"><a href="javascript:;" onclick="$(\'.editor_generic_popup\').remove();">cancel</a></span>');
-						$div.find('input:first').click( function(url) {
+						$div.find('input:first').on('click',  function(url) {
 							var theHTML = $div.find('textarea:first').val();
 							if (theHTML.length==0) return alert('Please enter a code snippet');
 							theHTML = '<pre><code>'+theHTML+'</code></pre>';
@@ -728,12 +728,12 @@ function br2nl(str) {
 
                 tags : ['a'],
                 tooltip : "Insert a software code snippet"
-            },			
-			
+            },
+
             insertCode:{
             	visible: false,
             	exec: function(theHTML){
-                        if ($.browser.msie)
+                        /*if ($.browser.msie)
                         {
                             this.focus();
                             this.editorDoc.execCommand('insertImage', false, '#jwysiwyg#');
@@ -744,9 +744,9 @@ function br2nl(str) {
                             }
                         }
                         else
-                        {
+                        {*/
                         	this.editorDoc.execCommand('insertHTML', false, theHTML);
-                        }
+                        //}
                         this.saveContent();
                 },
 
@@ -758,10 +758,10 @@ function br2nl(str) {
             copy  : { visible : false, tooltip : "Copy" },
             paste : { visible : false, tooltip : "Paste" },
 
-            separator08 : { separator : false && !( $.browser.msie ) },
+            separator08 : { separator : false /*&& !( $.browser.msie )*/ },
 
-            increaseFontSize : { visible : false && !( $.browser.msie ), tags : ['big'], tooltip : "Increase font size" },
-            decreaseFontSize : { visible : false && !( $.browser.msie ), tags : ['small'], tooltip : "Decrease font size" },
+            increaseFontSize : { visible : false /*&& !( $.browser.msie )*/, tags : ['big'], tooltip : "Increase font size" },
+            decreaseFontSize : { visible : false /*&& !( $.browser.msie )*/, tags : ['small'], tooltip : "Decrease font size" },
 
             undo : { visible : true, tooltip : "Undo" },
             redo : { visible : true, tooltip : "Redo" },
@@ -770,13 +770,13 @@ function br2nl(str) {
                 visible : true,
                 exec    : function()
                 {
-                    if ($.browser.msie) this.focus();
+                    //if ($.browser.msie) this.focus();
                     this.editorDoc.execCommand('removeFormat', false, []);
                     this.editorDoc.execCommand('unlink', false, []);
                 },
                 tooltip : "Remove formatting"
             },
-            
+
             separator09 : { separator : true },
 
 			/**
@@ -808,7 +808,7 @@ function br2nl(str) {
                 },
                 tooltip : "View source code"
             }
-                        
+
         }
     });
 
@@ -849,14 +849,14 @@ function br2nl(str) {
 
                 var editor = this.editor = $('<iframe src="javascript:false;"></iframe>').css({
                     minHeight : ( newY - 6 ).toString() + 'px',
-                    
+
                     /**
-                     * Changed by Craig Dietrich 
+                     * Changed by Craig Dietrich
                      */
-                    
+
                     //width     : ( newX - 8 ).toString() + 'px'
                     width     : '100%'
-                    
+
                 }).attr('id', $(element).attr('id') + 'IFrame')
                 .attr('frameborder', '0');
 
@@ -865,7 +865,7 @@ function br2nl(str) {
                  */
                 this.editor.attr('tabindex', $(element).attr('tabindex'));
 
-                if ( $.browser.msie )
+                /*if ( $.browser.msie )
                 {
                     this.editor
                         .css('height', ( newY ).toString() + 'px');
@@ -877,21 +877,21 @@ function br2nl(str) {
                     }).attr('id', $(element).attr('id') + 'IFrame');
 
                     editor.outerHTML = this.editor.outerHTML;
-                     */
-                }
+                     *
+                }*/
             }
 
             var panel = this.panel = $('<ul role="menu" class="panel"></ul>');
 
             this.appendControls();
             this.element = $('<div></div>').css({
-            	
+
             	/**
             	 * Changed by Craig Dietrich
             	 */
-            
+
                 //width : ( newX > 0 ) ? ( newX ).toString() + 'px' : '100%'
-                
+
             }).addClass('wysiwyg')
                 .append(panel)
                 .append( $('<div><!-- --></div>').css({ clear : 'both' }) )
@@ -924,10 +924,10 @@ function br2nl(str) {
 	    {
 	    		// CRAIG TODO: change this so it doesn't lost the value of non-wysiwyg
 	    		// Figure out if we are in text mode, and then don't do the save
-	    		
-                form.submit(function() {
+
+                form.on('submit', function() {
                 	if (self.viewHTML) return; // editor is in html mode (not WYSIWYG), therefor changes are live to the textarea
-                	self.saveContent(); 
+                	self.saveContent();
                 });
 	    }
 
@@ -980,15 +980,15 @@ function br2nl(str) {
 
             this.editorDoc.contentEditable = 'true';
 
-            if ( $.browser.msie )
+            /*if ( $.browser.msie )
             {
                 /**
                  * Remove the horrible border it has on IE.
-                 */
+                 *
                 setTimeout(function() { $(self.editorDoc.body).css('border', 'none'); }, 0);
-            }
+            }*/
 
-            $(this.editorDoc).click(function( event )
+            $(this.editorDoc).on('click', function( event )
             {
                 self.checkTargets( event.target ? event.target : event.srcElement);
             });
@@ -996,22 +996,22 @@ function br2nl(str) {
             /**
              * @link http://code.google.com/p/jwysiwyg/issues/detail?id=20
              */
-            $(this.original).focus(function()
+            /*$(this.original).focus(function()
             {
                 if (!$.browser.msie)
                 {
                     self.focus();
                 }
-            });
+            });*/
 
             if ( this.options.autoSave )
             {
                 /**
                  * @link http://code.google.com/p/jwysiwyg/issues/detail?id=11
                  */
-                $(this.editorDoc).keydown(function() { self.saveContent(); })
-                                 .keyup(function() { self.saveContent(); })
-                                 .mousedown(function() { self.saveContent(); });
+                $(this.editorDoc).on('keydown', function() { self.saveContent(); })
+                                 .on('keyup', function() { self.saveContent(); })
+                                 .on('mousedown', function() { self.saveContent(); });
             }
 
             if ( this.options.css )
@@ -1034,16 +1034,16 @@ function br2nl(str) {
                 }, 0);
             }
 
-            $(this.editorDoc).keydown(function( event )
+            $(this.editorDoc).on('keydown', function( event )
             {
-                if ( $.browser.msie && self.options.brIE && event.keyCode == 13 )
+                /*if ( $.browser.msie && self.options.brIE && event.keyCode == 13 )
                 {
                     var rng = self.getRange();
                     rng.pasteHTML('<br />');
                     rng.collapse(false);
                     rng.select();
                     return false;
-                }
+                }*/
                 return true;
             });
         },
@@ -1093,7 +1093,7 @@ function br2nl(str) {
                     content = ( content.substr(-4) == '<br>' ) ? content.substr(0, content.length - 4) : content;
 				}
 				/**
-				 * Added by Craig 
+				 * Added by Craig
 				 */
 				content = br2nl(content);
                 $(this.original).val(content);
@@ -1102,8 +1102,8 @@ function br2nl(str) {
 
         withoutCss: function()
         {
-            if ($.browser.mozilla)
-            {
+            /*if ($.browser.mozilla)
+            {*/
                 try
                 {
                     this.editorDoc.execCommand('styleWithCSS', false, false);
@@ -1118,7 +1118,7 @@ function br2nl(str) {
                     {
                     }
                 }
-            }
+            //}
         },
 
         appendMenu : function( cmd, args, className, fn, tooltip )
@@ -1130,7 +1130,7 @@ function br2nl(str) {
                 $('<a role="menuitem" tabindex="-1" href="javascript:;">' + (className || cmd) + '</a>')
                     .addClass(className || cmd)
                     .attr('title', tooltip)
-            ).click(function() {
+            ).on('click', function() {
                 if ( fn ) fn.apply(self); else
                 {
                     self.withoutCss();
@@ -1138,13 +1138,13 @@ function br2nl(str) {
                 }
                 if ( self.options.autoSave ) self.saveContent();
             }).appendTo( this.panel );
-            
+
             /**
              * Added by Craig Dietrich
              */
-             
-            if ('html'==cmd) { 
-            	$('.to_html_handle').click(function() {
+
+            if ('html'==cmd) {
+            	$('.to_html_handle').on('click', function() {
             		if ( self.viewHTML ) return;
 	                if ( fn ) fn.apply(self); else
 	                {
@@ -1155,7 +1155,7 @@ function br2nl(str) {
 	                $('.to_html_handle, .to_wysiwyg_handle').removeClass('wysiwyg_handle_selected');
 	                $(this).addClass('wysiwyg_handle_selected');
             	});
-            	$('.to_wysiwyg_handle').click(function() {
+            	$('.to_wysiwyg_handle').on('click', function() {
             		if ( !self.viewHTML ) return;
 	                if ( fn ) fn.apply(self); else
 	                {
@@ -1165,9 +1165,9 @@ function br2nl(str) {
 	                if ( self.options.autoSave ) self.saveContent();
 	                $('.to_html_handle, .to_wysiwyg_handle').removeClass('wysiwyg_handle_selected');
 	                $(this).addClass('wysiwyg_handle_selected');
-            	});            	
+            	});
             }
-                         
+
         },
 
         appendMenuSeparator : function()
@@ -1243,11 +1243,11 @@ function br2nl(str) {
             {
                 var value = elements[i].getAttribute(attributeName);
 
-                if ( $.browser.msie )
+                /*if ( $.browser.msie )
                 {
-                    /** IE add full path, so I check by the last chars. */
+                    /** IE add full path, so I check by the last chars. *
                     value = value.substr(value.length - attributeValue.length);
-                }
+                }*/
 
                 if ( value == attributeValue )
                     return elements[i];

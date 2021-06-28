@@ -3,7 +3,8 @@
 <?$this->template->add_css('system/application/views/modules/cover/title.css')?>
 <?$this->template->add_css('system/application/views/modules/cover/login.css')?>
 <?$this->template->add_css(path_from_file(__FILE__).'book_list.css')?>
-<?$this->template->add_js('system/application/views/arbors/admin/jquery-1.7.min.js')?>
+<?$this->template->add_js('system/application/views/arbors/admin/jquery-3.4.1.min.js')?>
+<script src="https://code.jquery.com/jquery-migrate-3.1.0.js"></script>
 <?$this->template->add_js('system/application/views/arbors/admin/admin.js')?>
 <div class="system_wrapper">
 	<div class="content">
@@ -36,6 +37,14 @@ function print_books($books, $is_large=false) {
 	echo '</ul>';
 }
 
+?>
+
+<?
+$data = $this->session->userdata(base_url());
+if (isset($data['password_exceeds_max_days']) && $data['password_exceeds_max_days']) {
+	$days = $this->config->item('strong_password_days_to_reset');
+	echo '<div class="saved msg">It\'s been more than '.$days.' '.(($days>1)?'days':'day').' since you updated your password &mdash; please change your password in the Dashboard</div>'."\n";
+}
 ?>
 
 <?if (isset($_REQUEST['user_created']) && '1'==$_REQUEST['user_created']): ?>

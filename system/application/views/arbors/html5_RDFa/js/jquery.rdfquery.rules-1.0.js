@@ -1,6 +1,6 @@
 /*
  * $ URIs @VERSION
- * 
+ *
  * Copyright (c) 2008,2009 Jeni Tennison
  * Licensed under the MIT (MIT-LICENSE.txt)
  *
@@ -128,7 +128,7 @@
      * @type String
      */
     fragment: undefined,
-    
+
     init: function (relative, base) {
       var r = {};
       base = base || {};
@@ -157,7 +157,7 @@
       }
       return this;
     },
-  
+
     /**
      * Resolves a relative URI relative to this URI
      * @param {String} relative
@@ -166,7 +166,7 @@
     resolve: function (relative) {
       return $.uri(relative, this);
     },
-    
+
     /**
      * Creates a relative URI giving the path from this URI to the absolute URI passed as a parameter
      * @param {String|jQuery.uri} absolute
@@ -177,7 +177,7 @@
       if (typeof absolute === 'string') {
         absolute = $.uri(absolute, {});
       }
-      if (absolute.scheme !== this.scheme || 
+      if (absolute.scheme !== this.scheme ||
           absolute.authority !== this.authority) {
         return absolute.toString();
       }
@@ -211,7 +211,7 @@
       }
       return '';
     },
-  
+
     /**
      * Returns the URI as an absolute string
      * @returns String
@@ -230,7 +230,7 @@
         return result;
       }
     }
-  
+
   };
 
   $.uri.fn.init.prototype = $.uri.fn;
@@ -252,7 +252,7 @@
   $.uri.resolve = function (relative, base) {
     return $.uri(relative, base);
   };
-  
+
   /**
    * Creates a string giving the relative path from a base URI to an absolute URI
    * @param {String} absolute
@@ -262,7 +262,7 @@
   $.uri.relative = function (absolute, base) {
     return $.uri(base, {}).relative(absolute);
   };
-  
+
   /**
    * Returns the base URI of the page
    * @returns {jQuery.uri}
@@ -270,7 +270,7 @@
   $.uri.base = function () {
     return $(document).base();
   };
-  
+
   /**
    * Returns the base URI in scope for the first selected element
    * @methodOf jQuery#
@@ -279,7 +279,7 @@
    * @example baseURI = $('img').base();
    */
   $.fn.base = function () {
-    var base = $(this).parents().andSelf().find('base').attr('href'),
+    var base = $(this).parents().addBack().find('base').attr('href'),
       doc = $(this)[0].ownerDocument || document,
       docURI = $.uri.absolute(doc.location === null ? document.location.href : doc.location.href);
     return base === undefined ? docURI : $.uri(base, docURI);
@@ -288,7 +288,7 @@
 })(jQuery);
 /*
  * jQuery CURIE @VERSION
- * 
+ *
  * Copyright (c) 2008,2009 Jeni Tennison
  * Licensed under the MIT (MIT-LICENSE.txt)
  *
@@ -307,13 +307,13 @@
 /*global jQuery */
 (function ($) {
 
-  var 
+  var
     xmlnsRegex = /\sxmlns(?::([^ =]+))?\s*=\s*(?:"([^"]*)"|'([^']*)')/g;
 
 /**
  * Returns the namespaces declared in the scope of the first selected element, or
  * adds a namespace declaration to all selected elements. Pass in no parameters
- * to return all namespaces bindings on the first selected element. If only 
+ * to return all namespaces bindings on the first selected element. If only
  * the prefix parameter is specified, this method will return the namespace
  * URI that is bound to the specified prefix on the first element in the selection
  * If the prefix and uri parameters are both specified, this method will
@@ -325,7 +325,7 @@
  * @param {String|jQuery.uri} [uri] Adds a namespace declaration to the selected elements that maps the specified prefix to the specified namespace.
  * @param {Object} [inherited] A map of inherited namespace bindings.
  * @returns {Object|jQuery.uri|jQuery}
- * @example 
+ * @example
  * // Retrieve all of the namespace bindings on the HTML document element
  * var nsMap = $('html').xmlns();
  * @example
@@ -336,7 +336,7 @@
  * $('html').xmlns('dc', 'http://purl.org/dc/elements/1.1/');
  */
   $.fn.xmlns = function (prefix, uri, inherited) {
-    var 
+    var
       elem = this.eq(0),
       ns = elem.data('xmlns'),
       e = elem[0], a, p, i,
@@ -384,7 +384,7 @@
             this.xmlns(p, prefix[p]);
           }
         }
-        this.find('*').andSelf().removeData('xmlns');
+        this.find('*').addBack().removeData('xmlns');
         return this;
       } else { // get the in-scope declaration associated with this prefix on the first element
         if (ns === undefined) {
@@ -393,7 +393,7 @@
         return ns[prefix];
       }
     } else { // set
-      this.find('*').andSelf().removeData('xmlns');
+      this.find('*').addBack().removeData('xmlns');
       return this.attr(decl, uri);
     }
   };
@@ -433,7 +433,7 @@
       decl = prefix ? 'xmlns:' + prefix : 'xmlns';
       this.removeAttr(decl);
     }
-    this.find('*').andSelf().removeData('xmlns');
+    this.find('*').addBack().removeData('xmlns');
     return this;
   };
 
@@ -967,7 +967,7 @@
       ns = opts.namespaces,
       curie;
     uri = $.uri(uri).toString();
-    if (opts.reservedNamespace !== undefined && 
+    if (opts.reservedNamespace !== undefined &&
         uri.substring(0, opts.reservedNamespace.toString().length) === opts.reservedNamespace.toString()) {
       curie = uri.substring(opts.reservedNamespace.toString().length);
       if ($.inArray(curie, opts.reserved) === -1) {
@@ -1207,7 +1207,7 @@
           return $.map(compatibleMs, function (compatibleM) {
             return {
               bindings: $.extend({}, existingM.bindings, compatibleM.bindings),
-              triples: $.unique(existingM.triples.concat(compatibleM.triples))
+              triples: $.uniqueSort(existingM.triples.concat(compatibleM.triples))
             };
           });
         } else {
@@ -1921,7 +1921,7 @@
         databanks = $.map(this.union, function (query) {
           return query.databank;
         });
-        databanks = $.unique(databanks);
+        databanks = $.uniqueSort(databanks);
         if (databanks[1] !== undefined) {
           this.databank = $.rdf.databank(undefined, { union: databanks });
         } else {
@@ -2120,7 +2120,7 @@
      *   .add('_:b foaf:family_name "Hacker" .')
      *   .where('?person foaf:family_name "Hacker"')
      *   .where('?person foaf:givenname "Bob");
-     */ 
+     */
     where: function (filter, options) {
       var query, base, namespaces, optional;
       options = options || {};
@@ -2374,7 +2374,7 @@
      *   .where('?thing a foaf:Person')
      *   .sources()
      *   .each(function () {
-     *     ...do something with the array of triples... 
+     *     ...do something with the array of triples...
      *   });
      */
     sources: function () {
@@ -2548,7 +2548,7 @@
     }
   };
 
-  $.extend($.expr[':'], {
+  $.extend($.expr.pseudos, {
 
     about: function (a, i, m) {
       var j = $(a),
@@ -2613,7 +2613,7 @@
       }
       return this;
     },
-    
+
     /**
      * Sets or returns the base URI of the {@link jQuery.rdf.databank}.
      * @param {String|jQuery.uri} [base]
@@ -2798,7 +2798,7 @@
         $.each(this.union, function (i, databank) {
           triples = triples.concat(databank.triples().get());
         });
-        triples = $.unique(triples);
+        triples = $.uniqueSort(triples);
       }
       return $(triples);
     },
@@ -2847,7 +2847,7 @@
           rhash[r] = true;
         }
       }
-      return $.unique(triples);
+      return $.uniqueSort(triples);
     },
 
     /**
@@ -2904,10 +2904,10 @@
    * @returns {jQuery.rdf.pattern} The newly-created pattern.
    * @throws {String} Errors if any of the strings are not in a recognised format.
    * @example pattern = $.rdf.pattern('?person', $.rdf.type, 'foaf:Person', { namespaces: { foaf: "http://xmlns.com/foaf/0.1/" }});
-   * @example 
-   * pattern = $.rdf.pattern('?person a foaf:Person', { 
-   *   namespaces: { foaf: "http://xmlns.com/foaf/0.1/" }, 
-   *   optional: true 
+   * @example
+   * pattern = $.rdf.pattern('?person a foaf:Person', {
+   *   namespaces: { foaf: "http://xmlns.com/foaf/0.1/" },
+   *   optional: true
    * });
    * @see jQuery.rdf#where
    * @see jQuery.rdf.resource
@@ -2929,9 +2929,9 @@
       }
       optional = (options.optional === undefined) ? $.rdf.pattern.defaults.optional : options.optional;
     }
-    if (memPattern[subject] && 
-        memPattern[subject][property] && 
-        memPattern[subject][property][object] && 
+    if (memPattern[subject] &&
+        memPattern[subject][property] &&
+        memPattern[subject][property][object] &&
         memPattern[subject][property][object][optional]) {
       return memPattern[subject][property][object][optional];
     }
@@ -2988,7 +2988,7 @@
      * @returns {jQuery.rdf.pattern} A new {@link jQuery.rdf.pattern} object.
      * @example
      * pattern = $.rdf.pattern('?thing a ?class');
-     * // pattern2 matches all triples that indicate the classes of this page. 
+     * // pattern2 matches all triples that indicate the classes of this page.
      * pattern2 = pattern.fill({ thing: $.rdf.resource('<>') });
      */
     fill: function (bindings) {
@@ -3050,9 +3050,9 @@
      * @example
      * pattern = $.rdf.pattern('?thing a ?class');
      * // triple is a new triple '<> a foaf:Person'
-     * triple = pattern.triple({ 
+     * triple = pattern.triple({
      *   thing: $.rdf.resource('<>'),
-     *   class: $.rdf.resource('foaf:Person', { namespaces: ns }) 
+     *   class: $.rdf.resource('foaf:Person', { namespaces: ns })
      * });
      */
     triple: function (bindings) {
@@ -3096,8 +3096,8 @@
    * @returns {jQuery.rdf.triple} The newly-created triple.
    * @throws {String} Errors if any of the strings are not in a recognised format.
    * @example pattern = $.rdf.triple('<>', $.rdf.type, 'foaf:Person', { namespaces: { foaf: "http://xmlns.com/foaf/0.1/" }});
-   * @example 
-   * pattern = $.rdf.triple('<> a foaf:Person', { 
+   * @example
+   * pattern = $.rdf.triple('<> a foaf:Person', {
    *   namespaces: { foaf: "http://xmlns.com/foaf/0.1/" }
    * });
    * @see jQuery.rdf#add
@@ -3571,7 +3571,7 @@
       }
       return e;
     },
-    
+
     /**
      * Returns a string representing this resource in <a href="http://www.w3.org/TeamSubmission/turtle/#literal">Turtle format</a>.
      * @returns {String}
@@ -3863,7 +3863,9 @@
 
     serialize = function (elem, ignoreNs) {
       var i, string = '', atts, a, name, ns, tag;
-      elem.contents(':not(iframe)').each(function () {  // Added ':not(iframe)' by Craig Dietrich 7 August 2014 to avoid XSS bailout
+      // Added ':not(iframe)' by Craig Dietrich 7 August 2014 to avoid XSS bailout
+      // It seems as of the jQuery update in November 2019, .contents() is no longer returning text nodes here
+      elem.contents(':not(iframe)').each(function () {
         var j = $(this),
           e = j[0];
         if (e.nodeType === 1) { // tests whether the node is an element
@@ -3979,8 +3981,7 @@
             } else {
               object = $.rdf.literal(content, { lang: lang });
             }
-          } else if (children.length === 0 ||
-                     datatype === '') {
+          } else if (children.length === 0 || datatype === '') {
             lang = getLang(this, context);
             if (lang === undefined) {
               object = $.rdf.literal('"' + this.text() + '"');
@@ -3988,7 +3989,9 @@
               object = $.rdf.literal(this.text(), { lang: lang });
             }
           } else {
-            object = $.rdf.literal(serialize(this), { datatype: rdfXMLLiteral });
+        	// Edited by Craig 7 December 2019 to just get to the string representation and not mess with the messy serialize() function
+            // object = $.rdf.literal(serialize(this), { datatype: rdfXMLLiteral });
+        	object = $.rdf.literal($(this).html().toString(), { datatype: rdfXMLLiteral });
           }
           for (i = 0; i < properties.length; i += 1) {
             triple = $.rdf.triple(subject, properties[i], object, { source: this[0] });
@@ -4016,7 +4019,7 @@
         }
       }
       children.each(function () {;
-        triples = triples.concat(rdfa.call($(this), { forward: rels, backward: revs, subject: subject, object: resource || subject, lang: lang, namespaces: namespaces }));
+        if (this.id != 'scalar_version') triples = triples.concat(rdfa.call($(this), { forward: rels, backward: revs, subject: subject, object: resource || subject, lang: lang, namespaces: namespaces }));
       });
       return triples;
     },
@@ -4270,7 +4273,7 @@
           }
         }
       }
-      this.parents().andSelf().trigger("rdfChange");
+      this.parents().addBack().trigger("rdfChange");
       return span;
     },
 
@@ -4327,7 +4330,7 @@
           return removeRDFa.call(this.parent(), what);
         }
       }
-      this.parents().andSelf().trigger("rdfChange");
+      this.parents().addBack().trigger("rdfChange");
       return this;
     };
 
@@ -4335,7 +4338,7 @@
    * Creates a {@link jQuery.rdf} object containing the RDF triples parsed from the RDFa found in the current jQuery selection or adds the specified triple as RDFa markup on each member of the current jQuery selection. To create an {@link jQuery.rdf} object, you will usually want to use {@link jQuery#rdf} instead, as this may perform other useful processing (such as of microformats used within the page).
    * @methodOf jQuery#
    * @name jQuery#rdfa
-   * @param {jQuery.rdf.triple} [triple] The RDF triple to be added to each item in the jQuery selection. 
+   * @param {jQuery.rdf.triple} [triple] The RDF triple to be added to each item in the jQuery selection.
    * @returns {jQuery.rdf}
    * @example
    * // Extract RDFa markup from all span elements contained inside #main
@@ -4366,8 +4369,8 @@
    * @param {Object|Object[]} triple The RDFa markup items to be removed
    * from the items in the jQuery selection.
    * @returns {jQuery} The original jQuery object.
-   * @example 
-   * // To remove a property resource or relation from an element 
+   * @example
+   * // To remove a property resource or relation from an element
    * $('#main > p > a').removeRdfa({ property: "dc:creator" });
    * @example
    * // To remove a type from an element
@@ -4388,7 +4391,7 @@
 })(jQuery);
 /*
  * jQuery RDF Rules @VERSION
- * 
+ *
  * Copyright (c) 2008 Jeni Tennison
  * Licensed under the MIT (MIT-LICENSE.txt)
  *
@@ -4445,12 +4448,12 @@
       }
       return this;
     },
-    
+
     /**
      * Sets or returns the base URI of the {@link jQuery.rdf.ruleset}.
      * @param {String|jQuery.uri} [base]
      * @returns A {@link jQuery.uri} if no base URI is specified, otherwise returns this {@link jQuery.rdf.ruleset} object.
-     * @example 
+     * @example
      * rules = $.rdf.ruleset()
      *   .base('http://www.example.org/');
      */
@@ -4462,7 +4465,7 @@
         return this;
       }
     },
-    
+
     /**
      * Sets or returns a namespace binding on the {@link jQuery.rdf.ruleset}.
      * @param {String} [prefix]
@@ -4479,7 +4482,7 @@
         return this;
       }
     },
-    
+
     /**
      * Returns the number of rules in this ruleset.
      * @returns {Integer}
@@ -4487,7 +4490,7 @@
     size: function () {
       return this.rules.length;
     },
-    
+
     /**
      * Adds a rule or set of rules to this ruleset.
      * @param {String|Array|Function|jQuery.rdf.pattern|jQuery.rdf.rule|jQuery.rdf.ruleset} lhs A {@link jQuery.rdf.rule} will be added directly. If a {@link jQuery.rdf.ruleset} is provided then all its rules will be added to this one. Otherwise, specifies the left hand side of the rule to be added, as in {@link jQuery.rdf.rule}.
@@ -4515,7 +4518,7 @@
       }
       return this;
     },
-    
+
     /**
      * Runs the rules held in this ruleset on the data passed as the first argument.
      * @param {jQuery.rdf.databank} data A databank containing data to be reasoned over and added to.
@@ -4545,9 +4548,9 @@
       return this;
     }
   };
-  
+
   $.rdf.ruleset.fn.init.prototype = $.rdf.ruleset.fn;
-  
+
   $.rdf.ruleset.defaults = {
     base: $.uri.base(),
     namespaces: {}
@@ -4584,15 +4587,15 @@
    *    '?person foaf:firstName ?fn'],
    *   ['?person a vcard:VCard',
    *    '?person vcard:n _:name',
-   *    '_:name a vcard:Name', 
+   *    '_:name a vcard:Name',
    *    '_:name vcard:given-name ?fn'],
    *   { namespaces: ns }
    * );
    * @example
    * var rule = $.rdf.rule(
-   *   ['?person foaf:name ?name', 
-   *    ['name', /^J.+/]], 
-   *  function () { name = this.name }, 
+   *   ['?person foaf:name ?name',
+   *    ['name', /^J.+/]],
+   *  function () { name = this.name },
    *  { namespaces: ns });
    * @see jQuery.rdf.rule
    */
@@ -4629,7 +4632,7 @@
           return p;
         }
       });
-      lhsWildcards = $.unique(lhsWildcards);
+      lhsWildcards = $.uniqueSort(lhsWildcards);
       if ($.isFunction(rhs)) {
         this.rhs = rhs;
       } else {
@@ -4649,7 +4652,7 @@
       this.cache = {};
       return this;
     },
-    
+
     /**
      * Runs the rule on the data passed as the first argument.
      * @param {jQuery.rdf.databank} data A databank containing data to be reasoned over and added to.
@@ -4664,7 +4667,7 @@
      * @see jQuery.rdf.databank#reason
      */
     run: function (data, options) {
-      var query = $.rdf({ databank: data }), 
+      var query = $.rdf({ databank: data }),
         condition,
         opts = $.extend({ limit: 50 }, options), limit = opts.limit,
         ntriples,
@@ -4759,7 +4762,7 @@
       return this;
     }
   });
-  
+
   $.extend($.rdf.fn, {
     /**
      * @methodOf jQuery.rdf#

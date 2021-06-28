@@ -55,12 +55,13 @@
 
 								row.data('relation', relation);
 								row.data('media',mediaelement);
-								row.click(function( event ) {
+								row.on('click', function( event ) {
 									// only clicks on the background should cue up the annotation
 									if ( $( event.target ).is( 'td,h4,div,p,tr' ) ) {
 										var relation = $(this).data('relation');
 										$(this).data('media').seek(relation);
-										if (( relation.target.current.mediaSource.contentType != 'document' ) && ( relation.target.current.mediaSource.contentType != 'image' )) {
+                    media.sendMessage($(this).data('media'), media.annotationHasMessage(relation));
+										if (( relation.target.current.mediaSource.contentType != 'document' ) && ( relation.target.current.mediaSource.contentType != 'image' ) && ( relation.target.current.mediaSource.contentType != '3D' )) {
 						       				setTimeout(function() {
 						           				if(!$(this).data('media').is_playing()) {
 													$(this).data('media').play();
@@ -121,6 +122,20 @@
 					}
 				}
 			},
+
+      annotationHasMessage: function(annotation) {
+        let result = false;
+        if (annotation.body.current.properties['http://purl.org/dc/terms/abstract']) {
+          result = annotation.body.current.properties['http://purl.org/dc/terms/abstract'][0].value;
+        }
+        return result;
+      },
+
+      sendMessage: function(mediaelement, message) {
+    		if (message && mediaelement.view.mediaObjectView.hasFrameLoaded) {
+          mediaelement.sendMessage(message);
+    		}
+    	},
 
 			hideAnnotation: function(e, relation, m, forceHide) {
 
@@ -217,7 +232,7 @@
 
 					// when a tag button is clicked, toggle it on and all the others off,
 					// and show its content below
-					tagItem.click( function( event ) {
+					tagItem.on('click',  function( event ) {
 						event.preventDefault();
 						var me = $( this );
 						if ( me.hasClass( 'btn-primary' ) ) {
@@ -304,25 +319,29 @@
 				var descriptionPane = $('<div class="media_description pane"></div>').appendTo(element);
 
 				// add TK labels
-            	var labels = node.current.properties['http://localcontexts.org/tk/hasLabel'];
-            	if ('undefined' != typeof(window['tklabels']) && labels != null) {
-	                var popoverTemplate = '<div class="popover tk-help caption_font" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>';
-	                var labelWrapper = $('<div class="tk-labels-media"></div>').appendTo(descriptionPane);
-	                var $label, $img, labelNode, url, labelDescription;
-	            	$(labels).each(function() {
-	            		var $label = $('<span resource="'+this.value+'" typeof="tk:TKLabel" style="display:inline-block;"></span>').appendTo(labelWrapper);
-	            		var labelNode = scalarapi.model.nodesByURL[this.value];
-	            		var url = labelNode.properties['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value;
-	            		var labelDescription = labelNode.properties['http://purl.org/dc/terms/description'][0].value;
-	            		var $img = $('<img rel="art:url" src="'+url+'" data-toggle="popover" data-placement="top" />').appendTo($label);
-	                    $img.popover({
-	                        trigger: "click",
-	                        html: true,
-	                        template: popoverTemplate,
-	                        content: '<img src="'+url+'" /><p class="supertitle">Traditional Knowledge</p><h3 class="heading_weight">'+labelNode.title+'</h3><p>'+labelDescription+'</p><p><a href="http://localcontexts.org/tk-labels/" target="_blank">More about Traditional Knowledge labels</a></p>'
-	                    });
-	            	});
-            	}
+      	var labels = node.current.properties['http://localcontexts.org/tk/hasLabel'];
+      	if ('undefined' != typeof(window['tklabels']) && labels != null) {
+          var popoverTemplate = '<div class="popover tk-help caption_font" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>';
+          var labelWrapper = $('<div class="tk-labels-media"></div>').appendTo(descriptionPane);
+          var $label, $img, labelNode, url, labelDescription;
+      	  $(labels).each(function() {
+        		var $label = $('<span resource="'+this.value+'" typeof="tk:TKLabel" style="display:inline-block;"></span>').appendTo(labelWrapper);
+        		var labelNode = scalarapi.model.nodesByURL[this.value];
+        		var url = labelNode.properties['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value;
+        		var labelDescription = labelNode.properties['http://purl.org/dc/terms/description'][0].value;
+        		var $img = $('<img tabindex="0" rel="art:url" src="'+url+'" data-toggle="popover" data-placement="top" />').appendTo($label);
+            $img.popover({
+              trigger: "manual focus",
+              html: true,
+              template: popoverTemplate,
+              content: '<img src="'+url+'" /><p class="supertitle">Traditional Knowledge</p><h3 class="heading_weight">'+labelNode.title+'</h3><p>'+labelDescription+'</p><p><a href="http://localcontexts.org/tk-labels/" target="_blank">More about Traditional Knowledge labels</a></p>'
+            });
+						$(labels).find('img').click(function(e) {
+							$(this).popover('toggle');
+							e.stopPropagation();
+						})
+        	});
+      	}
 
 				if (node.current.source != null) {
 					if (media.options.caption != 'metadata') {
@@ -332,11 +351,11 @@
 					}
 				}
 				descriptionPane.append(description);
-				descriptionPane.find('a.citations-link').click( function() {
+				descriptionPane.find('a.citations-link').on('click',  function() {
 					media.options[ 'details' ].show( node );
 				} );
 				var descriptionTab = $('<div class="media_tab select">Description</div>').appendTo(mediaTabs);
-				descriptionTab.click(function() {
+				descriptionTab.on('click', function() {
 					$(this).parent().parent().find('.pane').hide();
 					media.minimizeAnnotationPane();
 					descriptionPane.show();
@@ -372,7 +391,7 @@
 
 			if (annotations.length > 0) {
 				var annotationTab = $('<div class="media_tab">Annotations</div>').appendTo(mediaTabs);
-				annotationTab.click(function() {
+				annotationTab.on('click', function() {
 					$(this).parent().parent().find('.pane').hide();
 					annotationPane.show();
 					$(this).parent().find('.media_tab').removeClass('select');
@@ -390,13 +409,14 @@
 					row = $('<tr><td>'+annotation.startString+'</td><td><p>'+annotation.body.getDisplayTitle()+'</p></td></tr>').appendTo(table);
 					row.data('relation', annotation);
 					row.data('media',mediaelement);
-					row.click(function( event ) {
+					row.on('click', function( event ) {
 						// only clicks on the background should cue up the annotation
 						if ( $( event.target ).is( 'td,h4,div,p,tr' ) ) {
 							var relation = $(this).data('relation');
 							$(this).data('media').seek(relation);
+              media.sendMessage($(this).data('media'), media.annotationHasMessage(relation));
 							var me = this;
-							if (( relation.target.current.mediaSource.contentType != 'document' ) && ( relation.target.current.mediaSource.contentType != 'image' )) {
+							if (( relation.target.current.mediaSource.contentType != 'document' ) && ( relation.target.current.mediaSource.contentType != 'image' ) && ( relation.target.current.mediaSource.contentType != '3D' )) {
 	              				setTimeout(function() {
 	                				if(!$(me).data('media').is_playing()) {
 	      								$(me).data('media').play();
@@ -418,7 +438,7 @@
 			if (media.options.caption != 'metadata') {
 				var metadataTab = $('<div class="media_tab">Details</div>').appendTo(mediaTabs);
 				var metadataPane = $('<div class="media_metadata pane"></div>').appendTo(element);
-				metadataTab.click(function() {
+				metadataTab.on('click', function() {
 					$(this).parent().parent().find('.pane').hide();
 					media.minimizeAnnotationPane();
 					metadataPane.show();
@@ -438,28 +458,28 @@
 
 			if ('undefined'==typeof(scalarMediaHideCitationsTab) || !scalarMediaHideCitationsTab) {
 				var detailsTab = $( '<div class="media_tab">Citations</div>' ).appendTo( mediaTabs );
-				detailsTab.click( function() {
+				detailsTab.on('click',  function() {
 					media.options[ 'details' ].show( node );
 				} );
 			}
 
 			if ('undefined'==typeof(scalarMediaHideSourceFileTab) || !scalarMediaHideSourceFileTab) {
 				var sourceTab = $( '<div class="media_tab">Source file</div>' ).appendTo( mediaTabs );
-				sourceTab.click( function() {
+				sourceTab.on('click',  function() {
 					window.open( node.current.sourceFile, 'popout' );
 				} );
 			}
 
 			if (media.options.shy) {
 				var wrapped_slot = mediaTabs.parents('.slot').hasClass('wrapped_slot');
-				mediaelement.model.element.mouseenter(function() {
+				mediaelement.model.element.on('mouseenter', function() {
 					var timeout = $(this).data('timeout');
 					if (timeout != null) {
 						clearTimeout(timeout);
 					}
 					mediaTabs.slideDown();
 				})
-				mediaelement.model.element.mouseleave(function() {
+				mediaelement.model.element.on('mouseleave', function() {
 					if ( window.innerWidth > 480 ) {
 						var timeout = $(this).data('timeout');
 						if (timeout != null) {
@@ -475,7 +495,7 @@
 				mediaTabs.show();
 			}
 
-			mediaelement.view.footer.find('.media_info').mouseenter(function(e) {
+			mediaelement.view.footer.find('.media_info').on('mouseenter', function(e) {
 				var position = $(e.currentTarget).parent().parent().parent().offset();
 				metadata.css({
 					'right': (parseInt($(window).width()) - position.left + 10)+'px',
@@ -484,14 +504,14 @@
 				metadata.fadeIn();
 			})
 
-			$('body').bind('show_annotation', media.showAnnotation);
+			$('body').on('show_annotation', media.showAnnotation);
 
-			$('body').bind('hide_annotation', media.hideAnnotation);
+			$('body').on('hide_annotation', media.hideAnnotation);
 
 			element.addClass('caption_font');
 			element.addClass('mediainfo');
 		  	$('.media_metadata').addClass('caption_font');
-		  	
+
 		  	$('body').trigger('scalarMediaReady', [mediaelement.view])
 		}
 

@@ -162,6 +162,104 @@ class System extends MY_Controller {
 
 	}
 
+	public function lenses() {
+
+		if (!$this->can_save_lenses()) die ('{"error":"Lenses table (scalar_db_rel_grouped) is not installed"}');
+		$version_id = (isset($_REQUEST['version_id'])) ? (int) $_REQUEST['version_id'] : 0;
+		$book_id = (isset($_REQUEST['book_id'])) ? (int) $_REQUEST['book_id'] : 0;
+
+		if (!empty($version_id)) {  // Get the Lens JSON for a particular Version
+			$this->load->model('book_model', 'books');
+			$this->load->model('lens_model', 'lenses');
+			$this->load->model('version_model', 'versions');
+			$book_id = (int) $this->versions->get_book($version_id);
+			if (empty($book_id)) die ('{"error":"Could not find a book associated with the Version ID"}');
+			$this->data['book'] = $this->books->get($book_id);
+			if (empty($this->data['book'])) die ('{"error":"Could not find a book associated with the JSON payload"}');
+			$this->data['content'] = $this->lenses->get_children($version_id);  // TODO: permissions
+		} elseif (!empty($book_id)) {  // Get all of the lens JSONs for a particular book
+			$this->load->model('book_model', 'books');
+			$this->load->model('lens_model', 'lenses');
+			$this->load->model('version_model', 'versions');
+			$this->data['book'] = $this->books->get($book_id);
+			if (empty($this->data['book'])) die ('{"error":"Could not find a book associated with the JSON payload"}');
+			$this->set_user_book_perms();
+			$is_book_admin = $this->login_is_book_admin();
+			$logged_in_user_id = (isset($this->data['login']->user_id)) ? (int) $this->data['login']->user_id : 0;
+			$lenses = $this->lenses->get_all_with_lens($book_id, null, null, false);
+			$this->data['content'] = array();
+			for ($j = count($lenses)-1; $j >= 0; $j--) {
+				$lens = json_decode($lenses[$j]->lens);
+				$is_public = (isset($lens->public) && $lens->public) ? true : false;
+				$user_level = (isset($lens->user_level)) ? $lens->user_level : null;
+				$user_id = (int) $lenses[$j]->user;  // This is the creator of the content node
+				$lens->user_id = $user_id;
+				if ($is_book_admin && $user_level == 'scalar:Author') {
+					$this->data['content'][] = $lens;
+				} elseif ($is_public) {
+					$this->data['content'][] = $lens;
+				} elseif ($user_id == $logged_in_user_id) {
+					$this->data['content'][] = $lens;
+				}
+			}
+		} else {
+			$request_body = file_get_contents('php://input');
+			if (!empty($request_body)) {  // Get nodes described by a JSON payload
+				$json = json_decode($request_body, true);
+				if (false === $json) die ('{"error":"Invalid JSON sent in payload"}');
+				if (!isset($json['components'])) die ('{"error":"JSON payload not formatted properly"}');
+				$this->load->model('book_model', 'books');
+				$this->load->model('lens_model', 'lenses');
+				$this->load->model('version_model', 'versions');
+				$this->load->model('page_model', 'pages');
+				// Validate book
+				$book_id = 0;
+				if (isset($json['book_id'])) {
+					$book_id = (int) $json['book_id'];
+				} elseif (isset($json['book_urn'])) {
+					$arr = explode(':', $json['book_urn']);
+					$book_id = (int) array_pop($arr);
+				}
+				if (empty($book_id)) die ('{"error":"Could not find a book ID associated with JSON payload"}');
+				$this->data['book'] = $this->books->get($book_id);
+				if (empty($this->data['book'])) die ('{"error":"Could not find a book associated with the JSON payload"}');
+				// Get items from JSON
+				$json['items'] = $this->lenses->get_nodes_from_json($book_id, $json, confirm_slash(base_url()).$this->data['book']->slug);
+				// Return version title and slug
+				if (isset($json['urn'])) {
+					$urn_arr = explode(':', $json['urn']);
+					$version_id = $urn_arr[count($urn_arr)-1];
+					$version = $this->versions->get($version_id, '', false);
+					if (!empty($version)) {
+						$json['title'] = $version->title;
+						$page = $this->pages->get($version->content_id);
+						$json['slug'] = $page->slug;
+					}
+				}
+				// Return users
+				$json['users'] = array();
+				foreach ($json['items'] as $uri => $values) {
+					if (isset($values['http://www.w3.org/ns/prov#wasAttributedTo'])) {
+						if (!isset($values['http://open.vocab.org/terms/versionnumber'])) continue;
+						$user_id = (int) substr($values['http://www.w3.org/ns/prov#wasAttributedTo'][0]['value'], 6);
+						if (!isset($json['users'][$user_id])) {
+							$user = $this->users->get_by_user_id($user_id);
+							$json['users'][$user_id] = $user->fullname;
+						}
+					}
+				}
+				$this->data['content'] = $json;
+			} else {
+				$this->data['content'] = '{"error":"Missing Version ID, Book ID, or JSON payload"}';
+			}
+		}
+
+		$this->template->set_template('blank');
+		$this->template->write_view('content', 'modules/data/json', $this->data);
+		$this->template->render();
+
+	}
+
 	public function login() {
 		$this->data['login'] = $this->login->get();
 		$this->data['title'] = $this->lang->line('install_name').': Login';
@@ -190,6 +288,18 @@ class System extends MY_Controller {
 				show_error("Invalid request method: ".$_SERVER['REQUEST_METHOD'], 400);
 				break;
 		}
+	}
+
+	public function authenticator() {
+
+		$this->data['login'] = $this->login->get();
+		$this->data['title'] = $this->lang->line('install_name').': Login';
+		$this->data['norobots'] = true;
+
+		$this->template->set_template('admin');
+		$this->template->write_view('content', 'modules/login/authenticator_box', $this->data);
+		$this->template->render();
+
 	}
 
 	public function logout() {
@@ -226,7 +336,6 @@ class System extends MY_Controller {
 				$this->load->model('book_model', 'books');
 				$user_id = $this->users->register($_POST);
 				// Create new book
-				// Turning this feature off to avoid spammers who seem to be getting by the CAPTCHA
 				/*
 				if (isset($_POST['book_title']) && !empty($_POST['book_title'])) {
 					$book_id = $this->books->add(array('title'=>trim($_POST['book_title']), 'user_id'=>$user_id), false);
@@ -282,6 +391,7 @@ class System extends MY_Controller {
 		$this->login->do_logout(true);
 		$this->data['title'] = $this->lang->line('install_name').': Reset Password';
 		$this->data['norobots'] = true;
+		$this->data['create_login_error'] = null;
 
 		$reset_string =@ $_REQUEST['key'];
 		if (empty($reset_string)) header('Location: '.base_url());
@@ -305,10 +415,11 @@ class System extends MY_Controller {
 					try {
 						$this->users->set_password_from_form_fields($user->user_id, $_POST);
 						$this->users->save_reset_string($user->user_id, '');
+						header('Location: '.confirm_slash(base_url()).'system/login?msg=2');
+						exit;
 					} catch (Exception $e) {
 	    				$this->data['create_login_error'] = $e->getMessage();
 					}
-					header('Location: '.confirm_slash(base_url()).'system/login?msg=2');
 				}
 			}
 		}
@@ -317,6 +428,19 @@ class System extends MY_Controller {
 		$this->template->write_view('content', 'modules/login/create_password', $this->data);
 		$this->template->render();
 
+	}
+
+	public function getUserIpAddr() {
+			if(!empty($_SERVER['HTTP_CLIENT_IP'])){
+					//ip from share internet
+					$ip = $_SERVER['HTTP_CLIENT_IP'];
+			}elseif(!empty($_SERVER['HTTP_X_FORWARDED_FOR'])){
+					//ip pass from proxy
+					$ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+			}else{
+					$ip = $_SERVER['REMOTE_ADDR'];
+			}
+			return $ip;
 	}
 
 	public function dashboard() {
@@ -395,13 +519,22 @@ class System extends MY_Controller {
 		 					header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&error=password_match');
 		 					exit;
 		 				}
+		 				$strong_password_enabled = $this->config->item('strong_password');
+		 				if ($strong_password_enabled && !$this->users->test_strong_password($array['password'], $array['fullname'], $array['email'])) {
+		 					header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&error=strong_password');
+		 					exit;
+		 				}
+		 				if ($strong_password_enabled && !$this->users->test_previous_password($array['password'], $array['email'])) {
+		 					header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&error=previous_password');
+		 					exit;
+		 				}
 		 				$this->users->set_password($this->data['login']->user_id, $array['password']);
 		 			}
 					// Save profile
 					unset($array['password']);
 		 			unset($array['old_password']);
 		 			unset($array['password_2']);
-					log_message('error', 'Scalar: User saved their profile, with email '.$array['email'].'.');
+					log_message('error', 'Scalar: User saved their profile with email '.$array['email'].', from '.$this->getUserIpAddr().'.');
 		 			$this->users->save($array);
 		 			$this->set_login_params();
 		 			header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action=user_saved');
@@ -410,6 +543,21 @@ class System extends MY_Controller {
 		 			$bool = (isset($_POST['enable']) && $_POST['enable']) ? true : false;
 		 			$this->books->enable_editorial_workflow($_POST['book_id'],$bool);
 		 			header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone=editorial#tabs-editorial');
+		 			exit;
+		 		case 'enable_google_authenticator':
+		 			$enable = (isset($_POST['enable_google_authenticator']) && '1'==$_POST['enable_google_authenticator']) ? true : false;
+		 			$user_id = (int) $this->data['login']->user_id;
+		 			$this->load->model('resource_model', 'resources');
+		 			$json = $this->resources->get('google_authenticator');
+		 			$arr = json_decode($json, true);
+		 			if ($enable) {
+		 				$arr[$user_id] = true;
+		 			} else {
+		 				unset($arr[$user_id]);
+		 			}
+		 			$json = json_encode($arr);
+		 			$this->resources->put('google_authenticator', $json);
+		 			header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.((isset($_POST['zone']))?$_POST['zone']:'').'&pill='.((isset($_POST['pill']))?$_POST['pill']:'').'#tabs-'.((isset($_POST['zone']))?$_POST['zone']:''));
 		 			exit;
 		 		case 'do_save_sharing':
 		 			$this->books->save(array('title'=>$_POST['title'],'book_id'=>(int)$_POST['book_id']));
@@ -491,7 +639,7 @@ class System extends MY_Controller {
 						unset($array['password_2']);
 						$user_id = (int) $this->users->add($array);
 					} catch (Exception $e) {
-						$get .= 'error=3';
+						$get .= 'error='.urlencode($e->getMessage());
 						if (isset($_REQUEST['hash'])) $get .= $_REQUEST['hash'];
 						header('Location: '.$this->base_url.$get);
 						exit;
@@ -562,6 +710,21 @@ class System extends MY_Controller {
 					if (!$this->data['login_is_super']) $this->kickout();
 					$this->data['recent_user_list'] = $this->users->get_all(0, true, 'user_id', 'desc');
 					break;
+				case "do_save_disallowed_emails":  // Admin: Tools
+					if (!$this->data['login_is_super']) $this->kickout();
+					$emails = (isset($_POST['emails']) && !empty($_POST['emails'])) ? explode(',', $_POST['emails']) : array();
+					$this->load->model('resource_model', 'resources');
+					$json = json_encode($emails);
+					$this->resources->put('disallowed_emails', $json);
+					// Don't break
+				case "get_disallowed_emails":  // Admin: Tools
+					if (!$this->data['login_is_super']) $this->kickout();
+					$this->load->model('resource_model', 'resources');
+					$json = $this->resources->get('disallowed_emails');
+					$arr = json_decode($json, true);
+					if (empty($arr)) $arr = array();
+					$this->data['disallowed_emails'] = $arr;
+					break;
 				case "get_email_list":  // Admin: Tools
 					if (!$this->data['login_is_super']) $this->kickout();
 					$users = $this->users->get_all();
@@ -592,6 +755,12 @@ class System extends MY_Controller {
 						$this->data['book_list'][] = $msg;
 					}
 					unset($books);
+					break;
+				case "normalize_predicate_table":  // Admin: Tools
+					if (!$this->data['login_is_super']) $this->kickout();
+					$predicates = $this->versions->normalize_predicate_table();
+					$this->data['normalize_predicate_table'] = array_keys($predicates);
+					unset($predicates);
 					break;
 		 	}
 	 	} catch (Exception $e) {
@@ -648,8 +817,30 @@ class System extends MY_Controller {
 		    	$this->data['editorial_is_on'] = $this->editorial_is_on();
 		    	break;
 		    case 'publish':
-			    // Do Nothing.  Nothing needs to be done.
+			    // Do Nothing.
 		    	break;
+		    case 'tools':
+		    case 'utils':
+		    	$this->data['super_admins'] = $this->users->get_super_admins();
+		    	$google_authenticator_salt = $this->config->item('google_authenticator_salt');
+		    	if (!empty($google_authenticator_salt) && $this->data['login']->is_super) {  // Only super admins
+		    		$this->load->model('resource_model', 'resources');
+		    		$json = $this->resources->get('google_authenticator');
+		    		$arr = json_decode($json, true);
+		    		$user_id = (int) $this->data['login']->user_id;
+		    		$this->data['google_authenticator_is_enabled'] = (isset($arr[$user_id])) ? true : false;
+		    		foreach ($this->data['super_admins'] as $key => $value) {
+		    			if (isset($arr[$value->user_id])) {
+		    				$this->data['super_admins'][$key]->google_authenticator_is_enabled = true;
+		    			}
+		    		}
+		    		include_once APPPATH.'/libraries/GoogleAuthenticator/vendor/autoload.php';
+		    		$g = new \Google\Authenticator\GoogleAuthenticator();
+		    		$username = $this->data['login']->email;
+		    		$parse = parse_url(base_url());
+		    		$domain = $parse['host'];
+		    		$this->data['qr_image'] = '<img style="max-width:none;max-height:none;" src="'.$g->getURL($username, $domain, $google_authenticator_salt).'" />';
+		    	}
 		    // Page-types follow, purposely at the bottom of the switch so that they fall into 'default'
 		    default:
 		    	$this->data['can_editorial'] = $this->can_editorial();
@@ -664,6 +855,7 @@ class System extends MY_Controller {
 	 		$this->data['start'] = (isset($_REQUEST['start']) && is_numeric($_REQUEST['start']) && $_REQUEST['start'] > 0) ? $_REQUEST['start'] : 0;
 	 		$query = isset($_REQUEST['sq'])?$_REQUEST['sq']:null;
 	 		$id = isset($_REQUEST['id'])?(int) $_REQUEST['id']:null;
+	 		$pill = isset($_REQUEST['pill'])?$_REQUEST['pill']:null;
 			switch ($this->data['zone']) {
 			 	case 'all-users':
 			 		if($this->data['login_is_super']) {
@@ -695,6 +887,12 @@ class System extends MY_Controller {
 			 		}
 					$this->data['users'] = ($this->data['login_is_super']) ? $this->users->get_all() : array();
 					break;
+			}
+			if ('disallowed-emails' == $pill) {
+				$json = $this->resources->get('disallowed_emails');
+				$arr = json_decode($json, true);
+				if (empty($arr)) $arr = array();
+				$this->data['disallowed_emails'] = $arr;
 			}
 		}
 
@@ -734,6 +932,7 @@ class System extends MY_Controller {
 			}
 			if (empty($dashboard) || !file_exists(APPPATH.'views/modules/'.$dashboard)) $dashboard = 'dashboard';
 		}
+		
 		$this->template->set_template('admin');
 		$this->template->write_view('content', 'modules/'.$dashboard.'/content', $this->data);
 		$this->template->render();
@@ -834,6 +1033,7 @@ class System extends MY_Controller {
 					$this->data['content'][$key]->start_seconds = $row->start_seconds;
 					$this->data['content'][$key]->end_seconds = $row->end_seconds;
 					$this->data['content'][$key]->points = $row->points;
+					$this->data['content'][$key]->position_3d = $row->position_3d;
 					$this->data['content'][$key]->start_line_num = $row->start_line_num;
 					$this->data['content'][$key]->end_line_num = $row->end_line_num;
 					$versions = $this->versions->get_single($this->data['content'][$key]->content_id, $this->data['content'][$key]->recent_version_id);
@@ -897,7 +1097,7 @@ class System extends MY_Controller {
 					if (!$this->can_edition()) die ('{"error":"Editions are not active"}');
 					if (!isset($this->data['book']->editions[$edition_index])) die ('{"error":"Invalid edition index"}');
 					foreach ($this->data['book']->editions[$edition_index]['pages'] as $version_id) {
-						$version = $this->versions->get($version_id);
+						$version = $this->versions->get($version_id, null, false);
 						if (!empty($version) && isset($version->editorial_state) && isset($this->data['content'][$version->editorial_state])) $this->data['content'][$version->editorial_state]++;
 						if (!empty($version) && isset($version->usage_rights) && !empty($version->usage_rights)) $this->data['content']['usagerights']++;
 					}
@@ -908,7 +1108,7 @@ class System extends MY_Controller {
 							$this->data['content']['hidden']++;
 							continue;
 						}
-						$version = $this->versions->get_single($content[$j]->content_id, $content[$j]->recent_version_id);
+						$version = $this->versions->get_single($content[$j]->content_id, $content[$j]->recent_version_id, null, false);
 						if (!empty($version) && isset($version->editorial_state) && isset($this->data['content'][$version->editorial_state])) $this->data['content'][$version->editorial_state]++;
 						if (!empty($version) && isset($version->usage_rights) && !empty($version->usage_rights)) $this->data['content']['usagerights']++;
 					}
@@ -1135,7 +1335,7 @@ class System extends MY_Controller {
 				if (is_int($version_id)) {  // Change a single page to a state
 					$this->load->model('page_model', 'pages');
 					$this->load->model('version_model', 'versions');
-					$version = $this->versions->get($version_id);
+					$version = $this->versions->get($version_id, null, false);
 					if (empty($version)) die ("{'error':'Could not find version'}");
 					$this->data['book'] = $this->books->get_by_content_id($version->content_id);
 					$this->set_user_book_perms();
@@ -1150,7 +1350,7 @@ class System extends MY_Controller {
 					$this->load->model('version_model', 'versions');
 					foreach ($version_id as $id) {
 						$id = (int) $id;
-						$version = $this->versions->get($id);
+						$version = $this->versions->get($id, null, false);
 						if (empty($version)) die ("{'error':'Could not find version'}");
 						$this->data['book'] = $this->books->get_by_content_id($version->content_id);
 						$this->set_user_book_perms();

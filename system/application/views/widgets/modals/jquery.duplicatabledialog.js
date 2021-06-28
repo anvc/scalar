@@ -1,5 +1,5 @@
 (function( $ ) {
-	
+
 	var defaults = {
 			data: null,
 			select: null,
@@ -10,18 +10,18 @@
 			width: 480,
 			height: 370,
 			callback: null
-	};  	
-	
+	};
+
     $.fn.duplicatabledialog = function(options) {
-    	
+
     	// Options
     	var $this = $(this);
     	opts = $.extend( {}, defaults, options );
-    	
+
     	// Ok/cancel
-    	opts['buttons'] = [ 
-    	  	{ text: "Cancel", class: "generic_button", click: function() { 
-    	  		$this.dialog( "destroy" ); 
+    	opts['buttons'] = [
+    	  	{ text: "Cancel", class: "generic_button", click: function() {
+    	  		$this.dialog( "destroy" );
     	  		$this.remove();
     	  		opts.callback(0);
     	  	} }
@@ -29,7 +29,7 @@
     	opts['open'] = function(event, ui) {
     		$(this).parent().children().children('.ui-dialog-titlebar-close').hide();
     	};
-    	
+
     	// Structure
     	$this.addClass('duplicatabledialog');
     	var msg = 'The books listed below can be duplicated in the creation of new books. This permission is set in the Sharing tab of the Dashboard.';
@@ -40,10 +40,10 @@
     		overflow:'auto',
     		backgroundColor:'#eeeeee'
     	});
-    	
+
     	// Hand over to jQuery UI
     	$this.dialog(opts);
-    	
+
     	// List books
     	$.getJSON(opts.url, function(data) {
     		$div.empty();
@@ -56,7 +56,7 @@
     				padding:'6px 8px 0px 8px',
     			});
     		};
-    		$div.find('a').click(function() {
+    		$div.find('a').on('click', function() {
     			var book_id = $(this).data('book-id');
     			var title = $(this).data('title');
     	  		$this.dialog('destroy');
@@ -64,7 +64,7 @@
     	  		opts.callback(book_id, title);
     		});
     	});
-    	
+
     };
-    
+
 }( jQuery ));

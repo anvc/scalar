@@ -104,7 +104,7 @@
 				var buttons = $('<div class="right"></div>').appendTo(slideshowHeader);
 				slideshowHeader.append('<hr>');
 				addIconBtn(buttons, 'close_icon_dark.png', 'close_icon_dark_hover.png', 'Close');
-				mediaDetails.contentElement.find('[title="Close"]').click(mediaDetails.hide);
+				mediaDetails.contentElement.find('[title="Close"]').on('click', mediaDetails.hide);
 
 				element.show();
 
@@ -123,6 +123,20 @@
 				element.hide();
 				restoreState();
 			},
+
+      annotationHasMessage: function(annotation) {
+        let result = false;
+        if (annotation.body.current.properties['http://purl.org/dc/terms/abstract']) {
+          result = annotation.body.current.properties['http://purl.org/dc/terms/abstract'][0].value;
+        }
+        return result;
+      },
+
+      sendMessage: function(mediaelement, message) {
+    		if (message && mediaelement.view.mediaObjectView.hasFrameLoaded) {
+          mediaelement.sendMessage(message);
+    		}
+    	},
 
 			/**
 			 * Called when a mediaelement instance has gathered metadata about the media.
@@ -171,9 +185,10 @@
 							relation = relations[i];
 							row = $('<tr><td>'+relation.startString+'</td><td>'+relation.body.getDisplayTitle()+'</td></tr>').appendTo(table);
 							row.data('relation', relation);
-							row.click(function() {
+							row.on('click', function() {
 								var relation = $(this).data('relation');
 								mediaelement.seek(relation);
+                mediaDetails.sendMessage(mediaelement, mediaDetails.annotationHasMessage(relation));
 								mediaelement.play();
 							});
 						}
@@ -186,7 +201,7 @@
 					var citations = $('<div class="citations"><h3>Citations of this media</h3></div>').appendTo(annotationWrap);
 
 					// show media references with excerpts
-					relations = mediaelement.model.node.getRelations('referee', 'incoming');
+					relations = mediaelement.model.node.getRelations('reference', 'incoming');
 					for (i in relations) {
 						relation = relations[i];
 	                    if (relation.body.current.content != null) {
@@ -244,11 +259,11 @@
 			}
 		};
 
-		$('body').bind('mediaElementMetadataHandled', mediaDetails.handleMediaElementMetadata);
+		$('body').on('mediaElementMetadataHandled', mediaDetails.handleMediaElementMetadata);
 
 		element.addClass('media_details');
 		/*mediaDetails.blackoutElement = $('<div class="blackout"></div>').appendTo(element);
-		mediaDetails.blackoutElement.click(mediaDetails.hide);*/
+		mediaDetails.blackoutElement.on('click', mediaDetails.hide);*/
 		mediaDetails.contentElement = $('<div class="content"></div>').appendTo(element);
 
 		return {

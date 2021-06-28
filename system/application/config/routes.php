@@ -45,11 +45,13 @@ $route['404_override'] = '';
 
 /* Routes added by Craig */      
 
-$route['system/(.*)'] = "system/$1";         // system/
-$route['(.*)\.rdf$'] = "rdf/node/$1";        // .rdf extension   
-$route['(.*)\.rdfxml$'] = "rdf/node/$1";     // .rdfxml extension
-$route['(.*)\.json$'] = "rdf/node/$1";       // .json  extension
-$route['(.*)\.rdfjson$'] = "rdf/node/$1";    // .rdfjson  extension
+$route['system/(.*)'] = "system/$1";		// system/
+$route['(.*)\.rdf$'] = "rdf/node/$1";		// .rdf extension   
+$route['(.*)\.rdfxml$'] = "rdf/node/$1";	// .rdfxml extension
+$route['(.*)\.json$'] = "rdf/node/$1";		// .json  extension
+$route['(.*)\.rdfjson$'] = "rdf/node/$1";	// .rdfjson  extension
+$route['(.*)\.jsonld$'] = "rdf/node/$1";	// .jsonld  extension
+$route['(.*)\.oac$'] = "rdf/node/$1";		// .oac  extension
 $route['^rdf$'] = "rdf/index";               // rdf/ (system)
 $route['(.*)/rdf$'] = "rdf/index";           // rdf/
 $route['rdf/(.*)'] = "rdf/$1";               // rdf/

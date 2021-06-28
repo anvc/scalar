@@ -238,12 +238,12 @@
                 var minTabWidth = parseInt(temp.width());
                 temp.remove();
 
-                mediaelement.model.element.find("video").bind("webkitbeginfullscreen", function(e) {
+                mediaelement.model.element.find("video").on("webkitbeginfullscreen", function(e) {
                     page.isFullScreen = true;
                     page.lastOrientation = ((Math.abs(window.orientation) === 90) ? "landscape" : "portrait");
                 });
 
-                mediaelement.model.element.find("video").bind("webkitendfullscreen", function(e) {
+                mediaelement.model.element.find("video").on("webkitendfullscreen", function(e) {
                     page.isFullScreen = false;
                     // if orientation changed while we were full screen, then check to see if media needs to be reformatted
                     var currentOrientation = ((Math.abs(window.orientation) === 90) ? "landscape" : "portrait");
@@ -300,7 +300,7 @@
                     }
 
                     // If the media is smaller than the "small" size, remove tabs below media
-                    if (mediaWidth < minTabWidth) {
+                    if (mediaWidth < minTabWidth && mediaWidth != 0) {
                         mediaelement.model.options.solo = true;
                     }
 
@@ -330,7 +330,6 @@
                 }
 
                 // the "solo" option is used when showing media items that don't get media details tabs beneath
-
 
                 if (mediaelement.model.options.solo != true) {
                     if (isFullWidth) {
@@ -374,7 +373,7 @@
                 }
 
                 if($(mediaelement.link).hasClass('wrap')){
-                    if(typeof infoElement != 'undefined'){
+                    if( typeof infoElement != 'undefined' && !isFullWidth){
                         infoElement.addClass('wrapped');
                     }
                     if(isFullWidth){
@@ -396,7 +395,7 @@
                 // make images open the citations view when clicked
                 if (document.location.href.indexOf('.annotation_editor') == -1) {
                     if (!isMobile && mediaelement.model.mediaSource.contentType == 'image') {
-                        mediaelement.model.element.find('.mediaObject').click(function() {
+                        mediaelement.model.element.find('.mediaObject').on('click', function() {
                             if ($('.media_details').css('display') == 'none') {
                                 page.mediaDetails.show(mediaelement.model.node);
                             }
@@ -464,6 +463,59 @@
 
             },
 
+            addInlineNoteElementForLink: function(link) {
+
+            	link.wrap('<div class="inlineNoteBody body_copy"></div>');
+            	link.text('Go to note').attr('href', $('link#parent').attr('href')+link.attr('resource'));
+            	var wrapper = link.parent();
+            	var slug = link.attr('resource');
+            	var show = {title:false,description:false,content:true};
+            	if (link.data('show-title') == 'yes') show.title = true;
+            	if (link.data('show-description') == 'yes') show.description = true;
+            	if (link.data('show-content') != 'yes') show.content = false;
+            	var size = link.data('size');
+            	var wrap = link.data('text-wrap');
+            	var align = link.data('align');
+            	wrapper.addClass('size_'+size);
+            	switch (size) {
+            		case "small":
+            			wrapper.css('max-width', '350px');
+            			break;
+            		case "medium":
+            			wrapper.css('max-width', '550px');
+            			break;
+            	}
+            	if (wrap == 'wrap-text-around-media' && size != 'full') {
+            		wrapper.addClass('wrap');
+                	switch (align) {
+	            		case "right":
+	            			wrapper.css('float', 'right');
+	            			break;
+	            		default:
+	            			wrapper.css('float', 'left');
+	            	}
+            	}
+            	scalarapi.loadNode(slug, true, function(node) {
+            		for (uri in node) {
+            			var version_uri = node[uri]['http://purl.org/dc/terms/hasVersion'][0].value;
+            			var version = node[version_uri];
+            			if (show.content && 'undefined' != typeof(version['http://rdfs.org/sioc/ns#content'])) {
+            				var content = version['http://rdfs.org/sioc/ns#content'][0].value;
+            				wrapper.prepend('<div class="content">'+content+'</div>');
+            			};
+            			if (show.description && 'undefined' != typeof(version['http://purl.org/dc/terms/description'])) {
+            				var description = version['http://purl.org/dc/terms/description'][0].value;
+            				wrapper.prepend('<div class="description">'+description+'</div>');
+            			};
+            			if (show.title && 'undefined' != typeof(version['http://purl.org/dc/terms/title'])) {
+            				var title = version['http://purl.org/dc/terms/title'][0].value;
+            				wrapper.prepend('<div class="title">'+title+'</div>');
+            			};
+            			break;
+            		}
+            	});
+            },
+
             addMediaElementForLink: function(link, parent, height, baseOptions) {
 
                 var inline = link.hasClass('inline'),
@@ -529,7 +581,7 @@
                 // create the slot where the media will be added
                 slot = link.slotmanager_create_slot(width, height, options);
 
-                // if the slot was successfully created,
+                // slot was successfully created
                 if (slot) {
 
                     // hide the media element until we get it fully set up (after its metadata has loaded)
@@ -653,7 +705,7 @@
 
                     $('.context.popover').remove();
 
-                    relations = currentNode.getRelations('referee', 'incoming');
+                    relations = currentNode.getRelations('reference', 'incoming');
                     for (i in relations) {
                         relation = relations[i];
                         if (relation.body.current.content != null) {
@@ -688,6 +740,8 @@
                         contextMarkup += '<p class="citation">Tagged by <a href="' + relation.body.url + '">&ldquo;' + relation.body.getDisplayTitle() + '&rdquo;</a></p>';
                     }
 
+                    contextMarkup += '<p><a id="visualize-this-link" href="javascript:;" class="btn btn-default btn-xs">Visualize...</a></p>';
+
                     $(".path-nav.info").remove();
                     if (contextMarkup != '') {
                         contextMarkup = '<div class="citations">' + contextMarkup + '</div>';
@@ -699,10 +753,46 @@
                             trigger: "click",
                             html: true,
                             content: contextMarkup,
-                            template: '<div class="context popover caption_font" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div>' });
-
+                            template: '<div class="context popover caption_font" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div>' }).on('inserted.bs.popover', function() {
+                              $('#visualize-this-link').on('click', function() {
+                                contextButton.popover('hide');
+                                page.visualizeCurrentPage();
+                              });
+                            });
                     }
                 }
+            },
+
+            visualizeCurrentPage: function() {
+              var options = {
+                modal: true
+              }
+              let currentNode = scalarapi.model.getCurrentPageNode();
+              options.content = 'lens';
+              options.lens = {
+                "visualization": {
+                  "type": "force-directed",
+                  "options": {}
+                },
+                "components": [
+                  {
+                    "content-selector": {
+                      "type": "specific-items",
+                      "items": [ currentNode.slug ]
+                    },
+                    "modifiers": [
+                      {
+                        "type": "filter",
+                        "subtype": "relationship",
+                        "content-types": ["all-types"],
+                        "relationship": "any-relationship"
+                      }
+                    ]
+                  }
+                ],
+                "sorts": []
+              }
+              $( '.modalVisualization' ).data( 'scalarvis' ).showModal( options );
             },
 
             allowAnyClickToDismissPopovers: function() {
@@ -719,8 +809,8 @@
             },
 
             addHeaderPathInfo: function() {
-
                 // show containing path in header
+                $('.path-breadcrumb').remove();
                 if (page.containingPaths.length > 0) {
                     if (page.containingPathNodes.length > 1) {
                         $('h1[property="dcterms:title"]').before('<div class="caption_font path-breadcrumb"><a href="' + page.containingPath.url + '">' + page.containingPath.getDisplayTitle() + '</a> (' + (page.containingPathIndex + 1) + '/' + page.containingPathNodes.length + ')</div>');
@@ -728,7 +818,6 @@
                         $('h1[property="dcterms:title"]').before('<div class="caption_font path-breadcrumb"><a href="' + page.containingPath.url + '">' + page.containingPath.getDisplayTitle() + '</a></div>');
                     }
                 }
-
             },
 
             addPathButton: function(direction, destinationNode, pathNode, isEndOfPath) {
@@ -968,7 +1057,7 @@
                 }, 10);
 
                 //Fix back button height on resize
-                $(window).resize(function() {
+                $(window).on('resize', function() {
                     var back_btn = $('#back-btn');
                     if (back_btn.length > 0) {
                         var cont_btn = back_btn.parent().parent().find('.nav_btn').last();
@@ -1110,7 +1199,7 @@
                 $('#footer').before('<div id="incoming_comments" class="caption_font"><div id="comment_control" class="reply_link"><strong>' + ((comments.length > 0) ? comments.length : '&nbsp;') + '</strong></div></div>');
                 var commentDialogElement = $('<div></div>').appendTo('body');
                 commentDialog = commentDialogElement.scalarcomments({ root_url: modules_uri + '/cantaloupe' });
-                $('.reply_link').click(function() {
+                $('.reply_link').on('click', function() {
                     commentDialog.data('plugin_scalarcomments').showComments();
                 });
                 var queryVars = scalarapi.getQueryVars(document.location.href);
@@ -1136,7 +1225,7 @@
 	            	$wrapper.append('<div id="tk-add" title="Update TK Labels for this page" '+((!$labels.length)?'class="desciptor"':'')+'></div>');
 	            	$.getScript($('link#approot').attr('href')+'views/widgets/edit/jquery.add_metadata.js');
 	            	$.getScript($('link#approot').attr('href')+'views/melons/cantaloupe/js/bootbox.min.js');
-	            	$wrapper.find('#tk-add').click(function() {
+	            	$wrapper.find('#tk-add').on('click', function() {
 	            		var data = [];
 	            		$wrapper.children('[typeof="tk:TKLabel"]').each(function() {
 	            			var pnode = $(this).attr('resource').replace('http://localcontexts.org/tk/','tk:');
@@ -1186,18 +1275,22 @@
             	var popover_template = '<div class="popover tk-help caption_font" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>';
             	$labels.each(function() {
             		var $label = $(this);
-                    $label.parent().prepend($label);
+                $label.parent().prepend($label);
             		$label.css('display', 'inline-block');
             		var $url = $label.find('a[rel="art:url"]');
             		var url = $url.attr('href');
-            		$url.replaceWith('<img rel="art:url" src="'+url+'" data-toggle="popover" data-placement="bottom" />');
-                    $label.find('img').popover( {
-                        trigger: "click",
-                        html: true,
-                        template: popover_template,
-                        container: 'body',
-                        content: '<img src="'+url+'" /><p class="supertitle">Traditional Knowledge</p><h3 class="heading_weight">'+$label.find('[property="dcterms:title"]').text()+'</h3><p>'+$label.find('[property="dcterms:description"]').text()+'</p><p><a href="http://localcontexts.org/tk-labels/" target="_blank">More about Traditional Knowledge labels</a></p>'
-                    } );
+            		$url.replaceWith('<img tabindex="0" rel="art:url" src="'+url+'" data-toggle="popover" data-placement="bottom" />');
+                $label.find('img').popover( {
+                  trigger: "manual focus",
+                  html: true,
+                  template: popover_template,
+                  container: 'body',
+                  content: '<img src="'+url+'" /><p class="supertitle">Traditional Knowledge</p><h3 class="heading_weight">'+$label.find('[property="dcterms:title"]').text()+'</h3><p>'+$label.find('[property="dcterms:description"]').text()+'</p><p><a href="http://localcontexts.org/tk-labels/" target="_blank">More about Traditional Knowledge labels</a></p>'
+                });
+								$label.find('img').click(function(e) {
+									$(this).popover('toggle');
+									e.stopPropagation();
+								})
             	});
             	// Move labels to image header if present
             	if ($('.image_header').length) $('.image_header').prepend($labels.parent());
@@ -1262,7 +1355,7 @@
                     var editionListItem;
                     if (is_author_or_editor) {
                         editionListItem = $('<li><a href="javascript:;">Latest edits</a></li>');
-                        editionListItem.click(page.handleEditionSelect);
+                        editionListItem.on('click', page.handleEditionSelect);
                         editionList.append(editionListItem);
                         editionList.append('<li role="separator" class="divider"></li>');
                     }
@@ -1272,7 +1365,7 @@
                         if (editionNum == reversedIndex) {
                             editionListItem.addClass('active');
                         }
-                        editionListItem.find('a').data('edition', this).click(page.handleEditionSelect);
+                        editionListItem.find('a').data('edition', this).on('click', page.handleEditionSelect);
                         editionList.append(editionListItem);
                     });
                     var bookURL = $('link#parent').attr('href');
@@ -1326,11 +1419,14 @@
                     note = notes.eq(i);
                     resource = note.attr('resource');
                     note.wrapInner('<a href="javascript:;" rev="scalar:has_note" resource="' + resource + '"></a>');
-                    note.find('a').click(function(e) {
+                    note.find('a').on('click', function(e) {
                         e.stopPropagation();
                         page.showNote(this);
                     });
-                    note.find('a').unwrap().addClass('texteo_icon texteo_icon_note');
+                    var title = (note.data('show-title') == 'yes') ? true : false;
+                    var desc = (note.data('show-description') == 'yes') ? true : false;
+                    var content = (note.data('show-content') == 'no') ? false : true;
+                    note.find('a').data('show-title', title).data('show-desc', desc).data('show-content', content).unwrap().addClass('texteo_icon texteo_icon_note');
                 }
 
                 $('body').append('<div class="note_viewer caption_font"></div>');
@@ -1339,6 +1435,8 @@
 
             showNote: function(note) {
                 note = $(note);
+                var viewer = $('.note_viewer');
+                viewer.data('show-title', note.data('show-title')).data('show-desc', note.data('show-desc')).data('show-content', note.data('show-content'));
                 if (note.hasClass('media_link')) {
                     $('[rev="scalar:has_note"]').removeClass('media_link');
                     $('.note_viewer').hide();
@@ -1387,11 +1485,17 @@
                 noteViewer.empty();
                 var width = parseInt(noteViewer.css('max-width')) - noteViewer.innerWidth() - 50;
                 if (node != null) {
-                    if (node.current.content != null) {
+                	if (node.current.title != null && noteViewer.data('show-title')) {
+                		$('<div class="title">' + node.current.title + '</div>').appendTo(noteViewer);
+                	}
+                	if (node.current.description != null && noteViewer.data('show-desc')) {
+                		$('<div class="description">' + node.current.description + '</div>').appendTo(noteViewer);
+                	}
+                    if (node.current.content != null && noteViewer.data('show-content')) {
 
                         var height = parseInt(noteViewer.css('max-height')) - noteViewer.innerHeight() - 50;
 
-                        var temp = $('<div>' + node.current.content + '</div>').appendTo(noteViewer);
+                        var temp = $('<div class="content">' + node.current.content + '</div>').appendTo(noteViewer);
                         if (temp.children('p:last').is(':last-child')) temp.children('p:last').css('margin-bottom','0px');
 
                         $(page.getMediaLinks(temp)).each(function() {
@@ -1420,12 +1524,13 @@
                             page.addNoteOrAnnotationMedia($(this), parent, width, height);
 
                         });
-                    } else if (node.hasScalarType('media')) {
+                    }
+                    if (node.hasScalarType('media')) {
                         var parent = $('<div class="node_media_' + node.slug + '"></div>').appendTo(noteViewer);
                         var link = $('<a href="' + node.current.sourceFile + '" data-annotations="[]" data-align="center" resource="' + node.slug + '" class="inline"></a>').hide().appendTo(parent);
                         page.addNoteOrAnnotationMedia(link, parent, width, height);
                     }
-                    noteViewer.append('<br /><a class="noteLink" href="' + scalarapi.model.urlPrefix + node.slug + '">Go to note</a>');
+                    noteViewer.append('<a class="noteLink" href="' + scalarapi.model.urlPrefix + node.slug + '">Go to note</a>');
                 }
             },
 
@@ -1538,26 +1643,45 @@
                 mediaLinks = [];
 
                 $(element).find('a').each(function() {
-                    if ((($(this).attr('resource') != null) || // linked media
-                            ($(this).find('[property="art:url"]').length > 0) || // inline media
-                            (($(this).parents('.annotation_of').length > 0) && ($(this).parent('span[property="dcterms:title"]').length > 0)) || // annotated media
-                            (includeWidgets && $(this).data('widget') != undefined)) //self-referential widget
-                        && ($(this).attr('rev') != 'scalar:has_note') && ($(this).attr('data-relation') == null)) {
-                        if ($(this).data('widget') != undefined) {
-                            if (includeWidgets !== true) {
-                                return;
-                            } else {
-                                $(this).addClass('widget_link');
-                            }
+                	var $this = $(this);
+                    if (
+                    (($this.attr('resource') != null) || // linked media
+                    ($this.find('[property="art:url"]').length > 0) || // inline media
+                    (($this.parents('.annotation_of').length > 0) && ($this.parent('span[property="dcterms:title"]').length > 0)) || // annotated media
+                    (includeWidgets && $this.data('widget') != undefined)) // self-referential widget
+                    && ($this.attr('rev') != 'scalar:has_note') && ($this.attr('data-relation') == null) // not a note
+                    ) {
+                        if ($this.data('widget') != undefined) {
+                        	if (includeWidgets !== true) {
+                        		return;
+                        	} else {
+                        		$this.addClass('widget_link');
+                        	}
                         } else {
-                            $(this).addClass('media_link');
+                        	$this.addClass('media_link');
                         }
-                        mediaLinks.push($(this));
+                        mediaLinks.push($this);
+                    } else if ($this.hasClass('inlineNote')) { // inline note
+                    	mediaLinks.push($this);
                     }
                 });
 
                 return mediaLinks;
             },
+
+            annotationHasMessage: function(annotation) {
+              let result = false;
+              if (annotation.body.current.properties['http://purl.org/dc/terms/abstract']) {
+                result = annotation.body.current.properties['http://purl.org/dc/terms/abstract'][0].value;
+              }
+              return result;
+            },
+
+            sendMessage: function(mediaelement, message) {
+          		if (message && mediaelement.view.mediaObjectView.hasFrameLoaded) {
+                mediaelement.sendMessage(message);
+          		}
+          	},
 
             // trigger media playback when links are clicked on
             handleMediaLinkClick: function(e) {
@@ -1574,8 +1698,8 @@
                         // the media if it isn't already playing
                         var annotationURL = $(this).data('targetAnnotation');
                         if (annotationURL != null) {
-
                             mediaelement.seek(mediaelement.model.initialSeekAnnotation);
+                            page.sendMessage(mediaelement, page.annotationHasMessage(mediaelement.model.initialSeekAnnotation));
                             if ((mediaelement.model.mediaSource.contentType != 'document') && (mediaelement.model.mediaSource.contentType != 'image')) {
                                 setTimeout(function() {
                                     if (!mediaelement.is_playing()) {
@@ -1643,6 +1767,48 @@
                     var label_fade_delay = 400;
                     $media_label.show().delay(label_hide_delay).fadeOut(label_fade_delay);
                 }
+            },
+
+            addLensEditor: function() {
+              if ($('.page-lens-editor').length == 0) {
+                var div = $('<div class="page-lens-editor"></div>');
+                page.bodyContent().append(div);
+                div.wrap('<div class="paragraph_wrapper"><div class="body_copy"></div></div>');
+                $.when(
+                  $.getScript(views_uri+'/melons/cantaloupe/js/bootbox.min.js'),
+                  $("<link/>", {
+                     rel: "stylesheet",
+                     type: "text/css",
+                     href: views_uri+"/widgets/edit/content_selector.css"
+                  }).appendTo("head"),
+                  $.getScript(views_uri+'/widgets/edit/jquery.content_selector_bootstrap.js'),
+                  $.Deferred((deferred) => {
+                    $(deferred.resolve);
+                  })
+                ).done(() => {
+                  var visualization = $('.visualization');
+                  if (visualization.length == 0) {
+                    visualization = $('<div id="lens-visualization" class="visualization"><div class="body_copy caption_font">Loading data...</div></div>').appendTo(page.bodyContent());
+                  } else {
+                    visualization.empty();
+                  }
+                  div.ScalarLenses({onLensResults: this.handleLensResults})
+                });
+              }
+            },
+
+            handleLensResults: function(returnedLensData, currentLens) {
+              // always update the visualization type to current since it could be out of date
+              returnedLensData.visualization = currentLens.visualization;
+              if (returnedLensData.visualization) {
+                var visOptions = {
+                    modal: false,
+                    content: 'lens',
+                    lens: returnedLensData
+                };
+                $('#lens-visualization').empty();
+                $('#lens-visualization').scalarvis(visOptions);
+              }
             },
 
             addMediaElements: function() {
@@ -1870,7 +2036,7 @@
                                         '<a href="javascript:;" >' + node.getDisplayTitle() + '</a> (' + (i + 1) + '/' + n + ')' +
                                         '</span></div>');
                                 }
-                                item.find('a').data('node', node).click(function() {
+                                item.find('a').data('node', node).on('click', function() {
                                     if ($('.media_details').css('display') == 'none') {
                                         page.mediaDetails.show($(this).data('node'));
                                     }
@@ -1899,11 +2065,11 @@
                             page.mediaCarousel.carousel({ interval: false });
                             $(mediaLinks).each(function(i) {
                                 $(this).data('index', i);
-                                $(this).click(function(e) {
+                                $(this).on('click', function(e) {
                                     e.preventDefault();
                                     page.mediaCarousel.carousel($(this).data('index'));
                                 });
-                                $(this).click(page.handleMediaLinkClick);
+                                $(this).on('click', page.handleMediaLinkClick);
                             });
 
                             if (isMobile) {
@@ -1957,16 +2123,20 @@
                                 if ($(this).parents('widget_carousel').length > 0) {
                                     return;
                                 }
-                                if ($(this).hasClass('widget_link')) {
+                                if ($(this).hasClass('inlineNote')) {
+                                	page.addInlineNoteElementForLink($(this));
+                                } else if ($(this).hasClass('widget_link')) {
                                     if ($(this).data('slot') !== undefined) {
                                         $(this).data('slot').remove();
                                     }
                                     widgets.handleWidget($(this));
                                 } else {
-                                    if ((($(this).attr('resource') != null) || // linked media
-                                            ($(this).find('[property="art:url"]').length > 0) || // inline media
-                                            (($(this).parents('.annotation_of').length > 0) && ($(this).parent('span[property="dcterms:title"]').length > 0))) // annotated media
-                                        && ($(this).attr('rev') != 'scalar:has_note') && ($(this).attr('data-relation') == null)) {
+                                    if (
+                                    (($(this).attr('resource') != null) || // linked media
+                                    ($(this).find('[property="art:url"]').length > 0) || // inline media
+                                    (($(this).parents('.annotation_of').length > 0) && ($(this).parent('span[property="dcterms:title"]').length > 0))) // annotated media
+                                    && ($(this).attr('rev') != 'scalar:has_note') && ($(this).attr('data-relation') == null))
+                                    {
 
                                         var slot, slotDOMElement, slotMediaElement, count, parent;
 
@@ -1979,11 +2149,11 @@
                                                 $(this).attr('data-size', 'full');
                                                 parent = $(this);
 
-                                                // inline media (subsequent, after page resize)
+                                            // inline media (subsequent, after page resize)
                                             } else if ($(this).attr('href') == currentNode.current.sourceFile) {
                                                 parent = $(this);
 
-                                                // annotated media link (as appears on an annotation page)
+                                            // annotated media link (as appears on an annotation page)
                                             } else {
                                                 var annotatedMedia = currentNode.getRelatedNodes("annotation", "outgoing");
                                                 var i, node, annotationURL,
@@ -2010,7 +2180,7 @@
                                             }
                                             $(this).addClass("resource-added");
 
-                                            // standard media link
+                                        // standard media link
                                         } else {
                                             parent = $(this).closest('.body_copy');
 
@@ -2027,7 +2197,7 @@
                                         }
                                         page.addMediaElementForLink($(this), parent);
 
-                                        $(this).click(page.handleMediaLinkClick);
+                                        $(this).on('click', page.handleMediaLinkClick);
 
                                     }
                                 }
@@ -2102,12 +2272,14 @@
                     // Images can be larger than the window, but still give them a limit so that very long narrow images don't span too long
                     'image': $(window).height() * 1.3,
                     // The default for media should be to limit their size to fit within the bounds of the window
-                    'default': $(window).height() * 0.75,
+                    'default': Math.max($(window).height() * 0.75, 650),
                 };
             },
 
             handleDelayedResize: function() {
-                if ((page.initialMediaLoad === true) && !page.isFullScreen && (document.location.href.indexOf('.annotation_editor') == -1)) {
+              var fullscreenElement = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement;
+              page.isFullScreen = (fullscreenElement != null);
+              if ((page.initialMediaLoad === true) && !page.isFullScreen && (document.location.href.indexOf('.annotation_editor') == -1)) {
                     var reload = false;
                     page.orientation = window.orientation;
                     if ($('body').width() <= page.mobileWidth) {
@@ -2140,7 +2312,7 @@
 
                 // Regenerate media details view if currently open
                 if ($('.media_details:visible').length == 1) {
-                    $('.media_details:visible').find('[title="Close"]').click();
+                    $('.media_details:visible').find('[title="Close"]').trigger('click');
                     setTimeout(page.mediaDetails.show, 1000);
                 }
                 // remove elements that were added the last time
@@ -2193,7 +2365,7 @@
 
                     var metadata = $('<div class="body_copy additional_metadata caption_font" style="clear: both;"></div>');
                     var button = $('<a class="btn btn-default" aria-expanded="false" aria-controls="additionalMetadata">Additional metadata</a>').appendTo(metadata);
-                    button.click(function() {
+                    button.on('click', function() {
                         var isExpanded = $(this).attr("aria-expanded");
                         if (isExpanded == "false") {
                             $("#additionalMetadata").show();
@@ -2227,9 +2399,9 @@
                     if (resource == null) {  // Links with resource="" are always internal
                         if ('undefined' != typeof(href) && base_url) {
                             if (href.substr(0, 4) == 'http' && href.indexOf(base_url) == -1) { // Is an external link
-                                $link.click(function() {
+                                $link.on('click', function() {
                                     if (target) { // E.g., open in a new tab
-                                        $link.click();
+                                        $link.trigger('click');
                                         return false;
                                     } else {
                                         var link_to = base_url + 'external?link=' + encodeURIComponent($(this).attr('href')) + '&prev=' + encodeURIComponent(document.location.href);
@@ -2442,7 +2614,7 @@
             },
 
             setupGoogleMapsLayout: function() {
-                $('header > span:not').eq(0).before('<div id="google-maps" class="maximized-embed"></div>');
+                $('h1[property="dcterms:title"]').before('<div id="google-maps" class="maximized-embed"></div>');
 
                 // create map
                 var mapOptions = {
@@ -2584,10 +2756,10 @@
         page.updateMediaHeightRestrictions();
         page.sortTags();
 
-        $('body').bind('setState', page.handleSetState);
-        $('body').bind('mediaElementMediaLoaded', page.handleMediaElementMetadata);
+        $('body').on('setState', page.handleSetState);
+        $('body').on('mediaElementMediaLoaded', page.handleMediaElementMetadata);
 
-        $(document).bind("mozfullscreenchange webkitfullscreenchange msfullscreenchange webkitbeginfullscreen webkitendfullscreen", function(e) {
+        $(document).on("mozfullscreenchange webkitfullscreenchange msfullscreenchange webkitbeginfullscreen webkitendfullscreen", function(e) {
 
             var fullscreenElement = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement;
             page.isFullScreen = (fullscreenElement != null);
@@ -2624,7 +2796,7 @@
 
         $('article').append('<div id="footer" class="caption_font"></div>');
 
-        $('body').bind('delayedResize', page.handleDelayedResize);
+        $('body').on('delayedResize', page.handleDelayedResize);
 
         if ($('body').width() <= page.mobileWidth) {
             page.adaptiveMedia = 'mobile';
@@ -2676,18 +2848,18 @@
 
             page.getContainingPathInfo();
 
-    		var cover_video = function() {  // Have <video> tag mimic background-size:cover
-    			$video = $(this);
-    			var scale_h = parseInt($video.parent().width()) / $video.data('orig_w');
-    			var scale_v = parseInt($video.parent().height()) / $video.data('orig_h');
-    			var scale = scale_h > scale_v ? scale_h : scale_v;
-                $video.parent().height($video.parent().height());
-    			$video.width(scale * $video.data('orig_w'));
-    			$video.height(scale * $video.data('orig_h'));
-        		$video.parent().scrollLeft( ($video.width() - $video.parent().width()) * .5 );
-        		$video.parent().scrollTop( ($video.height() - $video.parent().height()) * .5 );
-                $video.show();
-    		}
+        		var cover_video = function() {  // Have <video> tag mimic background-size:cover
+        			$video = $(this);
+        			var scale_h = parseInt($video.parent().parent().width()) / $video.data('orig_w');
+        			var scale_v = parseInt($video.parent().parent().height()) / $video.data('orig_h');
+        			var scale = scale_h > scale_v ? scale_h : scale_v;
+              $video.parent().height($video.parent().parent().height());
+        			$video.width(scale * $video.data('orig_w'));
+        			$video.height(scale * $video.data('orig_h'));
+            	$video.parent().scrollLeft( ($video.width() - $video.parent().width()) * .5 );
+            	$video.parent().scrollTop( ($video.height() - $video.parent().height()) * .5 );
+              $video.show();
+        		}
 
             switch (viewType) {
 
@@ -2717,7 +2889,7 @@
                     		var self = this;
                     		$video.data('orig_w', parseInt($video.get(0).videoWidth));
                     		$video.data('orig_h', parseInt($video.get(0).videoHeight));
-                    		$(window).resize(function() {
+                    		$(window).on('resize', function() {
                     			cover_video.call($video.get(0));
                     		}).trigger('resize');
                     	});
@@ -2736,6 +2908,28 @@
                             next();
                         });
                     }, 200);
+                    // Information about the banner
+                    var parent = $('link#parent').attr('href');
+                    var api_url = null;
+                    if (-1 == banner.indexOf(parent)) {  // External file
+                    	// TODO
+                    } else {  // Local file
+                    	api_url = parent+'rdf/file/'+banner.replace(parent,'')+'?format=json';
+                    }
+                    if (null != api_url) {
+	                    $.getJSON(api_url, function(media_node) {
+	                    	for (var uri in media_node) {
+	                    		if ('undefined' == typeof(media_node[uri]['http://open.vocab.org/terms/versionnumber'])) continue;
+	                    		var url = media_node[uri]['http://purl.org/dc/terms/isVersionOf'][0].value;
+	                    		var title = media_node[uri]['http://purl.org/dc/terms/title'][0].value;
+	                    		//var description = ('undefined'!=typeof(media_node[uri]['http://purl.org/dc/terms/description'])) ? media_node[uri]['http://purl.org/dc/terms/description'][0].value : null;
+	                    		var source = ('undefined'!=typeof(media_node[uri]['http://purl.org/dc/terms/source'])) ? media_node[uri]['http://purl.org/dc/terms/source'][0].value : null;
+	                    		if (-1 != source.indexOf('//')) source = null;  // Is a URL
+	                    		var html = '<div class="citation caption_font"><a href="'+url+'">Background: '+title+''+((null!=source)?' ('+source+')':'')+'</a></div>';
+	                    		$('.title_card').append(html);
+	                    	}
+	                    });
+                    };
                     break;
 
                 case 'gallery':
@@ -2814,7 +3008,7 @@
                     		var $video = $(this);
                     		$video.data('orig_w', parseInt($video.get(0).videoWidth));
                     		$video.data('orig_h', parseInt($video.get(0).videoHeight));
-                    		$(window).resize(function() {
+                    		$(window).on('resize', function() {
                     			cover_video.call($video.get(0));
                     		}).trigger('resize');
                     	});
@@ -2868,6 +3062,7 @@
                             page.pendingDeferredScripts.GoogleMaps.push(promise);
                             $.when(promise).then($.proxy(function(){
                                 page.setupGoogleMapsLayout();
+                                page.addHeaderPathInfo();
                             },this));
                             break;
 
@@ -2886,73 +3081,218 @@
                                 case "vis":
                                 case "visindex":
                                     visOptions = {
-                                        modal: false,
-                                        content: 'all',
-                                        relations: 'all',
-                                        format: 'grid'
+                                      modal: false,
+                                      content: 'lens',
+                                      lens: {
+                                        "visualization": {
+                                          "type": "grid",
+                                          "options": {}
+                                        },
+                                        "components": [
+                                          {
+                                            "content-selector": {
+                                              "type": "items-by-type",
+                                              "content-type": "all-content"
+                                            },
+                                            "modifiers": [
+                                              {
+                                                "type": "sort",
+                                                "sort-type": "alphabetical",
+                                                "metadata-field": "dcterms:title",
+                                                "sort-order": "ascending"
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
                                     }
                                     break;
 
                                 case "vistoc":
                                     visOptions = {
-                                        modal: false,
-                                        content: 'toc',
-                                        relations: 'all',
-                                        format: 'tree'
+                                      modal: false,
+                                      content: 'lens',
+                                      lens: {
+                                        "visualization": {
+                                          "type": "tree",
+                                          "options": {}
+                                        },
+                                        "components": [
+                                          {
+                                            "content-selector": {
+                                              "type": "items-by-type",
+                                              "content-type": "table-of-contents"
+                                            },
+                                            "modifiers": [{
+                                                "type": "filter",
+                                                "subtype": "relationship",
+                                                "content-types": [
+                                                    "all-types"
+                                                ],
+                                                "relationship": "child"
+                                            }]
+                                          }
+                                        ]
+                                      }
                                     }
                                     break;
 
                                 case "visconnections":
                                     visOptions = {
-                                        modal: false,
-                                        content: 'all',
-                                        relations: 'all',
-                                        format: 'force-directed'
+                                      modal: false,
+                                      content: 'lens',
+                                      lens: {
+                                        "visualization": {
+                                          "type": "force-directed",
+                                          "options": {}
+                                        },
+                                        "components": [
+                                          {
+                                            "content-selector": {
+                                              "type": "items-by-type",
+                                              "content-type": "all-content"
+                                            },
+                                            "modifiers": []
+                                          }
+                                        ]
+                                      }
                                     }
                                     break;
 
                                 case "visradial":
                                     visOptions = {
-                                        modal: false,
-                                        content: 'all',
-                                        relations: 'all',
-                                        format: 'radial'
+                                      modal: false,
+                                      content: 'lens',
+                                      lens: {
+                                        "visualization": {
+                                          "type": "radial",
+                                          "options": {}
+                                        },
+                                        "components": [
+                                          {
+                                            "content-selector": {
+                                              "type": "items-by-type",
+                                              "content-type": "all-content"
+                                            },
+                                            "modifiers": []
+                                          }
+                                        ]
+                                      }
                                     }
                                     break;
 
                                 case "vispath":
                                     visOptions = {
-                                        modal: false,
-                                        content: 'current',
-                                        relations: 'path',
-                                        format: 'tree'
+                                      modal: false,
+                                      content: 'lens',
+                                      lens: {
+                                        "visualization": {
+                                          "type": "tree",
+                                          "options": {}
+                                        },
+                                        "components": [
+                                          {
+                                            "content-selector": {
+                                              "type": "specific-items",
+                                              "items": [currentNode.slug]
+                                            },
+                                            "modifiers": [
+                                              {
+                                                "type": "filter",
+                                                "subtype": "relationship",
+                                                "content-types": [
+                                                  "path"
+                                                ],
+                                                "relationship": "child"
+                                              }
+                                            ]
+                                          }
+                                        ],
+                                      }
                                     }
                                     break;
 
                                 case "vismedia":
                                     visOptions = {
-                                        modal: false,
-                                        content: 'current',
-                                        relations: 'referee',
-                                        format: 'force-directed'
+                                      modal: false,
+                                      content: 'lens',
+                                      lens: {
+                                        "visualization": {
+                                          "type": "force-directed",
+                                          "options": {}
+                                        },
+                                        "components": [
+                                          {
+                                            "content-selector": {
+                                              "type": "specific-items",
+                                              "items": [currentNode.slug]
+                                            },
+                                            "modifiers": [
+                                              {
+                                                "type": "filter",
+                                                "subtype": "relationship",
+                                                "content-types": [
+                                                  "reference"
+                                                ],
+                                                "relationship": "any-relationship"
+                                              }
+                                            ]
+                                          }
+                                        ],
+                                      }
                                     }
                                     break;
 
                                 case "vistag":
                                     visOptions = {
-                                        modal: false,
-                                        content: 'current',
-                                        relations: 'tag',
-                                        format: 'force-directed'
+                                      modal: false,
+                                      content: 'lens',
+                                      lens: {
+                                        "visualization": {
+                                          "type": "force-directed",
+                                          "options": {}
+                                        },
+                                        "components": [
+                                          {
+                                            "content-selector": {
+                                              "type": "specific-items",
+                                              "items": [currentNode.slug]
+                                            },
+                                            "modifiers": [
+                                              {
+                                                "type": "filter",
+                                                "subtype": "relationship",
+                                                "content-types": [
+                                                  "tag"
+                                                ],
+                                                "relationship": "child"
+                                              }
+                                            ]
+                                          }
+                                        ],
+                                      }
                                     }
                                     break;
 
                                 case "tags":
                                     visOptions = {
-                                        modal: false,
-                                        content: 'external',
-                                        relations: 'none',
-                                        format: 'tagcloud'
+                                      modal: false,
+                                      content: 'lens',
+                                      lens: {
+                                        "visualization": {
+                                          "type": "word-cloud",
+                                          "options": {}
+                                        },
+                                        "components": [
+                                          {
+                                            "content-selector": {
+                                              "type": "items-by-type",
+                                              "content-type": "tag"
+                                            },
+                                            "modifiers": []
+                                          }
+                                        ],
+                                      }
                                     }
                                     break;
 
@@ -2983,7 +3323,7 @@
 
                                 relatedNodes.push(node.getRelatedNodes('path', 'outgoing'));
                                 relatedNodes.push(node.getRelatedNodes('tag', 'outgoing'));
-                                relatedNodes.push(node.getRelatedNodes('referee', 'outgoing'));
+                                relatedNodes.push(node.getRelatedNodes('reference', 'outgoing'));
                                 relatedNodes.push(node.getRelatedNodes('annotation', 'outgoing'));
 
                                 var tempdata = {
@@ -3025,7 +3365,7 @@
                                                     url: relNode.sourceFile,
                                                     thumbnail: thumbnail_url
                                                 };
-                                                var mediaType = TL.MediaType(entry.media);
+                                                var mediaType = TL.lookupMediaType(entry.media);
 
                                                 if(mediaType.type=='imageblank' && thumbnail_url != null){
                                                     entry.media.url = thumbnail_url;
@@ -3166,7 +3506,7 @@
                                     		var $video = $(this);
                                     		$video.data('orig_w', parseInt($video.get(0).videoWidth));
                                     		$video.data('orig_h', parseInt($video.get(0).videoHeight));
-                                    		$(window).resize(function() {
+                                    		$(window).on('resize', function() {
                                     			cover_video.call($video.get(0));
                                     		}).trigger('resize');
                                     	});
@@ -3218,6 +3558,9 @@
                         page.addContext();
                         page.allowAnyClickToDismissPopovers();
                     }
+                    if ($("[property|='scalar:isLensOf']").length > 0 && viewType == 'plain') {
+                      page.addLensEditor();
+                    }
                     break;
 
             }
@@ -3232,7 +3575,7 @@
 			$( document ).ready( function() {
 				if ( !$.cookie( 'warningMessageDismissed' ) ) {
 					var message = $('<div id="message" style="position: absolute; cursor: pointer; left: 20px; top: 70px; max-width: 400px; padding: 15px; z-index:99999; background-color: #fdcccb;">Warning message</div>').appendTo( 'body' );
-					message.click( function() {
+					message.on('click',  function() {
 						$( this ).hide();
 						$.cookie( 'warningMessageDismissed', true, { path: '/' } );
 					} );
@@ -3242,11 +3585,11 @@
 
             page.handleBook(); // we used to bind this to the return of a loadBook call, but now we can call it immediately
 
-            $('.note_viewer').click(function(e) {
+            $('.note_viewer').on('click', function(e) {
                 e.stopPropagation();
             })
 
-            $('body').click(function() {
+            $('body').on('click', function() {
                 $.each($('.note_viewer'), function() {
                     page.hideNote(this);
                 })

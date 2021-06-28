@@ -22,25 +22,25 @@
 
 			rel_type = $('#formRelType').find('[name="relType"] option:selected').val();  // Global
 
-			$('#check_all').click(function() {
+			$('#check_all').on('click', function() {
 				var check_all = ($(this).is(':checked')) ? true : false;
 				$('.table_wrapper').find('input[type="checkbox"]').prop('checked', check_all);
 			});
 
 			$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:rel_type,start:null,results:null,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,expand_column:{name:rel_type.capitalizeFirstLetter()+' of',func:'getParentOf'},pagination_func:pagination,paywall:false,no_content_msg:'There is no content of this type<br />You can select a different relationship type using the pulldown above'});
 
-   			$(window).resize(function() { resizeList(); });
+   			$(window).on('resize', function() { resizeList(); });
    			resizeList();
 
-   			$('#formRelType').submit(function() {
+   			$('#formRelType').on('submit', function() {
    				rel_type = $(this).find('[name="relType"] option:selected').val();
    				$('.table_wrapper:first').scalardashboardtable('paginate', {query_type:rel_type,start:null,results:null,book_uri:book_uri,resize_wrapper_func:resizeList,tablesorter_func:tableSorter,expand_column:{name:rel_type.capitalizeFirstLetter()+' of',func:'getParentOf'},pagination_func:pagination,paywall:false,no_content_msg:'There is no content of this type<br />You can select a different relationship type using the pulldown above'});
    				return false;
    			});
-   			$('#formRelType').find('[name="relType"]').change(function() {
+   			$('#formRelType').find('[name="relType"]').on('change', function() {
    	   			var $this = $(this);
-   	   			$this.closest('form').submit();
-   	   			$this.blur();
+   	   			$this.closest('form').trigger('submit');
+   	   			$this.trigger('blur');
    			});
 
    			$('body').on('rowSaved', function() {
@@ -108,6 +108,7 @@
 								if (data[j]['start_seconds'].length && '0'!=data[j]['start_seconds']) str += 'start sec '+Math.round(data[j]['start_seconds'])+'; ';
 								if (data[j]['end_seconds'].length && '0'!=data[j]['end_seconds']) str += 'end sec '+Math.round(data[j]['end_seconds'])+'; ';
 								if (data[j]['points'].length && '0'!=data[j]['points']) str += 'points '+data[j]['points']+'; ';
+								if (data[j]['position_3d'].length && '0'!=data[j]['position_3d']) str += '3d position '+data[j]['position_3d']+'; ';
 								if (data[j]['start_line_num'].length && '0'!=data[j]['start_line_num']) str += 'start line '+data[j]['start_line_num']+'; ';
 								if (data[j]['end_line_num'].length && '0'!=data[j]['end_line_num']) str += 'end line '+data[j]['end_line_num']+'; ';
 								$data_row.append('<td>at '+str+'</td>');
@@ -127,14 +128,14 @@
 						}
 					}
 					$the_link.html('Hide');
-					$the_link.blur();
+					$the_link.trigger('blur');
 					$the_link.data('is_open',true);
 				});
 			} else {
 				$('#'+rel_type+'_of_row_'+version_id).remove();
 				$the_link.html('View');
 				$the_link.data('is_open',false);
-				$the_link.blur();
+				$the_link.trigger('blur');
 			}
 		}
 

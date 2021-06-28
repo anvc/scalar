@@ -1,5 +1,5 @@
 (function( $ ) {
-	
+
 	var defaults = {
 			title:'',
 			ontologies_url:'',
@@ -16,10 +16,10 @@
 			add_fields_btn_text: 'Add fields',
 			callback: null,
 			show_featured: true
-	};  	
-	
+	};
+
     $.fn.add_metadata = function(options) {
-    	
+
     	$('.add_metadata_modal, .add_metadata_bootbox').remove();
     	var $this = $('<div class="add_metadata_modal"></div>');
     	var $insert_into = $(this);
@@ -29,9 +29,9 @@
     	var can_localstorage = 'localStorage' in window && window['localStorage'] !== null;
 
 		if ('undefined'!=typeof($.fn.dialog)) {  // jQuery UI
-	    	opts['buttons'] = [ 
+	    	opts['buttons'] = [
 	    	           	    { text: "Cancel", class: "generic_button", click: function() { $this.dialog( "destroy" ); $this.remove(); } },
-	    	           	  	{ text: opts.add_fields_btn_text, class: "generic_button default", click: function() { 
+	    	           	  	{ text: opts.add_fields_btn_text, class: "generic_button default", click: function() {
 	    	           	  		var selected = $(this).find(':checked');
 	    	           	  		$.each(selected, function() {
 	    	           	  			var val = $(this).attr('name');
@@ -42,15 +42,15 @@
 	    	           	  		$this.dialog('destroy');
 	    	           	  		$this.remove();
 	    	           	  	} }
-	    	           	];			
+	    	           	];
 	    	opts.width = parseInt($(window).width())*0.8;
 	    	opts.height = parseInt($(window).height())*0.8;
-	    	opts.modal = true;	
+	    	opts.modal = true;
 			$this.dialog(opts);
 		} else if ('undefined'!=typeof($.fn.modal)) {  // Bootstrap
 			bootstrap_enabled = true;
 	    	opts.width = parseInt($(window).width())*0.7;
-	    	opts.height = parseInt($(window).height())*0.7;			
+	    	opts.height = parseInt($(window).height())*0.7;
 			bootbox.dialog({
 				message: '<div id="bootbox-content"></div>',
 				title: opts.title,
@@ -61,7 +61,7 @@
 				      label: "Cancel",
 				      className: "btn-default",
 				      callback: function() {
-						$('.add_metadata_bootbox').modal('hide').data('bs.modal', null);  
+						$('.add_metadata_bootbox').modal('hide').data('bs.modal', null);
 				      }
 				    },
 				    add: {
@@ -83,11 +83,11 @@
                             }
 		    	  			$insert_into.append($insert);
 		    	  		});
-		    	  		$('.add_metadata_bootbox').modal('hide').data('bs.modal', null);  
+		    	  		$('.add_metadata_bootbox').modal('hide').data('bs.modal', null);
 		    	  		if (null !== opts.callback) opts.callback();
 				      }
 				    },
-				}				
+				}
 			});
 			$this.appendTo($('.add_metadata_bootbox #bootbox-content'));
 			$('.add_metadata_bootbox .modal-dialog').width('auto').css('margin-left','20px').css('margin-right','20px');
@@ -98,7 +98,7 @@
 		} else {
 			alert('Could not find a modal/dialog library');
 		}
-    	
+
     	$.getJSON(opts.ontologies_url, function( data ) {  // Propagate with ontologies from the RDF config
         	$div.empty();
         	$div.append('<div style="font-size:16px;margin-bottom:25px;"><span style="float:left;padding:6px 12px 0px 0px">Select a field set:</span><div class="btn-group title-links"><button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="font-size:16px;"><span class="title" style="display:inline-block;min-width:110px;text-align:left;"></span> &nbsp; <span class="caret"></span></button><ul class="dropdown-menu"></div></div>');
@@ -134,11 +134,11 @@
         	// Ontologies
         	for (var prefix in data) {
         		if ('undefined' != typeof(descriptions[prefix])) {
-        			var $header = $('<div name="'+prefix+'" class="description">'+descriptions[prefix].long+':</div>').appendTo($div); 
+        			var $header = $('<div name="'+prefix+'" class="description">'+descriptions[prefix].long+':</div>').appendTo($div);
         			$title_links_list.append('<li><a href="javascript:void(null);" name="'+prefix+'">'+descriptions[prefix].short+'</a></li>');
         		} else {
-        			var $header = $('<div name="'+prefix+'" class="description">'+prefix+'</div>').appendTo($div); 
-        			$title_links_list.append('<li><a href="javascript:void(null);" name="'+prefix+'">'+prefix+'</a></li>');        			
+        			var $header = $('<div name="'+prefix+'" class="description">'+prefix+'</div>').appendTo($div);
+        			$title_links_list.append('<li><a href="javascript:void(null);" name="'+prefix+'">'+prefix+'</a></li>');
         		}
         		var $content = $('<div></div>').appendTo($div);
         		for (var j = 0; j < data[prefix].length; j+=3) {
@@ -180,7 +180,7 @@
         	$title_links_list.find('a[name="'+opts.active+'"]').parent().addClass('active');
         	$title_links_btn.find('.title').text( $title_links_list.find('a[name="'+opts.active+'"]').text() );
         	if (true == opts.active_only) $div.children().first().hide();
-        	$title_links.find('a').click(function() {
+        	$title_links.find('a').on('click', function() {
         		var $this = $(this);
         		$this.closest('ul').find('.active').removeClass('active');
         		$this.parent().addClass('active');
@@ -204,7 +204,7 @@
         	}
         	// Default item
         	if (!opts.show_featured) {
-        		$title_links.find('a:first').click();
+        		$title_links.find('a:first').trigger('click');
         	};
         	// jQuery UI
         	if ('undefined'!=typeof($.fn.dialog)) {
@@ -229,17 +229,17 @@
         		});
         	};
     	});
-    	
+
     };
-    
+
     $.fn.populate_metadata_from_localstorage = function(options) {
-    
+
     	var $insert_into = $(this);
     	if ($insert_into.children().length) return;
     	opts = $.extend( {}, defaults, options )
     	var can_localstorage = 'localStorage' in window && window['localStorage'] !== null;
     	var skip_prefix = ['tk'];
-    	
+
     	var arr = null;
     	if (can_localstorage) {
     		var obj = localStorage.getItem('scalar_previous_metadata_fields');
@@ -257,7 +257,7 @@
     	if (!arr || !arr.length) {
     		arr = ['dcterms:source','iptc:By-line','dcterms:coverage','dcterms:spatial','dcterms:temporal','dcterms:date'];
     	};
-    	
+
     	var $insert;
     	for (var j = 0; j < arr.length; j++) {
     		var val = arr[j];
@@ -270,9 +270,9 @@
 	        }
 			$insert_into.append($insert);
     	};
-    	
+
     };
-    
+
     $.fn.save_metadata_to_localstorage = function(options) {
 
     	var $insert_into = $(this);
@@ -290,17 +290,17 @@
     		});
     		localStorage.setItem('scalar_previous_metadata_fields', JSON.stringify(obj));
     	};
-    	
+
     };
-    
+
     $.fn.find_and_add_exif_metadata = function(options) {
-    	
+
     	// Options
     	var $insert_into = $(this);
     	opts = $.extend( {}, defaults, options );
     	if ($(opts.button).data('active')) return;
     	$(opts.button).data('active', true).prop('disabled', 'disabled');
-    	
+
     	// Get image metadata on the resource
     	$.getJSON(opts.parser_url+'?url='+opts.url, function( data ) {
         	for (var uri in data) break;
@@ -326,7 +326,7 @@
         	};
         	$(opts.button).data('active', false).prop('disabled', false);
     	});
-    	
-    };   
-    
+
+    };
+
 }( jQuery ));

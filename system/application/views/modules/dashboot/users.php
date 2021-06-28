@@ -5,6 +5,7 @@ if (empty($book)) {
 }
 ?>
 <?$this->template->add_css('system/application/views/widgets/edit/content_selector.css')?>
+<?$this->template->add_js('system/application/views/widgets/api/scalarapi.js')?>
 <?$this->template->add_js('system/application/views/widgets/edit/jquery.content_selector_bootstrap.js')?>
 <?$this->template->add_css('body {margin-bottom:0;}','embed')?>
 
@@ -86,7 +87,7 @@ function deleteOptions($content) {
 		alert('You can\'t remove yourself!');
 		return;
 	};
-	if (!confirm('Are you sure you wish to remove '+user_ids.length+' user'+((user_ids.length>1)?'s':'')+'?')) {
+	if (!confirm('Are you sure you wish to remove '+user_ids.length+' user'+((user_ids.length>1)?'s':'')+'? Any administrative access they have to this book will be revoked.')) {
 		return;
 	};
 	$('.selector .botton_options_box button:nth-child(2)').prop('disabled','disabled');
@@ -111,11 +112,11 @@ function userOptions() {
 	};
 	$userOptionsModal = $('#userOptionsModal');
 	$userOptionsModal.on('shown.bs.modal', function (e) {
-		$(this).find('#fullname').val('').focus();
+		$(this).find('#fullname').val('').trigger('focus');
 	});
 	$userOptionsModal.modal();
 	var last_sent = '';
-	$userOptionsModal.find('#fullname').off('keyup').keyup(function() {
+	$userOptionsModal.find('#fullname').off('keyup').on('keyup', function() {
 		var $this = $(this);
 		var text = $this.val();
 		if (text.length < 3) return;
@@ -135,15 +136,15 @@ function userOptions() {
 				var $row = $('<tr><td>'+data[j].fullname+'</td></tr>').appendTo($tbody);
 				$row.data('user_id', data[j].user_id);
 			};
-			$tbody.find('tr').click(function() {
+			$tbody.find('tr').on('click', function() {
 				var $this = $(this);
 				$this.addClass('active').addClass('info').siblings().removeClass('active').removeClass('info');
 			});
 		});
 
 	});
-	$userOptionsModal.find('.glyphicon-remove').click(function() {
-		$(this).closest('div').find('input').val('').focus();
+	$userOptionsModal.find('.glyphicon-remove').on('click', function() {
+		$(this).closest('div').find('input').val('').trigger('focus');
 	});
 	$userOptionsModal.find('.modal-footer button:last').off('click').on('click', function() {
 		var $btn = $(this);

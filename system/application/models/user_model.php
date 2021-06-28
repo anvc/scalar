@@ -167,10 +167,14 @@ class User_model extends MY_Model {
         $ldap_port = $this->config->item('ldap_port');
         $basedn = $this->config->item('ldap_basedn');
         $uname_field = $this->config->item('ldap_uname_field');
+        $filter = $this->config->item('ldap_filter');
+        $use_ad = $this->config->item('use_ad_ldap');
+        $ad_bind_user = $this->config->item('ad_bind_user');
+        $ad_bind_pass = $this->config->item('ad_bind_pass');
 
-		if ( strlen(trim($password)) == 0 ) {
+        if ( strlen(trim($password)) == 0 ) {
            return false;
-		}
+        }
 
         $ldapCon = ldap_connect( $ldap_host, $ldap_port );
         if ( !$ldapCon) {
@@ -179,11 +183,20 @@ class User_model extends MY_Model {
 
         ldap_set_option($ldapCon, LDAP_OPT_PROTOCOL_VERSION, 3);
 
+        if ( $use_ad === true ) {
+            ldap_set_option($ldapCon, LDAP_OPT_REFERRALS, 0);
+        }
+
         if ( !ldap_start_tls($ldapCon) ) {
             throw new Exception('Unable to start TLS on LDAP connection');
         }
 
-        $ldapFilter = $uname_field . "=" . $uname;
+        if ( $use_ad === true ) {
+            $ldapBind = ldap_bind($ldapCon, $ad_bind_user, $ad_bind_pass);
+        }
+
+        $ldapFilter = '(&(objectClass=user)(' . $uname_field . '=' . $uname . ')' . $filter . ')';
+
         $ldapSearch = ldap_search($ldapCon, $basedn, $ldapFilter);
 
         // Found the user, now check the password by trying to bind as that user
@@ -263,6 +276,17 @@ class User_model extends MY_Model {
     	if ($query->num_rows == 0) return false;
     	return $query->result();  	// Could be more than one
 
+    }
+    
+    public function get_super_admins() {
+    	
+    	$this->db->select('*');
+    	$this->db->from($this->users_table);
+    	$this->db->where('is_super', 1);
+    	$query = $this->db->get();
+    	if ($query->num_rows == 0) return false;
+    	return $query->result();  	// Could be more than one
+    	
     }
 
     public function email_exists_for_different_user($email='', $user_id=0) {
@@ -435,19 +459,25 @@ class User_model extends MY_Model {
 
 		if (empty($array['email'])) throw new Exception('Email is a required field');
 		if ($this->get_by_email($array['email'])) throw new Exception('Email already in use');
+		if ($this->email_is_disallowed($array['email'])) throw new Exception('Email is disallowed');
 		if (empty($array['fullname'])) throw new Exception('Full name is a required field');
 		if (empty($array['password'])) throw new Exception('Password is a required field');
-
+		
 		$fullname = trim($array['fullname']);
 		$email = trim($array['email']);
     	if (empty($fullname)) throw new Exception('Could not resolve fullname');  // E.g., a string of all spaces
     	if (empty($email)) throw new Exception('Could not resolve email');  // E.g., a string of all spaces
 
+    	$strong_password_enabled = $this->config->item('strong_password');
+    	if ($strong_password_enabled && !$this->test_strong_password($array['password'], $fullname, $email)) throw new Exception('Password did not pass strong password test');
+    	if ($strong_password_enabled && !$this->test_previous_password($array['password'], $email)) throw new Exception('Password has previously been used');
+    	
 		$data = array('fullname' => $fullname, 'email' => $email);
 		$this->db->insert($this->users_table, $data);
 		$user_id = $this->db->insert_id();
-
-		$this->save_password($user_id, $array['password']);  // Hashes the string
+		$user = $this->get_by_user_id($user_id);
+		
+		$this->save_password($user_id, $array['password'], $user->fullname, $user->email);  // Hashes the string
 
     	return $user_id;
 
@@ -639,16 +669,21 @@ class User_model extends MY_Model {
 		$user_id =@ (int) $user->user_id;
 		if (empty($user_id)) throw new Exception('Invalid user');
 
-		$this->save_password($user_id, $password);
+		$this->save_password($user_id, $password, $user->fullname, $user->email);
 
 		return true;
 
 	}
 
-	private function save_password($user_id=0, $password=''){
+	private function save_password($user_id=0, $password='', $fullname='', $email=''){
 
 		if (empty($user_id) || empty($password)) throw new Exception('Invalid user ID or password');
 
+		$strong_password_enabled = $this->config->item('strong_password');
+		if ($strong_password_enabled && !$this->test_strong_password($password, $fullname, $email)) throw new Exception('Password did not pass strong password test');
+		if ($strong_password_enabled && !$this->test_previous_password($password, $email)) throw new Exception('Password has previously been used');
+		if ($strong_password_enabled) $this->save_previous_password($password, $email);
+		
 		$data['password'] = $this->get_hash($password);
 		$this->db->where('user_id', $user_id);
 		$this->db->update($this->users_table, $data);
@@ -662,6 +697,76 @@ class User_model extends MY_Model {
     	if (empty($password)) return $password;
     	return hash('sha512', $password . $this->config->item('shasalt'));
 
+    }
+    
+    public function test_strong_password($password, $fullname='', $email='') {  // Conforms to USC's strong password mandate
+
+    	if (strlen($password) < 16) return false;
+    	if (!empty($fullname) && !empty($email)) {
+    		$arr = explode(' ', $fullname);
+	    	$arr = array_merge($arr, explode('@', $email));
+	    	foreach ($arr as $el) {
+	    		if (stristr(strtolower($password), strtolower($el))) return false;
+	    	}
+    	}
+    	return true;
+    	
+    }
+    
+    public function test_previous_password($password, $email='') {
+    	
+    	if (empty($email)) return true;
+    	$user = $this->get_by_email($email);
+    	if (empty($user)) return true;  // User hasn't been created yet (e.g., is registering)
+    	if (!property_exists($user, 'previous_passwords')) return true;  // Database hasn't been updated
+    	$previous_passwords = json_decode($user->previous_passwords, true);
+    	if (empty($previous_passwords)) $previous_passwords = array();
+    	if (in_array($this->get_hash($password), $previous_passwords)) return false;
+    	return true;
+    	
+    }
+    
+    private function save_previous_password($password, $email='') {
+    	
+
+    	if (empty($email)) return;
+    	$user = $this->get_by_email($email);
+    	if (!property_exists($user, 'previous_passwords')) return;  // Database hasn't been updated
+    	$previous_passwords = json_decode($user->previous_passwords, true);
+    	if (empty($previous_passwords)) $previous_passwords = array();
+    	$previous_passwords[time()] = $this->get_hash($password);
+    	$previous_passwords = array_slice($previous_passwords, -10, 10, true);  // Limit to last 10
+    	$this->db->where('user_id', $user->user_id);
+    	$this->db->update($this->users_table, array('previous_passwords'=>json_encode($previous_passwords)));
+    	
+    }
+    
+    public function days_since_last_password_change($user_id) {
+    	
+    	if (empty($user_id)) return;
+    	$user = $this->get_by_user_id($user_id);
+    	if (!property_exists($user, 'previous_passwords')) return;  // Database hasn't been updated
+    	$previous_passwords = json_decode($user->previous_passwords, true);
+    	if (empty($previous_passwords) || !is_array($previous_passwords)) $previous_passwords = array();
+    	$current_time = time();
+    	$least_days = null;
+    	foreach ($previous_passwords as $previous_time => $previous_password) {
+    		$days = abs($current_time - $previous_time)/60/60/24;
+    		if ($least_days == null || $days < $least_days) $least_days = $days;
+    	}
+    	return $least_days;
+    	
+    }
+    
+    protected function email_is_disallowed($email='') {
+    	
+    	$this->load->model('resource_model', 'resources');
+    	$json = $this->resources->get('disallowed_emails');
+    	$arr = json_decode($json, true);
+    	if (empty($arr)) $arr = array();
+    	if (in_array($email, $arr)) return true;
+    	return false;
+    	
     }
 
 }

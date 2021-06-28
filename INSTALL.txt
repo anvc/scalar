@@ -15,7 +15,7 @@ There are a few .htaccess files included in the Scalar build, therefore please m
 
 ***
 If PHP's short_open_tag (<? vs <?php) is turned off, CodeIgniter is supposed to make them operational, but this feature doesn't
-seem to be working properly.  Please make sure short_open_tag is turned on in PHP. Scalar also requires the non-default PHP extensions: the GD image processing library (http://php.net/manual/en/book.image.php), and mbstring (http://php.net/manual/en/mbstring.installation.php). 
+seem to be working properly. So, make sure short_open_tag is turned on in PHP :)
 ***
 
 ***
@@ -27,9 +27,7 @@ When Scalar creates the book folders it should chmod the newly created folders t
 ***
 
 ***
-You can download the most recent Scalar build from GitHub. However, we also occassionally package Scalar into a GitHub Release,
-downloadable at https://github.com/anvc/scalar/releases. Installing from a release ensures that the Scalar team has tested its contents on development and 
-live environments (e.g., scalar.usc.edu).  To update an existing Scalar install, see UPDATE.txt.
+Go ahead and download the most recent Release at: https://github.com/anvc/scalar/releases. Releases have been tested by the Scalar team on development and live environments (e.g., scalar.usc.edu).  To update an existing Scalar install, see UPDATE.txt.
 ***
 
 ***
@@ -141,13 +139,10 @@ Updates we've made to incorporated libraries, kept here for reference if they ne
 CodeIgniter:
 1) In system/core/Input.php->_clean_input_keys(), change regex "/^[a-z0-9:_\/-]+$/i" to "/^[a-z0-9:_\/\-~@]+$/i"
 
-ARC2 (updated 2014-10-29 from https://github.com/semsol/arc2):
+ARC2 (updated 2021-01-27 from https://github.com/semsol/arc2):
 1) ARC2_Resource.php->getProps(): comment out "if (!isset($this->index[$s])) $this->fetchData($s);"
-2) ARC2_StoreDeleteQueryHandler.php->cleanValueTables(): add "$this->store->releaseLock();" (https://github.com/semsol/arc2/issues/33)
-TODO: #2 has been updated on their github repo as of July 2016
-
-Froogaloop:
-1) Changed $f=g to froogaloop=g
+2) ARC2_Store.php->hasHashColumn(): look for 'false' rather than 'null' from fetchRow() to keep the id2val table in check
+3) ARC2_StoreLoadQueryHandler.php->getStoredTermID(): replace "if (false !== empty($binaryValue))" with "if (1)" to keep the id2val table in check
 
 Template (libraries/Template.php):
 1) Added add_meta() and supporting updates to regions arrays

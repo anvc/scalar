@@ -1,0 +1,5 @@
+{
+    "require": {
+        "sonata-project/google-authenticator": "^2.2"
+    }
+}

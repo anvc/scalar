@@ -1,12 +1,12 @@
 <?
 $this->template->add_css('system/application/views/widgets/import/scalarimport.css');
 $this->template->add_js('system/application/views/widgets/import/jquery.scalarimport.js');
-$this->template->add_css('system/application/views/melons/honeydew/jquery-ui-1.8.12.custom.css');
-$this->template->add_js('system/application/views/melons/honeydew/jquery-ui-1.8.12.custom.min.js');
+$this->template->add_css('system/application/views/melons/honeydew/jquery-ui.min.css');
+$this->template->add_js('system/application/views/melons/honeydew/jquery-ui.min.js');
 $js = <<<EOT
 
 $(document).ready(function() {
-	$('#search_archive_form').submit(function() {
+	$('#search_archive_form').on('submit', function() {
 		$('#search_archive_form').scalarimport({pagenum:1});
 		return false;
 	});

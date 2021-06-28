@@ -1,4 +1,4 @@
-<?php
+π<?php
 /**
  * Scalar
  * Copyright 2013 The Alliance for Networking Visual Culture.
@@ -202,7 +202,6 @@ class MY_Controller extends CI_Controller {
 
 	/**
 	 * Test a user level against logged-in status
-	 * @param 	int $book_id
 	 * @param	str $level
 	 * @return 	bool
 	 */
@@ -216,14 +215,18 @@ class MY_Controller extends CI_Controller {
 
 	/**
 	 * Protect a book against a user level
-	 * @param 	int $book_id
 	 * @param	str	$level
 	 * @return 	null
 	 */
 
-	protected function protect_book($level='Editor') {
+	protected function protect_book($level='Editor', $user_id=0) {
 
-		if (!$this->login_is_book_admin($level)) $this->kickout();
+		$kickout = true;
+		 
+		if (!empty($user_id) && $this->data['login']->user_id == $user_id) $kickout = false;
+		if ($this->login_is_book_admin($level)) $kickout = false;
+		
+		if ($kickout) $this->kickout();
 
 	}
 
@@ -328,30 +331,57 @@ class MY_Controller extends CI_Controller {
 		return true;
 		
 	}
+	
+	/**
+	 * Test whether lenses can be used based on the database configuration
+	 * @return bool
+	 */
+	
+	protected function can_save_lenses() {
+		
+		if (!$this->db->table_exists('rel_grouped')) return false;
+		return true;
+		
+	}
 
 	/**
 	 * Return a redirect URL
 	 * @return 	str 	URI
 	 */
 
-   	protected function redirect_url() {
-
-   		// A specific redirect URL has been sent via GET/POST
-   		if (isset($_REQUEST{'redirect_url'}) && !empty($_REQUEST['redirect_url'])) {
-   			return urldecode(trim($_REQUEST{'redirect_url'}));
+   	public function redirect_url($set='') {
+   		
+   		// Set the redirect URL if one is passed
+   		if (!empty($set)) {
+   			if (substr($set, 0, strlen(base_url())) == base_url() && filter_var($set, FILTER_VALIDATE_URL)) {
+   				$this->session->set_userdata('redirect_url', $set);
+   			}
+   			return false;
    		}
-    	// Book is present and might have a page slug
-    	if (isset($this->data['book']) && isset($this->data['book']->slug) && !empty($this->data['book']->slug)) {
+   		
+   		// Always remove the redirect_url
+   		$redirect_url_from_session = $this->session->userdata('redirect_url');
+   		$this->session->unset_userdata('redirect_url');
+   		
+   		// Go to URL previously set
+   		if (!empty($redirect_url_from_session)) {
+   			return $redirect_url_from_session;
+   		}
+   		
+   		// Go to a page in the book
+   		if (isset($this->data['book']) && isset($this->data['book']->slug) && !empty($this->data['book']->slug)) {
    			$segs = $this->uri->segment_array();
     		return confirm_slash(base_url()).implode('/',$segs);
     	}
+    	
     	// Dashboard
 		$segs = $this->uri->segment_array();
 		if ('system'==$segs[1] && 'dashboard'==$segs[2]) {
 			$book_id = (isset($_GET['book_id']) && !empty($_GET['book_id'])) ? (int) $_GET['book_id'] : 0;
 			$zone = (isset($_GET['zone']) && !empty($_GET['zone'])) ? $_GET['zone'] : 'style';
-			return confirm_slash(base_url()).'system/dashboard'.urlencode('?book_id='.$book_id.'&zone='.$zone.'#tabs-'.$zone);
+			return confirm_slash(base_url()).'system/dashboard?book_id='.$book_id.'&zone='.$zone.'#tabs-'.$zone;
 		}
+		
    		// Default to the install index
    		return base_url();
 

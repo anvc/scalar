@@ -534,7 +534,7 @@ STR;
             });
           }
 
-          $(window).resize(calculateFragmentOverflow);
+          $(window).on('resize', calculateFragmentOverflow);
           calculateFragmentOverflow();
           // build the usage rights gauge
           if (content_count > 0 && scope !== 'statesOnly') {
@@ -558,21 +558,21 @@ STR;
             var button = $('<button class="btn btn-block btn-state '+editorial_state['next']+'-state">'+current_messaging['next_task_buttons'][index]+'</button>').appendTo($('#secondary-message'));
             switch (current_messaging['next_task_ids'][index]) {
               case 'allToEdit':
-              button.click(function() {
+              button.on('click', function() {
                 if (moveContentFromOneStateToAnother('draft', 'edit')) {
                   button.prop('disabled', 'disabled');
                 }
               });
               break;
               case 'allToPublished':
-              button.click(function() {
+              button.on('click', function() {
                 if (moveAllContentToState('published')) {
                   button.prop('disabled', 'disabled');
                 }
               });
               break;
               case 'newEdition':
-              button.click(function() {
+              button.on('click', function() {
                 if (earliest_state.state != 'published') {
                   moveAllContentToState('published', function() {
                     $('#createEdition').modal();
@@ -628,7 +628,7 @@ STR;
       highlightSelectedEdition($('#select_edition').find('a[data-index="'+getCookie(editionCookieName())+'"]'));
   	};
 
-  	$('#confirmEditorialWorkflow').find('form').submit(function(event) {
+  	$('#confirmEditorialWorkflow').find('form').on('submit', function(event) {
   		if (!parseInt($(this).find('[name="enable"]').val())) {
   			selectEditionByIndex(null);
   		};
@@ -636,11 +636,11 @@ STR;
   	});
 
     $('#createEdition').on('show.bs.modal', function() {
-      $('.editions .btn').blur();
+      $('.editions .btn').trigger('blur');
       var $modal = $(this);
       $body = $modal.find('.modal-body:first');
       var $form = $body.parent();
-      $form.submit(function() {
+      $form.on('submit', function() {
         var $form = $(this);
         var title = $form.find('input[type="text"]:first').val();
         if (!title.length) {
@@ -668,7 +668,7 @@ STR;
             $li.find('a').attr('data-title', obj[j].title);
           };
           if (navigator.cookieEnabled && ''!==index) {
-            $('#select_edition').find('a[data-index="'+index+'"]').click();
+            $('#select_edition').find('a[data-index="'+index+'"]').trigger('click');
           };
           location.reload();
         };
@@ -679,7 +679,7 @@ STR;
 
       // Manage editions modal
   	$('#manageEditions').on('show.bs.modal', function() {
-  		$('.editions .btn').blur();
+  		$('.editions .btn').trigger('blur');
   		var $modal = $(this);
   		$body = $modal.find('.modal-body:first');
   		$.getJSON($('link#sysroot').attr('href')+'system/api/get_editions?book_id='+book_id, function(json) {
@@ -705,18 +705,18 @@ STR;
   				    $row.append('<td style="vertical-align:middle;" align="center"><a href="javascript:void(null);" class="btn btn-default btn-xs showme edit_edition">Edit row</a></td>');
   				    $row.append('<td style="vertical-align:middle;" align="right"><a href="javascript:void(null);" style="border-color:#cccccc;" class="btn btn-danger btn-xs showme delete_edition">Delete</a></td>');
   				};
-  				$table.find('tbody tr').mouseover(function() {
+  				$table.find('tbody tr').on('mouseover', function() {
   					var $row = $(this);
   					$row.addClass('info');
   					$row.find('.showme').css('visibility','visible');
-  				}).mouseout(function() {
+  				}).on('mouseout', function() {
   					var $row = $(this);
   					var $cell = $row.find('td:nth-of-type(1)');
   					if ($cell.data('is_editing')) return;
   					$row.removeClass('info');
   					$row.find('.showme').css('visibility','hidden');
   				});
-  				$table.find('.edit_edition').click(function() {
+  				$table.find('.edit_edition').on('click', function() {
   					var $btn = $(this);
   					var $cell = $(this).closest('tr').find('td:nth-of-type(1)');
   					if ($cell.data('is_editing')) {
@@ -745,7 +745,7 @@ STR;
   								var $li = $('<li><a href="javascript:void(null);" data-index="'+j+'">'+data[j].title+'</a></li>').appendTo($select_edition);
   								$li.find('a').attr('data-title', data[j].title);
   							};
-  							$select_edition.find('a[data-index="'+cindex+'"]').click();
+  							$select_edition.find('a[data-index="'+cindex+'"]').trigger('click');
   						}, 'json');
   					} else {
   						$cell.data('is_editing', true);
@@ -755,14 +755,14 @@ STR;
   						var value = $cell.find('a').html();
   						var replace = value.slice();
   						$cell.html('<input class="form-control input-xs" type="text" value="' + htmlspecialchars(replace) + '" required />');
-  						$cell.find('input').click(function(event) {
+  						$cell.find('input').on('click', function(event) {
   							event.stopPropagation();
-  						}).keypress(function(e) {
-  							if (e.which == 13) $(this).closest('tr').find('.edit_edition').click();
+  						}).on('keypress', function(e) {
+  							if (e.which == 13) $(this).closest('tr').find('.edit_edition').trigger('click');
   						});
   					};
   				});
-  				$table.find('.delete_edition').click(function() {
+  				$table.find('.delete_edition').on('click', function() {
   					var $cell = $(this).closest('tr').find('td:nth-of-type(1)');
   					var title = $cell.find('a').text();
   					if (confirm('Are you sure you wish to delete the edition "'+title+'"? This cannot be undone, and will break any existing direct links to that edition from other websites.')) {
@@ -785,7 +785,7 @@ STR;
   								var $li = $('<li><a href="javascript:void(null);" data-index="'+j+'">'+obj[j].title+'</a></li>').appendTo($select_edition);
   								$li.find('a').attr('data-title', obj[j].title);
   							};
-  							$select_edition.find('a:first').click();
+  							$select_edition.find('a:first').trigger('click');
   						});
   					};
   				});
@@ -826,8 +826,8 @@ STR;
 
 <div class="container-fluid properties">
   <?php
-    $edition_count = count($book->editions);
     if (!empty($book->editions)) {
+      $edition_count = count($book->editions);
       echo '<div class="row editions">';
       echo '<div class="col-sm-12">';
       echo '<h3 class="message"><strong><span class="edition_title">'.$book->editions[$edition_count-1]['title'].'</span></strong> is the currently published edition of this '.$book->scope.'.</h3>';

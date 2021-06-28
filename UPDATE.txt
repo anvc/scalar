@@ -13,15 +13,6 @@ team.  For this reason we keep checkpoints ("releases") of Scalar using GitHub R
 ***
 
 ***
-A note on file uploads:
-Scalar authors can upload files to your server under Import > Local Media Files (the files are placed in the 
-directory corresponding to their book's URL segment).  We strongly suggest protecting your filesystem against 
-potentially malicious uploads, such as *.php files.  We have a template for this in place in the root folder's 
-.htaccess file.  Edit, uncomment the "malicious file uploads" rewrites, and set appropriate fields to let 
-through requests to system files.
-***
-
-***
 A note on SSL (https):
 As of Release 2.0.2 SSL (https) is supported out of the box.  If needed we have a template in the root 
 folder's .htaccess to force all requests through https. Be aware, though, running Scalar under https might 
@@ -29,17 +20,16 @@ cause conflicts with plugins or media players that are running under http, meani
 generally can't embed content running under http.
 ***
  
-To begin take a look at the "Changes to config files over time" wiki page (https://github.com/anvc/scalar/wiki/Changes-to-config-files-over-time).  
-Here we list any updates to Scalar config files or the database scheme that will need to be made on your 
+To begin take a look at the "Changes to config files over time" wiki page (https://github.com/anvc/scalar/wiki/Changes-to-config-files-over-time). Here we list any updates to Scalar config files or the database scheme that will need to be made on your 
 install for the update to work properly.  Each update is marked by the date it was added (and therefore the 
 date that the codebase assumes that the update exists).
 
-INSTRUCTIONS FOR UPDATING TO SCALAR 2.1.x FROM SCALAR 2.1 OR SCALAR 2.1.1
+INSTRUCTIONS FOR UPDATING SCALAR
 
-If you're updating from a version before 2.1, see further down below.
+If you're updating from a version before 2.1.1, see further down below.
 
 1) Extract the release ZIP to your local computer
-2) Copy all folders in /system/application to the corresponding folder on your webserver EXCEPT:
+2) Copy all folders in /system/application to the corresponding folder on your server EXCEPT:
 (These are folders that have install-specific config files, so we don't want to overwrite the ones you have on your webserver:)
 system/application/cache
 system/application/config
@@ -49,7 +39,7 @@ system/application/plugins
 3) Update all folders in the /system folder EXCEPT:
 (You just updated /system/application in step #2, so don't update it here:)
 system/application
-4) Check to see if there are any changes to config files or the database scheme at "Changes to config files over time" (https://github.com/anvc/scalar/wiki/Changes-to-config-files-over-time)
+4) Check to see if there are any changes to config files or the database scheme at "Changes to config files over time" (https://github.com/anvc/scalar/wiki/Changes-to-config-files-over-time).
 
 All done!  To test, you can check certain elements of Scalar including the Dashboard, media elements (media 
 included in pages), and the page editor.

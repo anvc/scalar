@@ -1,19 +1,19 @@
 (function( $ ) {
-	
+
 	var defaults = {
 			data: null,
 			default_value: null,
 			no_prefix: 'no_',
 			approot: $('link#approot').attr('href')
-	};  	
-	
+	};
+
     $.fn.select_view = function(options) {
-    	
+
     	// Options
     	var self = this;
     	var $this = $(this);
     	var opts = $.extend( {}, defaults, options );
-    	opts.default_values = opts.default_value.split(',');  
+    	opts.default_values = opts.default_value.split(',');
     	opts.values = [];  // Values set previously
     	$this.empty();
     	for (var key in opts.default_values) {
@@ -30,8 +30,8 @@
     	        }
     	    }
     	    return arr;
-    	}    	
-    	
+    	}
+
     	var get_component_key = function(_view_key) {
     		for (var key in opts.data) {
     			for (var component_key in opts.data[key].components) {
@@ -42,7 +42,7 @@
     		}
     		return false;
     	}
-    	
+
     	var display_components = function() {
     		// Remove name field from all
     		$this.find('.components').hide();
@@ -58,25 +58,25 @@
     		$comp.find('select').width(max_width);
     		set_descriptions();
     	};
-    	
+
     	var set_descriptions = function() {
     		$this.find('select').each(function() {
     			var $this = $(this);
-    			$this.blur();
+    			$this.trigger('blur');
     			var desc = $this.find(':selected').data('desc');
     			var img_path = $this.find(':selected').data('img');
     			var img = (img_path.length)? '<img src="'+opts.approot+img_path+'" align="left" style="margin-right:15px;width:100px;" />' : '';
     			$this.parent().siblings('.select_desc, .component_desc').html(img+desc);
     		});
-    	};    	
-    	
+    	};
+
     	var add_another = function(el) {
     		var $el = $(el);
 			var $cloned = $el.closest('div').clone(true, true);
 			$cloned.find('span:first, .addanother').empty();
-			$cloned.insertAfter($el.closest('div'));   		
+			$cloned.insertAfter($el.closest('div'));
     	};
-    	
+
     	var duplicate = function(component_key, value) {
     		var $component = $('.'+component_key+':last');
     		var $cloned = $component.clone(true, true);
@@ -84,7 +84,7 @@
     		$cloned.insertAfter($component);
     		$cloned.find('select:first').val(value);
     	};
-    	
+
     	// View pulldown
     	var $select_wrapper = $('<div><select name="scalar:default_view" class="btn btn-default generic_button large form-control" style="text-align:left; max-width: 200px;"></select></div>').appendTo($this);
     	var $select = $select_wrapper.find('select:first');
@@ -118,7 +118,7 @@
     				var $component_select_wrapper = $('<span style="display:table-cell;white-space:nowrap;"><select name="" class="component generic_button large"></select></span>').appendTo($component_wrapper);
     				if (value.components[component_key].multi) {
     					$addanother = $('<span class="addanother"><a href="javascript:void(null);" style="font-weight:bold;font-size:bigger;text-decoration:none;"> + </a></span>').appendTo($component_select_wrapper);
-    					$addanother.click(function() { add_another(this); });
+    					$addanother.on('click', function() { add_another(this); });
     				}
     				$component_wrapper.append('<span style="display:table-cell;" class="component_desc"></span>');
     				$component_select = $component_wrapper.find('select:first');
@@ -132,9 +132,9 @@
     				}
     			}
     		}
-    		$components.find('select').change(function() { set_descriptions(); });
+    		$components.find('select').on('change', function() { set_descriptions(); });
     	}
-    	
+
     	// Add additional component pulldowns based on extra saved values
     	for (var key in opts.values) {
     		var value = opts.values[key];
@@ -142,10 +142,10 @@
     		if (!component_key) continue;
     		duplicate(component_key, value);
     	}
-    	
+
     	display_components();
-    	$select.change(function() { display_components(); });
+    	$select.on('change', function() { display_components(); });
 
     };
-    
+
 }( jQuery ));
