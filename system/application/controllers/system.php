@@ -295,11 +295,28 @@ class System extends MY_Controller {
 		$this->data['login'] = $this->login->get();
 		$this->data['title'] = $this->lang->line('install_name').': Login';
 		$this->data['norobots'] = true;
-
 		$this->template->set_template('admin');
-		$this->template->write_view('content', 'modules/login/authenticator_box', $this->data);
-		$this->template->render();
 
+		switch($_SERVER['REQUEST_METHOD']) {
+			case 'GET':
+				$this->template->write_view('content', 'modules/login/authenticator_box', $this->data);
+				$this->template->render();
+				break;
+			case 'POST':
+				try {
+					$this->login->do_google_authenticator();
+					header('Location: '.$this->redirect_url());
+					exit;
+				} catch(Exception $e) {
+					$this->data['login_error'] =  $e->getMessage();
+					$this->template->write_view('content', 'modules/login/authenticator_box', $this->data);
+					$this->template->render();
+				}
+				break;
+			default:
+				show_error("Invalid request method: ".$_SERVER['REQUEST_METHOD'], 400);
+				break;
+		}
 	}
 
 	public function logout() {

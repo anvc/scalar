@@ -1,4 +1,4 @@
-π<?php
+<?php
 /**
  * Scalar
  * Copyright 2013 The Alliance for Networking Visual Culture.
