@@ -2841,7 +2841,7 @@
       modalContainer.empty();
       let element = $(`
         <div class="row">
-          <span>Sort by creation date in </span>
+          <span>Sort by modification date in </span>
           <div class="btn-group">
             <button id="sort-edit-date-button" type="button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               Select order...<span class="caret"></span>
