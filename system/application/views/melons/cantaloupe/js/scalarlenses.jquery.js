@@ -258,7 +258,7 @@
       lensHtml.append(this.addSubmitModal());
       lensHtml.find('.lens-editor').append(this.addDuplicateCopyPrompt());
       lensHtml.find('.lens-editor').append(this.reviewSubmittedLenses());
-      lensHtml.append(this.duplicateLensForCurrentUser())
+      lensHtml.append(this.addDuplicateLensForCurrentUserModal())
       this.buttonContainer = $(this.element).find('.lens-tags').eq(0);
       this.primaryBadge = lensHtml.find('.badge');
       this.updateBadge(this.primaryBadge, -1, 'light');
@@ -3562,6 +3562,58 @@
       }, error);
     }
 
+    // allows duplication of a lens that doesn't belong to the current user
+    ScalarLenses.prototype.duplicateLensByUserId = function() {
+
+      let duplicateJson = JSON.parse(JSON.stringify(this.scalarLensObject));
+      duplicateJson.title += ' copy';
+      duplicateJson.user_id = this.userId;
+      duplicateJson.user_level = this.userLevel;
+      delete duplicateJson.slug;
+      delete duplicateJson.urn;
+      delete duplicateJson.book_urn;
+			let data = {
+				'action': 'add',
+				'native': '1',
+				user: this.userId,
+				'api_key': '',
+				'dcterms:title': duplicateJson.title,
+				'dcterms:description': '',
+				'sioc:content': '',
+        'scalar:metadata:is_live': '0',
+				'rdf:type': 'http://scalar.usc.edu/2012/01/scalar-ns#Composite',
+        'scalar:child_urn': 'urn:scalar:book:' + this.bookId,
+        'scalar:child_type': 'http://scalar.usc.edu/2012/01/scalar-ns#Book',
+        'scalar:child_rel': 'grouped',
+        contents: JSON.stringify(duplicateJson)
+			};
+
+    	$.ajax({
+    		type: "POST",
+    		url: $('link#parent').attr('href') + 'save_lens_page_by_user_id',
+    		data: data,
+    		success: function(json) {
+    			if ('undefined' != typeof(json['error'])) {
+    				alert('There was an error: ' + json['error']);
+    				return;
+    			};
+          var firstProp;
+          for(var key in json) {
+              if(json.hasOwnProperty(key)) {
+                  var url = $('link#parent').attr('href') + json['slug'];
+                  window.location.href = url;
+                  break;
+              }
+          }
+    		},
+    		error: function(err) {
+    			alert('There was an error connecting to the server.');
+    		},
+    		dataType: 'json'
+    	});
+
+    }
+
     ScalarLenses.prototype.addOkModal = function() {
       let element = $(
         `<div id="okModal" class="modal fade caption_font" role="dialog">
@@ -3670,13 +3722,13 @@
 
       // save create copy of lens
       $(element).find('.save').on('click', function(){
-          me.duplicateLensForCurrentUser();
+          me.duplicateLensByUserId();
       });
 
       return element;
     }
 
-    ScalarLenses.prototype.duplicateLensForCurrentUser = function(){
+    ScalarLenses.prototype.addDuplicateLensForCurrentUserModal = function(){
 
       let element = $(
         `<div id="duplicateConfirm" class="modal fade caption_font" role="dialog">
@@ -3885,7 +3937,7 @@
       if (this.userLevel == 'scalar:Author') { // author
         // authors can't edit reader lenses
         this.canSave = this.scalarLensObject.userLevel != 'scalar:Reader';
-      } else if (this.user_level == 'scalar:Reader') { // reader added to the book
+      } else if (this.userLevel == 'scalar:Reader') { // reader added to the book
         if (this.userId == this.scalarLensObject.user_id) {
           this.canSave = true;
         }
@@ -3903,8 +3955,15 @@
     	  this.updateLensByUserId(successHandler);
     	  return;
       } else if (this.userLevel == 'scalar:Reader') {  // reader added to the book
-    	  this.updateLensByUserId(successHandler);
-    	  return;
+        if (this.canSave == true) {
+          this.updateLensByUserId(successHandler);
+      	  return;
+        } else {
+          $('body').trigger('lensUpdated', this.scalarLensObject);
+          if (successHandler) successHandler();
+          $('#duplicate-copy-prompt').addClass('show-lens-prompt');
+          return;
+        }
       }
 
       this.scalarLensObject.user_level = this.userLevel;
