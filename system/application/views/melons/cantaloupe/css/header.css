@@ -253,6 +253,20 @@ a.headerIcon{
 	background-image: url(../images/icon_grid_light.png);
 }
 
+.navbar li>a>#mapIcon{
+	background-image: url(../images/icon_map.png);
+}
+.navbar li:hover>a>#mapIcon{
+	background-image: url(../images/icon_map_light.png);
+}
+
+.navbar li>a>#wordCloudIcon{
+	background-image: url(../images/icon_wordcloud.png);
+}
+.navbar li:hover>a>#wordCloudIcon{
+	background-image: url(../images/icon_wordcloud_light.png);
+}
+
 .navbar li>a>#radialIcon{
 	background-image: url(../images/icon_radial.png);
 }
