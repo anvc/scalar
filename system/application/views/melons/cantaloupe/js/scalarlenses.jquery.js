@@ -19,6 +19,7 @@
     ScalarLenses.prototype.init = function (){
 
       this.papaParseIsLoaded = false;
+      this.maxLenses = 5;
 
       this.visualizationOptions = {
         'force-directed': {
@@ -158,6 +159,7 @@
       }
       this.checkSavePrivileges();
       this.getOntologyData();
+      this.getLensData();
       this.getLensResults(this.scalarLensObject, this.options.onLensResults);
       this.buildEditorDom();
       this.updateEditorDom();
@@ -204,7 +206,7 @@
       let lensHtml = $(
         `<div class="row lens">
           <div class="lens-editor">
-            <div class="col-xs-12">
+            <div class="lens-editor-wrapper col-xs-12">
               <div class="lens-expand-container" data-toggle="collapse" data-target="">
                 <div class="lens-icon-wrapper col-xs-1">
                   <span class="lens-icon"></span>
@@ -257,6 +259,7 @@
       lensHtml.append(this.addOkModal());
       lensHtml.append(this.addSubmitModal());
       lensHtml.find('.lens-editor').append(this.addDuplicateCopyPrompt());
+      this.updateDuplicateCopyPrompt();
       lensHtml.find('.lens-editor').append(this.reviewSubmittedLenses());
       lensHtml.append(this.addDuplicateLensForCurrentUserModal())
       this.buttonContainer = $(this.element).find('.lens-tags').eq(0);
@@ -3707,25 +3710,35 @@
       let element = $(`
         <div id="duplicate-copy-prompt">
           <div class="row">
-            <div class="col-xs-10">
-              <p class="caption_font"><strong>You have made edits to this lens which have not been saved, since you are not its owner.</strong>
-              Would you like to save these changes to your own copy of the lens?</p>
-            </div>
-            <div class="col-xs-2">
-              <button type="button" class="btn btn-default pull-right save">Save</button>
-            </div>
           </div>
         </div>
       `)
 
       var me = this;
 
-      // save create copy of lens
-      $(element).find('.save').on('click', function(){
-          me.duplicateLensByUserId();
-      });
-
       return element;
+    }
+
+    ScalarLenses.prototype.updateDuplicateCopyPrompt = function() {
+      $('#duplicate-copy-prompt').find('.save').off();
+      if (this.myLenses.length >= this.maxLenses) {
+        $('#duplicate-copy-prompt .row').html(`<div class="col-xs-12">
+          <p class="caption_font"><strong>You have made edits to this lens which have not been saved, since you are not its owner.</strong>
+          As you have already reached the maximum of ${this.maxLenses} lenses, saving your changes to a new copy of the lens is not possible.</p>
+        </div>`);
+      } else {
+        $('#duplicate-copy-prompt .row').html(`<div class="col-xs-10">
+          <p class="caption_font"><strong>You have made edits to this lens which have not been saved, since you are not its owner.</strong>
+          Would you like to save these changes to your own copy of the lens?</p>
+        </div>
+        <div class="col-xs-2">
+          <button type="button" class="btn btn-default pull-right save">Save</button>
+        </div>`);
+        // save create copy of lens
+        $('#duplicate-copy-prompt').find('.save').on('click', () => {
+            this.duplicateLensByUserId();
+        });
+      }
     }
 
     ScalarLenses.prototype.addDuplicateLensForCurrentUserModal = function(){
@@ -3839,6 +3852,36 @@
 
       return element;
     }
+
+    ScalarLenses.prototype.getLensData = function(){
+      let bookId = $('link#book_id').attr('href');
+      let baseURL = $('link#approot').attr('href').replace('application', 'lenses');
+      let mainURL = `${baseURL}?book_id=${bookId}`;
+      this.myLenses = [];
+      $.ajax({
+        url:mainURL,
+        type: "GET",
+        dataType: 'json',
+        contentType: 'application/json',
+        async: true,
+        context: this,
+        success: this.handleLensData,
+        error: function error(response) {
+           console.log('There was an error attempting to communicate with the server.');
+           console.log(response);
+        }
+      });
+    }
+
+    ScalarLenses.prototype.handleLensData = function(response){
+      let data = response;
+      data.forEach((lens, index) => {
+        if (lens.user_id == this.userId) {
+          this.myLenses.push(lens);
+        }
+      });
+      this.updateDuplicateCopyPrompt();
+    };
 
     ScalarLenses.prototype.getLensResults = function(lensObject, success) {
       this.updateBadge(this.primaryBadge, -1, 'light');
