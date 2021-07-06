@@ -1421,11 +1421,14 @@ body>.annotorious-popup{
 .mediaElementFooter .viz-icon {
 	float: left;
 }
-.lens-editor .col-xs-12 {
+.lens-editor .lens-editor-wrapper {
   padding:0;
   background:#dddddd;
   border-radius:10px;
   border:2px solid #dddddd;
+}
+.lens-editor .lens-header {
+	padding:0;
 }
 .lens-content {
 	font-family:'Lato', sans-serif !important;

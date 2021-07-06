@@ -543,6 +543,7 @@ span.navbar-text.navbar-left.pull-left.title_wrapper.visible-xs{
 }
 #lenses_menu li.lens .title {
 	width: 210px;
+	height: 18px;
 	margin-right: 10px;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -552,7 +553,7 @@ span.navbar-text.navbar-left.pull-left.title_wrapper.visible-xs{
 	float: none;
 	display: inline-block;
 	margin-right: 3px;
-	margin-bottom: -2px;
+	margin-bottom: -1px;
 }
 #lenses_menu li .badge {
 	margin-top: -3px;
