@@ -27,14 +27,62 @@
 class System extends MY_Controller {
 
 	private $base_url;
+	protected $plugins = array();
 
 	public function __construct() {
-
 		parent::__construct();
 
 		$segs = $this->uri->segment_array();
 		$this->base_url = confirm_slash(base_url()).implode('/',$segs);
 
+		$this->init_plugins();
+	}
+
+	/**
+	 * Map URI requests to controller methods.
+	 *
+	 * @param $method
+	 * @param array $params
+	 * @return mixed
+	 */
+	public function _remap($method, $params = array()) {
+		$classname = strtolower(get_class($this));
+
+		// Allow auth plugin to handle login method
+		if(isset($this->plugins['auth'])) {
+			$plugin = $this->plugins['auth'];
+			$plugin_method = "hook_{$classname}_{$method}";
+			if(method_exists($plugin, $plugin_method)) {
+				return call_user_func_array(array($plugin, $plugin_method), $params);
+			}
+		}
+
+		// In all other cases, call the usual controller method
+		if (method_exists($this, $method)) {
+			return call_user_func_array(array($this, $method), $params);
+		}
+
+		show_404();
+	}
+
+	/**
+	 * Initializes configured plugins.
+	 */
+	protected function init_plugins() {
+		$plugins = array();
+		$this->config->load('plugins');
+		if ($this->config->item('plugins')) {
+			$plugins = $this->config->item('plugins');
+		}
+
+		if(isset($plugins['auth'])) {
+			$plugin_name = $plugins['auth'];
+			$plugin_class = ucfirst(strtolower("{$plugin_name}"));
+			require_once APPPATH . "plugins/$plugin_name/{$plugin_name}_pi.php";
+			$plugin_instance = new $plugin_class;
+			$plugin_instance->init();
+			$this->plugins['auth'] = $plugin_instance;
+		}
 	}
 
 	public function index() {
@@ -233,17 +281,33 @@ class System extends MY_Controller {
 	}
 
 	public function login() {
-
-		$this->login->do_logout(true);
-
 		$this->data['login'] = $this->login->get();
 		$this->data['title'] = $this->lang->line('install_name').': Login';
 		$this->data['norobots'] = true;
-
 		$this->template->set_template('admin');
-		$this->template->write_view('content', 'modules/login/login_box', $this->data);
-		$this->template->render();
 
+		switch($_SERVER['REQUEST_METHOD']) {
+			case 'GET':
+				$this->login->do_logout(true);
+				$this->template->write_view('content', 'modules/login/login_box', $this->data);
+				$this->template->render();
+				break;
+			case 'POST':
+				try {
+					$this->login->do_login(true);
+					$this->set_login_params();
+					header('Location: '.$this->redirect_url());
+					exit;
+				} catch(Exception $e) {
+					$this->data['login_error'] =  $e->getMessage();
+					$this->template->write_view('content', 'modules/login/login_box', $this->data);
+					$this->template->render();
+				}
+				break;
+			default:
+				show_error("Invalid request method: ".$_SERVER['REQUEST_METHOD'], 400);
+				break;
+		}
 	}
 
 	public function authenticator() {
@@ -251,18 +315,34 @@ class System extends MY_Controller {
 		$this->data['login'] = $this->login->get();
 		$this->data['title'] = $this->lang->line('install_name').': Login';
 		$this->data['norobots'] = true;
-
 		$this->template->set_template('admin');
-		$this->template->write_view('content', 'modules/login/authenticator_box', $this->data);
-		$this->template->render();
 
+		switch($_SERVER['REQUEST_METHOD']) {
+			case 'GET':
+				$this->template->write_view('content', 'modules/login/authenticator_box', $this->data);
+				$this->template->render();
+				break;
+			case 'POST':
+				try {
+					$this->login->do_google_authenticator();
+					header('Location: '.$this->redirect_url());
+					exit;
+				} catch(Exception $e) {
+					$this->data['login_error'] =  $e->getMessage();
+					$this->template->write_view('content', 'modules/login/authenticator_box', $this->data);
+					$this->template->render();
+				}
+				break;
+			default:
+				show_error("Invalid request method: ".$_SERVER['REQUEST_METHOD'], 400);
+				break;
+		}
 	}
 
 	public function logout() {
-
-		// No actual page for logout, but here so logout links have something to point to
+		$this->login->do_logout(true);
+		header('Location: '.$this->redirect_url());
 		exit;
-
 	}
 
 	public function permissions() {
