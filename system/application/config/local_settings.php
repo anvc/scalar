@@ -79,6 +79,9 @@ $config['dpla_key'] = (getenv('SCALAR_DPLA_KEY') ? getenv('SCALAR_DPLA_KEY') : '
 // New York Public Library key
 $config['nypl_key'] = (getenv('SCALAR_NYPL_KEY') ? getenv('SCALAR_NYPL_KEY') : '');
 
+// Harvard Art Museums api key
+$config['harvard_art_museums_key'] = (getenv('HAM_API_KEY') ? getenv('HAM_API_KEY') : '');
+
 // Custom message for the book index page (leave blank for no message)		   
 $config['index_msg'] = '';
 

@@ -482,7 +482,7 @@ function YouTubeGetID(url){
 					promise = $.Deferred();
 					pendingDeferredMedia.OpenSeadragon.push(promise);
 
-                                }else if(typeof Mirador === 'undefined' && this.model.mediaSource.contentType == 'manifest'){
+				}else if(typeof Mirador === 'undefined' && this.model.mediaSource.contentType == 'manifest'){
 					if(typeof pendingDeferredMedia.Mirador == 'undefined'){
 						pendingDeferredMedia.Mirador = [];
 						$.getScript(widgets_uri+'/mediaelement/mirador.min.js',function(){
@@ -1056,9 +1056,9 @@ function YouTubeGetID(url){
 						case 'tiledImage':
 							this.mediaObjectView = new $.DeepZoomImageObjectView(this.model, this);
 						break;
-                        case 'manifest':
-                            this.mediaObjectView = new $.MiradorObjectView(this.model, this);
-                        break;
+						case 'manifest':
+							this.mediaObjectView = new $.MiradorObjectView(this.model, this);
+						break;
 						case 'audio':
 						if (this.model.mediaSource.name == 'SoundCloud') {
 							this.mediaObjectView = new $.SoundCloudAudioObjectView(this.model, this);

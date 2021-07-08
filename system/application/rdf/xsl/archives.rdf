@@ -157,5 +157,14 @@
 		<scalar:getStr><![CDATA[q=$1&publicDomainOnly=true&per_page=50&page=$2]]></scalar:getStr>
 		<scalar:header>Authorization: Token token=$api_key</scalar:header>
 	</rdf:Description>	
+
+	<rdf:Description rdf:about="https://api.harvardartmuseums.org/object">
+		<rdf:type rdf:resource="scalar:External" />
+		<dc:title>Harvard Art Museums</dc:title>
+		<dcterms:description><![CDATA[Look up resources in the Harvard Art Museums Api ]]></dcterms:description>
+		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/harvard_art_museums.xsl" />
+		<scalar:getStr><![CDATA[q=title:$1&apikey=$api_key]]></scalar:getStr>
+		<dcterms:hasFormat>json</dcterms:hasFormat>
+	</rdf:Description>
 	
 </rdf:RDF>	
