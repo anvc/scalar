@@ -338,6 +338,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/omeka_s') + '">Omeka S sites</a></li>'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/soundcloud') + '">SoundCloud</a></li>'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/youtube') + '">YouTube</a></li>'+
+                                                                '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/harvard_art_museums') + '">Harvard Art Museums</a></li>'+
                                                             '</ul>'+
                                                         '</li>'+
                                                         '<li class="dropdown">'+

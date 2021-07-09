@@ -136,9 +136,9 @@ function validate_edit_form(form, no_action) {
 				return false;
 			}
 		}
-                if ($('#media_file_url_iiif')) {
-                    $('#media_file_url_iiif').val = $('#media_file_url_iiif').checked === true ? 1 : 0;
-                }
+		if ($('#media_file_url_iiif')) {
+			$('#media_file_url_iiif').val = $('#media_file_url_iiif').checked === true ? 1 : 0;
+		}
 		return true;
 	};
 
@@ -258,10 +258,10 @@ function send_form($form, additional_values, success, redirect_url) {
 		}
 	}
 
-        // if user indicates the url is a iiif manifest
-        if (values['iiif-url'] && values['iiif-url'] === "on" && values['scalar:url'].indexOf('?iiif-manifest=1') === -1) {
-            values['scalar:url'] = values['scalar:url'].concat('?iiif-manifest=1');
-        }
+	// if user indicates the url is a iiif manifest
+	if (values['iiif-url'] && values['iiif-url'] === "on" && values['scalar:url'].indexOf('?iiif-manifest=1') === -1) {
+		values['scalar:url'] = values['scalar:url'].concat('?iiif-manifest=1');
+	}
 
 	if ('undefined'==typeof(success) || null==success) {
 		success = function(version) {

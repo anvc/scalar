@@ -223,6 +223,9 @@ Class Api extends CI_Controller {
 		//parse data
 		$this->_load_update_data();
 
+		// if the content is a iiif resource, try to get the thumbnail & dc:terms metadata
+		$this->_load_iiif_data();
+
 		//validate and save the content entry
 		$save_content = $this->_array_remap_content_update();
 		if (!$this->users->is_a($this->user->relationship,'reviewer')&&!$this->pages->is_owner($this->user->user_id,$this->data['content_id'])) {
@@ -285,7 +288,9 @@ Class Api extends CI_Controller {
 			$iiif_metadata_array = $this->_get_IIIF_metadata($this->data['scalar:url']);
 			if($iiif_metadata_array !== false){
 				foreach ($iiif_metadata_array as $key => $value){
-					$this->data[$key] = $value;
+					if (empty($this->data[$key])){
+						$this->data[$key] = $value;
+					}
 				}
 			}
 		}
@@ -575,12 +580,12 @@ Class Api extends CI_Controller {
 		return $save;
 	}
 
-        /**
+	/**
 	* _get_IIIF_metadata takes IIIF manifest url, and returns associative array of metadata.
 	* Otherwise, it will return False
 	* @return array
 	*/
-        private function _get_IIIF_metadata($url=''){
+	private function _get_IIIF_metadata($url=''){
 		$ontologies = $this->config->item('ontologies');
         $dc_check_fields = array_diff($ontologies['dcterms'], array('title', 'description', 'license'));
 		$formated_check_fields = array_combine($dc_check_fields, array_map('strtolower', $dc_check_fields));
