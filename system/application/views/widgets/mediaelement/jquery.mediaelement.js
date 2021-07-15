@@ -493,7 +493,28 @@ function YouTubeGetID(url){
 					}
 					promise = $.Deferred();
 					pendingDeferredMedia.Mirador.push(promise);
-
+				
+				}else if(typeof videojs === 'undefined' && player == 'VideoJS'){
+					if(typeof pendingDeferredMedia.videojs == 'undefined'){
+						pendingDeferredMedia.videojs = [];
+						$.when(
+							$.getScript(widgets_uri+'/mediaelement/video.min.js')
+						).then(function(){
+							var doc = document;
+							var approot = $('link#approot').attr('href');
+							var cssLink = document.createElement("link");
+							cssLink.href = approot+'views/widgets/mediaelement/video-js.css';
+							cssLink.rel = "stylesheet";
+							cssLink.type = "text/css";
+							doc.body.appendChild(cssLink);
+							for(var i = 0; i < pendingDeferredMedia.videojs.length; i++){
+									pendingDeferredMedia.videojs[i].resolve();
+							}
+						});
+					}
+					promise = $.Deferred();
+					pendingDeferredMedia.videojs.push(promise);
+					
 				}else if(typeof SC === 'undefined' && this.model.mediaSource.contentType == 'audio' && this.model.mediaSource.name == 'SoundCloud'){
 					if(typeof pendingDeferredMedia.SoundCloud == 'undefined'){
 						pendingDeferredMedia.SoundCloud = [];
@@ -1077,6 +1098,10 @@ function YouTubeGetID(url){
 								} else {
 									this.mediaObjectView = new $.QuickTimeObjectView(this.model, this);
 								}
+							break;
+								
+							case 'VideoJS':
+								this.mediaObjectView = new $.VideoJSObjectView(this.model, this);
 							break;
 
 							case 'native':
@@ -2910,6 +2935,10 @@ function YouTubeGetID(url){
 				case "WebM":
 				mimeType = "video/webm";
 				break;
+					
+				case "HLS":
+				mimeType = "application/x-mpegURL";
+				break;
 
 			}
 
@@ -3137,6 +3166,10 @@ function YouTubeGetID(url){
 				case "WebM":
 				mimeType = "video/webm";
 				break;
+					
+				case "HLS":
+				mimeType = "application/x-mpegURL";
+				break;
 
 			}
 
@@ -3294,6 +3327,152 @@ function YouTubeGetID(url){
 		}
 
 	}
+	
+	/**
+	 * View for the Video.js player to support HTTP Live Streaming.
+	 * @constructor
+	 *
+	 * @param {Object} model		Instance of the model.
+	 * @param {Object} parentView	Primary view for the media element.
+	 */
+	jQuery.VideoJSObjectView = function(model, parentView) {
+		
+		var me = this;
+		
+		this.model = model;				// instance of the model
+		this.parentView = parentView;			// primary view for the media element
+		
+		/**
+		 * Creates the video.js media object.
+		 */
+		jQuery.VideoJSObjectView.prototype.createObject = function() {
+			
+			var mimeType;
+			switch (this.model.mediaSource.name) {
+					
+				case "HLS":
+				mimeType = "application/x-mpegURL";
+				break;
+					
+			}
+			
+			obj = $('<div class="mediaObject"><video id="'+this.model.filename+'_'+this.model.id+'" class="video-js vjs-big-play-centered">Your browser does not support the video tag.</video></div>').appendTo(this.parentView.mediaContainer);
+			
+			this.player = new videojs(this.model.filename+'_'+this.model.id, {
+				controls: true,
+				responsive: true,
+				preload: 'auto',
+				fluid: true,
+				sources: [{
+					src: this.model.path,
+					type: mimeType
+					}]
+				});
+			
+			if ( this.model.options.autoplay && ( this.model.seek == null ) ) {
+				this.player.autoplay(true);
+			}
+		
+			var thumbnailURL;
+			if (this.model.node.thumbnail) {
+				thumbnailURL = this.model.node.getAbsoluteThumbnailURL();
+			} else if (this.model.node.current.thumbnail) {
+				thumbnailURL = this.model.node.current.thumbnail;
+			}
+		
+			if (thumbnailURL != undefined) {
+				this.image = new Image();
+				$(this.image).on('load', function() {
+					var $this = $(this);
+					me.video.attr('poster', $this.attr('src'));
+				}).attr('src', thumbnailURL);
+			}
+		
+			this.video = obj.find('video#'+this.model.filename+'_'+this.model.id+'_html5_api');
+		
+			this.parentView.controllerOffset = 22;
+		
+			var metadataFunc = function() {
+				
+				me.parentView.intrinsicDim.x = me.video[0].videoWidth;
+				me.parentView.intrinsicDim.y = me.video[0].videoHeight;
+				me.parentView.controllerOffset = 0;
+				
+				me.parentView.layoutMediaObject();
+				me.parentView.removeLoadingMessage();
+				
+			}
+			
+			this.parentView.layoutMediaObject();
+		
+			if (document.addEventListener) {
+				this.video[0].addEventListener('loadedmetadata', metadataFunc, false);
+				this.video[0].addEventListener('play', me.parentView.startTimer, false);
+				this.video[0].addEventListener('pause', me.parentView.endTimer, false);
+				this.video[0].addEventListener('ended', me.parentView.endTimer, false);
+			} else {
+				this.video[0].attachEvent('onloadedmetadata', metadataFunc);
+				this.video[0].attachEvent('play', me.parentView.startTimer);
+				this.video[0].attachEvent('pause', me.parentView.endTimer);
+				this.video[0].attachEvent('ended', me.parentView.endTimer);
+			}
+		
+			return;
+		}
+	
+		jQuery.VideoJSObjectView.prototype.play = function() {
+			if ((this.model.seekAnnotation != null) && (!this.parentView.overrideAutoSeek)) {
+				this.player.currentTime(this.model.seekAnnotation.properties.start);
+			}
+			if (this.player.paused) {
+				this.player.play();
+			}
+		}
+	
+		jQuery.VideoJSObjectView.prototype.pause = function() {
+			if (this.player) {
+				this.player.pause();
+			}
+		}
+	
+		/**
+		 * @param {Number} time
+		 */
+		jQuery.VideoJSObjectView.prototype.seek = function(time) {
+			if (this.player) {
+			    this.player.currentTime(time);
+			}
+		}
+ 		
+		/**
+		 * @return
+		 */
+ 		jQuery.VideoJSObjectView.prototype.getCurrentTime = function() {
+			if (this.player) {
+				return this.player.currentTime();
+			}
+		}
+		
+		/**
+		 * @param {Number} width
+		 * @param {Number} height
+		 */
+		jQuery.VideoJSObjectView.prototype.resize = function(width, height) {
+			if (this.player) {
+				this.player.width(width);
+				this.player.height(height);
+			}
+		}
+	
+		/**
+		 * @return
+		 */
+		jQuery.VideoJSObjectView.prototype.isPlaying = function() {
+			if (this.player) {
+				return !this.player.paused;
+			}
+		}
+	}					 
 
 	/**
 	 * View for 360 videos, using Google's vrview.
