@@ -543,7 +543,7 @@
 
     ScalarLenses.prototype.updateContentSelectorButton = function(contentSelectorObj, element){
       var me = this;
-      let onClick = function (evt) {
+      let onClick = (evt) => {
         let buttonGroup = $(evt.target).parent().parent().parent();
         let componentIndex = buttonGroup.data('componentIndex');
         let option = $(evt.target).parent().data('option');
@@ -555,7 +555,7 @@
           $('<div></div>').content_selector({
             changeable: true,
             multiple: true,
-            onthefly: true,
+            onthefly: this.userLevel == 'scalar:Author',
             msg: 'Choose items to be included in this lens.',
             callback: function(a){
               me.handleContentSelected(a)
@@ -3994,10 +3994,8 @@
     ScalarLenses.prototype.saveLens = function(successHandler){
       //console.log(JSON.stringify(this.scalarLensObject, null, 2));
 
-      if (this.userId != 'unknown' && this.userLevel == 'unknown') {  // reader not added to the book
-    	  this.updateLensByUserId(successHandler);
-    	  return;
-      } else if (this.userLevel == 'scalar:Reader') {  // reader added to the book
+      // reader not added to the book, or reader added to book
+      if ((this.userId != 'unknown' && this.userLevel == 'unknown') || this.userLevel == 'scalar:Reader') {
         if (this.canSave == true) {
           this.updateLensByUserId(successHandler);
       	  return;
