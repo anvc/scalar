@@ -310,7 +310,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                             (base.okToAdd?
                                                 '<li id="ScalarHeaderNew"><a class="headerIcon" href="' + base.get_param(scalarapi.model.urlPrefix + 'new.edit')+'" id="newIcon" title="New page button. Click to create a new page."><span class="visible-xs">New page</span></a></li>'
                                                 :'')+
-                                            (base.okToCopyEdit&&!base.isEditorialPathPage&&base.currentNode!=null?
+                                            (base.okToCopyEdit&&!base.isEditorialPathPage?
                                                 '<li id="ScalarHeaderEdit"><a class="headerIcon" href="' + scalarapi.stripEdition(base.get_param(scalarapi.model.urlPrefix + base.current_slug + '.edit')) + '" id="editIcon" title="Edit button. Click to edit the current page or media."><span class="visible-xs">Edit page</span></a></li>'
                                                 :'')+
                                             (base.okToAdd?
