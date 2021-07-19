@@ -338,7 +338,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/omeka_s') + '">Omeka S sites</a></li>'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/soundcloud') + '">SoundCloud</a></li>'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/youtube') + '">YouTube</a></li>'+
-                                                                '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/harvard_art_museums') + '">Harvard Art Museums</a></li>'+
+                                                                '<li id="import-harvard"><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/harvard_art_museums') + '">Harvard Art Museums</a></li>'+
                                                             '</ul>'+
                                                         '</li>'+
                                                         '<li class="dropdown">'+
@@ -421,6 +421,11 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             		customnavbaritem = $('<li class="customMenuItem">'+customScalarHeaderMenuLeftItems[c]+'</li>');
             		navbar.find('#ScalarHeaderMenuLeft').append(customnavbaritem);
             	}
+            }
+
+            // remove import options with missing keys
+            if (!$('link#harvard_art_museums_key').attr('href')) {
+              navbar.find('#import-harvard').remove();
             }
 
             //We don't always want all of the edit buttons for alternate data

@@ -150,6 +150,7 @@ if (isset($page->version_index)) {
 <link id="external_direct_hyperlink" href="true" />
 <? endif ?>
 <link id="google_maps_key" href="<?=$this->config->item('google_maps_key')?>" />
+<link id="harvard_art_museums_key" href="<?=$this->config->item('harvard_art_museums_key')?>" />
 <?
 $lenses_are_active= $this->config->item('lenses_are_active');
 if ($lenses_are_active) echo '<link id="lenses_are_active" href="true" />'."\n";
