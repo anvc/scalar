@@ -493,7 +493,7 @@ function YouTubeGetID(url){
 					}
 					promise = $.Deferred();
 					pendingDeferredMedia.Mirador.push(promise);
-				
+
 				}else if(typeof videojs === 'undefined' && player == 'VideoJS'){
 					if(typeof pendingDeferredMedia.videojs == 'undefined'){
 						pendingDeferredMedia.videojs = [];
@@ -514,7 +514,7 @@ function YouTubeGetID(url){
 					}
 					promise = $.Deferred();
 					pendingDeferredMedia.videojs.push(promise);
-					
+
 				}else if(typeof SC === 'undefined' && this.model.mediaSource.contentType == 'audio' && this.model.mediaSource.name == 'SoundCloud'){
 					if(typeof pendingDeferredMedia.SoundCloud == 'undefined'){
 						pendingDeferredMedia.SoundCloud = [];
@@ -1099,7 +1099,7 @@ function YouTubeGetID(url){
 									this.mediaObjectView = new $.QuickTimeObjectView(this.model, this);
 								}
 							break;
-								
+
 							case 'VideoJS':
 								this.mediaObjectView = new $.VideoJSObjectView(this.model, this);
 							break;
@@ -1570,8 +1570,10 @@ function YouTubeGetID(url){
 		 * Removes the loading message.
 		 */
 		jQuery.MediaElementView.prototype.removeLoadingMessage = function() {
-			this.mediaContainer.parent().parent().css('background-image', 'none');
-			$('body').trigger('mediaElementMediaLoaded', [$(this.model.link)]);
+      if (this.mediaContainer.parent().parent().css('background-image') != 'none') {
+        this.mediaContainer.parent().parent().css('background-image', 'none');
+  			$('body').trigger('mediaElementMediaLoaded', [$(this.model.link)]);
+      }
 		}
 
 		/**
@@ -2935,7 +2937,7 @@ function YouTubeGetID(url){
 				case "WebM":
 				mimeType = "video/webm";
 				break;
-					
+
 				case "HLS":
 				mimeType = "application/x-mpegURL";
 				var hls = true;
@@ -2989,12 +2991,14 @@ function YouTubeGetID(url){
 					return;
 				}
 
-				me.parentView.intrinsicDim.x = me.video[0].videoWidth;
-				me.parentView.intrinsicDim.y = me.video[0].videoHeight;
-				me.parentView.controllerOffset = 0;
+        if (me.parentView.intrinsicDim.x != me.video[0].videoWidth || me.parentView.intrinsicDim.y != me.video[0].videoHeight) {
+          me.parentView.intrinsicDim.x = me.video[0].videoWidth;
+  				me.parentView.intrinsicDim.y = me.video[0].videoHeight;
+  				me.parentView.controllerOffset = 0;
 
-				me.parentView.layoutMediaObject();
-				me.parentView.removeLoadingMessage();
+  				me.parentView.layoutMediaObject();
+  				me.parentView.removeLoadingMessage();
+        }
 
 			}
 
@@ -3175,7 +3179,7 @@ function YouTubeGetID(url){
 				case "WebM":
 				mimeType = "video/webm";
 				break;
-					
+
 				case "HLS":
 				mimeType = "application/x-mpegURL";
 				break;
@@ -3336,7 +3340,7 @@ function YouTubeGetID(url){
 		}
 
 	}
-	
+
 	/**
 	 * View for the Video.js player to support HTTP Live Streaming.
 	 * @constructor
@@ -3345,28 +3349,28 @@ function YouTubeGetID(url){
 	 * @param {Object} parentView	Primary view for the media element.
 	 */
 	jQuery.VideoJSObjectView = function(model, parentView) {
-		
+
 		var me = this;
-		
+
 		this.model = model;				// instance of the model
 		this.parentView = parentView;			// primary view for the media element
-		
+
 		/**
 		 * Creates the video.js media object.
 		 */
 		jQuery.VideoJSObjectView.prototype.createObject = function() {
-			
+
 			var mimeType;
 			switch (this.model.mediaSource.name) {
-					
+
 				case "HLS":
 				mimeType = "application/x-mpegURL";
 				break;
-					
+
 			}
-			
+
 			obj = $('<div class="mediaObject"><video id="'+this.model.filename+'_'+this.model.id+'" class="video-js vjs-big-play-centered">Your browser does not support the video tag.</video></div>').appendTo(this.parentView.mediaContainer);
-			
+
 			this.player = new videojs(this.model.filename+'_'+this.model.id, {
 				controls: true,
 				responsive: true,
@@ -3377,18 +3381,18 @@ function YouTubeGetID(url){
 					type: mimeType
 					}]
 				});
-			
+
 			if ( this.model.options.autoplay && ( this.model.seek == null ) ) {
 				this.player.autoplay(true);
 			}
-		
+
 			var thumbnailURL;
 			if (this.model.node.thumbnail) {
 				thumbnailURL = this.model.node.getAbsoluteThumbnailURL();
 			} else if (this.model.node.current.thumbnail) {
 				thumbnailURL = this.model.node.current.thumbnail;
 			}
-		
+
 			if (thumbnailURL != undefined) {
 				this.image = new Image();
 				$(this.image).on('load', function() {
@@ -3396,24 +3400,24 @@ function YouTubeGetID(url){
 					me.video.attr('poster', $this.attr('src'));
 				}).attr('src', thumbnailURL);
 			}
-		
+
 			this.video = obj.find('video#'+this.model.filename+'_'+this.model.id+'_html5_api');
-		
+
 			this.parentView.controllerOffset = 22;
-		
+
 			var metadataFunc = function() {
-				
+
 				me.parentView.intrinsicDim.x = me.video[0].videoWidth;
 				me.parentView.intrinsicDim.y = me.video[0].videoHeight;
 				me.parentView.controllerOffset = 0;
-				
+
 				me.parentView.layoutMediaObject();
 				me.parentView.removeLoadingMessage();
-				
+
 			}
-			
+
 			this.parentView.layoutMediaObject();
-		
+
 			if (document.addEventListener) {
 				this.video[0].addEventListener('loadedmetadata', metadataFunc, false);
 				this.video[0].addEventListener('play', me.parentView.startTimer, false);
@@ -3425,10 +3429,10 @@ function YouTubeGetID(url){
 				this.video[0].attachEvent('pause', me.parentView.endTimer);
 				this.video[0].attachEvent('ended', me.parentView.endTimer);
 			}
-		
+
 			return;
 		}
-	
+
 		jQuery.VideoJSObjectView.prototype.play = function() {
 			if ((this.model.seekAnnotation != null) && (!this.parentView.overrideAutoSeek)) {
 				this.player.currentTime(this.model.seekAnnotation.properties.start);
@@ -3437,13 +3441,13 @@ function YouTubeGetID(url){
 				this.player.play();
 			}
 		}
-	
+
 		jQuery.VideoJSObjectView.prototype.pause = function() {
 			if (this.player) {
 				this.player.pause();
 			}
 		}
-	
+
 		/**
 		 * @param {Number} time
 		 */
@@ -3452,7 +3456,7 @@ function YouTubeGetID(url){
 			    this.player.currentTime(time);
 			}
 		}
- 		
+
 		/**
 		 * @return
 		 */
@@ -3461,7 +3465,7 @@ function YouTubeGetID(url){
 				return this.player.currentTime();
 			}
 		}
-		
+
 		/**
 		 * @param {Number} width
 		 * @param {Number} height
@@ -3472,7 +3476,7 @@ function YouTubeGetID(url){
 				this.player.height(height);
 			}
 		}
-	
+
 		/**
 		 * @return
 		 */
@@ -3481,7 +3485,7 @@ function YouTubeGetID(url){
 				return !this.player.paused;
 			}
 		}
-	}					 
+	}
 
 	/**
 	 * View for 360 videos, using Google's vrview.
