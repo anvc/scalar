@@ -3001,9 +3001,9 @@ function YouTubeGetID(url){
 			this.parentView.layoutMediaObject();
 
 			if (document.addEventListener) {
-				// When streaming HLS in Safari's native player, the data must be loaded before the video's dimensions can be gathered.
+				// When streaming HLS in Safari's native player, the data must be loaded before the video's dimensions can be gathered. Mobile Safari requires this be progress.
 				if (hls) {
-					this.video[0].addEventListener('loadeddata', metadataFunc, false);
+					this.video[0].addEventListener('progress', metadataFunc, false);
 				} else {
 					this.video[0].addEventListener('loadedmetadata', metadataFunc, false);
 				}
@@ -3012,7 +3012,7 @@ function YouTubeGetID(url){
 				this.video[0].addEventListener('ended', me.parentView.endTimer, false);
 			} else {
 				if (hls) {
-					this.video[0].attachEvent('onloadeddata', metadataFunc);
+					this.video[0].attachEvent('onprogress', metadataFunc);
 				} else {
 					this.video[0].attachEvent('onloadedmetadata', metadataFunc);
 				}
