@@ -2938,6 +2938,7 @@ function YouTubeGetID(url){
 					
 				case "HLS":
 				mimeType = "application/x-mpegURL";
+				var hls = true;
 				break;
 
 			}
@@ -3000,13 +3001,21 @@ function YouTubeGetID(url){
 			this.parentView.layoutMediaObject();
 
 			if (document.addEventListener) {
-				this.video[0].addEventListener('loadedmetadata', metadataFunc, false);
+				// When streaming HLS in Safari's native player, the data must be loaded before the video's dimensions can be gathered.
+				if (hls) {
+					this.video[0].addEventListener('loadeddata', metadataFunc, false);
+				} else {
+					this.video[0].addEventListener('loadedmetadata', metadataFunc, false);
+				}
 				this.video[0].addEventListener('play', me.parentView.startTimer, false);
 				this.video[0].addEventListener('pause', me.parentView.endTimer, false);
 				this.video[0].addEventListener('ended', me.parentView.endTimer, false);
-				this.video[0].addEventListener('ended', me.parentView.endTimer, false);
 			} else {
-				this.video[0].attachEvent('onloadedmetadata', metadataFunc);
+				if (hls) {
+					this.video[0].attachEvent('onloadeddata', metadataFunc);
+				} else {
+					this.video[0].attachEvent('onloadedmetadata', metadataFunc);
+				}
 				this.video[0].attachEvent('play', me.parentView.startTimer);
 				this.video[0].attachEvent('pause', me.parentView.endTimer);
 				this.video[0].attachEvent('ended', me.parentView.endTimer);
