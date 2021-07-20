@@ -4203,29 +4203,35 @@ window.scalarvis = { instanceCount: -1 };
       	this.clearMarkers();
       	var bounds = new google.maps.LatLngBounds();
       	var urls = [];
+        var titleMarkup = '';
+        var thumbnailMarkup = '';
+        var descriptionMarkup = '';
+        var contentString = '';
       	// Contents of paths connected by lines
       	for (var j = 0; j < base.sortedNodes.length; j++) {
       		if ('undefined' == typeof(base.sortedNodes[j].scalarTypes.path)) continue;
       		var pathTitle = base.sortedNodes[j].getDisplayTitle();
       		var pathCoordinates = [];
-            let relations = base.sortedNodes[j].getRelations('path', 'outgoing');
+          let relations = base.sortedNodes[j].getRelations('path', 'outgoing');
       		for (var k = 0; k < relations.length; k++) {
       			if (null == relations[k].index) continue;  // Not part of the path
       			if (null == relations[k].target) continue;  // Not part of the path
+            var containingPathNodes = relations[k].body.getRelations('path', 'outgoing');
       			if (-1 == urls.indexOf(relations[k].target.url)) urls.push(relations[k].target.url);
-      			var title = '<p style="margin-bottom:8px;">'+relations[k].startString+' of the "'+pathTitle+'" path<br /><b><a href="'+relations[k].target.url+'">'+relations[k].target.getDisplayTitle()+'</a></b></p>';
+      			titleMarkup = '<div class="caption_font path-breadcrumb"><a href="'+relations[k].body.url+'">'+pathTitle+'</a> ('+relations[k].index+'/'+containingPathNodes.length+')</div><h2 class="heading_font heading_weight"><a href="'+relations[k].target.url+'">'+relations[k].target.getDisplayTitle()+'</a></h2>';
       			var thumbnail = relations[k].target.thumbnail;
       			var description = relations[k].target.getDescription(true);
-      			if (null != thumbnail) title += '<img src="'+thumbnail+'" align="left" style="max-width:100px;max-height:100px;margin-right:12px;" />';
-      			if (description && description.length) title += '<p style="margin-bottom:8px;">'+description+'</p>';
+      			if (null != thumbnail) thumbnailMarkup = '<img style="float:right; margin: 0 0 1rem 1rem;" src="'+thumbnail+'" alt="Thumbnail image" width="120" />';
+      			if (description && description.length) descriptionMarkup = description;
+            contentString = '<div class="google-info-window caption_font">' + titleMarkup + '<div>' + thumbnailMarkup + descriptionMarkup + '</div>';
       			var icon = this.getIcon(relations[k].target.scalarTypes);
-      			var coords = this.drawMarkers(relations[k].target, title, icon);
-  	            if (coords.length) {
-  	            	for (var m = 0; m < coords.length; m++) {
-  	        	    	pathCoordinates.push(coords[m]);
-  	        	    	bounds.extend( new google.maps.LatLng(coords[m].lat, coords[m].lng) );
-  	            	};
-  	            }
+      			var coords = this.drawMarkers(relations[k].target, title, contentString, icon);
+            if (coords.length) {
+            	for (var m = 0; m < coords.length; m++) {
+        	    	pathCoordinates.push(coords[m]);
+        	    	bounds.extend( new google.maps.LatLng(coords[m].lat, coords[m].lng) );
+            	};
+            }
       		}
       		var path_key = this.paths.length;
       		this.paths[path_key] = new google.maps.Polyline({
@@ -4240,13 +4246,15 @@ window.scalarvis = { instanceCount: -1 };
       	// All other nodes
       	for (var j = 0; j < base.sortedNodes.length; j++) {
       		if (-1 != urls.indexOf(base.sortedNodes[j].url)) continue;
-      		var title = '<p style="margin-bottom:8px;"><b><a href="'+base.sortedNodes[j].url+'">'+base.sortedNodes[j].getDisplayTitle()+'</a></b></p>';
-    		var thumbnail = base.sortedNodes[j].thumbnail;
-    		var description = base.sortedNodes[j].getDescription(true);
-    		if (null != thumbnail) title += '<img src="'+thumbnail+'" align="left" style="max-width:100px;max-height:100px;margin-right:12px;" />';
-    		if (description && description.length) title += '<p style="margin-bottom:8px;">'+description+'</p>';
+          var title = base.sortedNodes[j].getDisplayTitle();
+      		titleMarkup = '<h2 class="heading_font heading_weight"><a href="'+base.sortedNodes[j].url+'">'+title+'</a></h2>';
+      		var thumbnail = base.sortedNodes[j].thumbnail;
+      		var description = base.sortedNodes[j].getDescription(true);
+      		if (null != thumbnail) thumbnailMarkup = '<img style="float:right; margin: 0 0 1rem 1rem;" src="'+thumbnail+'" alt="Thumbnail image" width="120" />';
+      		if (description && description.length) descriptionMarkup = description;
+          contentString = '<div class="google-info-window caption_font">' + titleMarkup + '<div>' + thumbnailMarkup + descriptionMarkup + '</div>';
         	var icon = this.getIcon(base.sortedNodes[j].scalarTypes);
-      		var coords = this.drawMarkers(base.sortedNodes[j], title, icon);
+      		var coords = this.drawMarkers(base.sortedNodes[j], title, contentString, icon);
     	    if (coords.length) {
 	        	for (var m = 0; m < coords.length; m++) {
 	        		bounds.extend( new google.maps.LatLng(coords[m].lat, coords[m].lng) );
@@ -4325,7 +4333,7 @@ window.scalarvis = { instanceCount: -1 };
       	this.infowindows = {};
       }
 
-      drawMarkers(obj, title, icon) {
+      drawMarkers(obj, title, content, icon) {
   	  	var coords = this.getCoords(obj);
   			if (!coords.length) return false;
   			for (var j = 0; j < coords.length; j++) {
@@ -4334,8 +4342,8 @@ window.scalarvis = { instanceCount: -1 };
   				var key = this.markers.length;
   				this.markers[key] = new google.maps.Marker({
 		    		position: coord,
-		    		/* map: this.map, */
 		    		title: title,
+            html: content,
 		    		icon: {
 		    			url: icon,
 		    			scaledSize: new google.maps.Size(40,40)
@@ -4344,7 +4352,7 @@ window.scalarvis = { instanceCount: -1 };
   				this.oms.addMarker(this.markers[key]);
   				// Infowindow
   				this.infowindows[key] = new google.maps.InfoWindow({
-  					content: title,
+  					content: content,
   					maxWidth: 300
   				});
   				$(this.markers[key]).data('infowindow', this.infowindows[key]).data('map', this.map);
