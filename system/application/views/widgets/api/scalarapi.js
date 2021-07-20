@@ -317,6 +317,20 @@ function ScalarAPI() {
 				'Android': {extensions:['htm','html','php','com','org','net','gov'], format:'HTML', player:'native', specifiesDimensions:false},
 				'Other': {extensions:['htm','html','php','com','org','net','gov'], format:'HTML', player:'native', specifiesDimensions:false}
 			}},
+		'HTTP Live Streaming':  {
+			name:'HLS',
+			extensions:['m3u8'],
+			isProprietary:false,
+			contentType:'video',
+			browserSupport: {
+				'Mozilla': {extensions:['m3u8'], format:'M3U8', player:'VideoJS', specifiesDimensions:true},
+				'Explorer': {extensions:['m3u8'], format:'M3U8', player:'VideoJS', specifiesDimension:true},
+				'MobileSafari': {extensions:['m3u8'], format:'M3U8', player:'native', specifiesDimensions:true},
+				'Safari': {extensions:['m3u8'], format:'M3U8', player:'native', specifiesDimensions:true},
+				'Chrome': {extensions:['m3u8'], format:'M3U8', player:'VideoJS', specifiesDimensions:true},
+				'Android': {extensions:['m3u8'], format:'M3U8', player:'VideoJS', specifiesDimensions:true},
+				'Other': {extensions:['m3u8'], format:'M3U8', player:'VideoJS', specifiesDimensions:true}
+			}},
 		'HyperCities': {
 			name:'HyperCities',
 			extensions:[],
