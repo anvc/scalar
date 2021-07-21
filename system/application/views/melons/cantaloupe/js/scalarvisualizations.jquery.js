@@ -880,7 +880,7 @@ window.scalarvis = { instanceCount: -1 };
     // boots/reboots the visualization with the current options
     base.visualize = function(preserveExistingNodes = false) {
 
-      base.clear();
+      if (!preserveExistingNodes) base.clear();
 
       base.loadIndex = -1;
       base.loadingPaused = false;
@@ -906,7 +906,6 @@ window.scalarvis = { instanceCount: -1 };
       base.links = [];
       base.linksBySlug = {};
       base.nodesBySlug = {};
-      base.svg = null;
       if (base.currentNode && base.currentNode.type.id != 'lens') {
         base.selectedNodes.push(base.currentNode);
         base.loadNode(base.currentNode.slug, 0, 0, base.updateInspector, true, false);
@@ -2258,6 +2257,7 @@ window.scalarvis = { instanceCount: -1 };
 
       if (base.svg != null) {
         base.svg.empty();
+        base.svg = null;
       }
       if (base.visualization) {
         base.visualization.empty();
