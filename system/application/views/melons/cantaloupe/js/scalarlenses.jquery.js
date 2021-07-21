@@ -1462,7 +1462,7 @@
 
         case 'relationship':
           let relationshipType = $('#relationship-content-button').data('option').value;
-          if (!relationshipType) {
+          if (relationshipType.length == 0) {
             passedValidation = false;
             errorMessage = 'You must select a content type.';
             if (!isSilent) $('#relationship-content-button').addClass('validation-error');
