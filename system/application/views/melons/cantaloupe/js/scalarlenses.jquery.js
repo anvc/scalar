@@ -3520,6 +3520,7 @@
           this.scalarLensObject.submitted = true;
           this.updateOptionsMenu();
           this.getLensResults(this.scalarLensObject, this.options.onLensResults);
+          $('body').trigger('lensUpdated', this.scalarLensObject);
     			alert('The lens was submitted successfully.');
     			// Email sent (if it can) + JSON submittted field set to true
     		},

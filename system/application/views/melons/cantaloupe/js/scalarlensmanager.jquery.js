@@ -163,6 +163,7 @@
       var pageData = {
         action: 'UPDATE',
         'scalar:urn': this.selectedLens.urn,
+        uriSegment: this.selectedLens.slug,
         'scalar:metadata:slug': this.selectedLens.slug,
         'dcterms:title': this.selectedLens.title
       };
