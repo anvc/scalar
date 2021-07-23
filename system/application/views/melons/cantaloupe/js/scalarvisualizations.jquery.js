@@ -396,7 +396,11 @@ window.scalarvis = { instanceCount: -1 };
     base.onContentSelect = function() {
       if ($(this).val() == 'current') {
         base.options.lens.components[0]['content-selector']['content-type'] = 'specific-items';
-        base.options.lens.components[0]['content-selector']['items'] = [base.currentNode.slug];
+        if (base.currentNode) {
+          base.options.lens.components[0]['content-selector']['items'] = [base.currentNode.slug];
+        } else {
+          base.options.lens.components[0]['content-selector']['items'] = [];
+        }
       } else {
         base.options.lens.components[0]['content-selector']['content-type'] = $(this).val();
         delete base.options.lens.components[0]['content-selector'].items;
