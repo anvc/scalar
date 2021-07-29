@@ -184,8 +184,6 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 base.$el.addClass('hypothesis_active');
             }
 
-            var lenses_are_active = ('true' == $('link#lenses_are_active').attr('href')) ? true : false;
-
             //Store the home URL so that we can use these later without making extra queries on the DOM
             var home_url = base.$el.find('#book-title').attr("href");
 
@@ -251,11 +249,11 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                             '<li><i class="loader"></i></li>'+
                                                         '</ul>'+
                                                     '</li>'+
-                                                    (lenses_are_active ? '<li id="lenses_menu" class="dropdown">'+
+                                                    '<li id="lenses_menu" class="dropdown">'+
                                                         '<a role="menuitem" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></span><span class="menuIcon" id="lensIcon"></span>Lenses</a>'+
                                                         '<ul class="dropdown-menu" role="menu">'+
                                                         '</ul>'+
-                                                    '</li>' : '')+
+                                                    '</li>'+
                                                     '<li id="vis_menu" class="dropdown">'+
                                                         '<a role="menuitem" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></span><span class="menuIcon" id="visIcon"></span>Visualizations</a>'+
                                                         '<ul class="dropdown-menu" role="menu">'+
@@ -922,10 +920,8 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
               $('#desktopTitleWrapper').trigger("update");
             });
 
-            if (lenses_are_active) {
-              $('body').on('lensUpdated', base.getLensData);
-              base.getLensData();
-            }
+            $('body').on('lensUpdated', base.getLensData);
+            base.getLensData();
 
             $( '#ScalarHeaderHelp>a' ).on('click', function(e) {
                 base.help.data( 'plugin_scalarhelp' ).toggleHelp();

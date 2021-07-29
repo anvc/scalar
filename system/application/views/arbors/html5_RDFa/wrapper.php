@@ -151,10 +151,6 @@ if (isset($page->version_index)) {
 <? endif ?>
 <link id="google_maps_key" href="<?=$this->config->item('google_maps_key')?>" />
 <link id="harvard_art_museums_key" href="<?=$this->config->item('harvard_art_museums_key')?>" />
-<?
-$lenses_are_active= $this->config->item('lenses_are_active');
-if ($lenses_are_active) echo '<link id="lenses_are_active" href="true" />'."\n";
-?>
 <link id="CI_elapsed_time" href="<?php echo $this->benchmark->elapsed_time()?>" />
 <? if (!empty($_styles)) echo $_styles?>
 <?=template_script_tag_relative(__FILE__, 'js/jquery-3.4.1.min.js')."\n"?>

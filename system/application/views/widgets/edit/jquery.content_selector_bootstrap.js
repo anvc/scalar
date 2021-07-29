@@ -1375,6 +1375,11 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				icon: "widget_image_visualization.png"
 			},
 			{
+				name: "Lens",
+				description: "Living snapshots of the content of a book, visualizing dynamic selections of pages and media.",
+				icon: "widget_image_lens.png"
+			},
+			{
 				name: "Map",
 				description: "Geographic view that plots geotagged Scalar content on a map (uses Google Maps).",
 				icon: "widget_image_map.png"
@@ -1395,15 +1400,6 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				icon: "widget_image_summary.png"
 			}
 		];
-
-		var lenses_are_active = ('true' == $('link#lenses_are_active').attr('href')) ? true : false;
-		if (lenses_are_active) {
-			widget_types.splice(2, 0, {
-				name: "Lens",
-				description: "Living snapshots of the content of a book, visualizing dynamic selections of pages and media.",
-				icon: "widget_image_lens.png"
-			});
-		}
 
 		for (var i = 0; i < widget_types.length; i++) {
 			var widget = widget_types[i];
