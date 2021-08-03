@@ -1048,6 +1048,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             })
             .on('scroll', function(e){
                 var base = $('#scalarheader.navbar').data('scalarheader');
+                if ('undefined' == typeof(base)) return;
                 if(base.usingMobileView){
                     base.oldScrollTop = 0;
                     base.$el.removeClass('short');

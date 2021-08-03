@@ -861,7 +861,30 @@ Class Api extends CI_Controller {
 		// OAC from Semantic Annotation Tool
 		} elseif (isset($json[0]['@context']) && 'http://www.w3.org/ns/anno.jsonld' == $json[0]['@context']) {
 			$this->load->library('OAC_Object','oac_object');
-			$_POST = array_merge($_POST, $this->oac_object->decode($json[0], $book));
+			$annotations = $this->oac_object->decode_annotations($json[0], $book);
+			for ($j = 0; $j < count($annotations); $j++) {
+				$_POST = $annotations[$j];
+				$this->data = array();
+				if ($annotations[$j]['action'] == 'add') {
+					$this->add(false);
+				} elseif ($annotations[$j]['action'] == 'update') {
+					$this->update(false);
+				}
+				$this->save_data = $this->data;
+				$tags = $this->oac_object->decode_tags($json[0], $book, $j, $this->data['version_id']);
+				for ($k = 0; $k < count($tags); $k++) {
+					$_POST = $tags[$k];
+					$this->data = array();
+					if ($tags[$k]['action'] == 'add') {
+						$this->add(false);
+					} else {
+						$this->relate(false);
+					}
+				}
+				$this->data = $this->save_data;
+				$this->_output();
+				exit;  // There will only be one annotation to save
+			}
 
 		// Lens JSON
 		} elseif (isset($json[0]['urn']) && 'urn:scalar:lens:' == substr($json[0]['urn'], 0, 16)) {

@@ -330,13 +330,21 @@ class Rdf extends MY_Controller {
 					$this->load->library( 'OAC_Object', 'oac_object' );
 					$object = 'oac_object';
 					break;
+				case 'iiif':
+					$this->load->library( 'IIIF_Object', 'iiif_object' );
+					$object = 'iiif_object';
+					break;
 				default:
 					$object = 'rdf_object';
 			}
 			$this->set_url_params();
 			$this->data['url'] = implode('/',array_slice($this->uri->segments, array_search(__FUNCTION__, $this->uri->segments)));
-			// TODO: past versions?
-			$content = $this->pages->get_by_version_url($this->data['book']->book_id, $this->data['url'], true);
+			$this->data['url'] = trim(str_replace(':/', '://', $this->data['url']));  // Turns "https:/..." into "https://..."
+			$content = $this->pages->get_by_version_url($this->data['book']->book_id, $this->data['url'], true);  // Could be an absolute or relative URL
+			if (null == $content) {
+				$this->data['url'] = trim(str_replace(' ', '%20', $this->data['url']));
+				$content = $this->pages->get_by_version_url($this->data['book']->book_id, $this->data['url'], true);  // Try the URL with %20s
+			}
 			if (!empty($content)) {
 				foreach ($content as $content_id => $row) {
 					if (!$row->is_live && !$this->login_is_book_admin($this->data['book']->book_id)) {
@@ -345,7 +353,7 @@ class Rdf extends MY_Controller {
 				}
 				if (!$this->data['versions']) {
 					foreach ($content as $content_id => $row) {
-						$content[$content_id]->versions = array(array_shift($content[$content_id]->versions));
+						$content[$content_id]->versions = array(array_shift($content[$content_id]->versions));  // Most recent version
 					}
 				}
 			}

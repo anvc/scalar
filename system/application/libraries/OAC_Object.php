@@ -40,14 +40,16 @@ class OAC_Object extends RDF_Object {
 
     	$rel_types = array('has_annotations');
     	$output = array();
-    	foreach ($return as $node) {
-    		$output[] = $this->_content_node($node);
-    		foreach ($rel_types as $type) {
-    			if (!isset($node->versions[$node->version_index]->{$type})) continue;
-    			for ($j = 0; $j < count($node->versions[$node->version_index]->{$type}); $j++) {
-    				$output[] = $this->_annotation_node($node->versions[$node->version_index]->{$type}[$j], $node);
-    			}
-    		}
+    	if ($return) {
+	    	foreach ($return as $node) {
+	    		$output[] = $this->_content_node($node);
+	    		foreach ($rel_types as $type) {
+	    			if (!isset($node->versions[$node->version_index]->{$type})) continue;
+	    			for ($j = 0; $j < count($node->versions[$node->version_index]->{$type}); $j++) {
+	    				$output[] = $this->_annotation_node($node->versions[$node->version_index]->{$type}[$j], $node);
+	    			}
+	    		}
+	    	}
     	}
     	$return = json_encode($output);
     	return $return;
@@ -68,7 +70,7 @@ class OAC_Object extends RDF_Object {
     	
     }
     
-    public function decode($arr=array(), $book=null) {
+    public function decode_annotations($arr=array(), $book=null) {
     	
     	$CI =& get_instance();
     	if (!isset($CI->pages) || 'object'!=gettype($CI->pages)) $CI->load->model('page_model','pages');
@@ -80,35 +82,40 @@ class OAC_Object extends RDF_Object {
     	$book_url = base_url() . $book->slug . '/';
     	$target_url = urldecode($arr['target']['id']);
     	$content = $CI->pages->get_by_version_url($book->book_id, $target_url);
-    	if (empty($content) && !stristr($target_url, $book_url)) {
+    	if (empty($content) && !stristr($target_url, $book_url)) {  // Could not be found
     		return $return;
-    	} elseif (empty($content)) {
+    	} elseif (empty($content)) {  // Look for a relative URL
     		$target_url = str_replace($book_url, '', $target_url);
     		$content = $CI->pages->get_by_version_url($book->book_id, $target_url);
     		if (empty($content)) return $return;
     	}
-    	
+
     	foreach ($content as $content_id => $page) {
     	
+    		$row = array();
+    		
+    		// Add or update
+    		$row['action'] = 'add';  // TODO
+    		
     		// Relational fields
-    		if (empty($page->versions)) return $return;
-    		$return['rdf:type'] = $CI->versions->rdf_type('composite');
-    		$return['scalar:child_type'] = $CI->versions->rdf_type('version');
-	    	$return['scalar:child_urn'] = $CI->versions->urn($page->versions[$page->version_index]->version_id);
-	    	$return['scalar:child_rel'] = 'annotated';
+    		if (empty($page->versions)) continue;
+    		$row['rdf:type'] = $CI->versions->rdf_type('composite');
+    		$row['scalar:child_type'] = $CI->versions->rdf_type('version');
+    		$row['scalar:child_urn'] = $CI->versions->urn($page->versions[$page->version_index]->version_id);
+    		$row['scalar:child_rel'] = 'annotated';
 	    	
 	    	// Version fields
 	    	foreach ($arr['body'] as $el) {
 	    		if ('describing' == $el['purpose']) {
-	    			$return['dcterms:title'] = $el['value'];
-	    			$return['dcterms:language'] = $el['language'];
-	    			$return['dcterms:format'] = $el['format'];
+	    			$row['dcterms:title'] = $el['value'];
+	    			$row['dcterms:language'] = $el['language'];
+	    			$row['dcterms:format'] = $el['format'];
 	    		}
 	    	}
 	    	foreach ($arr['target']['selector'] as $el) {
 	    		if ('SvgSelector' == $el['type']) {
 	    			$value = $el['value'];
-	    			$return['dcterms:spatial'] = $value;
+	    			$row['dcterms:spatial'] = $value;
 	    		}
 	    		if ('FragmentSelector' == $el['type']) {
 	    			$value = $el['value'];
@@ -116,14 +123,64 @@ class OAC_Object extends RDF_Object {
 	    			$value_arr = explode('=', $value);
 	    			$value = $value_arr[1];
 	    			$value_arr = explode(',', $value);
-	    			$return['scalar:start_seconds'] = $value_arr[0];
-	    			$return['scalar:end_seconds'] = $value_arr[1];
+	    			$row['scalar:start_seconds'] = $value_arr[0];
+	    			$row['scalar:end_seconds'] = $value_arr[1];
 	    		}
 	    	}
 	    	
-	    	return $return;  // If there are more than one pages with the URL, then only act on the first
+	    	$return[] = $row;
 	    	
     	}
+    	
+    	return $return;
+    	
+    }
+    
+    public function decode_tags($arr=array(), $book=null, $annotation_index=0, $annotation_version_id=0) {
+    	
+    	$CI =& get_instance();
+    	if (!isset($CI->pages) || 'object'!=gettype($CI->pages)) $CI->load->model('page_model','pages');
+    	if (!isset($CI->versions) || 'object'!=gettype($CI->versions)) $CI->load->model('version_model','versions');
+    	$return = array();
+    	
+    	// Validate the book and get the page based on the target URL
+    	if (empty($book) || !isset($book->book_id)) return $return;
+    	$book_url = base_url() . $book->slug . '/';
+    	$target_url = urldecode($arr['target']['id']);
+    	$content = $CI->pages->get_by_version_url($book->book_id, $target_url);
+    	if (empty($content) && !stristr($target_url, $book_url)) {  // Could not be found
+    		return $return;
+    	} elseif (empty($content)) {  // Look for a relative URL
+    		$target_url = str_replace($book_url, '', $target_url);
+    		$content = $CI->pages->get_by_version_url($book->book_id, $target_url);
+    		if (empty($content)) return $return;
+    	}
+    	
+    	$row = array();
+    	
+    	$row['rdf:type'] = $CI->versions->rdf_type('composite');
+    	$row['scalar:child_type'] = $CI->versions->rdf_type('version');
+    	$row['scalar:child_urn'] = $CI->versions->urn($annotation_version_id);
+    	$row['scalar:child_rel'] = 'tagged';
+    		
+    	foreach ($arr['body'] as $el) {
+    		if ('tagging' == $el['purpose']) {
+    			$row['dcterms:title'] = $el['value'];
+    			$_tag_pages = $CI->versions->get_by_predicate($book->book_id, 'dcterms:title', false, null, $row['dcterms:title'], false);
+    			if (empty($_tag_pages)) {
+    				$row['action'] = 'add';
+    			} else {
+    				$row['action'] = 'update';
+    				foreach ($_tag_pages as $key => $value) {
+    					$row['scalar:urn'] = $CI->versions->urn($value->versions[0]->version_id);
+    					break;
+    				}
+    			}
+    			$return[] = $row;
+    		}
+    	}
+    	
+    	return $return;
     	
     }
     
