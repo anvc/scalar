@@ -25,6 +25,13 @@
  * @version					3.2
  */
 
+// Allow from any origin
+if (isset($_SERVER['HTTP_ORIGIN'])) {
+	header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
+	header('Access-Control-Allow-Credentials: true');
+	header('Access-Control-Max-Age: 86400');
+}
+
 class Rdf extends MY_Controller {
 
 	/**
