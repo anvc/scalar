@@ -1347,10 +1347,12 @@ body>.annotorious-popup{
 	padding: 0;
 	position: relative;
 	background-size: cover;
-    min-height: 400px;
-    background-color: #e5e5e5;
-    clear: both;
+	background-position: center;
+  min-height: 400px;
+  background-color: #e5e5e5;
+  clear: both;
 }
+.sp-block.mobile { background-attachment: inherit; }
 .padded-multiline {
   line-height: 1.4;
   padding: 0;
@@ -1391,25 +1393,25 @@ body>.annotorious-popup{
 .sp-button:hover { background-color:#217298; }
 .sp-button a, .sp-button a:hover { text-decoration: none; color: #000; }
 @media only screen and (min-width: 520px) {
-    #splash, .sp-block { position: static; background-attachment: fixed; }
-    #splash {
-		background-size: cover;
-		background-position-y: 0px;
-		background-position-x: 0px;
-		min-height: 350px;
-    }
-    #splash img {
-      position: relative;
-      top: 100px;
-      left: 300px;
-    }
-    .sp-block__content { max-width: 48rem; }
-    .sp-block-people .sp-block__content { max-width: 100%; padding-left: 0px; }
-    .sp-block-people .sp-block__content .body_copy { padding-left: 0px; }
-    .sp-block__content .slot .mediaelement { display: none; }
-    .sp-block-people .sp-block__content .slot .mediaelement { display: unset; }
-    #tk-add {display:inline-block;}
+  #splash, .sp-block { position: static; background-attachment: fixed; }
+  #splash {
+	background-size: cover;
+	background-position-y: 0px;
+	background-position-x: 0px;
+	min-height: 350px;
   }
+  #splash img {
+    position: relative;
+    top: 100px;
+    left: 300px;
+  }
+  .sp-block__content { max-width: 48rem; }
+  .sp-block-people .sp-block__content { max-width: 100%; padding-left: 0px; }
+  .sp-block-people .sp-block__content .body_copy { padding-left: 0px; }
+  .sp-block__content .slot .mediaelement { display: none; }
+  .sp-block-people .sp-block__content .slot .mediaelement { display: unset; }
+  #tk-add {display:inline-block;}
+}
 
 
 
