@@ -124,11 +124,8 @@ class IIIF_Object extends RDF_Object {
 	    			$row['dcterms:format'] = $body['format'];
 		    	}
 	    	}
+	    	
 	    	foreach ($annotation['target']['selector'] as $target) {
-	    		if ('SvgSelector' == $target['type']) {
-	    			$value = $target['value'];
-	    			$row['dcterms:spatial'] = $value;
-	    		}
 	    		if ('FragmentSelector' == $target['type']) {
 	    			$value = $target['value'];
 	    			$value = str_replace('npt:', '', $value);
@@ -137,6 +134,10 @@ class IIIF_Object extends RDF_Object {
 	    			$value_arr = explode(',', $value);
 	    			$row['scalar:start_seconds'] = $value_arr[0];
 	    			$row['scalar:end_seconds'] = $value_arr[1];
+	    			if (isset($target['refinedBy'])) {
+	    				$value = $target['refinedBy']['value'];
+	    				$row['dcterms:spatial'] = $value;
+	    			}
 	    		}
 	    	}
 	    	
@@ -304,15 +305,13 @@ class IIIF_Object extends RDF_Object {
     		"http://www.w3.org/ns/anno.jsonld",
     		"http://iiif.io/api/presentation/3/context.json"
     	);
-    	$output["id"] = $_SERVER['REQUEST_URI'];
+    	$protocol = (stripos($_SERVER['SERVER_PROTOCOL'],'https')===0 || $_SERVER['HTTP_X_FORWARDED_PROTO']=='https') ? 'https://' : 'http://';
+    	$output["id"] = $protocol.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
     	$output["type"] = "Manifest";
     	$output["label"] = array(
-    		"en" => 'Annotations for "'.implode('", "', $titles).'"'
+    		"en" => array( 'Annotations for "'.implode('", "', $titles).'"' )
     	);
-    	$output["description"] = array(
-    		"en" => 'Time-based annotations for "'.implode('", "', $titles).'"'
-    	);
-    	$output["rights"] = "https://creativecommons.org/licenses/by/4.0/";
+    	$output["rights"] = "http://creativecommons.org/licenses/by/4.0/";
     	$output["items"] = array();
     	return $output;
     	
@@ -324,9 +323,9 @@ class IIIF_Object extends RDF_Object {
     	$row = array();
     	$row['id'] = base_url().$CI->data['book']->slug.'/'.$node->slug;
     	$row['type'] = 'Canvas';
-    	$row['width'] = (isset($node->versions[$node->version_index]->rdf['http://purl.org/vra/width'])) ? $node->versions[$node->version_index]->rdf['http://purl.org/vra/width'][0]['value'] : '';
-    	$row['height'] = (isset($node->versions[$node->version_index]->rdf['http://purl.org/vra/height'])) ? $node->versions[$node->version_index]->rdf['http://purl.org/vra/height'][0]['value'] : '';
-    	$row['duration'] = (isset($node->versions[$node->version_index]->rdf['http://purl.org/vra/duration'])) ? $node->versions[$node->version_index]->rdf['http://purl.org/vra/duration'][0]['value'] : '';
+    	$row['width'] = (isset($node->versions[$node->version_index]->rdf['http://purl.org/vra/width'])) ? (int) $node->versions[$node->version_index]->rdf['http://purl.org/vra/width'][0]['value'] : 0;
+    	$row['height'] = (isset($node->versions[$node->version_index]->rdf['http://purl.org/vra/height'])) ? (int) $node->versions[$node->version_index]->rdf['http://purl.org/vra/height'][0]['value'] : 0;
+    	$row['duration'] = (isset($node->versions[$node->version_index]->rdf['http://purl.org/vra/duration'])) ? (float) $node->versions[$node->version_index]->rdf['http://purl.org/vra/duration'][0]['value'] : 0;
     	
     	$url = '';
     	if (isset($node->versions[$node->version_index]->url) && !empty($node->versions[$node->version_index]->url)) {
@@ -339,9 +338,9 @@ class IIIF_Object extends RDF_Object {
     	$row['content'] = array(
     		'id' => $url,
     		'type' => 'Video',
-    		'width' => $row['width'],
-    		'height' => $row['height'],
-    		'duration' => $row['duration'],
+    		'width' => (int) $row['width'],
+    		'height' => (int) $row['height'],
+    		'duration' => (float) $row['duration'],
     		'label' => array(
     			'en' => $node->versions[$node->version_index]->title
     		),
@@ -361,8 +360,6 @@ class IIIF_Object extends RDF_Object {
     	$row = array();
     	$row['id'] = base_url().$CI->data['book']->slug.'/'.$node->slug;
     	$row['type'] = 'AnnotationPage';
-    	$row['generator'] = (isset($node->versions[$node->version_index]->rdf['http://purl.org/dc/terms/mediator'])) ? $node->versions[$node->version_index]->rdf['http://purl.org/dc/terms/mediator'][0]['value'] : '';
-    	$row['generated'] = '';
     	$row['items'] = array();
     	
     	$anno = array(
@@ -425,20 +422,18 @@ class IIIF_Object extends RDF_Object {
     		}
     	}
     	$anno['target'] = array(
-    			"id" => $target->versions[$target->version_index]->url,
-   				"type" => "Video",
+    			"source" => $target->versions[$target->version_index]->url,
+   				"type" => "SpecificResource",
     			"selector" => array(
-    					array(
-    						"type" => "FragmentSelector",
-    						"conformsTo" => "http://www.w3.org/TR/media-frags/",
-    						"value" => $this->annotation_append($node->versions[$node->version_index])
-    					)
+    				"type" => "FragmentSelector",
+    				"conformsTo" => "http://www.w3.org/TR/media-frags/",
+    				"value" => $this->annotation_append($node->versions[$node->version_index])
     			)
     	);
     	if (isset($node->versions[$node->version_index]->rdf) && isset($node->versions[$node->version_index]->rdf['http://purl.org/dc/terms/spatial'])) {
     		$svg = $node->versions[$node->version_index]->rdf['http://purl.org/dc/terms/spatial'][0]['value'];
     		if (substr($svg, 0, 4) == '<svg') {
-    			$anno['target']['selector'][] = array(
+    			$anno['target']['selector']['refinedBy'] = array(
     				"type" => "SvgSelector",
     				"conformsTo" => 'http://www.w3.org/TR/SVG/',
     				"value" => $svg
@@ -446,7 +441,7 @@ class IIIF_Object extends RDF_Object {
     		}
     	}
     	if (isset($node->versions[$node->version_index]->additional) && !empty($node->versions[$node->version_index]->additional)) {
-    		$anno['target']['selector'][] = array(
+    		$anno['target']['selector']['refinedBy'] = array(
     			"type" => "SvgSelector",
     			"conformsTo" => 'http://www.w3.org/TR/SVG/',
     			"value" => $node->versions[$node->version_index]->additional

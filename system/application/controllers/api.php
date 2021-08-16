@@ -791,12 +791,12 @@ Class Api extends CI_Controller {
 		if (isset($json[0]['@context']) && is_array($json[0]['@context']) && 'http://www.w3.org/ns/anno.jsonld' == $json[0]['@context'][0] && 'http://iiif.io/api/presentation/3/context.json' == $json[0]['@context'][1]) {
 			$_POST['native'] = 'true';
 			$_POST['action'] = 'ADD';
-			if (isset($json[0]['service']) && isset($json[0]['service']['items'])) {
-				$_POST["native"] = (isset($json[0]['service']['items']['native'])) ? $json[0]['service']['items']['native'] : false;
-				$_POST["id"] = (isset($json[0]['service']['items']['id'])) ? $json[0]['service']['items']['id'] : '';
-				$_POST["api_key"] = (isset($json[0]['service']['items']['api_key'])) ? $json[0]['service']['items']['api_key'] : '';
-				$_POST["action"] = (isset($json[0]['service']['items']['action'])) ? strtoupper($json[0]['service']['items']['action']) : '';
-				$_POST["format"] = (isset($json[0]['service']['items']['format'])) ? $json[0]['service']['items']['format'] : 'json';
+			if (isset($json[0]['service']) && isset($json[0]['service'][0]) && isset($json[0]['service'][0]['items'])) {
+				$_POST["native"] = (isset($json[0]['service'][0]['items']['native'])) ? $json[0]['service'][0]['items']['native'] : false;
+				$_POST["id"] = (isset($json[0]['service'][0]['items']['id'])) ? $json[0]['service'][0]['items']['id'] : '';
+				$_POST["api_key"] = (isset($json[0]['service'][0]['items']['api_key'])) ? $json[0]['service'][0]['items']['api_key'] : '';
+				$_POST["action"] = (isset($json[0]['service'][0]['items']['action'])) ? strtoupper($json[0]['service'][0]['items']['action']) : '';
+				$_POST["format"] = (isset($json[0]['service'][0]['items']['format'])) ? $json[0]['service'][0]['items']['format'] : 'json';
 			}
 
 		// OAC from Semantic Annotation Tool

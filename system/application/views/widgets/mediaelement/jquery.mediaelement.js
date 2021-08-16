@@ -1105,9 +1105,10 @@ function YouTubeGetID(url){
 							break;
 
 							case 'native':
-								this.mediaObjectView = new $.HTML5VideoObjectView(this.model, this);
 								if ($('.book-title').children('[data-semantic-annotation-tool="true"]').length) {
 									this.mediaObjectView = new $.SemanticAnnotationToolObjectView(this.model, this);
+								} else {
+									this.mediaObjectView = new $.HTML5VideoObjectView(this.model, this);
 								}
 							break;
 
@@ -3203,6 +3204,8 @@ function YouTubeGetID(url){
 
 				me.parentView.layoutMediaObject();
 				me.parentView.removeLoadingMessage();
+				
+				me.setupTool();
 
 			}
 
@@ -3212,44 +3215,53 @@ function YouTubeGetID(url){
 				this.video[0].attachEvent('onloadedmetadata', metadataFunc);
 			}
 
-			me.setupTool();
-
 			return;
 		}
 
 		jQuery.SemanticAnnotationToolObjectView.prototype.setupTool = function() {
 
-			var dependanciesAddress = $('link#approot').attr('href') + 'views/widgets/waldorf/';
-			var serverAddress = $('link#parent').attr('href');
+			var waldorfLocation = $('link#approot').attr('href') + 'views/widgets/waldorf/';
+			var parent = $('link#parent').attr('href');
 			var tagsAddress = "https://onomy.org/published/83/json";
 			var apiKey = "facc287b-2f51-431d-87ec-773e12302fcf";
-
-			$('head').append('<link rel="stylesheet" href="' + dependanciesAddress + 'jquery-ui-1.12.1.custom/jquery-ui.min.css" type="text/css" />');
-			$('head').append('<link rel="stylesheet" href="' + dependanciesAddress + 'select2.min.css" type="text/css" />');
-			$('head').append('<link rel="stylesheet" href="' + dependanciesAddress + 'annotator-frontend.css" type="text/css" />');
-			$.when(
-				$.getScript(dependanciesAddress + 'jquery-ui-1.12.1.custom/jquery-ui.min.js'),
-				$.getScript(dependanciesAddress + 'select2.min.js'),
-				$.getScript(dependanciesAddress + 'annotator-frontend.js')
-			).done(function(){
-
-				console.log('Booting up Waldorf');
+			// CSS files are loaded in cantaloupe/content.php
+			
+			var go = function(status) {
+				var isLoggedIn = parseInt(status[0].is_logged_in);
+				var kioskMode = (isLoggedIn) ? false : true;
+				var username = (isLoggedIn) ? status[0].fullname : '';
+				var email = (isLoggedIn) ? status[0].email : '';
 				var waldorf_callback = function(event) {
 					console.log('Waldorf callback');
 				};
-				waldorf = me.video.first().annotate({
-					serverURL: serverAddress,
+				var waldorf = me.video.first().annotate({
+					serverURL: parent,
 					tagsURL: tagsAddress,
 					apiKey: apiKey,
-					kioskMode: false,
-					cmsUsername: "Scalar Test User",
-					cmsEmail: "wahwho@yahoo.com",
+					kioskMode: kioskMode,
+					cmsUsername: username,
+					cmsEmail: email,
 					displayIndex: false,
-					callback: waldorf_callback
+					callback: waldorf_callback,
+					auth_native: true
 				});
-
-			});
-
+			}
+			
+			if ('function' == me.video.first().annotate) {
+				$.getJSON(parent + 'login_status', function(status) {
+					go(status);
+				});
+			} else {
+				$.when(
+					$.getJSON(parent + 'login_status'),
+					$.getScript(waldorfLocation + 'jquery-ui-1.12.1.custom/jquery-ui.min.js'),
+					$.getScript(waldorfLocation + 'select2.min.js'),
+					$.getScript(waldorfLocation + 'annotator-frontend-scalar.js')
+				).done(function(status){
+					go(status);
+				});
+			};
+			
 		}
 
 		jQuery.SemanticAnnotationToolObjectView.prototype.updateCriticalCommonsURLForBrowser = function() {

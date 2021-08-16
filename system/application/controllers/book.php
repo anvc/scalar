@@ -199,7 +199,7 @@ class Book extends MY_Controller {
 
 		header('Content-type: application/json');
 		if ($this->data['login']->is_logged_in) {
-			echo '{"is_logged_in":1,"is_author":'.(($this->login_is_book_admin())?'1':'0').',"user_id":'.$this->data['login']->user_id.',"fullname":"'.htmlspecialchars($this->data['login']->fullname).'"}';
+			echo '{"is_logged_in":1,"is_author":'.(($this->login_is_book_admin())?'1':'0').',"user_id":'.$this->data['login']->user_id.',"fullname":"'.htmlspecialchars($this->data['login']->fullname).'","email":"'.htmlspecialchars($this->data['login']->email).'"}';
 			exit;
 		} else {
 			die('{"is_logged_in":0}');

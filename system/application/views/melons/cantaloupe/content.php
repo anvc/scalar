@@ -29,10 +29,16 @@
 <?$this->template->add_js(path_from_file(__FILE__).'js/scalarlenses.jquery.js')?>
 <?$this->template->add_js(path_from_file(__FILE__).'js/jquery.tabbing.js')?>
 <?
-if (!empty($tklabels)):
+if (strstr($this->data['book']->title, 'data-semantic-annotation-tool="true"')) {
+	$this->template->add_css('system/application/views/widgets/waldorf/jquery-ui-1.12.1.custom/jquery-ui.min.css');
+	$this->template->add_css('system/application/views/widgets/waldorf/select2.min.css');
+	$this->template->add_css('system/application/views/widgets/waldorf/annotator-frontend.css');
+}
+
+if (!empty($tklabels)) {
 	unset($tklabels['versions']);
 	$this->template->add_js('var tklabels='.json_encode($tklabels),'embed');
-endif;
+}
 
 if (isset($plugins['thoughtmesh'])) {
 	$plugins['thoughtmesh']->get();
