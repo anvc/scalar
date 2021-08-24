@@ -411,7 +411,7 @@ function addMetadataTableForNodeToElement(node, element) {
  *
  * @param obj options, required 'url_attributes'
  */
-$.fn.slotmanager_create_slot = function(width, height, options) {
+$.fn.slotmanager_create_slot = function(width, height, options, createMediaElement = true) {
 
 	$tag = $(this);
 	//if ($tag.hasClass('inline')) return;
@@ -449,48 +449,50 @@ $.fn.slotmanager_create_slot = function(width, height, options) {
 	// Metadata resource
 	var resource = $tag.attr('resource');
 
-	// Create media element object
+  if (createMediaElement) {
+    // Create media element object
 
-	var opts = {};
+  	var opts = {};
 
-	if ( width != null ) {
-		opts.width = width;
-	}
-	if ( height != null ) {
-		opts.height = height;
-	}
+  	if ( width != null ) {
+  		opts.width = width;
+  	}
+  	if ( height != null ) {
+  		opts.height = height;
+  	}
 
-	opts.player_dir = $('link#approot').attr('href')+'static/players/';
-	opts.base_dir = scalarapi.model.urlPrefix;
-	opts.seek = annotation_url;
-	opts.chromeless = true;
+  	opts.player_dir = $('link#approot').attr('href')+'static/players/';
+  	opts.base_dir = scalarapi.model.urlPrefix;
+  	opts.seek = annotation_url;
+  	opts.chromeless = true;
 
-	// copy all other properties
-	for ( var prop in options ) {
-		opts[ prop ] = options[ prop ];
-	}
+  	// copy all other properties
+  	for ( var prop in options ) {
+  		opts[ prop ] = options[ prop ];
+  	}
 
-	//if (opts.seek && opts.seek.length) alert('[Test mode] Asking to seek: '+opts.seek);
-	$tag.data('path', url);
-	$tag.data('meta', resource);
-	$tag.mediaelement(opts);
-	// Insert media element's embed markup
+  	//if (opts.seek && opts.seek.length) alert('[Test mode] Asking to seek: '+opts.seek);
+  	$tag.data('path', url);
+  	$tag.data('meta', resource);
+  	$tag.mediaelement(opts);
+  	// Insert media element's embed markup
 
-	if (!$tag.data('mediaelement')) return false;  // mediaelement rejected the file
-	$tag.data('slot').html( $tag.data('mediaelement').getEmbedObject() );
-	$tag.data('mediaelement').model.element.addClass('caption_font');
+  	if (!$tag.data('mediaelement')) return false;  // mediaelement rejected the file
+  	$tag.data('slot').html( $tag.data('mediaelement').getEmbedObject() );
+  	$tag.data('mediaelement').model.element.addClass('caption_font');
 
-	if($tag.hasClass('wrap') && $tag.attr('data-size') != 'full'){
-		$tag.data('slot').addClass('wrapped_slot');
-		var align = $tag.data('align');
-		if(undefined == align){
-			align = 'right';
-		}
-		$tag.data('slot').addClass(align+'_slot');
-	}
-
-	return $tag;
-
+  	if($tag.hasClass('wrap') && $tag.attr('data-size') != 'full'){
+  		$tag.data('slot').addClass('wrapped_slot');
+  		var align = $tag.data('align');
+  		if(undefined == align){
+  			align = 'right';
+  		}
+  		$tag.data('slot').addClass(align+'_slot');
+  	}
+  	return $tag;
+  } else {
+    return null;
+  }
 }
 
 /**

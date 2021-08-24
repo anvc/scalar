@@ -32,6 +32,8 @@
             containingPath: null,
             containingPathNodes: [],
             elementsWithIncrementedData: [],
+            mediaSlots: [],
+            mediaSlotsByResource: {},
             pathIndex: null,
             gallery: null,
             bodyCopyWidth: null,
@@ -411,6 +413,16 @@
                 link.addClass('texteo_icon');
                 link.addClass('texteo_icon_' + mediaelement.model.node.current.mediaSource.contentType);
 
+                // add texteo icons to media links that point to already instantiated media elements
+                $('.media_link').each(function() {
+                  if ($(this) != mediaelement.model.link) {
+                    if (mediaelement == $(this).data('mediaelement')) {
+                      $(this).addClass('texteo_icon');
+                      $(this).addClass('texteo_icon_' + mediaelement.model.node.current.mediaSource.contentType);
+                    }
+                  }
+                })
+
             },
 
             handleSetState: function(event, data) {
@@ -519,9 +531,25 @@
 
             addMediaElementForLink: function(link, parent, height, baseOptions) {
 
-                var inline = link.hasClass('inline'),
-                    size = link.attr('data-size'),
-                    align = link.attr('data-align');
+              var inline = link.hasClass('inline'),
+                  size = link.attr('data-size'),
+                  align = link.attr('data-align'),
+                  resource = link.attr('resource'),
+                  usePrior = link.attr('data-use-prior') == 'true',
+                  alreadyAdded = page.mediaSlots.indexOf(resource) != -1;
+
+              var currentNode = scalarapi.model.getCurrentPageNode();
+              var options = {
+                  url_attributes: ['href', 'src'],
+                  autoplay: link.attr('data-autoplay') == 'true',
+                  solo: link.attr('data-caption') == 'none',
+                  getRelated: (typeof currentNode !== 'undefined' && $('[resource="' + currentNode.url + '"][typeof="scalar:Media"]').length > 0), // only get related content if this is a media page
+                  typeLimits: typeLimits
+              };
+              $.extend(options, baseOptions);
+
+              if (inline || !usePrior || (usePrior && !alreadyAdded)) {
+                page.mediaSlots.push(resource);
 
                 // default alignment is 'right'
                 if (align == undefined) {
@@ -532,7 +560,7 @@
                 if (page.adaptiveMedia == 'mobile') {
                     size = 'full';
 
-                    // default size is 'medium'
+                // default size is 'medium'
                 } else if (size == undefined) {
                     size = 'medium';
                 }
@@ -559,16 +587,6 @@
                   width = page.bodyCopyWidth;
                 }
 
-                var currentNode = scalarapi.model.getCurrentPageNode();
-                var options = {
-                    url_attributes: ['href', 'src'],
-                    autoplay: link.attr('data-autoplay') == 'true',
-                    solo: link.attr('data-caption') == 'none',
-                    getRelated: (typeof currentNode !== 'undefined' && $('[resource="' + currentNode.url + '"][typeof="scalar:Media"]').length > 0), // only get related content if this is a media page
-                    typeLimits: typeLimits
-                };
-                $.extend(options, baseOptions);
-
                 // media at 'full' size get a maximum height
                 if (size == 'full' || size == 'native') {
                     if (height == null) {
@@ -580,10 +598,11 @@
                 options.size = size;
 
                 // create the slot where the media will be added
-                slot = link.slotmanager_create_slot(width, height, options);
+                slot = link.slotmanager_create_slot(width, height, options, true);
 
                 // slot was successfully created
                 if (slot) {
+                    page.mediaSlotsByResource[resource] = slot;
 
                     // hide the media element until we get it fully set up (after its metadata has loaded)
                     slotDOMElement = slot.data('slot');
@@ -657,6 +676,11 @@
 
                     return slot.data('mediaelement');
                 }
+              } else {
+                slot = link.slotmanager_create_slot(0, 0, options, false);
+                var mediaelement = page.mediaSlotsByResource[resource].data('mediaelement');
+                link.data('mediaelement', mediaelement);
+              }
 
             },
 
@@ -1702,15 +1726,23 @@
                         // the media if it isn't already playing
                         var annotationURL = $(this).data('targetAnnotation');
                         if (annotationURL != null) {
-                            mediaelement.seek(mediaelement.model.initialSeekAnnotation);
-                            page.sendMessage(mediaelement, page.annotationHasMessage(mediaelement.model.initialSeekAnnotation));
-                            if ((mediaelement.model.mediaSource.contentType != 'document') && (mediaelement.model.mediaSource.contentType != 'image')) {
-                                setTimeout(function() {
-                                    if (!mediaelement.is_playing()) {
-                                        mediaelement.play();
-                                    }
-                                }, 250);
+                          var annotation;
+                          var relations = mediaelement.model.node.getRelations('annotation', 'incoming');
+                          for (var i in relations) {
+                            if (relations[i].body.url == annotationURL) {
+                              annotation = relations[i];
                             }
+                          }
+                          if (!annotation) annotation = mediaelement.model.initialSeekAnnotation;
+                          mediaelement.seek(annotation);
+                          page.sendMessage(mediaelement, page.annotationHasMessage(annotation));
+                          if ((mediaelement.model.mediaSource.contentType != 'document') && (mediaelement.model.mediaSource.contentType != 'image')) {
+                              setTimeout(function() {
+                                  if (!mediaelement.is_playing()) {
+                                      mediaelement.play();
+                                  }
+                              }, 250);
+                          }
 
                         } else if (mediaelement.is_playing()) {
                             mediaelement.pause();
@@ -1738,9 +1770,11 @@
                 var scroll_time = 750;
                 var $body = $('html,body');
 
-                //scroll to media element when link is clicked
-                if (!(($mediaelement.offset().top + $mediaelement.height()) <= (-$body.offset().top + $body.height()) &&
-                        $mediaelement.offset().top >= (-$body.offset().top))) {
+                var mediaTop = $mediaelement.offset().top;
+                var scrollTop = $body.scrollTop();
+                var halfWindowHeight = window.innerHeight * .5;
+                // scroll to media element when link is clicked
+                if (mediaTop < scrollTop || mediaTop > (scrollTop + halfWindowHeight)) {
                     $body.animate({
                         scrollTop: $mediaelement.offset().top - scroll_buffer
                     }, scroll_time);
@@ -1796,7 +1830,7 @@
                   } else {
                     visualization.empty();
                   }
-                  div.ScalarLenses({onLensResults: this.handleLensResults})
+                  div.ScalarLenses({onLensResults: this.handleLensResults});
                 });
               }
             },
@@ -2324,6 +2358,9 @@
                 $('.slot').remove();
                 $('.mediainfo').remove();
                 $('.media-page-link').remove();
+
+                page.mediaSlots = [];
+                page.mediaSlotsByResource = {};
 
                 page.clearIncrementedData();
 
@@ -3527,6 +3564,7 @@
                                     	});
                                     } else {
                                         $("#"+slugProxy).css({ "background-image": 'url("'+((key.length)?key:'')+'")' });
+                                        if (isMobile) $("#"+slugProxy).addClass('mobile');
                                     };
                                     // end set background
                                     $('#'+slugProxy).find('.sp-block__content').append('<div><a class="nav_btn primary" href="'+base_url+slug+'">Continue</a></div>')
@@ -3534,7 +3572,8 @@
                                     $("#"+slugProxy).append('<div style="visibility:hidden; clear:both; height:1px; overflow:hidden;"></div>');
                                 }
                             }
-                            okToAddExtras = true;
+                            okToAddExtras = false;
+                            page.addNotes();
                             break;
                     }
 

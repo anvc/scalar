@@ -28,6 +28,23 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 		// Options
 		var self = this;
 		var $this = $(this);
+		var body = $('iframe.cke_wysiwyg_frame').contents().find('body');
+		var resource = opts.node.slug;
+		var isInlineMedia = opts.data['text-wrap'] != null;
+		var sameMediaLinks = body.find('a[resource="'+resource+'"]');
+		var isFirstInstance = sameMediaLinks[0] == opts.element.$;
+		var instanceIndex = sameMediaLinks.index(opts.element.$);
+		var priorInstance = sameMediaLinks[0];
+		var isOnlyInstance = sameMediaLinks.length == 1;
+		if (isOnlyInstance) {
+			priorInstance = null;
+		} else {
+			sameMediaLinks.each(function(i) {
+				if (!this.getAttribute('data-use-prior') && i < instanceIndex) {
+					priorInstance = this;
+				}
+			});
+		}
 		var options = {};
 		var mediaType = '';
 		if (typeof opts.data['type'] !== 'undefined') {
@@ -126,12 +143,42 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 		if (opts.element.hasClass('wrap')) {
 			text_wrap = true;
 		}
+
+		if (!isFirstInstance && !isInlineMedia) {
+			$form.append('<div class="form-group">' +
+				'<div class="col-sm-3"></div>' +
+				'<div class="col-sm-9">The media above has previously been used on this page.</div>' +
+			'</div>' +
+			'<div class="form-group">' +
+				'<div class="col-sm-3"></div>' +
+				'<div class="col-sm-9"><label><input id="use-prior-media-checkbox" type="checkbox" checked> Use existing media instance</label>' +
+			'</div>');
+		}
+
+		if (opts.element.getAttribute('data-use-prior')) {
+			$('#use-prior-media-checkbox').prop('checked', true);
+		} else {
+			$('#use-prior-media-checkbox').prop('checked', false);
+		}
+
+		var usePriorInstance = $('#use-prior-media-checkbox').prop('checked');
+
+		$('#use-prior-media-checkbox').on('change', function() {
+			usePriorInstance = $('#use-prior-media-checkbox').prop('checked');
+			if (usePriorInstance) {
+				$('.form-group.instance-option').addClass('hidden');
+			} else {
+				$('.form-group.instance-option').removeClass('hidden');
+			}
+		})
+
 		for (var option_name in opts.data) {
 			if (option_name != 'annotations' && option_name != 'node') {
-				var $option = $('<div class="form-group"><label class="col-sm-3 control-label" style="white-space:nowrap;">' + ucwords(dash_to_space(option_name)) + '</label><div class="col-sm-9"><select class="form-control" name="' + option_name + '"></select></div></div>');
+				var $option = $('<div class="form-group instance-option"><label class="col-sm-3 control-label" style="white-space:nowrap;">' + ucwords(dash_to_space(option_name)) + '</label><div class="col-sm-9"><select class="form-control" name="' + option_name + '"></select></div></div>');
 				for (var j = 0; j < opts.data[option_name].length; j++) {
 					$option.find('select:first').append('<option value="' + opts.data[option_name][j] + '">' + (option_name == 'text-wrap' ? sentenceCase(dash_to_space(opts.data[option_name][j])) : ucwords(dash_to_space(opts.data[option_name][j]))) + '</option>');
 				}
+				if (usePriorInstance) $option.addClass('hidden');
 				$form.append($option);
 				if (option_name == 'text-wrap') {
 					$option.find('select').on('change', function() {
@@ -152,6 +199,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				}
 			}
 		}
+
 		if (text_wrap) {
 			if ($('select[name="align"]').val() == "center") {
 				$('select[name="align"]').val("left");
@@ -159,11 +207,33 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			$('select[name="align"] option[value="center"]').hide();
 		}
 		if (hasAnnotationOption) {
-			var $annotationSelection = $('<div class="annotationContainer"><div class="form-group"><div class="col-sm-3"></div><div class="col-sm-9" id="annotation-info">This media has annotations. Select which annotations (if any) you want to be displayed.<br/></div></div><div class="form-group">' +
-				'<label class="col-sm-3 control-label">Annotations</label>' +
-				'<div class="col-sm-9 annotationSelection"><div class="annotationTableWrapper"><table class="table table-fixed table-striped table-hover"><thead><tr><th class="col-xs-3 text-center">&nbsp;&nbsp;<a href="#" class="annotationSelectionShowAll text-muted"><i class="glyphicon glyphicon-eye-open"></a></th><th class="col-xs-9">Annotation Title</th></tr></thead><tbody></tbody></table></div>' +
-				'</div></div><div class="featuredAnnotation"><div class="form-group"><div class="col-sm-3"></div><div class="col-sm-9">Choose an annotation to be featured when the page loads, or select \'None\'.</div></div>' +
-				'<div class="form-group"><label class="col-sm-3 control-label">Featured</label><div class="col-sm-9"><select class="form-control"><option value="none" class="none">None</option></select></div></div>');
+			var $annotationSelection = $('<div class="annotationContainer">' +
+				'<div class="form-group">' +
+					'<div class="col-sm-3"></div>' +
+					'<div class="col-sm-9" id="annotation-info">This media has annotations. Select which annotations (if any) you want to be displayed.<br/></div>' +
+				'</div>' +
+				'<div class="form-group">' +
+					'<label class="col-sm-3 control-label">Annotations</label>' +
+					'<div class="col-sm-9 annotationSelection">' +
+						'<div class="annotationTableWrapper">' +
+							'<table class="table table-fixed table-striped table-hover">' +
+								'<thead><tr><th class="col-xs-3 text-center">&nbsp;&nbsp;<a href="#" class="annotationSelectionShowAll text-muted"><i class="glyphicon glyphicon-eye-open"></a></th><th class="col-xs-9">Annotation Title</th></tr></thead>' +
+								'<tbody></tbody>' +
+							'</table>' +
+						'</div>' +
+					'</div>' +
+				'</div>');
+
+			$annotationSelection.append('<div class="featuredAnnotation">' +
+				'<div class="form-group instance-option">' +
+					'<div class="col-sm-3"></div>' +
+					'<div class="col-sm-9">Choose an annotation to be featured when the page loads, or select \'None\'.</div>' +
+				'</div>' +
+				'<div class="form-group instance-option">' +
+					'<label class="col-sm-3 control-label">Featured</label>' +
+					'<div class="col-sm-9"><select class="form-control"><option value="none" class="none">None</option></select></div>' +
+				'</div>' +
+			'</div>');
 
 			$annotationSelection.find('.annotationSelectionShowAll').on('click', function(e) {
 				e.preventDefault();
@@ -301,16 +371,53 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				for (var i = 0; i < $selectedAnnotations.length; i++) {
 					annotations.push($selectedAnnotations.eq(i).data('slug'));
 				}
+				if (!isInlineMedia) {
+					if (usePriorInstance) {
+						// add any annnotations selected here to the prior instance
+						var instanceAnnotations = priorInstance.getAttribute('data-annotations').split(',');
+						for (var i=0; i<annotations.length; i++) {
+							if (instanceAnnotations.indexOf(annotations[i]) == -1) {
+								instanceAnnotations.push(annotations[i]);
+							}
+						}
+						priorInstance.setAttribute('data-annotations', instanceAnnotations.join(','));
+					} else {
+						// add any annotations from following media links that may depend on this instance
+						var instanceIndex = sameMediaLinks.index(opts.element.$);
+						for (var i=instanceIndex+1; i<sameMediaLinks.length; i++) {
+							if (sameMediaLinks[i].getAttribute('data-use-prior')) {
+								// note that if this is a newly created media link we don't actually know
+								// if this is a later instance or not
+								var laterInstanceAnnotations = sameMediaLinks[i].getAttribute('data-annotations').split(',');
+								for (var j=0; j<laterInstanceAnnotations.length; j++) {
+									if (annotations.indexOf(laterInstanceAnnotations[j]) == -1) {
+										annotations.push(laterInstanceAnnotations[j]);
+									}
+								}
+							} else if (instanceIndex != -1) {
+								// if this is a newly created media link don't exit (since we don't know
+								// where it's located in the dom), just grab all of
+								// the referenced annotations and add them to the link
+								break;
+							}
+						}
+					}
+				}
 				data_fields['annotations'] = annotations.length > 0 ? annotations.join(',') : '';
+
 				if ($('#bootbox-media-options-content').find('.featuredAnnotation select').val() != 'none' && $('#bootbox-media-options-content').find('.featuredAnnotation select').is(':visible')) {
 					data_fields['featured_annotation'] = $('#bootbox-media-options-content').find('.featuredAnnotation select').val();
 				}
+			}
+			if ($('#use-prior-media-checkbox').is(":checked")) {
+				data_fields['use-prior'] = true;
 			}
 			if ($form.closest('.media_options_bootbox').length) {
 				$form.closest('.media_options_bootbox').modal('hide').data('bs.modal', null);
 			} else {
 				$this.remove();
 			}
+
 			opts.callback(data_fields);
 		});
 	};
