@@ -142,7 +142,7 @@ function insert_rel_fields(current_urn, current_slug) {
         }
       }
       // References
-      if ('undefined'!=typeof(data[s]['http://purl.org/dc/terms/isReferencedBy'])) {
+      if (s==current_uri && 'undefined'!=typeof(data[s]['http://purl.org/dc/terms/isReferencedBy'])) {
       	var version = data[s]['http://purl.org/dc/terms/isReferencedBy'][0].value;
       	version = data[version]['http://scalar.usc.edu/2012/01/scalar-ns#version'][0].value;
       	fields.push({name:'has_reference',value:get_urn_from_uri(data,version)});
