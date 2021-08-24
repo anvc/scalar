@@ -68,7 +68,7 @@ class Reference_model extends MY_Model {
     	$j = 0;
     	foreach ($array as $version_urn) {
 
-    		if (isURN($version_urn)) $parent_version_id = $this->version_urn_to_version_id($version_urn);
+    		$parent_version_id = (isURN($version_urn)) ? $this->version_urn_to_version_id($version_urn) : (int) $version_urn;
     		if (empty($parent_version_id)) continue;
 
     		$reference_text = (isset($reference_text_array[$j])) ? $reference_text_array[$j] : '';
@@ -95,7 +95,7 @@ class Reference_model extends MY_Model {
 
     	for($i=0; $i<count($array); $i++) {
 
-    		if (isURN($array[$i])) $child_version_id = $this->page_urn_to_content_id($array[$i]);
+    		$child_version_id = (isURN($version_urn)) ? $this->page_urn_to_content_id($version_urn) : (int) $version_urn;
     		if (empty($child_version_id)) continue;
 
     		$reference_text = (isset($reference_array[$i])) ? trim($reference_array[$i]) : '';

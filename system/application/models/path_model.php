@@ -75,7 +75,7 @@ class Path_model extends MY_Model {
     	$j = 0;
     	foreach ($array as $version_urn) {
 
-    		if (isURN($version_urn)) $child_version_id = $this->version_urn_to_version_id($version_urn);
+    		$child_version_id = (isURN($version_urn)) ? $this->page_urn_to_content_id($version_urn) : (int) $version_urn;
     		if (empty($child_version_id)) continue;
 
     		$sort_number = (isset($sort_numbers[$j])) ? $sort_numbers[$j] : $temp_sort_number;
@@ -104,7 +104,7 @@ class Path_model extends MY_Model {
     	$count = 0;
     	foreach ($array as $version_urn) {
 
-    		if (isURN($version_urn)) $parent_version_id = $this->version_urn_to_version_id($version_urn);
+    		$parent_version_id = (isURN($version_urn)) ? $this->version_urn_to_version_id($version_urn) : (int) $version_urn;
     		if (empty($parent_version_id)) continue;
 
             $sort_number =@ (int) $sort_numbers[$count];
