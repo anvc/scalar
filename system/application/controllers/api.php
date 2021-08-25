@@ -106,7 +106,7 @@ Class Api extends CI_Controller {
  		if (empty($this->data['book'])) $this->_output_error(StatusCodes::HTTP_NOT_FOUND, 'Could not find book');
 
  		//Session login first
- 		if ($this->data['native']==='true'){
+ 		if ($this->data['native']===true || $this->data['native']==='true'){
  			$this->user = $this->api_users->do_session_login($this->data['book']->book_id);
  			if (!$this->user && $this->api_users->is_super()) $this->_output_error(StatusCodes::HTTP_UNAUTHORIZED, 'You do not have permission to modify this book');
  			if (!$this->user) $this->_output_error(StatusCodes::HTTP_UNAUTHORIZED, 'You are not logged in');
@@ -732,6 +732,73 @@ Class Api extends CI_Controller {
 
 		return $parent_id;
 	}
+	
+	private function _versions_copy_relations($old_version_id=0, $new_version_id=0, $exempt_types=array()) {
+		
+		$this->load->model('annotation_model', 'annotations');
+		$this->load->model('path_model', 'paths');
+		$this->load->model('tag_model', 'tags');
+		$this->load->model('reply_model', 'replies');
+		$this->load->model('reference_model', 'references');
+		
+		$rel_types = array_merge($this->config->item('rel'), $this->config->item('ref'));
+		foreach ($rel_types as $rel_type) {
+			if (in_array($rel_type, $exempt_types)) continue;
+			switch($rel_type) {
+				case 'annotations':
+					$children = $this->annotations->get_children($old_version_id);
+					foreach ($children as $child) {
+						$this->annotations->save_children($new_version_id, array($child->child_version_id), array($child->start_seconds), array($child->end_seconds), array($child->start_line_num), array($child->end_line_num), array($child->points), array($child->position_3d));
+					}
+					$parents = $this->annotations->get_parents($old_version_id);
+					foreach ($parents as $parent) {
+						$this->annotations->save_parents($new_version_id, array($parent->parent_version_id), array($parent->start_seconds), array($parent->end_seconds), array($parent->start_line_num), array($parent->end_line_num), array($parent->points), array($parent->position_3d));
+					}
+					break;
+				case 'paths':
+					$children = $this->paths->get_children($old_version_id);
+					foreach ($children as $child) {
+						$this->paths->save_children($new_version_id, array($child->child_version_id), array($child->sort_number));
+					}
+					$parents = $this->paths->get_parents($old_version_id);
+					foreach ($parents as $parent) {
+						$this->paths->save_parents($new_version_id, array($parent->parent_version_id), array($parent->sort_number));
+					}
+					break;
+				case 'tags':
+					$children = $this->tags->get_children($old_version_id);
+					foreach ($children as $child) {
+						$this->tags->save_children($new_version_id, array($child->child_version_id));
+					}
+					$parents = $this->tags->get_parents($old_version_id);
+					foreach ($parents as $parent) {
+						$this->tags->save_parents($new_version_id, array($parent->parent_version_id));
+					}
+					break;
+				case 'replies':
+					$children = $this->replies->get_children($old_version_id);
+					foreach ($children as $child) {
+						$this->replies->save_children($new_version_id, array($child->child_version_id), array($child->paragraph_num), array($child->datetime));
+					}
+					$parents = $this->replies->get_parents($old_version_id);
+					foreach ($parents as $parent) {
+						$this->replies->save_parents($new_version_id, array($parent->parent_version_id), array($parent->paragraph_num), array($parent->datetime));
+					}
+					break;
+				case 'references':
+					$children = $this->references->get_children($old_version_id);
+					foreach ($children as $child) {
+						$this->references->save_children($new_version_id, array($child->child_version_id), array($child->reference_text));
+					}
+					$parents = $this->references->get_parents($old_version_id);
+					foreach ($parents as $parent) {
+						$this->references->save_parents($new_version_id, array($parent->parent_version_id), array($parent->reference_text));
+					}
+					break;
+			}
+ 		}
+		
+	}
 
 	private function _fill_user_session_data(){
 		if($this->user){
@@ -792,7 +859,7 @@ Class Api extends CI_Controller {
 			$_POST['native'] = 'true';
 			$_POST['action'] = 'ADD';
 			if (isset($json[0]['service']) && isset($json[0]['service'][0]) && isset($json[0]['service'][0]['items'])) {
-				$_POST["native"] = (isset($json[0]['service'][0]['items']['native'])) ? $json[0]['service'][0]['items']['native'] : false;
+				$_POST["native"] = (isset($json[0]['service'][0]['items']['native']) && $json[0]['service'][0]['items']['native']) ? true : false;
 				$_POST["id"] = (isset($json[0]['service'][0]['items']['id'])) ? $json[0]['service'][0]['items']['id'] : '';
 				$_POST["api_key"] = (isset($json[0]['service'][0]['items']['api_key'])) ? $json[0]['service'][0]['items']['api_key'] : '';
 				$_POST["action"] = (isset($json[0]['service'][0]['items']['action'])) ? strtoupper($json[0]['service'][0]['items']['action']) : '';
@@ -841,6 +908,10 @@ Class Api extends CI_Controller {
 					$this->add(false);
 				} elseif ($annotations[$j]['action'] == 'update') {
 					$this->update(false);
+					$arr = explode(':', $this->data['scalar:urn']);
+					$old_version_id = (int) array_pop($arr);
+					$new_version_id = (int) $this->data['version_id'];
+					$this->_versions_copy_relations($old_version_id, $new_version_id, array('tags'));
 				}
 				$this->save_data = $this->data;
 				$tags = $this->iiif_object->decode_tags($json[0], $book, $j, $this->data['version_id']);

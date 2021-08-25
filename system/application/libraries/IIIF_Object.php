@@ -80,71 +80,85 @@ class IIIF_Object extends RDF_Object {
     	// Validate the book and get the page based on the item ID
     	if (empty($book) || !isset($book->book_id)) return $return;
     	$book_url = base_url() . $book->slug . '/';
-    	$page_url = urldecode($arr['items'][0]['id']);
-    	$page_slug = str_replace($book_url, '', $page_url);
-    	$page= $CI->pages->get_by_slug($book->book_id, $page_slug, true);
-    	if (empty($page)) return $return;
+    	$media_url = urldecode($arr['items'][0]['content']['id']);
+    	$content = $CI->pages->get_by_version_url($book->book_id, $media_url);
+    	if (empty($content)) {  // %20 spaces
+    		$media_url = str_replace(' ', '%20', $media_url);
+    		$content= $CI->pages->get_by_version_url($book->book_id, $media_url);
+    	}
+    	if (empty($content) && !stristr($media_url, $book_url)) {  // Could not be found
+    		return $return;
+    	}
+    	if (empty($content)) {  // Look for a relative URL
+    		$media_url = str_replace($book_url, '', $media_url);
+    		$content = $CI->pages->get_by_version_url($book->book_id, $media_url);
+    	}
+    	if (empty($content)) {
+    		$media_url = str_replace('%20', ' ', $media_url);
+    		$content = $CI->pages->get_by_version_url($book->book_id, $media_url);
+    	}
     	
-    	// Version
-    	$page->versions = array($CI->versions->get_single($page->content_id));
-    	$page->version_index = 0;
-    	if (empty($page->versions[0])) return $return;
+    	foreach ($content as $content_id => $page) {
     	
-	    foreach ($arr['items'][0]['items'] as $annotation_page) {
+	    	// Version
+	    	$page->versions = array($CI->versions->get_single($page->content_id));
+	    	$page->version_index = 0;
+	    	if (empty($page->versions[0])) return $return;
 	    	
-	    	$row = array();
+		    foreach ($arr['items'][0]['items'] as $annotation_page) {
 	    	
-	    	$annotation = $annotation_page['items'][0];
-	    	$annotation_url = $annotation['id'];
-	    	$annotation_slug = str_replace($book_url, '', $annotation_url);
-	    	$_annotation_page = $CI->pages->get_by_slug($book->book_id, $annotation_slug, true);
-	    	if (empty($_annotation_page)) {
-		    	$row['action'] = 'add';
-	    	} else {
-	    		$_annotation_page->versions = array($CI->versions->get_single($_annotation_page->content_id));
-	    		$_annotation_page->version_index = 0;
-	    		$row['action'] = 'update';
-	    		$row['scalar:urn'] = $CI->versions->urn($_annotation_page->versions[$_annotation_page->version_index]->version_id);;
-	    	}
-	    	
-	    	$row['rdf:type'] = $CI->versions->rdf_type('composite');
-	    	$row['scalar:child_type'] = $CI->versions->rdf_type('version');
-	    	$row['scalar:child_urn'] = $CI->versions->urn($page->versions[$page->version_index]->version_id);
-	    	$row['scalar:child_rel'] = 'annotated';
-	    	
-	    	$row['dcterms:creator'] = $annotation['creator']['nickname'];
-	    	$row['dcterms:identifier'] = $annotation['creator']['email_sha1'];
-	    	$row['dcterms:mediator'] = $annotation['generator'];
-	    	$row['dcterms:rights'] = $annotation['rights'];
-	    	
-	    	foreach ($annotation['body'] as $body) {
-	    		if ('describing' == $body['purpose']) {
-	    			$row['dcterms:title'] = $body['value'];
-	    			$row['dcterms:language'] = $body['language'];
-	    			$row['dcterms:format'] = $body['format'];
+		    	$row = array();
+		    	
+		    	$annotation = $annotation_page['items'][0];
+		    	$annotation_url = $annotation['id'];
+		    	$annotation_slug = str_replace($book_url, '', $annotation_url);
+		    	$_annotation_page = $CI->pages->get_by_slug($book->book_id, $annotation_slug, true);
+		    	if (empty($_annotation_page)) {
+			    	$row['action'] = 'add';
+		    	} else {
+		    		$_annotation_page->versions = array($CI->versions->get_single($_annotation_page->content_id));
+		    		$_annotation_page->version_index = 0;
+		    		$row['action'] = 'update';
+		    		$row['scalar:urn'] = $CI->versions->urn($_annotation_page->versions[$_annotation_page->version_index]->version_id);;
 		    	}
-	    	}
-	    	
-	    	foreach ($annotation['target']['selector'] as $target) {
-	    		if ('FragmentSelector' == $target['type']) {
-	    			$value = $target['value'];
-	    			$value = str_replace('npt:', '', $value);
-	    			$value_arr = explode('=', $value);
-	    			$value = $value_arr[1];
-	    			$value_arr = explode(',', $value);
-	    			$row['scalar:start_seconds'] = $value_arr[0];
-	    			$row['scalar:end_seconds'] = $value_arr[1];
-	    			if (isset($target['refinedBy'])) {
-	    				$value = $target['refinedBy']['value'];
-	    				$row['dcterms:spatial'] = $value;
-	    			}
-	    		}
-	    	}
-	    	
-	    	$return[] = $row;
-	    	
-	    }
-	    	
+		    	
+		    	$row['rdf:type'] = $CI->versions->rdf_type('composite');
+		    	$row['scalar:child_type'] = $CI->versions->rdf_type('version');
+		    	$row['scalar:child_urn'] = $CI->versions->urn($page->versions[$page->version_index]->version_id);
+		    	$row['scalar:child_rel'] = 'annotated';
+		    	
+		    	$row['dcterms:creator'] = $annotation['creator']['nickname'];
+		    	$row['dcterms:identifier'] = $annotation['creator']['email_sha1'];
+		    	$row['dcterms:mediator'] = $annotation['generator'];
+		    	$row['dcterms:rights'] = $annotation['rights'];
+	
+		    	foreach ($annotation['body'] as $body) {
+		    		if ('describing' == $body['purpose']) {
+		    			$row['dcterms:title'] = $body['value'];
+		    			$row['dcterms:language'] = $body['language'];
+		    			$row['dcterms:format'] = $body['format'];
+			    	}
+		    	}
+		    	
+		    	$target = $annotation['target']['selector'];
+		    	$value = $target['value'];
+		    	$value = str_replace('npt:', '', $value);
+		    	$value_arr = explode('=', $value);
+		    	$value = $value_arr[1];
+		    	$value_arr = explode(',', $value);
+		    	$row['scalar:start_seconds'] = $value_arr[0];
+		    	$row['scalar:end_seconds'] = $value_arr[1];
+		    	if (isset($target['refinedBy'])) {
+		    		$value = $target['refinedBy']['value'];
+		    		$row['dcterms:spatial'] = $value;
+		    	}
+		    	
+		    	$return[] = $row;
+		    	
+		    }
+		    
+    	}
+		    	
 	    return $return;
 	    	
     	
@@ -157,7 +171,6 @@ class IIIF_Object extends RDF_Object {
     	if (!isset($CI->versions) || 'object'!=gettype($CI->versions)) $CI->load->model('version_model','versions');
     	$return = array();
     	
-    	// Validate the book and get the page based on the item ID
     	if (empty($book) || !isset($book->book_id)) return $return;
     	$book_url = base_url() . $book->slug . '/';
     	
@@ -174,7 +187,7 @@ class IIIF_Object extends RDF_Object {
     		$row['scalar:child_rel'] = 'tagged';
     		
 	    	if ('tagging' == $body['purpose'] && 'SpecificResource' == $body['type']) {  // Complex tag
-	    		
+
 	    		foreach ($body['source']['label'] as $language => $title) {
 	    			$row['dcterms:title'] = $title;
 	    			$row['dcterms:language'] = $language;
