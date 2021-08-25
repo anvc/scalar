@@ -275,7 +275,7 @@ Other supported formats: 3gp, aif, flv, mov, mpg, oga, tif, webm<br />
 		<label><input type="radio" name="name_policy" value="title" CHECKED />&nbsp; Create from title</label>
 	</td></tr>
 	<tr><td class="field">Replace existing</td><td>
-		<select name="replace" class="form-control" style="max-width:570px;"><option rel="" value="">-- choose an existing local media file to replace with this upload</option><?
+		<select name="replace" class="form-control" style="max-width:570px;"><option rel="" value="">Choose an existing local media file to replace...</option><?
 	  	foreach($book_media as $book_media_row) {
 	  		if (!isset($book_media_row->versions) || empty($book_media_row->versions)) continue;
 	  		if (!isset($book_media_row->versions[0])) continue;
