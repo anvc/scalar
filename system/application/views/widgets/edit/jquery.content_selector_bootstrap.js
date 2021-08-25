@@ -32,10 +32,10 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 		var resource = opts.node.slug;
 		var isInlineMedia = opts.data['text-wrap'] != null;
 		var sameMediaLinks = body.find('a[resource="'+resource+'"]');
-		var isFirstInstance = sameMediaLinks[0] == opts.element.$;
+		var isFirstInstance = (sameMediaLinks[0] == opts.element.$) || (sameMediaLinks.length == 0);
 		var instanceIndex = sameMediaLinks.index(opts.element.$);
 		var priorInstance = sameMediaLinks[0];
-		var isOnlyInstance = sameMediaLinks.length == 1;
+		var isOnlyInstance = sameMediaLinks.length == 1 && isFirstInstance;
 		if (isOnlyInstance) {
 			priorInstance = null;
 		} else {
@@ -225,11 +225,11 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 				'</div>');
 
 			$annotationSelection.append('<div class="featuredAnnotation">' +
-				'<div class="form-group instance-option">' +
+				'<div class="form-group">' +
 					'<div class="col-sm-3"></div>' +
-					'<div class="col-sm-9">Choose an annotation to be featured when the page loads, or select \'None\'.</div>' +
+					'<div class="col-sm-9">Choose an annotation to be featured, or select \'None\'.</div>' +
 				'</div>' +
-				'<div class="form-group instance-option">' +
+				'<div class="form-group">' +
 					'<label class="col-sm-3 control-label">Featured</label>' +
 					'<div class="col-sm-9"><select class="form-control"><option value="none" class="none">None</option></select></div>' +
 				'</div>' +
