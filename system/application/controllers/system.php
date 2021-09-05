@@ -524,6 +524,8 @@ class System extends MY_Controller {
 		 			unset($array['back_to_book']);
 		 			unset($array['action']);
 		 			unset($array['zone']);
+		 			unset($array['sat-tax']);
+		 			unset($array['sat-lang']);
 		 			$dont_save_versions = isset($array['dont_save_versions']) ? true : false;
 		 			if (isset($array['dont_save_versions'])) unset($array['dont_save_versions']);
 		 			$_array = $this->books->save($array);

@@ -248,7 +248,7 @@ Class Api extends CI_Controller {
 	 * This may be an unexpected behavior, but is kept this way because the API ignores not live content
 	 * and should not have permission to truly delete anything
 	 */
-	public function delete($set_live_to=false){
+	public function delete($set_live_to=false, $output=true){
 		//load models
 		$this->load->model('page_model', 'pages');
 		$this->load->model('version_model', 'versions');
@@ -267,7 +267,7 @@ Class Api extends CI_Controller {
 		$row = $this->versions->get($this->data['version_id']);
 		$this->data['content'] = array($this->versions->get_uri($this->data['version_id'])=>$this->versions->rdf($row));
 
-		$this->_output();
+		if ($output) $this->_output();
 	}
 
 	/**
@@ -906,6 +906,8 @@ Class Api extends CI_Controller {
 				$this->data = array();
 				if ($annotations[$j]['action'] == 'add') {
 					$this->add(false);
+				} elseif ($annotations[$j]['action'] == 'delete') {
+					$this->delete(false, false);
 				} elseif ($annotations[$j]['action'] == 'update') {
 					$this->update(false);
 					$arr = explode(':', $this->data['scalar:urn']);
@@ -914,17 +916,19 @@ Class Api extends CI_Controller {
 					$this->_versions_copy_relations($old_version_id, $new_version_id, array('tags'));
 				}
 				$this->save_data = $this->data;
-				$tags = $this->iiif_object->decode_tags($json[0], $book, $j, $this->data['version_id']);
-				for ($k = 0; $k < count($tags); $k++) {
-					$_POST = $tags[$k];
-					$this->data = array();
-					if ($tags[$k]['action'] == 'add') {
-						$this->add(false);
-					} else {
-						$this->relate(false);
+				if ($annotations[$j]['action'] != 'delete') {
+					$tags = $this->iiif_object->decode_tags($json[0], $book, $j, $this->data['version_id']);
+					for ($k = 0; $k < count($tags); $k++) {
+						$_POST = $tags[$k];
+						$this->data = array();
+						if ($tags[$k]['action'] == 'add') {
+							$this->add(false);
+						} else {
+							$this->relate(false);
+						}
 					}
+					$this->data = $this->save_data;
 				}
-				$this->data = $this->save_data;
 				$this->_output();
 				exit;  // There will only be one annotation to save
 			}

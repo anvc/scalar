@@ -1105,7 +1105,7 @@ function YouTubeGetID(url){
 							break;
 
 							case 'native':
-								if ($('.book-title').children('[data-semantic-annotation-tool="true"]').length) {
+								if ($('.book-title').children('[data-semantic-annotation-tool]').length) {
 									this.mediaObjectView = new $.SemanticAnnotationToolObjectView(this.model, this);
 								} else {
 									this.mediaObjectView = new $.HTML5VideoObjectView(this.model, this);
@@ -3220,10 +3220,12 @@ function YouTubeGetID(url){
 
 		jQuery.SemanticAnnotationToolObjectView.prototype.setupTool = function() {
 
+			var sat_values = $('.book-title').children('[data-semantic-annotation-tool]').attr('data-semantic-annotation-tool');
+			var sat_arr = sat_values.split(',');
+			var sat_address = sat_arr[0];
+			var sat_language = ('undefined' != typeof(sat_arr[1])) ? sat_arr[1] : 'en';
 			var waldorfLocation = $('link#approot').attr('href') + 'views/widgets/waldorf/';
 			var parent = $('link#parent').attr('href');
-			var tagsAddress = "https://onomy.org/published/83/json";
-			var apiKey = "facc287b-2f51-431d-87ec-773e12302fcf";
 			// CSS files are loaded in cantaloupe/content.php
 			
 			var go = function(status) {
@@ -3236,14 +3238,13 @@ function YouTubeGetID(url){
 				};
 				var waldorf = me.video.first().annotate({
 					serverURL: parent,
-					tagsURL: tagsAddress,
-					apiKey: apiKey,
+					tagsURL: sat_address,
+					onomyLanguage: sat_language,
 					kioskMode: kioskMode,
 					cmsUsername: username,
 					cmsEmail: email,
 					displayIndex: false,
-					callback: waldorf_callback,
-					auth_native: true
+					callback: waldorf_callback
 				});
 			}
 			

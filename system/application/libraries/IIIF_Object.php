@@ -110,16 +110,26 @@ class IIIF_Object extends RDF_Object {
 		    	$row = array();
 		    	
 		    	$annotation = $annotation_page['items'][0];
-		    	$annotation_url = $annotation['id'];
-		    	$annotation_slug = str_replace($book_url, '', $annotation_url);
-		    	$_annotation_page = $CI->pages->get_by_slug($book->book_id, $annotation_slug, true);
-		    	if (empty($_annotation_page)) {
+		    	$annotation_url = (isset($annotation['id'])) ? $annotation['id'] : '';
+		    	if (empty($annotation_url)) {
+		    		$_annotation_page = null;
+		    	} else {
+			    	$annotation_slug = str_replace($book_url, '', $annotation_url);
+			    	$_annotation_page = $CI->pages->get_by_slug($book->book_id, $annotation_slug, true);
+		    	}
+		    	
+		    	if (isset($arr['service'][0]['items']['action']) && strtolower($arr['service'][0]['items']['action']) == 'delete') {
+		    		$_annotation_page->versions = array($CI->versions->get_single($_annotation_page->content_id));
+		    		$_annotation_page->version_index = 0;
+		    		$row['action'] = 'delete';
+		    		$row['scalar:urn'] = $CI->versions->urn($_annotation_page->versions[$_annotation_page->version_index]->version_id);
+		    	} elseif (empty($_annotation_page)) {
 			    	$row['action'] = 'add';
 		    	} else {
 		    		$_annotation_page->versions = array($CI->versions->get_single($_annotation_page->content_id));
 		    		$_annotation_page->version_index = 0;
 		    		$row['action'] = 'update';
-		    		$row['scalar:urn'] = $CI->versions->urn($_annotation_page->versions[$_annotation_page->version_index]->version_id);;
+		    		$row['scalar:urn'] = $CI->versions->urn($_annotation_page->versions[$_annotation_page->version_index]->version_id);
 		    	}
 		    	
 		    	$row['rdf:type'] = $CI->versions->rdf_type('composite');

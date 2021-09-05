@@ -29,7 +29,7 @@
 <?$this->template->add_js(path_from_file(__FILE__).'js/scalarlenses.jquery.js')?>
 <?$this->template->add_js(path_from_file(__FILE__).'js/jquery.tabbing.js')?>
 <?
-if (strstr($this->data['book']->title, 'data-semantic-annotation-tool="true"')) {
+if (strstr($this->data['book']->title, 'data-semantic-annotation-tool')) {
 	$this->template->add_css('system/application/views/widgets/waldorf/jquery-ui-1.12.1.custom/jquery-ui.min.css');
 	$this->template->add_css('system/application/views/widgets/waldorf/select2.min.css');
 	$this->template->add_css('system/application/views/widgets/waldorf/annotator-frontend.css');

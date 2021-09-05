@@ -96,11 +96,11 @@ $(document).ready(function() {
     };
     title_init_values();
     $('input[name="title"]').trigger('change', title_init_values);
-	$('#duplicatable,#hide-versions,#joinable,#hypothesis,#thoughtmesh,#semantic-annotation-tool,#auto-approve,#email-authors').on('change', function() {
+	$('#duplicatable,#hide-versions,#joinable,#hypothesis,#thoughtmesh,#auto-approve,#email-authors').on('change', function() {
 		var $title = $('<div>'+$('input[name="title"]').val()+'</div>');
 		if (!$title.children(':first').is('span')) $title.contents().wrap('<span></span>');
 		var $span = $title.children(':first');
-		var prop_arr = ['duplicatable', 'hide-versions', 'joinable', 'hypothesis', 'thoughtmesh', 'semantic-annotation-tool', 'auto-approve','email-authors'];
+		var prop_arr = ['duplicatable', 'hide-versions', 'joinable', 'hypothesis', 'thoughtmesh', 'auto-approve','email-authors'];
 		for (var j in prop_arr) {
 			var prop = prop_arr[j];
 			var make_true = ($('#'+prop).is(':checked')) ? true : false;
@@ -110,6 +110,46 @@ $(document).ready(function() {
 				$span.removeAttr('data-'+prop);
 			}
 		}
+		if($title.children(':first').is('span') && !$title.children(':first').get(0).attributes.length) {
+			$title.children(':first').contents().unwrap();
+		}
+		$('input[name="title"]').val( $title.html() );
+	});
+	var $title = $('<div>'+$('input[name="title"]').val()+'</div>');
+	var sat_value = ('undefined'!=typeof($title.children(":first").attr('data-semantic-annotation-tool'))) ? $title.children(":first").attr('data-semantic-annotation-tool') : null;
+	if (sat_value != null) {
+		var arr = sat_value.split(',');
+		var onomy_url = arr[0];
+		var language = ('undefined'!=typeof(arr[1])) ? arr[1] : 'en';
+		$('input[name="sat-tax"]').val(onomy_url);
+		$('select[name="sat-lang"]').val(language);
+	}
+	$('#semantic-annotation-tool').on('change', function() {
+		var $title = $('<div>'+$('input[name="title"]').val()+'</div>');
+		if (!$title.children(':first').is('span')) $title.contents().wrap('<span></span>');
+		var $span = $title.children(':first');
+		var make_true = ($('#semantic-annotation-tool').is(':checked')) ? true : false;
+		if (make_true) {
+			var value = '';
+			value += $('input[name="sat-tax"]').val();
+			value += ','+$('select[name="sat-lang"]').val();
+			$span.attr('data-semantic-annotation-tool', value);
+		} else {
+			$span.removeAttr('data-semantic-annotation-tool');
+		}
+		if($title.children(':first').is('span') && !$title.children(':first').get(0).attributes.length) {
+			$title.children(':first').contents().unwrap();
+		}
+		$('input[name="title"]').val( $title.html() );
+	});
+	$('input[name="sat-tax"], select[name="sat-lang"]').on('change', function() {
+		var $title = $('<div>'+$('input[name="title"]').val()+'</div>');
+		if (!$title.children(':first').is('span')) $title.contents().wrap('<span></span>');
+		var $span = $title.children(':first');
+		var value = '';
+		value += $('input[name="sat-tax"]').val();
+		value += ','+$('select[name="sat-lang"]').val();
+		$span.attr('data-semantic-annotation-tool', value);
 		if($title.children(':first').is('span') && !$title.children(':first').get(0).attributes.length) {
 			$title.children(':first').contents().unwrap();
 		}
@@ -319,8 +359,10 @@ function select_versions() {
 		  <div class="checkbox">
 		    <label>
 		      <input type="checkbox" id="semantic-annotation-tool" value="1">
-		      Use <a href="http://mediaecology.dartmouth.edu/" target="_blank">MEP</a>'s 
-		      <a href="http://mediaecology.dartmouth.edu/wp/projects/technology/the-semantic-annotation-tool" target="_blank">Semantic Annotation Tool</a> rather than the browser's player for HTML5 videos
+		      Use <a href="http://mediaecology.dartmouth.edu/" target="_blank">MEP</a>'s <a href="http://mediaecology.dartmouth.edu/wp/projects/technology/the-semantic-annotation-tool" target="_blank">Semantic Annotation Tool</a> rather than the browser's player for HTML5 videos
+		      <div style="margin-top:4px;margin-bottom:0px;">Tag taxonomy URL: <input type="text" name="sat-tax" value="https://onomy.org/published/83/json" style="width:250px;" /> &nbsp; <span style="white-space:nowrap;">Tag taxonomy language: 
+		      <select name="sat-lang" style="width:100px;"><option value="ab">Abkhaz</option><option value="aa">Afar</option><option value="af">Afrikaans</option><option value="ak">Akan</option><option value="sq">Albanian</option><option value="am">Amharic</option><option value="ar">Arabic</option><option value="an">Aragonese</option><option value="hy">Armenian</option><option value="as">Assamese</option><option value="av">Avaric</option><option value="ae">Avestan</option><option value="ay">Aymara</option><option value="az">Azerbaijani</option><option value="bm">Bambara</option><option value="ba">Bashkir</option><option value="eu">Basque</option><option value="be">Belarusian</option><option value="bn">Bengali; Bangla</option><option value="bh">Bihari</option><option value="bi">Bislama</option><option value="bs">Bosnian</option><option value="br">Breton</option><option value="bg">Bulgarian</option><option value="my">Burmese</option><option value="ca">Catalan; Valencian</option><option value="ch">Chamorro</option><option value="ce">Chechen</option><option value="ny">Chichewa; Chewa; Nyanja</option><option value="zh">Chinese</option><option value="cv">Chuvash</option><option value="kw">Cornish</option><option value="co">Corsican</option><option value="cr">Cree</option><option value="hr">Croatian</option><option value="cs">Czech</option><option value="da">Danish</option><option value="dv">Divehi; Dhivehi; Maldivian;</option><option value="nl">Dutch</option><option value="dz">Dzongkha</option><option value="en" selected>English</option><option value="eo">Esperanto</option><option value="et">Estonian</option><option value="ee">Ewe</option><option value="fo">Faroese</option><option value="fj">Fijian</option><option value="fi">Finnish</option><option value="fr">French</option><option value="ff">Fula; Fulah; Pulaar; Pular</option><option value="gl">Galician</option><option value="ka">Georgian</option><option value="de">German</option><option value="el">Greek, Modern</option><option value="gn">Guaraní</option><option value="gu">Gujarati</option><option value="ht">Haitian; Haitian Creole</option><option value="ha">Hausa</option><option value="he">Hebrew (modern)</option><option value="hz">Herero</option><option value="hi">Hindi</option><option value="ho">Hiri Motu</option><option value="hu">Hungarian</option><option value="ia">Interlingua</option><option value="id">Indonesian</option><option value="ie">Interlingue</option><option value="ga">Irish</option><option value="ig">Igbo</option><option value="ik">Inupiaq</option><option value="io">Ido</option><option value="is">Icelandic</option><option value="it">Italian</option><option value="iu">Inuktitut</option><option value="ja">Japanese</option><option value="jv">Javanese</option><option value="kl">Kalaallisut, Greenlandic</option><option value="kn">Kannada</option><option value="kr">Kanuri</option><option value="ks">Kashmiri</option><option value="kk">Kazakh</option><option value="km">Khmer</option><option value="ki">Kikuyu, Gikuyu</option><option value="rw">Kinyarwanda</option><option value="ky">Kyrgyz</option><option value="kv">Komi</option><option value="kg">Kongo</option><option value="ko">Korean</option><option value="ku">Kurdish</option><option value="kj">Kwanyama, Kuanyama</option><option value="la">Latin</option><option value="lb">Luxembourgish, Letzeburgesch</option><option value="lg">Ganda</option><option value="li">Limburgish, Limburgan, Limburger</option><option value="ln">Lingala</option><option value="lo">Lao</option><option value="lt">Lithuanian</option><option value="lu">Luba-Katanga</option><option value="lv">Latvian</option><option value="gv">Manx</option><option value="mk">Macedonian</option><option value="mg">Malagasy</option><option value="ms">Malay</option><option value="ml">Malayalam</option><option value="mt">Maltese</option><option value="mi">M�ori</option><option value="mr">Marathi (Mar�ṭhī)</option><option value="mh">Marshallese</option><option value="mn">Mongolian</option><option value="na">Nauru</option><option value="nv">Navajo, Navaho</option><option value="nb">Norwegian Bokmål</option><option value="nd">North Ndebele</option><option value="ne">Nepali</option><option value="ng">Ndonga</option><option value="nn">Norwegian Nynorsk</option><option value="no">Norwegian</option><option value="ii">Nuosu</option><option value="nr">South Ndebele</option><option value="oc">Occitan</option><option value="oj">Ojibwe, Ojibwa</option><option value="cu">Old Church Slavonic, Church Slavic, Church Slavonic, Old Bulgarian, Old Slavonic</option><option value="om">Oromo</option><option value="or">Oriya</option><option value="os">Ossetian, Ossetic</option><option value="pa">Panjabi, Punjabi</option><option value="pi">P�li</option><option value="fa">Persian (Farsi)</option><option value="pl">Polish</option><option value="ps">Pashto, Pushto</option><option value="pt">Portuguese</option><option value="qu">Quechua</option><option value="rm">Romansh</option><option value="rn">Kirundi</option><option value="ro">Romanian, [])</option><option value="ru">Russian</option><option value="sa">Sanskrit (Sa�skṛta)</option><option value="sc">Sardinian</option><option value="sd">Sindhi</option><option value="se">Northern Sami</option><option value="sm">Samoan</option><option value="sg">Sango</option><option value="sr">Serbian</option><option value="gd">Scottish Gaelic; Gaelic</option><option value="sn">Shona</option><option value="si">Sinhala, Sinhalese</option><option value="sk">Slovak</option><option value="sl">Slovene</option><option value="so">Somali</option><option value="st">Southern Sotho</option><option value="es">Spanish; Castilian</option><option value="su">Sundanese</option><option value="sw">Swahili</option><option value="ss">Swati</option><option value="sv">Swedish</option><option value="ta">Tamil</option><option value="te">Telugu</option><option value="tg">Tajik</option><option value="th">Thai</option><option value="ti">Tigrinya</option><option value="bo">Tibetan Standard, Tibetan, Central</option><option value="tk">Turkmen</option><option value="tl">Tagalog</option><option value="tn">Tswana</option><option value="to">Tonga (Tonga Islands)</option><option value="tr">Turkish</option><option value="ts">Tsonga</option><option value="tt">Tatar</option><option value="tw">Twi</option><option value="ty">Tahitian</option><option value="ug">Uyghur, Uighur</option><option value="uk">Ukrainian</option><option value="ur">Urdu</option><option value="uz">Uzbek</option><option value="ve">Venda</option><option value="vi">Vietnamese</option><option value="vo">Volapük</option><option value="wa">Walloon</option><option value="cy">Welsh</option><option value="wo">Wolof</option><option value="fy">Western Frisian</option><option value="xh">Xhosa</option><option value="yi">Yiddish</option><option value="yo">Yoruba</option><option value="za">Zhuang, Chuang</option><option value="zu">Zulu</option></select>
+		      </span></div>
 		    </label>
 		  </div>
         </div>
