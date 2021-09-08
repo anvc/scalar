@@ -631,12 +631,14 @@ window.scalarvis = { instanceCount: -1 };
       if (base.options.content == 'current') {
         return true;
       } else if (base.options.content == 'lens') {
-        let items = base.options.lens.components[0]["content-selector"].items;
-        if (items) {
-          if (base.options.lens.components[0]['content-selector'].type == 'specific-items' && items.length == 1) {
-            if (base.currentNode) {
-              if (items[0] == base.currentNode.slug) {
-                return true;
+        if (base.options.lens.components.length > 0) {
+          let items = base.options.lens.components[0]["content-selector"].items;
+          if (items) {
+            if (base.options.lens.components[0]['content-selector'].type == 'specific-items' && items.length == 1) {
+              if (base.currentNode) {
+                if (items[0] == base.currentNode.slug) {
+                  return true;
+                }
               }
             }
           }
