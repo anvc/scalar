@@ -1956,9 +1956,9 @@
                 include<span class="caret"></span>
               </button>
               <ul id="operator-list" class="dropdown-menu filter-by-content"></ul>
-              <span style="margin-left:10px;vertical-align:middle;"> this text:</span>
             </div>
           </div>
+          <p class="filter-text-desc">this case-insensitive text:</p>
           <div class="row">
             <input id="content-input" type="text" class="form-control" aria-label="..." placeholder="Enter text" style="max-width:300px;margin:10px auto 0;" required>
           </div>
@@ -1973,8 +1973,8 @@
         '<li><a tabindex="-1"></a></li>',
         [
           {label: "contain", value: "inclusive"},
-          {label: "don’t contain", value: "exclusive"},
-          {label: "case-insensitive match", value: "exact-match"}
+          {label: "contain (whole words only)", value: "exact-match"},
+          {label: "don’t contain", value: "exclusive"}
         ]);
 
       $('#content-input').val(filterObj.content).on('change', onClick);
@@ -2156,9 +2156,10 @@
               <div class="btn-group"><button type="button" id="operator-button" class="btn btn-default btn-md dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" value"">
                   includes<span class="caret"></span></button>
                 <ul id="operator-list" class="dropdown-menu"></ul>
-                <span style="margin-left:10px;vertical-align:middle;"> this text:</span>
+                <span style="margin-left:10px;vertical-align:middle;"></span>
               </div>
             </div>
+            <p class="filter-text-desc">this case-insensitive text:</p>
             <div class="row">
               <input type="text" id="metadata-content" type="number" min="0" max="5" class="form-control metadataContent" aria-label="..." placeholder="Enter text">
             </div>
@@ -2193,8 +2194,8 @@
         '<li><a tabindex="-1"></a></li>',
         [
           {label: "contain", value: "inclusive"},
-          {label: "don’t contain", value: "exclusive"},
-          {label: "case-insensitive match", value: "exact-match"}
+          {label: "contain (whole words only)", value: "exact-match"},
+          {label: "don’t contain", value: "exclusive"}
         ]);
 
       // save metadata content value

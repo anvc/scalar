@@ -1749,8 +1749,12 @@ input.validation-error {
 	border:3px solid lightgrey;
 	padding:15px;
 }
-.filter-text-desc {
+.filter-text-desc:first-child {
 	margin-top:0 !important;
+	margin-bottom: 1rem;
+}
+p.filter-text-desc {
+	margin-bottom: 0;
 }
 #filterQuantityValue .error {
 	border:1px solid red;
