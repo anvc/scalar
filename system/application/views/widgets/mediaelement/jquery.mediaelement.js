@@ -132,22 +132,6 @@ function YouTubeGetID(url){
 		 * Pauses playback of time-based media.
 		 */
 		this.pause = function() {
-			// images always return isPlaying = true, so when an annotation link is clicked it will
-			// always try to "pause" the image; here we intercept those calls and show the image annotation instead
-			if (this.model.mediaSource.contentType == 'image') {
-				var annotationNode = scalarapi.model.nodesByURL[this.model.options.seek];
-				if (annotationNode != undefined) {
-					var annotations = annotationNode.getRelations('annotation', 'outgoing', 'index');
-					var i;
-					var n = annotations.length;
-					for (i=0; i<n; i++) {
-						if (this.model.node == annotations[i].target) {
-							this.view.seek(annotations[i]);
-							break;
-						}
-					}
-				}
-			}
 			this.view.pause();
 		}
 
@@ -3204,7 +3188,7 @@ function YouTubeGetID(url){
 
 				me.parentView.layoutMediaObject();
 				me.parentView.removeLoadingMessage();
-				
+
 				me.setupTool();
 
 			}
@@ -3227,7 +3211,7 @@ function YouTubeGetID(url){
 			var waldorfLocation = $('link#approot').attr('href') + 'views/widgets/waldorf/';
 			var parent = $('link#parent').attr('href');
 			// CSS files are loaded in cantaloupe/content.php
-			
+
 			var go = function(status) {
 				var isLoggedIn = parseInt(status[0].is_logged_in);
 				var kioskMode = (isLoggedIn) ? false : true;
@@ -3247,7 +3231,7 @@ function YouTubeGetID(url){
 					callback: waldorf_callback
 				});
 			}
-			
+
 			if ('function' == me.video.first().annotate) {
 				$.getJSON(parent + 'login_status', function(status) {
 					go(status);
@@ -3262,7 +3246,7 @@ function YouTubeGetID(url){
 					go(status);
 				});
 			};
-			
+
 		}
 
 		jQuery.SemanticAnnotationToolObjectView.prototype.updateCriticalCommonsURLForBrowser = function() {
