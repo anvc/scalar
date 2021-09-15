@@ -54,14 +54,14 @@
       };
 
       this.ontologyOptions = {
-        "dcterms":"Dublin Core",
-        "art":"Artstor",
+        "dcterms":"Dublin Core (dcterms)",
+        "art":"Artstor (art)",
         "iptc":"IPTC",
         "bibo":"BIBO",
         "id3":"ID3",
-        "dwc":"Darwin Core",
-        "vra":"VRA Ontology",
-        "cp":"Common Place",
+        "dwc":"Darwin Core (dwc)",
+        "vra":"VRA Ontology (vra)",
+        "cp":"Common Place (cp)",
         "gpano": "gpano",
         "scalar": "Scalar",
         "sioc": "SIOC",
