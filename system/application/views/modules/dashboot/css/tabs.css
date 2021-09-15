@@ -35,9 +35,10 @@ label, small, th {color:#777777;}
 }
 .thumb-wrapper {background-color:#eeeeee; border-radius:4px; margin:6px 12px 0px 0px; padding:8px 13px 8px 13px; display:inline-block;}
 .thumb-wrapper img {max-width:120px; max-height:120px; vertical-align:top;}
-.showme {visibility:hidden;} 
+.showme {visibility:hidden;}
 .has-feedback .form-control-feedback {color:#999999; cursor:pointer; pointer-events:initial;}
 #properties_form small {padding-top:9px; padding-bottom:10px; display:inline-block;}
+#properties_form label small {padding-top: 0; padding-bottom:10px; display:inline-block;}
 
 header .dropdown {display:inline-block;}
 header nav {text-align:left; padding-top:0px;}
@@ -45,7 +46,7 @@ header nav h5 {font-weight:normal;}
 header h4 {margin-bottom:0px;}
 header h5 {margin-bottom:14px;}
 @media (min-width:768px) {
-	header nav {text-align:right; padding-top:6px;} 
+	header nav {text-align:right; padding-top:6px;}
 	header h4, header h5 {margin-bottom:10px;}
 }
 .dropdown > a {color:inherit; text-decoration:none;}
@@ -108,15 +109,15 @@ header h5 {margin-bottom:14px;}
 .message-pane { border-radius: 5px; border: 1px solid #dedede; padding: 20px; font-size: 18px; color: #686868; line-height: 130%; }
 .message-pane.dark { background-color: #f9f9f9; }
 .editorial-gauge { width: 100%; height: 40px; }
-.editorial-fragment { 
-	height: 40px; 
-	display: inline-block; 
-	cursor: default; 
-	color: white; 
-	line-height: 40px; 
-	text-align: center; 
-	font-size: 14px; 
-	overflow: hidden; 
+.editorial-fragment {
+	height: 40px;
+	display: inline-block;
+	cursor: default;
+	color: white;
+	line-height: 40px;
+	text-align: center;
+	font-size: 14px;
+	overflow: hidden;
 	white-space: nowrap;
 	text-decoration: none;
 }
@@ -143,12 +144,12 @@ header h5 {margin-bottom:14px;}
 .strong_password_strong {background-color:#6df977;}
 
 /* (tablets, 768px and up) */
-@media (min-width: 768px) { 
+@media (min-width: 768px) {
 	.bgcolor { padding-left:40px; padding-right:40px; }
 	header { padding-top:22px; }
 }
 
 /* Medium devices (desktops, 992px and up) */
-@media (min-width: 992px) {	
+@media (min-width: 992px) {
 	body { margin: 0px 70px 0px 70px; }
 }
