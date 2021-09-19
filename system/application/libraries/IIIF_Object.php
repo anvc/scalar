@@ -213,7 +213,7 @@ class IIIF_Object extends RDF_Object {
 	    		
 	    		$row['dcterms:title'] = $body['value'];
 	    		
-	    		$_tag_pages = $CI->versions->get_by_predicate($book->book_id, 'dcterms:title', false, null, $row['dcterms:title'], false);
+	    		$_tag_pages = $CI->versions->get_by_predicate($book->book_id, 'dcterms:title', false, null, $row['dcterms:title'], true);
 	    		
 	    	} else {
 	    		continue;

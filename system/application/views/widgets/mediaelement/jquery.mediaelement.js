@@ -3206,7 +3206,7 @@ function YouTubeGetID(url){
 
 			var sat_values = $('.book-title').children('[data-semantic-annotation-tool]').attr('data-semantic-annotation-tool');
 			var sat_arr = sat_values.split(',');
-			var sat_address = sat_arr[0];
+			var sat_address = (sat_arr[0].length) ? sat_arr[0] : 'https://onomy.org/published/95/json';
 			var sat_language = ('undefined' != typeof(sat_arr[1])) ? sat_arr[1] : 'en';
 			var waldorfLocation = $('link#approot').attr('href') + 'views/widgets/waldorf/';
 			var parent = $('link#parent').attr('href');
@@ -3240,7 +3240,6 @@ function YouTubeGetID(url){
 				$.when(
 					$.getJSON(parent + 'login_status'),
 					$.getScript(waldorfLocation + 'jquery-ui-1.12.1.custom/jquery-ui.min.js'),
-					$.getScript(waldorfLocation + 'select2.min.js'),
 					$.getScript(waldorfLocation + 'annotator-frontend-scalar.js')
 				).done(function(status){
 					go(status);
