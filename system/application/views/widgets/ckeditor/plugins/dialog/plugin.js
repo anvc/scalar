@@ -2128,7 +2128,7 @@ CKEDITOR.DIALOG_STATE_BUSY = 2;
 
 			if ( CKEDITOR.env.ie6Compat ) {
 				// Support for custom document.domain in IE.
-				var iframeHtml = '<html><body style=\\\'background-color:' + backgroundColorStyle + ';\\\'></body></html>';
+				var iframeHtml = '<html lang="en"><body style=\\\'background-color:' + backgroundColorStyle + ';\\\'></body></html>';
 
 				html.push( '<iframe' +
 					' hidefocus="true"' +

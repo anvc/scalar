@@ -155,7 +155,7 @@ function popoutContent(title, content) {   // help from http://www.javascripter.
 	);
 	var stylesheet_str = (stylesheet && stylesheet.length) ? '<link href="'+stylesheet+'" rel="stylesheet" type="text/css" />' : '';
  	consoleRef.document.writeln(
-  		'<html><head><title>'+title+'</title>'
+  		'<html lang="en"><head><title>'+title+'</title>'
   		+'<link href="'+basesheet+'" rel="stylesheet" type="text/css" />'
   		+stylesheet_str
 		+'<script src="'+jquery+'"></'+'s'+'cript>'
