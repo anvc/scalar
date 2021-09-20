@@ -2243,7 +2243,8 @@
 
                             // if this is a media page, embed the media at native size
                             if ($('[resource="' + currentNode.url + '"][typeof="scalar:Media"]').length > 0) {
-                                var link = $('<a href="' + currentNode.current.sourceFile + '" resource="' + currentNode.slug + '" data-align="left" class="media-page-link" data-size="native"></a>').appendTo(page.bodyContent());
+                            	var size = ('full' == viewType) ? 'full' : 'native';
+                                var link = $('<a href="' + currentNode.current.sourceFile + '" resource="' + currentNode.slug + '" data-align="left" class="media-page-link" data-size="'+size+'"></a>').appendTo(page.bodyContent());
                                 link.wrap('<div></div>');
                                 page.addMediaElementForLink(link, link.parent());
                                 link.css('display', 'none');
