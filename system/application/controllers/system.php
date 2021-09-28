@@ -603,6 +603,8 @@ class System extends MY_Controller {
 		 			$array = $_POST;
 		 			unset($array['action']);
 		 			unset($array['zone']);
+		 			unset($array['sat-tax']);
+		 			unset($array['sat-lang']);
 		 			$this->books->save($array);
 					header('Location: '.$this->base_url.'?book_id='.$book_id.'&zone='.$this->data['zone'].'&action=book_sharing_saved#tabs-'.$this->data['zone']);
 		 			exit;
