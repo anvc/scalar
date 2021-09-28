@@ -258,10 +258,35 @@ function send_form($form, additional_values, success, redirect_url) {
 		}
 	}
 
-	// if user indicates the url is a iiif manifest
+	// if user indicates the url is a iiif manifest or unity scene
+
+  // checkbox input, iiif only (for media upload)
 	if (values['iiif-url'] && values['iiif-url'] === "on" && values['scalar:url'].indexOf('?iiif-manifest=1') === -1) {
 		values['scalar:url'] = values['scalar:url'].concat('?iiif-manifest=1');
 	}
+
+  // select input, iiif or unity (for media edit)
+  if (values['media-type']) {
+    switch (values['media-type']) {
+      case 'iiif':
+      if (values['scalar:url'].indexOf('?iiif-manifest=1') === -1) {
+        values['scalar:url'] = values['scalar:url'].split('?')[0];
+        values['scalar:url'] = values['scalar:url'].concat('?iiif-manifest=1');
+      }
+      break;
+      case 'unity':
+      if (values['scalar:url'].indexOf('?unity-webgl=1') === -1) {
+        values['scalar:url'] = values['scalar:url'].split('?')[0];
+        values['scalar:url'] = values['scalar:url'].concat('?unity-webgl=1');
+      }
+      break;
+      default:
+      if (values['scalar:url'].indexOf('?iiif-manifest=1') !== -1 || values['scalar:url'].indexOf('?unity-webgl=1') !== -1) {
+        values['scalar:url'] = values['scalar:url'].split('?')[0];
+      }
+      break;
+    }
+  }
 
 	if ('undefined'==typeof(success) || null==success) {
 		success = function(version) {

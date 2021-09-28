@@ -911,12 +911,22 @@ if($currentRole == 'commentator'){
 <? endif ?>
 </div>
 <div class="type_media form-horizontal<?=$canChangeState?'':' editingDisabled'?>">
-	<div class="checkbox">
+	<div class="form-group">
+		<label for="media_type" class="col-sm-2">Media type</label>
+		<div class="col-sm-10">
+			<select id="media_type" name="media-type" class="form-control">
+				<option value="standard">Standard media (images, audio, video, documents)</option>
+				<option value="iiif" <?=strpos($file_url, '?iiif-manifest=1')?'selected':''?>>IIIF manifest</option>
+				<option value="unity" <?=strpos($file_url, '?unity-webgl=1')?'selected':''?>>Unity WebGL scene</option>
+			</select>
+		</div>
+	</div>
+	<!--<div class="checkbox">
 		<label>
 			<input type="checkbox" id="media_file_url_iiif" name="iiif-url" <?=strpos($file_url, '?iiif-manifest=1')?'checked':''?> />
 			Is IIIF Manifest
-	    </label>
-	</div>
+    </label>
+	</div>-->
 </div>
 <table>
 <tr id="edit_content" class="p type_composite<?=$canChangeState?'':' editingDisabled'?>">
