@@ -303,7 +303,7 @@
 					iFrame.removeAttribute( 'src' );
 
 				doc.write( '<!DOCTYPE html>' +
-							'<html>' +
+							'<html lang="en">' +
 							'<head>' +
 								'<meta charset="utf-8">' +
 								'<script type="text/x-mathjax-config">' +
@@ -401,7 +401,7 @@
 		// frame wrapper it is replaced by placeholder to show pure TeX in iframe.
 		CKEDITOR.plugins.mathjax.frameWrapper = function( iFrame, editor ) {
 			iFrame.getFrameDocument().write( '<!DOCTYPE html>' +
-				'<html>' +
+				'<html lang="en">' +
 				'<head>' +
 					'<meta charset="utf-8">' +
 				'</head>' +

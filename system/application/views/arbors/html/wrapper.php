@@ -31,7 +31,7 @@ if (isset($page->version_index)) {
 if (isset($mode) && !empty($mode)) $background = null;
 echo doctype('html5')."\n"
 ?>
-<html>
+<html lang="en">
 <head>
 <title property="dc:title"><?=strip_tags($title)?></title>
 <? if (!empty($description)): ?>

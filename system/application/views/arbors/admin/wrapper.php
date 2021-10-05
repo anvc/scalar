@@ -1,6 +1,6 @@
 <?if (!defined('BASEPATH')) exit('No direct script access allowed')?>
 <?=doctype('html5')."\n"?>
-<html>
+<html lang="en">
 <head>
 <title><?=strip_tags($title)?></title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
