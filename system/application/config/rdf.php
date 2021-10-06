@@ -181,6 +181,7 @@ $config['ontologies']['art'] = array(
 			'objectId',
 			'thumbnail',
 			'topic',
+      'url',
 			'resolution',
 			'serverurl',
 			'sourceLocation',
