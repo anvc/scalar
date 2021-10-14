@@ -2980,10 +2980,10 @@ function YouTubeGetID(url){
           me.parentView.intrinsicDim.x = me.video[0].videoWidth;
   				me.parentView.intrinsicDim.y = me.video[0].videoHeight;
   				me.parentView.controllerOffset = 0;
-
-  				me.parentView.layoutMediaObject();
-  				me.parentView.removeLoadingMessage();
         }
+
+				me.parentView.layoutMediaObject();
+				me.parentView.removeLoadingMessage();
 
 			}
 
