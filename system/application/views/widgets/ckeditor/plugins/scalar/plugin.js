@@ -305,7 +305,6 @@ CKEDITOR._scalar = {
 		var $element = $(element.$);
 
 		cke_loadedScalarInline.push(element);
-		console.log(element);
 		var thumbnail = node.thumbnail || $('link#approot').attr('href')+'/views/melons/cantaloupe/images/media_icon_chip.png';
 
 		var cssElement = '<style>'+
@@ -802,20 +801,23 @@ CKEDITOR.plugins.add( 'scalar', {
 				element = editor.document.createElement('span');
 				element.setHtml(sel.getSelectedText());
         		CKEDITOR._scalar.selectcontent({changeable:true,multiple:false,onthefly:true,msg:'Insert Scalar Note',callback:function(node){
-        			CKEDITOR._scalar.contentoptions({data:reference_options['insertNote'],node:node,element:element,isMedia:false,callback:function(options) {
-	            		element.setAttribute('class', 'note');
-	        			element.setAttribute('rev', 'scalar:has_note');
-	        			element.setAttribute('resource', node.slug);
-            			for (var key in options) {
-            				if (key == 'node') continue;
-            				element.setAttribute('data-'+key, options[key]);
-            			}
-	        			editor.insertElement(element);
-        			}});
+							scalarapi.loadNode(node.slug, true, function(response) {
+								var scalarNode = scalarapi.getNode(node.slug);
+	        			CKEDITOR._scalar.contentoptions({data:reference_options['insertNote'],node:scalarNode,element:element,isMedia:false,callback:function(options) {
+		            		element.setAttribute('class', 'note');
+		        			element.setAttribute('rev', 'scalar:has_note');
+		        			element.setAttribute('resource', node.slug);
+	            			for (var key in options) {
+	            				if (key == 'node') continue;
+	            				element.setAttribute('data-'+key, options[key]);
+	            			}
+		        			editor.insertElement(element);
+	        			}});
+							});
         		}});
             }
         });
-        
+
         editor.addCommand( 'insertScalar10', {  // Insert Inline Note
             exec: function( editor ) {
 				CKEDITOR._scalar.editor = editor;
@@ -831,31 +833,34 @@ CKEDITOR.plugins.add( 'scalar', {
 					}
 				}
 				var callback = function(node,element) {
-        			CKEDITOR._scalar.contentoptions({data:reference_options['insertInlineNote'],node:node,element:element,isMedia:false,callback:function(options) {
-	            		element.setAttribute('class', 'inline inlineNote');
-	        			element.setAttribute('rev', 'scalar:has_note');
-	        			element.setAttribute('name', 'scalar-inline-note');
-	        			element.setAttribute('resource', node.slug);
-            			for (var key in options) {
-            				if (key == 'node') continue;
-            				element.setAttribute('data-'+key, options[key]);
-            			}
-	        			//editor.insertElement(element);
-        				if(!isEdit){
-        					CKEDITOR._scalar.editor.insertElement(element);
-        				}else{
-        					CKEDITOR._scalar.editor.updateElement(element);
-        				}
-        				if(cke_loadedScalarInline.indexOf(element)==-1){
-        					(function(thisSlug,element){
-        						if(scalarapi.loadPage( thisSlug, false, function(){
-        								CKEDITOR._scalar.addCKInlineMediaPreview(thisSlug,element);
-        						}) == "loaded"){
-        								CKEDITOR._scalar.addCKInlineMediaPreview(thisSlug,element);
-        						}
-        					})(node.slug,element)
-        				}
-        			}});			
+					scalarapi.loadNode(node.slug, true, function(response) {
+						var scalarNode = scalarapi.getNode(node.slug);
+      			CKEDITOR._scalar.contentoptions({data:reference_options['insertInlineNote'],node:scalarNode,element:element,isMedia:false,callback:function(options) {
+            		element.setAttribute('class', 'inline inlineNote');
+        			element.setAttribute('rev', 'scalar:has_note');
+        			element.setAttribute('name', 'scalar-inline-note');
+        			element.setAttribute('resource', node.slug);
+          			for (var key in options) {
+          				if (key == 'node') continue;
+          				element.setAttribute('data-'+key, options[key]);
+          			}
+        			//editor.insertElement(element);
+      				if(!isEdit){
+      					CKEDITOR._scalar.editor.insertElement(element);
+      				}else{
+      					CKEDITOR._scalar.editor.updateElement(element);
+      				}
+      				if(cke_loadedScalarInline.indexOf(element)==-1){
+      					(function(thisSlug,element){
+      						if(scalarapi.loadPage( thisSlug, false, function(){
+      								CKEDITOR._scalar.addCKInlineMediaPreview(thisSlug,element);
+      						}) == "loaded"){
+      								CKEDITOR._scalar.addCKInlineMediaPreview(thisSlug,element);
+      						}
+      					})(node.slug,element)
+      				}
+      			}});
+					});
 				};
 				if(!isEdit) {
 					element = editor.document.createElement('a');
@@ -868,7 +873,7 @@ CKEDITOR.plugins.add( 'scalar', {
         		CKEDITOR._scalar.selectcontent($(element.$).data('selectOptions'));
 			}
         });
-        
+
         editor.addCommand( 'insertScalar6', {
             exec: function( editor ) {
             	CKEDITOR._scalar.editor = editor;

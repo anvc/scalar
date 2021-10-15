@@ -91,12 +91,12 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 		var node = typeof opts.node.current != 'undefined' ? opts.node.current : opts.node;
 		var $media_preview = $('<div class="row selectedItemPreview"><div class="col-xs-3 col-sm-4 col-md-3 left mediaThumbnail"></div><div class="col-xs-9 col-sm-8 col-md-9 right"><strong class="mediaTitle">' + node.title + '</strong><p class="mediaDescription"></p><div class="link"></div></div></div><hr />');
 		var thumbnail = undefined;
-		if (!opts.isMedia) {
-			thumbnail = $('link#approot').attr('href')+'views/melons/cantaloupe/images/widget_image_note.png';
-		} else if (typeof opts.node.thumbnail != 'undefined' && opts.node.thumbnail != null) {
-			thumbnail = opts.node.thumbnail;
-		} else if (typeof opts.node.content != 'undefined' && opts.node.content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail'] != 'undefined' && opts.node.content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail'] != null) {
-			thumbnail = opts.node.content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail'][0].value;
+		if (opts.isMedia) {
+			if (typeof opts.node.thumbnail != 'undefined' && opts.node.thumbnail != null) {
+				thumbnail = opts.node.thumbnail;
+			} else if (typeof opts.node.content != 'undefined' && opts.node.content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail'] != 'undefined' && opts.node.content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail'] != null) {
+				thumbnail = opts.node.content['http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail'][0].value;
+			}
 		}
 		var description = '';
 		if (typeof node.description == 'string' && node.description != '') {
@@ -119,14 +119,16 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			$media_preview.find('.mediaThumbnail').remove();
 			$media_preview.find('.right').removeClass('col-sm-8 col-md-9');
 		}
-		$('<a href="#">Change Selected Media</a>').data('element', opts.element).on('click', function(e) {
-			e.preventDefault();
-			e.stopPropagation();
-			var element = $(this).data('element');
-			var data = $(element.$).data('selectOptions');
-			data.forceSelect = true;
-			CKEDITOR._scalar.selectcontent(data);
-		}).appendTo($media_preview.find('.right .link'));
+		if (opts.isMedia) {
+			$('<a href="#">Change Selected Media</a>').data('element', opts.element).on('click', function(e) {
+				e.preventDefault();
+				e.stopPropagation();
+				var element = $(this).data('element');
+				var data = $(element.$).data('selectOptions');
+				data.forceSelect = true;
+				CKEDITOR._scalar.selectcontent(data);
+			}).appendTo($media_preview.find('.right .link'));
+		}
 
 		$form.append($media_preview);
 
