@@ -31,7 +31,11 @@
         this.userId = parseInt(temp[temp.length - 1]);
       }
       this.isConnectedToBook = ($('link#user_level').length) ? true : false;
-      $('heading').append('<p><strong>Lenses allow you to search and visualize the content of this project.</strong> Authors may create and publish lenses for everyone to use, and you can create your own privately. <a target="_blank" href="https://scalar.usc.edu/works/guide2/lenses">Learn more »</a></p>');
+      if (this.loggedIn) {
+        $('heading').append('<p><strong>Lenses allow you to search and visualize the content of this project.</strong> Authors may create and publish lenses for everyone to use, and you can create your own privately. <a target="_blank" href="https://scalar.usc.edu/works/guide2/lenses">Learn more »</a></p>');
+      } else {
+        $('heading').append('<p><strong>Lenses allow you to search and visualize the content of this project.</strong> Authors may create and publish lenses for everyone to use, and logged in users can create their own privately. <a target="_blank" href="https://scalar.usc.edu/works/guide2/lenses">Learn more »</a></p>');
+      }
       $('body').on('lensUpdated', (evt, lens) => { this.handleLensUpdated(evt, lens); });
       this.addSubmittedMessage();
       this.getLensData();
