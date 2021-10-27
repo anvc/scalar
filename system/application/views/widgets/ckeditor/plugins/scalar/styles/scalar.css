@@ -34,7 +34,7 @@ a.inline.inlineWidget[data-widget="summary"] {
 }
 a.inline.inlineNote {
 	background-size: auto 75%;
-	background-image:url(../../../../../melons/cantaloupe/images/widget_image_note.png) !important;
+	background-image:url(../../../../../melons/cantaloupe/images/note_icon_chip.png) !important;
 }
 .cke_editable ol, .cke_editable ul, .cke_editable dl { padding: 0 18px; }
 
