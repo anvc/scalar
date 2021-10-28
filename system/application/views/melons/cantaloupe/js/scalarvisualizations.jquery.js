@@ -1016,11 +1016,11 @@ window.scalarvis = { instanceCount: -1 };
       }, null, depth, ref, null, 0, 100, null, null, true);
     }
 
-    base.removeRelatedNodesFromManuallyLoaded = function(node) {
+    base.removeRelatedNodesFromManuallyLoaded = function(node, lineage = []) {
       let relatedNodes = node.getRelatedNodes(null, 'both');
       let removedNodes = [];
       relatedNodes.forEach(node => {
-        if (base.selectedNodes.indexOf(node) == -1 && base.contentNodes.indexOf(node) == -1) {
+        if (base.selectedNodes.indexOf(node) == -1 && base.contentNodes.indexOf(node) == -1 && lineage.indexOf(node) == -1) {
           let index = base.manuallyLoadedNodes.indexOf(node);
           if (index != -1) {
             removedNodes.push(node);
@@ -1028,7 +1028,8 @@ window.scalarvis = { instanceCount: -1 };
           }
         }
       });
-      removedNodes.forEach(node => base.removeRelatedNodesFromManuallyLoaded(node));
+      lineage.push(node);
+      removedNodes.forEach(node => base.removeRelatedNodesFromManuallyLoaded(node, lineage));
       base.parseNode(node);
     }
 
