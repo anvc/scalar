@@ -1998,9 +1998,8 @@ ScalarAPI.prototype.savePage = function(data, successCallback, errorCallback) {
 	   	  	successCallback(json);
 	      },
 	      error: function(obj) {
-        console.log(obj.responseText);
-	    	var error = JSON.parse(obj.responseText);
-	    	errorCallback(error.error.message[0].value);
+          console.log(obj.responseText);
+          errorCallback(obj);
 	      }
 		});
 	} catch (e) {
