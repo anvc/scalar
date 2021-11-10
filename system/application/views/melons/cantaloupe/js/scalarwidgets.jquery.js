@@ -1073,6 +1073,7 @@
                }
 
              } else {
+               $slot.addClass( 'full' );
                $container.addClass('page_margins');
                $container.find('.media_description').addClass('body_copy');
              }
