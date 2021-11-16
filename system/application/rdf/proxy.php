@@ -42,6 +42,26 @@ if (stristr($uri, "youtube")) {
 	$key = trim($config['youtube_data_key']);
 	if (empty($key)) die('Please contact a system admin to add a YouTube Data API key to the local_settings.php config file');
 	$uri .= '&key='.$key;
+} elseif (stristr($uri, "airtable")) {
+	include(__DIR__.'/../config/local_settings.php');
+	$airtable_name =@ urldecode($_REQUEST['airtable_name']);
+	$airtables = $config['airtable'];
+	if (is_array($airtables)) {
+		$sq = trim(substr(strrchr($uri, '&q='), 3), '"');
+		$page = substr(substr($uri, strpos($uri, '?page=')), 6);
+		$page = (int) substr($page, 0, strpos($page, '&q='));
+		$uri = substr($uri, 0, strpos($uri, '?page='));
+		foreach ($airtables as $airtable) {
+			if ($airtable['name'] != $airtable_name) continue;
+			$base_url = $airtable['base_url'];
+			$arr = parse_url($base_url);
+			$arr = explode('/', $arr['path']);
+			if (!isset($arr[1])) die('Invalid Airtable base URL');
+			$base_key = $arr[1];
+			$uri = $uri . $base_key . '/' . $airtable['table_name'];
+			$uri = $uri . '?api_key='.$airtable['api_key'].'&filterByFormula=SEARCH(%22'.$sq.'%22%2C+LOWER(%7B'.urlencode($airtable['field_to_search']).'%7D))';
+		}
+	}
 }
 
 function jsonToXML($json) {
@@ -65,6 +85,8 @@ function jsonToXMLNodes($row) {
 		$field = str_replace('@','',$field);
 		$field = str_replace('#','',$field);
 		$field = str_replace(':','',$field);
+		$field = str_replace('(','',$field);
+		$field = str_replace(')','',$field);
 		$return .= '<'.$field.'>';
 		if ('array'==gettype($value)) {
 			$return .= jsonToXMLNodes($value);

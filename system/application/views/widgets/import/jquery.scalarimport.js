@@ -57,7 +57,7 @@ if ('undefined'==typeof(escape_html)) {
     		multi_custom_meta_complete: 'multi_custom_meta_complete',
     		pagenum: 1,
     		proxy_required_fields: ['proxy','uri','xsl','native','id','action','api_key','child_urn','child_type','child_rel'],
-    		proxy_optional_fields: ['remove','match','format','archive_api_key','header','keep_hash_var','remove_hash_vars'],
+    		proxy_optional_fields: ['remove','match','format','archive_api_key','header','keep_hash_var','remove_hash_vars','airtable_name'],
     		url_not_supported_msg: 'This media format is not supported',
     		url_not_supported_class: 'media_not_supported',
     		no_results_msg: 'No items were found for the search "%1"',
@@ -321,7 +321,7 @@ if ('undefined'==typeof(escape_html)) {
 			if ('undefined'!=typeof(to_send.archive_api_key)) to_send.uri = to_send.uri.replace('$api_key', to_send.archive_api_key);
 
 			// Run request
-			var the_request = to_send.proxy+'?xsl='+encodeURIComponent(to_send.xsl)+'&uri='+encodeURIComponent(to_send.uri)+'&format='+to_send.format+'&header='+to_send.header;
+			var the_request = to_send.proxy+'?xsl='+encodeURIComponent(to_send.xsl)+'&uri='+encodeURIComponent(to_send.uri)+'&format='+to_send.format+'&header='+to_send.header+'&airtable_name='+(('undefined'==typeof(to_send.airtable_name))?'':encodeURIComponent(to_send.airtable_name));
 			$.ajax({
 				  url: the_request,
 				  type: 'GET',
@@ -472,14 +472,14 @@ if ('undefined'==typeof(escape_html)) {
 					$content.append('<div class="contributor">'+results_data[j].contributor+'</div>');
 				}
 				if (!results_data[j].url || !results_data[j].url.length) {
-					$('<div class="import_error"><a href="'+results_data[j].node_uri+'" target="_blank" class="btn btn-default btn-xs generic_button small">Source</a>&nbsp; '+options.url_not_supported_msg+'</div>').appendTo($content);
+					$('<div class="import_error"><a href="'+((null!=results_data[j].sourceLocation) ? results_data[j].sourceLocation : results_data[j].node_uri)+'" target="_blank" class="btn btn-default btn-xs generic_button small">Source</a>&nbsp; '+options.url_not_supported_msg+'</div>').appendTo($content);
 					$tr.addClass(options.url_not_supported_class);
 					$tr.find("input[id='result_row_"+j+"']").remove();
 				} else {
 					var url_str = '<div class="url">';
-					url_str += '<a href="javascript:;" onclick="scalarimport_preview(\''+results_data[j].url+'\')" class="btn btn-default btn-xs generic_button small">Preview</a>&nbsp; ';
+					url_str += '<a href="javascript:;" onclick="scalarimport_preview(\''+results_data[j].url+'\')" class="btn btn-default btn-xs generic_button small">View</a>&nbsp; ';
 					url_str += '<a href="'+((null!=results_data[j].sourceLocation) ? results_data[j].sourceLocation : results_data[j].node_uri)+'" target="_blank" class="btn btn-default btn-xs generic_button small">Source</a>&nbsp; ';
-					url_str += '<span>'+results_data[j].mediatype+': '+basename(results_data[j].url)+'</span>';
+					url_str += '<span>'+results_data[j].mediatype+': '+results_data[j].url+'</span>';
 					url_str += '</div>';
 					$(url_str).appendTo($content);
 					supported++;
@@ -509,10 +509,10 @@ if ('undefined'==typeof(escape_html)) {
 				$form.scalarimport( $.extend({}, options, {pagenum:(form_data.pagenum+1)}) );
 			});
 
-      $('.'+options.import_btn_class).on('click', function() {
-        $.fn.scalarimport('reset', options);
-        $.fn.scalarimport('multi_custom_meta', $(options.results_el), form_data, options);
-      });
+			$('.'+options.import_btn_class).on('click', function() {
+				$.fn.scalarimport('reset', options);
+				$.fn.scalarimport('multi_custom_meta', $(options.results_el), form_data, options);
+			});
 
 		},
 
@@ -679,7 +679,7 @@ if ('undefined'==typeof(escape_html)) {
 				var title = versions[j][uri]['http://purl.org/dc/terms/title'];
 				title = ('undefined'!=typeof(title)&&title.length) ? title[0].value : '(No title)';
 				var desc = versions[j][uri]['http://purl.org/dc/terms/description'];
-				desc = ('undefined'!=typeof(desc)&&desc.length) ? desc[0].value : '';
+				desc = ('undefined'!=typeof(desc)&&desc.length) ? desc[0].value : '(No description)';
 				$li = $('<li></li>');
 				$li.append('<a href="'+url+'">'+title+'</a>');
 				if (desc.length) $li.append('<br /><small>'+create_excerpt(desc, 40)+'</small>');

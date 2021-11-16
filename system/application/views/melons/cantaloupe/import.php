@@ -50,8 +50,8 @@ if (!empty($titles)):
 ?></h2>
 <? endif ?>
 
-The import feature links Scalar to <a href="http://scalar.usc.edu/people/">partner archives</a>.  When media are imported,  source media files remain on the
-archives' servers.  However, information about the media (including title, description, subject) are converted to <a href="http://dublincore.org/">Dublin Core</a> (and other)
+The import feature links Scalar to <a href="http://scalar.usc.edu/people/">partner</a> and other archives.  When media are imported,  source media files remain on the
+archives' servers.  However, information about the media (including title and description) are converted to <a href="http://dublincore.org/">Dublin Core</a> (and other)
 metadata fields and saved locally in Scalar. Metadata can be updated manually or by re-importing the media.
 
 <br /><br />
@@ -62,6 +62,12 @@ metadata fields and saved locally in Scalar. Metadata can be updated manually or
 	if (!empty($desc)):
 		echo $desc;
 		echo '<br /><br />'."\n\n";
+	endif;
+	
+	$airtable_name = '';
+	if (isset($airtable) && !empty($airtable)):
+		echo 'Searching Airtable <strong><a target="_blank" href="'.$airtable['base_url'].'">'.$airtable['table_name'].' ('.$airtable['name'].')</a></strong> on field <strong>'.$airtable['field_to_search'].'</strong>.<br /><br />';
+		$airtable_name = $airtable['name'];
 	endif;
 
 	$availability = $external->getPropValue('scalar:availability');
@@ -84,6 +90,7 @@ metadata fields and saved locally in Scalar. Metadata can be updated manually or
 		<input type="hidden" name="keep_hash_var" value="<?=$value?>" />
 <? endforeach ?>
 		<input type="hidden" name="remove_hash_vars" value="<?=$external->getPropValue('scalar:remove_hash_vars')?>" />
+		<input type="hidden" name="airtable_name" value="<?=htmlspecialchars($airtable_name)?>" />
 		<input type="text" name="sq" class="input_search_query form-control" value="" /> <input type="submit" value="Search" class="btn btn-default" />
 		<!-- Fields used for ADD -->
 		<input type="hidden" name="action" value="add" />

@@ -122,7 +122,7 @@ if (isset($page->version_index)) {
 <link id="proxy_url" href="<?=base_url().$book->slug.'/proxy'?>" />
 <? endif ?>
 <link id="scalar_version" href="<?php
-    include('system/application/views/scalar-version.php');
+    include 'system/application/views/scalar-version.php';
 ?>" />
 <link id="book_id" href="<?=$book->book_id?>" />
 <link id="parent" href="<?=$base_uri?>" />
@@ -137,6 +137,11 @@ if (isset($page->version_index)) {
 <link id="soundcloud_id" href="<?=$this->config->item('soundcloud_id')?>" />
 <link id="recaptcha2_site_key" href="<?=$recaptcha2_site_key?>" />
 <link id="recaptcha_public_key" href="<?=$recaptcha_public_key?>" />
+<? if (is_array($this->config->item('airtable'))): ?>
+<? foreach ($this->config->item('airtable') as $airtable): ?>
+<link id="airtable" href="<?=$airtable['name']?>" />
+<? endforeach ?>
+<? endif ?>
 <? if (!$mode && $hypothesis): ?>
 <link id="hypothesis" href="true" />
 <? endif ?>

@@ -322,7 +322,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                     '<ul class="dropdown-menu" role="menu" id="ScalarHeaderMenuImportList">'+
                                                         '<li class="dropdown">'+
                                                             '<a role="menuitem" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></span>Affiliated archives</a>'+
-                                                            '<ul class="dropdown-menu" role="menu">'+
+                                                            '<ul class="dropdown-menu affiliated-archives" role="menu">'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/critical_commons') + '">Critical Commons</a></li>'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/internet_archive') + '">Internet Archive</a></li>'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/shoah_foundation_vha_online') + '">Shoah Foundation VHA Online</a></li>'+
@@ -331,7 +331,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                         '</li>'+
                                                         '<li class="dropdown">'+
                                                             '<a role="menuitem" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></span>Other archives</a>'+
-                                                            '<ul class="dropdown-menu" role="menu">'+
+                                                            '<ul class="dropdown-menu other-archives" role="menu">'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/omeka') + '">Omeka sites</a></li>'+
                                                                 '<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/omeka_s') + '">Omeka S sites</a></li>'+
                                                                 /*'<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/soundcloud') + '">SoundCloud</a></li>'+*/
@@ -341,7 +341,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                         '</li>'+
                                                         '<li class="dropdown">'+
                                                         	'<a role="menuitem" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></span>Files and URLs</a>'+
-                                                        	'<ul class="dropdown-menu" role="menu">'+
+                                                        	'<ul class="dropdown-menu files-and-urls" role="menu">'+
 		                                                        '<li class="dropdown">'+
 		                                                            '<a role="menuitem" href="' + base.get_param(scalarapi.model.urlPrefix + 'upload') + '">Upload media files</a>'+
 		                                                        '</li>'+
@@ -424,6 +424,14 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             // remove import options with missing keys
             if (!$('link#harvard_art_museums_key').attr('href')) {
               navbar.find('#import-harvard').remove();
+            }
+
+            // Any Airtables?
+            var $airtables = $('link#airtable');
+            if ($airtables.length) {
+            	for (var j = 0; j < $airtables.length; j++) {
+            		navbar.find('#ScalarHeaderMenuImportList').find('ul.other-archives').append('<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/airtable/'+encodeURIComponent($airtables.eq(j).attr('href'))) + '">Airtable: '+$airtables.eq(j).attr('href')+'</a></li>');
+            	}
             }
 
             //We don't always want all of the edit buttons for alternate data

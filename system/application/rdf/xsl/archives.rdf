@@ -33,7 +33,7 @@
 	<rdf:Description rdf:about="system/application/rdf/omeka_s.php">
 		<rdf:type rdf:resource="scalar:External" />
 		<dc:title>Omeka S</dc:title>
-		<dcterms:description><![CDATA[Find files from Omeka S installs across the web. To use, <b>do not</b> enter a search term below.  Rather, <b>enter the URL to an Omeka S install’s home page</b>. Note that this is only for Omeka S; for Omeka Classic, use the “Omeka sites” import page.]]></dcterms:description>
+		<dcterms:description><![CDATA[Find files from Omeka S installs across the web. To use, <b>do not</b> enter a search term below.  Rather, <b>enter the URL to an Omeka S install's home page</b>. Note that this is only for Omeka S; for Omeka Classic, use the "Omeka sites" import page.]]></dcterms:description>
 		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/omeka_s.xsl" />
 		<scalar:getStr><![CDATA[uri=$1&page=$2]]></scalar:getStr>
 		<dcterms:hasFormat>json</dcterms:hasFormat>
@@ -164,6 +164,14 @@
 		<dcterms:description><![CDATA[Look up resources in the Harvard Art Museums Api ]]></dcterms:description>
 		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/harvard_art_museums.xsl" />
 		<scalar:getStr><![CDATA[q=title:$1&apikey=$api_key]]></scalar:getStr>
+		<dcterms:hasFormat>json</dcterms:hasFormat>
+	</rdf:Description>
+	
+	<rdf:Description rdf:about="https://api.airtable.com/v0/">
+		<rdf:type rdf:resource="scalar:External" />
+		<dc:title>Airtable</dc:title>
+		<scalar:XSL rdf:resource="{$base_url}rdf/xsl/airtable.xsl" />
+		<scalar:getStr><![CDATA[page=$2&q=$1]]></scalar:getStr>
 		<dcterms:hasFormat>json</dcterms:hasFormat>
 	</rdf:Description>
 	
