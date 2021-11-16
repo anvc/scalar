@@ -82,6 +82,19 @@ $config['nypl_key'] = (getenv('SCALAR_NYPL_KEY') ? getenv('SCALAR_NYPL_KEY') : '
 // Harvard Art Museums api key
 $config['harvard_art_museums_key'] = (getenv('HAM_API_KEY') ? getenv('HAM_API_KEY') : '');
 
+// Airtable importer settings
+/*
+$config['airtable'] = array(
+	array(
+		'base_url' => '',  // URL to the base
+		'table_name' => '',  // Table name
+		'field_to_search' => '',  // Field in the table to search on
+		'name' => '',  // Name of the table to appear in the Scalar header bar
+		'api_key' => ''  // API key
+	)	
+);
+*/
+
 // Custom message for the book index page (leave blank for no message)		   
 $config['index_msg'] = '';
 
