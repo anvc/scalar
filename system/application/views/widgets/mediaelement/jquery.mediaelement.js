@@ -4714,7 +4714,7 @@ function YouTubeGetID(url){
 
 			this.frameId = 'pdf'+this.model.filename+'_'+this.model.id;
 
-			var obj = $('<div class="mediaObject"><object type="application/pdf" style="width: 100%; height: 100%;" id="'+this.frameId+'" data="'+this.model.path+'"><p class="download_link"><a href="'+this.model.path+'">Download PDF</a></p></object></div>').appendTo(this.parentView.mediaContainer);
+      var obj = $('<div class="mediaObject"><iframe style="width: 100%; height: 100%;" id="'+this.frameId+'" src="'+this.model.path+'"></iframe></div>').appendTo(this.parentView.mediaContainer);
 			this.frame = obj.find('#'+this.frameId)[0];
 
 			this.parentView.layoutMediaObject();
