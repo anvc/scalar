@@ -340,11 +340,11 @@ window.scalarvis = { instanceCount: -1 };
           inspectorInfo = $('<div class="page-preview">' +
             '<p class="inspector-description"></p>' +
             '<div class="inspector-buttons">' +
-              '<a class="btn btn-primary btn-xs view-node-btn" role="button" target="_blank" href="' + node.url + '">View page</a> ' +
+            '<a class="btn btn-primary btn-xs view-node-btn" role="button" target="_blank" href="' + node.url + '">View page</a> ' +
             '</div>' +
             '<h4>Details</h4>' +
             '<div class="citations citations_metadata"></div>' +
-          '</div>').appendTo(base.inspector);
+            '</div>').appendTo(base.inspector);
         } else {
           let thumbnailClass = 'inspector-thumbnail';
           let thumbnailUrl = '#';
@@ -357,12 +357,12 @@ window.scalarvis = { instanceCount: -1 };
             '<p class="inspector-description"></p>' +
             '<img class="' + thumbnailClass + '" src="' + thumbnailUrl + '" alt="' + node.current.description + '" />' +
             '<div class="inspector-buttons">' +
-              '<a class="btn btn-primary btn-xs view-node-btn" role="button" target="_blank" href="' + node.url + '">View media page</a> ' +
-              '<a class="btn btn-primary btn-xs view-media-btn" role="button" target="_blank" href="' + node.current.sourceFile + '">View source file</a>' +
+            '<a class="btn btn-primary btn-xs view-node-btn" role="button" target="_blank" href="' + node.url + '">View media page</a> ' +
+            '<a class="btn btn-primary btn-xs view-media-btn" role="button" target="_blank" href="' + node.current.sourceFile + '">View source file</a>' +
             '</div>' +
             '<h4>Details</h4>' +
             '<div class="citations citations_metadata"></div>' +
-          '</div>').appendTo(base.inspector);
+            '</div>').appendTo(base.inspector);
         }
         inspectorInfo.find('.inspector-description').html(node.current.description);
         addMetadataTableForNodeToElement(node, inspectorInfo.find('.citations_metadata'));
@@ -440,16 +440,16 @@ window.scalarvis = { instanceCount: -1 };
           case 'table-of-contents':
           case 'current':
           case 'page':
-          filter["content-types"] = ["all-types"];
-          break;
+            filter["content-types"] = ["all-types"];
+            break;
 
           case 'media':
-          filter["content-types"] = ["reference"];
-          break;
+            filter["content-types"] = ["reference"];
+            break;
 
           default:
-          filter["content-types"] = [contentControlVal];
-          break;
+            filter["content-types"] = [contentControlVal];
+            break;
 
         }
         base.options.lens.components[0].modifiers.push(filter);
@@ -477,7 +477,7 @@ window.scalarvis = { instanceCount: -1 };
     base.getLensResults = function(success) {
       base.options.lens.book_urn = 'urn:scalar:book:' + $('link#book_id').attr('href');
       //console.log(JSON.stringify(base.options.lens.components, null, 2));
-      let url = $('link#approot').attr('href').replace('application/','') + 'lenses';
+      let url = $('link#approot').attr('href').replace('application/', '') + 'lenses';
       base.loadingMsgShown = false;
       base.startTime = new Date();
       var percentDone = 0;
@@ -498,10 +498,10 @@ window.scalarvis = { instanceCount: -1 };
         async: true,
         context: this,
         success: (data) => {
-      	  if ('undefined' != typeof(data.error)) {
-        		console.log('There was an error attempting to get Lens data: '+data.error);
-        		return;
-      	  };
+          if ('undefined' != typeof (data.error)) {
+            console.log('There was an error attempting to get Lens data: ' + data.error);
+            return;
+          };
           clearInterval(base.progressInterval);
           base.updateLoadingMsg('', 100, 0, 1, null);
           base.hideLoadingMsg();
@@ -518,8 +518,8 @@ window.scalarvis = { instanceCount: -1 };
           }
         },
         error: function error(response) {
-    	     console.log('There was an error attempting to communicate with the server.');
-    	     console.log(response);
+          console.log('There was an error attempting to communicate with the server.');
+          console.log(response);
         }
       });
     }
@@ -565,7 +565,7 @@ window.scalarvis = { instanceCount: -1 };
         base.updateControls();
       }
       if (base.options.lens) {
-        delete(base.options.format);
+        delete (base.options.format);
         base.options.relations = 'from-lens';
         if (!base.options.lens.items) {
           base.getLensResults();
@@ -606,7 +606,7 @@ window.scalarvis = { instanceCount: -1 };
     }
 
     base.validateLens = function() {
-      if (!base.options.lens.visualization) base.options.lens.visualization = {"type": "force-directed"};
+      if (!base.options.lens.visualization) base.options.lens.visualization = { "type": "force-directed" };
       if (!base.options.lens.visualization.type) base.options.lens.visualization.type = "force-directed";
       if (!base.options.lens.components) base.options.lens.components = [base.getDefaultLensComponent()];
       if (!base.options.lens.components[0]) base.options.lens.components = base.getDefaultLensComponent();
@@ -663,12 +663,12 @@ window.scalarvis = { instanceCount: -1 };
           switch (modifier.type) {
 
             case 'filter':
-            if (base.options.lens.components[0].modifiers[0]['content-types'].length == 0) {
-              base.visElement.find(".vis-filter-control").val('none');
-            } else {
-              base.visElement.find(".vis-filter-control").val(base.options.lens.components[0].modifiers[0].relationship);
-            }
-            break;
+              if (base.options.lens.components[0].modifiers[0]['content-types'].length == 0) {
+                base.visElement.find(".vis-filter-control").val('none');
+              } else {
+                base.visElement.find(".vis-filter-control").val(base.options.lens.components[0].modifiers[0].relationship);
+              }
+              break;
 
           }
         });
@@ -1163,36 +1163,36 @@ window.scalarvis = { instanceCount: -1 };
             break;
         }
 
-				console.log( "load next data: " + loadInstruction.id + ' ' + start + ' ' + end );
+        console.log("load next data: " + loadInstruction.id + ' ' + start + ' ' + end);
 
-				base.updateLoadingMsg(
-					loadInstruction.desc,
-					(( base.loadIndex + 1 ) / ( base.loadSequence.length + 1 )) * 100,
-					( start == -1 ) ? -1 : start + 1,
-					end,
-					base.typeCounts[ loadInstruction.id ]
-				);
+        base.updateLoadingMsg(
+          loadInstruction.desc,
+          ((base.loadIndex + 1) / (base.loadSequence.length + 1)) * 100,
+          (start == -1) ? -1 : start + 1,
+          end,
+          base.typeCounts[loadInstruction.id]
+        );
 
-				if ( result == 'loaded' ) {
-					base.parseData();
-				}
+        if (result == 'loaded') {
+          base.parseData();
+        }
 
-      // otherwise, hide the loading message
-			} else {
-				base.hideLoadingMsg();
-				base.loadingDone = true;
-				base.draw(true);
-				if (base.shouldLoadAllContent()) {
-					base.loadedAllContent = true;
-					$( 'body' ).trigger( 'visLoadedAllContent' );
-				}
+        // otherwise, hide the loading message
+      } else {
+        base.hideLoadingMsg();
+        base.loadingDone = true;
+        base.draw(true);
+        if (base.shouldLoadAllContent()) {
+          base.loadedAllContent = true;
+          $('body').trigger('visLoadedAllContent');
+        }
       }
       base.visElement.find(".vis-format-control").val(base.getFormat());
     }
 
     base.shouldLoadAllContent = function() {
       // when content is set to 'toc', we still load everything so users can drill down as far as they want
-      if (base.options.content == 'all' || base.options.content == 'toc' ) {
+      if (base.options.content == 'all' || base.options.content == 'toc') {
         return true;
       } else if (base.options.content == 'lens') {
         if (lens.components[0]['content-selector']['content-type'] == 'table-of-contents') {
@@ -1455,7 +1455,7 @@ window.scalarvis = { instanceCount: -1 };
 
           // get relationships for each selected node that we haven't already gotten
           n = base.selectedNodes.length;
-          for (i = n-1; i >= 0; i--) {
+          for (i = n - 1; i >= 0; i--) {
             node = base.selectedNodes[i];
             if (base.contentNodes.indexOf(node) == -1) {
               relNodes = node.getRelatedNodes(null, "both");
@@ -1472,7 +1472,7 @@ window.scalarvis = { instanceCount: -1 };
 
           // filter out any related node not actually returned by the lens or requested by the user
           n = base.relatedNodes.length;
-          for (i = n-1; i >= 0; i--) {
+          for (i = n - 1; i >= 0; i--) {
             node = base.relatedNodes[i];
             if (base.contentNodes.indexOf(node) == -1 && base.manuallyLoadedNodes.indexOf(node) == -1) {
               base.relatedNodes.splice(i, 1);
@@ -1624,7 +1624,7 @@ window.scalarvis = { instanceCount: -1 };
             // drawn in radial view
             base.updateTypeHierarchy(true, false, false, false);
           } else {
-            base.updateTypeHierarchy(true, false, false, false);
+            base.updateTypeHierarchy(true, base.isVisOfSinglePage(), false, false);
           }
           break;
 
@@ -1684,7 +1684,7 @@ window.scalarvis = { instanceCount: -1 };
     base.validateSelectedNodes = function() {
       // remove any nodes from the current selection that aren't in the current results
       let n = base.selectedNodes.length;
-      for (let i=n-1; i>=0; i--) {
+      for (let i = n - 1; i >= 0; i--) {
         let node = base.selectedNodes[i];
         if (base.sortedNodes.indexOf(node) == -1) {
           base.selectedNodes.splice(i, 1);
@@ -1734,11 +1734,11 @@ window.scalarvis = { instanceCount: -1 };
       base.selectedHierarchyNodes = [];
 
       // add the current node
-      if (base.isVisOfCurrentPage()){
+      if (base.isVisOfCurrentPage()) {
         indexType = { name: "", id: "current" };
-        var nodeForCurrentContent = {title:indexType.name, type:indexType.id, isTopLevel:true, index:0, size:1, parent:base.hierarchy, maximizedAngle:360, children:[], descendantCount:1};
+        var nodeForCurrentContent = { title: indexType.name, type: indexType.id, isTopLevel: true, index: 0, size: 1, parent: base.hierarchy, maximizedAngle: 360, children: [], descendantCount: 1 };
         base.hierarchy.children.push(nodeForCurrentContent);
-        nodeForCurrentContent.children = setChildren(nodeForCurrentContent, [ base.currentNode ]);
+        nodeForCurrentContent.children = setChildren(nodeForCurrentContent, [base.currentNode]);
       }
 
       if (includeToc) {
@@ -2048,14 +2048,14 @@ window.scalarvis = { instanceCount: -1 };
           if (base.options.lens.components[0].modifiers.length > 0) {
             switch (base.options.lens.components[0].modifiers[0].relationship) {
               case 'any-relationship':
-              relationList = base.canonicalRelationOrder;
-              break;
+                relationList = base.canonicalRelationOrder;
+                break;
               case 'parent':
-              relationList = [{ type: null, direction: 'incoming' }];
-              break;
+                relationList = [{ type: null, direction: 'incoming' }];
+                break;
               case 'child':
-              relationList = [{ type: null, direction: 'outgoing' }];
-              break;
+                relationList = [{ type: null, direction: 'outgoing' }];
+                break;
             }
           }
           break;
@@ -2117,7 +2117,7 @@ window.scalarvis = { instanceCount: -1 };
 
     }
 
-		// Returns true if the given hierarchy node has the candidate hierarchy node as an ancestor.
+    // Returns true if the given hierarchy node has the candidate hierarchy node as an ancestor.
     base.hasHierarchyNodeAsAncestor = function(self, candidate) {
       var okToLog = false;
       while (self.parent && self.parent !== candidate) {
@@ -2368,7 +2368,7 @@ window.scalarvis = { instanceCount: -1 };
       // call using super() to do needed init
       constructor() {
         this.hasBeenDrawn = false;
-        this.size = {width:0, height:0};
+        this.size = { width: 0, height: 0 };
         this.updateNoResultsMessage();
       }
 
@@ -2446,97 +2446,97 @@ window.scalarvis = { instanceCount: -1 };
 
     class GridVisualization extends AbstractVisualization {
 
-       constructor() {
-         super();
-         this.colWidth = 36;
-         this.boxSize = 36;
-         this.currentNode = scalarapi.model.getCurrentPageNode();
-       }
+      constructor() {
+        super();
+        this.colWidth = 36;
+        this.boxSize = 36;
+        this.currentNode = scalarapi.model.getCurrentPageNode();
+      }
 
-       draw() {
-         super.draw();
-         if (this.isFullScreen) {
-           base.visualization.addClass('scrollable');
-         }
-         if (base.svg != null) {
-           this.itemsPerRow = Math.floor((this.size.width - 1) / this.colWidth);
-           this.colScale = d3.scaleLinear([0, this.itemsPerRow], [0, this.itemsPerRow * this.colWidth]);
-           var unitWidth = Math.max(this.colScale(1) - this.colScale(0), this.boxSize);
-           var rowCount = Math.ceil(base.sortedNodes.length / this.itemsPerRow);
-           var visHeight = rowCount * (this.boxSize + 10);
-           this.rowScale = d3.scaleLinear([0, rowCount], [0, visHeight]);
-           var unitHeight = this.rowScale(1) - this.rowScale(0);
-           var fullHeight = unitHeight * rowCount + 20;
-           var maxNodeChars = unitWidth / 7;
-           var node;
-           base.svg.attr('height', fullHeight);
+      draw() {
+        super.draw();
+        if (this.isFullScreen) {
+          base.visualization.addClass('scrollable');
+        }
+        if (base.svg != null) {
+          this.itemsPerRow = Math.floor((this.size.width - 1) / this.colWidth);
+          this.colScale = d3.scaleLinear([0, this.itemsPerRow], [0, this.itemsPerRow * this.colWidth]);
+          var unitWidth = Math.max(this.colScale(1) - this.colScale(0), this.boxSize);
+          var rowCount = Math.ceil(base.sortedNodes.length / this.itemsPerRow);
+          var visHeight = rowCount * (this.boxSize + 10);
+          this.rowScale = d3.scaleLinear([0, rowCount], [0, visHeight]);
+          var unitHeight = this.rowScale(1) - this.rowScale(0);
+          var fullHeight = unitHeight * rowCount + 20;
+          var maxNodeChars = unitWidth / 7;
+          var node;
+          base.svg.attr('height', fullHeight);
 
-           var tocNode = scalarapi.model.getMainMenuNode();
+          var tocNode = scalarapi.model.getMainMenuNode();
 
-           this.isLocallySorted = true;
-           if (base.options.content === 'lens') {
-             if (base.options.lens.sorts) {
-               if (base.options.lens.sorts.length > 0) {
-                 this.isLocallySorted = false;
-               }
-             }
-           }
+          this.isLocallySorted = true;
+          if (base.options.content === 'lens') {
+            if (base.options.lens.sorts) {
+              if (base.options.lens.sorts.length > 0) {
+                this.isLocallySorted = false;
+              }
+            }
+          }
 
-           if (this.isLocallySorted) {
-             this.gridNodes = base.sortedNodes.concat();
-           } else {
-             this.gridNodes = base.contentNodes.concat();
-           }
+          if (this.isLocallySorted) {
+            this.gridNodes = base.sortedNodes.concat();
+          } else {
+            this.gridNodes = base.contentNodes.concat();
+          }
 
-           this.updateNoResultsMessage(this.gridNodes);
+          this.updateNoResultsMessage(this.gridNodes);
 
-           var index = this.gridNodes.indexOf(tocNode);
-           if (index != -1) {
-             this.gridNodes.splice(index, 1);
-           }
+          var index = this.gridNodes.indexOf(tocNode);
+          if (index != -1) {
+            this.gridNodes.splice(index, 1);
+          }
 
-           this.box = this.gridBoxLayer.selectAll('.rowBox')
-             .data(this.gridNodes, (d) => { return d.type.id + '-' + d.slug; })
-             .join(
-               enter => enter.append('svg:rect')
-                 .each(function(d) { d.svgTarget = this; })
-                 .attr('class', 'rowBox')
-                 .attr('x', (d, i) => { d[base.instanceId].x = this.colScale(i % this.itemsPerRow) + 0.5; return d[base.instanceId].x; })
-                 .attr('y', (d, i) => { d[base.instanceId].y = this.rowScale(Math.floor(i / this.itemsPerRow) + 1) - this.boxSize + 0.5; return d[base.instanceId].y; })
-                 .attr('width', this.boxSize)
-                 .attr('height', this.boxSize)
-                 .attr('stroke', '#000')
-                 .style('cursor', 'pointer')
-                 .attr('stroke-opacity', '.2')
-                 .attr('fill-opacity', this.calculateOpacity)
-                 .attr('fill', function(d) {
-                   return base.highlightColorScale(d.type.singular);
-                 })
-                 .on("click", (d) => {
-                   var index = base.selectedNodes.indexOf(d);
-                   if (index == -1) {
-                     base.selectedNodes.push(d);
-                     base.loadNode(d.slug, 0, 0, base.updateInspector);
-                   } else {
-                     base.selectedNodes.splice(index, 1);
-                   }
-                   base.updateInspector();
-                   this.updateGraph();
-                   return true;
-                 })
-                 .on("mouseover", (d) => {
-                   if (!isMobile) {
-                     base.rolloverNode = d;
-                     this.updateGraph();
-                   }
-                 })
-                 .on("mouseout", (d) => {
-                   if (!isMobile) {
-                     base.rolloverNode = null;
-                     this.updateGraph();
-                   }
-                 })
-             );
+          this.box = this.gridBoxLayer.selectAll('.rowBox')
+            .data(this.gridNodes, (d) => { return d.type.id + '-' + d.slug; })
+            .join(
+              enter => enter.append('svg:rect')
+                .each(function(d) { d.svgTarget = this; })
+                .attr('class', 'rowBox')
+                .attr('x', (d, i) => { d[base.instanceId].x = this.colScale(i % this.itemsPerRow) + 0.5; return d[base.instanceId].x; })
+                .attr('y', (d, i) => { d[base.instanceId].y = this.rowScale(Math.floor(i / this.itemsPerRow) + 1) - this.boxSize + 0.5; return d[base.instanceId].y; })
+                .attr('width', this.boxSize)
+                .attr('height', this.boxSize)
+                .attr('stroke', '#000')
+                .style('cursor', 'pointer')
+                .attr('stroke-opacity', '.2')
+                .attr('fill-opacity', this.calculateOpacity)
+                .attr('fill', function(d) {
+                  return base.highlightColorScale(d.type.singular);
+                })
+                .on("click", (d) => {
+                  var index = base.selectedNodes.indexOf(d);
+                  if (index == -1) {
+                    base.selectedNodes.push(d);
+                    base.loadNode(d.slug, 0, 0, base.updateInspector);
+                  } else {
+                    base.selectedNodes.splice(index, 1);
+                  }
+                  base.updateInspector();
+                  this.updateGraph();
+                  return true;
+                })
+                .on("mouseover", (d) => {
+                  if (!isMobile) {
+                    base.rolloverNode = d;
+                    this.updateGraph();
+                  }
+                })
+                .on("mouseout", (d) => {
+                  if (!isMobile) {
+                    base.rolloverNode = null;
+                    this.updateGraph();
+                  }
+                })
+            );
 
           let visualizePaths = false;
           if ((base.options.content == "path" || base.options.content == "all") && (base.options.relations == "path" || base.options.relations == "all")) {
@@ -2547,273 +2547,273 @@ window.scalarvis = { instanceCount: -1 };
             visualizePaths = true;
           }
 
-           if (visualizePaths) {
-             // path vis line function
-             this.line = d3.line()
-               .x((d) => {
-                 if (d[base.instanceId]) {
-                   return d[base.instanceId].x + (this.boxSize * .5);
-                 } else {
-                   return 0;
-                 }
-               })
-               .y((d) => {
-                 if (d[base.instanceId]) {
-                   return d[base.instanceId].y + (this.boxSize * .5);
-                 } else {
-                   return 0;
-                 }
-               })
-               .curve(d3.curveCatmullRom.alpha(0.5));
+          if (visualizePaths) {
+            // path vis line function
+            this.line = d3.line()
+              .x((d) => {
+                if (d[base.instanceId]) {
+                  return d[base.instanceId].x + (this.boxSize * .5);
+                } else {
+                  return 0;
+                }
+              })
+              .y((d) => {
+                if (d[base.instanceId]) {
+                  return d[base.instanceId].y + (this.boxSize * .5);
+                } else {
+                  return 0;
+                }
+              })
+              .curve(d3.curveCatmullRom.alpha(0.5));
 
-             var typedNodes = scalarapi.model.getNodesWithProperty('dominantScalarType', 'path', 'alphabetical');
+            var typedNodes = scalarapi.model.getNodesWithProperty('dominantScalarType', 'path', 'alphabetical');
 
-             // build array of path contents
-             n = typedNodes.length;
-             var pathRelations;
-             var allPathContents = [];
-             var pathContents;
-             for (i = 0; i < n; i++) {
-               node = typedNodes[i];
-               let okToInclude = true;
-               if (base.options.content == "lens") {
-                 if (!base.options.lens.items) {
-                   okToInclude = false;
-                 } else if (!base.options.lens.items[node.url]) {
-                   okToInclude = false;
-                 }
-               }
-               if (okToInclude) {
-                 pathContents = node.getRelatedNodes('path', 'outgoing');
-                 pathContents.unshift(node);
-                 allPathContents.push(pathContents);
-               }
-             }
+            // build array of path contents
+            n = typedNodes.length;
+            var pathRelations;
+            var allPathContents = [];
+            var pathContents;
+            for (i = 0; i < n; i++) {
+              node = typedNodes[i];
+              let okToInclude = true;
+              if (base.options.content == "lens") {
+                if (!base.options.lens.items) {
+                  okToInclude = false;
+                } else if (!base.options.lens.items[node.url]) {
+                  okToInclude = false;
+                }
+              }
+              if (okToInclude) {
+                pathContents = node.getRelatedNodes('path', 'outgoing');
+                pathContents.unshift(node);
+                allPathContents.push(pathContents);
+              }
+            }
 
-             var pathGroups = this.gridPathLayer.selectAll('g.pathGroup')
-               .data(allPathContents, function(d) { return d[0].slug; });
+            var pathGroups = this.gridPathLayer.selectAll('g.pathGroup')
+              .data(allPathContents, function(d) { return d[0].slug; });
 
-             // create a container group for each path vis
-             var groupEnter = pathGroups.enter().append('g')
-               .attr('width', this.size.width)
-               .attr('height', base.svg.attr('height'))
-               .attr('class', 'pathGroup')
-               .attr('visibility', 'hidden')
-               .attr('pointer-events', 'none');
+            // create a container group for each path vis
+            var groupEnter = pathGroups.enter().append('g')
+              .attr('width', this.size.width)
+              .attr('height', base.svg.attr('height'))
+              .attr('class', 'pathGroup')
+              .attr('visibility', 'hidden')
+              .attr('pointer-events', 'none');
 
-             // add the path to the group
-             groupEnter.append('path')
-               .attr('class', 'pathLink')
-               .attr('stroke', function(d) {
-                 return base.highlightColorScale("path", "verb");
-               })
-               .attr('stroke-dasharray', '5,2')
-               .attr('d', this.line);
+            // add the path to the group
+            groupEnter.append('path')
+              .attr('class', 'pathLink')
+              .attr('stroke', function(d) {
+                return base.highlightColorScale("path", "verb");
+              })
+              .attr('stroke-dasharray', '5,2')
+              .attr('d', this.line);
 
-             // add the path's dots to the group
-             groupEnter.selectAll('circle.pathDot')
-               .data(function(d) { return d; })
-               .enter().append('circle')
-               .attr('fill', function(d) {
-                 return base.highlightColorScale("path", "verb");
-               })
-               .attr('class', 'pathDot')
-               .attr('cx', (d) => {
-                 return d[base.instanceId] ? d[base.instanceId].x + (this.boxSize * .5) : 0;
-               })
-               .attr('cy', (d) => {
-                 return d[base.instanceId] ? d[base.instanceId].y + (this.boxSize * .5) : 0;
-               })
-               .attr('r', function(d, i) { return (i == 0) ? 5 : 3; });
+            // add the path's dots to the group
+            groupEnter.selectAll('circle.pathDot')
+              .data(function(d) { return d; })
+              .enter().append('circle')
+              .attr('fill', function(d) {
+                return base.highlightColorScale("path", "verb");
+              })
+              .attr('class', 'pathDot')
+              .attr('cx', (d) => {
+                return d[base.instanceId] ? d[base.instanceId].x + (this.boxSize * .5) : 0;
+              })
+              .attr('cy', (d) => {
+                return d[base.instanceId] ? d[base.instanceId].y + (this.boxSize * .5) : 0;
+              })
+              .attr('r', function(d, i) { return (i == 0) ? 5 : 3; });
 
-             // add the step numbers to the group
-             groupEnter.selectAll('text.pathDotText')
-               .data(function(d) { return d; })
-               .enter().append('text')
-               .attr('fill', function(d) {
-                 return base.highlightColorScale("path", "verb");
-               })
-               .attr('class', 'pathDotText')
-               .attr('dx', function(d) {
-                 return d[base.instanceId] ? d[base.instanceId].x + 3 : 0;
-               })
-               .attr('dy', function(d) {
-                 return d[base.instanceId] ? d[base.instanceId].y + this.boxSize - 3 : 0;
-               })
-               .text(function(d, i) { return (i == 0) ? '' : i; });
+            // add the step numbers to the group
+            groupEnter.selectAll('text.pathDotText')
+              .data(function(d) { return d; })
+              .enter().append('text')
+              .attr('fill', function(d) {
+                return base.highlightColorScale("path", "verb");
+              })
+              .attr('class', 'pathDotText')
+              .attr('dx', function(d) {
+                return d[base.instanceId] ? d[base.instanceId].x + 3 : 0;
+              })
+              .attr('dy', function(d) {
+                return d[base.instanceId] ? d[base.instanceId].y + this.boxSize - 3 : 0;
+              })
+              .text(function(d, i) { return (i == 0) ? '' : i; });
 
-           } else {
-             this.gridPathLayer.selectAll('g.pathGroup').remove();
-           }
+          } else {
+            this.gridPathLayer.selectAll('g.pathGroup').remove();
+          }
 
-           this.redrawGrid();
-           this.updateGraph();
-         }
-       }
+          this.redrawGrid();
+          this.updateGraph();
+        }
+      }
 
-       getHelpContent() {
-         var helpContent;
-         if (!base.isVisOfCurrentPage()) {
-           helpContent = "This visualization shows <b>how content is interconnected</b> in this work.<ul>";
-         } else {
-           helpContent = "This visualization shows how <b>&ldquo;" + currentNode.getDisplayTitle() + "&rdquo;</b> is connected to other content in this work.<ul>";
-         }
-         helpContent += "<li>Each box represents a piece of content, color-coded by type.</li>" +
-           "<li>The darker the box, the more connections it has to other content (relative to the other boxes).</li>" +
-           "<li>Each line represents a connection, color-coded by type.</li>" +
-           "<li>You can roll over the boxes to browse connections, or click to add more content to the current selection.</li>" +
-           "<li>Click the &ldquo;View&rdquo; button of any selected item to navigate to it.</li></ul>";
-         return helpContent;
-       }
+      getHelpContent() {
+        var helpContent;
+        if (!base.isVisOfCurrentPage()) {
+          helpContent = "This visualization shows <b>how content is interconnected</b> in this work.<ul>";
+        } else {
+          helpContent = "This visualization shows how <b>&ldquo;" + this.currentNode.getDisplayTitle() + "&rdquo;</b> is connected to other content in this work.<ul>";
+        }
+        helpContent += "<li>Each box represents a piece of content, color-coded by type.</li>" +
+          "<li>The darker the box, the more connections it has to other content (relative to the other boxes).</li>" +
+          "<li>Each line represents a connection, color-coded by type.</li>" +
+          "<li>You can roll over the boxes to browse connections, or click to add more content to the current selection.</li>" +
+          "<li>Click the &ldquo;View&rdquo; button of any selected item to navigate to it.</li></ul>";
+        return helpContent;
+      }
 
-       setupElement() {
-         base.visualization.empty();
-         base.visualization.removeClass('bounded');
-         base.svg = d3.select(base.visualization[0]).append('svg:svg').attr('width', this.size.width);
-         this.gridBoxLayer = base.svg.append('svg:g')
-           .attr('width', this.size.width)
-           .attr('height', this.size.height);
-         this.gridPathLayer = base.svg.append('svg:g')
-           .attr('width', this.size.width)
-           .attr('height', this.size.height);
-         this.gridLinkLayer = base.svg.append('svg:g')
-           .attr('width', this.size.width)
-           .attr('height', this.size.height);
-       }
+      setupElement() {
+        base.visualization.empty();
+        base.visualization.removeClass('bounded');
+        base.svg = d3.select(base.visualization[0]).append('svg:svg').attr('width', this.size.width);
+        this.gridBoxLayer = base.svg.append('svg:g')
+          .attr('width', this.size.width)
+          .attr('height', this.size.height);
+        this.gridPathLayer = base.svg.append('svg:g')
+          .attr('width', this.size.width)
+          .attr('height', this.size.height);
+        this.gridLinkLayer = base.svg.append('svg:g')
+          .attr('width', this.size.width)
+          .attr('height', this.size.height);
+      }
 
-       calculateOpacity(d) {
-         var val = 0;
-         if (base.maxConnections > 0) {
-           if (d.outgoingRelations) {
-             val = d.outgoingRelations.length;
-           }
-           if (d.incomingRelations) {
-             val += d.incomingRelations.length;
-           }
-           val += 1;
-           val /= base.maxConnections;
-           val *= .75;
-         } else {
-           val = .1;
-         }
-         val += .1;
-         return val;
-       }
+      calculateOpacity(d) {
+        var val = 0;
+        if (base.maxConnections > 0) {
+          if (d.outgoingRelations) {
+            val = d.outgoingRelations.length;
+          }
+          if (d.incomingRelations) {
+            val += d.incomingRelations.length;
+          }
+          val += 1;
+          val /= base.maxConnections;
+          val *= .75;
+        } else {
+          val = .1;
+        }
+        val += .1;
+        return val;
+      }
 
-       redrawGrid() {
-         if (this.isLocallySorted) {
-           this.box.sort(base.typeSort).attr('fill', (d) => { return (base.rolloverNode == d) ? d3.rgb(base.highlightColorScale(d.type.singular)).darker() : base.highlightColorScale(d.type.singular); })
-             .attr('fill-opacity', this.calculateOpacity)
-             .attr('x', (d, i) => { d[base.instanceId].x = this.colScale(i % this.itemsPerRow) + 0.5; return d[base.instanceId].x; })
-             .attr('y', (d, i) => { d[base.instanceId].y = this.rowScale(Math.floor(i / this.itemsPerRow) + 1) - this.boxSize + 0.5; return d[base.instanceId].y; });
-         } else {
-           this.box.attr('fill', (d) => { return (base.rolloverNode == d) ? d3.rgb(base.highlightColorScale(d.type.singular)).darker() : base.highlightColorScale(d.type.singular); })
-             .attr('fill-opacity', this.calculateOpacity)
-             .attr('x', (d, i) => { d[base.instanceId].x = this.colScale(i % this.itemsPerRow) + 0.5; return d[base.instanceId].x; })
-             .attr('y', (d, i) => { d[base.instanceId].y = this.rowScale(Math.floor(i / this.itemsPerRow) + 1) - this.boxSize + 0.5; return d[base.instanceId].y; });
-         }
+      redrawGrid() {
+        if (this.isLocallySorted) {
+          this.box.sort(base.typeSort).attr('fill', (d) => { return (base.rolloverNode == d) ? d3.rgb(base.highlightColorScale(d.type.singular)).darker() : base.highlightColorScale(d.type.singular); })
+            .attr('fill-opacity', this.calculateOpacity)
+            .attr('x', (d, i) => { d[base.instanceId].x = this.colScale(i % this.itemsPerRow) + 0.5; return d[base.instanceId].x; })
+            .attr('y', (d, i) => { d[base.instanceId].y = this.rowScale(Math.floor(i / this.itemsPerRow) + 1) - this.boxSize + 0.5; return d[base.instanceId].y; });
+        } else {
+          this.box.attr('fill', (d) => { return (base.rolloverNode == d) ? d3.rgb(base.highlightColorScale(d.type.singular)).darker() : base.highlightColorScale(d.type.singular); })
+            .attr('fill-opacity', this.calculateOpacity)
+            .attr('x', (d, i) => { d[base.instanceId].x = this.colScale(i % this.itemsPerRow) + 0.5; return d[base.instanceId].x; })
+            .attr('y', (d, i) => { d[base.instanceId].y = this.rowScale(Math.floor(i / this.itemsPerRow) + 1) - this.boxSize + 0.5; return d[base.instanceId].y; });
+        }
 
-         this.gridPathLayer.selectAll('path').attr('d', this.line);
-         this.gridPathLayer.selectAll('circle.pathDot')
-           .attr('cx', (d) => {
-             return d[base.instanceId] ? d[base.instanceId].x + (this.boxSize * .5) : 0;
-           })
-           .attr('cy', (d) => {
-             return d[base.instanceId] ? d[base.instanceId].y + (this.boxSize * .5) : 0;
-           });
-         this.gridPathLayer.selectAll('text.pathDotText')
-           .attr('dx', (d) => {
-             return d[base.instanceId] ? d[base.instanceId].x + 3 : 0;
-           })
-           .attr('dy', (d) => {
-             return d[base.instanceId] ? d[base.instanceId].y + this.boxSize - 3 : 0;
-           });
+        this.gridPathLayer.selectAll('path').attr('d', this.line);
+        this.gridPathLayer.selectAll('circle.pathDot')
+          .attr('cx', (d) => {
+            return d[base.instanceId] ? d[base.instanceId].x + (this.boxSize * .5) : 0;
+          })
+          .attr('cy', (d) => {
+            return d[base.instanceId] ? d[base.instanceId].y + (this.boxSize * .5) : 0;
+          });
+        this.gridPathLayer.selectAll('text.pathDotText')
+          .attr('dx', (d) => {
+            return d[base.instanceId] ? d[base.instanceId].x + 3 : 0;
+          })
+          .attr('dy', (d) => {
+            return d[base.instanceId] ? d[base.instanceId].y + this.boxSize - 3 : 0;
+          });
 
-         var visPos = base.visualization.position();
+        var visPos = base.visualization.position();
 
-         d3.select(base.visualization[0]).selectAll('div.info_box')
-           .style('left', (d) => { return (d[base.instanceId].x + visPos.left + (this.boxSize * .5)) + 'px'; })
-           .style('top', (d) => { return (d[base.instanceId].y + visPos.top + this.boxSize + 5) + 'px'; });
+        d3.select(base.visualization[0]).selectAll('div.info_box')
+          .style('left', (d) => { return (d[base.instanceId].x + visPos.left + (this.boxSize * .5)) + 'px'; })
+          .style('top', (d) => { return (d[base.instanceId].y + visPos.top + this.boxSize + 5) + 'px'; });
 
-         this.gridLinkLayer.selectAll('line.connection')
-           .attr('x1', (d) => { return d.body[base.instanceId].x + (this.boxSize * .5); })
-           .attr('y1', (d) => { return d.body[base.instanceId].y + (this.boxSize * .5); })
-           .attr('x2', (d) => { return d.target[base.instanceId].x + (this.boxSize * .5); })
-           .attr('y2', (d) => { return d.target[base.instanceId].y + (this.boxSize * .5); });
-         this.gridLinkLayer.selectAll('circle.connectionDot')
-           .attr('cx', (d) => { return d.node[base.instanceId].x + (this.boxSize * .5); })
-           .attr('cy', (d) => { return d.node[base.instanceId].y + (this.boxSize * .5); });
-       }
+        this.gridLinkLayer.selectAll('line.connection')
+          .attr('x1', (d) => { return d.body[base.instanceId].x + (this.boxSize * .5); })
+          .attr('y1', (d) => { return d.body[base.instanceId].y + (this.boxSize * .5); })
+          .attr('x2', (d) => { return d.target[base.instanceId].x + (this.boxSize * .5); })
+          .attr('y2', (d) => { return d.target[base.instanceId].y + (this.boxSize * .5); });
+        this.gridLinkLayer.selectAll('circle.connectionDot')
+          .attr('cx', (d) => { return d.node[base.instanceId].x + (this.boxSize * .5); })
+          .attr('cy', (d) => { return d.node[base.instanceId].y + (this.boxSize * .5); });
+      }
 
-       updateGraph() {
-         base.updateActiveNodes();
-         this.box.attr('fill', function(d) { return (base.rolloverNode == d) ? d3.rgb(base.highlightColorScale(d.type.singular)).darker() : base.highlightColorScale(d.type.singular); });
-         var infoBox = d3.select(base.visualization[0]).selectAll('div.info_box');
+      updateGraph() {
+        base.updateActiveNodes();
+        this.box.attr('fill', function(d) { return (base.rolloverNode == d) ? d3.rgb(base.highlightColorScale(d.type.singular)).darker() : base.highlightColorScale(d.type.singular); });
+        var infoBox = d3.select(base.visualization[0]).selectAll('div.info_box');
 
-         // turn on/off path lines
-         this.gridPathLayer.selectAll('g.pathGroup')
-           .attr('visibility', function(d) {
-             return ((base.activeNodes.indexOf(d[0]) != -1)) ? 'visible' : 'hidden';
-           });
+        // turn on/off path lines
+        this.gridPathLayer.selectAll('g.pathGroup')
+          .attr('visibility', function(d) {
+            return ((base.activeNodes.indexOf(d[0]) != -1)) ? 'visible' : 'hidden';
+          });
 
-         infoBox = infoBox.data(base.activeNodes, function(d) { return d.slug; });
+        infoBox = infoBox.data(base.activeNodes, function(d) { return d.slug; });
 
-         var visPos = base.visualization.position();
+        var visPos = base.visualization.position();
 
-          infoBox.join(
-            enter => enter.append('div')
-              .attr('class', 'info_box')
-              .style('left', (d) => { return (d[base.instanceId].x + visPos.left + (this.boxSize * .5)) + 'px'; })
-              .style('top', (d) => { return (d[base.instanceId].y + visPos.top + this.boxSize + 5) + 'px'; })
-              .html(base.nodeInfoBox),
-            update => update.style('left', (d) => { return (d[base.instanceId].x + visPos.left + (this.boxSize * .5)) + 'px'; })
-              .style('top', (d) => { return (d[base.instanceId].y + visPos.top + this.boxSize + 5) + 'px'; })
-              .html(base.nodeInfoBox),
-            exit => exit.remove()
-          );
+        infoBox.join(
+          enter => enter.append('div')
+            .attr('class', 'info_box')
+            .style('left', (d) => { return (d[base.instanceId].x + visPos.left + (this.boxSize * .5)) + 'px'; })
+            .style('top', (d) => { return (d[base.instanceId].y + visPos.top + this.boxSize + 5) + 'px'; })
+            .html(base.nodeInfoBox),
+          update => update.style('left', (d) => { return (d[base.instanceId].x + visPos.left + (this.boxSize * .5)) + 'px'; })
+            .style('top', (d) => { return (d[base.instanceId].y + visPos.top + this.boxSize + 5) + 'px'; })
+            .html(base.nodeInfoBox),
+          exit => exit.remove()
+        );
 
-         // connections
-         var linkGroup = this.gridLinkLayer.selectAll('g.linkGroup')
-           .data(base.activeNodes);
+        // connections
+        var linkGroup = this.gridLinkLayer.selectAll('g.linkGroup')
+          .data(base.activeNodes);
 
-         var linkEnter = linkGroup.join(
-           enter => {
-             // container group for each node's connections
-             enter.append('g')
-               .attr('width', this.size.width)
-               .attr('height', base.svg.attr('height'))
-               .attr('class', 'linkGroup')
-               .attr('pointer-events', 'none')
+        var linkEnter = linkGroup.join(
+          enter => {
+            // container group for each node's connections
+            enter.append('g')
+              .attr('width', this.size.width)
+              .attr('height', base.svg.attr('height'))
+              .attr('class', 'linkGroup')
+              .attr('pointer-events', 'none')
             // draw connection lines
-             enter.selectAll('line.connection')
-               .data((d) => {
-                 var relationArr = [];
-                 var relations = d.outgoingRelations.concat(d.incomingRelations);
-                 var relation;
-                 var i;
-                 var n = relations.length;
-                 for (i = 0; i < n; i++) {
-                   relation = relations[i];
-                   if (relation.type.id == base.options.relations || base.options.relations == "all" || base.options.content == "lens") {
-                     if (relation.type.id != 'path' && this.gridNodes.indexOf(relation.body) != -1 && this.gridNodes.indexOf(relation.target) != -1) {
-                       if (!relation.body.scalarTypes.toc) {
-                         relationArr.push(relations[i]);
-                       }
-                     }
-                   }
-                 }
-                 return relationArr;
-               })
-               .join(
-                 enter => enter.append('line')
-                   .attr('class', 'connection')
-                   .attr('x1', (d) => { return d.body[base.instanceId].x + (this.boxSize * .5); })
-                   .attr('y1', (d) => { return d.body[base.instanceId].y + (this.boxSize * .5); })
-                   .attr('x2', (d) => { return d.target[base.instanceId].x + (this.boxSize * .5); })
-                   .attr('y2', (d) => { return d.target[base.instanceId].y + (this.boxSize * .5); })
-                   .attr('stroke-width', 1)
-                   .attr('stroke-dasharray', '1,2')
-                   .attr('stroke', function(d) { return base.highlightColorScale((d.type.id == 'reference') ? 'media' : d.type.id); }),
+            enter.selectAll('line.connection')
+              .data((d) => {
+                var relationArr = [];
+                var relations = d.outgoingRelations.concat(d.incomingRelations);
+                var relation;
+                var i;
+                var n = relations.length;
+                for (i = 0; i < n; i++) {
+                  relation = relations[i];
+                  if (relation.type.id == base.options.relations || base.options.relations == "all" || base.options.content == "lens") {
+                    if (relation.type.id != 'path' && this.gridNodes.indexOf(relation.body) != -1 && this.gridNodes.indexOf(relation.target) != -1) {
+                      if (!relation.body.scalarTypes.toc) {
+                        relationArr.push(relations[i]);
+                      }
+                    }
+                  }
+                }
+                return relationArr;
+              })
+              .join(
+                enter => enter.append('line')
+                  .attr('class', 'connection')
+                  .attr('x1', (d) => { return d.body[base.instanceId].x + (this.boxSize * .5); })
+                  .attr('y1', (d) => { return d.body[base.instanceId].y + (this.boxSize * .5); })
+                  .attr('x2', (d) => { return d.target[base.instanceId].x + (this.boxSize * .5); })
+                  .attr('y2', (d) => { return d.target[base.instanceId].y + (this.boxSize * .5); })
+                  .attr('stroke-width', 1)
+                  .attr('stroke-dasharray', '1,2')
+                  .attr('stroke', function(d) { return base.highlightColorScale((d.type.id == 'reference') ? 'media' : d.type.id); }),
                 update => update.attr('class', 'connection')
                   .attr('x1', (d) => { return d.body[base.instanceId].x + (this.boxSize * .5); })
                   .attr('y1', (d) => { return d.body[base.instanceId].y + (this.boxSize * .5); })
@@ -2823,79 +2823,79 @@ window.scalarvis = { instanceCount: -1 };
                   .attr('stroke-dasharray', '1,2')
                   .attr('stroke', function(d) { return base.highlightColorScale((d.type.id == 'reference') ? 'media' : d.type.id); }),
                 exit => exit.remove()
-               )
-             // draw connection dots
-             enter.selectAll('circle.connectionDot')
-               .data((d) => {
-                 var nodeArr = [];
-                 var relations = d.outgoingRelations.concat(d.incomingRelations);
-                 var relation;
-                 var i;
-                 var n = relations.length;
-                 for (i = 0; i < n; i++) {
-                   relation = relations[i];
-                   if (relation.type.id == base.options.relations || base.options.relations == "all" || base.options.content == "lens") {
-                     if ((relation.type.id != 'path') && (this.gridNodes.indexOf(relation.body) != -1) && (this.gridNodes.indexOf(relation.target) != -1)) {
-                       if (!relation.body.scalarTypes.toc) {
-                         nodeArr.push({ role: 'body', node: relation.body, type: relation.type });
-                         nodeArr.push({ role: 'target', node: relation.target, type: relation.type });
-                       }
-                     }
-                   }
-                 }
-                 return nodeArr;
-               })
-               .join(
-                 enter => enter.append('circle')
-                   .attr('fill', function(d) { return base.highlightColorScale((d.type.id == 'reference') ? 'media' : d.type.id); })
-                   .attr('class', 'connectionDot')
-                   .attr('cx', (d) => { return d.node[base.instanceId].x + (this.boxSize * .5); })
-                   .attr('cy', (d) => { return d.node[base.instanceId].y + (this.boxSize * .5); })
-                   .attr('r', (d, i) => { return (d.role == 'body') ? 5 : 3; }),
-                 update => update.attr('fill', function(d) { return base.highlightColorScale((d.type.id == 'reference') ? 'media' : d.type.id); })
-                   .attr('class', 'connectionDot')
-                   .attr('cx', (d) => { return d.node[base.instanceId].x + (this.boxSize * .5); })
-                   .attr('cy', (d) => { return d.node[base.instanceId].y + (this.boxSize * .5); })
-                   .attr('r', (d, i) => { return (d.role == 'body') ? 5 : 3; }),
-                 exit => exit.remove()
-               )
-           },
-           // update is largely redundant here (but needed), possible refactor oppty
-           update => {
-             // container group for each node's connections
-             update.append('g')
-               .attr('width', this.size.width)
-               .attr('height', base.svg.attr('height'));
-             // draw connection lines
-             update.selectAll('line.connection')
-               .data((d) => {
-                 var relationArr = [];
-                 var relations = d.outgoingRelations.concat(d.incomingRelations);
-                 var relation;
-                 var i;
-                 var n = relations.length;
-                 for (i = 0; i < n; i++) {
-                   relation = relations[i];
-                   if (relation.type.id == base.options.relations || base.options.relations == "all" || base.options.content == "lens") {
-                     if (relation.type.id != 'path' && this.gridNodes.indexOf(relation.body) != -1 && this.gridNodes.indexOf(relation.target) != -1) {
-                       if (!relation.body.scalarTypes.toc) {
-                         relationArr.push(relations[i]);
-                       }
-                     }
-                   }
-                 }
-                 return relationArr;
-               })
-               .join(
-                 enter => enter.append('line')
-                   .attr('class', 'connection')
-                   .attr('x1', (d) => { return d.body[base.instanceId].x + (this.boxSize * .5); })
-                   .attr('y1', (d) => { return d.body[base.instanceId].y + (this.boxSize * .5); })
-                   .attr('x2', (d) => { return d.target[base.instanceId].x + (this.boxSize * .5); })
-                   .attr('y2', (d) => { return d.target[base.instanceId].y + (this.boxSize * .5); })
-                   .attr('stroke-width', 1)
-                   .attr('stroke-dasharray', '1,2')
-                   .attr('stroke', function(d) { return base.highlightColorScale((d.type.id == 'reference') ? 'media' : d.type.id); }),
+              )
+            // draw connection dots
+            enter.selectAll('circle.connectionDot')
+              .data((d) => {
+                var nodeArr = [];
+                var relations = d.outgoingRelations.concat(d.incomingRelations);
+                var relation;
+                var i;
+                var n = relations.length;
+                for (i = 0; i < n; i++) {
+                  relation = relations[i];
+                  if (relation.type.id == base.options.relations || base.options.relations == "all" || base.options.content == "lens") {
+                    if ((relation.type.id != 'path') && (this.gridNodes.indexOf(relation.body) != -1) && (this.gridNodes.indexOf(relation.target) != -1)) {
+                      if (!relation.body.scalarTypes.toc) {
+                        nodeArr.push({ role: 'body', node: relation.body, type: relation.type });
+                        nodeArr.push({ role: 'target', node: relation.target, type: relation.type });
+                      }
+                    }
+                  }
+                }
+                return nodeArr;
+              })
+              .join(
+                enter => enter.append('circle')
+                  .attr('fill', function(d) { return base.highlightColorScale((d.type.id == 'reference') ? 'media' : d.type.id); })
+                  .attr('class', 'connectionDot')
+                  .attr('cx', (d) => { return d.node[base.instanceId].x + (this.boxSize * .5); })
+                  .attr('cy', (d) => { return d.node[base.instanceId].y + (this.boxSize * .5); })
+                  .attr('r', (d, i) => { return (d.role == 'body') ? 5 : 3; }),
+                update => update.attr('fill', function(d) { return base.highlightColorScale((d.type.id == 'reference') ? 'media' : d.type.id); })
+                  .attr('class', 'connectionDot')
+                  .attr('cx', (d) => { return d.node[base.instanceId].x + (this.boxSize * .5); })
+                  .attr('cy', (d) => { return d.node[base.instanceId].y + (this.boxSize * .5); })
+                  .attr('r', (d, i) => { return (d.role == 'body') ? 5 : 3; }),
+                exit => exit.remove()
+              )
+          },
+          // update is largely redundant here (but needed), possible refactor oppty
+          update => {
+            // container group for each node's connections
+            update.append('g')
+              .attr('width', this.size.width)
+              .attr('height', base.svg.attr('height'));
+            // draw connection lines
+            update.selectAll('line.connection')
+              .data((d) => {
+                var relationArr = [];
+                var relations = d.outgoingRelations.concat(d.incomingRelations);
+                var relation;
+                var i;
+                var n = relations.length;
+                for (i = 0; i < n; i++) {
+                  relation = relations[i];
+                  if (relation.type.id == base.options.relations || base.options.relations == "all" || base.options.content == "lens") {
+                    if (relation.type.id != 'path' && this.gridNodes.indexOf(relation.body) != -1 && this.gridNodes.indexOf(relation.target) != -1) {
+                      if (!relation.body.scalarTypes.toc) {
+                        relationArr.push(relations[i]);
+                      }
+                    }
+                  }
+                }
+                return relationArr;
+              })
+              .join(
+                enter => enter.append('line')
+                  .attr('class', 'connection')
+                  .attr('x1', (d) => { return d.body[base.instanceId].x + (this.boxSize * .5); })
+                  .attr('y1', (d) => { return d.body[base.instanceId].y + (this.boxSize * .5); })
+                  .attr('x2', (d) => { return d.target[base.instanceId].x + (this.boxSize * .5); })
+                  .attr('y2', (d) => { return d.target[base.instanceId].y + (this.boxSize * .5); })
+                  .attr('stroke-width', 1)
+                  .attr('stroke-dasharray', '1,2')
+                  .attr('stroke', function(d) { return base.highlightColorScale((d.type.id == 'reference') ? 'media' : d.type.id); }),
                 update => update.attr('class', 'connection')
                   .attr('x1', (d) => { return d.body[base.instanceId].x + (this.boxSize * .5); })
                   .attr('y1', (d) => { return d.body[base.instanceId].y + (this.boxSize * .5); })
@@ -2905,46 +2905,46 @@ window.scalarvis = { instanceCount: -1 };
                   .attr('stroke-dasharray', '1,2')
                   .attr('stroke', function(d) { return base.highlightColorScale((d.type.id == 'reference') ? 'media' : d.type.id); }),
                 exit => exit.remove()
-               )
-             // draw connection dots
-             update.selectAll('circle.connectionDot')
-               .data((d) => {
-                 var nodeArr = [];
-                 var relations = d.outgoingRelations.concat(d.incomingRelations);
-                 var relation;
-                 var i;
-                 var n = relations.length;
-                 for (i = 0; i < n; i++) {
-                   relation = relations[i];
-                   if (relation.type.id == base.options.relations || base.options.relations == "all" || base.options.content == "lens") {
-                     if ((relation.type.id != 'path') && (this.gridNodes.indexOf(relation.body) != -1) && (this.gridNodes.indexOf(relation.target) != -1)) {
-                       if (!relation.body.scalarTypes.toc) {
-                         nodeArr.push({ role: 'body', node: relation.body, type: relation.type });
-                         nodeArr.push({ role: 'target', node: relation.target, type: relation.type });
-                       }
-                     }
-                   }
-                 }
-                 return nodeArr;
-               })
-               .join(
-                 enter => enter.append('circle')
-                   .attr('fill', function(d) { return base.highlightColorScale((d.type.id == 'reference') ? 'media' : d.type.id); })
-                   .attr('class', 'connectionDot')
-                   .attr('cx', (d) => { return d.node[base.instanceId].x + (this.boxSize * .5); })
-                   .attr('cy', (d) => { return d.node[base.instanceId].y + (this.boxSize * .5); })
-                   .attr('r', (d, i) => { return (d.role == 'body') ? 5 : 3; }),
-                 update => update.attr('fill', function(d) { return base.highlightColorScale((d.type.id == 'reference') ? 'media' : d.type.id); })
-                   .attr('class', 'connectionDot')
-                   .attr('cx', (d) => { return d.node[base.instanceId].x + (this.boxSize * .5); })
-                   .attr('cy', (d) => { return d.node[base.instanceId].y + (this.boxSize * .5); })
-                   .attr('r', (d, i) => { return (d.role == 'body') ? 5 : 3; }),
-                 exit => exit.remove()
-               )
-           },
-           exit => exit.remove()
-         );
-       }
+              )
+            // draw connection dots
+            update.selectAll('circle.connectionDot')
+              .data((d) => {
+                var nodeArr = [];
+                var relations = d.outgoingRelations.concat(d.incomingRelations);
+                var relation;
+                var i;
+                var n = relations.length;
+                for (i = 0; i < n; i++) {
+                  relation = relations[i];
+                  if (relation.type.id == base.options.relations || base.options.relations == "all" || base.options.content == "lens") {
+                    if ((relation.type.id != 'path') && (this.gridNodes.indexOf(relation.body) != -1) && (this.gridNodes.indexOf(relation.target) != -1)) {
+                      if (!relation.body.scalarTypes.toc) {
+                        nodeArr.push({ role: 'body', node: relation.body, type: relation.type });
+                        nodeArr.push({ role: 'target', node: relation.target, type: relation.type });
+                      }
+                    }
+                  }
+                }
+                return nodeArr;
+              })
+              .join(
+                enter => enter.append('circle')
+                  .attr('fill', function(d) { return base.highlightColorScale((d.type.id == 'reference') ? 'media' : d.type.id); })
+                  .attr('class', 'connectionDot')
+                  .attr('cx', (d) => { return d.node[base.instanceId].x + (this.boxSize * .5); })
+                  .attr('cy', (d) => { return d.node[base.instanceId].y + (this.boxSize * .5); })
+                  .attr('r', (d, i) => { return (d.role == 'body') ? 5 : 3; }),
+                update => update.attr('fill', function(d) { return base.highlightColorScale((d.type.id == 'reference') ? 'media' : d.type.id); })
+                  .attr('class', 'connectionDot')
+                  .attr('cx', (d) => { return d.node[base.instanceId].x + (this.boxSize * .5); })
+                  .attr('cy', (d) => { return d.node[base.instanceId].y + (this.boxSize * .5); })
+                  .attr('r', (d, i) => { return (d.role == 'body') ? 5 : 3; }),
+                exit => exit.remove()
+              )
+          },
+          exit => exit.remove()
+        );
+      }
     }
 
     /**********************
@@ -2964,7 +2964,7 @@ window.scalarvis = { instanceCount: -1 };
         super.draw();
         if (base.svg != null && base.hierarchy != null) {
           this.root = d3.hierarchy(base.hierarchy);
-          this.root.descendants().forEach((d,i) => {
+          this.root.descendants().forEach((d, i) => {
             d._children = d.children;
           })
           this.updateNoResultsMessage(base.sortedNodes);
@@ -3071,7 +3071,7 @@ window.scalarvis = { instanceCount: -1 };
       getDescendantForData(data) {
         let descendant;
         let descendants = this.root.descendants();
-        for (let i=0; i<descendants.length; i++) {
+        for (let i = 0; i < descendants.length; i++) {
           let candidate = descendants[i];
           if (candidate.data.title == data.title && candidate.data.node == data.node) {
             descendant = candidate;
@@ -3220,7 +3220,7 @@ window.scalarvis = { instanceCount: -1 };
               source = d.source;
             }
             var o;
-            o = {x:source.x0, y:source.y0};
+            o = { x: source.x0, y: source.y0 };
             return base.diagonal({ source: o, target: o });
           })
           .transition()
@@ -3378,26 +3378,28 @@ window.scalarvis = { instanceCount: -1 };
                 })
             )
 
-          this.calculateChords();
+          if (this.root.height > 1) {
+            this.calculateChords();
 
-          this.ribbon = d3.ribbon()
-            .startAngle(function(d) { return d.x0 - (Math.PI * .5); })
-            .endAngle(function(d) { return d.x1 - (Math.PI * .5); })
-            .radius(function(d) { return (this.r * radiusMod) - Math.sqrt(d.y1); });
+            this.ribbon = d3.ribbon()
+              .startAngle(function(d) { return d.x0 - (Math.PI * .5); })
+              .endAngle(function(d) { return d.x1 - (Math.PI * .5); })
+              .radius(function(d) { return (this.r * radiusMod) - Math.sqrt(d.y1); });
 
-          // create the chords
-          this.vis.selectAll('path.chord')
-            .data(this.links)
-            .join(
-              enter => enter.append('svg:path')
-                .attr('class', 'chord')
-                .attr('d', (d) => { return this.ribbon(d); })
-                .attr('opacity', .25)
-                .attr('display', (d) => { return this.calculateChordDisplay(d); })
-                .attr('fill', (d) => { return base.highlightColorScale(d.type); })
-                .each(this.stashChord),
-              exit => exit.remove()
-            );
+            // create the chords
+            this.vis.selectAll('path.chord')
+              .data(this.links)
+              .join(
+                enter => enter.append('svg:path')
+                  .attr('class', 'chord')
+                  .attr('d', (d) => { return this.ribbon(d); })
+                  .attr('opacity', .25)
+                  .attr('display', (d) => { return this.calculateChordDisplay(d); })
+                  .attr('fill', (d) => { return base.highlightColorScale(d.type); })
+                  .each(this.stashChord),
+                exit => exit.remove()
+              );
+          }
 
           if (base.hierarchy.children != null) {
 
@@ -3539,7 +3541,7 @@ window.scalarvis = { instanceCount: -1 };
         var descendant, index;
         var descendants = this.root.descendants();
         var n = descendants.length;
-        for (var i=0; i<n; i++) {
+        for (var i = 0; i < n; i++) {
           descendant = descendants[i];
           index = base.selectedHierarchyNodes.indexOf(descendant.data);
           if (index != -1) {
@@ -3792,7 +3794,7 @@ window.scalarvis = { instanceCount: -1 };
         var descendant;
         var descendants = this.root.descendants();
         var n = descendants.length;
-        for (var i=0; i<n; i++) {
+        for (var i = 0; i < n; i++) {
           descendant = descendants[i];
           if (descendant.data.node) {
             this.abstractedNodesBySlug[descendant.data.node.slug] = descendant;
@@ -3939,11 +3941,14 @@ window.scalarvis = { instanceCount: -1 };
           this.linkSelection.enter().insert('svg:line', '.node')
             .attr('class', 'link')
             .attr('stroke-width', function(d) {
-              return base.linkIsBeingInteractedWith(d) ? "3" : "1"; })
+              return base.linkIsBeingInteractedWith(d) ? "3" : "1";
+            })
             .attr('stroke-opacity', function(d) {
-              return base.linkIsBeingInteractedWith(d) ? '1.0' : '0.5'; })
+              return base.linkIsBeingInteractedWith(d) ? '1.0' : '0.5';
+            })
             .attr('stroke', function(d) {
-              return base.linkIsBeingInteractedWith(d) ? base.neutralColor : '#999'; });
+              return base.linkIsBeingInteractedWith(d) ? base.neutralColor : '#999';
+            });
           this.linkSelection.exit().remove();
 
           this.nodeSelection = this.container.selectAll('g.node')
@@ -4118,11 +4123,14 @@ window.scalarvis = { instanceCount: -1 };
 
         this.linkSelection
           .attr('stroke-width', function(d) {
-            return base.linkIsBeingInteractedWith(d) ? "3" : "1"; })
+            return base.linkIsBeingInteractedWith(d) ? "3" : "1";
+          })
           .attr('stroke-opacity', function(d) {
-            return base.linkIsBeingInteractedWith(d) ? '1.0' : '0.5'; })
+            return base.linkIsBeingInteractedWith(d) ? '1.0' : '0.5';
+          })
           .attr('stroke', function(d) {
-            return base.linkIsBeingInteractedWith(d) ? base.neutralColor : '#999'; });
+            return base.linkIsBeingInteractedWith(d) ? base.neutralColor : '#999';
+          });
 
         this.container.selectAll('circle.node').attr('fill', function(d) {
           var interpolator = d3.interpolateRgb(base.highlightColorScale(d.node.type.id), d3.rgb(255, 255, 255));
@@ -4205,82 +4213,82 @@ window.scalarvis = { instanceCount: -1 };
       draw() {
         super.draw();
 
-      	if (null == this.map) return;
+        if (null == this.map) return;
 
-      	this.clearMarkers();
-      	var bounds = new google.maps.LatLngBounds();
-      	var urls = [];
+        this.clearMarkers();
+        var bounds = new google.maps.LatLngBounds();
+        var urls = [];
         var titleMarkup = '';
         var thumbnailMarkup = '';
         var descriptionMarkup = '';
         var contentString = '';
-      	// Contents of paths connected by lines
-      	for (var j = 0; j < base.sortedNodes.length; j++) {
-      		if ('undefined' == typeof(base.sortedNodes[j].scalarTypes.path)) continue;
-      		var pathTitle = base.sortedNodes[j].getDisplayTitle();
-      		var pathCoordinates = [];
+        // Contents of paths connected by lines
+        for (var j = 0; j < base.sortedNodes.length; j++) {
+          if ('undefined' == typeof (base.sortedNodes[j].scalarTypes.path)) continue;
+          var pathTitle = base.sortedNodes[j].getDisplayTitle();
+          var pathCoordinates = [];
           let relations = base.sortedNodes[j].getRelations('path', 'outgoing');
-      		for (var k = 0; k < relations.length; k++) {
-      			if (null == relations[k].index) continue;  // Not part of the path
-      			if (null == relations[k].target) continue;  // Not part of the path
+          for (var k = 0; k < relations.length; k++) {
+            if (null == relations[k].index) continue;  // Not part of the path
+            if (null == relations[k].target) continue;  // Not part of the path
             var containingPathNodes = relations[k].body.getRelations('path', 'outgoing');
-      			if (-1 == urls.indexOf(relations[k].target.url)) urls.push(relations[k].target.url);
-      			titleMarkup = '<div class="caption_font path-breadcrumb"><a href="'+relations[k].body.url+'">'+pathTitle+'</a> ('+relations[k].index+'/'+containingPathNodes.length+')</div><h2 class="heading_font heading_weight"><a href="'+relations[k].target.url+'">'+relations[k].target.getDisplayTitle()+'</a></h2>';
-      			var thumbnail = relations[k].target.thumbnail;
-      			var description = relations[k].target.getDescription(true);
-      			if (null != thumbnail) thumbnailMarkup = '<img style="float:right; margin: 0 0 1rem 1rem;" src="'+thumbnail+'" alt="Thumbnail image" width="120" />';
-      			if (description && description.length) descriptionMarkup = description;
+            if (-1 == urls.indexOf(relations[k].target.url)) urls.push(relations[k].target.url);
+            titleMarkup = '<div class="caption_font path-breadcrumb"><a href="' + relations[k].body.url + '">' + pathTitle + '</a> (' + relations[k].index + '/' + containingPathNodes.length + ')</div><h2 class="heading_font heading_weight"><a href="' + relations[k].target.url + '">' + relations[k].target.getDisplayTitle() + '</a></h2>';
+            var thumbnail = relations[k].target.thumbnail;
+            var description = relations[k].target.getDescription(true);
+            if (null != thumbnail) thumbnailMarkup = '<img style="float:right; margin: 0 0 1rem 1rem;" src="' + thumbnail + '" alt="Thumbnail image" width="120" />';
+            if (description && description.length) descriptionMarkup = description;
             contentString = '<div class="google-info-window caption_font">' + titleMarkup + '<div>' + thumbnailMarkup + descriptionMarkup + '</div>';
-      			var icon = this.getIcon(relations[k].target.scalarTypes);
-      			var coords = this.drawMarkers(relations[k].target, title, contentString, icon);
+            var icon = this.getIcon(relations[k].target.scalarTypes);
+            var coords = this.drawMarkers(relations[k].target, title, contentString, icon);
             if (coords.length) {
-            	for (var m = 0; m < coords.length; m++) {
-        	    	pathCoordinates.push(coords[m]);
-        	    	bounds.extend( new google.maps.LatLng(coords[m].lat, coords[m].lng) );
-            	};
+              for (var m = 0; m < coords.length; m++) {
+                pathCoordinates.push(coords[m]);
+                bounds.extend(new google.maps.LatLng(coords[m].lat, coords[m].lng));
+              };
             }
-      		}
-      		var path_key = this.paths.length;
-      		this.paths[path_key] = new google.maps.Polyline({
-      			path: pathCoordinates,
-      			geodesic: true,
-      			strokeColor: d3.rgb(base.highlightColorScale('path')),
-      			strokeOpacity: 1.0,
-      			strokeWeight: 2
-      		});
-      		this.paths[path_key].setMap(this.map);
-      	}
-      	// All other nodes
-      	for (var j = 0; j < base.sortedNodes.length; j++) {
-      		if (-1 != urls.indexOf(base.sortedNodes[j].url)) continue;
+          }
+          var path_key = this.paths.length;
+          this.paths[path_key] = new google.maps.Polyline({
+            path: pathCoordinates,
+            geodesic: true,
+            strokeColor: d3.rgb(base.highlightColorScale('path')),
+            strokeOpacity: 1.0,
+            strokeWeight: 2
+          });
+          this.paths[path_key].setMap(this.map);
+        }
+        // All other nodes
+        for (var j = 0; j < base.sortedNodes.length; j++) {
+          if (-1 != urls.indexOf(base.sortedNodes[j].url)) continue;
           var title = base.sortedNodes[j].getDisplayTitle();
-      		titleMarkup = '<h2 class="heading_font heading_weight"><a href="'+base.sortedNodes[j].url+'">'+title+'</a></h2>';
-      		var thumbnail = base.sortedNodes[j].thumbnail;
-      		var description = base.sortedNodes[j].getDescription(true);
-      		if (null != thumbnail) thumbnailMarkup = '<img style="float:right; margin: 0 0 1rem 1rem;" src="'+thumbnail+'" alt="Thumbnail image" width="120" />';
-      		if (description && description.length) descriptionMarkup = description;
+          titleMarkup = '<h2 class="heading_font heading_weight"><a href="' + base.sortedNodes[j].url + '">' + title + '</a></h2>';
+          var thumbnail = base.sortedNodes[j].thumbnail;
+          var description = base.sortedNodes[j].getDescription(true);
+          if (null != thumbnail) thumbnailMarkup = '<img style="float:right; margin: 0 0 1rem 1rem;" src="' + thumbnail + '" alt="Thumbnail image" width="120" />';
+          if (description && description.length) descriptionMarkup = description;
           contentString = '<div class="google-info-window caption_font">' + titleMarkup + '<div>' + thumbnailMarkup + descriptionMarkup + '</div>';
-        	var icon = this.getIcon(base.sortedNodes[j].scalarTypes);
-      		var coords = this.drawMarkers(base.sortedNodes[j], title, contentString, icon);
-    	    if (coords.length) {
-	        	for (var m = 0; m < coords.length; m++) {
-	        		bounds.extend( new google.maps.LatLng(coords[m].lat, coords[m].lng) );
-	        	};
-    	    }
-      	}
-      	this.map.fitBounds(bounds);
-      	google.maps.event.addListener(this.map, 'idle', () => {  // Prevent map from being zoomed out so far it gets buggy
-      	   var zoom = parseInt(this.map.getZoom());
-      	   if (zoom < 1) {
-      		   this.map.setCenter(new google.maps.LatLng(0, 0));
-      		   this.map.setZoom(1);
-      	   }
-      	});
-      	if (!this.markers.length) {
-      		this.displayNoContentWarning();
-      	} else {
-      		this.removeNoContentWarning();
-      	}
+          var icon = this.getIcon(base.sortedNodes[j].scalarTypes);
+          var coords = this.drawMarkers(base.sortedNodes[j], title, contentString, icon);
+          if (coords.length) {
+            for (var m = 0; m < coords.length; m++) {
+              bounds.extend(new google.maps.LatLng(coords[m].lat, coords[m].lng));
+            };
+          }
+        }
+        this.map.fitBounds(bounds);
+        google.maps.event.addListener(this.map, 'idle', () => {  // Prevent map from being zoomed out so far it gets buggy
+          var zoom = parseInt(this.map.getZoom());
+          if (zoom < 1) {
+            this.map.setCenter(new google.maps.LatLng(0, 0));
+            this.map.setZoom(1);
+          }
+        });
+        if (!this.markers.length) {
+          this.displayNoContentWarning();
+        } else {
+          this.removeNoContentWarning();
+        }
       }
 
       getHelpContent() {
@@ -4292,199 +4300,199 @@ window.scalarvis = { instanceCount: -1 };
         this.hasBeenDrawn = true;
         base.visualization.empty();
         base.visualization.css('height', this.size.height + 'px');
-        if ('undefined' == typeof(google) || 'undefined' == typeof(google.maps)) {
-        	$.getScript($('link#approot').attr('href') + 'views/melons/cantaloupe/js/oms.min.js', () => {
-        		$.getScript('https://maps.googleapis.com/maps/api/js?key=' + $('link#google_maps_key').attr('href'), () => {
-        			this.setupMap();
-        		});
-        	});
+        if ('undefined' == typeof (google) || 'undefined' == typeof (google.maps)) {
+          $.getScript($('link#approot').attr('href') + 'views/melons/cantaloupe/js/oms.min.js', () => {
+            $.getScript('https://maps.googleapis.com/maps/api/js?key=' + $('link#google_maps_key').attr('href'), () => {
+              this.setupMap();
+            });
+          });
         } else {
-        	this.setupMap();
+          this.setupMap();
         }
       }
 
       setupMap() {
-      	this.map = new google.maps.Map(base.visualization[0], {
-            center: {lat: -25.344, lng: 131.036},
-            zoom: 4
-         	});
-      	this.oms = new OverlappingMarkerSpiderfier(this.map, {  // https://github.com/jawj/OverlappingMarkerSpiderfier
-    		  markersWontMove: true,
-    		  markersWontHide: false,
-    		  basicFormatEvents: true,
-    		  keepSpiderfied: true
-    		});
+        this.map = new google.maps.Map(base.visualization[0], {
+          center: { lat: -25.344, lng: 131.036 },
+          zoom: 4
+        });
+        this.oms = new OverlappingMarkerSpiderfier(this.map, {  // https://github.com/jawj/OverlappingMarkerSpiderfier
+          markersWontMove: true,
+          markersWontHide: false,
+          basicFormatEvents: true,
+          keepSpiderfied: true
+        });
         this.oms.legColors.usual['hybrid'] = this.oms.legColors.usual['satellite'] = this.oms.legColors.usual['terrain'] = this.oms.legColors.usual['roadmap'] = d3.rgb(base.highlightColorScale('path'));
         this.oms.legColors.highlighted['hybrid'] = this.oms.legColors.highlighted['satellite'] = this.oms.legColors.highlighted['terrain'] = this.oms.legColors.highlighted['roadmap'] = 'black';
-    	   this.draw();
+        this.draw();
       }
 
       displayNoContentWarning() {
-    	  base.visualization.find('.no-content-warning').remove();
-    	  var $el = $('<div class="no-content-warning" style="position:absolute; z-index:999; top:0px; left:0px; right:0px; bottom:0px; text-align:center; color:#000000;"></div>').appendTo(base.visualization);
-    	  var $inner = $('<div style="background-color:rgba(255, 255, 255, 0.5); margin-top:100px; padding:30px 0px 30px 0px;">Either no items were returned, or no geospatial<br/>metadata could be found on the returned items.<br /><br /><button type="button" class="btn btn-primary btn-sm">Dismiss</button></div>').appendTo($el);
-    	  $inner.find('button').on('click', function() {
-    		  $(this).parent().remove();
-    	  });
+        base.visualization.find('.no-content-warning').remove();
+        var $el = $('<div class="no-content-warning" style="position:absolute; z-index:999; top:0px; left:0px; right:0px; bottom:0px; text-align:center; color:#000000;"></div>').appendTo(base.visualization);
+        var $inner = $('<div style="background-color:rgba(255, 255, 255, 0.5); margin-top:100px; padding:30px 0px 30px 0px;">Either no items were returned, or no geospatial<br/>metadata could be found on the returned items.<br /><br /><button type="button" class="btn btn-primary btn-sm">Dismiss</button></div>').appendTo($el);
+        $inner.find('button').on('click', function() {
+          $(this).parent().remove();
+        });
       }
 
       removeNoContentWarning() {
-    	  base.visualization.find('.no-content-warning').remove();
+        base.visualization.find('.no-content-warning').remove();
       }
 
       clearMarkers() {
-      	this.markers.forEach(function(marker) {
-      	  marker.setMap(null);
-      	});
-      	this.markers = [];
-      	this.infowindows = {};
+        this.markers.forEach(function(marker) {
+          marker.setMap(null);
+        });
+        this.markers = [];
+        this.infowindows = {};
       }
 
       drawMarkers(obj, title, content, icon) {
-  	  	var coords = this.getCoords(obj);
-  			if (!coords.length) return false;
-  			for (var j = 0; j < coords.length; j++) {
-  				var coord = coords[j];
-  				// Marker
-  				var key = this.markers.length;
-  				this.markers[key] = new google.maps.Marker({
-		    		position: coord,
-		    		title: title,
+        var coords = this.getCoords(obj);
+        if (!coords.length) return false;
+        for (var j = 0; j < coords.length; j++) {
+          var coord = coords[j];
+          // Marker
+          var key = this.markers.length;
+          this.markers[key] = new google.maps.Marker({
+            position: coord,
+            title: title,
             html: content,
-		    		icon: {
-		    			url: icon,
-		    			scaledSize: new google.maps.Size(40,40)
-		    		}
-		    	});
-  				this.oms.addMarker(this.markers[key]);
-  				// Infowindow
-  				this.infowindows[key] = new google.maps.InfoWindow({
-  					content: content,
-  					maxWidth: 300
-  				});
-  				$(this.markers[key]).data('infowindow', this.infowindows[key]).data('map', this.map);
-  				this.markers[key].addListener('click', (evt) => {
-  					base.selectedNodes = [obj];
-  					base.loadNode(obj.slug, 0, 0, base.updateInspector, false);
-  					base.updateInspector();
-  				});
-  				this.markers[key].addListener('spider_click', function(evt) {
-  					var infowindow = $(this).data('infowindow');
-  					var map = $(this).data('map');
-  					infowindow.open(map, this);
-  				});
-  			};
-  			return coords;
+            icon: {
+              url: icon,
+              scaledSize: new google.maps.Size(40, 40)
+            }
+          });
+          this.oms.addMarker(this.markers[key]);
+          // Infowindow
+          this.infowindows[key] = new google.maps.InfoWindow({
+            content: content,
+            maxWidth: 300
+          });
+          $(this.markers[key]).data('infowindow', this.infowindows[key]).data('map', this.map);
+          this.markers[key].addListener('click', (evt) => {
+            base.selectedNodes = [obj];
+            base.loadNode(obj.slug, 0, 0, base.updateInspector, false);
+            base.updateInspector();
+          });
+          this.markers[key].addListener('spider_click', function(evt) {
+            var infowindow = $(this).data('infowindow');
+            var map = $(this).data('map');
+            infowindow.open(map, this);
+          });
+        };
+        return coords;
       }
 
       getCoords(obj) {
-    	  var coords = [];
-    	  if (('undefined' != typeof(obj.current.auxProperties["dcterms:spatial"]))) {
-    		  for (var j = 0; j < obj.current.auxProperties["dcterms:spatial"].length; j++) {
-    			  var spatial = obj.current.auxProperties["dcterms:spatial"][j];
-    	    	  var latlng = '';
-    	    	  if (/-?[0-9]{1,3}[.][0-9]+/.test(spatial)) latlng = spatial;
-    	    	  if (!latlng.length) continue;
-    	    	  var arr = latlng.split(',');
-    	    	  if ('undefined' == typeof(arr[1])) continue;
-    	    	  var row = {};
-    	    	  row.lat = parseFloat(arr[0].trim());
-    	    	  row.lng = parseFloat(arr[1].trim());
-    	    	  coords.push(row);
-    		  }
-    	  }
-    	  if (('undefined' != typeof(obj.current.auxProperties["dcterms:coverage"]))) {
-    		  for (var j = 0; j < obj.current.auxProperties["dcterms:coverage"].length; j++) {
-    			  var coverage = obj.current.auxProperties["dcterms:coverage"][j];
-    	    	  var latlng = '';
-    	    	  if (/-?[0-9]{1,3}[.][0-9]+/.test(coverage)) latlng = coverage;
-    	    	  if (!latlng.length) continue;
-    	    	  var arr = latlng.split(',');
-    	    	  if ('undefined' == typeof(arr[1])) continue;
-    	    	  var row = {};
-    	    	  row.lat = parseFloat(arr[0].trim());
-    	    	  row.lng = parseFloat(arr[1].trim());
-    	    	  coords.push(row);
-    		  }
-    	  }
-    	  return coords;
+        var coords = [];
+        if (('undefined' != typeof (obj.current.auxProperties["dcterms:spatial"]))) {
+          for (var j = 0; j < obj.current.auxProperties["dcterms:spatial"].length; j++) {
+            var spatial = obj.current.auxProperties["dcterms:spatial"][j];
+            var latlng = '';
+            if (/-?[0-9]{1,3}[.][0-9]+/.test(spatial)) latlng = spatial;
+            if (!latlng.length) continue;
+            var arr = latlng.split(',');
+            if ('undefined' == typeof (arr[1])) continue;
+            var row = {};
+            row.lat = parseFloat(arr[0].trim());
+            row.lng = parseFloat(arr[1].trim());
+            coords.push(row);
+          }
+        }
+        if (('undefined' != typeof (obj.current.auxProperties["dcterms:coverage"]))) {
+          for (var j = 0; j < obj.current.auxProperties["dcterms:coverage"].length; j++) {
+            var coverage = obj.current.auxProperties["dcterms:coverage"][j];
+            var latlng = '';
+            if (/-?[0-9]{1,3}[.][0-9]+/.test(coverage)) latlng = coverage;
+            if (!latlng.length) continue;
+            var arr = latlng.split(',');
+            if ('undefined' == typeof (arr[1])) continue;
+            var row = {};
+            row.lat = parseFloat(arr[0].trim());
+            row.lng = parseFloat(arr[1].trim());
+            coords.push(row);
+          }
+        }
+        return coords;
       }
 
       generateIcon(type) {
 
-          var imageWidth = 80;
-          var imageHeight = 80;
+        var imageWidth = 80;
+        var imageHeight = 80;
 
-          var svg = d3.select(document.createElement('div')).append('svg')
-              .attr('width', '60')
-              .attr('height', '60')
-              .attr('viewBox', '0 0 60 60');
+        var svg = d3.select(document.createElement('div')).append('svg')
+          .attr('width', '60')
+          .attr('height', '60')
+          .attr('viewBox', '0 0 60 60');
 
-          var gradient = svg.append("defs")
-              .append("linearGradient")
-              .attr("id", "grad")
-              .attr("x1", "0%")
-              .attr("y1", "0%")
-              .attr("x2", "0%")
-              .attr("y2", "100%");
+        var gradient = svg.append("defs")
+          .append("linearGradient")
+          .attr("id", "grad")
+          .attr("x1", "0%")
+          .attr("y1", "0%")
+          .attr("x2", "0%")
+          .attr("y2", "100%");
 
-          gradient.append("stop")
-              .attr("offset", "0%")
-              .attr("stop-color", d3.rgb(base.highlightColorScale(type)).brighter())
-              .attr("stop-opacity", 1);
+        gradient.append("stop")
+          .attr("offset", "0%")
+          .attr("stop-color", d3.rgb(base.highlightColorScale(type)).brighter())
+          .attr("stop-opacity", 1);
 
-          gradient.append("stop")
-              .attr("offset", "100%")
-              .attr("stop-color", d3.rgb(base.highlightColorScale(type)))
-              .attr("stop-opacity", 1);
+        gradient.append("stop")
+          .attr("offset", "100%")
+          .attr("stop-color", d3.rgb(base.highlightColorScale(type)))
+          .attr("stop-opacity", 1);
 
-          var g = svg.append('g')
+        var g = svg.append('g')
 
-          var path = g.append('path')
-              .attr('transform', 'matrix(0.03,0,0,0.03,8,6)')
-              .attr('d', 'M730.94,1839.63C692.174,1649.33 623.824,1490.96 541.037,1344.19C479.63,1235.32 408.493,1134.83 342.673,1029.25C320.701,994.007 301.739,956.774 280.626,920.197C238.41,847.06 204.182,762.262 206.357,652.265C208.482,544.792 239.565,458.581 284.387,388.093C358.106,272.158 481.588,177.104 647.271,152.124C782.737,131.7 909.746,166.206 999.814,218.872C1073.41,261.91 1130.41,319.399 1173.73,387.152C1218.95,457.868 1250.09,541.412 1252.7,650.384C1254.04,706.214 1244.9,757.916 1232.02,800.802C1218.99,844.211 1198.03,880.497 1179.38,919.256C1142.97,994.915 1097.33,1064.24 1051.52,1133.6C915.083,1340.21 787.024,1550.91 730.94,1839.63L730.94,1839.63Z')
-              .attr('fill', 'url(#grad)')
-              .attr('stroke-width', 40)
-              .attr('stroke', d3.rgb(base.highlightColorScale(type)).darker());
+        var path = g.append('path')
+          .attr('transform', 'matrix(0.03,0,0,0.03,8,6)')
+          .attr('d', 'M730.94,1839.63C692.174,1649.33 623.824,1490.96 541.037,1344.19C479.63,1235.32 408.493,1134.83 342.673,1029.25C320.701,994.007 301.739,956.774 280.626,920.197C238.41,847.06 204.182,762.262 206.357,652.265C208.482,544.792 239.565,458.581 284.387,388.093C358.106,272.158 481.588,177.104 647.271,152.124C782.737,131.7 909.746,166.206 999.814,218.872C1073.41,261.91 1130.41,319.399 1173.73,387.152C1218.95,457.868 1250.09,541.412 1252.7,650.384C1254.04,706.214 1244.9,757.916 1232.02,800.802C1218.99,844.211 1198.03,880.497 1179.38,919.256C1142.97,994.915 1097.33,1064.24 1051.52,1133.6C915.083,1340.21 787.024,1550.91 730.94,1839.63L730.94,1839.63Z')
+          .attr('fill', 'url(#grad)')
+          .attr('stroke-width', 40)
+          .attr('stroke', d3.rgb(base.highlightColorScale(type)).darker());
 
-          var circles = svg.append('circle')
-              .attr('cx', '30.2')
-              .attr('cy', '27.2')
-              .attr('r', '5')
-              .style('fill', 'rgb(90,20,16)');
+        var circles = svg.append('circle')
+          .attr('cx', '30.2')
+          .attr('cy', '27.2')
+          .attr('r', '5')
+          .style('fill', 'rgb(90,20,16)');
 
-          var svgNode = g.node().parentNode.cloneNode(true),
-              image = new Image();
+        var svgNode = g.node().parentNode.cloneNode(true),
+          image = new Image();
 
-          d3.select(svgNode).select('clippath').remove();
+        d3.select(svgNode).select('clippath').remove();
 
-          var xmlSource = (new XMLSerializer()).serializeToString(svgNode);
+        var xmlSource = (new XMLSerializer()).serializeToString(svgNode);
 
-          image.onload = ((imageWidth, imageHeight) => {
-              var canvas = document.createElement('canvas'),
-                  context = canvas.getContext('2d'),
-                  dataURL;
-              d3.select(canvas)
-                  .attr('width', imageWidth)
-                  .attr('height', imageHeight);
-              context.drawImage(image, 0, 0, imageWidth, imageHeight);
-              dataURL = canvas.toDataURL();
-              this.icons[type] = dataURL;
-          }).bind(this, imageWidth, imageHeight);
+        image.onload = ((imageWidth, imageHeight) => {
+          var canvas = document.createElement('canvas'),
+            context = canvas.getContext('2d'),
+            dataURL;
+          d3.select(canvas)
+            .attr('width', imageWidth)
+            .attr('height', imageHeight);
+          context.drawImage(image, 0, 0, imageWidth, imageHeight);
+          dataURL = canvas.toDataURL();
+          this.icons[type] = dataURL;
+        }).bind(this, imageWidth, imageHeight);
 
-          image.src = 'data:image/svg+xml;base64,' + btoa(encodeURIComponent(xmlSource).replace(/%([0-9A-F]{2})/g, function(match, p1) {
-              return String.fromCharCode('0x' + p1);
-          }));
+        image.src = 'data:image/svg+xml;base64,' + btoa(encodeURIComponent(xmlSource).replace(/%([0-9A-F]{2})/g, function(match, p1) {
+          return String.fromCharCode('0x' + p1);
+        }));
       }
 
       getIcon(types) {
         var icon = this.icons.page;
-        if ('undefined' != typeof(types.media)) icon = this.icons.media;
-      	if ('undefined' != typeof(types.reply)) icon = this.icons.reply;
-      	if ('undefined' != typeof(types.tag)) icon = this.icons.tag;
-      	if ('undefined' != typeof(types.annotation)) icon = this.icons.annotation;
-      	if ('undefined' != typeof(types.path)) icon = this.icons.path;
-      	return icon;
+        if ('undefined' != typeof (types.media)) icon = this.icons.media;
+        if ('undefined' != typeof (types.reply)) icon = this.icons.reply;
+        if ('undefined' != typeof (types.tag)) icon = this.icons.tag;
+        if ('undefined' != typeof (types.annotation)) icon = this.icons.annotation;
+        if ('undefined' != typeof (types.path)) icon = this.icons.path;
+        return icon;
       }
 
     }
@@ -4527,7 +4535,7 @@ window.scalarvis = { instanceCount: -1 };
         this.stopwords += ['must', 'my', 'myself', 'name', 'namely', 'neither', 'never']
         this.stopwords += ['nevertheless', 'next', 'nine', 'no', 'nobody', 'none']
         this.stopwords += ['noone', 'nor', 'not', 'nothing', 'now', 'nowhere', 'of']
-        this.stopwords += ['off', 'often', 'on','once', 'one', 'only', 'onto', 'or']
+        this.stopwords += ['off', 'often', 'on', 'once', 'one', 'only', 'onto', 'or']
         this.stopwords += ['other', 'others', 'otherwise', 'our', 'ours', 'ourselves']
         this.stopwords += ['out', 'over', 'own', 'part', 'per', 'perhaps', 'please']
         this.stopwords += ['put', 'rather', 're', 's', 'same', 'see', 'seem', 'seemed']
@@ -4549,15 +4557,15 @@ window.scalarvis = { instanceCount: -1 };
         this.stopwords += ['whoever', 'whole', 'whom', 'whose', 'why', 'will', 'with']
         this.stopwords += ['within', 'without', 'would', 'yet', 'you', 'your']
         this.stopwords += ['yours', 'yourself', 'yourselves']
-        this.stopwords += ['-','nbsp','nbspnbsp','nbspnbspnbsp','p']
+        this.stopwords += ['-', 'nbsp', 'nbspnbsp', 'nbspnbspnbsp', 'p']
       }
 
       draw() {
-    	if (this.isDrawing) return;
-    	this.isDrawing = true;
+        if (this.isDrawing) return;
+        this.isDrawing = true;
         super.draw();
         base.visualization.addClass("tag_cloud caption_font");
-        if ('undefined' == typeof($.fn.jQCloud)) {
+        if ('undefined' == typeof ($.fn.jQCloud)) {
           var approot = $('link#approot').attr('href');
           $('head').append('<link rel="stylesheet" type="text/css" href="' + approot + 'views/melons/cantaloupe/css/vis.css">');
           $('head').append('<link rel="stylesheet" type="text/css" href="' + approot + 'views/widgets/jQCloud/jqcloud.min.css">');
@@ -4581,11 +4589,11 @@ window.scalarvis = { instanceCount: -1 };
       drawWordCloud() {
         base.visualization.css('height', this.size.height + 'px');
         //base.visualization.css('width', this.size.width + 'px');
-        if ('undefined' != typeof(base.visualization.jQCloud)) base.visualization.jQCloud('destroy');
+        if ('undefined' != typeof (base.visualization.jQCloud)) base.visualization.jQCloud('destroy');
         base.visualization.html('<div style="font-weight:normal;">Parsing data...</div>');
         // Create array of words
         var j = 0;
-        setTimeout( () => {
+        setTimeout(() => {
           this.doDrawWordCloud(j);
         }, 1);
       }
@@ -4600,11 +4608,11 @@ window.scalarvis = { instanceCount: -1 };
             var words = this.getWords(base.sortedNodes[j].current.content);
             this.words = this.mergeWords(this.words, words);
           }
-          setTimeout( () => {
-            this.doDrawWordCloud(j+1);
+          setTimeout(() => {
+            this.doDrawWordCloud(j + 1);
           }, 1);
         } else {
-          setTimeout( () => {
+          setTimeout(() => {
             this.doDrawWordCloud(j);
           }, 10);
         }
@@ -4612,23 +4620,23 @@ window.scalarvis = { instanceCount: -1 };
 
       finishDrawWordCloud() {
 
-          base.visualization.empty();
-          // Render cloud
-          base.visualization.jQCloud(this.words, {
-            afterCloudRender: function() {
-              removeOverflowing: false
-            }
-          });
-          this.updateNoResultsMessage(base.sortedNodes);
-          this.isDrawing = false;
+        base.visualization.empty();
+        // Render cloud
+        base.visualization.jQCloud(this.words, {
+          afterCloudRender: function() {
+            removeOverflowing: false
+          }
+        });
+        this.updateNoResultsMessage(base.sortedNodes);
+        this.isDrawing = false;
 
       }
 
       getWords(content) {
 
         if (!content) return [];
-        content = content.replace(/(<([^>]+)>)/ig," ");  // Strip tags
-        content = content.replace(/&nbsp;/g,' ');  // Non-breaking space to space
+        content = content.replace(/(<([^>]+)>)/ig, " ");  // Strip tags
+        content = content.replace(/&nbsp;/g, ' ');  // Non-breaking space to space
         content = $('<textarea />').html(content).text();  // HTML entity decode
         var words = content.split(' ');
         return words;
@@ -4651,7 +4659,7 @@ window.scalarvis = { instanceCount: -1 };
             }
           }
           if (!wordIncluded) {
-            arr1.push({text:word, weight:1});
+            arr1.push({ text: word, weight: 1 });
           }
         }
         return arr1;
@@ -4684,29 +4692,29 @@ window.scalarvis = { instanceCount: -1 };
 
         // Determine if there is a author/creator field to add based on metadata
         var candidates = {
-        		"http://ns.exiftool.ca/IPTC/IPTC/1.0/By-line": "iptc:By-line",
-        		"http://ns.exiftool.ca/IPTC/IPTC/1.0/Writer-Editor": "iptc:Writer-Editor",
-        		"http://purl.org/dc/terms/creator": "dcterms:creator"
+          "http://ns.exiftool.ca/IPTC/IPTC/1.0/By-line": "iptc:By-line",
+          "http://ns.exiftool.ca/IPTC/IPTC/1.0/Writer-Editor": "iptc:Writer-Editor",
+          "http://purl.org/dc/terms/creator": "dcterms:creator"
         }
         var counts = {};
         for (var j = 0; j < base.contentNodes.length; j++) {
-        	for (var uri in candidates) {
-        		if ('undefined' != typeof(base.contentNodes[j].current.properties[uri])) {
-        			if ('undefined' == typeof(counts[uri])) counts[uri] = 0;
-        			counts[uri]++;
-        		}
-        	}
+          for (var uri in candidates) {
+            if ('undefined' != typeof (base.contentNodes[j].current.properties[uri])) {
+              if ('undefined' == typeof (counts[uri])) counts[uri] = 0;
+              counts[uri]++;
+            }
+          }
         };
         var fieldValue = 0;
         var fieldToAdd = null;
         for (var field in counts) {
-        	if (counts[field] > 0 && counts[field] > fieldValue) {
-        		fieldValue = counts[field];
-        		fieldToAdd = field;
-        	}
+          if (counts[field] > 0 && counts[field] > fieldValue) {
+            fieldValue = counts[field];
+            fieldToAdd = field;
+          }
         };
         if (null != fieldToAdd && !this.visList.find('td[prop="fieldToAdd"]').length) {
-        	this.visList.find('td[prop="author"]').before('<td class="lg" prop="fieldToAdd"><a href="javascript:void(null);">'+candidates[fieldToAdd]+'</a></td>');
+          this.visList.find('td[prop="author"]').before('<td class="lg" prop="fieldToAdd"><a href="javascript:void(null);">' + candidates[fieldToAdd] + '</a></td>');
         };
 
         // Output rows
@@ -4715,93 +4723,93 @@ window.scalarvis = { instanceCount: -1 };
         var maxLength = 100;
         var authorFields = {};
         for (var j = 0; j < base.contentNodes.length; j++) {
-        	// Fields
-        	var url = base.contentNodes[j].url;
-        	var title = base.contentNodes[j].current.title;
-        	if (null===title) continue;
-        	title = title.replace(/(<([^>]+)>)/gi, "");
-          	var description = ('undefined'!=typeof(base.contentNodes[j].current.description) && null!==base.contentNodes[j].current.description) ? base.contentNodes[j].current.description : '';
-          	if (description.length > maxLength) description = description.substr(0, maxLength) + '...';
-          	description = description.replace(/(<([^>]+)>)/gi, "");
-          	var content = ('undefined'!=typeof(base.contentNodes[j].current.content) && null!==base.contentNodes[j].current.content) ? base.contentNodes[j].current.content : '';
-          	if (content.length > maxLength) content = content.substr(0, maxLength) + '...';
-          	content = content.replace(/(<([^>]+)>)/gi, "");
-          	var author = base.contentNodes[j].current.properties['http://www.w3.org/ns/prov#wasAttributedTo'][0].value;  // Most recent version
-          	var authorUrl = $('link#parent').attr('href') + author ;
-          	var authorId = parseInt(authorUrl.substr(authorUrl.lastIndexOf('/')+1));
-          	var fullname = ('undefined' != typeof(base.options.lens) && 'undefined' != typeof(base.options.lens.users[authorId])) ? base.options.lens.users[authorId] : '';
-          	var lastEdited = (base.contentNodes[j].current.created) ? base.contentNodes[j].current.created.substr(0, base.contentNodes[j].current.created.indexOf('T')) : '';
-          	var versions = base.contentNodes[j].current.number;
-          	var isSelected = (base.selectedNodes.indexOf(base.contentNodes[j]) != -1) ? true : false;
-          	// Output rows
-          	var $row = $('<tr class="visListRow '+((isSelected)?'selected':'')+'" data-index="'+j+'"></div>').appendTo($tbody);
-          	$row.append('<td class="sm" prop="title"><a href="'+url+'" target="_blank">'+title+'</a></td>');
-          	$row.append('<td class="md" prop="description">'+description+'</td>');
-          	$row.append('<td class="md" prop="content">'+content+'</td>');
-          	if (null != fieldToAdd) {
-          		var valueToAdd = ('undefined'!=typeof(base.contentNodes[j].current.properties[fieldToAdd])) ? base.contentNodes[j].current.properties[fieldToAdd][0].value : '';
-          		$row.append('<td class="lg" prop="fieldToAdd">'+valueToAdd+'</td>');
-          	};
-          	$row.append('<td class="lg" prop="author"><a href="'+authorUrl+'" target="_blank">'+fullname+'</a></td>');
-          	$row.append('<td class="lg" prop="lastEdited">'+lastEdited+'</td>');
-          	$row.append('<td class="lg" prop="version" style="text-align:center;">'+versions+'</td>');
-          	// Sort-specific fields
-          	if ('undefined' != typeof(base.contentNodes[j].sorts) && 'undefined' != typeof(base.contentNodes[j].sorts.created)) {
-          		if (!this.visList.find('td[prop="created"]').length) this.visList.find('.header').append('<td class="md" prop="created" style="text-align:center;"><a href="javascript:void(null);">Date Created</a></td>');
-          		$row.append('<td class="md" prop="created" style="text-align:center;">'+base.contentNodes[j].sorts.created.split(" ")[0]+'</td>');
-          	};
-          	if ('undefined' != typeof(base.contentNodes[j].sorts) && 'undefined' != typeof(base.contentNodes[j].sorts.relationType)) {
-          		if (!this.visList.find('td[prop="relationType"]').length) this.visList.find('.header').append('<td class="md" prop="relationType" style="text-align:center;"><a href="javascript:void(null);">Item Type</a></td>');
-          		$row.append('<td class="md" prop="relationType" style="text-align:center;">'+base.contentNodes[j].sorts.relationType+'</td>');
-          	};
-          	if ('undefined' != typeof(base.contentNodes[j].sorts) && 'undefined' != typeof(base.contentNodes[j].sorts.numRelations)) {
-          		if (!this.visList.find('td[prop="numRelations"]').length) this.visList.find('.header').append('<td class="md" prop="numRelations" style="text-align:center;"><a href="javascript:void(null);"># Relations</a></td>');
-          		$row.append('<td class="md" prop="numRelations" style="text-align:center;">'+base.contentNodes[j].sorts.numRelations+'</td>');
-          	};
-          	if ('undefined' != typeof(base.contentNodes[j].sorts) && 'undefined' != typeof(base.contentNodes[j].sorts.stringMatches)) {
-          		if (!this.visList.find('td[prop="stringMatches"]').length) this.visList.find('.header').append('<td class="md" prop="stringMatches" style="text-align:center;"><a href="javascript:void(null);">Matches</a></td>');
-          		$row.append('<td class="md" prop="stringMatches" style="text-align:center;">'+base.contentNodes[j].sorts.stringMatches+'</td>');
-          	};
-          	if ('undefined' != typeof(base.contentNodes[j].sorts) && 'undefined' != typeof(base.contentNodes[j].sorts.visitDate)) {
-          		if (!this.visList.find('td[prop="visitDate"]').length) this.visList.find('.header').append('<td class="md" prop="visitDate" style="text-align:center;"><a href="javascript:void(null);">Visit Date</a></td>');
-          		var date = '';
-          		if (base.contentNodes[j].sorts.visitDate != 0) {
-          			var date = new Date(parseInt(base.contentNodes[j].sorts.visitDate));
-          			date = (date.getMonth()+1)+"/"+date.getDate()+"/"+date.getFullYear();
-          			// +" "+date.getHours()+":"+date.getMinutes()+":"+date.getSeconds();
-          		}
-          		$row.append('<td class="md" prop="visitDate" style="text-align:center;">'+date+'</td>');
-          	};
+          // Fields
+          var url = base.contentNodes[j].url;
+          var title = base.contentNodes[j].current.title;
+          if (null === title) continue;
+          title = title.replace(/(<([^>]+)>)/gi, "");
+          var description = ('undefined' != typeof (base.contentNodes[j].current.description) && null !== base.contentNodes[j].current.description) ? base.contentNodes[j].current.description : '';
+          if (description.length > maxLength) description = description.substr(0, maxLength) + '...';
+          description = description.replace(/(<([^>]+)>)/gi, "");
+          var content = ('undefined' != typeof (base.contentNodes[j].current.content) && null !== base.contentNodes[j].current.content) ? base.contentNodes[j].current.content : '';
+          if (content.length > maxLength) content = content.substr(0, maxLength) + '...';
+          content = content.replace(/(<([^>]+)>)/gi, "");
+          var author = base.contentNodes[j].current.properties['http://www.w3.org/ns/prov#wasAttributedTo'][0].value;  // Most recent version
+          var authorUrl = $('link#parent').attr('href') + author;
+          var authorId = parseInt(authorUrl.substr(authorUrl.lastIndexOf('/') + 1));
+          var fullname = ('undefined' != typeof (base.options.lens) && 'undefined' != typeof (base.options.lens.users[authorId])) ? base.options.lens.users[authorId] : '';
+          var lastEdited = (base.contentNodes[j].current.created) ? base.contentNodes[j].current.created.substr(0, base.contentNodes[j].current.created.indexOf('T')) : '';
+          var versions = base.contentNodes[j].current.number;
+          var isSelected = (base.selectedNodes.indexOf(base.contentNodes[j]) != -1) ? true : false;
+          // Output rows
+          var $row = $('<tr class="visListRow ' + ((isSelected) ? 'selected' : '') + '" data-index="' + j + '"></div>').appendTo($tbody);
+          $row.append('<td class="sm" prop="title"><a href="' + url + '" target="_blank">' + title + '</a></td>');
+          $row.append('<td class="md" prop="description">' + description + '</td>');
+          $row.append('<td class="md" prop="content">' + content + '</td>');
+          if (null != fieldToAdd) {
+            var valueToAdd = ('undefined' != typeof (base.contentNodes[j].current.properties[fieldToAdd])) ? base.contentNodes[j].current.properties[fieldToAdd][0].value : '';
+            $row.append('<td class="lg" prop="fieldToAdd">' + valueToAdd + '</td>');
           };
-
-          // Add/remove items from selectedNodes
-          this.visList.find('.visListRow').on('click', function() {
-         	 var $this = $(this);
-        	 var isSelected = $this.hasClass('selected') ? true : false;
-        	 var index = parseInt($this.data('index'));
-        	 var node = base.contentNodes[index];
-        	 if (isSelected) {
-        		 var match = base.selectedNodes.indexOf(node);
-        		 base.selectedNodes.splice(match, 1);
-        		 $this.removeClass('selected');
-        	 } else {
-	        	 base.selectedNodes.push(node);
-	        	 $this.addClass('selected');
-        	 };
-  	         base.updateInspector();
-          });
-
-          // Add/remove columns based on size of parent area
-          var width = parseInt(this.visList.parent().width());
-          if (width < 400) {  // sm
-        	  this.visList.find('.sm').show();
-        	  this.visList.find('.md, .lg').hide();
-          } else if (width < 600) {  // md
-        	  this.visList.find('.sm, .md').show();
-        	  this.visList.find('.lg').hide();
-          } else {  // lg
-        	  this.visList.find('.sm, .md, .lg').show();
+          $row.append('<td class="lg" prop="author"><a href="' + authorUrl + '" target="_blank">' + fullname + '</a></td>');
+          $row.append('<td class="lg" prop="lastEdited">' + lastEdited + '</td>');
+          $row.append('<td class="lg" prop="version" style="text-align:center;">' + versions + '</td>');
+          // Sort-specific fields
+          if ('undefined' != typeof (base.contentNodes[j].sorts) && 'undefined' != typeof (base.contentNodes[j].sorts.created)) {
+            if (!this.visList.find('td[prop="created"]').length) this.visList.find('.header').append('<td class="md" prop="created" style="text-align:center;"><a href="javascript:void(null);">Date Created</a></td>');
+            $row.append('<td class="md" prop="created" style="text-align:center;">' + base.contentNodes[j].sorts.created.split(" ")[0] + '</td>');
           };
+          if ('undefined' != typeof (base.contentNodes[j].sorts) && 'undefined' != typeof (base.contentNodes[j].sorts.relationType)) {
+            if (!this.visList.find('td[prop="relationType"]').length) this.visList.find('.header').append('<td class="md" prop="relationType" style="text-align:center;"><a href="javascript:void(null);">Item Type</a></td>');
+            $row.append('<td class="md" prop="relationType" style="text-align:center;">' + base.contentNodes[j].sorts.relationType + '</td>');
+          };
+          if ('undefined' != typeof (base.contentNodes[j].sorts) && 'undefined' != typeof (base.contentNodes[j].sorts.numRelations)) {
+            if (!this.visList.find('td[prop="numRelations"]').length) this.visList.find('.header').append('<td class="md" prop="numRelations" style="text-align:center;"><a href="javascript:void(null);"># Relations</a></td>');
+            $row.append('<td class="md" prop="numRelations" style="text-align:center;">' + base.contentNodes[j].sorts.numRelations + '</td>');
+          };
+          if ('undefined' != typeof (base.contentNodes[j].sorts) && 'undefined' != typeof (base.contentNodes[j].sorts.stringMatches)) {
+            if (!this.visList.find('td[prop="stringMatches"]').length) this.visList.find('.header').append('<td class="md" prop="stringMatches" style="text-align:center;"><a href="javascript:void(null);">Matches</a></td>');
+            $row.append('<td class="md" prop="stringMatches" style="text-align:center;">' + base.contentNodes[j].sorts.stringMatches + '</td>');
+          };
+          if ('undefined' != typeof (base.contentNodes[j].sorts) && 'undefined' != typeof (base.contentNodes[j].sorts.visitDate)) {
+            if (!this.visList.find('td[prop="visitDate"]').length) this.visList.find('.header').append('<td class="md" prop="visitDate" style="text-align:center;"><a href="javascript:void(null);">Visit Date</a></td>');
+            var date = '';
+            if (base.contentNodes[j].sorts.visitDate != 0) {
+              var date = new Date(parseInt(base.contentNodes[j].sorts.visitDate));
+              date = (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear();
+              // +" "+date.getHours()+":"+date.getMinutes()+":"+date.getSeconds();
+            }
+            $row.append('<td class="md" prop="visitDate" style="text-align:center;">' + date + '</td>');
+          };
+        };
+
+        // Add/remove items from selectedNodes
+        this.visList.find('.visListRow').on('click', function() {
+          var $this = $(this);
+          var isSelected = $this.hasClass('selected') ? true : false;
+          var index = parseInt($this.data('index'));
+          var node = base.contentNodes[index];
+          if (isSelected) {
+            var match = base.selectedNodes.indexOf(node);
+            base.selectedNodes.splice(match, 1);
+            $this.removeClass('selected');
+          } else {
+            base.selectedNodes.push(node);
+            $this.addClass('selected');
+          };
+          base.updateInspector();
+        });
+
+        // Add/remove columns based on size of parent area
+        var width = parseInt(this.visList.parent().width());
+        if (width < 400) {  // sm
+          this.visList.find('.sm').show();
+          this.visList.find('.md, .lg').hide();
+        } else if (width < 600) {  // md
+          this.visList.find('.sm, .md').show();
+          this.visList.find('.lg').hide();
+        } else {  // lg
+          this.visList.find('.sm, .md, .lg').show();
+        };
 
       }
 
@@ -4822,7 +4830,7 @@ window.scalarvis = { instanceCount: -1 };
         base.visualization.css('height', this.size.height + 'px');
         var approot = $('link#approot').attr('href');
         var css = approot + 'views/melons/cantaloupe/css/vis.css';
-        if (!$('head').find('[href="'+css+'"]').length) $('head').append('<link rel="stylesheet" type="text/css" href="' + css + '">');
+        if (!$('head').find('[href="' + css + '"]').length) $('head').append('<link rel="stylesheet" type="text/css" href="' + css + '">');
         var $overflow = $('<div style="overflow:auto;"></div>').appendTo(base.visualization);
         $overflow.height($overflow.parent().height());
         this.visList = $('<table class="visList"></table>').appendTo($overflow);
@@ -4835,21 +4843,21 @@ window.scalarvis = { instanceCount: -1 };
         $header.append('<td class="lg" prop="lastEdited"><a href="javascript:void(null);">Date Edited</a></td>');
         $header.append('<td class="lg" prop="version"><a href="javascript:void(null);">Version</a></td>');
         $header.on('click', 'a', function() {
-        	var $this = $(this);
-        	var index = $header.find('a').index($this);
-        	if ($header.data('sortBy') != index) {
-        		$header.data('sortBy', index);
-        		$header.data('sortDir', 'asc');
-        	} else {
-        		$header.data('sortDir', (($header.data('sortDir')=='asc')?'desc':'asc'));
-        	}
-        	$tbody.find('tr:not(.header)').sort(function(a, b) {
-                if ($header.data('sortDir') == 'asc') {
-                    return $('td:eq('+$header.data('sortBy')+')', a).text().localeCompare($('td:eq('+$header.data('sortBy')+')', b).text());
-                } else {
-                    return $('td:eq('+$header.data('sortBy')+')', b).text().localeCompare($('td:eq('+$header.data('sortBy')+')', a).text());
-                }
-            }).appendTo($tbody);
+          var $this = $(this);
+          var index = $header.find('a').index($this);
+          if ($header.data('sortBy') != index) {
+            $header.data('sortBy', index);
+            $header.data('sortDir', 'asc');
+          } else {
+            $header.data('sortDir', (($header.data('sortDir') == 'asc') ? 'desc' : 'asc'));
+          }
+          $tbody.find('tr:not(.header)').sort(function(a, b) {
+            if ($header.data('sortDir') == 'asc') {
+              return $('td:eq(' + $header.data('sortBy') + ')', a).text().localeCompare($('td:eq(' + $header.data('sortBy') + ')', b).text());
+            } else {
+              return $('td:eq(' + $header.data('sortBy') + ')', b).text().localeCompare($('td:eq(' + $header.data('sortBy') + ')', a).text());
+            }
+          }).appendTo($tbody);
         });
       }
 
