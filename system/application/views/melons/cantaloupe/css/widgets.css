@@ -318,7 +318,7 @@ div[data-widget=card] h4 { margin-top: 0; margin-bottom: 1.2rem; }
 .widget_visualization .widgetContainer .widgetElement .scalarvis{
 	border: 0;
 }
-.widget_slot.grid_visualization>.well .scalarvis, .widget_slot.radial_visualization>.well .scalarvis{
+.widget_slot:not(.full).grid_visualization>.well .scalarvis, .widget_slot:not(.full).radial_visualization>.well .scalarvis{
     padding-right: 20px;
     box-sizing: content-box;
 }

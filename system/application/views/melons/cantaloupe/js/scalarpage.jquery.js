@@ -2967,9 +2967,8 @@
 	                    		if ('undefined' == typeof(media_node[uri]['http://open.vocab.org/terms/versionnumber'])) continue;
 	                    		var url = media_node[uri]['http://purl.org/dc/terms/isVersionOf'][0].value;
 	                    		var title = media_node[uri]['http://purl.org/dc/terms/title'][0].value;
-	                    		//var description = ('undefined'!=typeof(media_node[uri]['http://purl.org/dc/terms/description'])) ? media_node[uri]['http://purl.org/dc/terms/description'][0].value : null;
 	                    		var source = ('undefined'!=typeof(media_node[uri]['http://purl.org/dc/terms/source'])) ? media_node[uri]['http://purl.org/dc/terms/source'][0].value : null;
-	                    		if (-1 != source.indexOf('//')) source = null;  // Is a URL
+	                    		if (source) if (-1 != source.indexOf('//')) source = null;  // Is a URL
 	                    		var html = '<div class="citation caption_font"><a href="'+url+'">Background: '+title+''+((null!=source)?' ('+source+')':'')+'</a></div>';
 	                    		$('.title_card').append(html);
 	                    	}
