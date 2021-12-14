@@ -49,7 +49,6 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 		var mediaType = '';
 		if (typeof opts.data['type'] !== 'undefined') {
 			mediaType = opts.data['type'];
-			delete opts.data['type'];
 		}
 		if ('undefined' == typeof(opts.data) || $.isEmptyObject(opts.data)) {
 			opts.callback(options);
@@ -73,8 +72,25 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 			return str.replace(/-/g, ' ');
 		}
 		// Create the modal
-		var dialog_title = mediaType == '' ? 'Media formatting options' : mediaType + ' media formatting options';
-		if (!opts.isMedia) dialog_title = 'Formatting options';
+		var dialog_title;
+		switch (mediaType) {
+
+			case '':
+			dialog_title = 'Media formatting options';
+			break;
+
+			default:
+			if (opts.isMedia) {
+				dialog_title = mediaType + ' media formatting options';
+			} else {
+				if (opts.element.hasClass('inlineNote')) {
+					dialog_title = 'Inline note formatting options';
+				} else {
+					dialog_title = 'Formatting options';
+				}
+			}
+			break;
+		}
 		bootbox.dialog({
 			message: '<div id="bootbox-media-options-content" class="heading_font"></div>',
 			title: dialog_title,
@@ -175,7 +191,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 		})
 
 		for (var option_name in opts.data) {
-			if (option_name != 'annotations' && option_name != 'node') {
+			if (option_name != 'annotations' && option_name != 'node' && option_name != 'type') {
 				var $option = $('<div class="form-group instance-option"><label class="col-sm-3 control-label" style="white-space:nowrap;">' + ucwords(dash_to_space(option_name)) + '</label><div class="col-sm-9"><select class="form-control" name="' + option_name + '"></select></div></div>');
 				for (var j = 0; j < opts.data[option_name].length; j++) {
 					$option.find('select:first').append('<option value="' + opts.data[option_name][j] + '">' + (option_name == 'text-wrap' ? sentenceCase(dash_to_space(opts.data[option_name][j])) : ucwords(dash_to_space(opts.data[option_name][j]))) + '</option>');

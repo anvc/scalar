@@ -93,7 +93,8 @@ $config['reference_options'] = array(
 	'insertNote' 			=> array(
 								'show-title' => array('yes','no'),
 								'show-description' => array('yes','no'),
-								'show-content' => array('yes','no')
+								'show-content' => array('yes','no'),
+								'type' => 'note'
 								),
 	'insertInlineNote' 		=> array(
 								'show-title' => array('yes','no'),
@@ -101,7 +102,8 @@ $config['reference_options'] = array(
 								'show-content' => array('yes','no'),
 								'size' => array('small', 'medium', 'large', 'full'),
 								'text-wrap' => array('create-new-line-for-media','wrap-text-around-media'),
-								'align' => array('left', 'center', 'right')
+								'align' => array('left', 'center', 'right'),
+								'type' => 'inlineNote'
 								),
 	'createInternalLink' 	=> array()
 );
@@ -135,6 +137,6 @@ $config['predefined_css'] = array(
 	array(
 		'title'=>'Display description below title',
 		'description'=>'This snippet will display the page\'s description underneath the page\'s title at the top of the page.',
-		'insert'=>"header > h1 ~ [property=\"dcterms:description\"] {display:block !important; color:#888888; margin:0rem 2rem 4rem 2rem;}\n@media only screen and (min-width : 500px) {\n  header > h1 ~ [property=\"dcterms:description\"] {margin:-3rem 7.2rem 4rem 7.2rem;}\n}"	
+		'insert'=>"header > h1 ~ [property=\"dcterms:description\"] {display:block !important; color:#888888; margin:0rem 2rem 4rem 2rem;}\n@media only screen and (min-width : 500px) {\n  header > h1 ~ [property=\"dcterms:description\"] {margin:-3rem 7.2rem 4rem 7.2rem;}\n}"
 	)
 );

@@ -119,8 +119,6 @@ CKEDITOR._scalar = {
 
 				element.setAttribute('resource', node.slug);
 
-
-
 				if (!isEdit) {
 					CKEDITOR._scalar.editor.insertElement(element);
 				} else {
@@ -214,7 +212,7 @@ CKEDITOR._scalar = {
 			}
 		}
 		CKEDITOR._scalar.contentoptions({
-			data: reference_options['insertInlineNote'], node: node, element: element, callback: function(options) {
+			data: reference_options['insertInlineNote'], node: node, element: element, isMedia: false, callback: function(options) {
 				if (!node) {
 					var node = options.node;
 					delete (options.node);
@@ -228,7 +226,6 @@ CKEDITOR._scalar = {
 					if (key == 'node') continue;
 					element.setAttribute('data-' + key, options[key]);
 				}
-				console.log(isEdit);
 				if (!isEdit) {
 					CKEDITOR._scalar.editor.insertElement(element);
 				} else {
