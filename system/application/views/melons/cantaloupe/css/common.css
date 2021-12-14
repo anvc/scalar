@@ -727,7 +727,6 @@ header [typeof="tk:TKLabel"] { margin-left:6px; margin-right: 0; }
 	background-color:#eeeeee; padding:20px; line-height:170%; font-size:14px; margin:.5rem 7.0rem 2.4rem 7.0rem;
 	border-radius:10px; box-shadow: 4px 4px 5px #cccccc; color:#222222;
 }
-.inlineNoteBody.wrap {margin-left:4.2rem; margin-right:4.2rem;}
 .inlineNoteBody .title {font-weight:Bold; font-size:15px;}
 .inlineNoteBody .content {margin-top:14px; margin-bottom:6px;}
 
