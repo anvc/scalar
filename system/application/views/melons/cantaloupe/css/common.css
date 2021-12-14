@@ -259,6 +259,7 @@ li.divider-above { border-top: 1px dotted #888; }
 	display: none;
 }
 .note_viewer .title {font-weight:bold; margin-bottom:6px;}
+.note_viewer .link { margin-bottom: .6rem; }
 .note_viewer .description {font-style:italic; margin-bottom:6px;}
 .note_viewer .content {margin-bottom:6px;}
 
