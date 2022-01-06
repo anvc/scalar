@@ -95,7 +95,7 @@ class Reference_model extends MY_Model {
 
     	for($i=0; $i<count($array); $i++) {
 
-    		$child_version_id = (isURN($version_urn)) ? $this->page_urn_to_content_id($version_urn) : (int) $version_urn;
+    		$child_version_id = (isURN($array[$i])) ? $this->page_urn_to_content_id($array[$i]) : (int) $array[$i];
     		if (empty($child_version_id)) continue;
 
     		$reference_text = (isset($reference_array[$i])) ? trim($reference_array[$i]) : '';
