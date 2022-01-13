@@ -3365,9 +3365,11 @@ function YouTubeGetID(url){
 
 			}
 
-			obj = $('<div class="mediaObject"><video id="'+this.model.filename+'_'+this.model.id+'" class="video-js vjs-big-play-centered">Your browser does not support the video tag.</video></div>').appendTo(this.parentView.mediaContainer);
+			const videoJSObjectId = 'video-'+this.model.filename+'_'+this.model.id;
 
-			this.player = new videojs(this.model.filename+'_'+this.model.id, {
+			obj = $('<div class="mediaObject"><video id="'+videoJSObjectId+'" class="video-js vjs-big-play-centered">Your browser does not support the video tag.</video></div>').appendTo(this.parentView.mediaContainer);
+
+			this.player = new videojs(videoJSObjectId, {
 				controls: true,
 				responsive: true,
 				preload: 'auto',
@@ -3397,7 +3399,7 @@ function YouTubeGetID(url){
 				}).attr('src', thumbnailURL);
 			}
 
-			this.video = obj.find('video#'+this.model.filename+'_'+this.model.id+'_html5_api');
+			this.video = obj.find('video#'+videoJSObjectId+'_html5_api');
 
 			this.parentView.controllerOffset = 22;
 
