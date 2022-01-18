@@ -3232,7 +3232,7 @@ function YouTubeGetID(url){
 				});
 			}
 
-			if ('function' == me.video.first().annotate) {
+			if ('function' == typeof(me.video.first().annotate)) {
 				$.getJSON(parent + 'login_status', function(status) {
 					go(status);
 				});
