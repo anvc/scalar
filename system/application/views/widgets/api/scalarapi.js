@@ -323,13 +323,13 @@ function ScalarAPI() {
 			isProprietary:false,
 			contentType:'video',
 			browserSupport: {
-				'Mozilla': {extensions:['m3u8'], format:'M3U8', player:'VideoJS', specifiesDimensions:true},
-				'Explorer': {extensions:['m3u8'], format:'M3U8', player:'VideoJS', specifiesDimension:true},
+				'Mozilla': {extensions:['m3u8'], format:'M3U8', player:'HLS', specifiesDimensions:true},
+				'Explorer': {extensions:['m3u8'], format:'M3U8', player:'HLS', specifiesDimension:true},
 				'MobileSafari': {extensions:['m3u8'], format:'M3U8', player:'native', specifiesDimensions:true},
 				'Safari': {extensions:['m3u8'], format:'M3U8', player:'native', specifiesDimensions:true},
-				'Chrome': {extensions:['m3u8'], format:'M3U8', player:'VideoJS', specifiesDimensions:true},
-				'Android': {extensions:['m3u8'], format:'M3U8', player:'VideoJS', specifiesDimensions:true},
-				'Other': {extensions:['m3u8'], format:'M3U8', player:'VideoJS', specifiesDimensions:true}
+				'Chrome': {extensions:['m3u8'], format:'M3U8', player:'HLS', specifiesDimensions:true},
+				'Android': {extensions:['m3u8'], format:'M3U8', player:'HLS', specifiesDimensions:true},
+				'Other': {extensions:['m3u8'], format:'M3U8', player:'HLS', specifiesDimensions:true}
 			}},
 		'HyperCities': {
 			name:'HyperCities',

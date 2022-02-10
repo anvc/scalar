@@ -17,6 +17,7 @@
  * permissions and limitations under the License.
  */
 
+
 /**
  * @projectDescription		The MediaElement plug-in creates and manages the interface for a Scalar media resource.
  *							Scalar is a project of The Alliance for Networking Visual Culture (http://scalar.usc.edu).
@@ -478,26 +479,19 @@ function YouTubeGetID(url){
 					promise = $.Deferred();
 					pendingDeferredMedia.Mirador.push(promise);
 
-				}else if(typeof videojs === 'undefined' && player == 'VideoJS'){
-					if(typeof pendingDeferredMedia.videojs == 'undefined'){
-						pendingDeferredMedia.videojs = [];
+				}else if(typeof Hls === 'undefined' && player == 'HLS'){
+					if(typeof pendingDeferredMedia.Hls == 'undefined'){
+						pendingDeferredMedia.Hls = [];
 						$.when(
-							$.getScript(widgets_uri+'/mediaelement/video.min.js')
+							$.getScript(widgets_uri+'/mediaelement/hls.min.js')
 						).then(function(){
-							var doc = document;
-							var approot = $('link#approot').attr('href');
-							var cssLink = document.createElement("link");
-							cssLink.href = approot+'views/widgets/mediaelement/video-js.css';
-							cssLink.rel = "stylesheet";
-							cssLink.type = "text/css";
-							doc.body.appendChild(cssLink);
-							for(var i = 0; i < pendingDeferredMedia.videojs.length; i++){
-									pendingDeferredMedia.videojs[i].resolve();
+							for(var i = 0; i < pendingDeferredMedia.Hls.length; i++){
+									pendingDeferredMedia.Hls[i].resolve();
 							}
 						});
 					}
 					promise = $.Deferred();
-					pendingDeferredMedia.videojs.push(promise);
+					pendingDeferredMedia.Hls.push(promise);
 
 				}else if(typeof SC === 'undefined' && this.model.mediaSource.contentType == 'audio' && this.model.mediaSource.name == 'SoundCloud'){
 					if(typeof pendingDeferredMedia.SoundCloud == 'undefined'){
@@ -1084,15 +1078,23 @@ function YouTubeGetID(url){
 								}
 							break;
 
-							case 'VideoJS':
-								this.mediaObjectView = new $.VideoJSObjectView(this.model, this);
+							case 'HLS':
+								if (this.model.node.current.auxProperties['dcterms:type'] == 'Sound') {
+									this.mediaObjectView = new $.HLSAudioObjectView(this.model, this);
+								} else {
+									this.mediaObjectView = new $.HLSVideoObjectView(this.model, this);
+								}
 							break;
 
 							case 'native':
 								if ($('.book-title').children('[data-semantic-annotation-tool]').length) {
 									this.mediaObjectView = new $.SemanticAnnotationToolObjectView(this.model, this);
 								} else {
-									this.mediaObjectView = new $.HTML5VideoObjectView(this.model, this);
+									if (this.model.node.current.auxProperties['dcterms:type'] == 'Sound') {
+										this.mediaObjectView = new $.HTML5AudioObjectView(this.model, this);
+									} else {
+										this.mediaObjectView = new $.HTML5VideoObjectView(this.model, this);
+									}
 								}
 							break;
 
@@ -1185,7 +1187,6 @@ function YouTubeGetID(url){
 		 * Lays out the media object.
 		 */
 		jQuery.MediaElementView.prototype.layoutMediaObject = function() {
-
 			this.calculateMediaSize();
 			this.mediaObjectView.resize(this.resizedDim.x, this.resizedDim.y);
 
@@ -2879,7 +2880,7 @@ function YouTubeGetID(url){
 		 * Creates the video media object.
 		 */
 		jQuery.HTML5VideoObjectView.prototype.createObject = function() {
-
+			
 			var mimeType;
 			switch (this.model.mediaSource.name) {
 
@@ -2927,7 +2928,6 @@ function YouTubeGetID(url){
 				mimeType = "application/x-mpegURL";
 				var hls = true;
 				break;
-
 			}
 
 			obj = $('<div class="mediaObject"><video id="'+this.model.filename+'_'+this.model.id+'" controls="controls"><source src="'+this.model.path+'" type="'+mimeType+'"/>Your browser does not support the video tag.</video></div>').appendTo(this.parentView.mediaContainer);
@@ -2980,8 +2980,10 @@ function YouTubeGetID(url){
           me.parentView.intrinsicDim.x = me.video[0].videoWidth;
   				me.parentView.intrinsicDim.y = me.video[0].videoHeight;
   				me.parentView.controllerOffset = 0;
-        }
-
+        }		console.log('metadatafunc');
+				if (hls) {
+					me.video[0].removeEventListener('progress', metadataFunc, false);
+				}
 				me.parentView.layoutMediaObject();
 				me.parentView.removeLoadingMessage();
 
@@ -3165,10 +3167,6 @@ function YouTubeGetID(url){
 				mimeType = "video/webm";
 				break;
 
-				case "HLS":
-				mimeType = "application/x-mpegURL";
-				break;
-
 			}
 
 			obj = $('<div class="mediaObject"><video id="'+this.model.filename+'_'+this.model.id+'"><source src="'+this.model.path+'" type="'+mimeType+'"/>Your browser does not support the video tag.</video></div>').appendTo(this.parentView.mediaContainer);
@@ -3338,13 +3336,13 @@ function YouTubeGetID(url){
 	}
 
 	/**
-	 * View for the Video.js player to support HTTP Live Streaming.
+	 * View for the hls.js Audio player to support HTTP Live Streaming.
 	 * @constructor
 	 *
 	 * @param {Object} model		Instance of the model.
 	 * @param {Object} parentView	Primary view for the media element.
 	 */
-	jQuery.VideoJSObjectView = function(model, parentView) {
+	 jQuery.HLSAudioObjectView = function(model, parentView) {
 
 		var me = this;
 
@@ -3352,37 +3350,133 @@ function YouTubeGetID(url){
 		this.parentView = parentView;			// primary view for the media element
 
 		/**
-		 * Creates the video.js media object.
+		 * Creates the hls.js audio media object.
 		 */
-		jQuery.VideoJSObjectView.prototype.createObject = function() {
+		 jQuery.HLSAudioObjectView.prototype.createObject = function() {
 
-			var mimeType;
-			switch (this.model.mediaSource.name) {
+			var HLSObjectId = 'hls_'+this.model.filename+'_'+this.model.id;
 
-				case "HLS":
-				mimeType = "application/x-mpegURL";
-				break;
-
-			}
-
-			const videoJSObjectId = 'video-'+this.model.filename+'_'+this.model.id;
-
-			obj = $('<div class="mediaObject"><video id="'+videoJSObjectId+'" class="video-js vjs-big-play-centered">Your browser does not support the video tag.</video></div>').appendTo(this.parentView.mediaContainer);
-
-			this.player = new videojs(videoJSObjectId, {
-				controls: true,
-				responsive: true,
-				preload: 'auto',
-				fluid: true,
-				sources: [{
-					src: this.model.path,
-					type: mimeType
-					}]
-				});
-
+			obj = $('<div class="mediaObject"><audio id="'+HLSObjectId+'" style="width:100%;" controls type="application/x-mpegURL">Your browser does not support the audio tag.</audio></div>').appendTo(this.parentView.mediaContainer);
 			if ( this.model.options.autoplay && ( this.model.seek == null ) ) {
-				this.player.autoplay(true);
+				obj.find( 'audio' ).attr( 'autoplay', 'true' );
 			}
+
+			this.audio = obj.find('audio#'+HLSObjectId);
+
+			this.parentView.controllerOnly = true;
+			this.parentView.controllerHeight = 25;
+
+			this.parentView.intrinsicDim.y = 45;
+
+			// this prevents the top of the player from getting cut off in Firefox
+			if ( scalarapi.scalarBrowser == "Mozilla" ) {
+				obj.find( 'audio' ).height( this.parentView.intrinsicDim.y );
+			}
+
+			this.parentView.layoutMediaObject();
+
+			this.hls = new Hls();
+			this.hls.loadSource(this.model.path);
+			this.hls.attachMedia(this.audio[0]);
+
+			this.parentView.removeLoadingMessage();
+
+			if (document.addEventListener) {
+				this.audio[0].addEventListener('play', me.parentView.startTimer, false);
+				this.audio[0].addEventListener('pause', me.parentView.endTimer, false);
+				this.audio[0].addEventListener('ended', me.parentView.endTimer, false);
+				this.audio[0].addEventListener('ended', me.parentView.endTimer, false);
+			} else {
+				this.audio[0].attachEvent('play', me.parentView.startTimer);
+				this.audio[0].attachEvent('pause', me.parentView.endTimer);
+				this.audio[0].attachEvent('ended', me.parentView.endTimer);
+			}
+
+			return;
+		 }
+
+		 /**
+		 * Starts playback of the audio.
+		 */
+		jQuery.HLSAudioObjectView.prototype.play = function() {
+			if ((this.model.seekAnnotation != null) && (!this.parentView.overrideAutoSeek)) {
+				this.audio[0].currentTime = this.model.seekAnnotation.properties.start;
+			}
+			if (this.audio[0].paused) {
+				this.audio[0].play();
+			}
+		}
+
+		/**
+		 * Pauses playback of the audio.
+		 */
+		jQuery.HLSAudioObjectView.prototype.pause = function() {
+			this.audio[0].pause();
+		}
+
+		/**
+		 * Seeks to the specified location in the audio.
+		 *
+		 * @param {Number} time			Seek location in seconds.
+		 */
+		jQuery.HLSAudioObjectView.prototype.seek = function(time) {
+			this.audio[0].currentTime = time;
+		}
+
+		/**
+		 * Returns the current playback position of the audio.
+		 * @return	The current playback position in seconds.
+		 */
+		jQuery.HLSAudioObjectView.prototype.getCurrentTime = function() {
+			return this.audio[0].currentTime;
+		}
+
+		/**
+		 * Resizes the audio to the specified dimensions.
+		 *
+		 * @param {Number} width		The new width of the media.
+		 * @param {Number} height		The new height of the media.
+		 */
+		jQuery.HLSAudioObjectView.prototype.resize = function(width) {
+			$(this.model.element).find('.mediaObject').width(width);
+		}
+
+		/**
+		 * Returns true if the audio is currently playing.
+		 * @return	Returns true if the audio is playing.
+		 */
+		jQuery.HLSAudioObjectView.prototype.isPlaying = function() {
+			return !this.audio[0].paused;
+		}
+	}
+
+	/**
+	 * View for the hls.js Video player to support HTTP Live Streaming.
+	 * @constructor
+	 *
+	 * @param {Object} model		Instance of the model.
+	 * @param {Object} parentView	Primary view for the media element.
+	 */
+	jQuery.HLSVideoObjectView = function(model, parentView) {
+
+		var me = this;
+
+		this.model = model;				// instance of the model
+		this.parentView = parentView;			// primary view for the media element
+
+		/**
+		 * Creates the hls.js video media object.
+		 */
+		jQuery.HLSVideoObjectView.prototype.createObject = function() {
+
+			var HLSObjectId = 'hls_'+this.model.filename+'_'+this.model.id;
+
+			obj = $('<div class="mediaObject"><video id="'+HLSObjectId+'" controls type="application/x-mpegURL">Your browser does not support the video tag.</video></div>').appendTo(this.parentView.mediaContainer);
+			if ( this.model.options.autoplay && ( this.model.seek == null ) ) {
+				obj.find( 'video' ).attr( 'autoplay', 'true' );
+			}
+
+			this.video = obj.find('video#'+HLSObjectId);
 
 			var thumbnailURL;
 			if (this.model.node.thumbnail) {
@@ -3399,68 +3493,63 @@ function YouTubeGetID(url){
 				}).attr('src', thumbnailURL);
 			}
 
-			this.video = obj.find('video#'+videoJSObjectId+'_html5_api');
-
 			this.parentView.controllerOffset = 22;
 
 			var metadataFunc = function() {
-
-				me.parentView.intrinsicDim.x = me.video[0].videoWidth;
-				me.parentView.intrinsicDim.y = me.video[0].videoHeight;
 				me.parentView.controllerOffset = 0;
 
 				me.parentView.layoutMediaObject();
 				me.parentView.removeLoadingMessage();
-
 			}
 
 			this.parentView.layoutMediaObject();
 
-			if (document.addEventListener) {
-				this.video[0].addEventListener('loadedmetadata', metadataFunc, false);
-				this.video[0].addEventListener('play', me.parentView.startTimer, false);
-				this.video[0].addEventListener('pause', me.parentView.endTimer, false);
-				this.video[0].addEventListener('ended', me.parentView.endTimer, false);
-			} else {
-				this.video[0].attachEvent('onloadedmetadata', metadataFunc);
-				this.video[0].attachEvent('play', me.parentView.startTimer);
-				this.video[0].attachEvent('pause', me.parentView.endTimer);
-				this.video[0].attachEvent('ended', me.parentView.endTimer);
-			}
+			this.hls = new Hls();
+			this.hls.loadSource(this.model.path);
+			this.hls.attachMedia(this.video[0]);
+			this.hls.on(Hls.Events.MANIFEST_PARSED, function(event, data) {
+				me.parentView.intrinsicDim.x = data.levels[data.levels.length -1].width;
+				me.parentView.intrinsicDim.y = data.levels[data.levels.length -1].height;
+				metadataFunc();
+			});
+
+			this.video[0].addEventListener('play', me.parentView.startTimer, false);
+			this.video[0].addEventListener('pause', me.parentView.endTimer, false);
+			this.video[0].addEventListener('ended', me.parentView.endTimer, false);
 
 			return;
 		}
 
-		jQuery.VideoJSObjectView.prototype.play = function() {
+		jQuery.HLSVideoObjectView.prototype.play = function() {
 			if ((this.model.seekAnnotation != null) && (!this.parentView.overrideAutoSeek)) {
-				this.player.currentTime(this.model.seekAnnotation.properties.start);
+				this.video[0].currentTime = this.model.seekAnnotation.properties.start;
 			}
-			if (this.player.paused) {
-				this.player.play();
+			if (this.video[0].paused) {
+				this.video[0].play();
 			}
 		}
 
-		jQuery.VideoJSObjectView.prototype.pause = function() {
-			if (this.player) {
-				this.player.pause();
+		jQuery.HLSVideoObjectView.prototype.pause = function() {
+			if (this.video) {
+				this.video[0].pause();
 			}
 		}
 
 		/**
 		 * @param {Number} time
 		 */
-		jQuery.VideoJSObjectView.prototype.seek = function(time) {
-			if (this.player) {
-			    this.player.currentTime(time);
+		 jQuery.HLSVideoObjectView.prototype.seek = function(time) {
+			if (this.video[0]) {
+				this.video[0].currentTime = time;
 			}
 		}
 
 		/**
 		 * @return
 		 */
- 		jQuery.VideoJSObjectView.prototype.getCurrentTime = function() {
-			if (this.player) {
-				return this.player.currentTime();
+ 		jQuery.HLSVideoObjectView.prototype.getCurrentTime = function() {
+			if (this.video[0]) {
+				return this.video[0].currentTime;
 			}
 		}
 
@@ -3468,19 +3557,19 @@ function YouTubeGetID(url){
 		 * @param {Number} width
 		 * @param {Number} height
 		 */
-		jQuery.VideoJSObjectView.prototype.resize = function(width, height) {
-			if (this.player) {
-				this.player.width(width);
-				this.player.height(height);
+		jQuery.HLSVideoObjectView.prototype.resize = function(width, height) {
+			if (this.video) {
+				this.video[0].width = width;
+				this.video[0].height = height;
 			}
 		}
 
 		/**
 		 * @return
 		 */
-		jQuery.VideoJSObjectView.prototype.isPlaying = function() {
-			if (this.player) {
-				return !this.player.paused;
+		jQuery.HLSVideoObjectView.prototype.isPlaying = function() {
+			if (this.video) {
+				return !this.video[0].paused;
 			}
 		}
 	}
@@ -3611,7 +3700,14 @@ function YouTubeGetID(url){
 		 */
 		jQuery.HTML5AudioObjectView.prototype.createObject = function() {
 
-			obj = $('<div class="mediaObject"><audio style="width:100%;" src="'+this.model.path+'" controls="controls" type="audio/'+this.model.extension+'">Your browser does not support the audio tag.</audio></div>').appendTo(this.parentView.mediaContainer);
+			var mimeType;
+			if (this.model.mediaSource.name == 'HLS') {
+				mimeType = 'application/x-mpegURL';
+			} else {
+				mimeType = 'audio/'+this.model.extension;
+			}
+
+			obj = $('<div class="mediaObject"><audio style="width:100%;" src="'+this.model.path+'" controls="controls" type="'+mimeType+'">Your browser does not support the audio tag.</audio></div>').appendTo(this.parentView.mediaContainer);
 			if ( this.model.options.autoplay && ( this.model.seek == null ) ) {
 				obj.find( 'audio' ).attr( 'autoplay', 'true' );
 			}
