@@ -3208,6 +3208,7 @@ function YouTubeGetID(url){
 			var sat_language = ('undefined' != typeof(sat_arr[1])) ? sat_arr[1] : 'en';
 			var waldorfLocation = $('link#approot').attr('href') + 'views/widgets/waldorf/';
 			var parent = $('link#parent').attr('href');
+			var $video = this.video.first();
 			// CSS files are loaded in cantaloupe/content.php
 
 			var go = function(status) {
@@ -3218,7 +3219,7 @@ function YouTubeGetID(url){
 				var waldorf_callback = function(event) {
 					console.log('Waldorf callback');
 				};
-				var waldorf = me.video.first().annotate({
+				var waldorf = $video.annotate({
 					serverURL: parent,
 					tagsURL: sat_address,
 					onomyLanguage: sat_language,
