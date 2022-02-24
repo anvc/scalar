@@ -4240,7 +4240,7 @@ window.scalarvis = { instanceCount: -1 };
             descriptionMarkup = (description && description.length) ? description : '';
             contentString = '<div class="google-info-window caption_font">' + titleMarkup + '<div>' + thumbnailMarkup + descriptionMarkup + '</div>';
             var icon = this.getIcon(relations[k].target.scalarTypes);
-            var coords = this.drawMarkers(relations[k].target, title, contentString, icon);
+            var coords = this.drawMarkers(relations[k].target, pathTitle, contentString, icon);
             if (coords.length) {
               for (var m = 0; m < coords.length; m++) {
                 pathCoordinates.push(coords[m]);
@@ -4262,11 +4262,11 @@ window.scalarvis = { instanceCount: -1 };
         for (var j = 0; j < base.sortedNodes.length; j++) {
           if (-1 != urls.indexOf(base.sortedNodes[j].url)) continue;
           var title = base.sortedNodes[j].getDisplayTitle();
-          titleMarkup = '<h2 class="heading_font heading_weight"><a href="' + base.sortedNodes[j].url + '">' + title + '</a></h2>';
           var thumbnail = base.sortedNodes[j].thumbnail;
           var description = base.sortedNodes[j].getDescription(true);
-          if (null != thumbnail) thumbnailMarkup = '<img style="float:right; margin: 0 0 1rem 1rem;" src="' + thumbnail + '" alt="Thumbnail image" width="120" />';
-          if (description && description.length) descriptionMarkup = description;
+          titleMarkup = '<h2 class="heading_font heading_weight"><a href="' + base.sortedNodes[j].url + '">' + title + '</a></h2>';
+          thumbnailMarkup = (null != thumbnail) ? '<img style="float:right; margin: 0 0 1rem 1rem;" src="' + thumbnail + '" alt="Thumbnail image" width="120" />' : '';
+          descriptionMarkup = (description && description.length) ? description : '';
           contentString = '<div class="google-info-window caption_font">' + titleMarkup + '<div>' + thumbnailMarkup + descriptionMarkup + '</div>';
           var icon = this.getIcon(base.sortedNodes[j].scalarTypes);
           var coords = this.drawMarkers(base.sortedNodes[j], title, contentString, icon);
