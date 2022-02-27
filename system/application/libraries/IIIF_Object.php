@@ -137,10 +137,10 @@ class IIIF_Object extends RDF_Object {
 		    	$row['scalar:child_urn'] = $CI->versions->urn($page->versions[$page->version_index]->version_id);
 		    	$row['scalar:child_rel'] = 'annotated';
 		    	
-		    	$row['dcterms:creator'] = $annotation['creator']['nickname'];
-		    	$row['dcterms:identifier'] = $annotation['creator']['email_sha1'];
-		    	$row['dcterms:mediator'] = $annotation['generator'];
-		    	$row['dcterms:rights'] = $annotation['rights'];
+		    	$row['dcterms:creator'] = (isset($annotation['creator']['nickname'])) ? $annotation['creator']['nickname'] : '';
+		    	$row['dcterms:identifier'] = (isset($annotation['creator']['email_sha1'])) ? $annotation['creator']['email_sha1'] : '';
+		    	$row['dcterms:mediator'] = (isset($annotation['generator'])) ? $annotation['generator'] : '';
+		    	$row['dcterms:rights'] = (isset($annotation['generator'])) ? $annotation['rights'] : '';
 	
 		    	foreach ($annotation['body'] as $body) {
 		    		if ('describing' == $body['purpose']) {
