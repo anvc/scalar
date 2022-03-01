@@ -899,6 +899,7 @@ Class Api extends CI_Controller {
 
 		// IIIF from the Semantic Annotation Tool
 		if (isset($json[0]['@context']) && is_array($json[0]['@context']) && 'http://www.w3.org/ns/anno.jsonld' == $json[0]['@context'][0] && 'http://iiif.io/api/presentation/3/context.json' == $json[0]['@context'][1]) {
+			$this->load->model('annotation_model', 'annotations');
 			$this->load->library('IIIF_Object','iiif_object');
 			$annotations = $this->iiif_object->decode_annotations($json[0], $book);
 			for ($j = 0; $j < count($annotations); $j++) {
@@ -909,11 +910,15 @@ Class Api extends CI_Controller {
 				} elseif ($annotations[$j]['action'] == 'delete') {
 					$this->delete(false, false);
 				} elseif ($annotations[$j]['action'] == 'update') {
-					$this->update(false);
-					$arr = explode(':', $this->data['scalar:urn']);
-					$old_version_id = (int) array_pop($arr);
+					$arr = explode(':', $_POST['scalar:urn']);
+					$parent_version_id = (int) array_pop($arr);
+					$arr = explode(':', $_POST['scalar:child_urn']);
+					$child_version_id = (int) array_pop($arr);
+					$this->annotations->delete($parent_version_id, $child_version_id);  // Delete existing annotation relationship
+					$this->relate(false);  // Create new annotation relationship
+					$this->update(false);  // Update the annotation-page
 					$new_version_id = (int) $this->data['version_id'];
-					$this->_versions_copy_relations($old_version_id, $new_version_id, array('tags'));
+					$this->_versions_copy_relations($parent_version_id, $new_version_id, array('tags'));  // Copy all relationships to new annotation-page
 				}
 				$this->save_data = $this->data;
 				if ($annotations[$j]['action'] != 'delete') {

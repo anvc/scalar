@@ -3169,7 +3169,7 @@ function YouTubeGetID(url){
 
 			}
 
-			obj = $('<div class="mediaObject"><video id="'+this.model.filename+'_'+this.model.id+'"><source src="'+this.model.path+'" type="'+mimeType+'"/>Your browser does not support the video tag.</video></div>').appendTo(this.parentView.mediaContainer);
+			var obj = $('<div class="mediaObject"><video id="'+this.model.filename+'_'+this.model.id+'"><source src="'+this.model.path+'" type="'+mimeType+'"/>Your browser does not support the video tag.</video></div>').appendTo(this.parentView.mediaContainer);
 			if ( this.model.options.autoplay && ( this.model.seek == null ) ) {
 				obj.find( 'video' ).attr( 'autoplay', 'true' );
 			}
@@ -3231,19 +3231,16 @@ function YouTubeGetID(url){
 				});
 			}
 
-			if ('function' == typeof(me.video.first().annotate)) {
-				$.getJSON(parent + 'login_status', function(status) {
-					go(status);
-				});
-			} else {
-				$.when(
-					$.getJSON(parent + 'login_status'),
-					$.getScript(waldorfLocation + 'jquery-ui-1.12.1.custom/jquery-ui.min.js'),
-					$.getScript(waldorfLocation + 'annotator-frontend-scalar.js')
-				).done(function(status){
-					go(status);
-				});
-			};
+			// TODO: sometimes $video is undefined, for some reason
+			console.log($video);
+			// TODO: don't load the resources twice if more than one video
+			$.when(
+				$.getJSON(parent + 'login_status'),
+				$.getScript(waldorfLocation + 'jquery-ui-1.12.1.custom/jquery-ui.min.js'),
+				$.getScript(waldorfLocation + 'annotator-frontend-scalar.js')
+			).done(function(status){
+				go(status);
+			});
 
 		}
 

@@ -236,6 +236,15 @@ class MY_Model extends CI_Model {
 		return $result;
 
 	}
+	
+	public function delete($table, $parent_version_id, $child_version_id) {
+		
+		$this->db->where('parent_version_id', $parent_version_id);
+		$this->db->where('child_version_id', $child_version_id);
+		$this->db->delete($table);
+		return true;
+		
+	}
 
 	/**
 	 * Convert fields to RDF

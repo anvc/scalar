@@ -60,6 +60,12 @@ class Annotation_model extends MY_Model {
 
 	}
 
+	public function delete($parent_version_id, $child_version_id) {
+
+		return parent::delete($this->annotations_table, $parent_version_id, $child_version_id);
+
+	}
+
 	public function get_all($book_id=null, $type=null, $category=null, $is_live=true, $id_array=null) {
 
 		return parent::get_all($this->annotations_table, $book_id, $type, $category, $is_live, $id_array);
