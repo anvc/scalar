@@ -578,7 +578,22 @@ function YouTubeGetID(url){
 					}
 					promise = $.Deferred();
 					pendingDeferredMedia.GoogleMaps.push(promise);
-                }
+				}else if(player == 'native' && $('.book-title').children('[data-semantic-annotation-tool]').length && !$.isFunction($.fn.annotate)){
+					if(typeof pendingDeferredMedia.Waldorf == 'undefined'){
+						pendingDeferredMedia.Waldorf = [];
+						var waldorfLocation = $('link#approot').attr('href') + 'views/widgets/waldorf/';
+						$.when(
+							$.getScript(waldorfLocation + 'jquery-ui-1.12.1.custom/jquery-ui.min.js'),
+							$.getScript(waldorfLocation + 'annotator-frontend-scalar.js')
+						).then(function(){
+							for(var i = 0; i < pendingDeferredMedia.Waldorf.length; i++){
+								pendingDeferredMedia.Waldorf[i].resolve();
+							}
+						});
+					}
+					promise = $.Deferred();
+					pendingDeferredMedia.Waldorf.push(promise);
+				}
 			}
 
 			$.when(promise).then($.proxy(function(){
@@ -3206,19 +3221,15 @@ function YouTubeGetID(url){
 			var sat_arr = sat_values.split(',');
 			var sat_address = (sat_arr[0].length) ? sat_arr[0] : 'https://onomy.org/published/95/json';
 			var sat_language = ('undefined' != typeof(sat_arr[1])) ? sat_arr[1] : 'en';
-			var waldorfLocation = $('link#approot').attr('href') + 'views/widgets/waldorf/';
 			var parent = $('link#parent').attr('href');
 			var $video = this.video.first();
 			// CSS files are loaded in cantaloupe/content.php
 
 			var go = function(status) {
-				var isLoggedIn = parseInt(status[0].is_logged_in);
+				var isLoggedIn = parseInt(status.is_logged_in);
 				var kioskMode = (isLoggedIn) ? false : true;
-				var username = (isLoggedIn) ? status[0].fullname : '';
-				var email = (isLoggedIn) ? status[0].email : '';
-				var waldorf_callback = function(event) {
-					console.log('Waldorf callback');
-				};
+				var username = (isLoggedIn) ? status.fullname : '';
+				var email = (isLoggedIn) ? status.email : '';
 				var waldorf = $video.annotate({
 					serverURL: parent,
 					tagsURL: sat_address,
@@ -3227,18 +3238,16 @@ function YouTubeGetID(url){
 					cmsUsername: username,
 					cmsEmail: email,
 					displayIndex: false,
-					callback: waldorf_callback
+					callback: function(event) {
+						console.log('Waldorf callback');
+					}fhc j
 				});
 			}
 
 			// TODO: sometimes $video is undefined, for some reason
 			console.log($video);
-			// TODO: don't load the resources twice if more than one video
-			$.when(
-				$.getJSON(parent + 'login_status'),
-				$.getScript(waldorfLocation + 'jquery-ui-1.12.1.custom/jquery-ui.min.js'),
-				$.getScript(waldorfLocation + 'annotator-frontend-scalar.js')
-			).done(function(status){
+			
+			$.getJSON(parent + 'login_status', function(status) {
 				go(status);
 			});
 
