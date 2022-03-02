@@ -3240,7 +3240,7 @@ function YouTubeGetID(url){
 					displayIndex: false,
 					callback: function(event) {
 						console.log('Waldorf callback');
-					}fhc j
+					}
 				});
 			}
 

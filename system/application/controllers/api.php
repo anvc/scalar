@@ -914,7 +914,7 @@ Class Api extends CI_Controller {
 					$parent_version_id = (int) array_pop($arr);
 					$arr = explode(':', $_POST['scalar:child_urn']);
 					$child_version_id = (int) array_pop($arr);
-					$this->annotations->delete($parent_version_id, $child_version_id);  // Delete existing annotation relationship
+					$this->annotations->delete_relationship($parent_version_id, $child_version_id);  // Delete existing annotation relationship
 					$this->relate(false);  // Create new annotation relationship
 					$this->update(false);  // Update the annotation-page
 					$new_version_id = (int) $this->data['version_id'];
