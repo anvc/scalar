@@ -237,8 +237,9 @@ class MY_Model extends CI_Model {
 
 	}
 	
-	public function delete($table, $parent_version_id, $child_version_id) {
+	public function delete_relationship() {
 		
+		list($table, $parent_version_id, $child_version_id) = func_get_args();
 		$this->db->where('parent_version_id', $parent_version_id);
 		$this->db->where('child_version_id', $child_version_id);
 		$this->db->delete($table);

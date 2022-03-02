@@ -60,9 +60,9 @@ class Annotation_model extends MY_Model {
 
 	}
 
-	public function delete($parent_version_id, $child_version_id) {
+	public function delete_relationship($parent_version_id = 0, $child_version_id = 0) {
 
-		return parent::delete($this->annotations_table, $parent_version_id, $child_version_id);
+		return parent::delete_relationship($this->annotations_table, $parent_version_id, $child_version_id);
 
 	}
 
