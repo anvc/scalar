@@ -1234,7 +1234,7 @@ var AnnotationGUI = /*#__PURE__*/function () {
       this.$timeEndField.css("font-family", "Courier, monospace");
       this.$timeEndField.css("margin-right", "2px");
       this.$timeEndField.addClass("ui-widget ui-widget-content ui-corner-all");
-      this.$timeEndField.attr('title', "Start time (hh:mm:ss.ss)");
+      this.$timeEndField.attr('title', "End time (hh:mm:ss.ss)");
       this.$timeEndField.on('keypress', function (event) {
         if (event.keyCode == 46 || event.keyCode >= 48 && event.keyCode <= 58) {
           //0-9, period, and colon
@@ -1428,25 +1428,34 @@ var AnnotationGUI = /*#__PURE__*/function () {
         // it as new.
 
         if (forceNew) this.editMode = false;
-        this.originalAnnotation = annotation; // console.log("Populated from an existing annotation");
-        // console.log(annotation);
-
+        this.originalAnnotation = annotation;
+        console.log("Populated from an existing annotation");
+        console.log(annotation);
         this.$timeStartField.val((0, _time.GetFormattedTime)(annotation.beginTime));
         this.$timeEndField.val((0, _time.GetFormattedTime)(annotation.endTime));
-        if (typeof annotation.creator != 'undefined' && typeof annotation.creator.nickname != 'undefined') this.$creatorNameField.val(annotation.creator.nickname);else this.$creatorNameField.val(localStorage.getItem('waldorf_user_name'));
-        if (typeof annotation.creator != 'undefined' && typeof annotation.creator.email != 'undefined') this.$creatorNameField.val(annotation.creator.email);else this.$creatorNameField.val(localStorage.getItem('waldorf_user_email'));
 
         if ('undefined' == typeof annotation.items) {
           // Version 1
           this.$textField.val(annotation.body.filter(function (item) {
             return item.purpose == "describing";
           })[0].value); // Version 1 doesn't have a this.id context
+
+          if (typeof annotation.creator != 'undefined' && typeof annotation.creator.nickname != 'undefined') this.$creatorNameField.val(annotation.creator.nickname);else this.$creatorNameField.val(localStorage.getItem('waldorf_user_name'));
+          if (typeof annotation.creator != 'undefined' && typeof annotation.creator.email_sha1 != 'undefined') this.$creatorEmailField.val(annotation.creator.email_sha1);else this.$creatorEmailField.val(localStorage.getItem('waldorf_user_email'));
         } else {
           // Version 2
           this.$textField.val(annotation.items[0].items[0].items[0].body.filter(function (item) {
             return item.purpose == "describing";
           })[0].value);
           this.id = annotation.items[0].items[0].items[0].id;
+
+          if (typeof annotation.items[0].items[0].items[0].creator != 'undefined' && typeof annotation.items[0].items[0].items[0].creator.nickname != 'undefined') {
+            this.$creatorNameField.val(annotation.items[0].items[0].items[0].creator.nickname);
+          } else this.$creatorNameField.val(localStorage.getItem('waldorf_user_name'));
+
+          if (typeof annotation.items[0].items[0].items[0].creator != 'undefined' && typeof annotation.items[0].items[0].items[0].creator.email_sha1 != 'undefined') {
+            this.$creatorEmailField.val(annotation.items[0].items[0].items[0].creator.email_sha1);
+          } else this.$creatorEmailField.val(localStorage.getItem('waldorf_user_email'));
         } // Reset the tags field
 
 
@@ -1461,17 +1470,11 @@ var AnnotationGUI = /*#__PURE__*/function () {
             var tag = _step.value;
             this.$tagsField.append("<option value='" + tag + "' selected>" + tag + "</option>");
             this.$tagsField.trigger("change");
-          } //add creators, if they are specified
-
+          }
         } catch (err) {
           _iterator.e(err);
         } finally {
           _iterator.f();
-        }
-
-        if ('undefined' != typeof annotation.creator) {
-          this.$creatorNameField.val(annotation.creator.nickname);
-          this.$creatorEmailField.val(annotation.creator.email);
         }
 
         this.polyEditor.InitPoly(annotation.polyStart, annotation.polyEnd);
@@ -1479,7 +1482,8 @@ var AnnotationGUI = /*#__PURE__*/function () {
       else {
         // Populate fields if no annotation is given
         this.editMode = false;
-        this.originalAnnotation = null; // console.log("Populated with template data");
+        this.originalAnnotation = null;
+        this.id = null; // console.log("Populated with template data");
 
         this.$timeStartField.val((0, _time.GetFormattedTime)(this.annotator.player.videoElement.currentTime));
         this.$timeEndField.val((0, _time.GetFormattedTime)(this.annotator.player.videoElement.duration));
@@ -1578,7 +1582,7 @@ var AnnotationGUI = /*#__PURE__*/function () {
           "generated": buildTime,
           "items": [{
             "id": this.id,
-            // URL to the annotation-page
+            // URL to the annotation-page JPB
             "type": "Annotation",
             "generator": "http://github.com/novomancy/waldorf-scalar",
             "motivation": "highlighting",
