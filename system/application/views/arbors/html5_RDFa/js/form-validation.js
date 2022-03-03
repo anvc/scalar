@@ -36,7 +36,7 @@ function validate_upload_form_file($form) {
 	send_form_show_loading();
 
 	// Save using standard POST to the system, then route to the save API for creating the page
-	$form.find('#hidden_upload').load(function() {
+	$form.find('#hidden_upload').on('load', function() {
 		validate_upload_form_file_return($form);
 	});
 
