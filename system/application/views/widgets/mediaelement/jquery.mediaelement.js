@@ -3860,10 +3860,7 @@ function YouTubeGetID(url){
 				playerVars: playerVars,
 				events: {
 					'onStateChange': 'onYouTubeStateChange' + this.model.id
-				},
-        playerVars: {
-            wmode: "opaque"
-        }
+				}
 			}
 
 			if ( this.model.initialSeekAnnotation != null ) {
