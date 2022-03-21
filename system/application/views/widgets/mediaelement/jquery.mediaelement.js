@@ -483,7 +483,11 @@ function YouTubeGetID(url){
 					if(typeof pendingDeferredMedia.Hls == 'undefined'){
 						pendingDeferredMedia.Hls = [];
 						$.when(
-							$.getScript(widgets_uri+'/mediaelement/hls.min.js')
+							$.ajax({
+								url: widgets_uri+'/mediaelement/hls.min.js',
+								dataType: "script",
+								cache: true,
+							})
 						).then(function(){
 							for(var i = 0; i < pendingDeferredMedia.Hls.length; i++){
 									pendingDeferredMedia.Hls[i].resolve();
@@ -3382,14 +3386,14 @@ function YouTubeGetID(url){
 
 			this.parentView.layoutMediaObject();
 
-			this.hls = new Hls();
+			this.hls = new Hls({autoStartLoad:false,maxBufferSize:30 * 1000 * 1000,});
 			this.hls.loadSource(this.model.path);
 			this.hls.attachMedia(this.audio[0]);
 
 			this.parentView.removeLoadingMessage();
 
 			if (document.addEventListener) {
-				this.audio[0].addEventListener('play', me.parentView.startTimer, false);
+				this.audio[0].addEventListener('play', () => { me.parentView.startTimer; this.hls.startLoad(startPosition=-1); }, false);
 				this.audio[0].addEventListener('pause', me.parentView.endTimer, false);
 				this.audio[0].addEventListener('ended', me.parentView.endTimer, false);
 				this.audio[0].addEventListener('ended', me.parentView.endTimer, false);
@@ -3511,7 +3515,7 @@ function YouTubeGetID(url){
 
 			this.parentView.layoutMediaObject();
 
-			this.hls = new Hls();
+			this.hls = new Hls({autoStartLoad:false,maxBufferSize:30 * 1000 * 1000,});
 			this.hls.loadSource(this.model.path);
 			this.hls.attachMedia(this.video[0]);
 			this.hls.on(Hls.Events.MANIFEST_PARSED, function(event, data) {
@@ -3520,7 +3524,7 @@ function YouTubeGetID(url){
 				metadataFunc();
 			});
 
-			this.video[0].addEventListener('play', me.parentView.startTimer, false);
+			this.video[0].addEventListener('play', () => { me.parentView.startTimer; this.hls.startLoad(startPosition=-1); }, false);
 			this.video[0].addEventListener('pause', me.parentView.endTimer, false);
 			this.video[0].addEventListener('ended', me.parentView.endTimer, false);
 
@@ -3856,10 +3860,7 @@ function YouTubeGetID(url){
 				playerVars: playerVars,
 				events: {
 					'onStateChange': 'onYouTubeStateChange' + this.model.id
-				},
-        playerVars: {
-            wmode: "opaque"
-        }
+				}
 			}
 
 			if ( this.model.initialSeekAnnotation != null ) {
