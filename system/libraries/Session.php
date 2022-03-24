@@ -230,7 +230,7 @@ class CI_Session {
 			$query = $this->CI->db->get($this->sess_table_name);
 
 			// No result?  Kill it!
-			if ($query->num_rows() == 0)
+			if (!$query || $query->num_rows() == 0)
 			{
 				$this->sess_destroy();
 				return FALSE;

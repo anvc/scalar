@@ -453,7 +453,7 @@ class Book_model extends MY_Model {
         $temp .= ' ORDER BY '.$esc_orderby.' '.$esc_orderdir;
         $query = $this->db->query($temp);
 
-        $result = $query->result();
+        $result = ($query) ? $query->result() : array();
         for ($j = 0; $j < count($result); $j++) {
             $result[$j]->users = $this->get_users($result[$j]->book_id, true);
         }
