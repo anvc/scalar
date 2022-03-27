@@ -2036,7 +2036,7 @@ class MysqliDb
         }
 
         while ($pos = strpos($str, "?")) {
-            $val = $vals[$i++];
+            $val =@ $vals[$i++];
             if (is_object($val)) {
                 $val = '[object]';
             }
