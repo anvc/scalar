@@ -4167,6 +4167,7 @@ window.scalarvis = { instanceCount: -1 };
 
       draw() {
         super.draw();
+        this.updateNoResultsMessage(tags);
       }
 
       getHelpContent() {

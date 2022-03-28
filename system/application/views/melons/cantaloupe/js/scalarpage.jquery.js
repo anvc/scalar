@@ -3327,26 +3327,13 @@
                                     break;
 
                                 case "tags":
-                                    visOptions = {
-                                      modal: false,
-                                      content: 'lens',
-                                      lens: {
-                                        "visualization": {
-                                          "type": "word-cloud",
-                                          "options": {}
-                                        },
-                                        "components": [
-                                          {
-                                            "content-selector": {
-                                              "type": "items-by-type",
-                                              "content-type": "tag"
-                                            },
-                                            "modifiers": []
-                                          }
-                                        ],
-                                      }
-                                    }
-                                    break;
+            	                    visOptions = {
+            	                    	modal: false,
+            	                    	content: 'external',
+            	                    	relations: 'none',
+            	                    	format: 'tagcloud'
+            	                    }
+            	                    break;
 
                             }
                             visualization = $('<div class="visualization"></div>');
