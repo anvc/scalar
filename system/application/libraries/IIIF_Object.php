@@ -328,7 +328,7 @@ class IIIF_Object extends RDF_Object {
     		"http://www.w3.org/ns/anno.jsonld",
     		"http://iiif.io/api/presentation/3/context.json"
     	);
-    	$protocol = (stripos($_SERVER['SERVER_PROTOCOL'],'https')===0 || $_SERVER['HTTP_X_FORWARDED_PROTO']=='https') ? 'https://' : 'http://';
+    	$protocol =@ (stripos($_SERVER['SERVER_PROTOCOL'],'https')===0 || $_SERVER['HTTP_X_FORWARDED_PROTO']=='https') ? 'https://' : 'http://';
     	$output["id"] = $protocol.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
     	$output["type"] = "Manifest";
     	$output["label"] = array(
