@@ -97,13 +97,14 @@ CKEDITOR.editorConfig = function( config ) {
 	config.toolbar = 'Scalar';
 	config.toolbar_Scalar =
 	[
-		{ name: 'document', items : [ 'Source','scalarfootnotes'] },
+		{ name: 'document', items : [ 'Source'] },
 		/* { name: 'size', items : [ 'Maximize' ] }, */
 		{ name: 'clipboard', items : [ 'PasteText','PasteFromWord','Undo','Redo' ] },
 		{ name: 'basicstyles', items : [ 'Bold','Italic','Underline','TextColor', 'BGColor' ] },
 		{ name: 'clear', items : [ 'RemoveFormat','Unlink' ] },
     { name: 'styles', items: [ 'Styles' ]},
 		{ name: 'formatting', items : [ 'NumberedList','BulletedList','Blockquote','-','SpecialChar','Code','Iframe' ] },
+		{ name: 'footnotes', items: ['scalarfootnotes']},
 		{ name: 'advanced', items : [ 'Scalar1', 'Scalar2', 'Scalar5', 'Scalar10', 'Scalar8', 'Scalar9', 'Scalar6', 'Scalar7' ] },
 		{ name: 'editorial', items:['editorialTools']}
 	];
