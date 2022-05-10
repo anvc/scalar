@@ -136,13 +136,12 @@
         },
 
         buildFootnote: function(footnote_id, footnote_text, data, editor) {
-            var links   = '',
+            var link   = '',
                 footnote,
                 order   = data ? data.order.indexOf(footnote_id) + 1 : 1,
                 prefix  = editor.config.scalarfootnotesPrefix ? '-' + editor.config.scalarfootnotesPrefix : '';
-            links = '<a href="#footnote-marker' + prefix + '-' + order + '">↵</a> ';
-
-            footnote = '<li id="footnote' + prefix + '-' + order + '" data-footnote-id="' + footnote_id + '"><cite>' + footnote_text + '</cite>' + links + '</li>';
+            link = '<a href="#footnote-marker' + prefix + '-' + order + '">↵</a> ';
+            footnote = '<li id="footnote' + prefix + '-' + order + '" data-footnote-id="' + footnote_id + '"><cite>' + footnote_text + '</cite>' + link + '</li>';
             return footnote;
         },
 
