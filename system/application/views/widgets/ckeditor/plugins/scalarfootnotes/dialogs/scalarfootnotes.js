@@ -61,7 +61,7 @@
                     }
 
                     //add the elements to the toolbar for the footnote textarea
-                    config.toolbar_Scalar = [
+                    config.toolbar = [
                         { name: 'clipboard', items : ['Undo','Redo' ] },
                         { name: 'basicstyles', items : [ 'Bold','Italic'] },
                         { name: 'clear', items : [ 'RemoveFormat'] },
