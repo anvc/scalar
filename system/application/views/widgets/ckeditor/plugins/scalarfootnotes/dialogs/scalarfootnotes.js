@@ -63,9 +63,9 @@
                     //add the elements to the toolbar for the footnote textarea
                     config.toolbar_Scalar = [
                         { name: 'clipboard', items : ['Undo','Redo' ] },
-                        { name: 'basicstyles', items : [ 'Bold','Italic','Underline','TextColor', 'BGColor' ] },
-                        { name: 'clear', items : [ 'RemoveFormat','Link','Unlink' ] },
-
+                        { name: 'basicstyles', items : [ 'Bold','Italic'] },
+                        { name: 'clear', items : [ 'RemoveFormat'] },
+                        {name: 'link', items: ['Unlink', 'Scalar7']}
                     ]
                     config.allowedContent = 'br em strong; a[!href]';
                     config.enterMode = CKEDITOR.ENTER_BR;
@@ -73,7 +73,6 @@
                     config.height = 80;
                     config.resize_enabled = false;
                     config.autoGrow_minHeight = 80;
-                    config.removePlugins = 'scalarfootnotes, scalar';
 
                     var extra_config = editor.config.scalarfootnotesDialogEditorExtraConfig;
                     if (extra_config) {
