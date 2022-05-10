@@ -76,6 +76,7 @@ CKEDITOR.editorConfig = function( config ) {
             'codemirror,'+
             'scalarunlink,'+
             'scalar,'+
+            'scalarfootnotes,'+
             'floatingspace,'+
             'stylescombo';
 	config.skin = 'bootstrapck';
@@ -96,7 +97,7 @@ CKEDITOR.editorConfig = function( config ) {
 	config.toolbar = 'Scalar';
 	config.toolbar_Scalar =
 	[
-		{ name: 'document', items : [ 'Source' ] },
+		{ name: 'document', items : [ 'Source','scalarfootnotes'] },
 		/* { name: 'size', items : [ 'Maximize' ] }, */
 		{ name: 'clipboard', items : [ 'PasteText','PasteFromWord','Undo','Redo' ] },
 		{ name: 'basicstyles', items : [ 'Bold','Italic','Underline','TextColor', 'BGColor' ] },
