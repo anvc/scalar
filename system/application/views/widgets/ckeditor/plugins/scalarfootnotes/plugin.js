@@ -142,25 +142,8 @@
         buildFootnote: function(footnote_id, footnote_text, data, editor) {
             var links   = '',
                 footnote,
-                letters = 'abcdefghijklmnopqrstuvwxyz',
                 order   = data ? data.order.indexOf(footnote_id) + 1 : 1,
                 prefix  = editor.config.scalarfootnotesPrefix ? '-' + editor.config.scalarfootnotesPrefix : '';
-
-            if (data && data.occurrences[footnote_id] == 1) {
-                links = '<a href="#footnote-marker' + prefix + '-' + order + '-1">↵</a> ';
-            } else if (data && data.occurrences[footnote_id] > 1) {
-                var i = 0
-                    , l = data.occurrences[footnote_id]
-                    , n = l;
-                for (i; i < l; i++) {
-                    links += '<a href="#footnote-marker' + prefix + '-' + order + '-' + (i + 1) + '">' + letters.charAt(i) + '</a>';
-                    if (i < l-1) {
-                        links += ', ';
-                    } else {
-                        links += ' ';
-                    }
-                }
-            }
             footnote = '<li id="footnote' + prefix + '-' + order + '" data-footnote-id="' + footnote_id + '"><cite>' + footnote_text + '</cite>' + links + '</li>';
             return footnote;
         },
@@ -169,13 +152,14 @@
             var $contents  = $(editor.editable().$);
             var $scalarfootnotes = $contents.find('.scalarfootnotes');
 
+            //if this is the first footnote, build the footnotes section
             if ($scalarfootnotes.length == 0) {
                 var header_title = editor.config.scalarfootnotesTitle ? editor.config.scalarfootnotesTitle : 'Footnotes';
                 var header_els = ['<h2>', '</h2>'];//editor.config.editor.config.scalarfootnotesHeaderEls
                 if (editor.config.scalarfootnotesHeaderEls) {
                     header_els = editor.config.scalarfootnotesHeaderEls;
                 }
-                var container = '<div class="scalarfootnotes"><hr aria-label="scalarfootnotes below"><header>' + header_els[0] + header_title + header_els[1] + '</header><ol>' + footnote + '</ol></div>';
+                var container = '<div class="scalarfootnotes"><hr aria-label="footnotes below"><header>' + header_els[0] + header_title + header_els[1] + '</header><ol>' + footnote + '</ol></div>';
                 // Move cursor to end of content:
                 var range = editor.createRange();
                 range.moveToElementEditEnd(range.root);
@@ -201,8 +185,7 @@
             var prefix  = editor.config.scalarfootnotesPrefix ? '-' + editor.config.scalarfootnotesPrefix : '';
             var $contents = $(editor.editable().$);
             var data = {
-                order: [],
-                occurrences: {}
+                order: []
             };
 
             // Check that there's a scalarfootnotes div. If it's been deleted the markers are useless:
@@ -224,23 +207,8 @@
             // Otherwise reorder the markers:
             $markers.each(function(){
                 var footnote_id = $(this).attr('data-footnote-id')
-                    , marker_ref
-                    , n = data.order.indexOf(footnote_id);
-
-                // If this is the markers first occurrence:
-                if (n == -1) {
-                    // Store the id:
+                    , marker_ref = data.order.indexOf(footnote_id);
                     data.order.push(footnote_id);
-                    n = data.order.length;
-                    data.occurrences[footnote_id] = 1;
-                    marker_ref = n + '-1';
-                } else {
-                    // Otherwise increment the number of occurrences:
-                    // (increment n due to zero-index array)
-                    n++;
-                    data.occurrences[footnote_id]++;
-                    marker_ref = n + '-' + data.occurrences[footnote_id];
-                }
                 // Replace the marker contents:
                 var marker = '<a href="#footnote' + prefix + '-' + n + '" id="footnote-marker' + prefix + '-' + marker_ref + '" rel="footnote">' + n + '</a>';
                 $(this).html(marker);
@@ -291,7 +259,9 @@
             }
 
             editor.fire('unlockSnapshot');
+            console.log(data)
         }
+
 
     });
 }(window.jQuery));
