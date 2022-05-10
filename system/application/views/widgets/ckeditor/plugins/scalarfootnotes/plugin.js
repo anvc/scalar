@@ -47,11 +47,7 @@
                 if (!evt.editor.getSelection().getStartElement()) {
                     return;
                 }
-                // Don't reorder the markers if editing a cite:
-                var footnote_div = evt.editor.getSelection().getStartElement().getAscendant('div');
-                if (footnote_div && footnote_div.$.className.indexOf('scalarfootnotes') != -1) {
-                    return;
-                }
+
                 // SetTimeout seems to be necessary (it's used in the core but can't be 100% sure why)
                 setTimeout(function(){
                         $this.reorderMarkers(editor);
@@ -89,8 +85,8 @@
                 editables: def
             });
 
-            // Register the footnotemarker widget.
-            editor.widgets.add('footnotemarker', {
+            // Register the scalarfootnotes widget.
+            editor.widgets.add('scalarfootnotes', {
 
                 // Minimum HTML which is required by this widget to work.
                 requiredContent: 'sup[data-footnote-id]',
@@ -144,6 +140,8 @@
                 footnote,
                 order   = data ? data.order.indexOf(footnote_id) + 1 : 1,
                 prefix  = editor.config.scalarfootnotesPrefix ? '-' + editor.config.scalarfootnotesPrefix : '';
+            links = '<a href="#footnote-marker' + prefix + '-' + order + '">↵</a> ';
+
             footnote = '<li id="footnote' + prefix + '-' + order + '" data-footnote-id="' + footnote_id + '"><cite>' + footnote_text + '</cite>' + links + '</li>';
             return footnote;
         },
@@ -207,8 +205,11 @@
             // Otherwise reorder the markers:
             $markers.each(function(){
                 var footnote_id = $(this).attr('data-footnote-id')
-                    , marker_ref = data.order.indexOf(footnote_id);
+                    , marker_ref;
                     data.order.push(footnote_id);
+                    n = data.order.length;
+                    marker_ref = n;
+
                 // Replace the marker contents:
                 var marker = '<a href="#footnote' + prefix + '-' + n + '" id="footnote-marker' + prefix + '-' + marker_ref + '" rel="footnote">' + n + '</a>';
                 $(this).html(marker);
@@ -259,9 +260,6 @@
             }
 
             editor.fire('unlockSnapshot');
-            console.log(data)
         }
-
-
     });
 }(window.jQuery));
