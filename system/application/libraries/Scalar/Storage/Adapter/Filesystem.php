@@ -287,7 +287,11 @@ class Scalar_Storage_Adapter_Filesystem implements Scalar_Storage_Adapter_Adapte
         if (!is_writable($destDir)) {
             throw new Scalar_Storage_Exception("Destination is not writable: '$destDir'.");
         }
-        return rename($source, $dest);
+        //return rename($source, $dest);
+        // Updated by Craig, 12 May 2022 to force the rename and suppress warnings
+        // See https://stackoverflow.com/questions/45692433/php-rename-from-tmp-throws-warning-although-actually-works
+        @rename($source, $dest);
+        return true;
     }
 
     /**
