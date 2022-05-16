@@ -144,7 +144,7 @@ class IIIF_Object extends RDF_Object {
 	
 		    	foreach ($annotation['body'] as $body) {
 		    		if ('describing' == $body['purpose']) {
-		    			$row['dcterms:title'] = $body['value'];
+		    			$row['sioc:content'] = $body['value'];
 		    			$row['dcterms:language'] = $body['language'];
 		    			$row['dcterms:format'] = $body['format'];
 			    	}
@@ -162,6 +162,8 @@ class IIIF_Object extends RDF_Object {
 		    		$value = $target['refinedBy']['value'];
 		    		$row['dcterms:spatial'] = $value;
 		    	}
+		    	$path = parse_url(str_replace('%20', ' ', $media_url), PHP_URL_PATH);
+		    	$row['dcterms:title'] = basename($path). ' ' . $row['scalar:start_seconds'] . '-' . $row['scalar:end_seconds'];
 		    	
 		    	$return[] = $row;
 		    	
@@ -404,7 +406,7 @@ class IIIF_Object extends RDF_Object {
     	$anno['body'] = array(
     			array(
     				"type" => "TextualBody",
-    				"value" => $node->versions[$node->version_index]->title,
+    				"value" => $node->versions[$node->version_index]->content,
     				"format" => (isset($node->versions[$node->version_index]->rdf['http://purl.org/dc/terms/format'])) ? $node->versions[$node->version_index]->rdf['http://purl.org/dc/terms/format'][0]['value'] : '',
     				"language" => (isset($node->versions[$node->version_index]->rdf['http://purl.org/dc/terms/language'])) ? $node->versions[$node->version_index]->rdf['http://purl.org/dc/terms/language'][0]['value'] : '',
     				"purpose" => "describing"
