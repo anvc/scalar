@@ -745,7 +745,7 @@ class System extends MY_Controller {
 								$this->books->delete($book->book_id);
 							}
 						}
-						log_message('error', 'Scalar: Admin user deleted user id: ' . $user . ', from IP address: ' . $this->getUserIpAddr().'.');
+						log_message('error', 'Scalar: Admin user deleted user id: ' . $user_id. ', from IP address: ' . $this->getUserIpAddr().'.');
 						$this->users->delete($user_id);
 					}
 					// Don't bresk
