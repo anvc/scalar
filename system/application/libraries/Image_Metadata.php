@@ -28,16 +28,20 @@ class Image_Metadata {
 
 	}
 
-	public function get($path='', $format=Image_Metadata::FORMAT_NS) {
+	public function get($path='', $format=Image_Metadata::FORMAT_NS, $filename='') {
 
 		$return = array();
-
+		$ext = pathinfo($filename, PATHINFO_EXTENSION);
+		
 		$iptc_arr = (!empty($this->iptc_ns)) ? $this->get_iptc($path) : array();
 		$exif_arr = (!empty($this->exif_ns)) ? $this->get_exif($path) : array();
 		$id3_arr = (!empty($this->id3_ns)) ? $this->get_id3($path) : array();
-		$pano_str = (!empty($this->pano_ns)) ? $this->getXmpData($path) : '';
+		
+		$pano_str= '';
+		if ($ext == 'jpg' || $ext == 'jpeg') {
+			$pano_str = (!empty($this->pano_ns)) ? $this->getXmpData($path) : '';
+		}
 		$pano_arr = array();
-
 		if (!empty($pano_str)) {
 			$p = xml_parser_create();
 			xml_parse_into_struct($p, $pano_str, $pano_arr, $_index);

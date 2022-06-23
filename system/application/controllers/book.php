@@ -690,7 +690,7 @@ class Book extends MY_Controller {
 
 			try {
 				$this->load->library('Image_Metadata');
-				$image_metadata = $this->image_metadata->get($source_file['tmp_name'], Image_Metadata::FORMAT_NS);
+				$image_metadata = $this->image_metadata->get($source_file['tmp_name'], Image_Metadata::FORMAT_NS, $source_file['name']);
 			} catch (Exception $e) {
 				// Don't throw exception since this isn't critical
 			}
