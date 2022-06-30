@@ -35,7 +35,18 @@
 	<xsl:template match="/response/result/doc">	
 		<rdf:Description rdf:about="{$resourceBase}{str[@name='identifier']}">
 			<dcterms:source><xsl:value-of select="$archiveName"/></dcterms:source>
+			<xsl:variable name="stream_only">
+				<xsl:choose>
+ 					<xsl:when test="arr[@name='collection']/str[text()[contains(.,'stream_only')]]">
+						<xsl:text>true</xsl:text>
+					</xsl:when>
+ 					<xsl:otherwise>
+						<xsl:text>false</xsl:text>	
+ 					</xsl:otherwise>
+				</xsl:choose>
+			</xsl:variable>
 			<xsl:apply-templates>
+				<xsl:with-param name="isStreamOnly" select="$stream_only" />
 				<xsl:with-param name="resourceSlug" select="str[@name='identifier']" />
 			</xsl:apply-templates>
 		</rdf:Description>
@@ -80,14 +91,17 @@
 	</xsl:template>  
   
 	<xsl:template match="arr[@name='format']">
+		<xsl:param name="isStreamOnly"/>
 		<xsl:param name="resourceSlug" />
 		<xsl:apply-templates select="str" mode="format-str">
+			<xsl:with-param name="isStreamOnly" select="$isStreamOnly" />
 			<xsl:with-param name="resourceSlug" select="$resourceSlug" />
 		</xsl:apply-templates>
 	</xsl:template>  
 	
 	<xsl:template match="str" mode="format-str">
 		<!-- Construct the URI of the source media -->
+		<xsl:param name="isStreamOnly"/>
 		<xsl:param name="resourceSlug"/>
   		<xsl:variable name="resourceURI">
     		<xsl:value-of select="$downloadBase"/><xsl:value-of select="$resourceSlug"/>/format=<xsl:value-of select="translate(.,' ','+')"/>
@@ -96,6 +110,7 @@
   		<xsl:choose>	
 			<xsl:when test=".='Thumbnail'"><art:thumbnail rdf:resource="{$resourceURI}"></art:thumbnail></xsl:when>
 			<xsl:when test=".='Metadata'"><!-- Not sure where to put this --></xsl:when>
+			<xsl:when test=".='MPEG4' and $isStreamOnly='true'"><!-- Don't output MPEG4 if the file is stream_only --></xsl:when>
 			<xsl:otherwise><art:filename rdf:resource="{$resourceURI}"></art:filename></xsl:otherwise>
 		</xsl:choose> 
   		<xsl:choose>	
