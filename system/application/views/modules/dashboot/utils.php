@@ -723,7 +723,7 @@ $(document).ready(function() {
 				} else {
 					foreach($recent_pages_list as $page) {
 						echo '<div>';
-						echo '<a href="'.confirm_slash(base_url()).$book->slug.'/'.$page->slug.'">'.$page->slug.'</a>';
+						echo '<a href="'.confirm_slash(base_url()).$page->book_slug.'/'.$page->page_slug.'">'.$page->page_slug.'</a>';
 						echo '</div>'."\n";
 					}
 				}
