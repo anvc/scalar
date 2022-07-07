@@ -753,6 +753,10 @@ class System extends MY_Controller {
 					if (!$this->data['login_is_super']) $this->kickout();
 					$this->data['recent_user_list'] = $this->users->get_all(0, true, 'user_id', 'desc');
 					break;
+				case "get_recent_pages":  // Admin: Tools
+					if (!$this->data['login_is_super']) $this->kickout();
+					$this->data['recent_pages_list'] = $this->pages->get_recent();
+					break;
 				case "do_save_disallowed_emails":  // Admin: Tools
 					if (!$this->data['login_is_super']) $this->kickout();
 					$emails = (isset($_POST['emails']) && !empty($_POST['emails'])) ? explode(',', $_POST['emails']) : array();

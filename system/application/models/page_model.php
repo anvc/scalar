@@ -69,6 +69,18 @@ class Page_model extends MY_Model {
 
     }
 
+		public function get_recent() {
+    	$this->db->distinct();
+    	$this->db->select($this->pages_table.'.*');
+    	$this->db->from($this->pages_table);
+			$this->db->where($this->pages_table.'.type','composite');
+			$this->db->limit(200);
+    	$this->db->order_by('recent_version_id', 'desc');
+			$query = $this->db->get();
+			$result = $query->result();
+			return $result;
+		}
+
     // Search assuming the recent_version_id field is set ... this should run fastly
     public function search_with_recent_version_id($book_id, $terms, $type=null, $is_live=true) {
     	
