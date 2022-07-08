@@ -205,6 +205,26 @@ if (isset($recent_user_list) && !empty($recent_user_list)) {
 <br />
 <form action="<?=confirm_slash(base_url())?>system/dashboard#tabs-tools" method="post">
 <input type="hidden" name="zone" value="tools" />
+<input type="hidden" name="action" value="get_recent_pages" />
+List recently edited pages:&nbsp; <input type="submit" value="Generate" />&nbsp; <a href="?zone=tools#tabs-tools">clear</a>
+<span style="float:right;">Lists the 200 most recently edited pages, across all books</span>
+<div class="div_list"><?php
+	if (!isset($recent_pages_list)) {
+
+	} elseif (empty($recent_pages_list)) {
+		echo 'No content could be found';
+	} else {
+		foreach($recent_pages_list as $page) {
+			echo '<div>';
+			echo '<a href="'.confirm_slash(base_url()).$page->book_slug.'/'.$page->page_slug.'">'.$page->page_slug.'</a>';
+			echo '</div>'."\n";
+		}
+	}
+?></div>
+</form>
+<br />
+<form action="<?=confirm_slash(base_url())?>system/dashboard#tabs-tools" method="post">
+<input type="hidden" name="zone" value="tools" />
 <input type="hidden" name="action" value="get_email_list" />
 Generate email list:&nbsp; <input type="submit" value="Generate" />&nbsp; <a href="?zone=tools#tabs-tools">clear</a>
 <span style="float:right;">Please cut-and-paste into the "Bcc" (rather than "Cc") field to protect anonymity</span>
