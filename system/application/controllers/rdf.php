@@ -345,8 +345,12 @@ class Rdf extends MY_Controller {
 					$object = 'rdf_object';
 			}
 			$this->set_url_params();
-			$this->data['url'] = implode('/',array_slice($this->uri->segments, array_search(__FUNCTION__, $this->uri->segments)));
-			$this->data['url'] = trim(str_replace(':/', '://', $this->data['url']));  // Turns "https:/..." into "https://..."
+			if (isset($_GET['file']) && !empty($_GET['file'])) {  // /rdf/file/?file=<file>
+				$this->data['url'] = trim($_GET['file']);
+			} else {  // /rdf/file/<file>
+				$this->data['url'] = implode('/',array_slice($this->uri->segments, array_search(__FUNCTION__, $this->uri->segments)));
+				$this->data['url'] = trim(str_replace(':/', '://', $this->data['url']));  // Turns "https:/..." into "https://..."
+			}
 			$content = $this->pages->get_by_version_url($this->data['book']->book_id, $this->data['url'], true);  // Could be an absolute or relative URL
 			if (null == $content) {
 				$this->data['url'] = trim(str_replace(' ', '%20', $this->data['url']));
