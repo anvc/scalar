@@ -1826,17 +1826,17 @@ function YouTubeGetID(url){
 					this.annotationTimerRunning = true;
  				}
  				this.overrideAutoSeek = true;
- 				this.mediaObjectView.seek(annotation.properties.start);
+ 				this.mediaObjectView.seek(annotation.properties.start, annotation.properties.end);
  				this.lastSeekTime = annotation.properties.start;
 				handleTimer();
  				break;
 
-        case '3D':
+ 				case '3D':
  				this.mediaObjectView.seek(annotation.properties);
-        if (me.model.isChromeless || ('nav_bar' != me.model.options.header)) {
-          $('body').trigger('show_annotation', [annotation, me]);
-        }
-        break;
+ 				if (me.model.isChromeless || ('nav_bar' != me.model.options.header)) {
+ 					$('body').trigger('show_annotation', [annotation, me]);
+ 				}
+ 				break;
 
  				case 'image':
  				this.showSpatialAnnotation(annotation);
@@ -3305,9 +3305,12 @@ function YouTubeGetID(url){
 		 *
 		 * @param {Number} time			Seek location in seconds.
 		 */
-		jQuery.SemanticAnnotationToolObjectView.prototype.seek = function(time) {
+		jQuery.SemanticAnnotationToolObjectView.prototype.seek = function(time, end) {
 			if (this.video[0]) {
 				this.video[0].currentTime = time;
+				if ('undefined' != typeof(end)) {
+					$(this.video[0]).trigger('annotationEndTime', [end]);  // For Waldorf... assume we're seeking to the beginning of an Annotation
+				}
 			}
 		}
 
