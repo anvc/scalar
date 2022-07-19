@@ -1662,7 +1662,7 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 							'scalar:end_seconds': '',
 							'scalar:start_line_num': '',
 							'scalar:end_line_num': '',
-							'scalar:points': this.properties.x+','+this.properties.y+','+this.properties.w+','+this.properties.h,
+							'scalar:points': this.properties.x+','+this.properties.y+','+this.properties.width+','+this.properties.height,
 							'scalar:position_3d': this.properties.x+','+this.properties.y+','+this.properties.z+','+this.properties.heading+','+this.properties.tilt+','+this.properties.fieldOfView
 						};
 						break;
