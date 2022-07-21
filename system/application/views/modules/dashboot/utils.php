@@ -343,7 +343,7 @@ $(document).ready(function() {
 			<small>Add new user:</small>
 			<div id="manage-users-add-new" class="form-group form-group-sm">
 				<input tabindex="1" class="form-control" type="text" name="email" value="" placeholder="Email address" />&nbsp;
-				<input tabindex="2" class="form-control" type="text" name="fullname" value="" placeholder="Full nane" />&nbsp;
+				<input tabindex="2" class="form-control" type="text" name="fullname" value="" placeholder="Full name" />&nbsp;
 				<input tabindex="3" class="form-control" type="password" name="password_1" value="" placeholder="Password" />&nbsp;
 				<input tabindex="4" class="form-control" type="password" name="password_2" value="" placeholder="Retype password" />&nbsp;
 				<input tabindex="5" class="btn btn-sm" type="submit" value="Add" />

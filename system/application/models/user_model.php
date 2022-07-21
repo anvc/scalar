@@ -274,7 +274,7 @@ class User_model extends MY_Model {
 
      	$this->db->select('*');
     	$this->db->from($this->users_table);
-    	$this->db->where('fullname', $fullname);
+			$this->db->where('fullname', $fullname);
     	$query = $this->db->get();
     	if ($query->num_rows == 0) return false;
     	return $query->result();  	// Could be more than one
@@ -449,6 +449,7 @@ class User_model extends MY_Model {
     public function search($sq='',$orderby='title',$orderdir='asc') {
 
     	$this->db->like('fullname', $sq);
+			$this->db->or_like('email', $sq);
     	$query = $this->db->get($this->users_table);
     	$result = $query->result();
     	for ($j = 0; $j < count($result); $j++) {
