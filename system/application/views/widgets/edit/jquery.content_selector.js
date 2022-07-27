@@ -39,6 +39,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
     	}
     	// Helpers
     	var ucwords = function (str) {  // http://kevin.vanzonneveld.net
+				if (!str) return;
     		return (str + '').replace(/^([a-z\u00E0-\u00FC])|\s+([a-z\u00E0-\u00FC])/g, function ($1) {
     			return $1.toUpperCase();
     		});
