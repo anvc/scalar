@@ -68,6 +68,16 @@ class Resource_model extends CI_Model {
     	return $this->get($field);
     	
     }
+
+		public function addEmailToDisallowed($email) {
+			$json = $this->get('disallowed_emails');
+			$emails = json_decode($json, true);
+			if (empty($emails)) $emails = array();
+			$emails[] = $email;
+			sort($emails);
+			$json = json_encode($emails);
+			$this->put('disallowed_emails', $json);
+		}
     
 }
 ?>

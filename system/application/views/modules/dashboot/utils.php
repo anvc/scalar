@@ -298,6 +298,7 @@ $(document).ready(function() {
 						<th>Password</th>
 						<th>URL</th>
 						<th>Books</th>
+						<th>Actions</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -327,6 +328,7 @@ $(document).ready(function() {
 						echo '</a>, '.$book->relationship.'<br />';
 					}
 					echo "</td>\n";
+					echo '<td><a href="'.confirm_slash(base_url()).'system/dashboard?action=do_deactivate&user_id='.$users[$i]->user_id.'&type=users&zone=all-users&pill=manage-users&tab=tabs-utils" onclick="if (!confirm(\'Are you sure you wish to DEACTIVATE this user? This will make all of their books private and add their email to the disallowed list, preventing them from logging in.\')) return false;">Deactivate</a><br />';
 					echo "</tr>\n";
 				}
 			}

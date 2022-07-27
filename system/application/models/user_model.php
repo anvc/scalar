@@ -410,6 +410,16 @@ class User_model extends MY_Model {
 
     }
 
+	public function make_books_private($user_id) {
+		$books = $this->get_books($user_id);
+		foreach ($books as $row) {
+			$this->db->set('url_is_public', 0);
+			$this->db->set('display_in_index', 0);
+			$this->db->where('book_id', $row->book_id);
+			$this->db->update($this->books_table);
+		}
+	}
+
 	public function get_book_ids($array=array()) {
 
 		$return = array();
