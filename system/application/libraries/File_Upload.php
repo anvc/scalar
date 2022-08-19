@@ -140,6 +140,10 @@ class File_Upload {
         if (stristr($file, '.php')) return false;
         if ('zip' == $ext) return false;
         if (preg_match('/[\'^£$%&}{<>]/', $file)) return false; // Control characters
+        if ('html' == $ext || 'html' == substr($ext, 0, 4)) return false;
+        if (stristr($file, '.html')) return false;
+        if ('htm' == $ext || 'htm' == substr($ext, 0, 3)) return false;
+        if (stristr($file, '.htm')) return false;
         return true;
 
     }
