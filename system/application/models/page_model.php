@@ -74,6 +74,7 @@ class Page_model extends MY_Model {
     	$this->db->select($this->pages_table.'.slug as page_slug, '.$this->pages_table.'.book_id, '.$this->pages_table.'.recent_version_id');
     	$this->db->from($this->pages_table);
 			$this->db->where($this->pages_table.'.type','composite');
+			$this->db->or_where($this->pages_table.'.type','media');
 			$this->db->join($this->books_table, $this->books_table.'.book_id='.$this->pages_table.'.book_id', 'left');
 			$this->db->select($this->books_table.'.slug as book_slug');
 			$this->db->limit(200);
