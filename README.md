@@ -35,19 +35,14 @@ SCALAR_DB_HOSTNAME=db,SCALAR_DB_USERNAME=db,SCALAR_DB_PASSWORD=db,
 SCALAR_DB_DATABASE=db"
 ```
 
-Start the DDEV containers
-```bash
-$ ddev start
-```
-
 DDEV will create a new folder titled `.ddev`, where additional configurations can be made. Update PHP's configuration to enable open short tags.
 ```bash
 $ mkdir .ddev/php && echo 'short_open_tag = ON;' > .ddev/php/my-php.ini
 ```
 
-Restart DDEV to initiate updated PHP configurations
+Start the DDEV containers
 ```bash
-$ ddev restart
+$ ddev start
 ```
 
 Import the Scalar SQL database
