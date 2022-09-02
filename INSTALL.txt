@@ -125,6 +125,50 @@ It will then be available to users at Dashboard > Import/Export.
 
 Enjoy!
 
+-------------------------------------
+Setting up a local development server
+-------------------------------------
+
+DDEV is a helpful resource for setting up and managing a local development environment with Docker containers.
+
+Prerequisites:
+- Docker(https://docs.docker.com/get-docker/)
+- Git(https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
+- DDEV(https://ddev.readthedocs.io/en/stable/users/install/ddev-installation/)
+
+From your terminal, clone the Scalar codebase and enter the directory
+
+    git clone https://github.com/anvc/scalar
+    cd scalar
+
+Configure your local development for Scalar
+
+    ddev config --project-type php --php-version 7.4 --webserver-type apache-fpm 
+        --database mysql:5.7 --web-environment="SCALAR_ENCRYPTION_KEY=scalar,
+        SCALAR_DB_HOSTNAME=db,SCALAR_DB_USERNAME=db,SCALAR_DB_PASSWORD=db,
+        SCALAR_DB_DATABASE=db"
+
+DDEV will create a new folder titled `.ddev`, where additional configurations can be made. Update PHP's configuration to enable open short tags.
+
+    mkdir .ddev/php && echo 'short_open_tag = ON;' > .ddev/php/my-php.ini
+
+Start the DDEV containers
+
+    ddev start
+
+Import the Scalar SQL database
+
+    ddev import-db --src=system/application/config/scalar_store.sql
+
+Create an admin user
+
+    echo 'INSERT INTO db.scalar_db_users (email, fullname, password, is_super) VALUES
+        ("admin@scalar.dev", "admin", SHA2("password", 512), 1)' | ddev mysql
+
+Launch your browser to access the development server
+
+    ddev launch
+
 -------------------------------------------------------------------------------------------
 Updates we've made to incorporated libraries, kept here for reference if they need updating
 -------------------------------------------------------------------------------------------
