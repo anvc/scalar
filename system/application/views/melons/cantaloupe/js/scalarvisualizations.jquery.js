@@ -4178,7 +4178,7 @@ window.scalarvis = { instanceCount: -1 };
       }
 
       setupElement() {
-        approot = $('link#approot').attr('href');
+        var approot = $('link#approot').attr('href');
         $('head').append('<link rel="stylesheet" type="text/css" href="' + approot + 'views/widgets/jQCloud/jqcloud.min.css">');
         $.getScript(approot + 'views/widgets/jQCloud/jqcloud.min.js', function() {
           base.visualization.addClass("tag_cloud caption_font");
