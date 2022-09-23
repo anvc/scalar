@@ -134,17 +134,27 @@ class File_Upload {
         if (stristr($file, './')) return false;
         if ('.' == substr($file, 0, 1)) return false;
         if ('google' == substr($file, 0, 6)) return false;
+        if (preg_match('/[\'^£$%&}{<>]/', $file)) return false; // Control characters
         $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
         if (empty($ext)) return false; // Require a file extension
-        if ('php' == $ext || 'php' == substr($ext, 0, 3)) return false;
-        if (stristr($file, '.php')) return false;
-        if ('zip' == $ext) return false;
-        if (preg_match('/[\'^£$%&}{<>]/', $file)) return false; // Control characters
-        if ('html' == $ext || 'html' == substr($ext, 0, 4)) return false;
-        if (stristr($file, '.html')) return false;
-        if ('htm' == $ext || 'htm' == substr($ext, 0, 3)) return false;
-        if (stristr($file, '.htm')) return false;
-        return true;
+        if ('gif' == $ext || 'gif' == substr($ext, 0, 3)) return true;
+        if ('kml' == $ext || 'kml' == substr($ext, 0, 3)) return true;
+        if ('m4v' == $ext || 'm4v' == substr($ext, 0, 3)) return true;
+        if ('mp3' == $ext || 'mp3' == substr($ext, 0, 3)) return true;
+        if ('mp4' == $ext || 'mp4' == substr($ext, 0, 3)) return true;
+        if ('pdf' == $ext || 'pdf' == substr($ext, 0, 3)) return true;
+        if ('png' == $ext || 'png' == substr($ext, 0, 3)) return true;
+        if ('jpg' == $ext || 'jpg' == substr($ext, 0, 3)) return true;
+        if ('jpeg' == $ext || 'jpeg' == substr($ext, 0, 4)) return true;
+        if ('txt' == $ext || 'txt' == substr($ext, 0, 3)) return true;
+        if ('wav' == $ext || 'wav' == substr($ext, 0, 3)) return true;
+        if ('3gp' == $ext || '3gp' == substr($ext, 0, 3)) return true;
+        if ('aif' == $ext || 'aif' == substr($ext, 0, 3)) return true;
+        if ('mov' == $ext || 'mov' == substr($ext, 0, 3)) return true;
+        if ('oga' == $ext || 'oga' == substr($ext, 0, 3)) return true;
+        if ('tif' == $ext || 'tif' == substr($ext, 0, 3)) return true;
+        if ('webm' == $ext || 'webm' == substr($ext, 0, 4)) return true;
+        return false;
 
     }
 
