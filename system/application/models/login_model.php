@@ -49,7 +49,7 @@ class Login_model extends User_model {
 				$days = $this->days_since_last_password_change($result->user_id);
 				$max_days = $this->config->item('strong_password_days_to_reset');
 				if ($max_days) {
-					if ($days == null || $days > $max_days) $result->password_exceeds_max_days = true;
+					if ($days > $max_days) $result->password_exceeds_max_days = true;
 				}
 			}
 			$this->session->set_userdata(array($this->login_basename => (array) $result));
