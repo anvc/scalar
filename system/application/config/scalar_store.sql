@@ -170,3 +170,21 @@ CREATE TABLE IF NOT EXISTS `scalar_db_whitelist` (
   `domain` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   KEY `book_id` (`book_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `scalar_registration_keys` (
+  `regkey_id`  bigint unsigned AUTO_INCREMENT,
+  `user_email` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `registration_key` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `created` datetime NOT NULL,
+  `expires` datetime NOT NULL,
+  `num_available` int unsigned DEFAULT 1,
+  PRIMARY KEY(`regkey_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `scalar_regkey_usage` (
+  `usage_id`  bigint unsigned AUTO_INCREMENT,
+  `regkey_id`  bigint unsigned,
+  `signup_email` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY(`usage_id`),
+  FOREIGN KEY(`regkey_id`) REFERENCES scalar_registration_keys(`regkey_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
