@@ -103,7 +103,12 @@ $config['book_msg'] = '';
 $config['book_msg_cookie_name'] = 'ci_hide_scalar_book_msg';
 
 // Custom message displayed beneath the registration key field on the register page
-$config['registration_key_msg'] = '';    
+$config['registration_key_msg'] = '';  
+
+// URLs to Terms of Service and Privacy Policy pages for all books on this install (displayed in footer if present).
+// Can be overridden on a per book basis in the Dashboard.
+$config['terms_of_service'] = '';
+$config['privacy_policy'] = '';
 
 // LDAP authentication settings
 $config['use_ldap'] = (getenv('SCALAR_USE_LDAP') ? getenv('SCALAR_USE_LDAP') : false);  // Default: off
