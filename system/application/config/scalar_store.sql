@@ -20,6 +20,8 @@ CREATE TABLE IF NOT EXISTS `scalar_db_books` (
   `editions` TEXT DEFAULT NULL,
   `user` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
   `created` datetime NOT NULL,
+  `terms_of_service` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `privacy_policy` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`book_id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 

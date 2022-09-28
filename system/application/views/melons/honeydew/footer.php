@@ -61,7 +61,10 @@ if (isset($book) && !empty($book)):
 // Publisher and license
 echo '<span class="poweredby">'."\n";
 if (!empty($book->publisher)) echo 'Published by '.$book->publisher.'. ';
-echo 'Powered by <a href="http://scalar.usc.edu">Scalar</a>.<br /><a href="http://scalar.usc.edu/terms-of-service/">Terms of Service</a> | <a href="http://scalar.usc.edu/privacy-policy/">Privacy Policy</a> | <a href="http://scalar.usc.edu/contact/">Scalar Feedback</a>';
+echo 'Powered by <a href="http://scalar.usc.edu">Scalar</a>.<br />';
+if (!empty($book->terms_of_service)) echo '<a href="'.$book->terms_of_service.'">Terms of Service</a> | ';
+if (!empty($book->privacy_policy)) echo '<a href="'.$book->privacy_policy.'">Privacy Policy</a> | ';
+echo '<a href="http://scalar.usc.edu/contact/">Scalar Feedback</a>';
 echo "</span>\n";
 
 echo "</div>\n";  // logo wrapper

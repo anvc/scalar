@@ -15,6 +15,16 @@ if (isset($book) && !empty($book)) {
 	if (isset($book->editorial_is_on) && $book->editorial_is_on) $editorial = true;
 	if (!empty($book->publisher)) $publisher = $book->publisher;
 	if (!empty($book->publisher_thumbnail)) $publisher_thumbnail = $book->publisher_thumbnail;
+	if (!empty($book->terms_of_service)) {
+		$terms_of_service = $book->terms_of_service;
+	} else if (!empty($this->config->item('terms_of_service'))) {
+		$terms_of_service = $this->config->item('terms_of_service');
+	}
+	if (!empty($book->privacy_policy)) {
+		$privacy_policy = $book->privacy_policy;
+	} else if (!empty($this->config->item('privacy_policy'))) {
+		$privacy_policy = $this->config->item('privacy_policy');
+	}
 }
 if (isset($page->versions) && isset($page->versions[$page->version_index]->has_paths) && !empty($page->versions[$page->version_index]->has_paths)) {
 	$path_index = $page->versions[$page->version_index]->requested_path_index;
@@ -116,6 +126,12 @@ if (isset($page->version_index)) {
 <? endif ?>
 <? if (!empty($primary_role)): ?>
 <link id="primary_role" rel="scalar:primary_role" href="<?=$primary_role?>" />
+<? endif ?>
+<? if (!empty($terms_of_service)): ?>
+<link id="terms_of_service" rel="dcterms:accessRights" href="<?=$terms_of_service?>" />
+<? endif ?>
+<? if (!empty($privacy_policy)): ?>
+<link id="privacy_policy" rel="dcterms:accessRights" href="<?=$privacy_policy?>" />
 <? endif ?>
 <? if (isset($use_proxy) && $use_proxy): ?>
 <link id="use_proxy" href="true" />

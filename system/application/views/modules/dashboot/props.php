@@ -374,14 +374,14 @@ function select_versions() {
         </div>
       </div>
       <div class="form-group">
-        <label for="publisher" class="col-sm-2 control-label">Publisher credit</label>
+        <label for="publisher" class="col-sm-2 control-label">Publisher Credit</label>
         <div class="col-sm-10">
           <input type="text" class="form-control" id="publisher" name="publisher" value="<?=htmlspecialchars($book->publisher)?>">
           <small>Any HTML hyperlink included here will also be applied to the publisher logo</small>
         </div>
       </div>
       <div class="form-group">
-        <label for="upload_publisher_thumb" class="col-sm-2 control-label">Publisher logo</label>
+        <label for="upload_publisher_thumb" class="col-sm-2 control-label">Publisher Logo</label>
         <div class="col-sm-4">
           <div class="input-group">
             <input type="hidden" name="publisher_thumbnail" value="<?=$book->publisher_thumbnail?>" />
@@ -408,6 +408,23 @@ function select_versions() {
           </div>
         </div>
       </div>
+
+      <div class="form-group">
+        <label for="publisher" class="col-sm-2 control-label">Terms of Service</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control" id="terms_of_service" name="terms_of_service" value="<?=htmlspecialchars($book->terms_of_service)?>">
+          <small>Enter the URL to your Terms of Service</small>
+        </div>
+      </div>
+
+			<div class="form-group">
+				<label for="publisher" class="col-sm-2 control-label">Privacy Policy</label>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" id="privacy_policy" name="privacy_policy" value="<?=htmlspecialchars($book->privacy_policy)?>">
+          <small>Enter the URL to your Privacy Policy</small>
+				</div>
+			</div>
+
       <div class="page-header"></div>
       <div class="form-group">
         <div class="col-sm-12">

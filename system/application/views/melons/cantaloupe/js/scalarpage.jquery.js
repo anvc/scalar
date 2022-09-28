@@ -1420,8 +1420,10 @@
                 }
                 $par.append('<a href="http://scalar.usc.edu/scalar"><img src="' + page.options.root_url + '/images/scalar_logo_small.png" width="18" height="16" alt="Scalar logo"/></a>');
                 $par.append(' Powered by <a href="http://scalar.usc.edu/scalar">Scalar</a> (<a href="https://github.com/anvc/scalar">' + $('link#scalar_version').attr('href').trim() + '</a>) | ');
-                $par.append('<a href="http://scalar.usc.edu/terms-of-service/">Terms of Service</a> | ');
-                $par.append('<a href="http://scalar.usc.edu/privacy-policy/">Privacy Policy</a> | ');
+                var termsOfService = $('link#terms_of_service').attr('href')
+                if (termsOfService) $par.append('<a href="' + termsOfService + '">Terms of Service</a> | ');
+                var privacyPolicy = $('link#privacy_policy').attr('href')
+                if (privacyPolicy) $par.append('<a href="' + privacyPolicy + '">Privacy Policy</a> | ');
                 $par.append('<a href="http://scalar.usc.edu/contact/">Scalar Feedback</a>');
             },
 

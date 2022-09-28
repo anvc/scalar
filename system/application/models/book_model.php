@@ -530,6 +530,8 @@ class Book_model extends MY_Model {
 		if (isset($array['scope']) && !empty($array['scope'])) 				$data['scope'] = $array['scope'];
 		if (isset($array['publisher']) && !empty($array['publisher'])) 		$data['publisher'] = $array['publisher'];
 		if (isset($array['publisher_thumbnail']) && !empty($array['publisher_thumbnail'])) $data['publisher_thumbnail'] = $array['publisher_thumbnail'];
+		if (isset($array['terms_of_service']) && !empty($array['terms_of_service'])) 		$data['terms_of_service'] = $array['terms_of_service'];
+		if (isset($array['privacy_policy']) && !empty($array['privacy_policy'])) 		$data['privacy_policy'] = $array['privacy_policy'];
 
 		try {
 			$this->getStorage($data['slug'])->setUp();
