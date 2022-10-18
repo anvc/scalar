@@ -952,6 +952,7 @@ class System extends MY_Controller {
 					break;
 			}
 			if ('disallowed-emails' == $pill) {
+				$this->load->model('resource_model', 'resources');
 				$json = $this->resources->get('disallowed_emails');
 				$arr = json_decode($json, true);
 				if (empty($arr)) $arr = array();
