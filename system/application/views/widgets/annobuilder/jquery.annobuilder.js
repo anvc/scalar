@@ -244,6 +244,7 @@ jQuery.AnnoBuilderController = function() {
         break;
 
         case '3D':
+				case '3D-GIS':
         if (annotation) {
           if (annotation.body.url != $.annobuilder.view.builder.newAnnotationURL) {
             $.annobuilder.model.mediaElement.seek( $.annobuilder.model.selectedAnnotation );
@@ -334,6 +335,7 @@ jQuery.AnnoBuilderView = function() {
 			case "video":
 			case "image":
       case "3D":
+			case "3D-GIS":
 			this.builder = new $.AnnoBuilderInterfaceView();
 			break;
 
@@ -499,7 +501,52 @@ jQuery.AnnoBuilderInterfaceView = function() {
 			this.annotationForm.find('tbody').append('<tr><td class="field"></td><td class="value">Starting line: <input id="startLine" class="form-control" type="text" size="6" onchange="$.annobuilder.view.builder.handleEditLineExtents()" onkeyup="$.annobuilder.view.builder.handleEditLineExtents()">&nbsp;&nbsp; Ending line: <input id="endLine" class="form-control" type="text" size="6" onchange="$.annobuilder.view.builder.handleEditLineExtents()" onkeyup="$.annobuilder.view.builder.handleEditLineExtents()"></td></tr>');
 			break;
 
+			case '3D-GIS':
+				// cantaloupe-only instructions
+				var instructions = '';
+				if ( $( 'article' ).length ) {
+					instructions = 'For quick adjustments, click a numeric field and use mouse wheel.';
+				}
+				this.annotationForm.find('tbody').append('<tr><td class="field">Latitude</td><td class="value">' +
+					'<div class="form-group">' +
+						'<input id="latitude" class="form-control" type="text" size="3" onchange="$.annobuilder.view.builder.handleEditPositionGIS()" onkeyup="$.annobuilder.view.builder.handleEditPositionGIS()"> ' +
+					'</div></td></tr>' +
+				'<tr><td class="field">Longitude</td><td class="value">' +
+					'<div class="form-group">' +
+						'<input id="longitude" class="form-control" type="text" size="3" onchange="$.annobuilder.view.builder.handleEditPositionGIS()" onkeyup="$.annobuilder.view.builder.handleEditPositionGIS()"> ' +
+					'</div></td></tr>' +
+				'<tr><td class="field">Altitude</td><td class="value">' +
+					'<div class="form-group">' +
+						'<input id="altitude" class="form-control" type="text" size="3" onchange="$.annobuilder.view.builder.handleEditPositionGIS()" onkeyup="$.annobuilder.view.builder.handleEditPositionGIS()"> ' +
+					'</div></td></tr>' +
+				'<tr><td class="field">Heading</td><td class="value">' +
+					'<div class="form-group">' +
+						'<input id="heading" class="form-control" type="text" size="6" onchange="$.annobuilder.view.builder.handleEditPositionGIS()" onkeyup="$.annobuilder.view.builder.handleEditPositionGIS()"> ' +
+					'</div></td></tr>' +
+				'<tr><td class="field">Tilt</td><td class="value">' +
+					'<div class="form-group">' +
+						'<input id="tilt" class="form-control" type="text" size="6" onchange="$.annobuilder.view.builder.handleEditPositionGIS()" onkeyup="$.annobuilder.view.builder.handleEditPositionGIS()"> ' +
+					'</div></td></tr>' +
+				'<tr><td class="field">Field of View</td><td class="value">' +
+					'<div class="form-group">' +
+						'<input id="fieldOfView" class="form-control" type="text" size="6" onchange="$.annobuilder.view.builder.handleEditPositionGIS()" onkeyup="$.annobuilder.view.builder.handleEditPositionGIS()"> ' +
+					'</div></td></tr>' +
+				'<tr><td class="field"></td><td class="value">' +
+					'<div><a id="setPositionGISBtn" class="btn btn-success btn-sm generic_button border_radius" role="button" style="margin-right:20px;">Set all values from current view</a></div></td></tr>' +
+					'</div><br><span style="font-size: small; line-height: 90%;">' + instructions + '</span></td></tr>');
+				// if cantaloupe
+				if ( $( 'article' ).length ) {
+					$( "#latitude" ).TouchSpin({ min: -1000000000, max: 1000000000, step: 1, decimals: 2, boostat:5, mousewheel:true, forcestepdivisibility: 'none' });
+					$( "#longitude" ).TouchSpin({ min: -1000000000, max: 1000000000, step: 1, decimals: 2, boostat:5, mousewheel:true, forcestepdivisibility: 'none' });
+					$( "#altitude" ).TouchSpin({ min: -1000000000, max: 1000000000, step: 1, decimals: 2, boostat:5, mousewheel:true, forcestepdivisibility: 'none' });
+					$( "#heading" ).TouchSpin({ min: -1000000000, max: 1000000000, step: 1, decimals: 2, boostat:5, mousewheel:true, forcestepdivisibility: 'none' });
+					$( "#tilt" ).TouchSpin({ min: -1000000000, max: 1000000000, step: 1, decimals: 2, boostat:5, mousewheel:true, forcestepdivisibility: 'none' });
+					$( "#fieldOfView" ).TouchSpin({ min: 0, max: 1000000000, step: 1, decimals: 2, boostat:5, mousewheel:true, forcestepdivisibility: 'none' });
+				}
+				break;
+
 			case '3D':
+				console.log($.annobuilder.model.node.current.mediaSource.contentType);
 			// cantaloupe-only instructions
 			var instructions = '';
 			if ( $( 'article' ).length ) {
@@ -515,7 +562,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 				'<div class="form-group">' +
 					'<input id="targetZ" class="form-control" type="text" size="3" onchange="$.annobuilder.view.builder.handleEditPosition3D()" onkeyup="$.annobuilder.view.builder.handleEditPosition3D()"> ' +
 				'</div></td></tr>' +
-      '<tr><td class="field">Camera</td><td class="value">' +
+			'<tr><td class="field">Camera</td><td class="value">' +
 				'<div class="form-group">' +
 					'<input id="cameraX" class="form-control" type="text" size="3" onchange="$.annobuilder.view.builder.handleEditPosition3D()" onkeyup="$.annobuilder.view.builder.handleEditPosition3D()"> ' +
 				'</div>&nbsp;' +
@@ -525,25 +572,25 @@ jQuery.AnnoBuilderInterfaceView = function() {
 				'<div class="form-group">' +
 					'<input id="cameraZ" class="form-control" type="text" size="3" onchange="$.annobuilder.view.builder.handleEditPosition3D()" onkeyup="$.annobuilder.view.builder.handleEditPosition3D()"> ' +
 				'</div></td></tr>' +
-      '<tr><td class="field">Roll</td><td class="value">' +
+			'<tr><td class="field">Roll</td><td class="value">' +
 				'<div class="form-group">' +
 					'<input id="roll" class="form-control" type="text" size="6" onchange="$.annobuilder.view.builder.handleEditPosition3D()" onkeyup="$.annobuilder.view.builder.handleEditPosition3D()"> ' +
 				'</div></td></tr>' +
-      '<tr><td class="field">Field of View</td><td class="value">' +
+			'<tr><td class="field">Field of View</td><td class="value">' +
 				'<div class="form-group">' +
 					'<input id="fieldOfView" class="form-control" type="text" size="6" onchange="$.annobuilder.view.builder.handleEditPosition3D()" onkeyup="$.annobuilder.view.builder.handleEditPosition3D()"> ' +
 				'</div></td></tr>' +
-      '<tr><td class="field"></td><td class="value">' +
-        '<div><a id="setPosition3DBtn" class="btn btn-success btn-sm generic_button border_radius" role="button" style="margin-right:20px;">Set all values from current view</a></div></td></tr>' +
+			'<tr><td class="field"></td><td class="value">' +
+				'<div><a id="setPosition3DBtn" class="btn btn-success btn-sm generic_button border_radius" role="button" style="margin-right:20px;">Set all values from current view</a></div></td></tr>' +
 				'</div><br><span style="font-size: small; line-height: 90%;">' + instructions + '</span></td></tr>');
 			// if cantaloupe
 			if ( $( 'article' ).length ) {
 				$( "#targetX" ).TouchSpin({ min: -1000000000, max: 1000000000, step: 1, decimals: 2, boostat:5, mousewheel:true, forcestepdivisibility: 'none' });
 				$( "#targetY" ).TouchSpin({ min: -1000000000, max: 1000000000, step: 1, decimals: 2, boostat:5, mousewheel:true, forcestepdivisibility: 'none' });
-        $( "#targetZ" ).TouchSpin({ min: -1000000000, max: 1000000000, step: 1, decimals: 2, boostat:5, mousewheel:true, forcestepdivisibility: 'none' });
-        $( "#cameraX" ).TouchSpin({ min: -1000000000, max: 1000000000, step: 1, decimals: 2, boostat:5, mousewheel:true, forcestepdivisibility: 'none' });
+				$( "#targetZ" ).TouchSpin({ min: -1000000000, max: 1000000000, step: 1, decimals: 2, boostat:5, mousewheel:true, forcestepdivisibility: 'none' });
+				$( "#cameraX" ).TouchSpin({ min: -1000000000, max: 1000000000, step: 1, decimals: 2, boostat:5, mousewheel:true, forcestepdivisibility: 'none' });
 				$( "#cameraY" ).TouchSpin({ min: -1000000000, max: 1000000000, step: 1, decimals: 2, boostat:5, mousewheel:true, forcestepdivisibility: 'none' });
-        $( "#cameraZ" ).TouchSpin({ min: -1000000000, max: 1000000000, step: 1, decimals: 2, boostat:5, mousewheel:true, forcestepdivisibility: 'none' });
+				$( "#cameraZ" ).TouchSpin({ min: -1000000000, max: 1000000000, step: 1, decimals: 2, boostat:5, mousewheel:true, forcestepdivisibility: 'none' });
 				$( "#roll" ).TouchSpin({ min: -1000000000, max: 1000000000, step: 1, decimals: 2, boostat:5, mousewheel:true, forcestepdivisibility: 'none' });
 				$( "#fieldOfView" ).TouchSpin({ min: 0, max: 1000000000, step: 1, decimals: 2, boostat:5, mousewheel:true, forcestepdivisibility: 'none' });
 			}
@@ -558,6 +605,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 		$('#setStartTimeBtn').on('click', this.handleSetStartTime);
 		$('#setEndTimeBtn').on('click', this.handleSetEndTime);
     $('#setPosition3DBtn').on('click', this.handleSetPosition3D);
+    $('#setPositionGISBtn').on('click', this.handleSetPositionGIS);
 
 		$('#tagButton').on('click', function() {
 			$('<div></div>').content_selector({
@@ -613,7 +661,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 			anno.addHandler( "onAnnotationRemoved", $.annobuilder.view.builder.handleDelete );
 		}
 
-    if ( $.annobuilder.model.node.current.mediaSource.contentType == '3D' ) {
+    if ( $.annobuilder.model.node.current.mediaSource.name == 'Unity WebGL' ) {
       window.addEventListener('message', $.annobuilder.view.builder.handleReturnPosition3D);
     }
 
@@ -680,6 +728,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 					break;
 
           case '3D':
+					case '3D-GIS':
           if (edits) {
             $.annobuilder.model.mediaElement.seek(edits);
           } else {
@@ -734,6 +783,16 @@ jQuery.AnnoBuilderInterfaceView = function() {
 					edits =  editTracking[annotation.body.url].edits;
 					annotationChip.data('edits', edits);
 					annotationChip.append('<p class="annotationTitle"><a href="javascript:;">X:'+Math.round(edits.targetX)+' Y:'+Math.round(edits.targetY)+' Z:'+Math.round(edits.targetZ)+'</a>&nbsp; <strong>'+edits.title+'</strong></p>');
+				} else {
+					annotationChip.append('<p class="annotationTitle"><a href="javascript:;">'+annotation.startString+'</a>&nbsp; <strong>'+annotation.body.current.title+'</strong></p>');
+				}
+        break;
+
+        case '3D-GIS':
+				if (editTracking[annotation.body.url]) {
+					edits =  editTracking[annotation.body.url].edits;
+					annotationChip.data('edits', edits);
+					annotationChip.append('<p class="annotationTitle"><a href="javascript:;">Lat:'+Math.round(edits.latitude)+' Lon:'+Math.round(edits.longitude)+' Alt:'+Math.round(edits.altitude)+'</a>&nbsp; <strong>'+edits.title+'</strong></p>');
 				} else {
 					annotationChip.append('<p class="annotationTitle"><a href="javascript:;">'+annotation.startString+'</a>&nbsp; <strong>'+annotation.body.current.title+'</strong></p>');
 				}
@@ -829,6 +888,23 @@ jQuery.AnnoBuilderInterfaceView = function() {
     return dimensions;
  }
 
+ jQuery.AnnoBuilderInterfaceView.prototype.parsePositionGIS = function(latitudeStr, longitudeStr, altitudeStr, headingStr, tiltStr, fieldOfViewStr) {
+    var dimensions = {};
+    if (!latitudeStr) latitudeStr = '0';
+    if (!longitudeStr) longitudeStr = '0';
+    if (!altitudeStr) altitudeStr = '0';
+    if (!headingStr) headingStr = '0';
+    if (!tiltStr) tiltStr = '0';
+    if (!fieldOfViewStr) fieldOfViewStr = '60';
+    dimensions.latitude = parseFloat(latitudeStr);
+    dimensions.longitude = parseFloat(longitudeStr);
+    dimensions.altitude = parseFloat(altitudeStr);
+    dimensions.heading = parseFloat(headingStr);
+    dimensions.tilt = parseFloat(tiltStr);
+    dimensions.fieldOfView = parseFloat(fieldOfViewStr);
+    return dimensions;
+ }
+
 	/**
 	 * Unparses form data for a spatial annotation and returns an object containing
 	 * the string representations of its dimensions.
@@ -907,6 +983,44 @@ jQuery.AnnoBuilderInterfaceView = function() {
 		position3D.string = position3D.targetX+','+position3D.targetY+','+position3D.targetZ+','+position3D.cameraX+','+position3D.cameraY+','+position3D.cameraZ+','+position3D.roll+','+position3D.fieldOfView;
 
 		return position3D;
+	}
+
+	/**
+	 * Unparses form data for a 3D GIS annotation and returns an object containing
+	 * the string representations of its position.
+	 *
+	 * @param edits {Object}			Edited position to be unparsed (if omitted, will operate on current form contents)
+	 * @return							Object with string encapsulation of position.
+	 */
+	jQuery.AnnoBuilderInterfaceView.prototype.unparsePositionGIS = function(edits) {
+
+		var positionGIS = {};
+
+		if (edits) {
+			positionGIS.latitude = edits.latitude;
+			positionGIS.longitude = edits.longitude;
+			positionGIS.altitude = edits.altitude;
+			positionGIS.heading = edits.heading;
+			positionGIS.tilt = edits.tilt;
+			positionGIS.fieldOfView = edits.fieldOfView;
+		} else {
+			positionGIS.latitude = $('#latitude').val().toString();
+			if (positionGIS.latitude == '') positionGIS.latitude = '0';
+			positionGIS.longitude = $('#longitude').val().toString();
+			if (positionGIS.longitude == '') positionGIS.longitude = '0';
+			positionGIS.altitude = $('#altitude').val().toString();
+			if (positionGIS.altitude == '') positionGIS.altitude = '0';
+			positionGIS.heading = $('#heading').val().toString();
+			if (positionGIS.heading == '') positionGIS.heading = '0';
+			positionGIS.tilt = $('#tilt').val().toString();
+			if (positionGIS.tilt == '') positionGIS.tilt = '0';
+			positionGIS.fieldOfView = $('#fieldOfView').val().toString();
+			if (positionGIS.fieldOfView == '') positionGIS.fieldOfView = '0';
+		}
+
+		positionGIS.string = positionGIS.latitude+','+positionGIS.longitude+','+positionGIS.altitude+','+positionGIS.heading+','+positionGIS.tilt+','+positionGIS.fieldOfView;
+
+		return positionGIS;
 	}
 
 
@@ -1042,6 +1156,27 @@ jQuery.AnnoBuilderInterfaceView = function() {
 							$('#fieldOfView').val(dimensions.fieldOfView);
 							break;
 
+							case '3D-GIS':
+							var dimensions;
+							if (edits) {
+								$('#annotationTitle').val(edits.title);
+								$('#annotationDescription').val(edits.description);
+								$('#annotationContent').val(edits.content);
+								dimensions = $.annobuilder.view.builder.parsePositionGIS(edits.latitude, edits.longitude, edits.altitude, edits.heading, edits.tilt, edits.fieldOfView);
+							} else {
+								$('#annotationTitle').val(annotation.body.current.title);
+								$('#annotationDescription').val(annotation.body.current.description);
+								$('#annotationContent').val(annotation.body.current.content);
+								dimensions = $.annobuilder.view.builder.parsePositionGIS(annotation.properties.latitude, annotation.properties.longitude, annotation.properties.altitude, annotation.properties.heading, annotation.properties.tilt, annotation.properties.fieldOfView);
+							}
+							$('#latitude').val(dimensions.latitude);
+							$('#longitude').val(dimensions.longitude);
+							$('#altitude').val(dimensions.altitude);
+							$('#heading').val(dimensions.heading);
+							$('#tilt').val(dimensions.tilt);
+							$('#fieldOfView').val(dimensions.fieldOfView);
+							break;
+
 						}
 
 						var taxNodes = annotation.body.incomingRelations;
@@ -1085,6 +1220,14 @@ jQuery.AnnoBuilderInterfaceView = function() {
                 if (annotation.body.current.properties['http://purl.org/dc/terms/abstract']) {
                   me.sendMessage(annotation.body.current.properties['http://purl.org/dc/terms/abstract'][0].value);
                 }
+  						}
+            }
+					} else if ( $.annobuilder.model.node.current.mediaSource.contentType == '3D-GIS' ) {
+            if (me.newAnnotationURL != annotation.body.url && allowSeek) {
+              if (edits) {
+  							me.showPosition3DAnnotation(edits.title, edits);
+  						} else {
+  							me.showPosition3DAnnotation(annotation.body.getDisplayTitle(), annotation.properties);
   						}
             }
           }
@@ -1277,6 +1420,15 @@ jQuery.AnnoBuilderInterfaceView = function() {
 			$('#fieldOfView').val(0);
 			break;
 
+			case '3D-GIS':
+			$('#latitude').val(0);
+			$('#longitude').val(0);
+			$('#altitude').val(0);
+			$('#heading').val(0);
+			$('#tilt').val(0);
+			$('#fieldOfView').val(0);
+			break;
+
 		}
 
 		$('#annotationDescription').val('');
@@ -1309,7 +1461,16 @@ jQuery.AnnoBuilderInterfaceView = function() {
 		var annotation = $.annobuilder.model.selectedAnnotation;
 		if (annotation != null) {
 			var position3D = $.annobuilder.model.mediaElement.getPosition3D();
+			console.log(position3D);
 		}
+	}
+
+	jQuery.AnnoBuilderInterfaceView.prototype.handleSetPositionGIS = function(event) {
+		let positionGIS = $.annobuilder.model.mediaElement.getPosition3D();
+		me.setPositionGIS(positionGIS);
+		me.makeSelectedAnnotationDirty();
+		me.sortAnnotations();
+		me.update();
 	}
 
 	/**
@@ -1457,6 +1618,26 @@ jQuery.AnnoBuilderInterfaceView = function() {
    }
   }
 
+  /**
+   * Handles changes to the dimensions of a 3D GIS annotation.
+   *
+   * @param {Object} event		An object representing the event.
+   */
+  jQuery.AnnoBuilderInterfaceView.prototype.handleEditPositionGIS = function(event) {
+   var annotation = $.annobuilder.model.selectedAnnotation;
+   if (annotation != null) {
+     me.makeSelectedAnnotationDirty();
+     me.sortAnnotations();
+     var index = me.indexForAnnotation(annotation);
+     var row = me.annotationList.find('.annotationChip').eq(index);
+     var dimensions = me.unparsePositionGIS();
+     var startString = 'lat:' + Math.round( parseFloat( dimensions.latitude ));
+     startString += ' lon:' + Math.round( parseFloat( dimensions.longitude ));
+     startString += ' alt:' + Math.round( parseFloat( dimensions.altitude ));
+     row.find('a').text( startString );
+   }
+  }
+
 	/**
 	 * Handles changes to the extents of a textual annotation.
 	 *
@@ -1501,6 +1682,17 @@ jQuery.AnnoBuilderInterfaceView = function() {
       $('#cameraZ').val(position3D.cameraZ);
       $('#roll').val(position3D.roll);
       $('#fieldOfView').val(position3D.fieldOfView);
+		}
+	}
+
+	jQuery.AnnoBuilderInterfaceView.prototype.setPositionGIS = function(positionGIS) {
+		if (positionGIS != null) {
+      $('#latitude').val(positionGIS.latitude);
+      $('#longitude').val(positionGIS.longitude);
+      $('#altitude').val(positionGIS.altitude);
+      $('#heading').val(positionGIS.heading);
+      $('#tilt').val(positionGIS.tilt);
+      $('#fieldOfView').val(positionGIS.fieldOfView);
 		}
 	}
 
@@ -1609,6 +1801,24 @@ jQuery.AnnoBuilderInterfaceView = function() {
 				return indexA > indexB ? 1 : -1;
 				break;
 
+				case '3D-GIS':
+				var indexA;
+				var indexB;
+				edits = $(a).data('edits');
+				if (edits) {
+					indexA = ( parseFloat(edits.latitude) * 100000000 ) + ( parseFloat(edits.longitude) * 10000 ) + parseFloat(edits.altitude);
+				} else {
+					indexA = ( parseFloat($(a).data('annotation').properties.latitude) * 100000000 ) + ( parseFloat($(a).data('annotation').properties.longitude) * 10000 ) + parseFloat($(a).data('annotation').properties.altitude);
+				}
+				edits = $(b).data('edits');
+				if (edits) {
+					indexB = ( parseFloat(edits.latitude) * 100000000 ) + ( parseFloat(edits.longitude) * 10000 ) + parseFloat(edits.altitude);
+				} else {
+					indexB = ( parseFloat($(a).data('annotation').properties.latitude) * 100000000 ) + ( parseFloat($(a).data('annotation').properties.longitude) * 10000 ) + parseFloat($(a).data('annotation').properties.altitude);
+				}
+				return indexA > indexB ? 1 : -1;
+				break;
+
 			}
 		});
 
@@ -1681,6 +1891,22 @@ jQuery.AnnoBuilderInterfaceView = function() {
 					cameraY: dimensions.cameraY,
 					cameraZ: dimensions.cameraZ,
 					roll: dimensions.roll,
+					fieldOfView: dimensions.fieldOfView,
+					description: $('#annotationDescription').val(),
+					content: $('#annotationContent').val(),
+					taxonomy: $('#taggedBy').html()
+				}
+				break;
+
+				case '3D-GIS':
+				var dimensions = $.annobuilder.view.builder.unparsePositionGIS();
+				edits = {
+					title: $('#annotationTitle').val(),
+					targetX: dimensions.latitude,
+					targetY: dimensions.longitude,
+					targetZ: dimensions.altitude,
+					cameraX: dimensions.heading,
+					cameraY: dimensions.tilt,
 					fieldOfView: dimensions.fieldOfView,
 					description: $('#annotationDescription').val(),
 					content: $('#annotationContent').val(),
@@ -1813,7 +2039,8 @@ jQuery.AnnoBuilderInterfaceView = function() {
 				'scalar:start_line_num': '',
 				'scalar:end_line_num': '',
 				'scalar:points': '',
-        'scalar:position_3d': ''
+        'scalar:position_3d': '',
+        'scalar:position_gis': ''
 			};
 			break;
 
@@ -1835,7 +2062,8 @@ jQuery.AnnoBuilderInterfaceView = function() {
 				'scalar:start_line_num': '',
 				'scalar:end_line_num': '',
 				'scalar:points': '0%,0%,0%,0%',
-        'scalar:position_3d': ''
+        'scalar:position_3d': '',
+        'scalar:position_gis': ''
 			};
 			break;
 
@@ -1857,7 +2085,31 @@ jQuery.AnnoBuilderInterfaceView = function() {
 				'scalar:start_line_num': '',
 				'scalar:end_line_num': '',
 				'scalar:points': '',
-        'scalar:position_3d': '0,0,0,1,1,1,0,60'
+        'scalar:position_3d': '0,0,0,1,1,1,0,60',
+        'scalar:position_gis': ''
+			};
+			break;
+
+			case '3D-GIS':
+			data = {
+				action: 'ADD',
+				'native': $('input[name="native"]').val(),
+				id: $('input[name="id"]').val(),
+				api_key: $('input[name="api_key"]').val(),
+				'dcterms:title': 'Annotation',
+				'dcterms:description': '',
+				'sioc:content': '',
+				'rdf:type': 'http://scalar.usc.edu/2012/01/scalar-ns#Composite',
+				'scalar:child_urn': $('input[name="scalar:child_urn"]').val(),  /* WARNING: This is actually coming from the comment form, since the annotation form has been replaced ~cd */
+				'scalar:child_type': 'http://scalar.usc.edu/2012/01/scalar-ns#Media',
+				'scalar:child_rel': 'annotated',
+				'scalar:start_seconds': '',
+				'scalar:end_seconds': '',
+				'scalar:start_line_num': '',
+				'scalar:end_line_num': '',
+				'scalar:points': '',
+        'scalar:position_3d': '',
+        'scalar:position_gis': '0,0,0,0,0,60'
 			};
 			break;
 
@@ -1880,7 +2132,8 @@ jQuery.AnnoBuilderInterfaceView = function() {
 				'scalar:start_line_num': '1',
 				'scalar:end_line_num': '1',
 				'scalar:points': '',
-        'scalar:position_3d': ''
+        'scalar:position_3d': '',
+        'scalar:position_gis': ''
 			};
 			break;
 
@@ -1961,7 +2214,8 @@ jQuery.AnnoBuilderInterfaceView = function() {
 							'scalar:start_line_num': '',
 							'scalar:end_line_num': '',
 							'scalar:points': '',
-							'scalar:position_3d': ''
+							'scalar:position_3d': '',
+							'scalar:position_gis': ''
 						};
 						break;
 
@@ -1977,7 +2231,8 @@ jQuery.AnnoBuilderInterfaceView = function() {
 							'scalar:start_line_num': '',
 							'scalar:end_line_num': '',
 							'scalar:points': dimensions.string,
-							'scalar:position_3d': ''
+							'scalar:position_3d': '',
+							'scalar:position_gis': ''
 						};
 						break;
 
@@ -1993,7 +2248,25 @@ jQuery.AnnoBuilderInterfaceView = function() {
 							'scalar:start_line_num': '',
 							'scalar:end_line_num': '',
 							'scalar:points': '',
-							'scalar:position_3d': position3D.string
+							'scalar:position_3d': position3D.string,
+							'scalar:position_gis': ''
+						};
+						break;
+
+						case '3D-GIS':
+						var positionGIS = me.unparsePositionGIS(edits);
+						relationData[annotation.id] = {
+							action: 'RELATE',
+							'scalar:urn': annotation.body.current.urn,
+							'scalar:child_urn': $('input[name="scalar:child_urn"]').val(),
+							'scalar:child_rel': 'annotated',
+							'scalar:start_seconds': '',
+							'scalar:end_seconds': '',
+							'scalar:start_line_num': '',
+							'scalar:end_line_num': '',
+							'scalar:points': '',
+							'scalar:position_3d': '',
+							'scalar:position_gis': positionGIS.string
 						};
 						break;
 
@@ -2009,7 +2282,8 @@ jQuery.AnnoBuilderInterfaceView = function() {
 							'scalar:start_line_num': edits.start,
 							'scalar:end_line_num': edits.end,
 							'scalar:points': '',
-							'scalar:position_3d': ''
+							'scalar:position_3d': '',
+							'scalar:position_gis': ''
 						};
 						break;
 
@@ -2121,7 +2395,8 @@ jQuery.AnnoBuilderInterfaceView = function() {
 			'scalar:start_line_num': '',
 			'scalar:end_line_num': '',
 			'scalar:points': geometryString,
-			'scalar:position_3d': ''
+			'scalar:position_3d': '',
+			'scalar:position_gis': ''
 		};
 
 		var success = function(json) {

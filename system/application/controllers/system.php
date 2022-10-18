@@ -1097,6 +1097,7 @@ class System extends MY_Controller {
 					$this->data['content'][$key]->end_seconds = $row->end_seconds;
 					$this->data['content'][$key]->points = $row->points;
 					$this->data['content'][$key]->position_3d = $row->position_3d;
+					$this->data['content'][$key]->position_gis = $row->position_gis;
 					$this->data['content'][$key]->start_line_num = $row->start_line_num;
 					$this->data['content'][$key]->end_line_num = $row->end_line_num;
 					$versions = $this->versions->get_single($this->data['content'][$key]->content_id, $this->data['content'][$key]->recent_version_id);
