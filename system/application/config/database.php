@@ -13,6 +13,7 @@
 | -------------------------------------------------------------------
 |
 |	['hostname'] The hostname of your database server.
+|   ['port']     The port of your database server.
 |	['username'] The username used to connect to the database
 |	['password'] The password used to connect to the database
 |	['database'] The name of the database you want to connect to
@@ -49,6 +50,7 @@ $active_group = 'default';
 $active_record = TRUE;
 
 $db['default']['hostname'] = (getenv('SCALAR_DB_HOSTNAME') ? getenv('SCALAR_DB_HOSTNAME') : 'localhost');
+$db['default']['port']     = (getenv('SCALAR_DB_PORT') ? getenv('SCALAR_DB_PORT') : '');
 $db['default']['username'] = (getenv('SCALAR_DB_USERNAME') ? getenv('SCALAR_DB_USERNAME') : '');
 $db['default']['password'] = (getenv('SCALAR_DB_PASSWORD') ? getenv('SCALAR_DB_PASSWORD') : '');
 $db['default']['database'] = (getenv('SCALAR_DB_DATABASE') ? getenv('SCALAR_DB_DATABASE') : '');
