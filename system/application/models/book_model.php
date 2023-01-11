@@ -310,7 +310,7 @@ class Book_model extends MY_Model {
     		 "AND A.book_id = $book_id " .
     		 "AND A.type='media' " .
     	     "AND A.is_live = 1 " .
-    		 "AND (B.url LIKE '%.gif%' OR B.url LIKE '%.jpg%' OR B.url LIKE '%.jpeg%' OR B.url LIKE '%.png%' OR B.url LIKE '%JPEG%' ".$add_str.") " .
+    		 "AND (B.url LIKE '%.gif%' OR B.url LIKE '%.jpg%' OR B.url LIKE '%.jpeg%' OR B.url LIKE '%.png%' OR B.url LIKE '%JPEG%' OR B.url LIKE '%webp%' ".$add_str.") " .
     		 "ORDER BY B.title ASC, B.version_num ASC";
     	$query = $this->db->query($q);
     	$result = $query->result();
