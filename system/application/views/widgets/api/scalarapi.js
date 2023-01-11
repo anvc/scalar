@@ -666,7 +666,6 @@ function ScalarAPI() {
 			contentType:'image',
 			browserSupport: {
 				'Mozilla': {extensions:['webp'], format:'WebP', player:'native', specifiesDimensions:true},
-				'Explorer': {extensions:['webp'], format:'WebP', player:'native', specifiesDimensions:true},
 				'MobileSafari': {extensions:['webp'], format:'WebP', player:'native', specifiesDimensions:true},
 				'Safari': {extensions:['webp'], format:'WebP', player:'native', specifiesDimensions:true},
 				'Chrome': {extensions:['webp'], format:'WebP', player:'native', specifiesDimensions:true},
