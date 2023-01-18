@@ -5569,12 +5569,12 @@ function YouTubeGetID(url){
 		jQuery.ArcGISObjectView.prototype.getCurrentTime = function() { }
 		jQuery.ArcGISObjectView.prototype.getPosition3D = function() {
       return {
-				"latitude": this.camera.position.longitude, 
-				"longitude": this.camera.position.latitude, 
-				"altitude": this.camera.position.z, 
-				"heading": this.camera.heading, 
-				"tilt": this.camera.tilt,
-				"fieldOfView": this.camera.fov
+				"latitude": this.sceneView.camera.position.longitude, 
+				"longitude": this.sceneView.camera.position.latitude, 
+				"altitude": this.sceneView.camera.position.z, 
+				"heading": this.sceneView.camera.heading, 
+				"tilt": this.sceneView.camera.tilt,
+				"fieldOfView": this.sceneView.camera.fov
 			}
     }
 		jQuery.ArcGISObjectView.prototype.isPlaying = function(value, player_id) { return null; }

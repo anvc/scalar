@@ -509,15 +509,15 @@ jQuery.AnnoBuilderInterfaceView = function() {
 				}
 				this.annotationForm.find('tbody').append('<tr><td class="field">Latitude</td><td class="value">' +
 					'<div class="form-group">' +
-						'<input id="latitude" class="form-control" type="text" size="3" onchange="$.annobuilder.view.builder.handleEditPositionGIS()" onkeyup="$.annobuilder.view.builder.handleEditPositionGIS()"> ' +
+						'<input id="latitude" class="form-control" type="text" size="6" onchange="$.annobuilder.view.builder.handleEditPositionGIS()" onkeyup="$.annobuilder.view.builder.handleEditPositionGIS()"> ' +
 					'</div></td></tr>' +
 				'<tr><td class="field">Longitude</td><td class="value">' +
 					'<div class="form-group">' +
-						'<input id="longitude" class="form-control" type="text" size="3" onchange="$.annobuilder.view.builder.handleEditPositionGIS()" onkeyup="$.annobuilder.view.builder.handleEditPositionGIS()"> ' +
+						'<input id="longitude" class="form-control" type="text" size="6" onchange="$.annobuilder.view.builder.handleEditPositionGIS()" onkeyup="$.annobuilder.view.builder.handleEditPositionGIS()"> ' +
 					'</div></td></tr>' +
 				'<tr><td class="field">Altitude</td><td class="value">' +
 					'<div class="form-group">' +
-						'<input id="altitude" class="form-control" type="text" size="3" onchange="$.annobuilder.view.builder.handleEditPositionGIS()" onkeyup="$.annobuilder.view.builder.handleEditPositionGIS()"> ' +
+						'<input id="altitude" class="form-control" type="text" size="6" onchange="$.annobuilder.view.builder.handleEditPositionGIS()" onkeyup="$.annobuilder.view.builder.handleEditPositionGIS()"> ' +
 					'</div></td></tr>' +
 				'<tr><td class="field">Heading</td><td class="value">' +
 					'<div class="form-group">' +
@@ -1461,16 +1461,21 @@ jQuery.AnnoBuilderInterfaceView = function() {
 		var annotation = $.annobuilder.model.selectedAnnotation;
 		if (annotation != null) {
 			var position3D = $.annobuilder.model.mediaElement.getPosition3D();
-			console.log(position3D);
+			console.log(position3D)
+			me.setPosition3D(position3D);
+			me.handleEditPosition3D();
+			me.update();
 		}
 	}
 
 	jQuery.AnnoBuilderInterfaceView.prototype.handleSetPositionGIS = function(event) {
-		let positionGIS = $.annobuilder.model.mediaElement.getPosition3D();
-		me.setPositionGIS(positionGIS);
-		me.makeSelectedAnnotationDirty();
-		me.sortAnnotations();
-		me.update();
+		var annotation = $.annobuilder.model.selectedAnnotation;
+		if (annotation != null) {
+			var positionGIS = $.annobuilder.model.mediaElement.getPosition3D();
+			me.setPositionGIS(positionGIS);
+			me.handleEditPositionGIS();
+			me.update();
+		}
 	}
 
 	/**
@@ -1605,6 +1610,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
    */
   jQuery.AnnoBuilderInterfaceView.prototype.handleEditPosition3D = function(event) {
    var annotation = $.annobuilder.model.selectedAnnotation;
+	 console.log('handleEditPosition3D', annotation)
    if (annotation != null) {
      me.makeSelectedAnnotationDirty();
      me.sortAnnotations();
@@ -1614,6 +1620,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
      var startString = 'x:' + Math.round( parseFloat( dimensions.targetX ));
      startString += ' y:' + Math.round( parseFloat( dimensions.targetY ));
      startString += ' z:' + Math.round( parseFloat( dimensions.targetZ ));
+		 console.log('handleEditPosition3D', dimensions, startString)
      row.find('a').text( startString );
    }
   }
@@ -1742,6 +1749,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 
 		$('.annotationList > .annotationChip').sortElements(function(a, b) {
 
+			var edits;
 			switch ($.annobuilder.model.node.current.mediaSource.contentType) {
 
 				case 'video':
@@ -1749,7 +1757,6 @@ jQuery.AnnoBuilderInterfaceView = function() {
 				case 'document':
 				var startA;
 				var startB;
-				var edits;
 				edits = $(a).data('edits');
 				if (edits) {
 					startA = edits.start;
@@ -1766,57 +1773,57 @@ jQuery.AnnoBuilderInterfaceView = function() {
 				break;
 
 				case 'image':
-				var indexA;
-				var indexB;
+				var positionA;
+				var positionB;
 				edits = $(a).data('edits');
 				if (edits) {
-					indexA = ( parseFloat(edits.y) * 10000 ) + parseFloat(edits.x);
+					positionA = edits;
 				} else {
-					indexA = ( parseFloat($(a).data('annotation').properties.y) * 10000 ) + parseFloat($(a).data('annotation').properties.x);
+					positionA = $(a).data('annotation').properties;
 				}
 				edits = $(b).data('edits');
 				if (edits) {
-					indexB = ( parseFloat(edits.y) * 10000 ) + parseFloat(edits.x);
+					positionB = edits;
 				} else {
-					indexB = ( parseFloat($(b).data('annotation').properties.y) * 10000 ) + parseFloat($(b).data('annotation').properties.x);
+					positionB = $(b).data('annotation').properties;
 				}
-				return indexA > indexB ? 1 : -1;
+				return parseFloat(positionA.x) - parseFloat(positionB.x) || parseFloat(positionA.y) - parseFloat(positionB.y);
 				break;
 
 				case '3D':
-				var indexA;
-				var indexB;
+				var positionA;
+				var positionB;
 				edits = $(a).data('edits');
 				if (edits) {
-					indexA = ( parseFloat(edits.targetZ) * 100000000 ) + ( parseFloat(edits.targetY) * 10000 ) + parseFloat(edits.targetX);
+					positionA = edits;
 				} else {
-					indexA = ( parseFloat($(a).data('annotation').properties.targetZ) * 100000000 ) + ( parseFloat($(a).data('annotation').properties.targetY) * 10000 ) + parseFloat($(a).data('annotation').properties.targetX);
+					positionA = $(a).data('annotation').properties;
 				}
 				edits = $(b).data('edits');
 				if (edits) {
-					indexB = ( parseFloat(edits.targetZ) * 100000000 ) + ( parseFloat(edits.targetY) * 10000 ) + parseFloat(edits.targetX);
+					positionB = edits;
 				} else {
-					indexB = ( parseFloat($(a).data('annotation').properties.targetZ) * 100000000 ) + ( parseFloat($(a).data('annotation').properties.targetY) * 10000 ) + parseFloat($(a).data('annotation').properties.targetX);
+					positionB = $(b).data('annotation').properties;
 				}
-				return indexA > indexB ? 1 : -1;
+				return parseFloat(positionA.targetX) - parseFloat(positionB.targetX) || parseFloat(positionA.targetY) - parseFloat(positionB.targetY) || parseFloat(positionA.targetZ) - parseFloat(positionB.targetZ);
 				break;
 
 				case '3D-GIS':
-				var indexA;
-				var indexB;
+				var positionA;
+				var positionB;
 				edits = $(a).data('edits');
 				if (edits) {
-					indexA = ( parseFloat(edits.latitude) * 100000000 ) + ( parseFloat(edits.longitude) * 10000 ) + parseFloat(edits.altitude);
+					positionA = edits;
 				} else {
-					indexA = ( parseFloat($(a).data('annotation').properties.latitude) * 100000000 ) + ( parseFloat($(a).data('annotation').properties.longitude) * 10000 ) + parseFloat($(a).data('annotation').properties.altitude);
+					positionA = $(a).data('annotation').properties;
 				}
 				edits = $(b).data('edits');
 				if (edits) {
-					indexB = ( parseFloat(edits.latitude) * 100000000 ) + ( parseFloat(edits.longitude) * 10000 ) + parseFloat(edits.altitude);
+					positionB = edits;
 				} else {
-					indexB = ( parseFloat($(a).data('annotation').properties.latitude) * 100000000 ) + ( parseFloat($(a).data('annotation').properties.longitude) * 10000 ) + parseFloat($(a).data('annotation').properties.altitude);
+					positionB = $(b).data('annotation').properties;
 				}
-				return indexA > indexB ? 1 : -1;
+				return parseFloat(positionA.latitude) - parseFloat(positionB.latitude) || parseFloat(positionA.longitude) - parseFloat(positionB.longitude) || parseFloat(positionA.altitude) - parseFloat(positionB.altitude);
 				break;
 
 			}
@@ -1902,11 +1909,11 @@ jQuery.AnnoBuilderInterfaceView = function() {
 				var dimensions = $.annobuilder.view.builder.unparsePositionGIS();
 				edits = {
 					title: $('#annotationTitle').val(),
-					targetX: dimensions.latitude,
-					targetY: dimensions.longitude,
-					targetZ: dimensions.altitude,
-					cameraX: dimensions.heading,
-					cameraY: dimensions.tilt,
+					latitude: dimensions.latitude,
+					longitude: dimensions.longitude,
+					altitude: dimensions.altitude,
+					heading: dimensions.heading,
+					tilt: dimensions.tilt,
 					fieldOfView: dimensions.fieldOfView,
 					description: $('#annotationDescription').val(),
 					content: $('#annotationContent').val(),
