@@ -467,7 +467,10 @@ var VideoAnnotator = /*#__PURE__*/function () {
     this.apiKey = typeof args.apiKey === 'undefined' ? '' : args.apiKey; //If apiKey is set and cmsUsername and cmsEmail are passed, we'll auto login later
 
     this.cmsUsername = typeof args.cmsUsername === 'undefined' ? '' : args.cmsUsername;
-    this.cmsEmail = typeof args.cmsEmail === 'undefined' ? '' : args.cmsEmail; //This config option is required for using a static annotation file
+    this.cmsEmail = typeof args.cmsEmail === 'undefined' ? '' : args.cmsEmail;
+    console.log('Setting username and email to localStorage...');
+    localStorage.setItem('waldorf_user_name', this.cmsUsername);
+    localStorage.setItem('waldorf_user_email', sha1(this.cmsEmail)); //This config option is required for using a static annotation file
 
     this.localURL = typeof args.localURL === 'undefined' ? '' : args.localURL; //Optional params
     //Removes the editing interface
@@ -655,8 +658,7 @@ var VideoAnnotator = /*#__PURE__*/function () {
       //this.player.$container.height("100%");
       // Copy the video styles to the container
       // console.log(this.player.originalStyles);
-
-      this.$container.css(this.player.originalStyles);
+      //this.$container.css(this.player.originalStyles);
     }
   }, {
     key: "PopulateControls",
@@ -1480,7 +1482,8 @@ var AnnotationGUI = /*#__PURE__*/function () {
         this.polyEditor.InitPoly(annotation.polyStart, annotation.polyEnd);
       } // Insert template data if no annotation is given
       else {
-        // Populate fields if no annotation is given
+        console.log("Not populated from an existing annotation"); // Populate fields if no annotation is given
+
         this.editMode = false;
         this.originalAnnotation = null;
         this.id = null; // console.log("Populated with template data");
@@ -3209,8 +3212,9 @@ var ServerInterface = /*#__PURE__*/function () {
       //var book_url = 'http://scalar.usc.edu/dev/semantic-annotation-tool/';  // This will be defined in the Book's JS
       //https://scalar.usc.edu/dev/semantic-annotation-tool/rdf/file/media/Inception%20Corgi%20Flop.mp4?format=oac&prov=1&rec=2
       // var ajax_url = this.baseURL + 'rdf/file/' + searchParam.replace(this.baseURL, '') + '?format=oac&prov=1&rec=2';
-      var ajax_url = this.baseURL + 'rdf/file/' + searchParam.replace(this.baseURL, '') + '?format=iiif&prov=1&rec=2'; //console.log("ajax_url: " + ajax_url);
-
+      //var ajax_url = this.baseURL + 'rdf/file/' + searchParam.replace(this.baseURL,'') + '?format=iiif&prov=1&rec=2';
+      var ajax_url = this.baseURL + 'rdf/file/?format=iiif&prov=1&rec=2&file=' + encodeURIComponent(searchParam.replace(this.baseURL, ''));
+      console.log("ajax_url: " + ajax_url);
       return $.ajax({
         url: ajax_url,
         type: "GET",
@@ -4660,6 +4664,9 @@ var AnnotatorVideoPlayer = /*#__PURE__*/function () {
       _this.OnTimeUpdate(_this.videoElement.currentTime);
     };
 
+    $(this.videoElement).on('annotationEndTime', function (event, endTime) {
+      _this.endTime = endTime;
+    });
     this.$container.on("OnVideoReady", function () {
       if (annotatorArgs.annotator == null) {
         console.log("[AnnotatorVideoPlayer] Player sent OnVideoReady, attempting to wrap with annotator..."); // Add annotator once video has loaded
@@ -4745,8 +4752,8 @@ var AnnotatorVideoPlayer = /*#__PURE__*/function () {
   }, {
     key: "Play",
     value: function Play() {
-      this.videoElement.play();
-      if (this.endTime) this.endTime = false;
+      this.videoElement.play(); //if(this.endTime) this.endTime = false;
+
       this.SetAutoFade(true);
       this.$container.trigger("OnPlayStateChange", !this.videoElement.paused);
     }
@@ -4817,6 +4824,7 @@ var AnnotatorVideoPlayer = /*#__PURE__*/function () {
   }, {
     key: "OnTimeUpdate",
     value: function OnTimeUpdate(time) {
+      //console.log('this.endTime: ' + this.endTime + ' this.videoElement.currentTime: ' + this.videoElement.currentTime);
       if (this.endTime && this.endTime <= this.videoElement.currentTime) {
         this.Pause();
         this.endTime = false;
