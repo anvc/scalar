@@ -5569,8 +5569,8 @@ function YouTubeGetID(url){
 		jQuery.ArcGISObjectView.prototype.getCurrentTime = function() { }
 		jQuery.ArcGISObjectView.prototype.getPosition3D = function() {
       return {
-				"latitude": this.sceneView.camera.position.longitude, 
-				"longitude": this.sceneView.camera.position.latitude, 
+				"latitude": this.sceneView.camera.position.latitude, 
+				"longitude": this.sceneView.camera.position.longitude, 
 				"altitude": this.sceneView.camera.position.z, 
 				"heading": this.sceneView.camera.heading, 
 				"tilt": this.sceneView.camera.tilt,
@@ -5580,7 +5580,6 @@ function YouTubeGetID(url){
 		jQuery.ArcGISObjectView.prototype.isPlaying = function(value, player_id) { return null; }
 
     jQuery.ArcGISObjectView.prototype.seek = function(transform) {
-      console.log(transform);
       this.camera.position = {
         latitude: transform.latitude,
         longitude: transform.longitude,

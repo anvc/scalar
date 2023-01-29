@@ -546,7 +546,6 @@ jQuery.AnnoBuilderInterfaceView = function() {
 				break;
 
 			case '3D':
-				console.log($.annobuilder.model.node.current.mediaSource.contentType);
 			// cantaloupe-only instructions
 			var instructions = '';
 			if ( $( 'article' ).length ) {
@@ -1461,7 +1460,6 @@ jQuery.AnnoBuilderInterfaceView = function() {
 		var annotation = $.annobuilder.model.selectedAnnotation;
 		if (annotation != null) {
 			var position3D = $.annobuilder.model.mediaElement.getPosition3D();
-			console.log(position3D)
 			me.setPosition3D(position3D);
 			me.handleEditPosition3D();
 			me.update();
@@ -1610,7 +1608,6 @@ jQuery.AnnoBuilderInterfaceView = function() {
    */
   jQuery.AnnoBuilderInterfaceView.prototype.handleEditPosition3D = function(event) {
    var annotation = $.annobuilder.model.selectedAnnotation;
-	 console.log('handleEditPosition3D', annotation)
    if (annotation != null) {
      me.makeSelectedAnnotationDirty();
      me.sortAnnotations();
@@ -1620,7 +1617,6 @@ jQuery.AnnoBuilderInterfaceView = function() {
      var startString = 'x:' + Math.round( parseFloat( dimensions.targetX ));
      startString += ' y:' + Math.round( parseFloat( dimensions.targetY ));
      startString += ' z:' + Math.round( parseFloat( dimensions.targetZ ));
-		 console.log('handleEditPosition3D', dimensions, startString)
      row.find('a').text( startString );
    }
   }
