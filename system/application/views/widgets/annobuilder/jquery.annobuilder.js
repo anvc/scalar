@@ -536,12 +536,12 @@ jQuery.AnnoBuilderInterfaceView = function() {
 					'</div><br><span style="font-size: small; line-height: 90%;">' + instructions + '</span></td></tr>');
 				// if cantaloupe
 				if ( $( 'article' ).length ) {
-					$( "#latitude" ).TouchSpin({ min: -1000000000, max: 1000000000, step: 1, decimals: 2, boostat:5, mousewheel:true, forcestepdivisibility: 'none' });
-					$( "#longitude" ).TouchSpin({ min: -1000000000, max: 1000000000, step: 1, decimals: 2, boostat:5, mousewheel:true, forcestepdivisibility: 'none' });
+					$( "#latitude" ).TouchSpin({ min: -90, max: 90, step: 1, decimals: 2, boostat:5, mousewheel:true, forcestepdivisibility: 'none' });
+					$( "#longitude" ).TouchSpin({ min: -180, max: 180, step: 1, decimals: 2, boostat:5, mousewheel:true, forcestepdivisibility: 'none' });
 					$( "#altitude" ).TouchSpin({ min: -1000000000, max: 1000000000, step: 1, decimals: 2, boostat:5, mousewheel:true, forcestepdivisibility: 'none' });
-					$( "#heading" ).TouchSpin({ min: -1000000000, max: 1000000000, step: 1, decimals: 2, boostat:5, mousewheel:true, forcestepdivisibility: 'none' });
-					$( "#tilt" ).TouchSpin({ min: -1000000000, max: 1000000000, step: 1, decimals: 2, boostat:5, mousewheel:true, forcestepdivisibility: 'none' });
-					$( "#fieldOfView" ).TouchSpin({ min: 0, max: 1000000000, step: 1, decimals: 2, boostat:5, mousewheel:true, forcestepdivisibility: 'none' });
+					$( "#heading" ).TouchSpin({ min: 0, max: 360, step: 1, decimals: 2, boostat:5, mousewheel:true, forcestepdivisibility: 'none' });
+					$( "#tilt" ).TouchSpin({ min: 0, max: 90, step: 1, decimals: 2, boostat:5, mousewheel:true, forcestepdivisibility: 'none' });
+					$( "#fieldOfView" ).TouchSpin({ min: 1, max: 170, step: 1, decimals: 2, boostat:5, mousewheel:true, forcestepdivisibility: 'none' });
 				}
 				break;
 
