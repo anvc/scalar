@@ -467,9 +467,11 @@
 
                 page.pageWidth = parseInt($('.page').width());
 
-                // calculate the size of the content area minus margin-s
+                // calculate the size of the content area minus margins
                 var temp = $('<div class="body_copy"></div>');
                 temp.appendTo('.page');
+                // these two may differ depending on the width of the window
+                // (large windows have extra margin on the right side)
                 page.pageWidthMinusMargins = page.pageWidth - (parseInt(temp.css('padding-left')) * 2);
                 page.bodyCopyWidth = temp.width();
                 temp.remove();
