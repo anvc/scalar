@@ -673,6 +673,20 @@ function ScalarAPI() {
 				'Android': {extensions:['webm'], format:'WebM', player:'native', specifiesDimensions:true},
 				'Other': {extensions:['webm'], format:'WebM', player:'native', specifiesDimensions:true}
 			}},
+		'WebP': {
+			name: 'WebP',
+			extensions:['webp'],
+			isProprietary:false,
+			contentType:'image',
+			browserSupport: {
+				'Mozilla': {extensions:['webp'], format:'WebP', player:'native', specifiesDimensions:true},
+				'MobileSafari': {extensions:['webp'], format:'WebP', player:'native', specifiesDimensions:true},
+				'Safari': {extensions:['webp'], format:'WebP', player:'native', specifiesDimensions:true},
+				'Chrome': {extensions:['webp'], format:'WebP', player:'native', specifiesDimensions:true},
+				'Android': {extensions:['webp'], format:'WebP', player:'native', specifiesDimensions:true},
+				'Other': {extensions:['webp'], format:'WebP', player:'native', specifiesDimensions:true}
+			}
+		},
 		'YouTube': {
 			name:'YouTube',
 			extensions:['mp4'],

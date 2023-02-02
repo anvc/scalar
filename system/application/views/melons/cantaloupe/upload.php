@@ -254,7 +254,7 @@ $this->template->add_css($css, 'embed');
 <?=(!empty($content)) ? $content.'<br /><br />' : ''?>
 Use this form to upload media from your local drive for use in Scalar. <b>Each file must be less than <?=ini_get('upload_max_filesize')?> in size.</b> Larger files can be hosted at a Scalar-supported archive (use the Affiliated Archives or Other Archives options in the Import menu at left to import), or on any public web server (use the Internet Media Files option in the Import menu at left to import).<br /><br />
 Recommended formats (most compatible): gif, kml, jpg, m4v, mp3, mp4, pdf, png, txt, wav<br />
-Other supported formats: 3gp, aif, mov, mpg, oga, tif, webm<br />
+Other supported formats: 3gp, aif, mov, mpg, oga, tif, webm, webp<br />
 <span style="color:#c90000;">Files will overwrite.</span> Uploading the same file to the same place will overwrite an existing file of the same name.<br /><br />
 <form target="hidden_upload" id="file_upload_form" method="post" enctype="multipart/form-data" action="<?=$base_uri?>upload" class="panel" onsubmit="return validate_upload_form_file($(this));">
 <input type="hidden" name="action" value="add" />

@@ -356,6 +356,10 @@ class Rdf extends MY_Controller {
 				$this->data['url'] = trim(str_replace(' ', '%20', $this->data['url']));
 				$content = $this->pages->get_by_version_url($this->data['book']->book_id, $this->data['url'], true);  // Try the URL with %20s
 			}
+			if (null == $content) {
+				$this->data['url'] = trim(str_replace('%20', ' ', $this->data['url']));
+				$content = $this->pages->get_by_version_url($this->data['book']->book_id, $this->data['url'], true);  // Try the URL without %20s
+			}
 			if (!empty($content)) {
 				foreach ($content as $content_id => $row) {
 					if (!$row->is_live && !$this->login_is_book_admin($this->data['book']->book_id)) {

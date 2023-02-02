@@ -107,7 +107,7 @@
                 if(typeof page.pendingDeferredScripts.GoogleMaps == 'undefined'){
                     page.pendingDeferredScripts.GoogleMaps = [];
                     $.when(
-                        $.getScript('https://maps.googleapis.com/maps/api/js?key=' + $('link#google_maps_key').attr('href'))
+                        $.getScript('https://maps.googleapis.com/maps/api/js?callback=initGoogleMap&key=' + $('link#google_maps_key').attr('href'))
                     ).then(function(){
                         for(var i = 0; i < page.pendingDeferredScripts.GoogleMaps.length; i++){
                             page.pendingDeferredScripts.GoogleMaps[i].resolve();

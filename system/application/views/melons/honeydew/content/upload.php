@@ -145,7 +145,7 @@ Use this form to upload media from your local drive for use in Scalar. <b>Each f
 <b>Recommended formats (most compatible):</b><br />gif, kml, jpg, m4v, mp3, mp4, pdf, png, txt, wav, xml
 <br /><br />
 
-Other supported formats: 3gp, aif, mov, mpg, oga, tif, webm
+Other supported formats: 3gp, aif, mov, mpg, oga, tif, webm, webp
 <br />
 
 <br />
