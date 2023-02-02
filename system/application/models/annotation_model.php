@@ -111,11 +111,13 @@ class Annotation_model extends MY_Model {
 	 			'start_line_num' => $_start_line_num,
 	 			'end_line_num' => $_end_line_num,
  				'points' => $_points,
- 				'position_3d' => $_position_3d,
- 				'position_gis' => $_position_gis
+ 				'position_3d' => $_position_3d
             );
 			if (!empty($_additional)) $data['additional'] = $_additional;  // Database field a late addition
+			if (!empty($_position_gis)) $data['position_gis'] = $_position_gis;  // Database field a late addition
+			
 			$this->db->insert($this->annotations_table, $data);
+			if (!empty($this->db->_error_message())) echo 'Error: '.$this->db->_error_message()."\n";
 
 			$j++;
 
@@ -150,12 +152,14 @@ class Annotation_model extends MY_Model {
 	 			'start_line_num' => $_start_line_num,
 	 			'end_line_num' => $_end_line_num,
 	 			'points' => $_points,
-	 			'position_3d' => $_position_3d,
-	 			'position_gis' => $_position_gis,
+	 			'position_3d' => $_position_3d
 	        );
 			if (!empty($_additional)) $data['additional'] = $_additional;  // Database field a late addition
+			if (!empty($_position_gis)) $data['position_gis'] = $_position_gis;  // Database field a late addition
+			
 			$this->db->insert($this->annotations_table, $data);
-
+			if (!empty($this->db->_error_message())) echo 'Error: '.$this->db->_error_message()."\n";
+			
 			$j++;
 
     	}
