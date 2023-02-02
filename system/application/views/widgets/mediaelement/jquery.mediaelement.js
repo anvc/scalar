@@ -597,6 +597,35 @@ function YouTubeGetID(url){
 					}
 					promise = $.Deferred();
 					pendingDeferredMedia.Waldorf.push(promise);
+				} else if (typeof arcgis == 'undefined' && this.model.mediaSource.name == 'ArcGIS WebScene'){
+					if(typeof pendingDeferredMedia.ArcGIS == 'undefined'){
+						pendingScripts = 0;
+						pendingDeferredMedia.ArcGIS = [];
+            $('<link/>', {
+               rel: 'stylesheet',
+               type: 'text/css',
+               href: 'https://js.arcgis.com/4.24/esri/themes/light/main.css'
+            }).appendTo('head');
+            var loadArcGIS = function() {
+              var deferred = $.Deferred();
+              var script = document.createElement('script');
+              script.onload = function() {
+                deferred.resolve();
+              }
+              script.src = 'https://js.arcgis.com/4.24/';
+              document.head.appendChild(script);
+              return deferred.promise();
+            }
+						$.when(
+              loadArcGIS()
+            ).then(function(){
+							for(var i = 0; i < pendingDeferredMedia.ArcGIS.length; i++){
+								pendingDeferredMedia.ArcGIS[i].resolve();
+							}
+						});
+					}
+					promise = $.Deferred();
+					pendingDeferredMedia.ArcGIS.push(promise);
 				}
 			}
 
@@ -1060,7 +1089,13 @@ function YouTubeGetID(url){
 							this.mediaObjectView = new $.ThreejsObjectView(this.model, this);
             } else if (this.model.mediaSource.name == 'Unity WebGL') {
               this.mediaObjectView = new $.UnityWebGLObjectView(this.model, this);
-						}
+            }
+						break;
+
+						case '3D-GIS':
+						if (this.model.mediaSource.name == 'ArcGIS WebScene') {
+              this.mediaObjectView = new $.ArcGISObjectView(this.model, this);
+            }
 						break;
 
 						case 'image':
@@ -1832,10 +1867,11 @@ function YouTubeGetID(url){
  				break;
 
  				case '3D':
+				case '3D-GIS':
  				this.mediaObjectView.seek(annotation.properties);
- 				if (me.model.isChromeless || ('nav_bar' != me.model.options.header)) {
- 					$('body').trigger('show_annotation', [annotation, me]);
- 				}
+				if (me.model.isChromeless || ('nav_bar' != me.model.options.header)) {
+					$('body').trigger('show_annotation', [annotation, me]);
+				}
  				break;
 
  				case 'image':
@@ -1924,7 +1960,7 @@ function YouTubeGetID(url){
 		}
 
     this.getPosition3D = function() {
-      if (this.model.mediaSource.contentType == '3D') {
+      if (this.model.mediaSource.contentType == '3D' || this.model.mediaSource.contentType == '3D-GIS') {
 				return this.mediaObjectView.getPosition3D();
 			} else {
 				return null;
@@ -1932,7 +1968,7 @@ function YouTubeGetID(url){
     }
 
     this.handleAnnotationsUpdated = function() {
-      if (this.model.mediaSource.contentType == '3D') {
+      if (this.model.mediaSource.contentType == '3D' || this.model.mediaSource.contentType == '3D-GIS') {
 				return this.mediaObjectView.handleAnnotationsUpdated();
 			} else {
 				return null;
@@ -5453,6 +5489,111 @@ function YouTubeGetID(url){
 					$(theElement).removeClass('small');
 				}
 			}
+		}
+
+	}
+
+	/**
+	 * View for ArcGIS content.
+	 * @constructor
+	 *
+	 * @param {Object} model		Instance of the model.
+	 * @param {Object} parentView	Primary view for the media element.
+	 */
+	 jQuery.ArcGISObjectView = function(model, parentView) {
+
+		var me = this;
+
+		this.model = model;  					  // instance of the model
+		this.parentView = parentView;   // primary view for the media element
+		this.isLiquid = true;					  // media will expand to fill available space
+
+		jQuery.ArcGISObjectView.prototype.createObject = function() {
+      queryVars = scalarapi.getQueryVars(this.model.path);
+      if (queryVars.webscene != null) {
+        this.mediaObject = $('<div class="mediaObject" id="arcgis'+me.model.id+'"></div>').appendTo(this.parentView.mediaContainer);
+        require([
+          "esri/Map",
+          "esri/WebScene",
+          "esri/views/ui/DefaultUI",
+          "esri/views/SceneView",
+          "esri/Camera",
+          "esri/webscene/InitialViewProperties"
+        ], function(Map, WebScene, DefaultUI, SceneView, Camera, InitialViewProperties) {
+          var scene = new WebScene({
+            portalItem: {
+              id: queryVars.webscene
+            }
+          });
+          var properties = {
+            map: scene,
+            container: 'arcgis'+me.model.id
+          };
+          if (queryVars.viewpoint != null) {
+            if (queryVars.viewpoint.indexOf('cam:') != -1) {
+              var a = queryVars.viewpoint.substr(4).split(';');
+              pos = a[0].split(',');
+              ht = a[1].split(',');
+              properties.camera = {
+                position: {
+                  latitude: pos[0],
+                  longitude: pos[1],
+                  z: pos[2]
+                },
+                heading: ht[0],
+                tilt: ht[1]
+              }
+              if (pos.length == 4) {
+                properties.camera.position.spatialReference = { wkid: pos[3] };
+              }
+            }
+          }
+          me.camera = new Camera();
+          me.sceneView = new SceneView(properties);
+          /*view.when(function() {
+            var slides = scene.presentation.slides;
+            slides.forEach(function(slide, i) {
+              console.log(slide.title.text);
+            });
+          });*/
+        });
+        this.parentView.removeLoadingMessage();
+      }
+      this.parentView.layoutMediaObject();
+			return;
+		}
+
+		// These functions are basically irrelevant for this type of media
+		jQuery.ArcGISObjectView.prototype.play = function() { }
+		jQuery.ArcGISObjectView.prototype.pause = function() { }
+		jQuery.ArcGISObjectView.prototype.getCurrentTime = function() { }
+		jQuery.ArcGISObjectView.prototype.getPosition3D = function() {
+      return {
+				"latitude": this.sceneView.camera.position.latitude, 
+				"longitude": this.sceneView.camera.position.longitude, 
+				"altitude": this.sceneView.camera.position.z, 
+				"heading": this.sceneView.camera.heading, 
+				"tilt": this.sceneView.camera.tilt,
+				"fieldOfView": this.sceneView.camera.fov
+			}
+    }
+		jQuery.ArcGISObjectView.prototype.isPlaying = function(value, player_id) { return null; }
+
+    jQuery.ArcGISObjectView.prototype.seek = function(transform) {
+      this.camera.position = {
+        latitude: transform.latitude,
+        longitude: transform.longitude,
+        z: transform.altitude
+      }
+      this.camera.heading = transform.heading;
+      this.camera.tilt = transform.tilt;
+      this.camera.fieldOfView = transform.fieldOfView;
+      this.sceneView.goTo(this.camera);
+    }
+
+		jQuery.ArcGISObjectView.prototype.resize = function(width, height) {
+      $('#arcgis'+me.model.id).width(Math.round(width));
+			$('#arcgis'+me.model.id).height(Math.round(height));
 		}
 
 	}

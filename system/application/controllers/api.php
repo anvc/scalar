@@ -58,7 +58,7 @@ Class Api extends CI_Controller {
 
 	//Valid relationship types and metadata
 	private $rel_types = array('page', 'annotated', 'contained', 'referenced', 'replied', 'tagged','grouped');
-	private $rel_annotated = array('start_seconds', 'end_seconds', 'start_line_num', 'end_line_num', 'points', 'position_3d');
+	private $rel_annotated = array('start_seconds', 'end_seconds', 'start_line_num', 'end_line_num', 'points', 'position_3d', 'position_gis');
 	private $rel_contained = array('sort_number');
 	private $rel_referenced = array('reference_text');
 	private $rel_replied = array('paragraph_num', 'datetime');
@@ -706,7 +706,7 @@ Class Api extends CI_Controller {
 		switch($this->data['scalar:child_rel']) {
 			case 'annotated':
 				$this->load->model('annotation_model', 'annotations');
-				$this->annotations->save_children($parent_id, array($this->data['scalar:child_urn']), array($save['start_seconds']), array($save['end_seconds']), array($save['start_line_num']), array($save['end_line_num']), array($save['points']), array($save['position_3d']));
+				$this->annotations->save_children($parent_id, array($this->data['scalar:child_urn']), array($save['start_seconds']), array($save['end_seconds']), array($save['start_line_num']), array($save['end_line_num']), array($save['points']), array($save['position_3d']), array($save['position_gis']));
 				break;
 			case 'contained':
 				$this->load->model('path_model', 'paths');
@@ -748,11 +748,11 @@ Class Api extends CI_Controller {
 				case 'annotations':
 					$children = $this->annotations->get_children($old_version_id);
 					foreach ($children as $child) {
-						$this->annotations->save_children($new_version_id, array($child->child_version_id), array($child->start_seconds), array($child->end_seconds), array($child->start_line_num), array($child->end_line_num), array($child->points), array($child->position_3d));
+						$this->annotations->save_children($new_version_id, array($child->child_version_id), array($child->start_seconds), array($child->end_seconds), array($child->start_line_num), array($child->end_line_num), array($child->points), array($child->position_3d), array($child->position_gis));
 					}
 					$parents = $this->annotations->get_parents($old_version_id);
 					foreach ($parents as $parent) {
-						$this->annotations->save_parents($new_version_id, array($parent->parent_version_id), array($parent->start_seconds), array($parent->end_seconds), array($parent->start_line_num), array($parent->end_line_num), array($parent->points), array($parent->position_3d));
+						$this->annotations->save_parents($new_version_id, array($parent->parent_version_id), array($parent->start_seconds), array($parent->end_seconds), array($parent->start_line_num), array($parent->end_line_num), array($parent->points), array($parent->position_3d), array($parent->position_gis));
 					}
 					break;
 				case 'paths':
