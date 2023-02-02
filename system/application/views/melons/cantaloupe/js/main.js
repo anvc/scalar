@@ -531,6 +531,8 @@ $(window).ready(function() {
 	    ]);
 	};
 
+	window.initGoogleMap = function() {} // google maps api requires a callback
+
 	// Accept posted messages (e.g., if in an iframe)
 	window.addEventListener('message', function(event) {
 		switch (event.data) {};

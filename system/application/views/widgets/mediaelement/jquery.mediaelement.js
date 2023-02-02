@@ -573,7 +573,7 @@ function YouTubeGetID(url){
 						pendingScripts = 0;
 						pendingDeferredMedia.GoogleMaps = [];
 						$.when(
-							$.getScript('https://maps.googleapis.com/maps/api/js?key=' + $('link#google_maps_key').attr('href'))
+							$.getScript('https://maps.googleapis.com/maps/api/js?callback=initGoogleMap&key=' + $('link#google_maps_key').attr('href'))
 						).then(function(){
 							for(var i = 0; i < pendingDeferredMedia.GoogleMaps.length; i++){
 								pendingDeferredMedia.GoogleMaps[i].resolve();

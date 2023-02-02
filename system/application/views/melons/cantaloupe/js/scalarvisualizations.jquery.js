@@ -4303,7 +4303,7 @@ window.scalarvis = { instanceCount: -1 };
         base.visualization.css('height', this.size.height + 'px');
         if ('undefined' == typeof (google) || 'undefined' == typeof (google.maps)) {
           $.getScript($('link#approot').attr('href') + 'views/melons/cantaloupe/js/oms.min.js', () => {
-            $.getScript('https://maps.googleapis.com/maps/api/js?key=' + $('link#google_maps_key').attr('href'), () => {
+            $.getScript('https://maps.googleapis.com/maps/api/js?callback=initGoogleMap&key=' + $('link#google_maps_key').attr('href'), () => {
               this.setupMap();
             });
           });
