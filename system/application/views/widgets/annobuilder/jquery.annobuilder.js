@@ -2094,7 +2094,8 @@ jQuery.AnnoBuilderInterfaceView = function() {
 			break;
 
 			case '3D-GIS':
-			data = {
+				var position3D = $.annobuilder.model.mediaElement.getPosition3D();
+				data = {
 				action: 'ADD',
 				'native': $('input[name="native"]').val(),
 				id: $('input[name="id"]').val(),
@@ -2112,7 +2113,7 @@ jQuery.AnnoBuilderInterfaceView = function() {
 				'scalar:end_line_num': '',
 				'scalar:points': '',
         'scalar:position_3d': '',
-        'scalar:position_gis': '0,0,0,0,0,60'
+        'scalar:position_gis': me.unparsePositionGIS(position3D).string
 			};
 			break;
 
