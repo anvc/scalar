@@ -5536,8 +5536,8 @@ function YouTubeGetID(url){
               ht = a[1].split(',');
               properties.camera = {
                 position: {
-                  latitude: pos[0],
-                  longitude: pos[1],
+                  longitude: pos[0],
+                  latitude: pos[1],
                   z: pos[2]
                 },
                 heading: ht[0],
@@ -5550,12 +5550,6 @@ function YouTubeGetID(url){
           }
           me.camera = new Camera();
           me.sceneView = new SceneView(properties);
-          /*view.when(function() {
-            var slides = scene.presentation.slides;
-            slides.forEach(function(slide, i) {
-              console.log(slide.title.text);
-            });
-          });*/
         });
         this.parentView.removeLoadingMessage();
       }
