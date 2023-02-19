@@ -43,7 +43,7 @@
 
 		var me = this;
 
-		var canEdit = ( !isMobile && ((scalarapi.model.user_level == "scalar:Author") || (scalarapi.model.user_level == "scalar:Commentator") || (scalarapi.model.user_level == "scalar:Reviewer")));
+		var canEdit = ( !isMobile && ((scalarapi.model.getUser().user_level == "scalar:Author") || (scalarapi.model.getUser().user_level == "scalar:Commentator") || (scalarapi.model.getUser().user_level == "scalar:Reviewer")));
 
 		var content = $('<div class="body_copy"></div>');
 		content.append('<p>The <strong>header bar</strong> at the top of the screen gives you access to utilities for navigating and editing (if you&rsquo;re logged in and have editing privileges). If the header bar is currently hidden, scroll towards the top of the page to make it appear. Here&rsquo;s a quick reference guide to the header bar icons:</p>');

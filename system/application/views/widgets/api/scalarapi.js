@@ -17,6 +17,15 @@
  * permissions and limitations under the License.
  */
 
+const ScalarRole =  {
+	Unknown: 'unknown',
+	Reader: 'reader',
+	Commentator: 'commentator',
+	Reviewer: 'reviewer',
+	Author: 'author',
+	Editor: 'editor',
+}
+
 var scalarapi = new ScalarAPI();
 
 function is_array(input){
@@ -35,11 +44,7 @@ function ScalarAPI() {
 
 	var me = this;
 
-	this.model = new ScalarModel({
-		parent_uri: $('link#parent').attr('href'),
-		logged_in: $('link#logged_in').attr('href'),
-		user_level: $('link#user_level').attr('href')
-	});
+	this.model = new ScalarModel();
 
 	/**
 	 * Browser detection script from http://www.quirksmode.org/js/detect.html
@@ -726,6 +731,7 @@ ScalarAPI.prototype.browserDetect = null;
 ScalarAPI.prototype.nodeExistsCallback = null;
 ScalarAPI.prototype.untitledNodeString = null;
 
+
 /**
  * Returns the specified uri without any extraneous trailing content (getVars, etc.)
  *
@@ -1223,6 +1229,23 @@ ScalarAPI.prototype.toNS = function(uri) {
   }
   return false;
 };
+
+ScalarAPI.prototype.getCapabilitiesFromURL = function(url) {
+	let capabilities = {
+		canAnnotate: true,
+		canEdit: true,
+		canDelete: true,
+		unrestricted: true,
+	}
+	let suffix = this.getFileExtension(url);
+	if(['versions','history','annotation_editor','manage_lenses'].indexOf(suffix)!==-1){
+		capabilities.unrestricted = capabilities.canDelete = false
+		if (suffix == 'edit') {
+			capabilities.canAnnotate = capabilities.canEdit = false
+		}
+	}
+	return capabilities
+}
 
 /**
  * saveManyRelations, queueManyRelations, runManyRelations
@@ -2595,13 +2618,11 @@ function ScalarModel(options) {
 
 	var me = this;
 
-	this.urlPrefix;								// home page of the book
-	this.parent_uri = options['parent_uri'];	// parent uri of the book
-	this.logged_in = options['logged_in'];		// is the user currently logged in
-	this.user_level = options['user_level'];	// level of the current user
-	this.nodes = [];							// all known nodes
-	this.nodesByURL = {};						// all known nodes, indexed by their URLs
-	this.nodesByURN = {};						// all known nodes, indexed by their URNs
+	this.urlPrefix;										// home page of the book
+	this.parent_uri = $('link#parent').attr('href'),	// parent uri of the book
+	this.nodes = [];									// all known nodes
+	this.nodesByURL = {};							// all known nodes, indexed by their URLs
+	this.nodesByURN = {};							// all known nodes, indexed by their URNs
 	this.relationsById = {};					// all known relations, indexed by their ids
 	this.crossDomain = false;					// are we making cross-domain requests for testing purposes?
 
@@ -2715,7 +2736,7 @@ function ScalarModel(options) {
 
 	// figure out where we are
 	if (!this.crossDomain) {
-		this.urlPrefix = options['parent_uri'];
+		this.urlPrefix = this.parent_uri;
 	}
 
 	// scrape book title from page
@@ -2743,6 +2764,13 @@ ScalarModel.prototype.bookNode = null;
 ScalarModel.prototype.scalarTypes = null;
 ScalarModel.prototype.relationTypes = null;
 ScalarModel.prototype.userTypes = null;
+
+ScalarModel.prototype.getUser = function() {
+	if (!this.user) {
+		this.user = new ScalarUser()
+	}
+	return this.user
+}
 
 /**
  * Parses the specified json, creating/updating any referenced nodes.
@@ -3125,6 +3153,39 @@ ScalarModel.prototype.getCurrentPageNode = function() {
 ScalarModel.prototype.getPublisherNode = function() {
 	return this.nodesByURL[this.urlPrefix+'publisher'];
 }
+
+function ScalarUser() {
+	let me = this
+	this.logged_in = $('link#logged_in').attr('href') ? $('link#logged_in').attr('href') : false
+	this.user_level = $('link#user_level').attr('href')
+	this.role = ScalarRole.Unknown
+	if (this.user_level?.length > 0) {
+		switch (this.user_level) {
+			case 'scalar:Reader':
+				this.role = ScalarRole.Author
+				break
+			case 'scalar:Commentator':
+				this.role = ScalarRole.Commentator
+				break
+			case 'scalar:Reviewer':
+				this.role = ScalarRole.Reviewer
+				break
+			case 'scalar:Author':
+				this.role = ScalarRole.Author
+				break
+			case 'scalar:Editor':
+				this.role = ScalarRole.Editor
+				break
+			default:
+				this.role = ScalarRole.Unknown
+				break
+		}
+	}
+}
+
+ScalarUser.prototype.logged_in = null;
+ScalarUser.prototype.user_level = null;
+ScalarUser.prototype.role = null;
 
 /**
  * Creates a new ScalarNode.
@@ -3755,7 +3816,6 @@ function ScalarVersion(data, node) {
 	var me = this;
 
 	this.auxProperties = {};
-
 	this.parseData(data, node);
 
 }
