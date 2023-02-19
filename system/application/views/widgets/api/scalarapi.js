@@ -26,6 +26,16 @@ const ScalarRole =  {
 	Editor: 'editor',
 }
 
+const ScalarEditorialState = {
+	None: "none",
+	Draft: "draft",
+	Edit: "edit",
+	EditReview: "editreview",
+	Clean: "clean",
+	Ready: "ready",
+	Published: "published",
+}
+
 var scalarapi = new ScalarAPI();
 
 function is_array(input){
@@ -2619,12 +2629,27 @@ function ScalarModel(options) {
 	var me = this;
 
 	this.urlPrefix;										// home page of the book
-	this.parent_uri = $('link#parent').attr('href'),	// parent uri of the book
+	this.parent_uri = $('link#parent').attr('href')
+	this.bookId = parseInt($('link#book_id').attr('href'))
+	this.usingHypothesis = $('link#hypothesis').attr('href') === 'true'
 	this.nodes = [];									// all known nodes
 	this.nodesByURL = {};							// all known nodes, indexed by their URLs
 	this.nodesByURN = {};							// all known nodes, indexed by their URNs
 	this.relationsById = {};					// all known relations, indexed by their ids
 	this.crossDomain = false;					// are we making cross-domain requests for testing purposes?
+
+	this.isEditorialPathPage = $('.editorialpath-page>#editorialPath').length > 0;
+	this.editorialWorkflowEnabled = $('link#editorial_workflow').attr('href') === 'true';
+	this.editorialState = ScalarEditorialState.None
+	if (this.editorialWorkflowEnabled) {
+			if ($('header span.metadata[property="scalar:editorialState"]').length > 0) {
+				let state = $('header span.metadata[property="scalar:editorialState"]').text()
+				state = state[0].toUpperCase() + state.slice(1).toLowerCase()
+				this.editorialState = ScalarEditorialState[state];
+			} else {
+					base.editorialState = ScalarEditorialState.Draft;
+			}
+	}
 
 	// list of namespaces and the prefixes used by Scalar, grabbed from xmlns attributes of <html> tag
 	// TODO: "the usage of 'xmlns' for prefix definition is deprecated; please use the 'prefix' attribute instead"
@@ -3186,6 +3211,28 @@ function ScalarUser() {
 ScalarUser.prototype.logged_in = null;
 ScalarUser.prototype.user_level = null;
 ScalarUser.prototype.role = null;
+
+ScalarUser.prototype.canEdit = function() {
+	const roles = [ScalarRole.Author, ScalarRole.commentator, ScalarRole.Reviewer, ScalarRole.Editor]
+	return roles.indexOf(this.role) != -1
+}
+
+ScalarUser.prototype.canAdd = function() {
+	const roles = [ScalarRole.Author, ScalarRole.commentator]
+	return roles.indexOf(this.role) != -1
+}
+
+ScalarUser.prototype.canDelete = function() {
+	const roles = [ScalarRole.Author, ScalarRole.commentator]
+	const states = [ScalarEditorialState.Edit, ScalarEditorialState.Clean, ScalarEditorialState.Published]
+	return roles.indexOf(this.role) != -1 && states.indexOf(scalarapi.model.editorialState) == -1
+}
+
+ScalarUser.prototype.canCopyEdit = function() {
+	const roles = [ScalarRole.Author, ScalarRole.commentator]
+	const states = [ScalarEditorialState.Edit, ScalarEditorialState.Clean, ScalarEditorialState.Ready]
+	return roles.indexOf(this.role) != -1 && states.indexOf(scalarapi.model.editorialState) == -1
+}
 
 /**
  * Creates a new ScalarNode.
