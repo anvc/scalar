@@ -651,7 +651,7 @@ span.navbar-text.navbar-left.pull-left.title_wrapper.visible-xs{
 .navbar ul.dropdown-menu li{
   	max-width: 38rem;
 }
-.navbar ul.dropdown-menu li.vis_link{
+#vis_menu li{
 		max-width: inherit;
 }
 .navbar .dropdown-menu li:hover, .navbar .dropdown-menu li:active{
