@@ -25,6 +25,103 @@
       base.init = function() {
         base.options = $.extend({},$.scalarheader.defaultOptions, options);
         base.currentNode = scalarapi.model.getCurrentPageNode();
+        base.index_url = scalarapi.model.parent_uri.slice(0, -1);
+        base.index_url = base.index_url.substr(0, base.index_url.lastIndexOf('/'))+'/';
+
+        base.menuData = {
+          wayfinding: [
+            {
+              id: 'recent_menu',
+              text: 'Recent',
+              icon: 'recentIcon',
+              placeholder: '<li><i class="loader"></i></li>'
+            },
+            {
+              id: 'lenses_menu',
+              text: 'Lenses',
+              icon: 'lensIcon',
+            },
+            {
+              id: 'vis_menu',
+              text: 'Visualizations',
+              icon: 'visIcon',
+              submenu: [
+                {
+                  text: 'Current',
+                  icon: 'currentIcon',
+                  data: { vistype: 'viscurrent' },
+                },
+                {
+                  text: 'Contents',
+                  icon: 'tocIcon',
+                  data: { vistype: 'vistoc' },
+                },
+                {
+                  text: 'Connections',
+                  icon: 'connectionsIcon',
+                  data: { vistype: 'visconnections' },
+                },
+                {
+                  text: 'Grid',
+                  icon: 'gridIcon',
+                  data: { vistype: 'visindex' },
+                },
+                {
+                  text: 'Map',
+                  icon: 'mapIcon',
+                  data: { vistype: 'vismap' },
+                },
+                {
+                  text: 'Radial',
+                  icon: 'radialIcon',
+                  data: { vistype: 'visradial' },
+                },
+                {
+                  text: 'Path',
+                  icon: 'pathIcon',
+                  data: { vistype: 'vispath' },
+                },
+                {
+                  text: 'Media',
+                  icon: 'mediaIcon',
+                  data: { vistype: 'vismedia' },
+                },
+                {
+                  text: 'Tag',
+                  icon: 'tagIcon',
+                  data: { vistype: 'vistag' },
+                },
+                {
+                  text: 'Word Cloud',
+                  icon: 'wordCloudIcon',
+                  data: { vistype: 'viswordcloud' },
+                },
+              ],
+            },
+            {
+              id: 'scalar_menu',
+              text: 'Scalar',
+              icon: 'scalarIcon',
+              submenu: [
+                {
+                  text: 'About Scalar',
+                  url: 'https://scalar.usc.edu/',
+                  target: '_scalar',
+                },
+                {
+                  text: 'User’s Guide',
+                  url: 'https://scalar.usc.edu/works/guide2',
+                  target: '_scalar',
+                },
+                {
+                  text: 'More Scalar Projects',
+                  url: base.applyCurrentQueryVarsToURL(base.index_url),
+                  target: '_scalar',
+                },
+              ],
+            },
+          ]
+        }
 
         // add classes and attributes
         if (scalarapi.model.getUser().canEdit()) base.$el.addClass('edit_enabled');
@@ -110,122 +207,58 @@
       }
 
       base.wayfindingMenu = function() {
-        let visualizationMenuData = [
-          {
-            id: 'viscurrent',
-            text: 'Current',
-            icon: 'currentIcon',
-          },
-          {
-            id: 'vistoc',
-            text: 'Contents',
-            icon: 'tocIcon',
-          },
-          {
-            id: 'visconnections',
-            text: 'Connections',
-            icon: 'connectionsIcon',
-          },
-          {
-            id: 'visindex',
-            text: 'Grid',
-            icon: 'gridIcon',
-          },
-          {
-            id: 'vismap',
-            text: 'Map',
-            icon: 'mapIcon',
-          },
-          {
-            id: 'visradial',
-            text: 'Radial',
-            icon: 'radialIcon',
-          },
-          {
-            id: 'vispath',
-            text: 'Path',
-            icon: 'pathIcon',
-          },
-          {
-            id: 'vismedia',
-            text: 'Media',
-            icon: 'mediaIcon',
-          },
-          {
-            id: 'vistag',
-            text: 'Tag',
-            icon: 'tagIcon',
-          },
-          {
-            id: 'viswordcloud',
-            text: 'Word Cloud',
-            icon: 'wordCloudIcon',
-          },
-        ]
-        let index_url = scalarapi.model.parent_uri.slice(0, -1);
-        index_url = index_url.substr(0, index_url.lastIndexOf('/'))+'/';
-        let scalarMenuData = [
-          {
-            text: 'About Scalar',
-            url: 'https://scalar.usc.edu/',
-            target: '_scalar',
-          },
-          {
-            text: 'User’s Guide',
-            url: 'https://scalar.usc.edu/works/guide2',
-            target: '_scalar',
-          },
-          {
-            text: 'More Scalar Projects',
-            url: base.applyCurrentQueryVarsToURL(index_url),
-            target: '_scalar',
-          },
-        ]
         let wayfindingMenu = $('<li class="dropdown" id="navMenu">'+
           '<a class="dropdown-toggle headerIcon" data-toggle="dropdown" aria-labelledby="label-wayfinding" aria-expanded="false" role="menuitem" title="Various ways to explore Scalar" id="wayfindingIcon">'+
               '<span id="label-wayfinding" class="visible-xs">Wayfinding</span>'+
           '</a>'+
-          '<ul class="dropdown-menu" role="menu">'+
-              '<li id="recent_menu" class="dropdown">'+
-                  '<a role="menuitem" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></span><span class="menuIcon" id="recentIcon"></span>Recent</a>'+
-                  '<ul class="dropdown-menu" role="menu">'+
-                      '<li><i class="loader"></i></li>'+
-                  '</ul>'+
-              '</li>'+
-              '<li id="lenses_menu" class="dropdown">'+
-                  '<a role="menuitem" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></span><span class="menuIcon" id="lensIcon"></span>Lenses</a>'+
-                  '<ul class="dropdown-menu" role="menu">'+
-                  '</ul>'+
-              '</li>'+
-              '<li id="vis_menu" class="dropdown">'+
-                  '<a role="menuitem" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></span><span class="menuIcon" id="visIcon"></span>Visualizations</a>'+
-                  '<ul class="dropdown-menu" role="menu">'+
-                  '</ul>'+
-              '</li>'+
-              '<li id="scalar_menu" class="dropdown">'+
-                  '<a role="menuitem" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></span><span class="menuIcon" id="scalarIcon"></span>Scalar</a>'+
-                  '<ul class="dropdown-menu" role="menu">'+
-                  '</ul>'+
-              '</li>'+
-          '</ul>'+
+          '<ul class="dropdown-menu" role="menu"></ul>'+
         '</li>')
-        for (let i=0; i<visualizationMenuData.length; i++) {
-          wayfindingMenu.find('#vis_menu ul').append(base.visualizationMenuItem(visualizationMenuData[i]))
+        for (let i=0; i<base.menuData.wayfinding.length; i++) {
+          wayfindingMenu.find('ul').append(base.menuItem(base.menuData.wayfinding[i]))
         }
-        for (let i=0; i<scalarMenuData.length; i++) {
-          wayfindingMenu.find('#scalar_menu ul').append(base.linkMenuItem(scalarMenuData[i]))
-        }
-
-        // STOPPED at line 290
         return wayfindingMenu
       }
 
-      base.visualizationMenuItem = function(menuItem) {
-        return $(`<li data-vistype="${menuItem.id}"><a role="menuitem"><span class="menuIcon" id="${menuItem.icon}"></span> ${menuItem.text}</a></li>`)
+        // STOPPED at line 290
+
+      base.menuItem = function(itemData) {
+        let listItem = $(`<li id="${itemData.id}" class="dropdown"></li>`)
+        let link = $('<a role="menuitem" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></a>')
+        if (itemData.icon) {
+          link.append(`<span class="menuIcon" id="${itemData.icon}"></span>`)
+        }
+        link.append(itemData.text)
+        listItem.append(link)
+        if (itemData.submenu) {
+          submenu = $('<ul class="dropdown-menu" role="menu"><ul>')
+          for (let i=0; i<itemData.submenu.length; i++) {
+            submenu.append(base.submenuItem(itemData.submenu[i]))
+          }
+          listItem.append(submenu)
+        }
+        return listItem
       }
 
-      base.linkMenuItem = function(menuItem) {
-        return $(`<li><a role="menuitem" href="${menuItem.url}" target="${menuItem.target}">${menuItem.text}</a></li>`)
+      base.submenuItem = function(itemData) {
+        let listItem = $('<li></li>')
+        for (let key in itemData.data) {
+          listItem.attr('data-'+key, itemData.data[key])
+        }
+        let link = $('<a role="menuitem"></a>')
+        if (itemData.url) {
+          link.attr('href', itemData.url)
+        } else {
+          link.attr('href', '#')
+        }
+        if (itemData.target) {
+          link.attr('target', itemData.target)
+        }
+        if (itemData.icon) {
+          link.append(`<span class="menuIcon" id="${itemData.icon}"></span>`)
+        }
+        link.append(itemData.text)
+        listItem.append(link)
+        return listItem
       }
 
       base.applyCurrentQueryVarsToURL = function(url){
