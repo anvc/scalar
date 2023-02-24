@@ -157,23 +157,50 @@
       base.desktopHeader = function() {
         let desktopHeader = $('<div class="collapse navbar-collapse" id="ScalarHeaderMenu"></div>')
         desktopHeader.append(base.navigationMenus())
+        desktopHeader.append(base.titleAndCredit())
+        desktopHeader.append(base.utilityMenus())
         return desktopHeader
       }
 
       base.navigationMenus = function() {
         let navigationMenus = $('<ul class="nav navbar-nav" id="ScalarHeaderMenuLeft"></ul>')
-
         navigationMenus.append(base.homeLink())
         navigationMenus.append(base.mainMenu())
         navigationMenus.append(base.wayfindingMenu())
-
         return navigationMenus
+      }
+
+      base.titleAndCredit = function() {
+        return $('<span class="navbar-text navbar-left pull-left title_wrapper hidden-xs" id="desktopTitleWrapper">'+
+          '<span class="hidden-xs author_text">'+
+            '<span id="header_authors" data-placement="bottom"></span>'+
+          '</span>'+
+        '</span>')
+      }
+
+      base.utilityMenus = function() {
+        let utilityMenus = $('<ul class="nav navbar-nav navbar-right" id="ScalarHeaderMenuRight"></ul>')
+        utilityMenus.append(base.searchControl())
+        utilityMenus.append(base.helpControl())
+        let user = scalarapi.model.getUser()
+        if (user.canAdd()) utilityMenus.append(base.addPageControl())
+        if (user.canCopyEdit() && !scalarapi.model.isEditorialPathPage) {
+          utilityMenus.append(base.editContentControl())
+        }
+        if (user.canAdd() && base.currentNode?.hasScalarType('media')) {
+          utilityMenus.append(base.annotateMediaControl())
+        }
+
+        // TODO stopped at line 335
+
+        return utilityMenus
       }
 
       base.homeLink = function() {
         // home link is visible only on mobile
-        let homeLink = $('<li class="visible-xs">'+
-          '<a href="'+base.applyCurrentQueryVarsToURL(addTemplateToURL( base.title_link.attr("href"), 'cantaloupe'))+'" class="headerIcon" id="homeLink">'+
+        const homeUrl = base.applyCurrentQueryVarsToURL(addTemplateToURL( base.title_link.attr("href"), 'cantaloupe'))
+        const homeLink = $('<li class="visible-xs">'+
+          '<a href="' + homeUrl + '" class="headerIcon" id="homeLink">'+
             '<span class="visible-xs">Home Page</span>'+
           '</a>'+
         '</li>')
@@ -181,7 +208,7 @@
       }
 
       base.mainMenu = function() {
-        let mainMenu = $('<li class="dropdown mainMenu">'+
+        const mainMenu = $('<li class="dropdown mainMenu">'+
           '<a class="dropdown-toggle headerIcon" data-toggle="dropdown" aria-labelledby="label-toc" aria-expanded="false" role="menuitem" title="Main navigation for the project">'+
               '<span id="label-toc" class="visible-xs">Table of Contents</span>'+
           '</a>'+
@@ -219,7 +246,59 @@
         return wayfindingMenu
       }
 
-        // STOPPED at line 290
+      base.searchControl = function() {
+        const searchControl = $('<li class="" id="ScalarHeaderMenuSearch">'+
+          '<a class="headerIcon" id="searchIcon" aria-labelledby="label-search" aria-role="button" title="Open search field">'+
+            '<span id="label-search" class="visible-xs">Search</span>'+
+          '</a>'+
+        '</li>'+
+        '<li id="ScalarHeaderMenuSearchForm">'+
+          '<form class="navbar-form" role="search" action="./">'+
+            '<div class="form-group">'+
+              '<input title="Search this book" type="text" class="form-control" placeholder="Search this book...">'+
+              '<input type="submit" class="hidden_submit" value="Search">'+
+            '</div>'+
+          '</form>'+
+        '</li>')
+        return searchControl
+      }
+
+      base.helpControl = function() {
+        const helpControl = $('<li id="ScalarHeaderHelp">'+
+          '<a class="headerIcon" id="helpIcon" aria-labelledby="label-help" title="Display help information"><span id="label-help" class="hidden-sm hidden-md hidden-lg">Help</span></a>'+
+        '</li>')
+        return helpControl
+      }
+
+      base.addPageControl = function() {
+        const addUrl = base.applyCurrentQueryVarsToURL(scalarapi.model.urlPrefix + 'new.edit')
+        const addPageControl = $('<li id="ScalarHeaderNew">'+
+          '<a class="headerIcon" href="' + addUrl + '" id="newIcon" aria-labelledby="label-new" aria-role="link" title="Create a new page">' + 
+            '<span id="label-new" class="visible-xs">New page</span>' + 
+          '</a>' + 
+        '</li>')
+        return addPageControl
+      }
+
+      base.editContentControl = function() {
+        const editUrl = scalarapi.stripEdition(base.applyCurrentQueryVarsToURL(scalarapi.model.urlPrefix + base.current_slug + '.edit'))
+        const editContentControl = $('<li id="ScalarHeaderEdit">' + 
+          '<a class="headerIcon" href="' + editUrl + '" id="editIcon" aria-labelledby="label-edit" aria-role="link" title="Edit the current content">' + 
+            '<span id="label-edit" class="visible-xs">Edit page</span>' + 
+          '</a>' + 
+        '</li>')
+        return editContentControl
+      }
+
+      base.annotateMediaControl = function() {
+        const annotateUrl = base.applyCurrentQueryVarsToURL(scalarapi.model.urlPrefix + scalarapi.basepath(window.location.href) + '.annotation_editor')
+        const annotateMediaControl = $('<li id="ScalarHeaderAnnotate" class="hidden-xs">' + 
+          '<a class="headerIcon" href="' + annotateUrl + '" id="annotateIcon" aria-labelledby="label-annotate" aria-role="link" title="Annotate the current media">' + 
+            '<span id="label-annotate" class="visible-xs">Annotate media</span>' + 
+          '</a>' + 
+        '</li>')
+        return annotateMediaControl
+      }
 
       base.menuItem = function(itemData) {
         let listItem = $(`<li id="${itemData.id}" class="dropdown"></li>`)
