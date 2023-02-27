@@ -197,10 +197,6 @@
                     text: 'Omeka S sites',
                     url: base.applyCurrentQueryVarsToURL(scalarapi.model.urlPrefix + 'import/omeka_s'),
                   },
-                  /*{
-                    text: 'SoundCloud',
-                    url: base.applyCurrentQueryVarsToURL(scalarapi.model.urlPrefix + 'import/soundcloud'),
-                  },*/
                   {
                     text: 'YouTube',
                     url: base.applyCurrentQueryVarsToURL(scalarapi.model.urlPrefix + 'import/youtube'),
@@ -208,6 +204,7 @@
                   {
                     text: 'Harvard Art Museums',
                     url: base.applyCurrentQueryVarsToURL(scalarapi.model.urlPrefix + 'import/harvard_art_museums'),
+                    include: $('link#harvard_art_museums_key').attr('href')
                   },
                 ],
               },
@@ -300,12 +297,14 @@
         if (scalarapi.model.getUser().canEdit()) base.$el.addClass('edit_enabled');
         if (scalarapi.model.usingHypothesis) base.$el.addClass('hypothesis_active');
         base.$el.addClass('text-uppercase heading_font navbar navbar-inverse navbar-fixed-top').attr('id','scalarheader');
-        //Pop the title link DOM element off for a minute - we'll use this again later on.
+        //Pop the title link DOM element off for a minute - we'll use this again later on.Z
         base.title_link = base.$el.find('#book-title').addClass('navbar-link').detach().attr('id','').addClass('book-title');
 
         let navbar = $('<div class="container-fluid"></div>')
         navbar.append(base.mobileHeader())
         navbar.append(base.desktopHeader())
+        base.setupMobileTOCMenu()
+        base.addCustomMenuItems()
 
         base.$el.append(navbar)
       }
@@ -316,6 +315,64 @@
         mobileHeader.append('<span class="navbar-text navbar-left pull-left title_wrapper visible-xs"></span>')
         mobileHeader.append(base.hamburgerMenu())
         return mobileHeader
+      }
+
+      base.setupMobileTOCMenu = function() {
+        base.mobileTOCMenu = $('<div id="mobileMainMenuSubmenus" class="heading_font tocMenu">' + 
+          '<div class="toc">' + 
+            '<header class="mainMenu">' + 
+              '<a class="headerIcon">' + 
+                '<span class="visible-xs">Table of Contents</span>' + 
+              '</a>' + 
+            '</header>' + 
+            '<footer>' + 
+              '<div class="footer_content">' + 
+                '<button class="btn back text-center">' + 
+                  '<img src="' + $('link#approot').attr('href') + 'views/melons/cantaloupe/images/back_icon.png" width="30" alt="Go back"/>' + 
+                '</button>' + 
+                '<button class="btn close_menu text-center">' + 
+                  '<img src="' + $('link#approot').attr('href') + 'views/melons/cantaloupe/images/close_menu_icon.png" width="30" alt="Close all submenus"/>' + 
+                '</button>' + 
+              '</div>' + 
+            '</footer>' + 
+          '</div>' + 
+          '<div class="pages"></div>' + 
+        '</div>').appendTo('body');
+        base.mobileTOCMenu.find('.close_menu, header > a').on('click', function(e){
+          $('#mobileMainMenuSubmenus').removeClass('active');
+          $('.mainMenuDropdown, #ScalarHeaderMenu').css({
+            'transform' : 'translateX(0px)',
+            '-webkit-transform' : 'translateX(0px)',
+            '-moz-transform' : 'translateX(0px)',
+            'position': ''
+          });
+          setTimeout(function(){
+            $('#mobileMainMenuSubmenus').find('.expandedPage').remove();
+          },500);
+          e.preventDefault();
+          e.stopPropagation();
+          return false;
+        });
+        base.$el.on('hide.bs.collapse',function(){
+          if($('#mobileMainMenuSubmenus').hasClass('active')){
+            $('#mobileMainMenuSubmenus').removeClass('active');
+            $('.mainMenuDropdown, #ScalarHeaderMenu').css({
+              'transform' : 'translateX(0px)',
+              '-webkit-transform' : 'translateX(0px)',
+              '-moz-transform' : 'translateX(0px)',
+              'position': ''
+            });
+            setTimeout(function(){
+              $('#mobileMainMenuSubmenus').find('.expandedPage').remove();
+            },500);
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+          }
+        }).on('mouseover', function(e){
+            $(this).removeClass('short');
+            $('body').removeClass('shortHeader').trigger('headerSizeChanged');
+        });
       }
 
       base.hamburgerMenu = function() {
@@ -377,8 +434,9 @@
           utilityOptions.append(base.headerControl(base.controlData.dashboard))
         }
         utilityOptions.append(base.headerMenu(base.menuData.account))
+        base.addAirtableImportItems()
 
-        // TODO stopped at line 335
+        // TODO stopped at line 465
 
         return utilityOptions
       }
@@ -442,6 +500,15 @@
         return searchForm
       }
 
+      base.addAirtableImportItems = function() {
+        var $airtables = $('link#airtable');
+        if ($airtables.length) {
+          for (var j = 0; j < $airtables.length; j++) {
+            navbar.find('#ScalarHeaderMenuImportList').find('ul.other-archives').append('<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/airtable/'+encodeURIComponent($airtables.eq(j).attr('href'))) + '">Airtable: '+$airtables.eq(j).attr('href')+'</a></li>');
+          }
+        }
+      }
+
       base.menuItem = function(itemData) {
         let listItem = $(`<li id="${itemData.id}" class="dropdown"></li>`)
         let link = $('<a role="menuitem" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></a>')
@@ -453,7 +520,10 @@
         if (itemData.submenu) {
           submenu = $('<ul class="dropdown-menu" role="menu"><ul>')
           for (let i=0; i<itemData.submenu.length; i++) {
-            submenu.append(base.submenuItem(itemData.submenu[i]))
+            if (itemData.submenu[i].include == undefined || itemData.submenu[i].include) {
+              console.log(itemData.submenu[i].text, itemData.submenu[i].include)
+              submenu.append(base.submenuItem(itemData.submenu[i]))
+            }
           }
           listItem.append(submenu)
         }
@@ -499,6 +569,15 @@
           }
         }
         return url;
+      }
+
+      base.addCustomMenuItems = function() {
+        if ('undefined' != typeof(customScalarHeaderMenuLeftItems) && Array.isArray(customScalarHeaderMenuLeftItems)) {
+          for (var c = 0; c < customScalarHeaderMenuLeftItems.length; c++) {
+            customnavbaritem = $('<li class="customMenuItem">'+customScalarHeaderMenuLeftItems[c]+'</li>');
+            navbar.find('#ScalarHeaderMenuLeft').append(customnavbaritem);
+          }
+        }
       }
 
       base.init()
