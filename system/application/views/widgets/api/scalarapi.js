@@ -3217,6 +3217,15 @@ ScalarUser.prototype.canEdit = function() {
 	return roles.indexOf(this.role) != -1
 }
 
+ScalarUser.prototype.canEditThisUrl = function(url) {
+	if (this.canEdit()) {
+		let dataType = scalarapi.getFileExtension(url)
+		return ['edit','versions','history','annotation_editor','manage_lenses'].indexOf(dataType) == -1
+	} else {
+		return false
+	}
+}
+
 ScalarUser.prototype.canAdd = function() {
 	const roles = [ScalarRole.Author, ScalarRole.commentator]
 	return roles.indexOf(this.role) != -1
@@ -3226,6 +3235,15 @@ ScalarUser.prototype.canDelete = function() {
 	const roles = [ScalarRole.Author, ScalarRole.commentator]
 	const states = [ScalarEditorialState.Edit, ScalarEditorialState.Clean, ScalarEditorialState.Published]
 	return roles.indexOf(this.role) != -1 && states.indexOf(scalarapi.model.editorialState) == -1
+}
+
+ScalarUser.prototype.canDeleteThisUrl = function(url) {
+	if (this.canDelete) {
+		let dataType = scalarapi.getFileExtension(url)
+		return ['versions','history','annotation_editor','manage_lenses'].indexOf(dataType) == -1
+	} else {
+		return false
+	}
 }
 
 ScalarUser.prototype.canCopyEdit = function() {

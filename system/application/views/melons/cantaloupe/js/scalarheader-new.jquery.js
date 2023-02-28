@@ -263,6 +263,7 @@
             url: scalarapi.stripEdition(base.applyCurrentQueryVarsToURL(scalarapi.model.urlPrefix + base.current_slug + '.edit')),
             label: 'New page',
             description: 'Create a new page',
+            include: scalarapi.model.getUser().canEditThisUrl(window.location.href)
           },
           annotateMedia: {
             id: 'ScalarHeaderAnnotate',
@@ -270,12 +271,14 @@
             url: base.applyCurrentQueryVarsToURL(scalarapi.model.urlPrefix + scalarapi.basepath(window.location.href) + '.annotation_editor'),
             label: 'Annotate media',
             description: 'Annotate the current media',
+            include: scalarapi.model.getUser().canEditThisUrl(window.location.href)
           },
           delete: {
             id: 'ScalarHeaderDelete',
             icon: 'deleteIcon',
             label: 'Delete',
             description: 'Make this content private',
+            include: scalarapi.model.getUser().canDeleteThisUrl(window.location.href)
           },
           editorialPath: {
             id: 'ScalarHeaderEditorialPath',
@@ -297,16 +300,21 @@
         if (scalarapi.model.getUser().canEdit()) base.$el.addClass('edit_enabled');
         if (scalarapi.model.usingHypothesis) base.$el.addClass('hypothesis_active');
         base.$el.addClass('text-uppercase heading_font navbar navbar-inverse navbar-fixed-top').attr('id','scalarheader');
-        //Pop the title link DOM element off for a minute - we'll use this again later on.Z
+
+        // pop the title link DOM element off for a minute - we'll use this again later on
         base.title_link = base.$el.find('#book-title').addClass('navbar-link').detach().attr('id','').addClass('book-title');
 
         let navbar = $('<div class="container-fluid"></div>')
         navbar.append(base.mobileHeader())
         navbar.append(base.desktopHeader())
-        base.setupMobileTOCMenu()
+        base.setupMobileMainMenu()
         base.addCustomMenuItems()
+        base.setupMainMenuEventHandling()
+        base.setupGlobalMenuEventHandling()
 
-        base.$el.append(navbar)
+        // TODO stopped at line 636
+
+        base.$el.append(navbar).find('.title_wrapper').prepend(base.title_link.clone());
       }
 
       base.mobileHeader = function() {
@@ -317,8 +325,8 @@
         return mobileHeader
       }
 
-      base.setupMobileTOCMenu = function() {
-        base.mobileTOCMenu = $('<div id="mobileMainMenuSubmenus" class="heading_font tocMenu">' + 
+      base.setupMobileMainMenu = function() {
+        base.mobileMainMenu = $('<div id="mobileMainMenuSubmenus" class="heading_font tocMenu">' + 
           '<div class="toc">' + 
             '<header class="mainMenu">' + 
               '<a class="headerIcon">' + 
@@ -338,7 +346,7 @@
           '</div>' + 
           '<div class="pages"></div>' + 
         '</div>').appendTo('body');
-        base.mobileTOCMenu.find('.close_menu, header > a').on('click', function(e){
+        base.mobileMainMenu.find('.close_menu, header > a').on('click', function(e){
           $('#mobileMainMenuSubmenus').removeClass('active');
           $('.mainMenuDropdown, #ScalarHeaderMenu').css({
             'transform' : 'translateX(0px)',
@@ -373,6 +381,167 @@
             $(this).removeClass('short');
             $('body').removeClass('shortHeader').trigger('headerSizeChanged');
         });
+      }
+
+      base.setupMainMenuEventHandling = function() {
+
+        // main menu opens
+        base.$el.find('.mainMenu').on('show.bs.dropdown',function(e){
+          $(this).find('.body>ol>li').each(function(){
+              var height = $(this).find('a').first().height()+'px';
+              $(this).add($(this).find('.expand')).css({
+                  'height' : height
+              });
+          });
+          if(!base.usingMobileView){
+              var containerHeight = $('#mainMenuInside').height() + 50;
+              var max_height = $(window).height()-50;
+              if(containerHeight >= max_height){
+                  $('#mainMenuInside').css('max-height',max_height+'px').addClass('tall');
+              }
+          }
+        }).children('.dropdown-menu').on('click', function(e){
+            e.stopPropagation();
+        });
+
+        // main menu closes
+        base.$el.find('#ScalarHeaderMenuLeft .mainMenu').on('hide.bs.dropdown',function(){
+            if(base.usingMobileView || $('#mainMenuSubmenus .expandedPage').length == 0){
+                $('body').removeClass('in_menu'); //.css('margin-top','0px').scrollTop($('body').data('scrollTop'));
+                $(this).find('li.active').removeClass('active');
+                $('#mainMenuInside').css('max-height','').removeClass('tall');
+                return true;
+            }else{
+                $(this).addClass('open').find('[aria-expanded="false"]').attr('aria-expanded', 'true');
+                return false;
+            }
+        });
+
+        // submenu opens
+        base.$el.find('.mainMenu>a.dropdown-toggle').on('click', function(e){
+            $(this).attr('aria-expanded', 'true').parent('.mainMenu').addClass('open').trigger('show.bs.dropdown').find('[aria-expanded="false"]').attr('aria-expanded', 'true');
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+        });
+
+        // submenu closes
+        base.$el.find('.mainMenuDropdown>#mainMenuInside>.close').on('click', function(e){
+            $('#mainMenuSubmenus').hide().find('.expandedPage').remove();
+            base.$el.find('#ScalarHeaderMenuLeft .mainMenu').removeClass('open').trigger('hide.bs.dropdown').find('[aria-expanded="true"]').attr('aria-expanded', 'false');
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+        });
+      }
+
+      base.setupGlobalMenuEventHandling = function() {
+        // Top level menu item
+        base.$el.find('#ScalarHeaderMenuLeft>li.dropdown, #ScalarHeaderMenuRight>li.dropdown').on('mouseenter', function(e){
+            var base = $('#scalarheader.navbar').data('scalarheader');
+            if(!base.usingMobileView){
+                if(!$(this).hasClass('mainMenu') && $('#mainMenuSubmenus .expandedPage').length > 0){
+                    $('#mainMenuSubmenus .expandedPage').remove();
+                    $('#mainMenusSubmenus').hide();
+                    base.$el.find('#ScalarHeaderMenuLeft .mainMenu').removeClass('open').trigger('hide.bs.dropdown').find('[aria-expanded="true"]').attr('aria-expanded', 'false');
+                }else if($('#mainMenuSubmenus .expandedPage').length == 0){
+                    $('.mainMenuDropdown, #ScalarHeaderMenu').css({
+                        'transform' : 'translateX(0px)',
+                        '-webkit-transform' : 'translateX(0px)',
+                        '-moz-transform' : 'translateX(0px)'
+                    }).removeClass('expandedMenuOpen');
+                }
+                $(this).addClass('open').trigger('show.bs.dropdown').find('[aria-expanded="false"]').attr('aria-expanded', 'true');
+                console.log(this)
+            }
+        }).on('mouseleave', function(e){
+          // TODO: this is the area that is causing Win10 touch problems ~Craig
+            var base = $('#scalarheader.navbar').data('scalarheader');
+            if(!base.usingMobileView){
+                $(this).removeClass('open').trigger('hide.bs.dropdown').find('[aria-expanded="true"]').attr('aria-expanded', 'false');
+            }
+        }).on('keydown', function(e){
+            // press ESC
+            if(e.which == 27){
+                var subdropdowns_open = $(this).find('li.dropdown.open');
+                if(subdropdowns_open.length > 0){
+                    subdropdowns_open.removeClass('open').trigger('hide.bs.dropdown').find('[aria-expanded="true"]').attr('aria-expanded', 'false');
+                    subdropdowns_open.first().children('a').trigger('focus');
+                }else{
+                    $(this).removeClass('open').trigger('hide.bs.dropdown').find('[aria-expanded="true"]').attr('aria-expanded', 'false');
+                    $(this).children('a').trigger('focus');
+                }
+                e.stopPropagation();
+                e.preventDefault();
+                return false;
+            }
+        }).find("ul.dropdown-menu li.dropdown").on('mouseenter', function(e){
+            // individual menu items
+            var base = $('#scalarheader.navbar').data('scalarheader');
+            if(!base.usingMobileView){
+
+                var timeout = $(this).data('hoverEvent');
+                if($(this).data('hoverEvent')!=null){
+                    clearTimeout($(this).data('hoverEvent'));
+                    $(this).data('hoverEvent',null);
+                }
+
+                $(this).siblings('li.open').each(function(){
+                    var timeout = $(this).data('hoverEvent');
+                    if($(this).data('hoverEvent')!=null){
+                        clearTimeout($(this).data('hoverEvent'));
+                        $(this).data('hoverEvent',null);
+                        $(this).removeClass('open').trigger('hide.bs.dropdown').find('[aria-expanded="true"]').attr('aria-expanded', 'false');
+                    }
+                });
+
+                base.initSubmenus(this);
+            }
+        }).on('mouseleave', function(e){
+            var base = $('#scalarheader.navbar').data('scalarheader');
+            if(!base.usingMobileView){
+                $(this).data('hoverEvent',setTimeout($.proxy(function(){
+                    $(this).removeClass('open').trigger('hide.bs.dropdown').find('[aria-expanded="true"]').attr('aria-expanded', 'false');
+                },$(this)),200));
+            }else{
+                return true;
+            }
+        }).on('hide.bs.dropdown',function(e){
+            e.stopPropagation();
+        }).on('keydown', function(e){
+            var base = $('#scalarheader.navbar').data('scalarheader');
+            if($(this).children('a').first().is(':focus') && !base.usingMobileView){
+                if(e.which == 38){
+                    // up
+                    $(this).prev().children('a').trigger('focus');
+                    e.stopPropagation();
+                    return false;
+                }else if(e.which == 40){
+                    // down
+                    $(this).next().children('a').trigger('focus');
+                    e.stopPropagation();
+                    return false;
+                }
+            }
+        }).children('a').on('click', function(e){
+            var base = $('#scalarheader.navbar').data('scalarheader');
+            if(!$(this).hasClass('expand') && (typeof $(this).attr('href') == 'undefined' || $(this).attr('href') == '')){
+                base.initSubmenus(this);
+                e.preventDefault();
+                return false;
+            }
+        }).on('keyup', function(e){
+            var base = $('#scalarheader.navbar').data('scalarheader');
+            if(!base.usingMobileView){
+                // right arrow, enter, space
+                if(e.which == 39 || e.which == 13 || e.which == 32){
+                    console.log($(this).parent())
+                    base.initSubmenus($(this).parent());
+                    e.stopPropagation();
+                    return false;
+                }
+            }
+        })
       }
 
       base.hamburgerMenu = function() {
@@ -436,8 +605,6 @@
         utilityOptions.append(base.headerMenu(base.menuData.account))
         base.addAirtableImportItems()
 
-        // TODO stopped at line 465
-
         return utilityOptions
       }
 
@@ -479,13 +646,17 @@
       }
 
       base.headerControl = function(controlData) {
-        const control = $('<li><a class="headerIcon" aria-role="button"><span class="hidden-sm hidden-md hidden-lg"></span></a></li>')
-        control.attr('id', controlData.id)
-        const labelId = 'label-' + controlData.label.split(' ')[0].toLowerCase()
-        control.find('a').attr('id', controlData.icon).attr('aria-labelledby', labelId).attr('title', controlData.description)
-        control.find('span').attr('id', labelId).append(controlData.label)
-        if (controlData.url) control.find('a').attr('href', controlData.url).attr('aria-role', 'link')
-        return control
+        if (controlData.include == undefined || controlData.include) {
+          const control = $('<li><a class="headerIcon" aria-role="button"><span class="hidden-sm hidden-md hidden-lg"></span></a></li>')
+          control.attr('id', controlData.id)
+          const labelId = 'label-' + controlData.label.split(' ')[0].toLowerCase()
+          control.find('a').attr('id', controlData.icon).attr('aria-labelledby', labelId).attr('title', controlData.description)
+          control.find('span').attr('id', labelId).append(controlData.label)
+          if (controlData.url) control.find('a').attr('href', controlData.url).attr('aria-role', 'link')
+          return control
+        } else {
+          return null
+        }
       }
 
       base.searchForm = function() {
@@ -521,7 +692,6 @@
           submenu = $('<ul class="dropdown-menu" role="menu"><ul>')
           for (let i=0; i<itemData.submenu.length; i++) {
             if (itemData.submenu[i].include == undefined || itemData.submenu[i].include) {
-              console.log(itemData.submenu[i].text, itemData.submenu[i].include)
               submenu.append(base.submenuItem(itemData.submenu[i]))
             }
           }
