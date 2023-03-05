@@ -22,6 +22,10 @@
       base.$el = $(el)
       base.el = el
 
+      base.usingMobileView = false;
+      // TODO: fill in the rest of these items
+      base.$el.data("scalarheader", base);
+
       base.init = function() {
         base.options = $.extend({},$.scalarheader.defaultOptions, options);
         base.currentNode = scalarapi.model.getCurrentPageNode();
@@ -41,7 +45,7 @@
                 '<div class="close"><span class="menuIcon closeIcon"></span></div>'+
                 '<li class="header"><h2>Table of Contents</h2></li>'+
                 '<li class="top hidden-xs home_link static">'+ // not visible on mobile (redundant)
-                  '<a href="'+base.applyCurrentQueryVarsToURL(scalarapi.model.parent_uri)+'"><span class="menuIcon" id="homeIcon"></span>Home</a>'+
+                  '<a role="menuitem" href="'+base.applyCurrentQueryVarsToURL(scalarapi.model.parent_uri)+'"><span class="menuIcon" id="homeIcon"></span>Home</a>'+
                 '</li>'+
                 '<li class="body">'+
                   '<ol>'+
@@ -296,6 +300,281 @@
           }
         }
 
+        base.visualizationData = {
+          visconnections: {
+            "visualization": {
+              "type": "force-directed",
+              "options": {}
+            },
+            "components": [
+              {
+                "content-selector": {
+                  "type": "items-by-type",
+                  "content-type": "all-content"
+                },
+                "modifiers": [{
+                    "type": "filter",
+                    "subtype": "relationship",
+                    "content-types": [
+                        "all-types"
+                    ],
+                    "relationship": "any-relationship"
+                }]
+              }
+            ],
+            "sorts": []
+          },
+          vistoc: {
+            "visualization": {
+              "type": "tree",
+              "options": {}
+            },
+            "components": [
+              {
+                "content-selector": {
+                  "type": "items-by-type",
+                  "content-type": "table-of-contents"
+                },
+                "modifiers": [{
+                    "type": "filter",
+                    "subtype": "relationship",
+                    "content-types": [
+                        "all-types"
+                    ],
+                    "relationship": "child"
+                }]
+              },
+              {
+                "content-selector": {
+                  "type": "items-by-type",
+                  "content-type": "all-content"
+                },
+                "modifiers": []
+              }
+            ],
+            "sorts": []
+          },
+          vis: {
+            "visualization": {
+              "type": "grid",
+              "options": {}
+            },
+            "components": [
+              {
+                "content-selector": {
+                  "type": "items-by-type",
+                  "content-type": "all-content"
+                },
+                "modifiers": [
+                  {
+                    "type": "filter",
+                    "subtype": "relationship",
+                    "content-types": [
+                        "all-types"
+                    ],
+                    "relationship": "any-relationship"
+                  }
+                ]
+              }
+            ],
+            "sorts": []
+          },
+          visindex: {
+            "visualization": {
+              "type": "grid",
+              "options": {}
+            },
+            "components": [
+              {
+                "content-selector": {
+                  "type": "items-by-type",
+                  "content-type": "all-content"
+                },
+                "modifiers": [
+                  {
+                    "type": "filter",
+                    "subtype": "relationship",
+                    "content-types": [
+                        "all-types"
+                    ],
+                    "relationship": "any-relationship"
+                  }
+                ]
+              }
+            ],
+            "sorts": []
+          },
+          visradial: {
+            "visualization": {
+              "type": "radial",
+              "options": {}
+            },
+            "components": [
+              {
+                "content-selector": {
+                  "type": "items-by-type",
+                  "content-type": "all-content"
+                },
+                "modifiers": [{
+                    "type": "filter",
+                    "subtype": "relationship",
+                    "content-types": [
+                        "all-types"
+                    ],
+                    "relationship": "any-relationship"
+                }]
+              }
+            ],
+            "sorts": []
+          },
+          vismap: {
+            "visualization": {
+              "type": "map",
+              "options": {}
+            },
+            "components": [
+              {
+                "content-selector": {
+                  "type": "items-by-type",
+                  "content-type": "all-content"
+                },
+                "modifiers": []
+              }
+            ],
+            "sorts": []
+          },
+          viswordcloud: {
+            "visualization": {
+              "type": "word-cloud",
+              "options": {}
+            },
+            "components": [
+              {
+                "content-selector": {
+                  "type": "items-by-type",
+                  "content-type": "page"
+                },
+                "modifiers": []
+              }
+            ],
+            "sorts": []
+          },
+          vispath: {
+            "visualization": {
+              "type": "tree",
+              "options": {}
+            },
+            "components": [
+              {
+                "content-selector": {
+                  "type": "items-by-type",
+                  "content-type": "path"
+                },
+                "modifiers": [
+                  {
+                    "type": "filter",
+                    "subtype": "relationship",
+                    "content-types": [
+                      "path"
+                    ],
+                    "relationship": "child"
+                  },
+                  {
+                    "type": "filter",
+                    "subtype": "relationship",
+                    "content-types": [
+                      "path"
+                    ],
+                    "relationship": "child"
+                  }
+                ]
+              }
+            ],
+            "sorts": []
+          },
+          vismedia: {
+            "visualization": {
+              "type": "force-directed",
+              "options": {}
+            },
+            "components": [
+              {
+                "content-selector": {
+                  "type": "items-by-type",
+                  "content-type": "media"
+                },
+                "modifiers": [
+                  {
+                    "type": "filter",
+                    "subtype": "relationship",
+                    "content-types": [
+                      "reference"
+                    ],
+                    "relationship": "any-relationship"
+                  }
+                ]
+              }
+            ],
+            "sorts": []
+          },
+          vistag: {
+            "visualization": {
+              "type": "force-directed",
+              "options": {}
+            },
+            "components": [
+              {
+                "content-selector": {
+                  "type": "items-by-type",
+                  "content-type": "tag"
+                },
+                "modifiers": [
+                  {
+                    "type": "filter",
+                    "subtype": "relationship",
+                    "content-types": [
+                      "tag"
+                    ],
+                    "relationship": "child"
+                  },
+                  {
+                    "type": "filter",
+                    "subtype": "relationship",
+                    "content-types": [
+                      "path"
+                    ],
+                    "relationship": "child"
+                  }
+                ]
+              }
+            ],
+            "sorts": []
+          },
+          viscurrent: {
+            "visualization": {
+              "type": "force-directed",
+              "options": {}
+            },
+            "components": [
+              {
+                "content-selector": {
+                  "type": "specific-items",
+                  "items": base.currentNode ? [base.currentNode.slug] : []
+                },
+                "modifiers": [
+                  {
+                    "type": "filter",
+                    "subtype": "relationship",
+                    "content-types": ["all-types"],
+                    "relationship": "any-relationship"
+                  }
+                ]
+              }
+            ],
+            "sorts": []
+          }
+        }
+
         // add classes and attributes
         if (scalarapi.model.getUser().canEdit()) base.$el.addClass('edit_enabled');
         if (scalarapi.model.usingHypothesis) base.$el.addClass('hypothesis_active');
@@ -309,12 +588,20 @@
         navbar.append(base.desktopHeader())
         base.setupMobileMainMenu()
         base.addCustomMenuItems()
-        base.setupMainMenuEventHandling()
-        base.setupGlobalMenuEventHandling()
-
-        // TODO stopped at line 636
 
         base.$el.append(navbar).find('.title_wrapper').prepend(base.title_link.clone());
+
+        base.setupMainMenuEventHandling()
+        base.setupGlobalMenuEventHandling()
+        base.setupIndexModal()
+        base.setupVisualizationModal()
+        base.setupUserMenu()
+        base.setupHelpModal()
+        base.setupLensUpdateHandling()
+        base.setupSearchModal()
+
+        // TODO stopped at line 1036
+
       }
 
       base.mobileHeader = function() {
@@ -542,6 +829,198 @@
                 }
             }
         })
+        $('body').on('click', function(e){
+          var base = $('#scalarheader.navbar').data('scalarheader');
+          if(!base.usingMobileView){
+              $('#mainMenuSubmenus').hide().find('.expandedPage').remove();
+              base.$el.find('#ScalarHeaderMenuLeft .mainMenu').removeClass('open').trigger('hide.bs.dropdown').find('[aria-expanded="true"]').attr('aria-expanded', 'false');
+          }
+      })
+      }
+
+      base.setupIndexModal = function() {
+        var indexElement = $('<div></div>').prependTo('body');
+        base.index = indexElement.scalarindex( {} );
+        base.$el.find('.index_link a').on('click', function(e){
+          $('#scalarheader.navbar').data('scalarheader').index.data('plugin_scalarindex').showIndex();
+        });
+      }
+
+      base.setupVisualizationModal = function() {
+        var visElement = $('<div></div>').prependTo('body');
+        base.vis = visElement.scalarvis({ modal: true, local: false });
+        base.$el.find('.vis_link').on('click', function(e){
+          var options = {
+            modal: true,
+            content: 'lens',
+            lens: base.visualizationData[$(this).attr('data-vistype')]
+          }
+          $('.modalVisualization').data('scalarvis').showModal(options);
+        })
+        $( '#ScalarHeaderVisualization>a' ).on('click', function(e) {
+          if (state != ViewState.Navigating) {
+              setState(ViewState.Navigating);
+          } else {
+              setState(ViewState.Reading);
+          }
+          e.preventDefault();
+          e.stopPropagation();
+          return false;
+      });
+      }
+
+      base.setupHelpModal = function() {
+        var helpElement = $('<div></div>').appendTo('body');
+        base.help = $( helpElement ).scalarhelp({ root_url: modules_uri + '/cantaloupe' });
+        $( '#ScalarHeaderHelp>a' ).on('click', function(e) {
+          base.help.data( 'plugin_scalarhelp' ).toggleHelp();
+          e.preventDefault();
+          e.stopPropagation();
+          return false;
+      });
+      }
+
+      base.setupSearchModal = function() {
+        $('#ScalarHeaderMenuSearch a').on('click', function(e) {
+          if (base.isMobile || base.$el.find('.navbar-toggle').is(':visible')) {
+            $('#ScalarHeaderMenuSearch').toggleClass('search_open');
+            $('#ScalarHeaderMenuSearchForm').toggleClass('open');
+          } else {
+            if ($('#ScalarHeaderMenuSearch').hasClass('search_open')) {
+              $('#ScalarHeaderMenuSearchForm').animate({
+                "width" : "0px"
+              }, {
+                "duration" : 250,
+                "step" : function(){
+                  base.handleResize();
+                  $('.navbar-header .title_wrapper, #ScalarHeaderMenuSearch').hide().show(0);
+                },
+                "complete" : function(){
+                  $('#ScalarHeaderMenuSearch').removeClass('search_open');
+                  base.handleResize();
+                },
+              });
+            } else {
+              $('#ScalarHeaderMenuSearch').addClass('search_open');
+              base.handleResize(190);
+              $('#ScalarHeaderMenuSearchForm').animate({
+                "width" : "190px"
+              }, {
+                "duration" : 250,
+                "step" : function(){
+                  $('.navbar-header .title_wrapper, #ScalarHeaderMenuSearch').hide().show(0);
+                },
+                "complete" : function(){
+                  base.handleResize();
+                }
+              });
+              $('#ScalarHeaderMenuSearchForm input').first().val('').trigger('focus').on('blur', function(e) {
+                if ($('#ScalarHeaderMenuSearch').hasClass('search_open')) {
+                  $('#ScalarHeaderMenuSearch a').trigger('click');
+                }
+                $(this).off('blur');
+              });
+            }
+          }
+          e.preventDefault();
+          e.stopPropagation();
+          return false;
+        });
+      }
+
+      base.setupLensUpdateHandling = function() {
+        $('body').on('lensUpdated', base.getLensData);
+        base.getLensData();
+      }
+
+      base.getLensData = function(){
+        let baseURL = scalarapi.model.baseURL.replace('application', 'lenses');
+        let mainURL = `${baseURL}?book_id=${scalarapi.model.bookId}`;
+        $.ajax({
+          url:mainURL,
+          type: "GET",
+          dataType: 'json',
+          contentType: 'application/json',
+          async: true,
+          context: this,
+          success: base.handleLensData,
+          error: function error(response) {
+             console.log('There was an error attempting to communicate with the server.');
+             console.log(response);
+          }
+        });
+      }
+
+      base.handleLensData = function(response){
+        let data = response;
+        let privateLensArray = [];
+        let publicLensArray = [];
+
+        data.forEach(lens => {
+          if (!lens.hidden) {
+            publicLensArray.push(lens);
+          } else if (lens.user_id == base.userId) {
+            privateLensArray.push(lens);
+          }
+        });
+        let lensMenu = $('#lenses_menu>ul');
+        lensMenu.empty();
+
+        let manageLinkTitle = "Browse Lenses";
+        if (base.is_author || base.is_editor) {
+          manageLinkTitle = "Manage Lenses";
+        }
+
+        lensMenu.append('<li class="vis_link"><a role="menuitem" href="' + base.applyCurrentQueryVarsToURL(scalarapi.model.urlPrefix + 'manage_lenses') + '"><span class="menuIcon" id="lensIcon"></span> ' + manageLinkTitle + '</a></li>');
+
+        // private lenses
+        if (privateLensArray.length > 0) {
+          lensMenu.append('<li class="header"><h2>My Private Lenses</h2></li>');
+          privateLensArray.forEach(privateLensItem => {
+            let vizType = privateLensItem.visualization.type;
+            let lensLink = $('link#parent').attr('href') + privateLensItem.slug;
+            let markup = $(`
+              <li class="lens">
+                <a role="menuitem" href="${lensLink}"><span class="title">${privateLensItem.title}</span>
+                <span class="viz-icon ${vizType}"></span>
+              </li>`
+            ).appendTo(lensMenu);
+          });
+        }
+
+        // public lenses
+        if (publicLensArray.length > 0) {
+          lensMenu.append('<li class="header"><h2>Public Lenses</h2></li>');
+          publicLensArray.forEach(publicLensItem => {
+            let vizType = publicLensItem.visualization.type;
+            let lensLink = $('link#parent').attr('href') + publicLensItem.slug;
+            let markup = $(`
+              <li class="lens">
+                <a role="menuitem" href="${lensLink}"><span class="title">${publicLensItem.title}</span>
+                <span class="viz-icon ${vizType}"></span>
+              </li>`
+            ).appendTo(lensMenu);
+          });
+        }
+
+      };
+
+      base.setupUserMenu = function(){
+        const userList = base.$el.find('#ScalarHeaderMenuUserList')
+        var redirect_url = '';
+        if (base.currentNode) {
+          redirect_url = encodeURIComponent(base.currentNode.url);
+        }else{
+          redirect_url = encodeURIComponent(window.location.href);
+        }
+        const user = scalarapi.model.getUser()
+        if (user.logged_in){
+          userList.append('<li><a role="menuitem" href="' + base.applyCurrentQueryVarsToURL(addTemplateToURL(system_uri + '/dashboard?'+((user.role == ScalarRole.Author || user.role == ScalarRole.Editor)?'book_id=' + base.book_id + '&' : '')+'zone=user#tabs-user', 'cantaloupe')) + '">Account</a></li>');
+          userList.append('<li><a role="menuitem" href="' + base.applyCurrentQueryVarsToURL(addTemplateToURL(system_uri+'/logout?action=do_logout&redirect_url='+redirect_url + '&', 'cantaloupe')) + '">Sign out</a></li>');
+        } else {
+          userList.append('<li><a role="menuitem" href="' + base.applyCurrentQueryVarsToURL(addTemplateToURL(system_uri+'/login?redirect_url='+redirect_url + '&', 'cantaloupe')) + '">Sign in</a></li>');
+          userList.append('<li><a role="menuitem" href="' + base.applyCurrentQueryVarsToURL(addTemplateToURL(system_uri+'/register?redirect_url='+redirect_url + '&', 'cantaloupe')) + '">Register</a></li>');
+        }
       }
 
       base.hamburgerMenu = function() {
@@ -570,11 +1049,16 @@
       }
 
       base.titleAndCredit = function() {
-        return $('<span class="navbar-text navbar-left pull-left title_wrapper hidden-xs" id="desktopTitleWrapper">'+
+        const element = $('<span class="navbar-text navbar-left pull-left title_wrapper hidden-xs" id="desktopTitleWrapper">'+
           '<span class="hidden-xs author_text">'+
             '<span id="header_authors" data-placement="bottom"></span>'+
           '</span>'+
         '</span>')
+        element.find('#header_authors').html(getAuthorCredit());
+        $('body').on('pageLoadComplete',function(){
+          $('#desktopTitleWrapper').trigger("update");
+        });
+        return element
       }
 
       base.utilityOptions = function() {
@@ -612,7 +1096,7 @@
         // home link is visible only on mobile
         const homeUrl = base.applyCurrentQueryVarsToURL(addTemplateToURL( base.title_link.attr("href"), 'cantaloupe'))
         const homeLink = $('<li class="visible-xs">'+
-          '<a href="' + homeUrl + '" class="headerIcon" id="homeLink">'+
+          '<a role="menuitem" href="' + homeUrl + '" class="headerIcon" id="homeLink">'+
             '<span class="visible-xs">Home Page</span>'+
           '</a>'+
         '</li>')
@@ -647,7 +1131,7 @@
 
       base.headerControl = function(controlData) {
         if (controlData.include == undefined || controlData.include) {
-          const control = $('<li><a class="headerIcon" aria-role="button"><span class="hidden-sm hidden-md hidden-lg"></span></a></li>')
+          const control = $('<li><a class="headerIcon" role="button"><span class="hidden-sm hidden-md hidden-lg"></span></a></li>')
           control.attr('id', controlData.id)
           const labelId = 'label-' + controlData.label.split(' ')[0].toLowerCase()
           control.find('a').attr('id', controlData.icon).attr('aria-labelledby', labelId).attr('title', controlData.description)
@@ -675,7 +1159,7 @@
         var $airtables = $('link#airtable');
         if ($airtables.length) {
           for (var j = 0; j < $airtables.length; j++) {
-            navbar.find('#ScalarHeaderMenuImportList').find('ul.other-archives').append('<li><a href="' + base.get_param(scalarapi.model.urlPrefix + 'import/airtable/'+encodeURIComponent($airtables.eq(j).attr('href'))) + '">Airtable: '+$airtables.eq(j).attr('href')+'</a></li>');
+            navbar.find('#ScalarHeaderMenuImportList').find('ul.other-archives').append('<li><a  role="menuitem" ref="' + base.get_param(scalarapi.model.urlPrefix + 'import/airtable/'+encodeURIComponent($airtables.eq(j).attr('href'))) + '">Airtable: '+$airtables.eq(j).attr('href')+'</a></li>');
           }
         }
       }

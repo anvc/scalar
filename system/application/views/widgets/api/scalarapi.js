@@ -2629,6 +2629,7 @@ function ScalarModel(options) {
 	var me = this;
 
 	this.urlPrefix;										// home page of the book
+	this.baseURL = $('link#approot').attr('href')
 	this.parent_uri = $('link#parent').attr('href')
 	this.bookId = parseInt($('link#book_id').attr('href'))
 	this.usingHypothesis = $('link#hypothesis').attr('href') === 'true'
@@ -3181,7 +3182,7 @@ ScalarModel.prototype.getPublisherNode = function() {
 
 function ScalarUser() {
 	let me = this
-	this.logged_in = $('link#logged_in').attr('href') ? $('link#logged_in').attr('href') : false
+	this.logged_in = $('link#logged_in').length > 0 && $('link#logged_in').attr('href')!=''
 	this.user_level = $('link#user_level').attr('href')
 	this.role = ScalarRole.Unknown
 	if (this.user_level?.length > 0) {
