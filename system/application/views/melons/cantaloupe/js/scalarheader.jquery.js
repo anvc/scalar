@@ -499,8 +499,9 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 e.stopPropagation();
             });
 
+            // click a main menu item
             base.$el.find('.mainMenu>a.dropdown-toggle').on('click', function(e){
-                $(this).parent('.mainMenu').addClass('open').trigger('show.bs.dropdown');
+                $(this).attr('aria-expanded', 'true').parent('.mainMenu').addClass('open').trigger('show.bs.dropdown').find('[aria-expanded="false"]').attr('aria-expanded', 'true');
                 e.preventDefault();
                 e.stopPropagation();
                 return false;
@@ -513,24 +514,26 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                      $('#mainMenuInside').css('max-height','').removeClass('tall');
                     return true;
                 }else{
-                    $(this).addClass('open');
+                    $(this).addClass('open').find('[aria-expanded="false"]').attr('aria-expanded', 'true');
                     return false;
                 }
             });
             base.$el.find('.mainMenuDropdown>#mainMenuInside>.close').on('click', function(e){
                 $('#mainMenuSubmenus').hide().find('.expandedPage').remove();
-                base.$el.find('#ScalarHeaderMenuLeft .mainMenu').removeClass('open').trigger('hide.bs.dropdown');
+                base.$el.find('#ScalarHeaderMenuLeft .mainMenu').removeClass('open').trigger('hide.bs.dropdown').find('[aria-expanded="true"]').attr('aria-expanded', 'false');
                 e.preventDefault();
                 e.stopPropagation();
                 return false;
             });
+
+            // Top level menu item
             base.$el.find('#ScalarHeaderMenuLeft>li.dropdown, #ScalarHeaderMenuRight>li.dropdown').on('mouseenter', function(e){
                 var base = $('#scalarheader.navbar').data('scalarheader');
                 if(!base.usingMobileView){
                     if(!$(this).hasClass('mainMenu') && $('#mainMenuSubmenus .expandedPage').length > 0){
                         $('#mainMenuSubmenus .expandedPage').remove();
                         $('#mainMenusSubmenus').hide();
-                        base.$el.find('#ScalarHeaderMenuLeft .mainMenu').removeClass('open').trigger('hide.bs.dropdown');
+                        base.$el.find('#ScalarHeaderMenuLeft .mainMenu').removeClass('open').trigger('hide.bs.dropdown').find('[aria-expanded="true"]').attr('aria-expanded', 'false');
                     }else if($('#mainMenuSubmenus .expandedPage').length == 0){
                         $('.mainMenuDropdown, #ScalarHeaderMenu').css({
                             'transform' : 'translateX(0px)',
@@ -538,22 +541,24 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                             '-moz-transform' : 'translateX(0px)'
                         }).removeClass('expandedMenuOpen');
                     }
-                    $(this).addClass('open').trigger('show.bs.dropdown');
+                    $(this).addClass('open').trigger('show.bs.dropdown').find('[aria-expanded="false"]').attr('aria-expanded', 'true');
+                    console.log(this)
                 }
             }).on('mouseleave', function(e){
             	// TODO: this is the area that is causing Win10 touch problems ~Craig
                 var base = $('#scalarheader.navbar').data('scalarheader');
                 if(!base.usingMobileView){
-                    $(this).removeClass('open').trigger('hide.bs.dropdown');
+                    $(this).removeClass('open').trigger('hide.bs.dropdown').find('[aria-expanded="true"]').attr('aria-expanded', 'false');
                 }
             }).on('keydown', function(e){
+                // press ESC
                 if(e.which == 27){
                     var subdropdowns_open = $(this).find('li.dropdown.open');
                     if(subdropdowns_open.length > 0){
-                        subdropdowns_open.removeClass('open').trigger('hide.bs.dropdown');
+                        subdropdowns_open.removeClass('open').trigger('hide.bs.dropdown').find('[aria-expanded="true"]').attr('aria-expanded', 'false');
                         subdropdowns_open.first().children('a').trigger('focus');
                     }else{
-                        $(this).removeClass('open').trigger('hide.bs.dropdown');
+                        $(this).removeClass('open').trigger('hide.bs.dropdown').find('[aria-expanded="true"]').attr('aria-expanded', 'false');
                         $(this).children('a').trigger('focus');
                     }
                     e.stopPropagation();
@@ -561,6 +566,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                     return false;
                 }
             }).find("ul.dropdown-menu li.dropdown").on('mouseenter', function(e){
+                // individual menu items
                 var base = $('#scalarheader.navbar').data('scalarheader');
                 if(!base.usingMobileView){
 
@@ -575,7 +581,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                         if($(this).data('hoverEvent')!=null){
                             clearTimeout($(this).data('hoverEvent'));
                             $(this).data('hoverEvent',null);
-                            $(this).removeClass('open').trigger('hide.bs.dropdown');
+                            $(this).removeClass('open').trigger('hide.bs.dropdown').find('[aria-expanded="true"]').attr('aria-expanded', 'false');
                         }
                     });
 
@@ -585,7 +591,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 var base = $('#scalarheader.navbar').data('scalarheader');
                 if(!base.usingMobileView){
                     $(this).data('hoverEvent',setTimeout($.proxy(function(){
-                        $(this).removeClass('open').trigger('hide.bs.dropdown');
+                        $(this).removeClass('open').trigger('hide.bs.dropdown').find('[aria-expanded="true"]').attr('aria-expanded', 'false');
                     },$(this)),200));
                 }else{
                     return true;
@@ -596,12 +602,12 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 var base = $('#scalarheader.navbar').data('scalarheader');
                 if($(this).children('a').first().is(':focus') && !base.usingMobileView){
                     if(e.which == 38){
-                        //up
+                        // up
                         $(this).prev().children('a').trigger('focus');
                         e.stopPropagation();
                         return false;
                     }else if(e.which == 40){
-                        //down
+                        // down
                         $(this).next().children('a').trigger('focus');
                         e.stopPropagation();
                         return false;
@@ -617,7 +623,9 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             }).on('keyup', function(e){
                 var base = $('#scalarheader.navbar').data('scalarheader');
                 if(!base.usingMobileView){
+                    // right arrow, enter, space
                     if(e.which == 39 || e.which == 13 || e.which == 32){
+                        console.log($(this).parent())
                         base.initSubmenus($(this).parent());
                         e.stopPropagation();
                         return false;
@@ -950,7 +958,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 var base = $('#scalarheader.navbar').data('scalarheader');
                 if(!base.usingMobileView){
                     $('#mainMenuSubmenus').hide().find('.expandedPage').remove();
-                    base.$el.find('#ScalarHeaderMenuLeft .mainMenu').removeClass('open').trigger('hide.bs.dropdown');
+                    base.$el.find('#ScalarHeaderMenuLeft .mainMenu').removeClass('open').trigger('hide.bs.dropdown').find('[aria-expanded="true"]').attr('aria-expanded', 'false');
                 }
             }).on('pageLoadComplete',function(){
               $('#desktopTitleWrapper').trigger("update");
@@ -1602,7 +1610,9 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                         splitList.remove();
                     }
                     $(this).find('a').on('keyup', function(e){
+                        // enter, space
                         if(e.which == 13 || e.which == 32){
+                            console.log(this)
                             $(this).trigger('click');
                         }
                     });
@@ -1637,7 +1647,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                     base.$el.removeClass('short');
                     $('body').removeClass('shortHeader').trigger('headerSizeChanged');
                     $('#mainMenuSubmenus').hide().find('.expandedPage').remove();
-                    base.$el.find('#ScalarHeaderMenuLeft .mainMenu').removeClass('open').trigger('hide.bs.dropdown');
+                    base.$el.find('#ScalarHeaderMenuLeft .mainMenu').removeClass('open').trigger('hide.bs.dropdown').find('[aria-expanded="true"]').attr('aria-expanded', 'false');
                     //reset search form if switching to mobile view
                     $('#ScalarHeaderMenuSearchForm').stop().css('width','auto').removeClass('open');
                     $('#ScalarHeaderMenuSearch').removeClass('search_open');
@@ -1657,7 +1667,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                     $('#ScalarHeaderMenuSearchForm').css({"width" : "0px"}).removeClass('open');
                     $('#mainMenuSubmenus').hide();
                     $('.tocMenu').find('.expandedPage').remove();
-                    base.$el.find('#ScalarHeaderMenuLeft .mainMenu').removeClass('open').trigger('hide.bs.dropdown');
+                    base.$el.find('#ScalarHeaderMenuLeft .mainMenu').removeClass('open').trigger('hide.bs.dropdown').find('[aria-expanded="true"]').attr('aria-expanded', 'false');
                     //reset search form if switching from mobile view
                     $('#mobileMainMenuSubmenus').removeClass('active');
                     $('.mainMenuDropdown, #ScalarHeaderMenu').css({
@@ -1839,11 +1849,11 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
             $('body').on('keyup',function(e){
                 if(e.which == 9 || e.which == 37){
                     if(e.which == 9){
-                        li.removeClass('open');
-                        li.parents('.dropdown').removeClass('open');
+                        li.removeClass('open').find('[aria-expanded="true"]').attr('aria-expanded', 'false');
+                        li.parents('.dropdown').removeClass('open').find('[aria-expanded="true"]').attr('aria-expanded', 'false');
                     }else if(e.which == 37){
                         a.trigger('focus');
-                        li.removeClass('open');
+                        li.removeClass('open').find('[aria-expanded="true"]').attr('aria-expanded', 'false');
                     }
                     $('body').off('keyup');
                 }
@@ -2072,6 +2082,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                 $(this).attr('tabindex',tabIndex++);
             }).add($('#scalarheader>div>div>ul>li.dropdown>ul a, #scalarheader>div>div>ul>li input').attr('tabindex','-1')).on('keyup', function(e){
                 if(!$(this).is('#scalarheader>div>div>ul>li.dropdown>ul a') || $(this).hasClass('expand') || $(this).parent().hasClass('vis_link') || $(this).parent().hasClass('index_link') || ($(this).attr('href')!=null && $(this).attr('href')!='')){
+                    // enter, space
                     if(e.which == 13 || e.which == 32){
                         $(this).trigger('click');
                     }
