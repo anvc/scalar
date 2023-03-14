@@ -930,6 +930,7 @@
             		'</div>' +
             	'</div></div>';
             $target.append(markup);
+            $('body').trigger('widgetCardCreated');
          };
 
          base.createSummaryFromNode = function(node,$target,children){
@@ -966,6 +967,7 @@
 
               markup += '</div></li>';
             $target.append(markup);
+            $('body').trigger('widgetSummaryCreated');
          };
 
          base.calculateSize = function($widget){
