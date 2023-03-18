@@ -138,7 +138,7 @@ $(document).ready(function() {
 <div class="container-fluid user">
   <div class="row">
     <section class="col-xs-12 col-sm-6">
-      <div class="page-header"><h4>Account<a class="sign-out" href="<?=confirm_slash(base_url())?>system/logout?action=do_logout&redirect_url=<?=confirm_slash(base_url())?>">Sign out</a></h4></div>
+      <div class="page-header"><h4>Account<a class="sign-out" href="<?=confirm_slash(base_url())?>main/logout?action=do_logout&redirect_url=<?=confirm_slash(base_url())?>">Sign out</a></h4></div>
 	  <form class="form-horizontal" action="<?=confirm_slash(base_url())?>system/dashboard" method="post" id="user_form">
 	    <input type="hidden" name="action" value="do_save_user" />
 	    <input type="hidden" name="id" value="<?=$login->user_id?>" />
