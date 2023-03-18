@@ -4,7 +4,7 @@ RewriteEngine On
 
 # Scalar pages have default views that are called when a URI has no file extension
 # Turn off the MultiView option (if it's on) so it doesn't conflict
-Options -MultiViews
+Options -MultiViews -Indexes
 
 # To route all requests to a maintenance page, uncomment these lines
 #RewriteCond %{REQUEST_FILENAME} !maintenance.html [NC]

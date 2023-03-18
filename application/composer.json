@@ -1,0 +1,39 @@
+{
+	"description": "The CodeIgniter framework",
+	"name": "codeigniter/framework",
+	"type": "project",
+	"homepage": "https://codeigniter.com",
+	"license": "MIT",
+	"support": {
+		"forum": "http://forum.codeigniter.com/",
+		"wiki": "https://github.com/bcit-ci/CodeIgniter/wiki",
+		"irc": "irc://irc.freenode.net/codeigniter",
+		"source": "https://github.com/bcit-ci/CodeIgniter"
+	},
+	"require": {
+		"php": ">=5.2.4",
+		"phpseclib/mcrypt_compat": "^2.0",
+		"semsol/arc2": "^2.5",
+		"tpyo/amazon-s3-php-class": "^0.5.1",
+		"sonata-project/google-authenticator": "^2.3",
+		"phpmailer/phpmailer": "^6.7",
+		"google/recaptcha": "^1.2",
+		"ise/php-soundcloud": "^3.0"
+	},
+	"suggest": {
+		"paragonie/random_compat": "Provides better randomness in PHP 5.x"
+	},
+	"require-dev": {
+		"mikey179/vfsstream": "1.1.*"
+	},
+	"config": {
+		"platform": {
+			"php": "7.4"
+		}
+	},
+	"autoload": {
+		"classmap": ["composer-overrides/arc2/", "composer-overrides/arc2/store/"],
+		"exclude-from-classmap": ["/vendor/semsol/arc2/ARC2_Resource.php", "/vendor/semsol/arc2/store/ARC2_Store.php", "/vendor/semsol/arc2/store/ARC2_StoreLoadQueryHandler.php"]
+	}
+
+}
