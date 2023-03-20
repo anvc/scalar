@@ -867,6 +867,14 @@ if($currentRole == 'commentator'){
 		<label for="page_description" class="col-sm-2">Description</label>
 		<div class="col-sm-10">
 			<input id="page_description" type="text" class="form-control" name="dcterms:description" value="<?=@htmlspecialchars($version->description)?>"<?=$canChangeState?'':' disabled'?> />
+			<small>Summary text displayed when this content is referenced in passing</small>
+		</div>
+	</div>
+	<div class="form-group type_media">
+		<label for="alt_text" class="col-sm-2">Alt text</label>
+		<div class="col-sm-10">
+			<input id="alt_text" type="text" class="form-control" name="scalar:altText" value="<?=@htmlspecialchars($version->alt_text)?>"<?=$canChangeState?'':' disabled'?> />
+			<small>For images, concise description to improve accessibility, including for people who are blind or have low vision</small>
 		</div>
 	</div>
 	<?if (isset($book->editorial_is_on) && $book->editorial_is_on === '1' && $currentRole != 'commentator'): ?>
@@ -904,9 +912,9 @@ if($currentRole == 'commentator'){
 			</div>
 		</div>
 		<div class="form-group usageGroup">
-			<label for="page_description" class="col-sm-2">&nbsp;</label>
+			<label for="usage_rights" class="col-sm-2">&nbsp;</label>
 			<div class="col-sm-10">
-				<label><input type="checkbox" name="scalar:usage_rights" value="1"<?=((isset($page->versions)&&isset($page->versions[$page->version_index]->usage_rights)&&!empty($page->versions[$page->version_index]->usage_rights))?' checked':'')?><?=$canChangeState?'':' disabled class="disabled"'?>/> &nbsp; Usage rights</label>
+				<label><input id="usage_rights" type="checkbox" name="scalar:usage_rights" value="1"<?=((isset($page->versions)&&isset($page->versions[$page->version_index]->usage_rights)&&!empty($page->versions[$page->version_index]->usage_rights))?' checked':'')?><?=$canChangeState?'':' disabled class="disabled"'?>/> &nbsp; Usage rights</label>
 			</div>
 		</div>
 	<? endif ?>

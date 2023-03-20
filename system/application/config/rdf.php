@@ -64,6 +64,7 @@ $config['rdf_fields'] = array(
 		'fullname' =>				'foaf:name',
 		'title' => 					'dcterms:title',
 		'description' => 			'dcterms:description',
+		'alt_text' =>				'scalar:altText',
 		'created' => 				'dcterms:created',
 		'table_of_contents' =>		'dcterms:tableOfContents',
 		'has_version' =>			'dcterms:hasVersion',

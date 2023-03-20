@@ -355,7 +355,7 @@ window.scalarvis = { instanceCount: -1 };
           }
           inspectorInfo = $('<div class="media-preview">' +
             '<p class="inspector-description"></p>' +
-            '<img class="' + thumbnailClass + '" src="' + thumbnailUrl + '" alt="' + node.current.description + '" />' +
+            '<img class="' + thumbnailClass + '" src="' + thumbnailUrl + '" alt="' + node.current.getAltTextWithFallback() + '" />' +
             '<div class="inspector-buttons">' +
             '<a class="btn btn-primary btn-xs view-node-btn" role="button" target="_blank" href="' + node.url + '">View media page</a> ' +
             '<a class="btn btn-primary btn-xs view-media-btn" role="button" target="_blank" href="' + node.current.sourceFile + '">View source file</a>' +
