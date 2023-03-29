@@ -469,7 +469,7 @@ class Page_model extends MY_Model {
 		if (isset($array['audio']))  			$data['audio'] = (is_array($array['audio'])) ? $array['audio'][0] : $array['audio'];
 
     	$result = $this->db->insert($this->pages_table, $data);
-    	// if ($result === false || !empty($this->db->_error_message())) echo 'Error: '.$this->db->_error_message()."\n";
+    	// if ($result === false || !empty($this->db->error())) echo 'Error: '.$this->db->error()['message']."\n";
 
     	$id = $this->db->insert_id();
     	return $id;

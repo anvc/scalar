@@ -193,7 +193,7 @@ class MY_Model extends CI_Model {
 		if (empty($parent_version_id)) $parent_version_id = 0;
 		if (empty($orderby)) $orderby = $this->versions_table.'.version_num';
 		if (empty($orderdir)) $orderdir = 'desc';
-		if (true!==$is_live) $is_live = false;		
+		if (true!==$is_live) $is_live = false;
 
 		$this->db->distinct();
 		$this->db->select($this->versions_table.'.version_num AS child_version_num');
@@ -209,7 +209,7 @@ class MY_Model extends CI_Model {
 		if (!empty($is_live)) $this->db->where($this->pages_table.'.is_live', 1);
 		$this->db->order_by($orderby, $orderdir);
 		$query = $this->db->get();
-		if ($this->db->_error_message()) echo 'Database error: '.$this->db->_error_message();
+		if ($this->db->error()) echo 'Database error: '.$this->db->error()['message'];
 		$result = $query->result();
 		$remove = array();
     	for ($j = 0; $j < count($result); $j++) {
@@ -236,15 +236,15 @@ class MY_Model extends CI_Model {
 		return $result;
 
 	}
-	
+
 	public function delete_relationship() {
-		
+
 		list($table, $parent_version_id, $child_version_id) = func_get_args();
 		$this->db->where('parent_version_id', $parent_version_id);
 		$this->db->where('child_version_id', $child_version_id);
 		$this->db->delete($table);
 		return true;
-		
+
 	}
 
 	/**
@@ -309,7 +309,7 @@ class MY_Model extends CI_Model {
 		return 'http://scalar.usc.edu/2012/01/scalar-ns#'.ucwords($value);
 
 	}
-	
+
 	public function foaf_homepage($value, $base_uri, $attribution=null) {  // TODO: temporary for legacy
 
 		if (isset($value->uri) && !empty($value->uri)) {

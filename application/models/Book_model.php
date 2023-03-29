@@ -543,7 +543,7 @@ class Book_model extends MY_Model {
 		$result = $this->db->insert($this->books_table, $data);
 		$book_id = $this->db->insert_id();
 		if ($result === false) {
-			log_message('error', "Error inserting book into {$this->books_table}: [Errno:{$this->db->_error_number()}] {$this->db->_error_message()}");
+			log_message('error', "Error inserting book into {$this->books_table}: [Errno:{$this->db->error()['code']}] {$this->db->error()['message']}");
 			throw new Exception("error_add_book");
 		}
 
