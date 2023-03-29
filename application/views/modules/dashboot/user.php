@@ -139,7 +139,7 @@ $(document).ready(function() {
   <div class="row">
     <section class="col-xs-12 col-sm-6">
       <div class="page-header"><h4>Account<a class="sign-out" href="<?=confirm_slash(base_url())?>main/logout?action=do_logout&redirect_url=<?=confirm_slash(base_url())?>">Sign out</a></h4></div>
-	  <form class="form-horizontal" action="<?=confirm_slash(base_url())?>system/dashboard" method="post" id="user_form">
+	  <form class="form-horizontal" action="<?=confirm_slash(base_url())?>main/dashboard" method="post" id="user_form">
 	    <input type="hidden" name="action" value="do_save_user" />
 	    <input type="hidden" name="id" value="<?=$login->user_id?>" />
 	    <input type="hidden" name="book_id" value="<?=@$book_id?>" />
@@ -251,7 +251,7 @@ $(document).ready(function() {
 <div class="modal fade" id="createBookModal" tabindex="-1" role="dialog">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
-      <form class="form-horizontal" action="<?=confirm_slash(base_url())?>system/dashboard" method="post" onsubmit="if (!this.title.value.length||this.title.value=='New book title') {alert('Please enter a book title');return false;}">
+      <form class="form-horizontal" action="<?=confirm_slash(base_url())?>main/dashboard" method="post" onsubmit="if (!this.title.value.length||this.title.value=='New book title') {alert('Please enter a book title');return false;}">
       <input type="hidden" name="action" value="do_add_book" />
       <input type="hidden" name="user_id" value="<?=$login->user_id?>" />
       <div class="modal-body">
@@ -294,7 +294,7 @@ $(document).ready(function() {
 <div class="modal fade" id="duplicateBookModal" tabindex="-1" role="dialog">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
-	  <form class="form-horizontal" action="<?=confirm_slash(base_url())?>system/dashboard" method="post" onsubmit="if (0==this.book_to_duplicate.value) {alert('Please select a book to duplicate');return false;} else if (!this.title.value.length||this.title.value=='New book title') {alert('Please enter a title for the new book');return false;}">
+	  <form class="form-horizontal" action="<?=confirm_slash(base_url())?>main/dashboard" method="post" onsubmit="if (0==this.book_to_duplicate.value) {alert('Please select a book to duplicate');return false;} else if (!this.title.value.length||this.title.value=='New book title') {alert('Please enter a title for the new book');return false;}">
 	  <input type="hidden" name="action" value="do_add_book" />
 	  <input type="hidden" name="user_id" value="<?=$login->user_id?>" />
 	  <input type="hidden" name="book_to_duplicate" value="0" />

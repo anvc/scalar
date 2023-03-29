@@ -17,7 +17,7 @@
 				var x = parseInt($(this).children('.jump-to-page').val());
 				if(!isNaN(x)) {
 					var start = <?=$total?> * (x-1);
-	 				window.location.href = "<?=confirm_slash(base_url())?>system/dashboard?zone=all-books&start=" + start + "&total=<?=$total?>#tabs-all-books";
+	 				window.location.href = "<?=confirm_slash(base_url())?>main/dashboard?zone=all-books&start=" + start + "&total=<?=$total?>#tabs-all-books";
 				}
 				return false;
 			});
@@ -29,7 +29,7 @@
 
 			$('.book-search-form').on('submit', function() {
 				var sq = $(this).children('.book-search').val();
- 				window.location.href = "<?=confirm_slash(base_url())?>system/dashboard?zone=all-books&sq=" + encodeURIComponent(sq) + "#tabs-all-books";
+ 				window.location.href = "<?=confirm_slash(base_url())?>main/dashboard?zone=all-books&sq=" + encodeURIComponent(sq) + "#tabs-all-books";
 				return false;
 			});
 
@@ -129,7 +129,7 @@
 		</div>
 		<? endif ?>
 
-		<form style="margin:10px 0px 18px 0px; white-space:nowrap;" action="<?=confirm_slash(base_url())?>system/dashboard#tabs-all-books" method="post">
+		<form style="margin:10px 0px 18px 0px; white-space:nowrap;" action="<?=confirm_slash(base_url())?>main/dashboard#tabs-all-books" method="post">
 		<input type="hidden" name="zone" value="all-books" />
 		<input type="hidden" name="action" value="do_add_book" />
 		<span style="float:left; margin-right:6px;">Add new book:</span>
@@ -173,8 +173,8 @@
 				echo '<tr class="bottom_border" typeof="books">';
 				echo '<td style="white-space:nowrap;">';
 				echo '<a href="javascript:;" onclick="edit_row($(this).parents(\'tr\'));" class="generic_button">Edit</a> ';
-				echo '<a href="javascript:;" onclick="window.location.href=\''.confirm_slash(base_url()).'system/dashboard?book_id='.$books[$i]->book_id.'&zone=style#tabs-style\';" class="generic_button">Dashboard</a> ';
-				echo '<a style="color:#888888;" href="'.confirm_slash(base_url()).'system/dashboard?action=do_delete&delete='.$books[$i]->book_id.'&type=books&zone=all-books#tabs-all-books" onclick="if (!confirm(\'Are you sure you wish to DELETE this book and all associated content?\')) return false;" class="generic_button">Remove</a>';
+				echo '<a href="javascript:;" onclick="window.location.href=\''.confirm_slash(base_url()).'main/dashboard?book_id='.$books[$i]->book_id.'&zone=style#tabs-style\';" class="generic_button">Dashboard</a> ';
+				echo '<a style="color:#888888;" href="'.confirm_slash(base_url()).'main/dashboard?action=do_delete&delete='.$books[$i]->book_id.'&type=books&zone=all-books#tabs-all-books" onclick="if (!confirm(\'Are you sure you wish to DELETE this book and all associated content?\')) return false;" class="generic_button">Remove</a>';
 				echo '</td>'."\n";
 				echo '<td property="id" style="display:none;">'.$books[$i]->book_id."</td>\n";
 				echo '<td property="book_id" style="display:none;">'.$books[$i]->book_id."</td>\n";
@@ -215,12 +215,12 @@
 		?>
 		<? if ($start !== 0 || (count($books)-1) == $total): ?>
 		<? if($start !== 0): ?>
-		<span class="prev"><a href="<?=confirm_slash(base_url())?>system/dashboard?zone=all-books&amp;start=<?=$start-$total?>&amp;total=<?=$total?>#tabs-all-books">Prev page</a></span>
+		<span class="prev"><a href="<?=confirm_slash(base_url())?>main/dashboard?zone=all-books&amp;start=<?=$start-$total?>&amp;total=<?=$total?>#tabs-all-books">Prev page</a></span>
 		&nbsp;
 		<? endif ?>
 		<b class="total"><?=$start+1?> - <?=$start + $count?></b>
 		<? if(count($books)-1 == $total): ?>
-		 &nbsp;		<span class="next"><a href="<?=confirm_slash(base_url())?>system/dashboard?zone=all-books&amp;start=<?=$start+$total?>&amp;total=<?=$total?>#tabs-all-books">Next page</a></span>
+		 &nbsp;		<span class="next"><a href="<?=confirm_slash(base_url())?>main/dashboard?zone=all-books&amp;start=<?=$start+$total?>&amp;total=<?=$total?>#tabs-all-books">Next page</a></span>
 		<? endif ?>
 		<form style="display:inline-block" class="jump-form">
 		 	<span>&nbsp;&nbsp;&nbsp;&nbsp;Go to page:</span>
@@ -232,6 +232,6 @@
 		 	<input placeholder="Search for a book" type="text" class="book-search" size="20" />
 			<input type="submit" value="Search" class="generic_button" style="padding:3px 8px 1px 8px !important; vertical-align:top;" />
 			<?=(isset($_REQUEST['id']) && is_numeric($_REQUEST['id'])) ? ' &nbsp; Showing book ID '.$_REQUEST['id'].' &nbsp; ' : ''?>
-			<a href="<?=confirm_slash(base_url())?>system/dashboard?zone=all-books&amp;start=<?=$start?>&amp;total=<?=$total?>#tabs-all-books">clear</a>
+			<a href="<?=confirm_slash(base_url())?>main/dashboard?zone=all-books&amp;start=<?=$start?>&amp;total=<?=$total?>#tabs-all-books">clear</a>
 		 </form>
 		</div>

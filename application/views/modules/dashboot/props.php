@@ -249,7 +249,7 @@ function select_versions() {
       <div class="alert alert-success">Book properties have been saved<span style="float:right;"><a href="<?=base_url().$book->slug?>">return to <?=$book->scope?></a> &nbsp;|&nbsp; </a><a href="?book_id=<?=@$book_id?>&zone=style#tabs-style">remove notice</a><span></span></div>
 <?php endif; ?>
     <section class="col-xs-12">
-	  <form class="form-horizontal" action="<?=confirm_slash(base_url())?>system/dashboard" method="post" enctype="multipart/form-data" id="properties_form">
+	  <form class="form-horizontal" action="<?=confirm_slash(base_url())?>main/dashboard" method="post" enctype="multipart/form-data" id="properties_form">
 	  <input type="hidden" name="action" value="do_save_style" />
 	  <input type="hidden" name="zone" value="style" />
 	  <input type="hidden" name="book_id" value="<?=$book->book_id?>" />

@@ -2,7 +2,7 @@
 
 <script>
 $(window).ready(function() {
-	
+
     $('.save_changes').next('a').on('click', function() {
     	$('#sharing_form').trigger('submit');
     	return false;
@@ -87,7 +87,7 @@ $(window).ready(function() {
 });
 </script>
 
-<form id="sharing_form" action="<?=confirm_slash(base_url())?>system/dashboard" method="post" enctype="multipart/form-data">
+<form id="sharing_form" action="<?=confirm_slash(base_url())?>main/dashboard" method="post" enctype="multipart/form-data">
 <input type="hidden" name="action" value="do_save_sharing" />
 <input type="hidden" name="zone" value="sharing" />
 <? if (!empty($book)): ?>

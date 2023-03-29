@@ -877,7 +877,7 @@ STR;
 <div class="modal fade" id="confirmEditorialWorkflow" tabindex="-1" role="dialog">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
-      <form action="<?=confirm_slash(base_url())?>system/dashboard" method="post">
+      <form action="<?=confirm_slash(base_url())?>main/dashboard" method="post">
       <input type="hidden" name="book_id" value="<?=$book->book_id?>" />
       <input type="hidden" name="action" value="enable_editorial_workflow" />
       <input type="hidden" name="enable" value="0" />
@@ -901,7 +901,7 @@ STR;
 <div class="modal fade" id="manageEditions" tabindex="-1" role="dialog">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
-      <form action="<?=confirm_slash(base_url())?>system/dashboard" method="post" onsubmit="return false;">
+      <form action="<?=confirm_slash(base_url())?>main/dashboard" method="post" onsubmit="return false;">
       <input type="hidden" name="book_id" value="<?=$book->book_id?>" />
       <input type="hidden" name="action" value="enable_editorial_workflow" />
       <div class="modal-header">
@@ -953,7 +953,7 @@ STR;
 <div class="modal fade" id="confirmEditorialWorkflow" tabindex="-1" role="dialog">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
-      <form action="<?=confirm_slash(base_url())?>system/dashboard" method="post">
+      <form action="<?=confirm_slash(base_url())?>main/dashboard" method="post">
       <input type="hidden" name="book_id" value="<?=$book->book_id?>" />
       <input type="hidden" name="action" value="enable_editorial_workflow" />
       <input type="hidden" name="enable" value="1" />

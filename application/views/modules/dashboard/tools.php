@@ -65,12 +65,12 @@ $(document).ready(function() {
 </script>
 <h4>Admin Tools</h4>
 
-<form action="<?=confirm_slash(base_url())?>system/dashboard#tabs-tools" method="post">
+<form action="<?=confirm_slash(base_url())?>main/dashboard#tabs-tools" method="post">
 <input type="hidden" name="zone" value="tools" />
 <input type="hidden" name="action" value="enable_google_authenticator" />
 Google Authenticator
 <span style="float:right;">Enable two-factor authentication</span>
-<div style="margin-top:12px;"><div style="width:49%;float:left;"><?php 
+<div style="margin-top:12px;"><div style="width:49%;float:left;"><?php
 	$salt = $this->config->item('google_authenticator_salt');
 	if (empty($salt)) {
 		echo 'Two factor authentication is disabled. To enable, enter a "google_authenticator_salt" key in local_settings.php.'."\n";
@@ -83,16 +83,16 @@ Google Authenticator
 		echo '<input type="submit" value="Save" style="margin-top:8px;" />';
 	}
 ?></div><div style="width:49%;float:right;border-left:solid 1px #aaaaaa;padding-left:20px;">
-	List of super admins (<b>bold</b> = authentication enabled):<br /><br /><?php 
+	List of super admins (<b>bold</b> = authentication enabled):<br /><br /><?php
 	foreach ($super_admins as $admin) {
-		$enabled = (isset($admin->google_authenticator_is_enabled) && $admin->google_authenticator_is_enabled) ? true : false; 
+		$enabled = (isset($admin->google_authenticator_is_enabled) && $admin->google_authenticator_is_enabled) ? true : false;
 		echo (($enabled)?'<b>':'').$admin->fullname.' ('.$admin->email.')'.(($enabled)?'</b>':'').'<br />';
 	}
 	?>
 </div>
 </form>
 <br clear="both" /><br />
-<form action="<?=confirm_slash(base_url())?>system/dashboard#tabs-tools" method="post" id="disallowed_emails_form">
+<form action="<?=confirm_slash(base_url())?>main/dashboard#tabs-tools" method="post" id="disallowed_emails_form">
 <input type="hidden" name="zone" value="tools" />
 <input type="hidden" name="action" value="get_disallowed_emails" />
 List disallowed email addresses:&nbsp; <input type="submit" value="Generate" />&nbsp; <a href="?zone=tools#tabs-tools">clear</a>
@@ -113,12 +113,12 @@ List disallowed email addresses:&nbsp; <input type="submit" value="Generate" />&
 echo '</div>'."\n";
 echo '</form>'."\n";
 if (isset($disallowed_emails)) {
-	echo '<form id="do_remove_disallowed_emails" action="'.confirm_slash(base_url()).'system/dashboard?zone=tools#tabs-tools" method="post" style="display:inline-block;margin-top:3px;float:right;">';
+	echo '<form id="do_remove_disallowed_emails" action="'.confirm_slash(base_url()).'main/dashboard?zone=tools#tabs-tools" method="post" style="display:inline-block;margin-top:3px;float:right;">';
 	echo '<input type="hidden" name="action" value="do_save_disallowed_emails" />';
 	echo '<input type="hidden" name="emails" value="" />';
 	echo '<input type="submit" class="btn btn-default" value="Remove selected from list" />';
 	echo '</form>';
-	echo '<form id="do_save_disallowed_emails" action="'.confirm_slash(base_url()).'system/dashboard?zone=tools#tabs-tools" method="post" style="display:inline-block;margin-top:3px;">';
+	echo '<form id="do_save_disallowed_emails" action="'.confirm_slash(base_url()).'main/dashboard?zone=tools#tabs-tools" method="post" style="display:inline-block;margin-top:3px;">';
 	echo '<input type="hidden" name="action" value="do_save_disallowed_emails" />';
 	echo '<input type="hidden" name="emails" value="" />';
 	echo '<input type="text" name="email" value="" placeholder="name@example.com" class="form-control" style="display:inline-block;width:200px;position:relative;top:1px;" /> ';
@@ -127,7 +127,7 @@ if (isset($disallowed_emails)) {
 }
 ?>
 <br clear="both" /><br />
-<form action="<?=confirm_slash(base_url())?>system/dashboard#tabs-tools" method="post">
+<form action="<?=confirm_slash(base_url())?>main/dashboard#tabs-tools" method="post">
 <input type="hidden" name="zone" value="tools" />
 <input type="hidden" name="action" value="get_recent_book_list" />
 List all books:&nbsp; <input type="submit" value="Generate" />&nbsp; <a href="?zone=tools#tabs-tools">clear</a>
@@ -142,11 +142,11 @@ List all books:&nbsp; <input type="submit" value="Generate" />&nbsp; <a href="?z
 			echo '<div>';
 			echo '<label><input type="checkbox" name="book_id[]" value="'.$book->book_id.'" /> &nbsp; ';
 			echo date('Y-m-d', strtotime($book->created)).'</label> &nbsp; ';
-			echo '<a href="'.base_url().'system/dashboard?zone=all-books&id='.$book->book_id.'#tabs-all-books" target="_blank">'.((!empty($book->title))?trim($book->title):'(No title)').'</a> &nbsp; ';
+			echo '<a href="'.base_url().'main/dashboard?zone=all-books&id='.$book->book_id.'#tabs-all-books" target="_blank">'.((!empty($book->title))?trim($book->title):'(No title)').'</a> &nbsp; ';
 			echo (!empty($book->subtitle)) ? $book->subtitle.' &nbsp; ' : '';
 			echo (!empty($book->description)) ? $book->subtitle.' &nbsp; ' : '';
 			if (!empty($book->creator)) {
-				echo 'created by <a href="'.base_url().'system/dashboard?zone=all-users&id='.$book->creator->user_id.'#tabs-all-users" target="_blank">';
+				echo 'created by <a href="'.base_url().'main/dashboard?zone=all-users&id='.$book->creator->user_id.'#tabs-all-users" target="_blank">';
 				echo $book->creator->fullname;
 				echo '</a> &nbsp; ';
 			} else {
@@ -158,7 +158,7 @@ List all books:&nbsp; <input type="submit" value="Generate" />&nbsp; <a href="?z
 echo '</div>'."\n";
 echo '</form>'."\n";
 if (isset($recent_book_list) && !empty($recent_book_list)) {
-	echo '<form id="do_delete_books_form" action="'.confirm_slash(base_url()).'system/dashboard#tabs-tools" method="post" style="text-align:right;">';
+	echo '<form id="do_delete_books_form" action="'.confirm_slash(base_url()).'main/dashboard#tabs-tools" method="post" style="text-align:right;">';
 	echo '<input type="hidden" name="zone" value="tools" />';
 	echo '<input type="hidden" name="action" value="do_delete_books" />';
 	echo '<input type="hidden" name="book_ids" value="" />';
@@ -169,7 +169,7 @@ if (isset($recent_book_list) && !empty($recent_book_list)) {
 }
 ?>
 <br />
-<form action="<?=confirm_slash(base_url())?>system/dashboard#tabs-tools" method="post">
+<form action="<?=confirm_slash(base_url())?>main/dashboard#tabs-tools" method="post">
 <input type="hidden" name="zone" value="tools" />
 <input type="hidden" name="action" value="get_recent_users" />
 List all users:&nbsp; <input type="submit" value="Generate" />&nbsp; <a href="?zone=tools#tabs-tools">clear</a>
@@ -184,7 +184,7 @@ List all users:&nbsp; <input type="submit" value="Generate" />&nbsp; <a href="?z
 			echo '<div>';
 			echo '<label><input type="checkbox" name="user_id[]" value="'.$user->user_id.'" /> &nbsp; ';
 			echo $user->email.'</label> &nbsp; ';
-			echo '<a href="'.base_url().'system/dashboard?zone=all-users&id='.$user->user_id.'#tabs-all-users" target="_blank">'.((!empty($user->fullname))?trim($user->fullname):'(No fullname)').'</a> &nbsp; ';
+			echo '<a href="'.base_url().'main/dashboard?zone=all-users&id='.$user->user_id.'#tabs-all-users" target="_blank">'.((!empty($user->fullname))?trim($user->fullname):'(No fullname)').'</a> &nbsp; ';
 			echo (!empty($user->url)) ? '<a href="'.$user->url.'" target="_blank">'.$user->url.'</a> &nbsp; ' : '';
 			echo '</div>'."\n";
 		}
@@ -192,7 +192,7 @@ List all users:&nbsp; <input type="submit" value="Generate" />&nbsp; <a href="?z
 echo '</div>'."\n";
 echo '</form>'."\n";
 if (isset($recent_user_list) && !empty($recent_user_list)) {
-	echo '<form id="do_delete_users_form" action="'.confirm_slash(base_url()).'system/dashboard#tabs-tools" method="post" style="text-align:right;">';
+	echo '<form id="do_delete_users_form" action="'.confirm_slash(base_url()).'main/dashboard#tabs-tools" method="post" style="text-align:right;">';
 	echo '<input type="hidden" name="zone" value="tools" />';
 	echo '<input type="hidden" name="action" value="do_delete_users" />';
 	echo '<input type="hidden" name="user_ids" value="" />';
@@ -203,7 +203,7 @@ if (isset($recent_user_list) && !empty($recent_user_list)) {
 }
 ?>
 <br />
-<form action="<?=confirm_slash(base_url())?>system/dashboard#tabs-tools" method="post">
+<form action="<?=confirm_slash(base_url())?>main/dashboard#tabs-tools" method="post">
 <input type="hidden" name="zone" value="tools" />
 <input type="hidden" name="action" value="get_recent_pages" />
 List recently edited pages:&nbsp; <input type="submit" value="Generate" />&nbsp; <a href="?zone=tools#tabs-tools">clear</a>
@@ -223,7 +223,7 @@ List recently edited pages:&nbsp; <input type="submit" value="Generate" />&nbsp;
 ?></div>
 </form>
 <br />
-<form action="<?=confirm_slash(base_url())?>system/dashboard#tabs-tools" method="post">
+<form action="<?=confirm_slash(base_url())?>main/dashboard#tabs-tools" method="post">
 <input type="hidden" name="zone" value="tools" />
 <input type="hidden" name="action" value="get_email_list" />
 Generate email list:&nbsp; <input type="submit" value="Generate" />&nbsp; <a href="?zone=tools#tabs-tools">clear</a>
@@ -239,7 +239,7 @@ Generate email list:&nbsp; <input type="submit" value="Generate" />&nbsp; <a hre
 ?></textarea>
 </form>
 <br />
-<form action="<?=confirm_slash(base_url())?>system/dashboard#tabs-tools" method="post">
+<form action="<?=confirm_slash(base_url())?>main/dashboard#tabs-tools" method="post">
 <input type="hidden" name="zone" value="tools" />
 <input type="hidden" name="action" value="recreate_book_folders" />
 Recreate book folders:&nbsp; <input type="submit" value="Recreate" />&nbsp; <a href="?zone=tools#tabs-tools">clear</a>
@@ -255,7 +255,7 @@ Recreate book folders:&nbsp; <input type="submit" value="Recreate" />&nbsp; <a h
 ?></textarea>
 </form>
 <br />
-<form action="<?=confirm_slash(base_url())?>system/dashboard#tabs-tools" method="post">
+<form action="<?=confirm_slash(base_url())?>main/dashboard#tabs-tools" method="post">
 <input type="hidden" name="zone" value="tools" />
 <input type="hidden" name="action" value="normalize_predicate_table" />
 Normalize predicate table:&nbsp; <input type="submit" value="Normalize" />&nbsp; <a href="?zone=tools#tabs-tools">clear</a>

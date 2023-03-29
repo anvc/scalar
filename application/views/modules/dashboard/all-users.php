@@ -14,7 +14,7 @@
 				var x = parseInt($(this).children('.jump-to-page').val());
 				if(!isNaN(x)) {
 					var start = <?=$total?> * (x-1);
-	 				window.location.href = "<?=confirm_slash(base_url())?>system/dashboard?zone=all-users&start=" + start + "&total=<?=$total?>#tabs-all-users";
+	 				window.location.href = "<?=confirm_slash(base_url())?>main/dashboard?zone=all-users&start=" + start + "&total=<?=$total?>#tabs-all-users";
 				}
 				return false;
 			});
@@ -26,7 +26,7 @@
 
 			$('.user-search-form').on('submit', function() {
 				var sq = $(this).children('.user-search').val();
- 				window.location.href = "<?=confirm_slash(base_url())?>system/dashboard?zone=all-users&sq=" + encodeURIComponent(sq) + "#tabs-all-users";
+ 				window.location.href = "<?=confirm_slash(base_url())?>main/dashboard?zone=all-users&sq=" + encodeURIComponent(sq) + "#tabs-all-users";
 				return false;
 			});
 
@@ -69,7 +69,7 @@
 		<div class="saved" style="max-width:none; margin-bottom:16px;">User has been added and is present in the list below<a style="float:right;" href="?zone=all-users#tabs-all-users">clear</a></div>
 		<? endif ?>
 
-		<form style="margin:10px 0px 18px 0px; white-space:nowrap;" action="<?=confirm_slash(base_url())?>system/dashboard#tabs-all-users" method="post" onsubmit="checkAddUserForm(this);">
+		<form style="margin:10px 0px 18px 0px; white-space:nowrap;" action="<?=confirm_slash(base_url())?>main/dashboard#tabs-all-users" method="post" onsubmit="checkAddUserForm(this);">
 		<input type="hidden" name="zone" value="all-users" />
 		<input type="hidden" name="action" value="do_add_user" />
 		<? if (!empty($register_key)): ?>
@@ -107,7 +107,7 @@
 				$count = count($users)-1;
 			for ($i=0;$i<$count;$i++) {
 				echo '<tr class="bottom_border" typeof="users">';
-				echo '<td style="white-space:nowrap;"><a href="javascript:;" onclick="edit_row($(this).parents(\'tr\'));" class="generic_button">Edit</a> <a style="color:#888888;" href="'.confirm_slash(base_url()).'system/dashboard?action=do_delete&delete='.$users[$i]->user_id.'&type=users&zone=all-users#tabs-all-users" onclick="if (!confirm(\'Are you sure you wish to DELETE this user?\')) return false;" class="generic_button">Remove</a></td>'."\n";
+				echo '<td style="white-space:nowrap;"><a href="javascript:;" onclick="edit_row($(this).parents(\'tr\'));" class="generic_button">Edit</a> <a style="color:#888888;" href="'.confirm_slash(base_url()).'main/dashboard?action=do_delete&delete='.$users[$i]->user_id.'&type=users&zone=all-users#tabs-all-users" onclick="if (!confirm(\'Are you sure you wish to DELETE this user?\')) return false;" class="generic_button">Remove</a></td>'."\n";
 				echo '<td property="id" style="display:none;">'.$users[$i]->user_id."</td>\n";
 				echo '<td class="editable" property="fullname">'.$users[$i]->fullname."</td>\n";
 				echo '<td class="editable" property="email">'.$users[$i]->email."</td>\n";
@@ -136,12 +136,12 @@
 		?>
 		<? if ($start !== 0 || (count($users)-1) == $total): ?>
 		<? if($start !== 0): ?>
-		<span class="prev"><a href="<?=confirm_slash(base_url())?>system/dashboard?zone=all-users&amp;start=<?=$start-$total?>&amp;total=<?=$total?>#tabs-all-users">Prev page</a></span>
+		<span class="prev"><a href="<?=confirm_slash(base_url())?>main/dashboard?zone=all-users&amp;start=<?=$start-$total?>&amp;total=<?=$total?>#tabs-all-users">Prev page</a></span>
 		&nbsp;
 		<? endif ?>
 		<b class="total"><?=$start+1?> - <?=$start + $count?></b>
 		<? if(count($users)-1 == $total): ?>
-		 &nbsp;		<span class="prev"><a href="<?=confirm_slash(base_url())?>system/dashboard?zone=all-users&amp;start=<?=$start+$total?>&amp;total=<?=$total?>#tabs-all-users">Next page</a></span>
+		 &nbsp;		<span class="prev"><a href="<?=confirm_slash(base_url())?>main/dashboard?zone=all-users&amp;start=<?=$start+$total?>&amp;total=<?=$total?>#tabs-all-users">Next page</a></span>
 		<? endif ?>
 		<form style="display:inline-block" class="jump-form">
 		 	<span>&nbsp;&nbsp;&nbsp;&nbsp;Go to page:</span>
@@ -153,6 +153,6 @@
 		 	<input placeholder="Search for a user" type="text" class="user-search" style="width:170px;" />
 			<input type="submit" value="Search" class="generic_button" style="padding:3px 8px 1px 8px !important; vertical-align:top;"  />
 			<?=(isset($_REQUEST['id']) && is_numeric($_REQUEST['id'])) ? ' &nbsp; Showing user ID '.$_REQUEST['id'].' &nbsp; ' : ''?>
-			<a href="<?=confirm_slash(base_url())?>system/dashboard?zone=all-users&amp;start=<?=$start?>&amp;total=<?=$total?>#tabs-all-users">clear</a>
+			<a href="<?=confirm_slash(base_url())?>main/dashboard?zone=all-users&amp;start=<?=$start?>&amp;total=<?=$total?>#tabs-all-users">clear</a>
 		 </form>
 		</div>

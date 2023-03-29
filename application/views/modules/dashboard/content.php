@@ -25,7 +25,7 @@ if ('dashboard'==$active_dashboard):
 <div class="cover">
 <? $this->load->view('modules/cover/login') ?>
 <h2 class="title dashboard_title">
-<form action="<?=confirm_slash(base_url())?>system/dashboard" method="get" class="book_form">
+<form action="<?=confirm_slash(base_url())?>main/dashboard" method="get" class="book_form">
 <select name="book_id" onchange="$(this).parent().trigger('submit');" style="margin:0;max-width:300px;">
 <option value="0">Select a book to manage</option>
 <?

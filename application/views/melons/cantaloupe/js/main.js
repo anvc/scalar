@@ -44,7 +44,7 @@ $('script[src]').each(function() {  // Certain hotel wifi are injecting spam <sc
 });
 var scheme = (script_uri.indexOf('https://') != -1) ? 'https://' : 'http://';
 var base_uri = scheme+script_uri.replace(scheme,'').split('/').slice(0,-2).join('/');
-var system_uri = scheme+script_uri.replace(scheme,'').split('/').slice(0,-6).join('/');
+var system_uri = scheme+script_uri.replace(scheme,'').split('/').slice(0,-6).join('/')+'/main';
 var index_uri = scheme+script_uri.replace(scheme,'').split('/').slice(0,-7).join('/');
 var arbors_uri = base_uri.substr(0, base_uri.lastIndexOf('/'));
 var views_uri = arbors_uri.substr(0, arbors_uri.lastIndexOf('/'));

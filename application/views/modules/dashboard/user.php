@@ -81,7 +81,7 @@ $(window).ready(function() {
 <div class="error">New password has previously been used<a href="?book_id=<?=@$book_id?>&zone=user" style="float:right;">clear</a></div>
 <? endif ?>
 
-<form action="<?=confirm_slash(base_url())?>system/dashboard" method="post" id="user_form">
+<form action="<?=confirm_slash(base_url())?>main/dashboard" method="post" id="user_form">
 <input type="hidden" name="action" value="do_save_user" />
 <input type="hidden" name="id" value="<?=$login->user_id?>" />
 <input type="hidden" name="book_id" value="<?=@$book_id?>" />
@@ -143,7 +143,7 @@ $(window).ready(function() {
 </tr>
 <tr>
 	<td style="vertical-align:top;" colspan="2">
-		<form id="delete_books_form" action="<?=confirm_slash(base_url())?>system/dashboard" method="post">
+		<form id="delete_books_form" action="<?=confirm_slash(base_url())?>main/dashboard" method="post">
 		<input type="hidden" name="action" value="do_delete_books" />
 		<input type="hidden" name="book_id" value="<?=@$book_id?>" />
 		<table cellpadding="0" cellspacing="0" class="trim_padding">
@@ -191,7 +191,7 @@ $(window).ready(function() {
 <tr>
 	<td style="vertical-align:middle;white-space:nowrap;" width="200px">Create new book</td>
 	<td style="vertical-align:middle;">
-		<form action="<?=confirm_slash(base_url())?>system/dashboard" method="post" class="add_book_form">
+		<form action="<?=confirm_slash(base_url())?>main/dashboard" method="post" class="add_book_form">
 		<input type="hidden" name="action" value="do_add_book" />
 		<input type="hidden" name="user_id" value="<?=$login->user_id?>" />
 		<input type="hidden" name="book_to_duplicate" value="0" />

@@ -198,7 +198,7 @@ $(document).ready(function() {
 					var x = parseInt($(this).children('.jump-to-page').val());
 					if(!isNaN(x)) {
 						var start = <?=$total?> * (x-1);
-		 				window.location.href = "<?=confirm_slash(base_url())?>system/dashboard?book_id=<?=((isset($book->book_id))?$book->book_id:0)?>&zone=all-users&pill=manage-users&start=" + start + "&total=<?=$total?>#tabs-utils";
+		 				window.location.href = "<?=confirm_slash(base_url())?>main/dashboard?book_id=<?=((isset($book->book_id))?$book->book_id:0)?>&zone=all-users&pill=manage-users&start=" + start + "&total=<?=$total?>#tabs-utils";
 					}
 					return false;
 				});
@@ -210,7 +210,7 @@ $(document).ready(function() {
 
 				$('.user-search-form').on('submit', function() {
 					var sq = $(this).find('.user-search').val();
-	 				window.location.href = "<?=confirm_slash(base_url())?>system/dashboard?book_id=<?=((isset($book->book_id))?$book->book_id:0)?>&zone=all-users&pill=manage-users&sq=" + encodeURIComponent(sq) + "#tabs-utils";
+	 				window.location.href = "<?=confirm_slash(base_url())?>main/dashboard?book_id=<?=((isset($book->book_id))?$book->book_id:0)?>&zone=all-users&pill=manage-users&sq=" + encodeURIComponent(sq) + "#tabs-utils";
 					return false;
 				});
 
@@ -263,11 +263,11 @@ $(document).ready(function() {
 			<? if ($start !== 0 || (count($users)-1) == $total): ?>
 			  <small style="float:left;padding-top:4px;">
 			  <? if ($start !== 0): ?>
-			    <span class="prev"><a href="<?=confirm_slash(base_url())?>system/dashboard?book_id=<?=((isset($book->book_id))?$book->book_id:0)?>&zone=all-users&pill=manage-users&start=<?=$start-$total?>&total=<?=$total?>#tabs-utils">Prev page</a></span> &nbsp;
+			    <span class="prev"><a href="<?=confirm_slash(base_url())?>main/dashboard?book_id=<?=((isset($book->book_id))?$book->book_id:0)?>&zone=all-users&pill=manage-users&start=<?=$start-$total?>&total=<?=$total?>#tabs-utils">Prev page</a></span> &nbsp;
 			  <? endif ?>
 			  <b class="total"><?=$start+1?> - <?=$start + $count?></b>
 			  <? if(count($users)-1 == $total): ?>
-			    &nbsp; <span class="prev"><a href="<?=confirm_slash(base_url())?>system/dashboard?book_id=<?=((isset($book->book_id))?$book->book_id:0)?>&zone=all-users&pill=manage-users&start=<?=$start+$total?>&total=<?=$total?>#tabs-utils">Next page</a></span>
+			    &nbsp; <span class="prev"><a href="<?=confirm_slash(base_url())?>main/dashboard?book_id=<?=((isset($book->book_id))?$book->book_id:0)?>&zone=all-users&pill=manage-users&start=<?=$start+$total?>&total=<?=$total?>#tabs-utils">Next page</a></span>
 			  <? endif ?>
 			  <form style="display:inline-block" class="jump-form">
 			 	<span>&nbsp;&nbsp;&nbsp;&nbsp;Go to page: &nbsp; </span>
@@ -281,7 +281,7 @@ $(document).ready(function() {
 				 	<input placeholder="Search for a user" type="text" class="form-control user-search" />
 					<input type="submit" value="Search" class="btn btn-sm" />
 					<?=(isset($_REQUEST['id']) && is_numeric($_REQUEST['id'])) ? ' &nbsp; Showing user ID '.$_REQUEST['id'].' &nbsp; ' : ''?>
-					<small style="padding-left:3px;"><a href="<?=confirm_slash(base_url())?>system/dashboard?book_id=<?=((isset($book->book_id))?$book->book_id:0)?>&zone=all-users&pill=manage-users#tabs-utils">clear</a></small>
+					<small style="padding-left:3px;"><a href="<?=confirm_slash(base_url())?>main/dashboard?book_id=<?=((isset($book->book_id))?$book->book_id:0)?>&zone=all-users&pill=manage-users#tabs-utils">clear</a></small>
 				</div>
 			 </form>
 			 <br clear="both" />
@@ -313,7 +313,7 @@ $(document).ready(function() {
 					echo '<td style="white-space:nowrap;"><a style="color:#337ab7" title="Edit this row" href="javascript:;" onclick="edit_row($(this).parents(\'tr\'));">';
 					echo '<span class="glyphicon glyphicon-pencil edit_button" aria-hidden="true"></span>';
 					echo '</a> &nbsp; ';
-					echo '<a style="color:#ac2925;" title="Delete this row" href="'.confirm_slash(base_url()).'system/dashboard?action=do_delete&book_id='.((isset($book->book_id))?$book->book_id:0).'&delete='.$users[$i]->user_id.'&type=users&zone=all-users&pill=manage-users&tab=tabs-utils" onclick="if (!confirm(\'Are you sure you wish to DELETE this user?\')) return false;">';
+					echo '<a style="color:#ac2925;" title="Delete this row" href="'.confirm_slash(base_url()).'main/dashboard?action=do_delete&book_id='.((isset($book->book_id))?$book->book_id:0).'&delete='.$users[$i]->user_id.'&type=users&zone=all-users&pill=manage-users&tab=tabs-utils" onclick="if (!confirm(\'Are you sure you wish to DELETE this user?\')) return false;">';
 					echo '<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>';
 					echo '</a></td>'."\n";
 					echo '<td property="id" style="display:none;">'.$users[$i]->user_id."</td>\n";
@@ -335,7 +335,7 @@ $(document).ready(function() {
 						}
 					}
 					if (!$user_is_deactivated) {
-						echo '<td><a href="'.confirm_slash(base_url()).'system/dashboard?action=do_deactivate&user_id='.$users[$i]->user_id.'&type=users&zone=all-users&pill=manage-users&tab=tabs-utils" onclick="if (!confirm(\'Are you sure you wish to DEACTIVATE this user? This will make all of their books private and add their email to the disallowed list, preventing them from logging in.\')) return false;">Deactivate</a><br />';
+						echo '<td><a href="'.confirm_slash(base_url()).'main/dashboard?action=do_deactivate&user_id='.$users[$i]->user_id.'&type=users&zone=all-users&pill=manage-users&tab=tabs-utils" onclick="if (!confirm(\'Are you sure you wish to DEACTIVATE this user? This will make all of their books private and add their email to the disallowed list, preventing them from logging in.\')) return false;">Deactivate</a><br />';
 					} else {
 						echo '<td>Inactive<br />';
 					}
@@ -347,7 +347,7 @@ $(document).ready(function() {
 				</tbody>
 			</table>
 			</div>
-			<form class="form-inline" action="<?=confirm_slash(base_url())?>system/dashboard" method="post" onsubmit="checkAddUserForm(this);">
+			<form class="form-inline" action="<?=confirm_slash(base_url())?>main/dashboard" method="post" onsubmit="checkAddUserForm(this);">
 			<input type="hidden" name="zone" value="all-users" />
 			<input type="hidden" name="hash" value="#tabs-utils" />
 			<input type="hidden" name="pill" value="manage-users" />
@@ -366,7 +366,7 @@ $(document).ready(function() {
     	</div>
     	<div class="section" id="google-authenticator">
     	<?php if ('google-authenticator'==$pill): ?>
-			<form action="<?=confirm_slash(base_url())?>system/dashboard?book_id=<?=((isset($book)&&!empty($book))?$book->book_id:0)?>&zone=utils&pill=google-authenticator#tabs-utils" method="post">
+			<form action="<?=confirm_slash(base_url())?>main/dashboard?book_id=<?=((isset($book)&&!empty($book))?$book->book_id:0)?>&zone=utils&pill=google-authenticator#tabs-utils" method="post">
 			<input type="hidden" name="zone" value="utils" />
 			<input type="hidden" name="pill" value="google-authenticator" />
 			<input type="hidden" name="action" value="enable_google_authenticator" />
@@ -396,7 +396,7 @@ $(document).ready(function() {
     	</div>
     	<div class="section" id="disallowed-emails">
     	<?php if ('disallowed-emails'==$pill): ?>
-			<form action="<?=confirm_slash(base_url())?>system/dashboard?book_id=<?=((isset($book)&&!empty($book))?$book->book_id:0)?>&zone=utils&pill=disallowed-emails#tabs-utils" method="post" id="disallowed_emails_form">
+			<form action="<?=confirm_slash(base_url())?>main/dashboard?book_id=<?=((isset($book)&&!empty($book))?$book->book_id:0)?>&zone=utils&pill=disallowed-emails#tabs-utils" method="post" id="disallowed_emails_form">
 			<input type="hidden" name="zone" value="utils" />
 			<input type="hidden" name="action" value="get_disallowed_emails" />
 			<h4>Disallowed emails</h4>
@@ -422,12 +422,12 @@ $(document).ready(function() {
 			?></div></form>
 			<?php
 			if (isset($disallowed_emails)) {
-				echo '<form id="do_remove_disallowed_emails" action="'.confirm_slash(base_url()).'system/dashboard?book_id='.((isset($book)&&!empty($book))?$book->book_id:0).'&zone=utils&pill=disallowed-emails#tabs-utils" method="post" style="display:inline-block;margin-top:3px;float:right;">';
+				echo '<form id="do_remove_disallowed_emails" action="'.confirm_slash(base_url()).'main/dashboard?book_id='.((isset($book)&&!empty($book))?$book->book_id:0).'&zone=utils&pill=disallowed-emails#tabs-utils" method="post" style="display:inline-block;margin-top:3px;float:right;">';
 				echo '<input type="hidden" name="action" value="do_save_disallowed_emails" />';
 				echo '<input type="hidden" name="emails" value="" />';
 				echo '<input type="submit" class="btn btn-default" value="Remove selected from list" />';
 				echo '</form>';
-				echo '<form id="do_save_disallowed_emails" action="'.confirm_slash(base_url()).'system/dashboard?book_id='.((isset($book)&&!empty($book))?$book->book_id:0).'&zone=utils&pill=disallowed-emails#tabs-utils" method="post" style="display:inline-block;margin-top:3px;">';
+				echo '<form id="do_save_disallowed_emails" action="'.confirm_slash(base_url()).'main/dashboard?book_id='.((isset($book)&&!empty($book))?$book->book_id:0).'&zone=utils&pill=disallowed-emails#tabs-utils" method="post" style="display:inline-block;margin-top:3px;">';
 				echo '<input type="hidden" name="action" value="do_save_disallowed_emails" />';
 				echo '<input type="hidden" name="emails" value="" />';
 				echo '<input type="text" name="email" value="" placeholder="name@example.com" class="form-control" style="display:inline-block;width:200px;position:relative;top:1px;" /> ';
@@ -485,7 +485,7 @@ $(document).ready(function() {
 					var x = parseInt($(this).children('.jump-to-page').val());
 					if(!isNaN(x)) {
 						var start = <?=$total?> * (x-1);
-		 				window.location.href = "<?=confirm_slash(base_url())?>system/dashboard?book_id=<?=((isset($book->book_id))?$book->book_id:0)?>&zone=all-books&pill=manage-books&start=" + start + "&total=<?=$total?>#tabs-utils";
+		 				window.location.href = "<?=confirm_slash(base_url())?>main/dashboard?book_id=<?=((isset($book->book_id))?$book->book_id:0)?>&zone=all-books&pill=manage-books&start=" + start + "&total=<?=$total?>#tabs-utils";
 					}
 					return false;
 				});
@@ -497,7 +497,7 @@ $(document).ready(function() {
 
 				$('.book-search-form').on('submit', function() {
 					var sq = $(this).find('.book-search').val();
-	 				window.location.href = "<?=confirm_slash(base_url())?>system/dashboard?book_id=<?=((isset($book->book_id))?$book->book_id:0)?>&pill=manage-books&zone=all-books&sq=" + encodeURIComponent(sq) + "#tabs-utils";
+	 				window.location.href = "<?=confirm_slash(base_url())?>main/dashboard?book_id=<?=((isset($book->book_id))?$book->book_id:0)?>&pill=manage-books&zone=all-books&sq=" + encodeURIComponent(sq) + "#tabs-utils";
 					return false;
 				});
 
@@ -537,11 +537,11 @@ $(document).ready(function() {
 			<? if ($start !== 0 || (count($books)-1) == $total): ?>
 			  <small style="float:left;padding-top:4px;">
 				  <? if($start !== 0): ?>
-				    <span class="prev"><a href="<?=confirm_slash(base_url())?>system/dashboard?book_id=<?=((isset($book->book_id))?$book->book_id:0)?>&pill=manage-books&zone=all-books&amp;start=<?=$start-$total?>&amp;total=<?=$total?>#tabs-utils">Prev page</a></span> &nbsp;
+				    <span class="prev"><a href="<?=confirm_slash(base_url())?>main/dashboard?book_id=<?=((isset($book->book_id))?$book->book_id:0)?>&pill=manage-books&zone=all-books&amp;start=<?=$start-$total?>&amp;total=<?=$total?>#tabs-utils">Prev page</a></span> &nbsp;
 				  <? endif ?>
 				  <b class="total"><?=$start+1?> - <?=$start + $count?></b>
 				  <? if(count($books)-1 == $total): ?>
-				    &nbsp; <span class="next"><a href="<?=confirm_slash(base_url())?>system/dashboard?book_id=<?=((isset($book->book_id))?$book->book_id:0)?>&pill=manage-books&zone=all-books&amp;start=<?=$start+$total?>&amp;total=<?=$total?>#tabs-utils">Next page</a></span>
+				    &nbsp; <span class="next"><a href="<?=confirm_slash(base_url())?>main/dashboard?book_id=<?=((isset($book->book_id))?$book->book_id:0)?>&pill=manage-books&zone=all-books&amp;start=<?=$start+$total?>&amp;total=<?=$total?>#tabs-utils">Next page</a></span>
 				  <? endif ?>
 				  <form style="display:inline-block" class="jump-form">
 				 	<span>&nbsp;&nbsp;&nbsp;&nbsp;Go to page: &nbsp; </span>
@@ -555,7 +555,7 @@ $(document).ready(function() {
 				 	<input placeholder="Search for a book" type="text" class="form-control book-search" />
 					<input type="submit" value="Search" class="btn btn-sm" />
 					<?=(isset($_REQUEST['id']) && is_numeric($_REQUEST['id'])) ? ' &nbsp; Showing book ID '.$_REQUEST['id'].' &nbsp; ' : ''?>
-					<small style="padding-left:3px;"><a href="<?=confirm_slash(base_url())?>system/dashboard?book_id=<?=((isset($book->book_id))?$book->book_id:0)?>&pill=manage-books&zone=all-books&amp;start=<?=$start?>&amp;total=<?=$total?>#tabs-utils">clear</a></small>
+					<small style="padding-left:3px;"><a href="<?=confirm_slash(base_url())?>main/dashboard?book_id=<?=((isset($book->book_id))?$book->book_id:0)?>&pill=manage-books&zone=all-books&amp;start=<?=$start?>&amp;total=<?=$total?>#tabs-utils">clear</a></small>
 				</div>
 			</form>
 			<br clear="both" />
@@ -589,10 +589,10 @@ $(document).ready(function() {
 					echo '<a title="Edit row" href="javascript:;" style="color:#337ab7" onclick="edit_row($(this).parents(\'tr\'));">';
 					echo '<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>';
 					echo '</a> &nbsp; ';
-					echo '<a title="Go to Dashboard" href="javascript:;" style="color:#337ab7" onclick="window.location.href=\''.confirm_slash(base_url()).'system/dashboard?book_id='.$books[$i]->book_id.'&zone=style#tabs-style\';">';
+					echo '<a title="Go to Dashboard" href="javascript:;" style="color:#337ab7" onclick="window.location.href=\''.confirm_slash(base_url()).'main/dashboard?book_id='.$books[$i]->book_id.'&zone=style#tabs-style\';">';
 					echo '<span class="glyphicon glyphicon glyphicon-wrench" aria-hidden="true"></span>';
 					echo '</a> &nbsp; ';
-					echo '<a title="Delete row" style="color:#ac2925;" href="'.confirm_slash(base_url()).'system/dashboard?action=do_delete&delete='.$books[$i]->book_id.'&type=books&zone=all-books&pill=manage-books&tab=tabs-utils" onclick="if (!confirm(\'Are you sure you wish to DELETE this book and all associated content?\')) return false;">';
+					echo '<a title="Delete row" style="color:#ac2925;" href="'.confirm_slash(base_url()).'main/dashboard?action=do_delete&delete='.$books[$i]->book_id.'&type=books&zone=all-books&pill=manage-books&tab=tabs-utils" onclick="if (!confirm(\'Are you sure you wish to DELETE this book and all associated content?\')) return false;">';
 					echo '<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>';
 					echo '</a>';
 					echo '</td>'."\n";
@@ -618,7 +618,7 @@ $(document).ready(function() {
 				</tbody>
 			</table>
 			</div>
-			<form class="form-inline" action="<?=confirm_slash(base_url())?>system/dashboard" method="post">
+			<form class="form-inline" action="<?=confirm_slash(base_url())?>main/dashboard" method="post">
 			<input type="hidden" name="zone" value="all-books" />
 			<input type="hidden" name="hash" value="#tabs-utils" />
 			<input type="hidden" name="pill" value="manage-books" />
@@ -642,7 +642,7 @@ $(document).ready(function() {
     	</div>
     	<div class="section" id="generate-email-list">
     	<?php if ('generate-email-list'==$pill): ?>
-			<form action="<?=confirm_slash(base_url())?>system/dashboard?book_id=<?=((isset($book)&&!empty($book))?$book->book_id:0)?>&zone=utils&pill=generate-email-list#tabs-utils" method="post">
+			<form action="<?=confirm_slash(base_url())?>main/dashboard?book_id=<?=((isset($book)&&!empty($book))?$book->book_id:0)?>&zone=utils&pill=generate-email-list#tabs-utils" method="post">
 			<input type="hidden" name="zone" value="utils" />
 			<input type="hidden" name="action" value="get_email_list" />
 			<h4>Generate email list</h4><br />
@@ -662,7 +662,7 @@ $(document).ready(function() {
     	</div>
     	<div class="section" id="recreate-book-folders">
     	<?php if ('recreate-book-folders'==$pill): ?>
-			<form action="<?=confirm_slash(base_url())?>system/dashboard?book_id=<?=((isset($book)&&!empty($book))?$book->book_id:0)?>&zone=utils&pill=recreate-book-folders#tabs-utils" method="post">
+			<form action="<?=confirm_slash(base_url())?>main/dashboard?book_id=<?=((isset($book)&&!empty($book))?$book->book_id:0)?>&zone=utils&pill=recreate-book-folders#tabs-utils" method="post">
 			<input type="hidden" name="zone" value="utils" />
 			<input type="hidden" name="action" value="recreate_book_folders" />
 			<h4>Recreate book folders</h4>
@@ -683,7 +683,7 @@ $(document).ready(function() {
 
     	<div class="section" id="list-all-users">
     	<?php if ('list-all-users'==$pill): ?>
-			<form action="<?=confirm_slash(base_url())?>system/dashboard?book_id=<?=((isset($book)&&!empty($book))?$book->book_id:0)?>&zone=utils&pill=list-all-users#tabs-utils" method="post">
+			<form action="<?=confirm_slash(base_url())?>main/dashboard?book_id=<?=((isset($book)&&!empty($book))?$book->book_id:0)?>&zone=utils&pill=list-all-users#tabs-utils" method="post">
 			<input type="hidden" name="zone" value="utils" />
 			<input type="hidden" name="action" value="get_recent_users" />
 			<h4>List all users</h4>
@@ -698,7 +698,7 @@ $(document).ready(function() {
 						echo '<div>';
 						echo '<label><input type="checkbox" name="user_id[]" value="'.$user->user_id.'" /> &nbsp; ';
 						echo $user->email.'</label> &nbsp; ';
-						echo '<a href="'.base_url().'system/dashboard?zone=all-users&id='.$user->user_id.'#tabs-all-users" target="_blank">'.((!empty($user->fullname))?trim($user->fullname):'(No fullname)').'</a> &nbsp; ';
+						echo '<a href="'.base_url().'main/dashboard?zone=all-users&id='.$user->user_id.'#tabs-all-users" target="_blank">'.((!empty($user->fullname))?trim($user->fullname):'(No fullname)').'</a> &nbsp; ';
 						echo (!empty($user->url)) ? '<a href="'.$user->url.'" target="_blank">'.$user->url.'</a> &nbsp; ' : '';
 						echo '</div>'."\n";
 					}
@@ -706,7 +706,7 @@ $(document).ready(function() {
 			echo '</div>'."\n";
 			echo '</form>'."\n";
 			if (isset($recent_user_list) && !empty($recent_user_list)) {
-				echo '<form id="do_delete_users_form" action="'.confirm_slash(base_url()).'system/dashboard?book_id='.((isset($book)&&!empty($book))?$book->book_id:0).'&zone=utils&pill=list-all-users#tabs-utils" method="post">';
+				echo '<form id="do_delete_users_form" action="'.confirm_slash(base_url()).'main/dashboard?book_id='.((isset($book)&&!empty($book))?$book->book_id:0).'&zone=utils&pill=list-all-users#tabs-utils" method="post">';
 				echo '<input type="hidden" name="zone" value="utils" />';
 				echo '<input type="hidden" name="action" value="do_delete_users" />';
 				echo '<input type="hidden" name="user_ids" value="" />';
@@ -723,7 +723,7 @@ $(document).ready(function() {
 
 			<div class="section" id="list-recent-pages">
     	<?php if ('list-recent-pages'==$pill): ?>
-			<form action="<?=confirm_slash(base_url())?>system/dashboard?book_id=<?=((isset($book)&&!empty($book))?$book->book_id:0)?>&zone=utils&pill=list-recent-pages#tabs-utils" method="post">
+			<form action="<?=confirm_slash(base_url())?>main/dashboard?book_id=<?=((isset($book)&&!empty($book))?$book->book_id:0)?>&zone=utils&pill=list-recent-pages#tabs-utils" method="post">
 			<input type="hidden" name="zone" value="utils" />
 			<input type="hidden" name="action" value="get_recent_pages" />
 			<h4>List recently edited pages and media</h4>
@@ -750,7 +750,7 @@ $(document).ready(function() {
 
     	<div class="section" id="list-all-books">
     	<?php if ('list-all-books'==$pill): ?>
-			<form action="<?=confirm_slash(base_url())?>system/dashboard?book_id=<?=((isset($book)&&!empty($book))?$book->book_id:0)?>&zone=utils&pill=list-all-books#tabs-utils" method="post">
+			<form action="<?=confirm_slash(base_url())?>main/dashboard?book_id=<?=((isset($book)&&!empty($book))?$book->book_id:0)?>&zone=utils&pill=list-all-books#tabs-utils" method="post">
 			<input type="hidden" name="zone" value="utils" />
 			<input type="hidden" name="action" value="get_recent_book_list" />
 			<h4>List all books</h4>
@@ -765,11 +765,11 @@ $(document).ready(function() {
 						echo '<div>';
 						echo '<label><input type="checkbox" name="book_id[]" value="'.$book->book_id.'" /> &nbsp; ';
 						echo date('Y-m-d', strtotime($book->created)).'</label> &nbsp; ';
-						echo '<a href="'.base_url().'system/dashboard?zone=all-books&id='.$book->book_id.'#tabs-all-books" target="_blank">'.((!empty($book->title))?trim($book->title):'(No title)').'</a> &nbsp; ';
+						echo '<a href="'.base_url().'main/dashboard?zone=all-books&id='.$book->book_id.'#tabs-all-books" target="_blank">'.((!empty($book->title))?trim($book->title):'(No title)').'</a> &nbsp; ';
 						echo (!empty($book->subtitle)) ? $book->subtitle.' &nbsp; ' : '';
 						echo (!empty($book->description)) ? $book->subtitle.' &nbsp; ' : '';
 						if (!empty($book->creator)) {
-							echo 'created by &nbsp; <a href="'.base_url().'system/dashboard?zone=all-users&id='.$book->creator->user_id.'#tabs-all-users" target="_blank">';
+							echo 'created by &nbsp; <a href="'.base_url().'main/dashboard?zone=all-users&id='.$book->creator->user_id.'#tabs-all-users" target="_blank">';
 							echo $book->creator->fullname;
 							echo '</a> &nbsp; ';
 						} else {
@@ -781,7 +781,7 @@ $(document).ready(function() {
 			echo '</div>'."\n";
 			echo '</form>'."\n";
 			if (isset($recent_book_list) && !empty($recent_book_list)) {
-				echo '<form id="do_delete_books_form" action="'.confirm_slash(base_url()).'system/dashboard?book_id='.((isset($book)&&!empty($book))?$book->book_id:0).'&zone=utils&pill=list-all-books#tabs-utils" method="post">';
+				echo '<form id="do_delete_books_form" action="'.confirm_slash(base_url()).'main/dashboard?book_id='.((isset($book)&&!empty($book))?$book->book_id:0).'&zone=utils&pill=list-all-books#tabs-utils" method="post">';
 				echo '<input type="hidden" name="zone" value="utils" />';
 				echo '<input type="hidden" name="action" value="do_delete_books" />';
 				echo '<input type="hidden" name="book_ids" value="" />';
@@ -797,7 +797,7 @@ $(document).ready(function() {
     	</div>
     	<div class="section" id="normalize-id2val">
     	<?php if ('normalize-id2val'==$pill): ?>
-			<form action="<?=confirm_slash(base_url())?>system/dashboard?book_id=<?=((isset($book)&&!empty($book))?$book->book_id:0)?>&zone=utils&pill=normalize-id2val#tabs-utils" method="post">
+			<form action="<?=confirm_slash(base_url())?>main/dashboard?book_id=<?=((isset($book)&&!empty($book))?$book->book_id:0)?>&zone=utils&pill=normalize-id2val#tabs-utils" method="post">
 			<input type="hidden" name="zone" value="utils" />
 			<input type="hidden" name="action" value="normalize_predicate_table" />
 			<h4>Normalize id2val table</h4>

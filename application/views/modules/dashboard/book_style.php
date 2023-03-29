@@ -335,7 +335,7 @@ function make_taxonomy_pages(onomy) {
 		<div id="script-confirm" title="Extra HTML Tags">
 			You have HTML tags included in the Custom JS box. Adding HTML to this box will cause Javascript errors which may cause problems with your Scalar book. Note that &lt;script&gt; and &lt;/script&gt; tags are automatically included by Scalar.
 		</div>
-		<form id="style_form" action="<?=confirm_slash(base_url())?>system/dashboard" method="post" enctype="multipart/form-data">
+		<form id="style_form" action="<?=confirm_slash(base_url())?>main/dashboard" method="post" enctype="multipart/form-data">
 		<input type="hidden" name="action" value="do_save_style" />
 		<input type="hidden" name="zone" value="style" />
 		<? if (!empty($book)): ?>
