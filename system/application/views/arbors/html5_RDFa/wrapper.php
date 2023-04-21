@@ -175,7 +175,7 @@ if (isset($page->version_index)) {
 <link id="CI_elapsed_time" href="<?php echo $this->benchmark->elapsed_time()?>" />
 <? if (!empty($_styles)) echo $_styles?>
 <?=template_script_tag_relative(__FILE__, 'js/jquery-3.4.1.min.js')."\n"?>
-<?=template_script_tag_relative(__FILE__, 'yepnope.1.5.4-min.js')."\n"?>
+<?=template_script_tag_relative(__FILE__, 'js/yepnope.1.5.4-min.js')."\n"?>
 <?=template_script_tag_relative(__FILE__, 'js/yepnope.css.js')."\n"?>
 <script type="text/javascript" src="https://www.google.com/recaptcha/api.js?render=explicit"></script>
 <? if (!empty($_scripts)) echo $_scripts?>
