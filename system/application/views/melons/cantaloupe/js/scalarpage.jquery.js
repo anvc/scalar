@@ -2425,7 +2425,7 @@
                     var well = collapsible.find(".well");
                     well.append(table);
 
-                    page.bodyContent().append(metadata);
+                    page.bodyContent().after(metadata);
                     metadata.wrap('<div class="paragraph_wrapper"></div>');
 
                 }
