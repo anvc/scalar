@@ -179,7 +179,7 @@ class Book extends MY_Controller {
 
 		// Placeholder for ThoughtMesh plugin
 		if (!isset($this->data['plugins'])) $this->data['plugins'] = array();
-		$path = APPPATH.'plugins/thoughtmesh_pi.php';
+		$path = APPPATH.'plugins/ThoughtMesh.php';
 		if (file_exists($path) && (stristr($this->data['book']->title, 'data-thoughtmesh="true"'))) {
 			require_once($path);
 			$this->data['plugins']['thoughtmesh'] = new ThoughtMesh($this->data);
@@ -323,19 +323,19 @@ class Book extends MY_Controller {
 		exit;
 
 	}
-	
+
 	// Save new, hidden Lens pages based on a logged-in-user's ID
 	// This is a special case; we didn't want to corrupt the security of the Save API and its native (session) vs non-native (api_key) authentication
 	private function save_lens_page_by_user_id() {
-		
+
 		header('Content-type: application/json');
 		$return = array();
 		$this->load->model('lens_model', 'lenses');
-		
+
 		try {
-			
+
 			// TODO: throttle to five per session
-			
+
 			// Either logged in or not
 			$action      =@ trim($_POST['action']);
 			$title       =@ trim($_POST['dcterms:title']);
@@ -343,20 +343,20 @@ class Book extends MY_Controller {
 			$content     =@ trim($_POST['sioc:content']);
 			$lens 		 =@ trim($_POST['contents']);
 			$user_id     =@ (int) trim($_POST['user']);
-			
+
 			if (empty($action)) throw new Exception('Action is a required field');
 			if (empty($title)) throw new Exception('Lens title is a required field');
 			if (empty($lens)) throw new Exception('Lens content is a required field');
 			if (empty($user_id)) throw new Exception('User is a required field');
-			
+
 			$user = $this->users->get_by_user_id($user_id);
 			if (!$user) throw new Exception('Could not find user');
 			if ($user->user_id != $this->data['login']->user_id) throw new Exception('Could not match your user ID with your login session.  You could be logged out.');
 			$fullname = $user->fullname;
 			if (empty($fullname)) throw new Exception('Logged in user does not have a name');
-			
+
 			if ('add' == $action) {
-				
+
 				// Save page
 				$save = array();
 				$save['book_id'] = $this->data['book']->book_id;
@@ -366,7 +366,7 @@ class Book extends MY_Controller {
 				$save['is_live'] = 0;
 				$content_id = $this->pages->create($save);
 				if (empty($content_id)) throw new Exception('Could not save the new content');
-				
+
 				// Save version
 				$save = array();
 				$save['user_id'] = $user_id;
@@ -376,16 +376,16 @@ class Book extends MY_Controller {
 				$save['attribution'] = $this->versions->build_attribution($fullname, $this->input->server('REMOTE_ADDR'));
 				$version_id = $this->versions->create($content_id, $save);
 				if (empty($version_id)) throw new Exception('Could not save the new version');  // TODO: delete prev made content
-				
+
 				// Save relation
 				if (!$this->lenses->save_children($version_id, array($lens))) throw new Exception('Could not save relation');
-				
+
 				$_content = $this->pages->get($content_id);
 				$return['slug'] = $_content->slug;
 				$return['urn'] = $this->versions->urn($version_id);
-				
+
 			} elseif ('update' == $action) {
-				
+
 				// Version ID
 				$version_urn =@ trim($_POST['scalar:urn']);
 				if (empty($version_urn)) throw new Exception('scalar:urn is a required field');
@@ -393,14 +393,14 @@ class Book extends MY_Controller {
 				$version_id = (int) array_pop($arr);
 				$version = $this->versions->get($version_id, null, false);
 				if (empty($version)) throw new Exception('Could not find version');
-				
+
 				// Content_id
 				$content_id = (int) $version->content_id;
 				$_content = $this->pages->get($content_id);
 				if (empty($_content)) throw new Exception('Could not find content');
 				if ($_content->user != $user_id) throw new Exception('Only the creator of the page can edit the page');
 				$return['slug'] = $_content->slug;
-				
+
 				// Save version
 				$save = array();
 				$save['user_id'] = $user_id;
@@ -411,21 +411,21 @@ class Book extends MY_Controller {
 				$version_id = $this->versions->create($content_id, $save);
 				if (empty($version_id)) throw new Exception('Could not save the new version');  // TODO: delete prev made content
 				$return['urn'] = $this->versions->urn($version_id);
-				
+
 				// Save Lens relation
 				if (!$this->lenses->save_children($version_id, array($lens))) throw new Exception('Could not save relation');
-				
+
 			} else {
 				throw new Exception('Invalid action');
 			}
-			
+
 		} catch (Exception $e) {
 			$return['error'] =  $e->getMessage();
 		}
-		
+
 		echo json_encode($return);
 		exit;
-		
+
 	}
 
 	// Tags (list all tags in cloud)
@@ -572,7 +572,7 @@ class Book extends MY_Controller {
 			case false:
 
 				$this->data['plugins'] = array();
-				$path = APPPATH.'plugins/tensor_pi.php';
+				$path = APPPATH.'plugins/Tensor.php';
 				if (file_exists($path)) {
 					require_once($path);
 					$this->data['plugins']['tensor'] = new Tensor($this->data);
@@ -597,7 +597,7 @@ class Book extends MY_Controller {
 						$this->data['airtable'] = $airtable;
 					}
 				}
-				
+
 				// Translate the import URL to information about the archive
 				$archive_title = str_replace('_',' ',$archive);
 				$archives_rdf_url = confirm_slash(APPPATH).'rdf/xsl/archives.rdf';

@@ -1,6 +1,7 @@
 <?php
 
-require_once APPPATH.'libraries/amazon-s3-php-class/S3.php';
+// Autoloaded by composer now
+// require_once APPPATH.'libraries/amazon-s3-php-class/S3.php';
 
 /**
  * S3 Storage Adapter.
@@ -351,7 +352,7 @@ class Scalar_Storage_Adapter_S3 implements Scalar_Storage_Adapter_AdapterInterfa
         }
         return $credentials;
     }
-    
+
     /**
      * Logs a message.
      */
