@@ -91,7 +91,7 @@
 
                     if(date_parts[4]!=undefined){
                         var era = date_parts[4].toLowerCase();
-                        if(($.inArray(era, ['bce','bc']) > -1 && entry.start_date.year > 0) || ($.inArray(era, ['ce','ad']) > -1 && entry.start_date.year > 0)){
+                        if(($.inArray(era, ['bce','bc']) > -1 && entry.start_date.year > 0)){
                             entry.start_date.year *= -1;
                         }
                     }
