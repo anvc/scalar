@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS `scalar_db_books` (
   `title` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `subtitle` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `description` text COLLATE utf8_unicode_ci DEFAULT NULL,
+  `alt_text` text COLLATE utf8_unicode_ci DEFAULT NULL,
   `slug` varchar(255) COLLATE utf8_unicode_ci NOT NULL UNIQUE,
   `url_is_public` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `display_in_index` tinyint(1) unsigned NOT NULL DEFAULT '0',
