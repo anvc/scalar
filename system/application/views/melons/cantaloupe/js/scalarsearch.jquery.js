@@ -28,28 +28,23 @@
 	 * Manages the search results dialog.
 	 */
 	function ScalarSearch( element, options ) {
-
 		this.element = $(element);
 		this.options = $.extend( {}, defaults, options );
 		this._defaults = defaults;
 		this._name = pluginName;
-
 		this.init();
-
 	}
 
-	ScalarSearch.prototype.bodyContent = null;			// body content container
-	ScalarSearch.prototype.resultsTable = null;			// Table for the results
-	ScalarSearch.prototype.modal = null; // bootstrap modal
+	ScalarSearch.prototype.bodyContent = null;
+	ScalarSearch.prototype.resultsTable = null;
+	ScalarSearch.prototype.modal = null;
 	ScalarSearch.prototype.searchField = null;
-
-	ScalarSearch.prototype.currentPage = null;			// Current page of results being displayed
-	ScalarSearch.prototype.pagination = null;			// Pagination interface
-	ScalarSearch.prototype.resultsPerPage = null;		// Results to show per page
-	ScalarSearch.prototype.maxPages = null;				// Maximum number of pages with known results
-	ScalarSearch.prototype.tabIndex = 9000; // starting tabindex
-
-	ScalarSearch.prototype.query = null; // query
+	ScalarSearch.prototype.currentPage = null;
+	ScalarSearch.prototype.pagination = null;
+	ScalarSearch.prototype.resultsPerPage = null;
+	ScalarSearch.prototype.maxPages = null;
+	ScalarSearch.prototype.tabIndex = 9000;
+	ScalarSearch.prototype.query = null;
 
 	ScalarSearch.prototype.init = function () {
 
@@ -62,17 +57,43 @@
 		this.element.addClass('search');
 		this.bodyContent = $('<div class="body_copy"></div>').appendTo(this.element);
 
-		$('<form role="form" class="form-inline"><div class="form-group" style="margin-right: 10px"><label class="sr-only" for="modal_keyword">Search</label><input type="text" autocomplete="off" class="search_input form-control" tabindex="'+this.tabIndex+'" name="keyword" id="modal_keyword" placeholder="Enter search terms" /></div><button tabindex="'+(++this.tabIndex)+'" type="submit" class="btn btn-default">Search</button> &nbsp; <span class="search_loading text-danger">Loading...</span> &nbsp; <div class="s_all_label caption_font">Search: &nbsp; <label for="s_not_all"><input tabindex="'+(++this.tabIndex)+'" type="radio" id="s_not_all" name="s_all" value="0" checked /> &nbsp;title &amp; description (fast)</label> &nbsp; <label for="s_all"><input tabindex="'+(++this.tabIndex)+'" type="radio" id="s_all" name="s_all" value="1" /> &nbsp;all fields & metadata (slow)</label></div></form><br>').appendTo(this.bodyContent);
+		// CLASSES TO REMOVE? search_input
 
-		$( '<div class="results_list search_results caption_font"><table summary="Search Results" class="table table-striped table-hover table-responsive small"></table></div>' ).appendTo( this.bodyContent );
-		$( '<ul class="pagination caption_font"></ul>' ).appendTo( this.bodyContent );
+		$('<form role="form" class="form-horizontal">'+
+			'<div class="form-group">'+
+				'<label for="modal_search_term" class="col-sm-2">Search for</label>'+
+				'<div class="col-sm-10">'+
+					'<input id="modal_search_term" name="search_term" type="text" autocomplete="off" class="form-control" tabindex="'+this.tabIndex+'" placeholder="Enter search terms">'+
+				'</div>'+
+			'</div>'+
+			'<div class="form-group">'+
+				'<label for="modal_scope" class="col-sm-2">in</label>'+
+				'<div class="col-sm-10">'+
+					'<select id="modal_scope" class="form-control"></select>'+
+					'<button tabindex="'+(++this.tabIndex)+'" type="submit" class="btn btn-default">Search</button> &nbsp; '+
+				'</div>'+
+			'</div>'+
+			
+			/*'<span class="search_loading text-danger">Loading...</span> &nbsp; '+
+			'<div class="s_all_label caption_font">Search: &nbsp; '+
+				'<label for="s_not_all">'+
+					'<input tabindex="'+(++this.tabIndex)+'" type="radio" id="s_not_all" name="s_all" value="0" checked /> &nbsp;title &amp; description (fast)'+
+				'</label> &nbsp; '+
+				'<label for="s_all">'+
+					'<input tabindex="'+(++this.tabIndex)+'" type="radio" id="s_all" name="s_all" value="1" /> &nbsp;all fields & metadata (slow)'+
+				'</label>'+
+			'</div>'+*/
+		'</form><br>').appendTo(this.bodyContent);
+
+		$('<div class="results_list search_results caption_font"><table summary="Search" class="table table-striped table-hover table-responsive small"></table></div>' ).appendTo( this.bodyContent );
+		$('<ul class="pagination caption_font"></ul>').appendTo( this.bodyContent );
 		$('<div class="loading"><p>Loading...</p></div>').hide().insertAfter(this.resultsTable);
 
-		this.modal = this.bodyContent.bootstrapModal({title: 'Search Results', size_class:'modal-lg'});
+		this.modal = this.bodyContent.bootstrapModal({title: 'Search', size_class:'modal-lg'});
 		this.resultsTable = this.modal.find('.results_list table');
 		this.loading = this.modal.find('.loading');
 		this.pagination = this.modal.find('ul.pagination');
-		this.searchField = this.modal.find('input[name="keyword"]');
+		this.searchField = this.modal.find('input[name="search_term"]');
 		this.searchMetadata = this.modal.find('input[name="s_all"][value="1"]');
 		this.searchForm = this.modal.find('form');
 
@@ -165,7 +186,7 @@
 		this.loading.show();
 	}
 
-	ScalarSearch.prototype.handleResults = function( data, callback ) {
+	/*ScalarSearch.prototype.handleResults = function( data, callback ) {
 
 		var i, node, description, row, prev, next,
 			me = this,
@@ -242,14 +263,14 @@
 		}
 
 		if (callback) callback();
-	}
+	}*/
 
 	ScalarSearch.prototype.firstFocus = function() {
 		this.searchField.trigger('focus');
 	}
 
 
-	ScalarSearch.prototype.previousPage = function() {
+	/*ScalarSearch.prototype.previousPage = function() {
 		if ( this.currentPage > 1) {
 			this.currentPage--;
 			this.maxPages = Math.max( this.maxPages, this.currentPage );
@@ -273,7 +294,7 @@
 
 	ScalarSearch.prototype.focusOnCurrentPage = function() {
 		this.pagination.find('a[data-page="'+this.currentPage+'"]').trigger('focus');
-	}
+	}*/
 
     $.fn[pluginName] = function ( options ) {
         return this.each(function () {
