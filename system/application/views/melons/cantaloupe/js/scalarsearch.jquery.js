@@ -43,95 +43,29 @@
 	ScalarSearch.prototype.pagination = null;
 	ScalarSearch.prototype.resultsPerPage = null;
 	ScalarSearch.prototype.maxPages = null;
-	ScalarSearch.prototype.tabIndex = 9000;
 	ScalarSearch.prototype.query = null;
 
 	ScalarSearch.prototype.init = function () {
-
-		var me = this;
-
-		this.currentPage = 1;
-		this.maxPages = 1;
-		this.resultsPerPage = 10;
-
 		this.element.addClass('search');
 		this.bodyContent = $('<div class="body_copy"></div>').appendTo(this.element);
 
-		// CLASSES TO REMOVE? search_input
-
-		$('<form role="form" class="form-horizontal">'+
-			'<div class="form-group">'+
-				'<label for="modal_search_term" class="col-sm-2 text-right">Search for</label>'+
-				'<div class="col-sm-6">'+
-					'<input id="modal_search_term" name="search_term" type="text" autocomplete="off" class="form-control" tabindex="'+this.tabIndex+'" placeholder="Enter search terms">'+
-				'</div>'+
-			'</div>'+
-			'<div class="form-group">'+
-				'<label for="modal_scope" class="col-sm-2 text-right">in</label>'+
-				'<div class="col-sm-4">'+
-					'<select id="modal_scope" class="form-control">'+
-						'<option>titles only</option>'+
-						'<option selected="selected">titles and descriptions</option>'+
-						'<option>a metadata field</option>'+
-					'</select>'+
-					'<small class="caption_font">Want more search options? Try <a href="https://scalar.usc.edu/works/guide2/lenses" target="_blank">Lenses</a></small>'+
-				'</div>'+
-				'<div class="col-sm-2">'+
-					'<button tabindex="'+(++this.tabIndex)+'" type="submit" class="btn btn-default">Search</button> &nbsp; '+
-				'</div>'+
-			'</div>'+
-		'</form><br>').appendTo(this.bodyContent);
-
 		this.modal = this.bodyContent.bootstrapModal({title: 'Search', size_class:'modal-lg'});
-
-		this.resultsTable = $('<div class="modalVisualization"></div>').appendTo( this.modal.find('.modal-body') );
-
-		//this.resultsTable = this.modal.find('.results_list table');
-		this.loading = this.modal.find('.loading');
-		this.pagination = this.modal.find('ul.pagination');
-		this.searchField = this.modal.find('input[name="search_term"]');
-		this.searchMetadata = this.modal.find('input[name="s_all"][value="1"]');
-		this.searchForm = this.modal.find('form');
-
-		$('#modal_scope').on('change', function(event) {
-			me.updateForm();
-		})
-
-		this.searchForm.on('submit', function(event) {
-			event.preventDefault();
-			me.doLensSearch(me.searchField.val());
-		});
-
-		// upate main search field
-		this.searchField.on('keyup', function(event) {
-			$('#search').val($(this).val());
-		})
+		if (typeof CustomSearchManager === 'function') {
+			this.searchManager = new CustomSearchManager(this.modal)
+		} else {
+			this.searchManager = new SearchManager(this.modal)
+		}
 
 		// tabbing forward from close button brings focus to search field
-		this.modal.find( '.close' ).on('keydown',  function(e) {
+		this.modal.find( '.close' ).on('keydown', (e) => {
 			var keyCode = e.keyCode || e.which;
-			if( keyCode == 9 ) {
-				if( !e.shiftKey ) {
-			    	e.preventDefault();
-					me.firstFocus();
-			    }
-		    }
-		} );
-
-		// tabbing backwards from search field link brings focus to close button
-		this.searchField.on('keydown',  function(e) {
-			var keyCode = e.keyCode || e.which;
-			if( keyCode == 9 ) {
-				if( e.shiftKey ) {
-			    	e.preventDefault();
-					me.modal.find( '.close' )[ 0 ].trigger('focus');
-			    }
-		    }
-		} );
-	}
-
-	ScalarSearch.prototype.updateForm = function() {
-		console.log('update form')
+			if (keyCode == 9) {
+				if (!e.shiftKey) {
+					e.preventDefault();
+					this.searchManager.firstFocus();
+				}
+			}
+		});
 	}
 
 	ScalarSearch.prototype.showSearch = function() {
@@ -142,7 +76,100 @@
 		this.element.hide();
 	}
 
-	ScalarSearch.prototype.doLensSearch = function(query, callback) {
+	ScalarSearch.prototype.doSearch = function(query, callback) {
+		if ($.isFunction(query))  {
+			callback = query;
+		}
+		this.searchManager.setSearchField(query)
+		this.showSearch()
+		setTimeout(() => { this.searchManager.doSearch(query) }, 500)
+	}
+
+	$.fn[pluginName] = function ( options ) {
+		return this.each(function () {
+			if (!$.data(this, "plugin_" + pluginName)) {
+				$.data( this, "plugin_" + pluginName,
+				new ScalarSearch(this, options));
+			}
+		});
+	}
+
+})( jQuery, window, document );
+
+class SearchManager {
+	constructor(modal) {
+		this.modal = modal
+		this.bodyContent = this.modal.find('.modal-body')
+		this.setup()
+	}
+	
+	setup() {
+		$('<form role="form" class="form-horizontal">'+
+			'<div class="form-group">'+
+				'<label for="modal_search_term" class="col-sm-2 text-right">Search for</label>'+
+				'<div class="col-sm-6">'+
+					'<input id="modal_search_term" name="search_term" type="text" autocomplete="off" class="form-control" tabindex="9000" placeholder="Enter search terms">'+
+				'</div>'+
+			'</div>'+
+			'<div class="form-group">'+
+				'<label for="modal_scope" class="col-sm-2 text-right">in</label>'+
+				'<div class="col-sm-4">'+
+					'<select id="modal_scope" class="form-control">'+
+					'<option selected="selected">content only</option>'+
+						'<option>titles only</option>'+
+						'<option>titles and descriptions</option>'+
+						'<option>a metadata field</option>'+
+					'</select>'+
+					'<small class="caption_font">Want more search options? Try <a href="https://scalar.usc.edu/works/guide2/lenses" target="_blank">Lenses</a></small>'+
+				'</div>'+
+				'<div class="col-sm-2">'+
+					'<button tabindex="9001" type="submit" class="btn btn-default">Search</button> &nbsp; '+
+				'</div>'+
+			'</div>'+
+		'</form><br>').appendTo(this.bodyContent)
+		
+		this.resultsTable = $('<div class="modalVisualization"></div>').appendTo(this.bodyContent);
+		this.searchField = this.modal.find('input[name="search_term"]');
+		this.searchForm = this.modal.find('form');
+		this.searchForm.on('submit', (event) => {
+			event.preventDefault();
+			this.doSearch(this.searchField.val());
+		});
+
+		$('#modal_scope').on('change', (event) => {
+			this.updateForm();
+		})
+
+		// upate main search field
+		this.searchField.on('keyup', (event) => {
+			$('#search').val($(this).val());
+		})
+
+		// tabbing backwards from search field link brings focus to close button
+		this.searchField.on('keydown', (e) => {
+			var keyCode = e.keyCode || e.which;
+			if(keyCode == 9) {
+				if(e.shiftKey) {
+					e.preventDefault();
+					me.modal.find( '.close' )[ 0 ].trigger('focus');
+				}
+			}
+		});
+	}
+
+	setSearchField(query) {
+		this.searchField.val(query);
+	}
+
+	firstFocus() {
+		this.searchField.trigger('focus');
+	}
+
+	updateForm() {
+		console.log('update form')
+	}
+	
+	doSearch(query) {
 		let lens = {
 			"visualization": {
 				"type": "list",
@@ -166,21 +193,6 @@
 						}
 					]
 				},
-				/*{
-					"content-selector": {
-						"type": "items-by-type",
-						"content-type": "all-content"
-					},
-					"modifiers": [
-						{
-							"type": "filter",
-							"subtype": "metadata",
-							"operator": "inclusive",
-							"content": query,
-							"metadata-field": "dcterms:title"
-						}
-					]
-				}*/
 			],
 			"sorts": [],
 		}
@@ -190,175 +202,6 @@
 			content: 'lens',
 			lens: lens
 		}
-		console.log(this.resultsTable, $(this.resultsTable).width())
 		this.resultsTable.scalarvis(visOptions);
 	}
-
-	ScalarSearch.prototype.doSearch = function(query, callback) {
-		$('.search_loading').show();
-		var firstTime = false;
-		if ($.isFunction(query))  {
-			callback = query;
-		} else {
-			newQuery = !this.query || query != this.query;
-			if (newQuery) {
-				this.reset()
-			}
-			this.query = query;
-		}
-		this.searchField.val(this.query);
-		var me = this;
-		this.showLoading();
-		this.showSearch();
-		scalarapi.model.removeNodes();
-		scalarapi.nodeSearch(
-			this.query,
-			function( data ) {
-				$('.search_loading').hide();
-				me.handleResults( data, callback );
-				me.modal.find('.results_list').scrollTop(0);
-				if (newQuery) {
-					me.firstFocus();
-				}
-			},
-			null, 0, false, null,
-			( me.currentPage - 1 ) * me.resultsPerPage, me.resultsPerPage, null, null,
-			(this.searchMetadata.is(':checked') ? 1 : null),
-			(this.searchMetadata.is(':checked') ? true : false)
-		);
-	}
-
-	ScalarSearch.prototype.reset = function() {
-		this.currentPage = 1;
-		this.maxPages = 1;
-		this.pagination.empty();
-	}
-
-	ScalarSearch.prototype.showLoading = function() {
-		var h = this.resultsTable.height();
-		var $p = this.loading.find('p');
-		this.loading.width(this.resultsTable.width()).height(h);
-		$p.css('top', (((h-$p.height())/2)-5)+'px');
-		this.loading.show();
-	}
-
-	ScalarSearch.prototype.handleResults = function( data, callback ) {
-
-		/*var i, node, description, row, prev, next,
-			me = this,
-			nodes = scalarapi.model.getNodes();
-
-		this.resultsTable.empty();
-		var tabindex = this.tabIndex;
-		for ( i in nodes ) {
-			tabindex++;
-			node = nodes[i];
-			if (node.current != null) {
-				description = node.current.description;
-				citation = node.current.properties["http://scalar.usc.edu/2012/01/scalar-ns#citation"];
-			}
-			if (description == null) {
-				description = '(No description)';
-			} else {
-				description = description.replace(/<\/?[^>]+>/gi, '');
-			}
-			var thumb = '';
-			if (node.thumbnail) {
-				thumb = '<img src="'+node.getAbsoluteThumbnailURL()+'" alt="Thumbnail for '+node.getDisplayTitle()+'" />';
-			}
-			var matched = '';
-			if ('undefined'!=typeof(citation)) {
-				matched = '<span class="h">Matched:</span> ';
-				matched += '<span class="b">'+citation[0].value.substr(citation[0].value.indexOf('=')+1).split(',').join('</span>, <span class="b">')+'</span>';
-			}
-			row = $( '<tr><td class="title"><a href="javascript:;" tabindex="'+tabindex+'">'+node.getDisplayTitle()+'</a></td><td class="desc">'+description+'</td><td class="thumb">'+thumb+'</td><td class="matched hidden-xs hidden-sm">'+matched+'</td></tr>' ).appendTo( this.resultsTable );
-
-			row.data( 'node', node );
-			row.on('click',  function() { document.location = addTemplateToURL($(this).data('node').url, 'cantaloupe'); } );
-		}
-
-		this.pagination.empty();
-		if ( nodes.length == 0 ) {
-			row = $( '<tr><td style="width:30%">No results found.</td><td></td></tr>' ).appendTo( this.resultsTable );
-
-			this.modal.on('shown.bs.modal', function(e) {
-				me.modal.find('button.close').trigger('focus');
-			});
-		} else {
-			this.modal.on('shown.bs.modal', function(e) {
-				me.firstFocus();
-			});
-		}
-		// pagination
-		if (( nodes.length == this.resultsPerPage ) || ( this.currentPage > 1 )) {
-			if ( this.currentPage > 1 ) {
-				tabindex++;
-				prev = $('<li><a tabindex="'+tabindex+'" title="Previous results page" href="javascript:;">&laquo;</a></li>').appendTo( this.pagination );
-				prev.find('a').on('click',  function() { me.previousPage(); } );
-			} else {
-				prev = $('<li class="disabled"><a href="javascript:;">&laquo;</a></li>').appendTo( this.pagination );
-			}
-			for ( i = 1; i <= this.maxPages; i++ ) {
-				tabindex++;
-				var pageBtn = $( '<li><a data-page="'+i+'" title="Go to results page ' + i + '" tabindex="'+tabindex+'" href="javascript:;">' + i + '</a></li>' ).appendTo( this.pagination );
-				pageBtn.data( 'page', i );
-				if ( i == this.currentPage ) {
-					pageBtn.addClass( 'active' );
-				}
-				pageBtn.on('click',  function() {
-					me.goToPage( $( this ).data( 'page' ) );
-				} );
-			}
-			if ( nodes.length == this.resultsPerPage ) {
-				tabindex++;
-				next = $( '<li><a tabindex="'+tabindex+'" title="Next results page" href="javascript:;">&raquo;</a></li>' ).appendTo( this.pagination );
-				next.find('a').on('click',  function() { me.nextPage(); } );
-			} else {
-				next = $( '<li class="disabled"><a href="javascript:;">&raquo;</a></li>' ).appendTo( this.pagination );
-			}
-		}
-
-		if (callback) callback();*/
-	}
-
-	ScalarSearch.prototype.firstFocus = function() {
-		this.searchField.trigger('focus');
-	}
-
-
-	/*ScalarSearch.prototype.previousPage = function() {
-		if ( this.currentPage > 1) {
-			this.currentPage--;
-			this.maxPages = Math.max( this.maxPages, this.currentPage );
-			var self = this;
-			this.doSearch(function() { self.focusOnCurrentPage() });
-		}
-	}
-
-	ScalarSearch.prototype.nextPage = function() {
-		this.currentPage++;
-		this.maxPages = Math.max( this.maxPages, this.currentPage );
-		var self = this;
-		this.doSearch(function() { self.focusOnCurrentPage() });
-	}
-
-	ScalarSearch.prototype.goToPage = function( pageNum ) {
-		this.currentPage = pageNum;
-		var self = this;
-		this.doSearch(function() { self.focusOnCurrentPage() });
-	}
-
-	ScalarSearch.prototype.focusOnCurrentPage = function() {
-		this.pagination.find('a[data-page="'+this.currentPage+'"]').trigger('focus');
-	}*/
-
-    $.fn[pluginName] = function ( options ) {
-        return this.each(function () {
-            if ( !$.data(this, "plugin_" + pluginName )) {
-                $.data( this, "plugin_" + pluginName,
-                new ScalarSearch( this, options ));
-            }
-        });
-    }
-
-})( jQuery, window, document );
+}
