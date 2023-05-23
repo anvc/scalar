@@ -61,45 +61,45 @@
 
 		$('<form role="form" class="form-horizontal">'+
 			'<div class="form-group">'+
-				'<label for="modal_search_term" class="col-sm-2">Search for</label>'+
-				'<div class="col-sm-10">'+
+				'<label for="modal_search_term" class="col-sm-2 text-right">Search for</label>'+
+				'<div class="col-sm-6">'+
 					'<input id="modal_search_term" name="search_term" type="text" autocomplete="off" class="form-control" tabindex="'+this.tabIndex+'" placeholder="Enter search terms">'+
 				'</div>'+
 			'</div>'+
 			'<div class="form-group">'+
-				'<label for="modal_scope" class="col-sm-2">in</label>'+
-				'<div class="col-sm-10">'+
-					'<select id="modal_scope" class="form-control"></select>'+
+				'<label for="modal_scope" class="col-sm-2 text-right">in</label>'+
+				'<div class="col-sm-4">'+
+					'<select id="modal_scope" class="form-control">'+
+						'<option>titles only</option>'+
+						'<option selected="selected">titles and descriptions</option>'+
+						'<option>a metadata field</option>'+
+					'</select>'+
+					'<small class="caption_font">Want more search options? Try <a href="https://scalar.usc.edu/works/guide2/lenses" target="_blank">Lenses</a></small>'+
+				'</div>'+
+				'<div class="col-sm-2">'+
 					'<button tabindex="'+(++this.tabIndex)+'" type="submit" class="btn btn-default">Search</button> &nbsp; '+
 				'</div>'+
 			'</div>'+
-			
-			/*'<span class="search_loading text-danger">Loading...</span> &nbsp; '+
-			'<div class="s_all_label caption_font">Search: &nbsp; '+
-				'<label for="s_not_all">'+
-					'<input tabindex="'+(++this.tabIndex)+'" type="radio" id="s_not_all" name="s_all" value="0" checked /> &nbsp;title &amp; description (fast)'+
-				'</label> &nbsp; '+
-				'<label for="s_all">'+
-					'<input tabindex="'+(++this.tabIndex)+'" type="radio" id="s_all" name="s_all" value="1" /> &nbsp;all fields & metadata (slow)'+
-				'</label>'+
-			'</div>'+*/
 		'</form><br>').appendTo(this.bodyContent);
 
-		$('<div class="results_list search_results caption_font"><table summary="Search" class="table table-striped table-hover table-responsive small"></table></div>' ).appendTo( this.bodyContent );
-		$('<ul class="pagination caption_font"></ul>').appendTo( this.bodyContent );
-		$('<div class="loading"><p>Loading...</p></div>').hide().insertAfter(this.resultsTable);
-
 		this.modal = this.bodyContent.bootstrapModal({title: 'Search', size_class:'modal-lg'});
-		this.resultsTable = this.modal.find('.results_list table');
+
+		this.resultsTable = $('<div class="modalVisualization"></div>').appendTo( this.modal.find('.modal-body') );
+
+		//this.resultsTable = this.modal.find('.results_list table');
 		this.loading = this.modal.find('.loading');
 		this.pagination = this.modal.find('ul.pagination');
 		this.searchField = this.modal.find('input[name="search_term"]');
 		this.searchMetadata = this.modal.find('input[name="s_all"][value="1"]');
 		this.searchForm = this.modal.find('form');
 
+		$('#modal_scope').on('change', function(event) {
+			me.updateForm();
+		})
+
 		this.searchForm.on('submit', function(event) {
 			event.preventDefault();
-			me.doSearch(me.searchField.val());
+			me.doLensSearch(me.searchField.val());
 		});
 
 		// upate main search field
@@ -130,12 +130,68 @@
 		} );
 	}
 
+	ScalarSearch.prototype.updateForm = function() {
+		console.log('update form')
+	}
+
 	ScalarSearch.prototype.showSearch = function() {
 		this.modal.modal('show');
 	}
 
 	ScalarSearch.prototype.hideSearch = function() {
 		this.element.hide();
+	}
+
+	ScalarSearch.prototype.doLensSearch = function(query, callback) {
+		let lens = {
+			"visualization": {
+				"type": "list",
+				"options": {
+					"operation": "or"
+				}
+			},
+			"components": [
+				{
+					"content-selector": {
+						"type": "items-by-type",
+						"content-type": "all-content"
+					},
+					"modifiers": [
+						{
+							"type": "filter",
+							"subtype": "content",
+							"operator": "inclusive",
+							"content": query,
+							"metadata-field": "sioc:content"
+						}
+					]
+				},
+				/*{
+					"content-selector": {
+						"type": "items-by-type",
+						"content-type": "all-content"
+					},
+					"modifiers": [
+						{
+							"type": "filter",
+							"subtype": "metadata",
+							"operator": "inclusive",
+							"content": query,
+							"metadata-field": "dcterms:title"
+						}
+					]
+				}*/
+			],
+			"sorts": [],
+		}
+		const visOptions = {
+			modal: false,
+			widget: true,
+			content: 'lens',
+			lens: lens
+		}
+		console.log(this.resultsTable, $(this.resultsTable).width())
+		this.resultsTable.scalarvis(visOptions);
 	}
 
 	ScalarSearch.prototype.doSearch = function(query, callback) {
@@ -186,9 +242,9 @@
 		this.loading.show();
 	}
 
-	/*ScalarSearch.prototype.handleResults = function( data, callback ) {
+	ScalarSearch.prototype.handleResults = function( data, callback ) {
 
-		var i, node, description, row, prev, next,
+		/*var i, node, description, row, prev, next,
 			me = this,
 			nodes = scalarapi.model.getNodes();
 
@@ -262,8 +318,8 @@
 			}
 		}
 
-		if (callback) callback();
-	}*/
+		if (callback) callback();*/
+	}
 
 	ScalarSearch.prototype.firstFocus = function() {
 		this.searchField.trigger('focus');

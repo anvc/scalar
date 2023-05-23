@@ -210,6 +210,7 @@ window.scalarvis = { instanceCount: -1 };
         base.updateControls();
       }
 
+
       // create visualization div
       base.visualization = $('<div id="' + base.instanceId + '" class="scalarvis"></div>').appendTo(base.visElement);
       if (!base.isVisOfCurrentPage()) {
@@ -519,7 +520,7 @@ window.scalarvis = { instanceCount: -1 };
         },
         error: function error(response) {
           console.log('There was an error attempting to communicate with the server.');
-          console.log(response);
+          console.log(response.responseText);
         }
       });
     }
