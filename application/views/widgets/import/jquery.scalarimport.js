@@ -47,7 +47,8 @@ if ('undefined'==typeof(escape_html)) {
     		scalarapi: null,
     		ontologies_url: null,
     		ontologies: null,
-    		approot_segment_match: 'system/',
+    		approot_segment_match: 'application/',
+			system_uri_controller: 'main/',
     		error_el: '#error',
     		results_el: '#results',
     		loading_el: '#loading',
@@ -85,7 +86,7 @@ if ('undefined'==typeof(escape_html)) {
 			// Required ontology url
 			if (null===options.ontologies_url) {
 				var approot = $('link#approot').attr('href');
-				var system_url = approot.substr(0, approot.lastIndexOf(options.approot_segment_match))+options.approot_segment_match;
+				var system_url = approot.substr(0, approot.lastIndexOf(options.approot_segment_match))+options.system_uri_controller;
 				options.ontologies_url = system_url+'ontologies';
 			}
 

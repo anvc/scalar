@@ -477,7 +477,7 @@ window.scalarvis = { instanceCount: -1 };
     base.getLensResults = function(success) {
       base.options.lens.book_urn = 'urn:scalar:book:' + $('link#book_id').attr('href');
       //console.log(JSON.stringify(base.options.lens.components, null, 2));
-      let url = $('link#approot').attr('href').replace('application/', '') + 'lenses';
+      let url = $('link#approot').attr('href').replace('application/', '') + 'main/lenses';
       base.loadingMsgShown = false;
       base.startTime = new Date();
       var percentDone = 0;

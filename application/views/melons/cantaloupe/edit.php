@@ -320,7 +320,7 @@ $(document).ready(function() {
 	var fcroot = document.getElementById("approot").href.replace('/application/','');
 	var book_slug = document.getElementById("parent").href.substring(fcroot.length);
 	book_slug = book_slug.replace(/\//g,'');
-	$.getJSON(fcroot+"/system/api/get_onomy", {slug:book_slug}, function(data) {
+	$.getJSON(fcroot+"/main/api/get_onomy", {slug:book_slug}, function(data) {
 		var suggestions = [];
 		for (var index in data) {
 			var taxonomy_name;

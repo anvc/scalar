@@ -362,7 +362,7 @@
 
          base.getLensData = function($widget, visElement, descriptionElement){
            let bookId = $('link#book_id').attr('href');
-           let baseURL = $('link#approot').attr('href').replace('application', 'lenses');
+           let baseURL = $('link#approot').attr('href').replace('application/', 'main/lenses');
            let mainURL = `${baseURL}?book_id=${bookId}`;
            $.ajax({
              url:mainURL,
@@ -377,7 +377,7 @@
                if (data.length > 0) {
                  data.forEach(lens => {
                    if (lens.slug == slug) {
-                     let url = $('link#approot').attr('href').replace('application/','') + 'lenses';
+                     let url = $('link#approot').attr('href').replace('application/','') + 'main/lenses';
                      $.ajax({
                        url: url,
                        type: "POST",

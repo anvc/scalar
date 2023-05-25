@@ -142,7 +142,7 @@ if (isset($page->version_index)) {
 ?>" />
 <link id="book_id" href="<?=$book->book_id?>" />
 <link id="parent" href="<?=$base_uri?>" />
-<link id="approot" href="<?=base_url('application/')?>" />
+<link id="approot" href="<?=base_url('application') . '/'?>" />
 <? if ($login->is_logged_in): ?>
 <link id="logged_in" href="<?=confirm_slash(base_url())?>system/users/<?=$login->user_id?>" />
 <? endif ?>

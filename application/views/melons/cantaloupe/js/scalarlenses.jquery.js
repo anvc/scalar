@@ -3857,7 +3857,7 @@
 
     ScalarLenses.prototype.getLensData = function(){
       let bookId = $('link#book_id').attr('href');
-      let baseURL = $('link#approot').attr('href').replace('application', 'lenses');
+      let baseURL = $('link#approot').attr('href').replace('application/', 'main/lenses');
       let mainURL = `${baseURL}?book_id=${bookId}`;
       this.myLenses = [];
       $.ajax({
@@ -3889,7 +3889,7 @@
       this.updateBadge(this.primaryBadge, -1, 'light');
       lensObject.book_urn = 'urn:scalar:book:' + $('link#book_id').attr('href');
       this.updateHistoryDataForLens(lensObject);
-      let url = $('link#approot').attr('href').replace('application/','') + 'lenses';
+      let url = $('link#approot').attr('href').replace('application/','') + 'main/lenses';
       //console.log(JSON.stringify(lensObject, null, 2));
       if (this.lensRequest) this.lensRequest.abort();
       this.lensRequest = $.ajax({

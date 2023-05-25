@@ -1720,7 +1720,7 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
 
         base.getLensData = function(){
           let bookId = $('link#book_id').attr('href');
-          let baseURL = $('link#approot').attr('href').replace('application', 'lenses');
+          let baseURL = $('link#approot').attr('href').replace('application/', 'main/lenses');
           let mainURL = `${baseURL}?book_id=${bookId}`;
           $.ajax({
             url:mainURL,
