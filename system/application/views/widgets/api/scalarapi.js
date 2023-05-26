@@ -1563,14 +1563,15 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 		// gather data from existing node
 		var completePageData = {
 			'dcterms:title': node.current.title,
-			'dcterms.description': node.current.description,
+			'dcterms:description': node.current.description,
 			'sioc:content': node.current.content,
 			'rdf:type': node.baseType,
 			'scalar:urn': node.current.urn,
 			'scalar:url': node.current.sourceFile,
 			'scalar:default_view': node.current.defaultView,
 			'scalar:continue_to_content_id': node.current.continueTo,
-			'scalar:sort_number': node.current.sortNumber
+			'scalar:sort_number': node.current.sortNumber,
+			'scalar:altText': node.current.altText,
 		};
 
 		// add base properties
@@ -2665,7 +2666,8 @@ function ScalarModel(options) {
 		{property:'wasAttributedTo', uri:'http://www.w3.org/ns/prov#wasAttributedTo', type:'string'},
 		{property:'references', uri:'http://purl.org/dc/terms/references', type:'string'},
 		{property:'isReferencedBy', uri:'http://purl.org/dc/terms/isReferencedBy', type:'string'},
-		{property:'isLensOf', uri:'http://scalar.usc.edu/2012/01/scalar-ns#isLensOf', type:'json'}
+		{property:'isLensOf', uri:'http://scalar.usc.edu/2012/01/scalar-ns#isLensOf', type:'json'},
+		{property:'altText', uri:'http://scalar.usc.edu/2012/01/scalar-ns#altText', type:'string'}
 	];
 
 	// metadata about each relation type
@@ -3764,6 +3766,7 @@ ScalarVersion.prototype.url = null;
 ScalarVersion.prototype.data = null;
 ScalarVersion.prototype.title = null;
 ScalarVersion.prototype.description = null;
+ScalarVersion.prototype.altText = null;
 ScalarVersion.prototype.baseType = null;
 ScalarVersion.prototype.content = null;
 ScalarVersion.prototype.sourceFile = null;
@@ -3910,6 +3913,15 @@ ScalarVersion.prototype.parseRelations = function() {
 		}
 	}
 
+}
+
+ScalarVersion.prototype.getAltTextWithFallback = function() {
+	if (this.altText) {
+		return this.altText
+	} else if (this.description) {
+		return this.description
+	}
+	return ''
 }
 
 /**

@@ -2269,11 +2269,7 @@ function YouTubeGetID(url){
 
 			this.wrapper = $('<div class="mediaObject"></div>');
 			this.image = new Image();
-			if (this.model.node.current.description != undefined) {
-				this.image.alt = this.model.node.current.description.replace(/([^"\\]*(?:\\.[^"\\]*)*)"/g, '$1\\"');
-			} else {
-				this.image.alt = '';
-			}
+			this.image.alt = this.model.node.current.getAltTextWithFallback().replace(/([^"\\]*(?:\\.[^"\\]*)*)"/g, '$1\\"');
 			$(this.image).appendTo(this.wrapper);
 			$(this.image).css('display', 'none');
 			$(this.wrapper).appendTo(this.parentView.mediaContainer);
