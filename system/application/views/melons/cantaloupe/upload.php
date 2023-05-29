@@ -268,8 +268,9 @@ Other supported formats: 3gp, aif, mov, mpg, oga, tif, webm, webp<br />
 <input type="hidden" name="sioc:content" value="" />
 <input type="hidden" name="rdf:type" value="http://scalar.usc.edu/2012/01/scalar-ns#Media" />
 <table>
-	<tr><td>Title</td><td><input type="text" id="title" name="dcterms:title" class="form-control" /></td></tr>
-	<tr><td>Description</td><td><input type="text" id="description" name="dcterms:description" class="form-control" /></td></tr>
+	<tr><td><label for="title">Title</label></td><td><input type="text" id="title" name="dcterms:title" class="form-control" /></td></tr>
+	<tr><td><label for="description">Description</label></td><td><input type="text" id="description" name="dcterms:description" class="form-control" /></td></tr>
+	<tr><td><label for="alt_text">Alt text</label></td><td><input type="text" id="alt_text" name="scalar:altText" class="form-control" /><small>For images, concise description to improve accessibility, including for people who are blind or have low vision</small></td></tr>
 	<tr><td>Upload to</td><td>
 		<label><input type="radio" name="slug_prepend" value="" />&nbsp; <?=confirm_slash($book->slug)?></label>&nbsp; &nbsp;
 		<label><input type="radio" id="upload_to" name="slug_prepend" value="media" CHECKED />&nbsp; <?=confirm_slash($book->slug)?>media</label>
