@@ -209,7 +209,11 @@ class MY_Model extends CI_Model {
 		if (!empty($is_live)) $this->db->where($this->pages_table.'.is_live', 1);
 		$this->db->order_by($orderby, $orderdir);
 		$query = $this->db->get();
-		if ($this->db->error()) echo 'Database error: '.$this->db->error()['message'];
+		$dberror = $this->db->error();
+		if (!empty($dberror)) {
+			echo 'Database error: ' . $dberror['message'];
+			log_message('error', "Database error in get_children(): " . $dberror['message'] . ", Code: " . $dberror['code']);
+		}
 		$result = $query->result();
 		$remove = array();
     	for ($j = 0; $j < count($result); $j++) {
