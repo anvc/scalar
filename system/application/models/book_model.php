@@ -738,8 +738,8 @@ class Book_model extends MY_Model {
 				$this->db->join($this->books_table, $this->pages_table.'.book_id='.$this->books_table.'.book_id');
 				$this->db->where($this->books_table.'.book_id', $book_id);
 				$query = $this->db->get();
+				$book_version_ids = array();
 				if ($query->num_rows()) {
-					$book_version_ids = array();
 					$result = $query->result();
 					foreach ($result as $row) $book_version_ids[] = $row->version_id;
 				}
@@ -749,8 +749,8 @@ class Book_model extends MY_Model {
 				$this->db->join($this->books_table, $this->pages_table.'.book_id='.$this->books_table.'.book_id');
 				$this->db->where($this->books_table.'.book_id', $book_id);
 				$query = $this->db->get();
+				$book_page_ids = array();
 				if ($query->num_rows()) {
-					$book_page_ids = array();
 					$result = $query->result();
 					foreach ($result as $row) $book_page_ids[] = $row->content_id;
 				}
