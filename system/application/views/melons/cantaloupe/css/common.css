@@ -166,6 +166,7 @@ header { padding-top: 4.8rem; }
 .search_control form { display: inline; }
 .search_submit { display: none; }
 .search_loading {display:inline-block; position:relative; top:2px; display:none;}
+.form-group.condensed .col-sm-1, .form-group.condensed .col-sm-2, .form-group.condensed .col-sm-3, .form-group.condensed .col-sm-4, .form-group.condensed .col-sm-5, .form-group.condensed .col-sm-6 { padding-right: 5px; padding-left: 5px; margin-bottom: 5px; }
 
 .s_all_label {float:right;}
 .s_all_label label {cursor:pointer;}
