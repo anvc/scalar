@@ -428,7 +428,7 @@ STR;
     if (typeof scope === 'undefined' || scope == null || scope == '') scope = 'all';
     var index = (navigator.cookieEnabled) ? getCookie(editionCookieName()) : '';
     $.ajax({
-      url: $('link#sysroot').attr('href')+'system/api/get_editorial_count?book_id='+book_id+((''!==index)?'&edition_index='+index:''),
+      url: $('link#sysroot').attr('href')+'main/api/get_editorial_count?book_id='+book_id+((''!==index)?'&edition_index='+index:''),
       success: function(data) {
         if (data == '{"error":"Invalid edition index"}') {
           clearEditionCookie();

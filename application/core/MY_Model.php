@@ -210,7 +210,7 @@ class MY_Model extends CI_Model {
 		$this->db->order_by($orderby, $orderdir);
 		$query = $this->db->get();
 		$dberror = $this->db->error();
-		if (!empty($dberror)) {
+		if (!empty($dberror) && $dberror['code'] != 0 && !empty($dberror['message'])) {
 			echo 'Database error: ' . $dberror['message'];
 			log_message('error', "Database error in get_children(): " . $dberror['message'] . ", Code: " . $dberror['code']);
 		}
