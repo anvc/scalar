@@ -2253,7 +2253,7 @@ isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 								break;
 							case 'format':
 								if(typeof scalarapi !== "undefined"){
-									rowHTML += '<td class="' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'" property="'+col+'"><img src="'+$('link#approot').attr('href') + '/views/widgets/edit/'+item.node_type+'_icon.png" srcset="'+$('link#approot').attr('href') + 'views/widgets/edit/'+item.node_type+'_icon_2x.png 2x"> '+(item.content_type.replace('Code',' Code'))+'</td>';
+									rowHTML += '<td class="' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'" property="'+col+'"><img src="'+$('link#approot').attr('href') + '/views/widgets/edit/'+item.node_type+'_icon.png" srcset="'+$('link#approot').attr('href') + '/views/widgets/edit/'+item.node_type+'_icon_2x.png 2x"> '+(item.content_type.replace('Code',' Code'))+'</td>';
 								}else{
 									rowHTML += '<td class="' + ((-1 != opts.editable.indexOf(col)) ? ' editable' : '') + '" data-width="' + fieldWidths[col] +'" property="'+col+'">icon</td>';
 								}
