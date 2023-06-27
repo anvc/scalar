@@ -897,7 +897,8 @@ class Main extends MY_Controller {
 		    				$this->data['super_admins'][$key]->google_authenticator_is_enabled = true;
 		    			}
 		    		}
-		    		include_once APPPATH.'/libraries/GoogleAuthenticator/vendor/autoload.php';
+		    		// Loaded automatically by composer
+					//include_once APPPATH.'/libraries/GoogleAuthenticator/vendor/autoload.php';
 		    		$g = new \Google\Authenticator\GoogleAuthenticator();
 		    		$username = $this->data['login']->email;
 		    		$parse = parse_url(base_url());

@@ -190,8 +190,8 @@ class Login_model extends User_model {
 		$action = (isset($_REQUEST['action'])) ? $_REQUEST['action'] : null;
 
 		if ($action == 'do_authenticator') {
-
-			include_once APPPATH.'/libraries/GoogleAuthenticator/vendor/autoload.php';
+			// Loaded automatically by composer
+			// include_once APPPATH.'/libraries/GoogleAuthenticator/vendor/autoload.php';
 			$g = new \Google\Authenticator\GoogleAuthenticator();
 			$google_authenticator_salt = $this->config->item('google_authenticator_salt');
 			$code = trim($_POST['code']);
