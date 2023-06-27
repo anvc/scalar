@@ -307,7 +307,7 @@ STR;
   function moveAllContentToState(newState, successHandler) {
     if (confirm("Are you sure you want to move content to the "+editorial_states[newState].name+" state?")) {
       $.ajax({
-        url: $('link#sysroot').attr('href')+'system/api/save_editorial_state?book_id='+book_id+'&state='+newState+(user_data != null?'&user_id='+user_data.user_id:''),
+        url: $('link#sysroot').attr('href')+'main/api/save_editorial_state?book_id='+book_id+'&state='+newState+(user_data != null?'&user_id='+user_data.user_id:''),
         success: function(data) {
           if (successHandler == null) {
             location.reload();
@@ -328,7 +328,7 @@ STR;
   function moveContentFromOneStateToAnother(oldState, newState) {
     if (confirm("Are you sure you want to move all content in the "+editorial_states[oldState].name+" state to the "+editorial_states[newState].name+" state?")) {
       $.ajax({
-        url: $('link#sysroot').attr('href')+'system/api/save_editorial_state?book_id='+book_id+'&only_if_in_state='+oldState+'&state='+newState+(user_data != null?'&user_id='+user_data.user_id:''),
+        url: $('link#sysroot').attr('href')+'main/api/save_editorial_state?book_id='+book_id+'&only_if_in_state='+oldState+'&state='+newState+(user_data != null?'&user_id='+user_data.user_id:''),
         success: function(data) {
           location.reload();
         },
@@ -357,7 +357,7 @@ STR;
 				data.user_id = user_data.user_id;
 			}
     	$.ajax({
-    		url: $('link#sysroot').attr('href')+'system/api/save_editorial_state',
+    		url: $('link#sysroot').attr('href')+'main/api/save_editorial_state',
     		data: data,
     		success: function(data) {
     		  $('.selector').data('node_selection_dialogue').refresh_nodes();
@@ -375,7 +375,7 @@ STR;
   		alert('Create new edition fields are formatted inccorrectly.');
   		return;
   	}
-  	$.post($('link#sysroot').attr('href')+'system/api/create_edition', {book_id:book_id,title:fields.title}, function(data) {
+  	$.post($('link#sysroot').attr('href')+'main/api/create_edition', {book_id:book_id,title:fields.title}, function(data) {
   		if ('undefined'!=typeof(data.error) && data.error.length) {
   			alert('Something went wrong attempting to save: '+data.error);
   			return;
@@ -682,7 +682,7 @@ STR;
   		$('.editions .btn').trigger('blur');
   		var $modal = $(this);
   		$body = $modal.find('.modal-body:first');
-  		$.getJSON($('link#sysroot').attr('href')+'system/api/get_editions?book_id='+book_id, function(json) {
+  		$.getJSON($('link#sysroot').attr('href')+'main/api/get_editions?book_id='+book_id, function(json) {
   			if ('undefined'==typeof(json) || null === json) json = [];
   			if ('undefined'!=typeof(json.error) && json.error.length) {
   				alert('There was an error attempting to get Editions: '+json.error);
@@ -725,7 +725,7 @@ STR;
   						var index = parseInt($cell.closest('tr').data('index'));
   						var value = $cell.find('input').val();
   						var replace = value.slice();
-  						$.post($('link#sysroot').attr('href')+'system/api/edit_edition', {book_id:book_id,index:index,title:replace}, function(data) {
+  						$.post($('link#sysroot').attr('href')+'main/api/edit_edition', {book_id:book_id,index:index,title:replace}, function(data) {
   							$cell.data('is_saving', false);
   							if ('undefined'!=typeof(data.error) && data.error.length) {
   								alert(data.error);
@@ -769,7 +769,7 @@ STR;
   						$cell.data('is_editing', true);
   						$cell.data('is_saving', true);
   						var index = parseInt($(this).closest('tr').data('index'));
-  						$.post($('link#sysroot').attr('href')+'system/api/delete_edition', {book_id:book_id,index:index}, function(obj) {
+  						$.post($('link#sysroot').attr('href')+'main/api/delete_edition', {book_id:book_id,index:index}, function(obj) {
   							$('#manageEditions').trigger('show.bs.modal');
   							document.cookie = editionCookieName()+"=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";  // Delete cookie
   							var $select_edition = $('#select_edition');

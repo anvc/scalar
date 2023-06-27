@@ -26,7 +26,7 @@ $(document).ready(function() {
 	$duplicateBookModal.find('.rows').hide();
 	$duplicateBookModal.find('button:last').prop('disabled','disabled');
 	$duplicateBookModal.on('shown.bs.modal', function () {
-		var url = $('link#sysroot').attr('href')+'system/api/get_duplicatable_books';
+		var url = $('link#sysroot').attr('href')+'main/api/get_duplicatable_books';
 		$.getJSON(url, function(data) {
 			$duplicateBookModal.find('.loading').hide();
 			if (!data || !data.length) {
