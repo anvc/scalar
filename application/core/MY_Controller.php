@@ -263,7 +263,7 @@ class MY_Controller extends CI_Controller {
 
 	protected function no_permissions() {
 
-		$uri = (confirm_slash(base_url())).'system/permissions?redirect_url='.urlencode($this->redirect_url());
+		$uri = (confirm_slash(base_url())).'main/permissions?redirect_url='.urlencode($this->redirect_url());
 		header('Location: '.$uri);
 		exit;
 
