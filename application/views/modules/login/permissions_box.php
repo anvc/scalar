@@ -13,7 +13,7 @@
 			<input type="submit" class="generic_button large" value="Return to index" /><br />
 		</div>
 		<div class="center_text">
-			<a href="<?=confirm_slash(base_url())?>system/login<?=((isset($_REQUEST['redirect_url']))?'?redirect_url='.urlencode($_REQUEST['redirect_url']):'')?>">Login with another account</a>
+			<a href="<?=confirm_slash(base_url())?>main/login<?=((isset($_REQUEST['redirect_url']))?'?redirect_url='.urlencode($_REQUEST['redirect_url']):'')?>">Login with another account</a>
 		</div>
 	</form>
 </div>

@@ -249,7 +249,7 @@ class MY_Controller extends CI_Controller {
 
 	protected function require_login($msg='') {
 
-		$uri = (confirm_slash(base_url())).'system/login?redirect_url='.urlencode($this->redirect_url());
+		$uri = (confirm_slash(base_url())).'main/login?redirect_url='.urlencode($this->redirect_url());
 		if (!empty($msg)) $uri .= '&msg='.$msg;
 		header('Location: '.$uri);
 		exit;

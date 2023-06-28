@@ -100,7 +100,7 @@ $type = ($page->type == 'composite') ? 'page' : 'media page';
 		<h4 class="content_title">Add your voice to this discussion.</h4>
 		<p id="checking_logged_in_status">Checking your signed in status ...</p>
 		<p id="commenter_logged_in" style="display:none;">You are signed in as <a title="Your user page" href=""></a> (<a href="javascript:void(null);" title="Logout">Sign out</a>).&nbsp; Enter your comment below. Submissions are moderated. Please be respectful.</p>
-		<p id="commenter_anonymous" style="display:none;">To comment, enter your name and text below (you can also <a href="<?=confirm_slash(base_url())?>system/login?redirect_url=<?=urlencode(urlencode($_SERVER['REQUEST_URI'].'#comments'))?>">sign in</a> to use your Scalar account).<br />Comments are moderated. Please be respectful.</p>
+		<p id="commenter_anonymous" style="display:none;">To comment, enter your name and text below (you can also <a href="<?=confirm_slash(base_url())?>main/login?redirect_url=<?=urlencode(urlencode($_SERVER['REQUEST_URI'].'#comments'))?>">sign in</a> to use your Scalar account).<br />Comments are moderated. Please be respectful.</p>
 		<div id="comment_form_wrapper" style="display:none;">
 			<form id="comment_contribute_form" method="post" action="<?=$base_uri.$page->slug?>#comments" onsubmit="ajaxComment();return false;">
 			<input type="hidden" name="action" value="ADD" />

@@ -452,7 +452,7 @@ class Main extends MY_Controller {
 					try {
 						$this->users->set_password_from_form_fields($user->user_id, $_POST);
 						$this->users->save_reset_string($user->user_id, '');
-						header('Location: '.confirm_slash(base_url()).'system/login?msg=2');
+						header('Location: '.confirm_slash(base_url()).'main/login?msg=2');
 						exit;
 					} catch (Exception $e) {
 	    				$this->data['create_login_error'] = $e->getMessage();
