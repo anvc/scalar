@@ -82,9 +82,11 @@
 		});
 
 		this.ontologyMenu = this.searchManager.getOntologyMenu();
-		this.ontologyMenu.on('change', (event) => {
-			this.updateOntologyPropertyMenu();
-		})
+		if (this.ontologyMenu) {
+			this.ontologyMenu.on('change', (event) => {
+				this.updateOntologyPropertyMenu();
+			})
+		}
 
 		this.getOntologyData();
 	}
