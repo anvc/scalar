@@ -6,7 +6,7 @@
  *
  * This content is released under the MIT License (MIT)
  *
- * Copyright (c) 2014 - 2016, British Columbia Institute of Technology
+ * Copyright (c) 2019 - 2022, CodeIgniter Foundation
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,8 +29,9 @@
  * @package	CodeIgniter
  * @author	EllisLab Dev Team
  * @copyright	Copyright (c) 2008 - 2014, EllisLab, Inc. (https://ellislab.com/)
- * @copyright	Copyright (c) 2014 - 2016, British Columbia Institute of Technology (http://bcit.ca/)
- * @license	http://opensource.org/licenses/MIT	MIT License
+ * @copyright	Copyright (c) 2014 - 2019, British Columbia Institute of Technology (https://bcit.ca/)
+ * @copyright	Copyright (c) 2019 - 2022, CodeIgniter Foundation (https://codeigniter.com/)
+ * @license	https://opensource.org/licenses/MIT	MIT License
  * @link	https://codeigniter.com
  * @since	Version 3.0.0
  * @filesource
@@ -44,9 +45,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * @subpackage	Libraries
  * @category	Sessions
  * @author	Andrey Andreev
- * @link	https://codeigniter.com/user_guide/libraries/sessions.html
+ * @link	https://codeigniter.com/userguide3/libraries/sessions.html
  */
-class CI_Session_database_driver extends CI_Session_driver implements SessionHandlerInterface {
+class CI_Session_database_driver extends CI_Session_driver implements CI_Session_driver_interface {
 
 	/**
 	 * DB object
@@ -109,7 +110,10 @@ class CI_Session_database_driver extends CI_Session_driver implements SessionHan
 		}
 
 		// Note: BC work-around for the old 'sess_table_name' setting, should be removed in the future.
-		isset($this->_config['save_path']) OR $this->_config['save_path'] = config_item('sess_table_name');
+		if ( ! isset($this->_config['save_path']) && ($this->_config['save_path'] = config_item('sess_table_name')))
+		{
+			log_message('debug', 'Session: "sess_save_path" is empty; using BC fallback to "sess_table_name".');
+		}
 	}
 
 	// ------------------------------------------------------------------------
@@ -127,8 +131,10 @@ class CI_Session_database_driver extends CI_Session_driver implements SessionHan
 	{
 		if (empty($this->_db->conn_id) && ! $this->_db->db_connect())
 		{
-			return $this->_fail();
+			return $this->_failure;
 		}
+
+		$this->php5_validate_id();
 
 		return $this->_success;
 	}
@@ -145,48 +151,47 @@ class CI_Session_database_driver extends CI_Session_driver implements SessionHan
 	 */
 	public function read($session_id)
 	{
-		if ($this->_get_lock($session_id) !== FALSE)
+		if ($this->_get_lock($session_id) === FALSE)
 		{
-			// Prevent previous QB calls from messing with our queries
-			$this->_db->reset_query();
-
-			// Needed by write() to detect session_regenerate_id() calls
-			$this->_session_id = $session_id;
-
-			$this->_db
-				->select('data')
-				->from($this->_config['save_path'])
-				->where('id', $session_id);
-
-			if ($this->_config['match_ip'])
-			{
-				$this->_db->where('ip_address', $_SERVER['REMOTE_ADDR']);
-			}
-
-			if ( ! ($result = $this->_db->get()) OR ($result = $result->row()) === NULL)
-			{
-				// PHP7 will reuse the same SessionHandler object after
-				// ID regeneration, so we need to explicitly set this to
-				// FALSE instead of relying on the default ...
-				$this->_row_exists = FALSE;
-				$this->_fingerprint = md5('');
-				return '';
-			}
-
-			// PostgreSQL's variant of a BLOB datatype is Bytea, which is a
-			// PITA to work with, so we use base64-encoded data in a TEXT
-			// field instead.
-			$result = ($this->_platform === 'postgre')
-				? base64_decode(rtrim($result->data))
-				: $result->data;
-
-			$this->_fingerprint = md5($result);
-			$this->_row_exists = TRUE;
-			return $result;
+			return $this->_failure;
 		}
 
-		$this->_fingerprint = md5('');
-		return '';
+		// Prevent previous QB calls from messing with our queries
+		$this->_db->reset_query();
+
+		// Needed by write() to detect session_regenerate_id() calls
+		$this->_session_id = $session_id;
+
+		$this->_db
+			->select('data')
+			->from($this->_config['save_path'])
+			->where('id', $session_id);
+
+		if ($this->_config['match_ip'])
+		{
+			$this->_db->where('ip_address', $_SERVER['REMOTE_ADDR']);
+		}
+
+		if ( ! ($result = $this->_db->get()) OR ($result = $result->row()) === NULL)
+		{
+			// PHP7 will reuse the same SessionHandler object after
+			// ID regeneration, so we need to explicitly set this to
+			// FALSE instead of relying on the default ...
+			$this->_row_exists = FALSE;
+			$this->_fingerprint = md5('');
+			return '';
+		}
+
+		// PostgreSQL's variant of a BLOB datatype is Bytea, which is a
+		// PITA to work with, so we use base64-encoded data in a TEXT
+		// field instead.
+		$result = ($this->_platform === 'postgre')
+			? base64_decode(rtrim($result->data))
+			: $result->data;
+
+		$this->_fingerprint = md5($result);
+		$this->_row_exists = TRUE;
+		return $result;
 	}
 
 	// ------------------------------------------------------------------------
@@ -206,11 +211,11 @@ class CI_Session_database_driver extends CI_Session_driver implements SessionHan
 		$this->_db->reset_query();
 
 		// Was the ID regenerated?
-		if ($session_id !== $this->_session_id)
+		if (isset($this->_session_id) && $session_id !== $this->_session_id)
 		{
 			if ( ! $this->_release_lock() OR ! $this->_get_lock($session_id))
 			{
-				return $this->_fail();
+				return $this->_failure;
 			}
 
 			$this->_row_exists = FALSE;
@@ -218,7 +223,7 @@ class CI_Session_database_driver extends CI_Session_driver implements SessionHan
 		}
 		elseif ($this->_lock === FALSE)
 		{
-			return $this->_fail();
+			return $this->_failure;
 		}
 
 		if ($this->_row_exists === FALSE)
@@ -237,7 +242,7 @@ class CI_Session_database_driver extends CI_Session_driver implements SessionHan
 				return $this->_success;
 			}
 
-			return $this->_fail();
+			return $this->_failure;
 		}
 
 		$this->_db->where('id', $session_id);
@@ -260,7 +265,7 @@ class CI_Session_database_driver extends CI_Session_driver implements SessionHan
 			return $this->_success;
 		}
 
-		return $this->_fail();
+		return $this->_failure;
 	}
 
 	// ------------------------------------------------------------------------
@@ -275,7 +280,7 @@ class CI_Session_database_driver extends CI_Session_driver implements SessionHan
 	public function close()
 	{
 		return ($this->_lock && ! $this->_release_lock())
-			? $this->_fail()
+			? $this->_failure
 			: $this->_success;
 	}
 
@@ -304,7 +309,7 @@ class CI_Session_database_driver extends CI_Session_driver implements SessionHan
 
 			if ( ! $this->_db->delete($this->_config['save_path']))
 			{
-				return $this->_fail();
+				return $this->_failure;
 			}
 		}
 
@@ -314,7 +319,7 @@ class CI_Session_database_driver extends CI_Session_driver implements SessionHan
 			return $this->_success;
 		}
 
-		return $this->_fail();
+		return $this->_failure;
 	}
 
 	// ------------------------------------------------------------------------
@@ -334,7 +339,56 @@ class CI_Session_database_driver extends CI_Session_driver implements SessionHan
 
 		return ($this->_db->delete($this->_config['save_path'], 'timestamp < '.(time() - $maxlifetime)))
 			? $this->_success
-			: $this->_fail();
+			: $this->_failure;
+	}
+
+	// --------------------------------------------------------------------
+
+	/**
+	 * Update Timestamp
+	 *
+	 * Update session timestamp without modifying data
+	 *
+	 * @param	string	$id	Session ID
+	 * @param	string	$data	Unknown & unused
+	 * @return	bool
+	 */
+	public function updateTimestamp($id, $unknown)
+	{
+		// Prevent previous QB calls from messing with our queries
+		$this->_db->reset_query();
+
+		$this->_db->where('id', $id);
+		if ($this->_config['match_ip'])
+		{
+			$this->_db->where('ip_address', $_SERVER['REMOTE_ADDR']);
+		}
+
+		return (bool) $this->_db->update($this->_config['save_path'], array('timestamp' => time()));
+	}
+
+	// --------------------------------------------------------------------
+
+	/**
+	 * Validate ID
+	 *
+	 * Checks whether a session ID record exists server-side,
+	 * to enforce session.use_strict_mode.
+	 *
+	 * @param	string	$id	Session ID
+	 * @return	bool
+	 */
+	public function validateId($id)
+	{
+		// Prevent previous QB calls from messing with our queries
+		$this->_db->reset_query();
+
+		$this->_db->select('1')->from($this->_config['save_path'])->where('id', $id);
+		empty($this->_config['match_ip']) OR $this->_db->where('ip_address', $_SERVER['REMOTE_ADDR']);
+		$result = $this->_db->get();
+		empty($result) OR $result = $result->row();
+
+		return ! empty($result);
 	}
 
 	// ------------------------------------------------------------------------
@@ -351,7 +405,7 @@ class CI_Session_database_driver extends CI_Session_driver implements SessionHan
 	{
 		if ($this->_platform === 'mysql')
 		{
-			$arg = $session_id.($this->_config['match_ip'] ? '_'.$_SERVER['REMOTE_ADDR'] : '');
+			$arg = md5($session_id.($this->_config['match_ip'] ? '_'.$_SERVER['REMOTE_ADDR'] : ''));
 			if ($this->_db->query("SELECT GET_LOCK('".$arg."', 300) AS ci_session_lock")->row()->ci_session_lock)
 			{
 				$this->_lock = $arg;

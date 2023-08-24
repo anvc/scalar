@@ -6,7 +6,7 @@
  *
  * This content is released under the MIT License (MIT)
  *
- * Copyright (c) 2014 - 2016, British Columbia Institute of Technology
+ * Copyright (c) 2019 - 2022, CodeIgniter Foundation
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,8 +29,9 @@
  * @package	CodeIgniter
  * @author	EllisLab Dev Team
  * @copyright	Copyright (c) 2008 - 2014, EllisLab, Inc. (https://ellislab.com/)
- * @copyright	Copyright (c) 2014 - 2016, British Columbia Institute of Technology (http://bcit.ca/)
- * @license	http://opensource.org/licenses/MIT	MIT License
+ * @copyright	Copyright (c) 2014 - 2019, British Columbia Institute of Technology (https://bcit.ca/)
+ * @copyright	Copyright (c) 2019 - 2022, CodeIgniter Foundation (https://codeigniter.com/)
+ * @license	https://opensource.org/licenses/MIT	MIT License
  * @link	https://codeigniter.com
  * @since	Version 1.0.0
  * @filesource
@@ -51,7 +52,7 @@ if ( ! function_exists('xml_parser_create'))
  * @subpackage	Libraries
  * @category	XML-RPC
  * @author		EllisLab Dev Team
- * @link		https://codeigniter.com/user_guide/libraries/xmlrpc.html
+ * @link		https://codeigniter.com/userguide3/libraries/xmlrpc.html
  */
 class CI_Xmlrpc {
 
@@ -238,7 +239,7 @@ class CI_Xmlrpc {
 	public $result;
 
 	/**
-	 * XML-RPC Reponse
+	 * XML-RPC Response
 	 *
 	 * @var	array
 	 */
@@ -352,7 +353,7 @@ class CI_Xmlrpc {
 	 */
 	public function server($url, $port = 80, $proxy = FALSE, $proxy_port = 8080)
 	{
-		if (strpos($url, 'http') !== 0)
+		if (stripos($url, 'http') !== 0)
 		{
 			$url = 'http://'.$url;
 		}
@@ -460,7 +461,7 @@ class CI_Xmlrpc {
 			{
 				if (is_array($value[0]) && ($value[1] === 'struct' OR $value[1] === 'array'))
 				{
-					while (list($k) = each($value[0]))
+					foreach (array_keys($value[0]) as $k)
 					{
 						$value[0][$k] = $this->values_parsing($value[0][$k]);
 					}
@@ -559,7 +560,7 @@ class CI_Xmlrpc {
  *
  * @category	XML-RPC
  * @author		EllisLab Dev Team
- * @link		https://codeigniter.com/user_guide/libraries/xmlrpc.html
+ * @link		https://codeigniter.com/userguide3/libraries/xmlrpc.html
  */
 class XML_RPC_Client extends CI_Xmlrpc
 {
@@ -735,6 +736,8 @@ class XML_RPC_Client extends CI_Xmlrpc
 			.'Content-Length: '.strlen($msg->payload).$r.$r
 			.$msg->payload;
 
+		stream_set_timeout($fp, $this->timeout); // set timeout for subsequent operations
+
 		for ($written = $timestamp = 0, $length = strlen($op); $written < $length; $written += $result)
 		{
 			if (($result = fwrite($fp, substr($op, $written))) === FALSE)
@@ -753,9 +756,6 @@ class XML_RPC_Client extends CI_Xmlrpc
 					$result = FALSE;
 					break;
 				}
-
-				usleep(250000);
-				continue;
 			}
 			else
 			{
@@ -781,7 +781,7 @@ class XML_RPC_Client extends CI_Xmlrpc
  *
  * @category	XML-RPC
  * @author		EllisLab Dev Team
- * @link		https://codeigniter.com/user_guide/libraries/xmlrpc.html
+ * @link		https://codeigniter.com/userguide3/libraries/xmlrpc.html
  */
 class XML_RPC_Response
 {
@@ -932,15 +932,15 @@ class XML_RPC_Response
 
 		if (is_array($array))
 		{
-			while (list($key) = each($array))
+			foreach ($array as $key => &$value)
 			{
-				if (is_array($array[$key]))
+				if (is_array($value))
 				{
-					$array[$key] = $this->decode($array[$key]);
+					$array[$key] = $this->decode($value);
 				}
 				elseif ($this->xss_clean)
 				{
-					$array[$key] = $CI->security->xss_clean($array[$key]);
+					$array[$key] = $CI->security->xss_clean($value);
 				}
 			}
 
@@ -994,10 +994,11 @@ class XML_RPC_Response
 			reset($xmlrpc_val->me['struct']);
 			$arr = array();
 
-			while (list($key,$value) = each($xmlrpc_val->me['struct']))
+			foreach ($xmlrpc_val->me['struct'] as $key => &$value)
 			{
 				$arr[$key] = $this->xmlrpc_decoder($value);
 			}
+
 			return $arr;
 		}
 	}
@@ -1030,7 +1031,7 @@ class XML_RPC_Response
  *
  * @category	XML-RPC
  * @author		EllisLab Dev Team
- * @link		https://codeigniter.com/user_guide/libraries/xmlrpc.html
+ * @link		https://codeigniter.com/userguide3/libraries/xmlrpc.html
  */
 class XML_RPC_Message extends CI_Xmlrpc
 {
@@ -1181,7 +1182,7 @@ class XML_RPC_Message extends CI_Xmlrpc
 		$data = implode("\r\n", $lines);
 
 		// Parse XML data
-		if ( ! xml_parse($parser, $data, count($data)))
+		if ( ! xml_parse($parser, $data, TRUE))
 		{
 			$errstr = sprintf('XML error: %s at line %d',
 						xml_error_string(xml_get_error_code($parser)),
@@ -1213,7 +1214,7 @@ class XML_RPC_Message extends CI_Xmlrpc
 		{
 			echo '<pre>';
 
-			if (count($this->xh[$pname]['headers'] > 0))
+			if (count($this->xh[$pname]['headers']) > 0)
 			{
 				echo "---HEADERS---\n";
 				foreach ($this->xh[$pname]['headers'] as $header)
@@ -1563,17 +1564,17 @@ class XML_RPC_Message extends CI_Xmlrpc
 
 		if ( ! empty($array))
 		{
-			while (list($key) = each($array))
+			foreach ($array as $key => &$value)
 			{
-				if (is_array($array[$key]))
+				if (is_array($value))
 				{
-					$array[$key] = $this->output_parameters($array[$key]);
+					$array[$key] = $this->output_parameters($value);
 				}
 				elseif ($key !== 'bits' && $this->xss_clean)
 				{
 					// 'bits' is for the MetaWeblog API image bits
 					// @todo - this needs to be made more general purpose
-					$array[$key] = $CI->security->xss_clean($array[$key]);
+					$array[$key] = $CI->security->xss_clean($value);
 				}
 			}
 
@@ -1633,7 +1634,7 @@ class XML_RPC_Message extends CI_Xmlrpc
 			reset($param->me['struct']);
 			$arr = array();
 
-			while (list($key,$value) = each($param->me['struct']))
+			foreach ($param->me['struct'] as $key => &$value)
 			{
 				$arr[$key] = $this->decode_message($value);
 			}
@@ -1649,7 +1650,7 @@ class XML_RPC_Message extends CI_Xmlrpc
  *
  * @category	XML-RPC
  * @author		EllisLab Dev Team
- * @link		https://codeigniter.com/user_guide/libraries/xmlrpc.html
+ * @link		https://codeigniter.com/userguide3/libraries/xmlrpc.html
  */
 class XML_RPC_Values extends CI_Xmlrpc
 {
@@ -1824,7 +1825,7 @@ class XML_RPC_Values extends CI_Xmlrpc
 				// struct
 				$rs .= "<struct>\n";
 				reset($val);
-				while (list($key2, $val2) = each($val))
+				foreach ($val as $key2 => &$val2)
 				{
 					$rs .= "<member>\n<name>{$key2}</name>\n".$this->serializeval($val2)."</member>\n";
 				}
@@ -1885,11 +1886,9 @@ class XML_RPC_Values extends CI_Xmlrpc
 	 */
 	public function serializeval($o)
 	{
-		$ar = $o->me;
-		reset($ar);
-
-		list($typ, $val) = each($ar);
-		return "<value>\n".$this->serializedata($typ, $val)."</value>\n";
+		$array = $o->me;
+		list($value, $type) = array(reset($array), key($array));
+		return "<value>\n".$this->serializedata($type, $value)."</value>\n";
 	}
 
 	// --------------------------------------------------------------------
@@ -1901,8 +1900,7 @@ class XML_RPC_Values extends CI_Xmlrpc
 	 */
 	public function scalarval()
 	{
-		reset($this->me);
-		return current($this->me);
+		return reset($this->me);
 	}
 
 	// --------------------------------------------------------------------
@@ -1914,10 +1912,10 @@ class XML_RPC_Values extends CI_Xmlrpc
 	 * @param	int	unix timestamp
 	 * @param	bool
 	 * @return	string
-	*/
+	 */
 	public function iso8601_encode($time, $utc = FALSE)
 	{
-		return ($utc) ? strftime('%Y%m%dT%H:%i:%s', $time) : gmstrftime('%Y%m%dT%H:%i:%s', $time);
+		return ($utc) ? date('Ymd\TH:i:s', $time) : gmdate('Ymd\TH:i:s', $time);
 	}
 
 } // END XML_RPC_Values Class

@@ -105,7 +105,7 @@ CREATE TABLE IF NOT EXISTS `scalar_db_resources` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `scalar_db_sessions` (
-  `session_id` varchar(40) COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
+  `session_id` varchar(128) COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
   `ip_address` varchar(45) COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
   `user_agent` varchar(120) COLLATE utf8_unicode_ci NOT NULL,
   `last_activity` int(10) unsigned NOT NULL DEFAULT '0',

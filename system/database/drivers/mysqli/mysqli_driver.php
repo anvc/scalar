@@ -6,7 +6,7 @@
  *
  * This content is released under the MIT License (MIT)
  *
- * Copyright (c) 2014 - 2016, British Columbia Institute of Technology
+ * Copyright (c) 2019 - 2022, CodeIgniter Foundation
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,8 +29,9 @@
  * @package	CodeIgniter
  * @author	EllisLab Dev Team
  * @copyright	Copyright (c) 2008 - 2014, EllisLab, Inc. (https://ellislab.com/)
- * @copyright	Copyright (c) 2014 - 2016, British Columbia Institute of Technology (http://bcit.ca/)
- * @license	http://opensource.org/licenses/MIT	MIT License
+ * @copyright	Copyright (c) 2014 - 2019, British Columbia Institute of Technology (https://bcit.ca/)
+ * @copyright	Copyright (c) 2019 - 2022, CodeIgniter Foundation (https://codeigniter.com/)
+ * @license	https://opensource.org/licenses/MIT	MIT License
  * @link	https://codeigniter.com
  * @since	Version 1.3.0
  * @filesource
@@ -48,7 +49,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * @subpackage	Drivers
  * @category	Database
  * @author		EllisLab Dev Team
- * @link		https://codeigniter.com/user_guide/database/
+ * @link		https://codeigniter.com/userguide3/database/
  */
 class CI_DB_mysqli_driver extends CI_DB {
 
@@ -116,6 +117,13 @@ class CI_DB_mysqli_driver extends CI_DB {
 	 */
 	public function db_connect($persistent = FALSE)
 	{
+		// PHP 8.1 changes default error handling mode from silent to exceptions - reverse that
+		if (is_php('8.1'))
+		{
+			$mysqli_driver = new mysqli_driver();
+			$mysqli_driver->report_mode = MYSQLI_REPORT_OFF;
+		}
+
 		// Do we have a socket path?
 		if ($this->hostname[0] === '/')
 		{
@@ -125,8 +133,7 @@ class CI_DB_mysqli_driver extends CI_DB {
 		}
 		else
 		{
-			// Persistent connection support was added in PHP 5.3.0
-			$hostname = ($persistent === TRUE && is_php('5.3'))
+			$hostname = ($persistent === TRUE)
 				? 'p:'.$this->hostname : $this->hostname;
 			$port = empty($this->port) ? NULL : $this->port;
 			$socket = NULL;
@@ -168,26 +175,28 @@ class CI_DB_mysqli_driver extends CI_DB {
 			empty($this->encrypt['ssl_capath']) OR $ssl['capath'] = $this->encrypt['ssl_capath'];
 			empty($this->encrypt['ssl_cipher']) OR $ssl['cipher'] = $this->encrypt['ssl_cipher'];
 
+			if (isset($this->encrypt['ssl_verify']))
+			{
+				$client_flags |= MYSQLI_CLIENT_SSL;
+
+				if ($this->encrypt['ssl_verify'])
+				{
+					defined('MYSQLI_OPT_SSL_VERIFY_SERVER_CERT') && $this->_mysqli->options(MYSQLI_OPT_SSL_VERIFY_SERVER_CERT, TRUE);
+				}
+				// Apparently (when it exists), setting MYSQLI_OPT_SSL_VERIFY_SERVER_CERT
+				// to FALSE didn't do anything, so PHP 5.6.16 introduced yet another
+				// constant ...
+				//
+				// https://secure.php.net/ChangeLog-5.php#5.6.16
+				// https://bugs.php.net/bug.php?id=68344
+				elseif (defined('MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT'))
+				{
+					$client_flags |= MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT;
+				}
+			}
+
 			if ( ! empty($ssl))
 			{
-				if (isset($this->encrypt['ssl_verify']))
-				{
-					if ($this->encrypt['ssl_verify'])
-					{
-						defined('MYSQLI_OPT_SSL_VERIFY_SERVER_CERT') && $this->_mysqli->options(MYSQLI_OPT_SSL_VERIFY_SERVER_CERT, TRUE);
-					}
-					// Apparently (when it exists), setting MYSQLI_OPT_SSL_VERIFY_SERVER_CERT
-					// to FALSE didn't do anything, so PHP 5.6.16 introduced yet another
-					// constant ...
-					//
-					// https://secure.php.net/ChangeLog-5.php#5.6.16
-					// https://bugs.php.net/bug.php?id=68344
-					elseif (defined('MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT'))
-					{
-						$this->_mysqli->options(MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT, TRUE);
-					}
-				}
-
 				$client_flags |= MYSQLI_CLIENT_SSL;
 				$this->_mysqli->ssl_set(
 					isset($ssl['key'])    ? $ssl['key']    : NULL,
@@ -211,7 +220,7 @@ class CI_DB_mysqli_driver extends CI_DB {
 				$this->_mysqli->close();
 				$message = 'MySQLi was configured for an SSL connection, but got an unencrypted connection instead!';
 				log_message('error', $message);
-				return ($this->db->db_debug) ? $this->db->display_error($message, '', TRUE) : FALSE;
+				return ($this->db_debug) ? $this->display_error($message, '', TRUE) : FALSE;
 			}
 
 			return $this->_mysqli;
@@ -256,6 +265,7 @@ class CI_DB_mysqli_driver extends CI_DB {
 		if ($this->conn_id->select_db($database))
 		{
 			$this->database = $database;
+			$this->data_cache = array();
 			return TRUE;
 		}
 
@@ -381,7 +391,7 @@ class CI_DB_mysqli_driver extends CI_DB {
 	// --------------------------------------------------------------------
 
 	/**
-	 * Platform-dependant string escape
+	 * Platform-dependent string escape
 	 *
 	 * @param	string
 	 * @return	string
@@ -427,7 +437,7 @@ class CI_DB_mysqli_driver extends CI_DB {
 	 */
 	protected function _list_tables($prefix_limit = FALSE)
 	{
-		$sql = 'SHOW TABLES FROM '.$this->escape_identifiers($this->database);
+		$sql = 'SHOW TABLES FROM '.$this->_escape_char.$this->database.$this->_escape_char;
 
 		if ($prefix_limit !== FALSE && $this->dbprefix !== '')
 		{
@@ -501,8 +511,8 @@ class CI_DB_mysqli_driver extends CI_DB {
 		if ( ! empty($this->_mysqli->connect_errno))
 		{
 			return array(
-				'code' => $this->_mysqli->connect_errno,
-				'message' => is_php('5.2.9') ? $this->_mysqli->connect_error : mysqli_connect_error()
+				'code'    => $this->_mysqli->connect_errno,
+				'message' => $this->_mysqli->connect_error
 			);
 		}
 

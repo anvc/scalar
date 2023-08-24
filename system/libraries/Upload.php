@@ -6,7 +6,7 @@
  *
  * This content is released under the MIT License (MIT)
  *
- * Copyright (c) 2014 - 2016, British Columbia Institute of Technology
+ * Copyright (c) 2019 - 2022, CodeIgniter Foundation
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,8 +29,9 @@
  * @package	CodeIgniter
  * @author	EllisLab Dev Team
  * @copyright	Copyright (c) 2008 - 2014, EllisLab, Inc. (https://ellislab.com/)
- * @copyright	Copyright (c) 2014 - 2016, British Columbia Institute of Technology (http://bcit.ca/)
- * @license	http://opensource.org/licenses/MIT	MIT License
+ * @copyright	Copyright (c) 2014 - 2019, British Columbia Institute of Technology (https://bcit.ca/)
+ * @copyright	Copyright (c) 2019 - 2022, CodeIgniter Foundation (https://codeigniter.com/)
+ * @license	https://opensource.org/licenses/MIT	MIT License
  * @link	https://codeigniter.com
  * @since	Version 1.0.0
  * @filesource
@@ -44,7 +45,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * @subpackage	Libraries
  * @category	Uploads
  * @author		EllisLab Dev Team
- * @link		https://codeigniter.com/user_guide/libraries/file_uploading.html
+ * @link		https://codeigniter.com/userguide3/libraries/file_uploading.html
  */
 class CI_Upload {
 
@@ -286,7 +287,7 @@ class CI_Upload {
 	/**
 	 * Constructor
 	 *
-	 * @param	array	$props
+	 * @param	array	$config
 	 * @return	void
 	 */
 	public function __construct($config = array())
@@ -601,7 +602,7 @@ class CI_Upload {
 				'file_type'		=> $this->file_type,
 				'file_path'		=> $this->upload_path,
 				'full_path'		=> $this->upload_path.$this->file_name,
-				'raw_name'		=> str_replace($this->file_ext, '', $this->file_name),
+				'raw_name'		=> substr($this->file_name, 0, -strlen($this->file_ext)),
 				'orig_name'		=> $this->orig_name,
 				'client_name'		=> $this->client_name,
 				'file_ext'		=> $this->file_ext,
@@ -678,10 +679,8 @@ class CI_Upload {
 			$this->set_error('upload_bad_filename', 'debug');
 			return FALSE;
 		}
-		else
-		{
-			return $new_filename;
-		}
+
+		return $new_filename;
 	}
 
 	// --------------------------------------------------------------------
@@ -869,7 +868,7 @@ class CI_Upload {
 			$this->file_type = 'image/jpeg';
 		}
 
-		$img_mimes = array('image/gif',	'image/jpeg', 'image/png');
+		$img_mimes = array('image/gif',	'image/jpeg', 'image/png', 'image/webp');
 
 		return in_array($this->file_type, $img_mimes, TRUE);
 	}
@@ -903,7 +902,7 @@ class CI_Upload {
 		}
 
 		// Images get some additional checks
-		if (in_array($ext, array('gif', 'jpg', 'jpeg', 'jpe', 'png'), TRUE) && @getimagesize($this->file_temp) === FALSE)
+		if (in_array($ext, array('gif', 'jpg', 'jpeg', 'jpe', 'png', 'webp'), TRUE) && @getimagesize($this->file_temp) === FALSE)
 		{
 			return FALSE;
 		}
@@ -1083,16 +1082,27 @@ class CI_Upload {
 			return FALSE;
 		}
 
-		if (memory_get_usage() && ($memory_limit = ini_get('memory_limit')))
+		if (memory_get_usage() && ($memory_limit = ini_get('memory_limit')) > 0)
 		{
-			$memory_limit *= 1024 * 1024;
+			$memory_limit = str_split($memory_limit, strspn($memory_limit, '1234567890'));
+			if ( ! empty($memory_limit[1]))
+			{
+				switch ($memory_limit[1][0])
+				{
+					case 'g':
+					case 'G':
+						$memory_limit[0] *= 1024 * 1024 * 1024;
+						break;
+					case 'm':
+					case 'M':
+						$memory_limit[0] *= 1024 * 1024;
+						break;
+					default:
+						break;
+				}
+			}
 
-			// There was a bug/behavioural change in PHP 5.2, where numbers over one million get output
-			// into scientific notation. number_format() ensures this number is an integer
-			// http://bugs.php.net/bug.php?id=43053
-
-			$memory_limit = number_format(ceil(filesize($file) + $memory_limit), 0, '.', '');
-
+			$memory_limit = (int) ceil(filesize($file) + $memory_limit[0]);
 			ini_set('memory_limit', $memory_limit); // When an integer is used, the value is measured in bytes. - PHP.net
 		}
 
@@ -1207,15 +1217,18 @@ class CI_Upload {
 		// We'll need this to validate the MIME info string (e.g. text/plain; charset=us-ascii)
 		$regexp = '/^([a-z\-]+\/[a-z0-9\-\.\+]+)(;\s.+)?$/';
 
-		/* Fileinfo extension - most reliable method
+		/**
+		 * Fileinfo extension - most reliable method
 		 *
-		 * Unfortunately, prior to PHP 5.3 - it's only available as a PECL extension and the
-		 * more convenient FILEINFO_MIME_TYPE flag doesn't exist.
+		 * Apparently XAMPP, CentOS, cPanel and who knows what
+		 * other PHP distribution channels EXPLICITLY DISABLE
+		 * ext/fileinfo, which is otherwise enabled by default
+		 * since PHP 5.3 ...
 		 */
 		if (function_exists('finfo_file'))
 		{
 			$finfo = @finfo_open(FILEINFO_MIME);
-			if (is_resource($finfo)) // It is possible that a FALSE value is returned, if there is no magic MIME database file found on the system
+			if ($finfo !== FALSE) // It is possible that a FALSE value is returned, if there is no magic MIME database file found on the system
 			{
 				$mime = @finfo_file($finfo, $file['tmp_name']);
 				finfo_close($finfo);
@@ -1298,7 +1311,7 @@ class CI_Upload {
 			}
 		}
 
-		// Fall back to the deprecated mime_content_type(), if available (still better than $_FILES[$field]['type'])
+		// Fall back to mime_content_type(), if available (still better than $_FILES[$field]['type'])
 		if (function_exists('mime_content_type'))
 		{
 			$this->file_type = @mime_content_type($file['tmp_name']);
