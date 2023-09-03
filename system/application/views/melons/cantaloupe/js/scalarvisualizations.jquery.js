@@ -2415,7 +2415,7 @@ window.scalarvis = { instanceCount: -1 };
           }
         } else if (nodeArray.length == 0) {
           if (base.visualization.find('.no-results-msg').length == 0) {
-            base.visualization.prepend('<div class="no-results-msg caption_font">No results to visualize.</div>');
+            base.visualization.prepend('<div class="no-results-msg caption_font">No results to show.</div>');
           }
         } else {
           base.visualization.find('.no-results-msg').remove();
