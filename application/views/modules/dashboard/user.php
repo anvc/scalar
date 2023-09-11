@@ -22,7 +22,7 @@ $(window).ready(function() {
 			$('input[name="is_duplicate"]').parent().find('span:first').html('Duplicate of another book?');
 		} else {
 			$('<div></div>').duplicatabledialog({
-				'url':$('link#sysroot').attr('href')+'system/api/get_duplicatable_books',
+				'url':$('link#sysroot').attr('href')+'main/api/get_duplicatable_books',
 				'callback':function(book_id, title) {
 					if (!book_id) {
 						$('input[name="book_to_duplicate"]').val(0);
