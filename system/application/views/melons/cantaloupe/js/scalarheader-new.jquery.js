@@ -602,9 +602,10 @@
       base.addSearchFunctionality()
       base.updateRecentMenu()
 
-      // TODO stopped at line 1089, but submenus are looking strange
+      $(window).on('resize', base.handleResize).on('scroll', base.handleScroll);
 
       base.handleResize();
+      base.handleBook();
 
     }
 
@@ -1451,7 +1452,117 @@
         desktopTitle.trigger("update");
       }
       base.$el.removeClass('mobile_view desktop_view').addClass(base.usingMobileView?'mobile_view':'desktop_view');
-    };
+    }
+
+    base.handleScroll = function (e) {
+      var base = $('#scalarheader.navbar').data('scalarheader');
+      if ('undefined' == typeof(base)) return;
+      if (base.usingMobileView) {
+        base.oldScrollTop = 0;
+        base.$el.removeClass('short');
+        $('body').removeClass('shortHeader').trigger('headerSizeChanged');
+      } else {
+        var scrollTop = $(this).scrollTop();
+        if(scrollTop >= 50 && scrollTop > base.oldScrollTop && $('#mainMenuSubmenus').find('.expandedPage').length == 0){
+          base.$el.addClass('short');
+          $('body').addClass('shortHeader').trigger('headerSizeChanged');
+        }else{
+          base.$el.removeClass('short');
+          $('body').removeClass('shortHeader').trigger('headerSizeChanged');
+        }
+        base.oldScrollTop = scrollTop;
+      }
+    }
+
+    base.handleBook = function(){
+      //Build the main menu
+      var node = scalarapi.model.getMainMenuNode();
+
+      // TODO stopped here, TOC isn't appearing (line 1115 in other)
+
+      var menu = $( '.mainMenu>.dropdown-menu .body>ol' );
+
+      if (node != null) {
+        var i, subMenu, subMenuItem,
+          menuItems = node.getRelatedNodes('reference', 'outgoing', true),
+          n = menuItems.length;
+        if (n > 0) {
+          var tocNode, listItem;
+          for (i=n-1; i>=0; i--) { //going in reverse here, since we're prepending...
+            tocNode = menuItems[i];
+            listItem = $( '<li><a href="' + tocNode.url + '">'+ tocNode.getDisplayTitle(true) + '</a></li>' )
+              .prependTo( menu )
+              .data({
+                'slug': tocNode.slug,
+                'node': tocNode
+              })
+              .addClass((base.parentNodes.indexOf(tocNode.slug) < 0 && (typeof base.currentNode === 'undefined' || tocNode.slug != base.currentNode.slug))?'':'is_parent')
+              .addClass((base.visitedPages.indexOf(tocNode.url) < 0 && (typeof base.currentNode === 'undefined' || tocNode.url != base.currentNode.url))?'':'visited');
+
+            $('<a class="expand" title="Explore '+tocNode.getDisplayTitle(true)+'"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(listItem).on('click', function(e){
+              var base = $('#scalarheader.navbar').data('scalarheader');
+              var target_toc_item = $(this).parent().data('node');
+              base.expandMenu(target_toc_item,0);
+              var menu = $( '.mainMenu>.dropdown-menu .body>ol>li.active').removeClass('active');
+              $(this).parent().addClass('active');
+
+              $("#mainMenuSubmenus").removeClass (function (index, className) {
+                return (className.match (/(^|\s)submenu-\S+/g) || []).join(' ');
+              });
+              $('#mainMenuSubmenus').addClass('submenu-' + target_toc_item.slug)
+
+              e.preventDefault();
+              return false;
+            })
+          }
+        }
+      }
+
+      $('.mainMenu').addClass('ready');
+
+      base.$el.find('#ScalarHeaderDelete').on('click', function(){
+        var result = confirm('Are you sure you wish to hide this page from view?');
+
+        if (result) {
+          // assemble params for the trash action
+          var pageData = {
+            native:1,
+            id:$('link#parent').attr('href'),
+            api_key:'',
+            action: 'DELETE',
+            'scalar:urn': $('link#urn').attr('href')
+          };
+          // execute the trash action (i.e. make is_live=0)
+          scalarapi.savePage(pageData, function(result) {
+            for (var url in result) break;
+            url = url.substr(0, url.lastIndexOf('.'));
+            window.location.href=url;
+            return;
+          }, function(result) {
+            alert('An error occurred attempting to hide this page: '+result);
+            var login = $('link#approot').attr('href').replace('application','login');
+            if ('/'==login.substr(login.length-1,1)) login = login.substr(0,login.length-1);
+            var url = $('link#parent').attr('href');
+            window.location.href=login+'?redirect_url='+encodeURIComponent(url);
+            return;
+          });
+        }
+      });
+
+      var tabIndex = 1;
+      $('#scalarheader>div>div>ul>li>a, .title_wrapper a').each(function(){
+        $(this).attr('tabindex',tabIndex++);
+      }).add($('#scalarheader>div>div>ul>li.dropdown>ul a, #scalarheader>div>div>ul>li input').attr('tabindex','-1')).on('keyup', function(e){
+        if(!$(this).is('#scalarheader>div>div>ul>li.dropdown>ul a') || $(this).hasClass('expand') || $(this).parent().hasClass('vis_link') || $(this).parent().hasClass('index_link') || ($(this).attr('href')!=null && $(this).attr('href')!='')){
+          // enter, space
+          if(e.which == 13 || e.which == 32){
+            $(this).trigger('click');
+          }
+        }
+      });
+
+      base.$el.find('#desktopTitleWrapper').trigger("update");
+    }
 
     base.init()
 
