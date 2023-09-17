@@ -215,7 +215,7 @@ class SearchManager {
 			'<div class="form-group condensed">'+
 				'<label for="modal_search_term" class="col-sm-2 text-right">Search for</label>'+
 				'<div class="col-sm-6">'+
-					'<input id="modal_search_term" name="search_term" type="text" autocomplete="off" class="form-control" tabindex="9000" placeholder="Enter search terms">'+
+					'<input id="modal_search_term" name="search_term" type="text" autocomplete="off" class="form-control" placeholder="Enter search terms">'+
 				'</div>'+
 			'</div>'+
 			'<div class="form-group condensed">'+
@@ -240,8 +240,12 @@ class SearchManager {
 					'</select>'+
 				'</div>'+
 				'<div class="col-sm-1">'+
-					'<button tabindex="9001" type="submit" class="btn btn-default">Search</button> &nbsp; '+
+					'<button type="submit" class="btn btn-default">Search</button> &nbsp; '+
 				'</div>'+
+			'</div>'+
+			'<div class="error-msg hidden form-group condensed caption_font">'+
+				'<label class="col-sm-2"></label>'+
+				'<small class="text-danger col-sm-6">* Please correct the errors in the highlighted items above.</small>'+
 			'</div>'+
 		'</form><br>').appendTo(this.bodyContent)
 		
@@ -297,10 +301,15 @@ class SearchManager {
 	}
 
 	getLensForQuery(query) {
+		let lens = {}
+		let errors = []
+		if (query == '') {
+			errors.push('missingQuery')
+		}
 		switch ($('#modal_scope').val()) {
 
 			case 'content':
-				return {
+				lens = {
 					"visualization": {
 						"type": "list",
 						"options": []
@@ -324,9 +333,10 @@ class SearchManager {
 					],
 					"sorts": [],
 				}
+				break
 
 			case 'titles':
-				return {
+				lens = {
 					"visualization": {
 						"type": "list",
 						"options": []
@@ -350,9 +360,10 @@ class SearchManager {
 					],
 					"sorts": [],
 				}
+				break
 
 			case 'titles_content':
-				return {
+				lens = {
 					"visualization": {
 						"type": "list",
 						"options": {
@@ -386,9 +397,16 @@ class SearchManager {
 					}],
 					"sorts": [],
 				}
+				break
 				
 			case 'metadata':
-				return {
+				if (this.ontologyMenu.val() == 'none') {
+					errors.push('missingMetadataOntology')
+				}
+				if (this.ontologyPropertyMenu.val() == 'none') {
+					errors.push('missingMetadataProperty')
+				}
+				lens = {
 					"visualization": {
 						"type": "list",
 						"options": []
@@ -412,22 +430,57 @@ class SearchManager {
 					],
 					"sorts": [],
 				}
+				break
 		}
-		return {}
+		if (errors.length > 0) {
+			return {
+				error: errors
+			}
+		} else {
+			return lens
+		}
+	}
+
+	removeAllErrors() {
+		$('#modal_search').find('div').removeClass('has-error')
+		$('#modal_search').find('.error-msg').addClass('hidden')
+	}
+
+	handleErrors(errors) {
+		$('#modal_search').find('.error-msg').removeClass('hidden')
+		for (let i=0; i<errors.length; i++) {
+			switch (errors[i]) {
+				case 'missingQuery':
+					$('#modal_search_term').parent().addClass('has-error')
+					break
+				case 'missingMetadataOntology':
+					$('#modal_ontology').parent().addClass('has-error')
+					break
+				case 'missingMetadataProperty':
+					$('#modal_metadata_field').parent().addClass('has-error')
+					break
+			}
+		}
 	}
 	
 	doSearch(query) {
-		const visOptions = {
-			modal: false,
-			widget: true,
-			content: 'lens',
-			lens: this.getLensForQuery(query)
-		}
-		if (!this.scalarvis) {
-			this.resultsTable.scalarvis(visOptions);
-			this.scalarvis = this.resultsTable.data('scalarvis')
+		this.removeAllErrors()
+		const lens = this.getLensForQuery(query)
+		if (lens.error) {
+			this.handleErrors(lens.error)
 		} else {
-			this.scalarvis.setOptions(visOptions)
+			const visOptions = {
+				modal: false,
+				widget: true,
+				content: 'lens',
+				lens: this.getLensForQuery(query)
+			}
+			if (!this.scalarvis) {
+				this.resultsTable.scalarvis(visOptions);
+				this.scalarvis = this.resultsTable.data('scalarvis')
+			} else {
+				this.scalarvis.setOptions(visOptions)
+			}
 		}
 	}
 }
