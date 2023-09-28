@@ -34,6 +34,7 @@
       base.visitedPages = [];
       base.index_url = scalarapi.model.parent_uri.slice(0, -1);
       base.index_url = base.index_url.substr(0, base.index_url.lastIndexOf('/'))+'/';
+      base.remToPx = parseFloat(getComputedStyle(document.documentElement).fontSize);
       //We might not have the current page loaded, but we can still get the slug; strip the book URL and the GET params from the current URL
       base.current_slug = window.location.href.split("?")[0].split("#")[0].replace(scalarapi.model.parent_uri,'');
 
@@ -74,7 +75,8 @@
               id: 'recent_menu',
               text: 'Recent',
               icon: 'recentIcon',
-              placeholder: '<li><i class="loader"></i></li>'
+              placeholder: '<li><i class="loader"></i></li>',
+              submenu: []
             },
             {
               id: 'lenses_menu',
@@ -605,14 +607,12 @@
       base.addSearchFunctionality()
       base.updateRecentMenu()
 
-      $(window).on('resize', base.handleResize).on('scroll', base.handleScroll);
+      $(window).on('resize', () => { base.handleResize(); }).on('scroll', base.handleScroll);
 
       base.handleResize()
       base.handleBook()
-      // TODO: submenus have weird spacing
 
       $('body').on('pageLoadComplete', $.proxy(base.setupTitleTruncate, base))
-      // TODO: confirm that truncating works as expected
 
       if (base.dataType == 'normal' && base.editorialWorkflowEnabled && scalarapi.getEdition(document.location.href) == -1) {
         base.setupEditorialBar();
@@ -946,7 +946,6 @@
         if (!base.usingMobileView) {
           // right arrow, enter, space
           if (e.which == 39 || e.which == 13 || e.which == 32) {
-            console.log($(this).parent())
             base.initSubmenus($(this).parent());
             e.stopPropagation();
             return false;
@@ -2029,7 +2028,6 @@
         $(this).find('a').on('keyup', function(e) {
           // enter, space
           if (e.which == 13 || e.which == 32) {
-            console.log(this)
             $(this).trigger('click');
           }
         });
