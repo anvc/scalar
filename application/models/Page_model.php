@@ -233,7 +233,7 @@ class Page_model extends MY_Model {
     	if (!empty($is_live)) $this->db->where($this->pages_table.'.is_live', 1);
     	$this->db->order_by($this->versions_table.'.version_id', 'desc');
     	$query = $this->db->get();
-    	if (!$query->num_rows) return null;
+    	if (!$query->num_rows()) return null;
     	$result = $query->result();
 
     	// Group by content ID

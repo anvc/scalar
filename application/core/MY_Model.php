@@ -416,7 +416,7 @@ class MY_Model extends CI_Model {
     	$this->db->order_by('version_num', 'desc');
     	$this->db->limit(1);
     	$query = $this->db->get();
-    	if ($query->num_rows==0) return 0;
+    	if ($query->num_rows() == 0) return 0;
     	$result = $query->result();
     	$version_num = $result[0]->version_num;
     	return $version_num;
