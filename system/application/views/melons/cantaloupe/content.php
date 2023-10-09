@@ -15,7 +15,7 @@
 <?$this->template->add_js(path_from_file(__FILE__).'js/main.js')?>
 <?$this->template->add_js(path_from_file(__FILE__).'js/jquery.dotdotdot.js');?>
 <?$this->template->add_js(path_from_file(__FILE__).'js/jquery.scrollTo.min.js');?>
-<?$this->template->add_js(path_from_file(__FILE__).'js/scalarheader-new.jquery.js');?>
+<?$this->template->add_js(path_from_file(__FILE__).'js/scalarheader.jquery.js');?>
 <?$this->template->add_js(path_from_file(__FILE__).'js/scalarpage.jquery.js')?>
 <?$this->template->add_js(path_from_file(__FILE__).'js/scalarmedia.jquery.js')?>
 <?$this->template->add_js(path_from_file(__FILE__).'js/scalarmediadetails.jquery.js')?>
