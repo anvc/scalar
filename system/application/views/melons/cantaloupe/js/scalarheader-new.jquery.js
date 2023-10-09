@@ -82,6 +82,7 @@
               id: 'lenses_menu',
               text: 'Lenses',
               icon: 'lensIcon',
+              submenu: []
             },
             {
               id: 'vis_menu',
@@ -91,51 +92,61 @@
                 {
                   text: 'Current',
                   icon: 'currentIcon',
+                  class: 'vis_link',
                   data: { vistype: 'viscurrent' },
                 },
                 {
                   text: 'Contents',
                   icon: 'tocIcon',
+                  class: 'vis_link',
                   data: { vistype: 'vistoc' },
                 },
                 {
                   text: 'Connections',
                   icon: 'connectionsIcon',
+                  class: 'vis_link',
                   data: { vistype: 'visconnections' },
                 },
                 {
                   text: 'Grid',
                   icon: 'gridIcon',
+                  class: 'vis_link',
                   data: { vistype: 'visindex' },
                 },
                 {
                   text: 'Map',
                   icon: 'mapIcon',
+                  class: 'vis_link',
                   data: { vistype: 'vismap' },
                 },
                 {
                   text: 'Radial',
                   icon: 'radialIcon',
+                  class: 'vis_link',
                   data: { vistype: 'visradial' },
                 },
                 {
                   text: 'Path',
                   icon: 'pathIcon',
+                  class: 'vis_link',
                   data: { vistype: 'vispath' },
                 },
                 {
                   text: 'Media',
                   icon: 'mediaIcon',
+                  class: 'vis_link',
                   data: { vistype: 'vismedia' },
                 },
                 {
                   text: 'Tag',
                   icon: 'tagIcon',
+                  class: 'vis_link',
                   data: { vistype: 'vistag' },
                 },
                 {
                   text: 'Word Cloud',
                   icon: 'wordCloudIcon',
+                  class: 'vis_link',
                   data: { vistype: 'viswordcloud' },
                 },
               ],
@@ -996,8 +1007,10 @@
           lens: base.visualizationData[$(this).attr('data-vistype')]
         }
         $('.modalVisualization').data('scalarvis').showModal(options);
+        e.preventDefault();
+        e.stopPropagation();
       })
-      $( '#ScalarHeaderVisualization>a' ).on('click', function(e) {
+      $( '#navMenu>a' ).on('click', function(e) {
         if (state != ViewState.Navigating) {
             setState(ViewState.Navigating);
         } else {
@@ -1006,7 +1019,7 @@
         e.preventDefault();
         e.stopPropagation();
         return false;
-    });
+      });
     }
 
     base.setupHelpModal = function() {
@@ -1392,6 +1405,9 @@
       }
       if (itemData.icon) {
         link.append(`<span class="menuIcon" id="${itemData.icon}"></span>`)
+      }
+      if (itemData.class) {
+        listItem.addClass(itemData.class)
       }
       link.append(itemData.text)
       listItem.append(link)
