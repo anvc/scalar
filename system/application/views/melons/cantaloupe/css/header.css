@@ -527,6 +527,7 @@ span.navbar-text.navbar-left.pull-left.title_wrapper.visible-xs{
   	padding-left: 3.5rem;
 	margin-left: 3rem;
 	right: 2.2rem;
+	outline-color: #fff;
 }
 .tocMenu .expandedPage .relationships ol>li>a{
 	margin-right: 3.5rem;
@@ -606,6 +607,9 @@ span.navbar-text.navbar-left.pull-left.title_wrapper.visible-xs{
 	color: #fff;
 	text-decoration: none;
 }
+.navbar ul.dropdown-menu li>a:focus-visible, #mobileMainMenuSubmenus li>a:focus-visible{
+	outline-color: #fff;
+}
 .navbar li.mainMenu ul.dropdown-menu>li:hover,
 .navbar li.mainMenu ul.dropdown-menu>li:focus{
 	background-color: transparent;
@@ -638,7 +642,7 @@ span.navbar-text.navbar-left.pull-left.title_wrapper.visible-xs{
 .navbar li.mainMenu>.mainMenuDropdown>#mainMenuInside>li>ol>li.is_parent>a.expand, .tocMenu .expandedPage .relationships ol>li.is_parent>a.expand{
 	background-color: #4c4c4c;
 }
-.navbar li.mainMenu>.mainMenuDropdown>#mainMenuInside>li>ol>li>a.expand:hover, .tocMenu .expandedPage .relationships ol>li>a.expand:hover,
+.navbar li.mainMenu>.mainMenuDropdown>#mainMenuInside>li>ol>li>a.expand:hover, .navbar li.mainMenu>.mainMenuDropdown>#mainMenuInside>li>ol>li>a.expand:focus, .tocMenu .expandedPage .relationships ol>li>a.expand:hover,
 .tocMenu .expandedPage .relationships ol>li>a.expand:focus{
 	background-color: #006793;
 }
