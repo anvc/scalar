@@ -897,36 +897,10 @@
           e.preventDefault();
           return false;
         }
-      }).find("ul.dropdown-menu li.dropdown").on('mouseenter', function(e) {
-        // individual menu items
+      }).find("ul.dropdown-menu li.dropdown").on('click', function(e) {
         var base = $('#scalarheader.navbar').data('scalarheader');
         if (!base.usingMobileView) {
-    
-          var timeout = $(this).data('hoverEvent');
-          if ($(this).data('hoverEvent') != null) {
-            clearTimeout($(this).data('hoverEvent'));
-            $(this).data('hoverEvent', null);
-          }
-    
-          $(this).siblings('li.open').each(function() {
-            var timeout = $(this).data('hoverEvent');
-            if ($(this).data('hoverEvent') != null) {
-              clearTimeout($(this).data('hoverEvent'));
-              $(this).data('hoverEvent', null);
-              $(this).removeClass('open').trigger('hide.bs.dropdown').find('[aria-expanded="true"]').attr('aria-expanded', 'false');
-            }
-          });
-    
           base.initSubmenus(this);
-        }
-      }).on('mouseleave', function(e) {
-        var base = $('#scalarheader.navbar').data('scalarheader');
-        if (!base.usingMobileView) {
-          $(this).data('hoverEvent', setTimeout($.proxy(function() {
-            $(this).removeClass('open').trigger('hide.bs.dropdown').find('[aria-expanded="true"]').attr('aria-expanded', 'false');
-          }, $(this)), 200));
-        } else {
-          return true;
         }
       }).on('hide.bs.dropdown', function(e) {
         e.stopPropagation();
@@ -970,23 +944,6 @@
           base.$el.find('#ScalarHeaderMenuLeft .mainMenu').removeClass('open').trigger('hide.bs.dropdown').find('[aria-expanded="true"]').attr('aria-expanded', 'false');
         }
       })
-    
-      base.$el.find('.dropdown-menu').on('mouseenter', function() {
-        if (!base.usingMobileView) {
-          var containerHeight = $(this).height() + 50;
-          var max_height = $(window).height() - 50;
-          if (containerHeight >= max_height) {
-            $(this).css('max-height', max_height + 'px').addClass('tall');
-            var offset = $('body').scrollTop();
-            $('body').addClass('in_menu'); //.css('margin-top','-'+offset+'px').data('scrollTop',offset);
-          }
-        }
-      }).on('mouseleave', function() {
-        if ($(this).hasClass('tall')) {
-          $(this).css('max-height', '').removeClass('tall');
-          $('body').removeClass('in_menu'); //.css('margin-top','0px').scrollTop($('body').data('scrollTop'));
-        }
-      });
     }
 
     base.setupIndexModal = function() {
@@ -1010,16 +967,6 @@
         e.preventDefault();
         e.stopPropagation();
       })
-      $( '#navMenu>a' ).on('click', function(e) {
-        if (state != ViewState.Navigating) {
-            setState(ViewState.Navigating);
-        } else {
-            setState(ViewState.Reading);
-        }
-        e.preventDefault();
-        e.stopPropagation();
-        return false;
-      });
     }
 
     base.setupHelpModal = function() {
@@ -1492,7 +1439,7 @@
 
     base.focusExpandedPage = function(container) {
       if (container != null && typeof container !== 'undefined') {
-        container.find('a').attr('tabindex', '-1').first().trigger('focus');
+        container.find('a')/* .attr('tabindex', '-1') */.first().trigger('focus');
       }
     }
 
@@ -1767,13 +1714,13 @@
     
       var description = node.current.description;
     
-      var container = $('<div class="expandedPage"><h2 class="title">' + node.getDisplayTitle(true) + '</h2><div class="description">' + description + '</div><ul class="description_more_link_container"><li class="pull-right"><a class="description_more_link" title="Display full description">more</a></li></ul><ul class="links"><!--<a class="details">Details</a>--><li><a class="visit" href="' + base.get_param(node.url) + '" title="Visit page, \'' + node.getDisplayTitle(true) + '\'"tabindex="-1">Visit page</a></li></ul><div class="relationships"><i class="loader"></i></div></div>').data({
+      var container = $('<div class="expandedPage"><h2 class="title">' + node.getDisplayTitle(true) + '</h2><div class="description">' + description + '</div><ul class="description_more_link_container"><li class="pull-right"><a class="description_more_link" title="Display full description">more</a></li></ul><ul class="links"><!--<a class="details">Details</a>--><li><a class="visit" href="' + base.get_param(node.url) + '" title="Visit page, \'' + node.getDisplayTitle(true) + '\'">Visit page</a></li></ul><div class="relationships"><i class="loader"></i></div></div>').data({
         'index': n,
         'slug': node.slug
       }).css('right', offset + 'px').appendTo(expanded_menu);
     
       if (!base.usingMobileView) {
-        container.prepend('<div class="close" role="link" tabindex="-1" title="Close expanded panel"><span class="menuIcon closeIcon"></span></div>');
+        container.prepend('<div class="close" role="link" title="Close expanded panel"><span class="menuIcon closeIcon"></span></div>');
       }
       if (typeof base.currentNode !== 'undefined' && container.data('slug') == base.currentNode.slug) {
         container.addClass('is_current');
@@ -1946,7 +1893,7 @@
           var newList = $('<li><strong>Features</strong><ol></ol></li>').appendTo(splitList).find('ol');
           for (var i in features) {
             var relNode = features[i];
-            var nodeItem = $('<li><a href="' + relNode.url + '" tabindex="-1">' + relNode.getDisplayTitle(true) + '</a></li>')
+            var nodeItem = $('<li><a href="' + relNode.url + '">' + relNode.getDisplayTitle(true) + '</a></li>')
               .data({
                 'slug': relNode.slug,
                 'node': relNode
@@ -1965,7 +1912,7 @@
           var newList = $('<li><strong>Tagged by</strong><ol class="tags"></ol></li>').appendTo(splitList).find('ol');
           for (var i in tag_of) {
             var relNode = tag_of[i];
-            var nodeItem = $('<li><a href="' + relNode.url + '" tabindex="-1">' + relNode.getDisplayTitle(true) + '</a></li>')
+            var nodeItem = $('<li><a href="' + relNode.url + '">' + relNode.getDisplayTitle(true) + '</a></li>')
               .data({
                 'slug': relNode.slug,
                 'node': relNode
@@ -1973,7 +1920,7 @@
               .addClass(((base.parentNodes.indexOf(relNode.slug) < 0 && (typeof base.currentNode === 'undefined' || relNode.slug != base.currentNode.slug))) ? '' : 'is_parent')
               .addClass((base.visitedPages.indexOf(relNode.url) < 0 && (typeof base.currentNode === 'undefined' || relNode.url != base.currentNode.url)) ? '' : 'visited');
     
-            $('<a class="expand" tabindex="-1"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
+            $('<a class="expand"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
     
             newList.append(nodeItem);
     
@@ -1984,7 +1931,7 @@
           var newList = $('<li><strong>Annotates</strong><ol></ol></li>').appendTo(splitList).find('ol');
           for (var i in annotates) {
             var relNode = annotates[i];
-            var nodeItem = $('<li><a href="' + relNode.url + '" tabindex="-1">' + relNode.getDisplayTitle(true) + '</a></li>')
+            var nodeItem = $('<li><a href="' + relNode.url + '">' + relNode.getDisplayTitle(true) + '</a></li>')
               .data({
                 'slug': relNode.slug,
                 'node': relNode
@@ -2003,7 +1950,7 @@
           var newList = $('<li><strong>Comments on</strong><ol></ol></li>').appendTo(splitList).find('ol');
           for (var i in comments_on) {
             var relNode = comments_on[i];
-            var nodeItem = $('<li><a href="' + relNode.url + '" tabindex="-1">' + relNode.getDisplayTitle(true) + '</a></li>')
+            var nodeItem = $('<li><a href="' + relNode.url + '">' + relNode.getDisplayTitle(true) + '</a></li>')
               .data({
                 'slug': relNode.slug,
                 'node': relNode
@@ -2011,7 +1958,7 @@
               .addClass(((base.parentNodes.indexOf(relNode.slug) < 0 && (typeof base.currentNode === 'undefined' || relNode.slug != base.currentNode.slug))) ? '' : 'is_parent')
               .addClass((base.visitedPages.indexOf(relNode.url) < 0 && (typeof base.currentNode === 'undefined' || relNode.url != base.currentNode.url)) ? '' : 'visited');
     
-            $('<a class="expand" tabindex="-1"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
+            $('<a class="expand"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
     
             newList.append(nodeItem);
           }
