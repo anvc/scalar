@@ -91,7 +91,7 @@
 
                     if(date_parts[4]!=undefined){
                         var era = date_parts[4].toLowerCase();
-                        if(($.inArray(era, ['bce','bc']) > -1 && entry.start_date.year > 0) || ($.inArray(era, ['ce','ad']) > -1 && entry.start_date.year > 0)){
+                        if(($.inArray(era, ['bce','bc']) > -1 && entry.start_date.year > 0)){
                             entry.start_date.year *= -1;
                         }
                     }
@@ -480,7 +480,9 @@
 
             addInlineNoteElementForLink: function(link) {
 
-            	link.wrap('<div class="inlineNoteBody body_copy"></div>');
+            	if (!link.parent().is('.inlineNoteBody')) {
+            		link.wrap('<div class="inlineNoteBody body_copy"></div>');
+            	}
             	link.text('Go to note').attr('href', $('link#parent').attr('href')+link.attr('resource'));
             	var wrapper = link.parent();
             	var slug = link.attr('resource');
@@ -511,6 +513,7 @@
 	            	}
             	}
             	scalarapi.loadNode(slug, true, function(node) {
+            		wrapper.find('.content, .description, .title').remove();
             		for (uri in node) {
             			var version_uri = node[uri]['http://purl.org/dc/terms/hasVersion'][0].value;
             			var version = node[version_uri];
@@ -2425,7 +2428,7 @@
                     var well = collapsible.find(".well");
                     well.append(table);
 
-                    page.bodyContent().append(metadata);
+                    page.bodyContent().after(metadata);
                     metadata.wrap('<div class="paragraph_wrapper"></div>');
 
                 }

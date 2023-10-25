@@ -46,10 +46,10 @@ Class Api extends CI_Controller {
 
 	//Valid fields for each type of action
 	//TODO: Pretty sure we can clean up the add_fields|update_fields array then remove options_* arrays, since 'scalar' prefix is now allowed globally ~cd
-	private $add_fields = array('dcterms:title','dcterms:description','rdf:type','scalar:child_urn','scalar:child_type','scalar:child_rel','scalar:fullname','sioc:content');
-	private $optional_add_fields = array('dcterms:description','scalar:fullname','sioc:content');
-	private $update_fields = array('dcterms:title','dcterms:description','rdf:type','scalar:urn','scalar:fullname','sioc:content');
-	private $optional_update_fields = array('dcterms:description','scalar:fullname','sioc:content');
+	private $add_fields = array('dcterms:title','dcterms:description','scalar:altText','rdf:type','scalar:child_urn','scalar:child_type','scalar:child_rel','scalar:fullname','sioc:content');
+	private $optional_add_fields = array('dcterms:description','scalar:altText','scalar:fullname','sioc:content');
+	private $update_fields = array('dcterms:title','dcterms:description','scalar:altText','rdf:type','scalar:urn','scalar:fullname','sioc:content');
+	private $optional_update_fields = array('dcterms:description','scalar:altText','scalar:fullname','sioc:content');
 	private $relate_fields = array('scalar:urn', 'scalar:child_urn', 'scalar:child_rel');
 	private $content_metadata = array('category', 'thumbnail', 'background', 'banner', 'custom_style', 'custom_scripts', 'color', 'slug', 'audio', 'is_live');
 	private $version_metadata = array('url', 'default_view', 'continue_to_content_id', 'sort_number','editorial_state','usage_rights','editorial_queries');
@@ -638,6 +638,7 @@ Class Api extends CI_Controller {
 		$save['user_id'] = $this->user->user_id;
 		$save['title'] = $this->data['dcterms:title'];
 		$save['description'] = $this->data['dcterms:description'];
+		$save['alt_text'] = $this->data['scalar:altText'];
 		$save['content'] = isset($this->data['sioc:content']) ? $this->data['sioc:content'] : '';
 		$save['type'] = $this->data['rdf:type'];
 		if (!isset($this->data['scalar:fullname'])) $this->data['scalar:fullname'] = '';

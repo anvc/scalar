@@ -295,12 +295,10 @@
 					method = 'appendTo';
 				}
 
-				if (node.current.description != undefined) {
-					alttext = node.current.description.replace(/"/g, '&#34;');
-					if (alttext != null) alttext = alttext.replace(/([^"\\]*(?:\\.[^"\\]*)*)"/g, '$1\\"');
-				} else {
-					alttext = '';
-				}
+				console.log(node.current)
+
+				alttext = node.current.getAltTextWithFallback().replace(/"/g, '&#34;');
+				if (alttext != null) alttext = alttext.replace(/([^"\\]*(?:\\.[^"\\]*)*)"/g, '$1\\"');
 
 				var tooltipText = node.getDisplayTitle() + ' (' + node.current.mediaSource.contentType + ')';
 				tooltipText = tooltipText.replace(/"/g,'&quot;');

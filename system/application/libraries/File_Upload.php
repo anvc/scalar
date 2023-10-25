@@ -122,7 +122,7 @@ class File_Upload {
         try {
             $this->storage->store($tempFile, $targetFile);
         } catch (Scalar_Storage_Exception $e) {
-            throw new Exception('Problem moving temp file. The file is likely larger than the system\'s max upload size (' . $this->getMaximumFileUploadSize() . ').');
+        	throw new Exception('Problem moving temp file. '.$e->getMessage().' The file is likely larger than the system\'s max upload size (' . $this->getMaximumFileUploadSize() . ').');
         }
         return $this->storage->getUri($targetFile);
     }
