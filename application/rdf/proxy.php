@@ -36,6 +36,7 @@ $format =@ ($_REQUEST['format']=='json') ? 'json' : 'xml';
 if (empty($uri)) die ('Invalid URI');
 
 $uri = str_replace(' ', '+', $uri);
+$headers = array();
 
 if (stristr($uri, "youtube")) {
 	include(__DIR__.'/../config/local_settings.php');
@@ -59,7 +60,8 @@ if (stristr($uri, "youtube")) {
 			if (!isset($arr[1])) die('Invalid Airtable base URL');
 			$base_key = $arr[1];
 			$uri = $uri . $base_key . '/' . $airtable['table_name'];
-			$uri = $uri . '?api_key='.$airtable['api_key'].'&filterByFormula=SEARCH(%22'.$sq.'%22%2C+LOWER(%7B'.urlencode($airtable['field_to_search']).'%7D))';
+			$uri = $uri . '?filterByFormula=SEARCH(%22'.$sq.'%22%2C+LOWER(%7B'.urlencode($airtable['field_to_search']).'%7D))';
+			$headers[] = "Authorization: Bearer ".$airtable['token'];
 		}
 	}
 }
@@ -135,6 +137,7 @@ if ('json'==$format) {
 		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
 		if (!empty($_SERVER['SERVER_NAME'])) curl_setopt($ch, CURLOPT_REFERER, $_SERVER['SERVER_NAME']);
+		if (count($headers)) curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		$response = curl_exec($ch);
 		curl_close($ch);
 		$json = json_decode($response, true);

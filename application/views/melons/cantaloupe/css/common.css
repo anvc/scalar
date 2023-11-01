@@ -163,24 +163,10 @@ header { padding-top: 4.8rem; }
 
 #search-item { white-space: nowrap; }
 
-.search_input {
-	width: 0;
-	overflow: hidden;
-	-webkit-appearance: none;
-    -webkit-border-radius: 0px;
-    border: none;
-    outline: none;
-    margin-top: -.2rem;
-    position: relative;
-    top: 1rem;
-    padding: .5rem 0;
-    font-size: 1.4rem;
-    color: black;
-}
-
 .search_control form { display: inline; }
 .search_submit { display: none; }
 .search_loading {display:inline-block; position:relative; top:2px; display:none;}
+.form-group.condensed .col-sm-1, .form-group.condensed .col-sm-2, .form-group.condensed .col-sm-3, .form-group.condensed .col-sm-4, .form-group.condensed .col-sm-5, .form-group.condensed .col-sm-6 { padding-right: 5px; padding-left: 5px; margin-bottom: 5px; }
 
 .s_all_label {float:right;}
 .s_all_label label {cursor:pointer;}
@@ -1180,18 +1166,10 @@ label {
 }
 /* search modal */
 .search .modal .form-inline.row {
-
   margin-right:0;
 }
 .search .modal  label {
   margin-top:5px;
-}
-.search .modal .search_input {
-  margin: 0;
-  top: 0;
-  padding:0 0.4rem;
-  border:solid 1px rgb(204, 204, 204);
-  width: 100%;
 }
 /* bootstrap override */
 button, .btn, input, optgroup, select, textarea {
@@ -1721,7 +1699,7 @@ input.validation-error {
 	float:left;
 	margin-right:3px;
 }
-#latitude.form-control, #distance-latitude.form-control {
+#modalByDistance #latitude.form-control, #sortModal #distance-latitude.form-control {
 	width:98%;
 }
 
@@ -1830,10 +1808,10 @@ span.base {
 .sort-modal-content {
 	margin:20px 0;
 }
-#latitude, #longitude, #distance-latitude, #distance-longitude {
+#modalByDistance #latitude, #modalByDistance #longitude, #sortModal #distance-latitude, #sortModal #distance-longitude {
 	max-width:150px
 }
-#latitude, #distance-latitude {
+#modalByDistance #latitude, #distance-latitude {
 	float:left;
 	margin-right:3px;
 }

@@ -216,9 +216,12 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                     '<span class="visible-xs">Home Page</span>'+
                                                 '</a>'+
                                             '</li>'+
+
+                                            /* Main menu */
+
                                             '<li class="dropdown mainMenu">'+
-                                                '<a class="dropdown-toggle headerIcon" data-toggle="dropdown" role="menuitem" aria-expanded="false">'+
-                                                    '<span class="visible-xs">Table of Contents</span>'+
+                                                '<a class="dropdown-toggle headerIcon" data-toggle="dropdown" aria-labelledby="label-toc" aria-expanded="false" role="menuitem" title="Main navigation for the project">'+
+                                                    '<span id="label-toc" class="visible-xs">Table of Contents</span>'+
                                                 '</a>'+
                                                 '<ul class="dropdown-menu mainMenuDropdown" role="menu">'+
                                                     '<div id="mainMenuInside">'+
@@ -238,9 +241,12 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                     '<div id="mainMenuSubmenus" class="tocMenu"></div>'+
                                                 '</ul>'+
                                             '</li>'+
+
+                                            /* Wayfinding menu */
+
                                             '<li class="dropdown" id="navMenu">'+
-                                                '<a class="dropdown-toggle headerIcon" data-toggle="dropdown" role="menuitem" aria-expanded="false" id="wayfindingIcon">'+
-                                                    '<span class="visible-xs">Wayfinding</span>'+
+                                                '<a class="dropdown-toggle headerIcon" data-toggle="dropdown" aria-labelledby="label-wayfinding" aria-expanded="false" role="menuitem" title="Various ways to explore Scalar" id="wayfindingIcon">'+
+                                                    '<span id="label-wayfinding" class="visible-xs">Wayfinding</span>'+
                                                 '</a>'+
                                                 '<ul class="dropdown-menu" role="menu">'+
                                                     '<li id="recent_menu" class="dropdown">'+
@@ -280,11 +286,18 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                 '</ul>'+
                                             '</li>'+
                                         '</ul>'+
+
+                                        /* Title and credit */
+
                                         '<span class="navbar-text navbar-left pull-left title_wrapper hidden-xs" id="desktopTitleWrapper"><span class="hidden-xs author_text"><span id="header_authors" data-placement="bottom"></span></span></span>'+
+
                                         '<ul class="nav navbar-nav navbar-right" id="ScalarHeaderMenuRight">'+
+
+                                            /* Search */
+
                                             '<li class="" id="ScalarHeaderMenuSearch">'+
-                                                '<a class="headerIcon" id="searchIcon" title="Search button. Click to open search field.">'+
-                                                    '<span class="visible-xs">Search Book</span>'+
+                                                '<a class="headerIcon" id="searchIcon" aria-labelledby="label-search" aria-role="button" title="Open search field">'+
+                                                    '<span id="label-search" class="visible-xs">Search</span>'+
                                                 '</a>'+
                                             '</li>'+
                                             '<li id="ScalarHeaderMenuSearchForm">'+
@@ -295,29 +308,37 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
                                                     '</div>'+
                                                   '</form>'+
                                             '</li>'+
-                                            /*
-                                            '<li id="ScalarHeaderVisualization" class="hidden-xs">'+
-                                                '<a class="headerIcon">'+
-                                                    '<img src="' + base.options.root_url + '/images/visualization_icon.png" alt="Visualization button. Click to toggle visualization showing current position."/>'+
-                                                '</a>'+
-                                            '</li>'+
-                                            */
+
+                                            /* Help */
+
                                             '<li id="ScalarHeaderHelp">'+
-                                                '<a class="headerIcon" id="helpIcon" title="Help button. Click to toggle help info."><span class="hidden-sm hidden-md hidden-lg">Help</span></a>'+
+                                                '<a class="headerIcon" id="helpIcon" aria-labelledby="label-help" title="Display help information"><span id="label-help" class="hidden-sm hidden-md hidden-lg">Help</span></a>'+
                                             '</li>'+
+
+                                            /* New page */
+
                                             (base.okToAdd?
-                                                '<li id="ScalarHeaderNew"><a class="headerIcon" href="' + base.get_param(scalarapi.model.urlPrefix + 'new.edit')+'" id="newIcon" title="New page button. Click to create a new page."><span class="visible-xs">New page</span></a></li>'
+                                                '<li id="ScalarHeaderNew"><a class="headerIcon" href="' + base.get_param(scalarapi.model.urlPrefix + 'new.edit')+'" id="newIcon" aria-labelledby="label-new" aria-role="link" title="Create a new page"><span id="label-new" class="visible-xs">New page</span></a></li>'
                                                 :'')+
+
+                                            /* Edit page or media */
+
                                             (base.okToCopyEdit&&!base.isEditorialPathPage?
-                                                '<li id="ScalarHeaderEdit"><a class="headerIcon" href="' + scalarapi.stripEdition(base.get_param(scalarapi.model.urlPrefix + base.current_slug + '.edit')) + '" id="editIcon" title="Edit button. Click to edit the current page or media."><span class="visible-xs">Edit page</span></a></li>'
+                                                '<li id="ScalarHeaderEdit"><a class="headerIcon" href="' + scalarapi.stripEdition(base.get_param(scalarapi.model.urlPrefix + base.current_slug + '.edit')) + '" id="editIcon" aria-labelledby="label-edit" aria-role="link" title="Edit the current content"><span id="label-edit" class="visible-xs">Edit page</span></a></li>'
                                                 :'')+
+
+                                            /* Annotate media */
+
                                             (base.okToAdd?
-                                                ((base.currentNode!=null && base.currentNode.hasScalarType( 'media' ))?'<li id="ScalarHeaderAnnotate" class="hidden-xs"><a class="headerIcon" href="' + base.get_param(scalarapi.model.urlPrefix + scalarapi.basepath( window.location.href ) + '.annotation_editor')+'" id="annotateIcon" title="Annotate button. Click to annotate the current media."><span class="visible-xs">Annotate media</span></a></li>':'')
+                                                ((base.currentNode!=null && base.currentNode.hasScalarType( 'media' ))?'<li id="ScalarHeaderAnnotate" class="hidden-xs"><a class="headerIcon" href="' + base.get_param(scalarapi.model.urlPrefix + scalarapi.basepath( window.location.href ) + '.annotation_editor')+'" id="annotateIcon" aria-labelledby="label-annotate" aria-role="link" title="Annotate the current media"><span id="label-annotate" class="visible-xs">Annotate media</span></a></li>':'')
                                                 :'')+
                                             (base.is_author?
                                                 '<li class="dropdown" id="ScalarHeaderImport" class="hidden-xs">'+
-                                                    '<a class="dropdown-toggle headerIcon" data-toggle="dropdown" role="menuitem" aria-expanded="false" id="importIcon" title="Import menu. Roll over to show import options.">'+
-                                                        '<span class="visible-xs">Import</span>'+
+
+                                                    /* Import media */
+
+                                                    '<a class="dropdown-toggle headerIcon" data-toggle="dropdown" role="menuitem" aria-expanded="false" id="importIcon" aria-labelledby="label-import" aria-role="menuitem" aria-expanded="false" title="Media import options">'+
+                                                        '<span id="label-import" class="visible-xs">Import</span>'+
                                                     '</a>'+
                                                     '<ul class="dropdown-menu" role="menu" id="ScalarHeaderMenuImportList">'+
                                                         '<li class="dropdown">'+
@@ -348,24 +369,31 @@ getPropertyValue:function(a){return this[a]||""},item:function(){},removePropert
 		                                                        '<li class="dropdown">'+
 		                                                            '<a role="menuitem" href="' + base.get_param(scalarapi.model.urlPrefix + 'new.edit?type=media&') + '">Link to media files</a>'+
 		                                                        '</li>'+
-		                                                        /*
-		                                                        '<li class="dropdown">'+
-	                                                        		'<a role="menuitem" href="' + base.get_param(scalarapi.model.urlPrefix + 'criticalcommons') + '">Upload to Critical Commons</a>'+
-	                                                        	'</li>'+
-	                                                        	*/
 	                                                        '</ul>'+
 	                                                     '</li>'+
                                                     '</ul>'+
                                                 '</li>'
                                                 :'')+
                                             ((base.is_author||base.is_editor)?
-                                                (base.okToDelete&&!base.isEditorialPathPage&&base.currentNode!=null?'<li id="ScalarHeaderDelete"><a class="headerIcon" id="deleteIcon" title="Delete"><span class="visible-xs">Delete page</span></a></li>':'')+
-                                                (base.editorialWorkflowEnabled&&!base.isEditorialPathPage&&scalarapi.getEdition(document.location.href) == -1?'<li id="ScalarHeaderEditorialPath"><a href="' + base.get_param(scalarapi.model.urlPrefix + 'editorialpath') + '" class="headerIcon" id="editorialPathIcon" title="Editorial path. Click to access the editorial path for this book."><span class="hidden-sm hidden-md hidden-lg">Editorial path</span></a></li>':'')+
-                                                ('<li id="ScalarHeaderOptions"><a href="' + system_uri + '/dashboard?book_id=' + base.bookId + '&zone=style#tabs-style" class="headerIcon" id="optionsIcon" title="Options button. Click to access the Dashboard."><span class="hidden-sm hidden-md hidden-lg">Dashboard</span></a></li>')
+                                                
+                                                /* Delete */
+
+                                                (base.okToDelete&&!base.isEditorialPathPage&&base.currentNode!=null?'<li id="ScalarHeaderDelete"><a class="headerIcon" id="deleteIcon" aria-labelledby="label-delete" aria-role="link" title="Make this content private"><span id="label-delete" class="visible-xs">Delete</span></a></li>':'')+
+
+                                                /* Editorial path */
+
+                                                (base.editorialWorkflowEnabled&&!base.isEditorialPathPage&&scalarapi.getEdition(document.location.href) == -1?'<li id="ScalarHeaderEditorialPath"><a href="' + base.get_param(scalarapi.model.urlPrefix + 'editorialpath') + '" class="headerIcon" id="editorialPathIcon" aria-labelledby="label-editorial" title="Catalog of items for editorial review"><span id="label-editorial" class="hidden-sm hidden-md hidden-lg">Editorial path</span></a></li>':'')+
+
+                                                /* Dashboard */
+
+                                                ('<li id="ScalarHeaderOptions"><a href="' + system_uri + '/dashboard?book_id=' + base.bookId + '&zone=style#tabs-style" class="headerIcon" id="optionsIcon" aria-labelledby="label-dashboard" aria-role="link" title="Open the Dashboard"><span id="label-dashboard" class="hidden-sm hidden-md hidden-lg">Dashboard</span></a></li>')
                                             :'')+
+
+                                            /* Account */
+
                                             '<li class="dropdown" id="userMenu">'+
-                                                '<a class="dropdown-toggle headerIcon" data-toggle="dropdown" role="menuitem" aria-expanded="false" id="userIcon" title="User menu. Roll over to show account options.">'+
-                                                    '<span class="visible-xs">User</span>'+
+                                                '<a class="dropdown-toggle headerIcon" data-toggle="dropdown" id="userIcon" aria-labelledby="label-account" aria-expanded="false" role="menuitem" title="User account options">'+
+                                                    '<span id="label-account" class="visible-xs">Account</span>'+
                                                 '</a>'+
                                                 '<ul class="dropdown-menu" role="menu" id="ScalarHeaderMenuUserList">'+
                                                 '</ul>'+

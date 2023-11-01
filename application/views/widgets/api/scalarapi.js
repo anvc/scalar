@@ -235,6 +235,20 @@ function ScalarAPI() {
 				'Safari': {extensions:['aif','aiff'], format:'AIFF', player:'native', specifiesDimensions:false},
 				'Other': {extensions:['aif','aiff'], format:'AIFF', player:'QuickTime', specifiesDimensions:false}
 			}},
+		'ArcGIS WebScene': {
+			name:'ArcGIS WebScene',
+			extensions:[],
+			isProprietary:true,
+			contentType:'3D-GIS',
+			browserSupport: {
+				'Mozilla': {extensions:[], format:'', player:'proprietary', specifiesDimensions:false},
+				'Explorer': {extensions:[], format:'', player:'proprietary', specifiesDimensions:false},
+				'MobileSafari': {extensions:[], format:'', player:'proprietary', specifiesDimensions:false},
+				'Safari': {extensions:[], format:'', player:'proprietary', specifiesDimensions:false},
+				'Chrome': {extensions:[], format:'', player:'proprietary', specifiesDimensions:false},
+				'Android': {extensions:[], format:'', player:'proprietary', specifiesDimensions:false},
+				'Other': {extensions:[], format:'', player:'proprietary', specifiesDimensions:false}
+			}},
 		'CriticalCommons-LegacyVideo': {
 			name:'CriticalCommons-LegacyVideo',
 			extensions:['mp4'],
@@ -908,6 +922,8 @@ ScalarAPI.prototype.parseMediaSource = function(uri) {
 			source = this.mediaSources['PDF'];
     } else if (uri.indexOf('?iiif-manifest=1') != -1) {
       source = this.mediaSources['IIIF'];
+		} else if (uri.indexOf('arcgis.com') != -1 && uri.indexOf('webscene') != -1) {
+			source = this.mediaSources['ArcGIS WebScene'];
     } else if (uri.indexOf('?unity-webgl=1') != -1) {
       source = this.mediaSources['Unity WebGL'];
 		// no special cases; handle normally
@@ -1355,6 +1371,7 @@ ScalarAPI.prototype.queueRelationsFromDataByType = function(data, types, isOutgo
       case 'annotated':
       properties = ['start_seconds', 'end_seconds', 'start_line_num', 'end_line_num', 'points'];
       if (data['annotation_of_position_3d'] || data['has_annotation_position_3d']) properties.push('position_3d');
+      if (data['annotation_of_position_gis'] || data['has_annotation_position_gis']) properties.push('position_gis');
       this.addRelationPropertiesToBaseData(data, baseData, 'annotation', properties, index, isOutgoing, isFormData);
       break;
 
@@ -1546,14 +1563,15 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 		// gather data from existing node
 		var completePageData = {
 			'dcterms:title': node.current.title,
-			'dcterms.description': node.current.description,
+			'dcterms:description': node.current.description,
 			'sioc:content': node.current.content,
 			'rdf:type': node.baseType,
 			'scalar:urn': node.current.urn,
 			'scalar:url': node.current.sourceFile,
 			'scalar:default_view': node.current.defaultView,
 			'scalar:continue_to_content_id': node.current.continueTo,
-			'scalar:sort_number': node.current.sortNumber
+			'scalar:sort_number': node.current.sortNumber,
+			'scalar:altText': node.current.altText,
 		};
 
 		// add base properties
@@ -1641,7 +1659,8 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 							'scalar:start_line_num': '',
 							'scalar:end_line_num': '',
 							'scalar:points': '',
-							'scalar:position_3d': ''
+							'scalar:position_3d': '',
+							'scalar:position_gis': ''
 						};
 						break;
 
@@ -1659,7 +1678,8 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 							'scalar:start_line_num': this.properties.start,
 							'scalar:end_line_num': this.properties.end,
 							'scalar:points': '',
-              'scalar:position_3d': ''
+              'scalar:position_3d': '',
+              'scalar:position_gis': ''
 						};
 						break;
 
@@ -1677,7 +1697,8 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 							'scalar:start_line_num': '',
 							'scalar:end_line_num': '',
 							'scalar:points': this.properties.x+','+this.properties.y+','+this.properties.width+','+this.properties.height,
-							'scalar:position_3d': this.properties.x+','+this.properties.y+','+this.properties.z+','+this.properties.heading+','+this.properties.tilt+','+this.properties.fieldOfView
+							'scalar:position_3d': this.properties.targetX+','+this.properties.targetY+','+this.properties.targetZ+','+this.properties.cameraX+','+this.properties.cameraY+','+this.properties.cameraZ+','+this.properties.roll+','+this.properties.tilt+','+this.properties.fieldOfView,
+							'scalar:position_gis': this.properties.latitude+','+this.properties.longitude+','+this.properties.altitude+','+this.properties.heading+','+this.properties.tilt+','+this.properties.fieldOfView
 						};
 						break;
 
@@ -2645,7 +2666,8 @@ function ScalarModel(options) {
 		{property:'wasAttributedTo', uri:'http://www.w3.org/ns/prov#wasAttributedTo', type:'string'},
 		{property:'references', uri:'http://purl.org/dc/terms/references', type:'string'},
 		{property:'isReferencedBy', uri:'http://purl.org/dc/terms/isReferencedBy', type:'string'},
-		{property:'isLensOf', uri:'http://scalar.usc.edu/2012/01/scalar-ns#isLensOf', type:'json'}
+		{property:'isLensOf', uri:'http://scalar.usc.edu/2012/01/scalar-ns#isLensOf', type:'json'},
+		{property:'altText', uri:'http://scalar.usc.edu/2012/01/scalar-ns#altText', type:'string'}
 	];
 
 	// metadata about each relation type
@@ -3744,6 +3766,7 @@ ScalarVersion.prototype.url = null;
 ScalarVersion.prototype.data = null;
 ScalarVersion.prototype.title = null;
 ScalarVersion.prototype.description = null;
+ScalarVersion.prototype.altText = null;
 ScalarVersion.prototype.baseType = null;
 ScalarVersion.prototype.content = null;
 ScalarVersion.prototype.sourceFile = null;
@@ -3892,6 +3915,15 @@ ScalarVersion.prototype.parseRelations = function() {
 
 }
 
+ScalarVersion.prototype.getAltTextWithFallback = function() {
+	if (this.altText) {
+		return this.altText
+	} else if (this.description) {
+		return this.description
+	}
+	return ''
+}
+
 /**
  * Creates a new ScalarRelation.
  * @constructor Represents a relation between two Scalar nodes. The structure of the object is
@@ -4019,6 +4051,27 @@ function ScalarRelation(json, body, target, type, content) {
 						this.separator = ' ';
 						this.subType = 'spatial';
 						this.index = parseFloat(this.properties.targetX) * parseFloat(this.properties.targetY) * parseFloat(this.properties.targetZ);
+						this.id += prop + this.index;
+						break;
+
+						case 'posgis':
+						if (!this.type) this.type = scalarapi.model.relationTypes.annotation;
+						temp = anchorVars[prop].split(',');
+						this.properties.latitude = temp[0];
+						this.properties.longitude = temp[1];
+						this.properties.altitude = temp[2];
+						this.properties.heading = temp[3];
+						this.properties.tilt = temp[4];
+						this.properties.fieldOfView = temp[7];
+						this.startString = 'lat:' + Math.round( parseFloat( this.properties.latitude ));
+						this.startString += ' lon:' + Math.round( parseFloat( this.properties.longitude ));
+						this.startString += ' alt:' + Math.round( parseFloat( this.properties.altitude ));
+						this.endString += ' heading:' + Math.round( parseFloat( this.properties.heading ));
+						this.endString += ' tilt:' + Math.round( parseFloat( this.properties.tilt ));
+						this.endString += ' fov:' + Math.round( parseFloat( this.properties.fieldOfView ));
+						this.separator = ' ';
+						this.subType = 'spatial';
+						this.index = parseFloat(this.properties.latitude) * parseFloat(this.properties.longitude) * parseFloat(this.properties.altitude);
 						this.id += prop + this.index;
 						break;
 

@@ -509,12 +509,15 @@ class Version_model extends MY_Model {
 
     	$url = (isset($array['url'])) ? trim($array['url']) : '';
     	if ('http://'==$url) $url = ''; // the default value
+    	
+    	$fields = $this->db->list_fields($this->versions_table);
 
     	// Save to the relational tables
     	$data = array();
     	$data['content_id'] = $content_id;
     	$data['title'] = (isset($array['title'])) ? trim($array['title']) : '';
     	$data['description'] = (isset($array['description'])) ? trim($array['description']) : '';
+    	if (array_search('alt_text', $fields)) $data['alt_text'] = (isset($array['alt_text'])) ? trim($array['alt_text']) : '';
     	$data['content'] = (isset($array['content'])) ? trim($array['content']) : '';
     	$data['url'] = $url;
     	$data['user'] = $user_id;

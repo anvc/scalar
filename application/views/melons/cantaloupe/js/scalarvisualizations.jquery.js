@@ -210,6 +210,7 @@ window.scalarvis = { instanceCount: -1 };
         base.updateControls();
       }
 
+
       // create visualization div
       base.visualization = $('<div id="' + base.instanceId + '" class="scalarvis"></div>').appendTo(base.visElement);
       if (!base.isVisOfCurrentPage()) {
@@ -355,7 +356,7 @@ window.scalarvis = { instanceCount: -1 };
           }
           inspectorInfo = $('<div class="media-preview">' +
             '<p class="inspector-description"></p>' +
-            '<img class="' + thumbnailClass + '" src="' + thumbnailUrl + '" alt="' + node.current.description + '" />' +
+            '<img class="' + thumbnailClass + '" src="' + thumbnailUrl + '" alt="' + node.current.getAltTextWithFallback() + '" />' +
             '<div class="inspector-buttons">' +
             '<a class="btn btn-primary btn-xs view-node-btn" role="button" target="_blank" href="' + node.url + '">View media page</a> ' +
             '<a class="btn btn-primary btn-xs view-media-btn" role="button" target="_blank" href="' + node.current.sourceFile + '">View source file</a>' +
@@ -519,7 +520,7 @@ window.scalarvis = { instanceCount: -1 };
         },
         error: function error(response) {
           console.log('There was an error attempting to communicate with the server.');
-          console.log(response);
+          console.log(response.responseText);
         }
       });
     }
@@ -2415,7 +2416,7 @@ window.scalarvis = { instanceCount: -1 };
           }
         } else if (nodeArray.length == 0) {
           if (base.visualization.find('.no-results-msg').length == 0) {
-            base.visualization.prepend('<div class="no-results-msg caption_font">No results to visualize.</div>');
+            base.visualization.prepend('<div class="no-results-msg caption_font">No results to show.</div>');
           }
         } else {
           base.visualization.find('.no-results-msg').remove();
@@ -4303,7 +4304,7 @@ window.scalarvis = { instanceCount: -1 };
         base.visualization.css('height', this.size.height + 'px');
         if ('undefined' == typeof (google) || 'undefined' == typeof (google.maps)) {
           $.getScript($('link#approot').attr('href') + 'views/melons/cantaloupe/js/oms.min.js', () => {
-            $.getScript('https://maps.googleapis.com/maps/api/js?key=' + $('link#google_maps_key').attr('href'), () => {
+            $.getScript('https://maps.googleapis.com/maps/api/js?callback=initGoogleMap&key=' + $('link#google_maps_key').attr('href'), () => {
               this.setupMap();
             });
           });

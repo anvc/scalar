@@ -3913,7 +3913,7 @@
           }
         },
         error: function error(response) {
-    	     console.log('There was an error attempting to communicate with the server.');
+    	     console.log('There was an error attempting to communicate with the server.', response.responseText);
         }
       });
     }

@@ -541,17 +541,18 @@ class Book_model extends MY_Model {
 		}
 
 		$result = $this->db->insert($this->books_table, $data);
-		$book_id = $this->db->insert_id();
 		if ($result === false) {
 			log_message('error', "Error inserting book into {$this->books_table}: [Errno:{$this->db->error()['code']}] {$this->db->error()['message']}");
 			throw new Exception("error_add_book");
 		}
 
+		$book_id = $this->db->insert_id();
 		if (!empty($user_id)) {
 			$this->save_users($book_id, array($user_id), 'author');
 		}
 
     	return $book_id;
+
     }
 
     public function duplicate($array=array(), $captcha=true) {
@@ -737,8 +738,8 @@ class Book_model extends MY_Model {
 				$this->db->join($this->books_table, $this->pages_table.'.book_id='.$this->books_table.'.book_id');
 				$this->db->where($this->books_table.'.book_id', $book_id);
 				$query = $this->db->get();
+				$book_version_ids = array();
 				if ($query->num_rows()) {
-					$book_version_ids = array();
 					$result = $query->result();
 					foreach ($result as $row) $book_version_ids[] = $row->version_id;
 				}
@@ -748,8 +749,8 @@ class Book_model extends MY_Model {
 				$this->db->join($this->books_table, $this->pages_table.'.book_id='.$this->books_table.'.book_id');
 				$this->db->where($this->books_table.'.book_id', $book_id);
 				$query = $this->db->get();
+				$book_page_ids = array();
 				if ($query->num_rows()) {
-					$book_page_ids = array();
 					$result = $query->result();
 					foreach ($result as $row) $book_page_ids[] = $row->content_id;
 				}

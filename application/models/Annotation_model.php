@@ -51,6 +51,7 @@ class Annotation_model extends MY_Model {
 			if (isset($fields->end_line_num) && !empty($fields->end_line_num)) $cardinal .= $fields->end_line_num;
 			if (isset($fields->points) && !empty($fields->points)) $cardinal .= preg_replace("/[^a-zA-Z0-9]+/", "", $fields->points);
 			if (isset($fields->position_3d) && !empty($fields->position_3d)) $cardinal .= preg_replace("/[^a-zA-Z0-9]+/", "", $fields->position_3d);
+			if (isset($fields->position_gis) && !empty($fields->position_gis)) $cardinal .= preg_replace("/[^a-zA-Z0-9]+/", "", $fields->position_gis);
 		}
 
 		$return = str_replace('$1', $pk_1, $this->urn_template);
@@ -84,7 +85,7 @@ class Annotation_model extends MY_Model {
 
 	}
 
-    public function save_children($parent_version_id=0, $array=array(), $start_seconds=array(), $end_seconds=array(), $start_line_nums=array(), $end_line_nums=array(), $points=array(), $position_3d=array(), $additional=array()) {
+	public function save_children($parent_version_id=0, $array=array(), $start_seconds=array(), $end_seconds=array(), $start_line_nums=array(), $end_line_nums=array(), $points=array(), $position_3d=array(), $position_gis=array(), $additional=array()) {
 
     	// Insert new relationships
     	$j = 0;
@@ -99,6 +100,7 @@ class Annotation_model extends MY_Model {
     		$_end_line_num   = (isset($end_line_nums[$j]) && !empty($end_line_nums[$j])) ? $end_line_nums[$j] : 0;
     		$_points        = (isset($points[$j]) && !empty($points[$j])) ? $points[$j] : '';
     		$_position_3d   = (isset($position_3d[$j]) && !empty($position_3d[$j])) ? $position_3d[$j] : '';
+			$_position_gis   = (isset($position_gis[$j]) && !empty($position_gis[$j])) ? $position_gis[$j] : '';
     		$_additional	= (isset($additional[$j]) && !empty($additional[$j])) ? $additional[$j] : '';
 
 			$data = array(
@@ -112,8 +114,12 @@ class Annotation_model extends MY_Model {
  				'position_3d' => $_position_3d
             );
 			if (!empty($_additional)) $data['additional'] = $_additional;  // Database field a late addition
-			$this->db->insert($this->annotations_table, $data);
+			if (!empty($_position_gis)) $data['position_gis'] = $_position_gis;  // Database field a late addition
 
+			$res = $this->db->insert($this->annotations_table, $data);
+			if ($res === false && $this->db->error()['code'] != 0) {
+                            echo('Error: ' . $this->db->error()['message'] . "\n");
+            }
 			$j++;
 
     	}
@@ -121,7 +127,7 @@ class Annotation_model extends MY_Model {
 
     }
 
-    public function save_parents($child_version_id=0, $array=array(), $start_seconds=array(), $end_seconds=array(), $start_line_nums=array(), $end_line_nums=array(), $points=array(), $position_3d=array(), $additional=array()) {
+	public function save_parents($child_version_id=0, $array=array(), $start_seconds=array(), $end_seconds=array(), $start_line_nums=array(), $end_line_nums=array(), $points=array(), $position_3d=array(), $position_gis=array(), $additional=array()) {
 
     	// Insert new relationships
     	$j = 0;
@@ -136,6 +142,7 @@ class Annotation_model extends MY_Model {
     		$_end_line_num   = (isset($end_line_nums[$j])) ? $end_line_nums[$j] : 0;
     		$_points         = (isset($points[$j])) ? $points[$j] : '';
     		$_position_3d    = (isset($position_3d[$j])) ? $position_3d[$j] : '';
+			$_position_gis    = (isset($position_gis[$j])) ? $position_gis[$j] : '';
     		$_additional	 = (isset($additional[$j])) ? $additional[$j] : '';
 
 			$data = array(
@@ -146,10 +153,15 @@ class Annotation_model extends MY_Model {
 	 			'start_line_num' => $_start_line_num,
 	 			'end_line_num' => $_end_line_num,
 	 			'points' => $_points,
-	 			'position_3d' => $_position_3d,
+	 			'position_3d' => $_position_3d
 	        );
 			if (!empty($_additional)) $data['additional'] = $_additional;  // Database field a late addition
-			$this->db->insert($this->annotations_table, $data);
+			if (!empty($_position_gis)) $data['position_gis'] = $_position_gis;  // Database field a late addition
+
+			$res = $this->db->insert($this->annotations_table, $data);
+			if ($res === false && $this->db->error()['code'] != 0) {
+                            echo('Error: ' . $this->db->error()['message'] . "\n");
+            }
 
 			$j++;
 

@@ -209,7 +209,7 @@ class IIIF_Object extends RDF_Object {
 	    		$row['dcterms:format'] = $body['source']['format'];
 	    		$row['dcterms:source'] = $body['source']['id'];
 	    		
-	    		$_tag_pages = $CI->versions->get_by_predicate($book->book_id, 'dcterms:source', false, null, $row['dcterms:source'], false);
+	    		$_tag_pages = $CI->versions->get_by_predicate($book->book_id, 'dcterms:source', false, null, $row['dcterms:source'], true);
 	    		
 	    	} elseif ('tagging' == $body['purpose']) {  // Simple tag
 	    		

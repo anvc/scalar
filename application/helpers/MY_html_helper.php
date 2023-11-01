@@ -1,7 +1,7 @@
 <?php
 
 function first_og_image_from_html_string($str='') {
-	
+
 	if (empty($str)) return false;
 	$urls = hrefs_from_html_string($str);
 	foreach ($urls as $url) {
@@ -10,67 +10,67 @@ function first_og_image_from_html_string($str='') {
 		}
 	}
 	return false;
-	
+
 }
 
 function is_opengraphable_image($url) {
-	
+
 	if (is_array($url)) $url = $url[0];
 	if (empty($url)) return false;
 	if (strtolower(substr($url, -4, 4)) == '.jpg' || strtolower(substr($url, -4, 4)) == '.png' || strtolower(substr($url, -4, 4)) == 'jpeg' || strtolower(substr($url, -4, 4)) == 'webp') {
-		return true;	
-	}	
-	return false;
-	
+ 		return true;
+	}
+    return false;
+
 }
 
 function hrefs_from_html_string($str='') {
-	
+
 	$return = array();
 	if (empty($str)) return $return;
-	
+
 	preg_match_all('/<a[^>]+href=([\'"])(.+?)\1[^>]*>/i', $str, $result);
 	if (!empty($result) && !empty($result[2])) {
 		foreach ($result[2] as $url) {
 			if (!$url || !strlen($url)) continue;
 			$return[] = $url;
 		}
-	} 	
-	
+	}
+
 	return $return;
-	
+
 }
 
 function template_link_tag_relative($rel='', $path='') {
-	
+
     $rel = url_from_file($rel);
 	$rel .= $path;
 	return link_tag($rel);
-	
+
 }
 
 function template_script_tag_relative($rel='', $path='', $args=array()) {
-	
+
     $rel = path_from_file($rel);
 	$rel .= $path;
 	return script_tag($rel, $args);
-	
+
 }
 
 function url_from_file($rel='') {
-	
+
     $rel = dirname(str_replace(FCPATH, base_url(), $rel));
 	$rel = str_replace('\\', '/', $rel).'/';
 	return $rel;
-	
+
 }
 
 function path_from_file($rel='') {
-	
+
     $rel = dirname(str_replace(FCPATH, '', $rel));
 	$rel = str_replace('\\', '/', $rel).'/';
 	return $rel;
-	
+
 }
 
 // http://codeigniter.com/wiki/script_-_html_helper
@@ -80,14 +80,14 @@ if ( ! function_exists('script_tag')) {
     $return .= '<script type="text/javascript" src="'.base_url().$rpath.'"';
 	foreach ($args as $field => $value) {
 		$return .= ' '.$field.'="'.$value.'"';
-	} 
+	}
 	$return .= '></script>';
 	return $return;
   }
 }
 
 function create_excerpt($str='', $word_limit=15) {
-	
+
 	$str = trim(strip_tags($str));
 	$beg_count = strlen($str);
 	$str = string_limit_words($str, $word_limit);
@@ -96,19 +96,19 @@ function create_excerpt($str='', $word_limit=15) {
 	$str = str_replace("\t", ' ', $str);
 	if (strlen($str) < $beg_count) $str .= ' ...';
 	return $str;
-	
+
 }
 
 // http://php.net/manual/en/function.nl2br.php
 function nl2brPre($string)
 {
     // First, check for <pre> tag
-    if(strpos($string, "<pre>") === false) 
+    if(strpos($string, "<pre>") === false)
     {
         return nl2br($string);
     }
 
-    // If there is a <pre>, we have to split by line 
+    // If there is a <pre>, we have to split by line
     // and manually replace the linebreaks with <br />
     $strArr=explode("\n", $string);
     $output="";
@@ -148,10 +148,10 @@ function nl2brPre($string)
 
 // http://vision-media.ca/resources/php/php-word-limit
 function string_limit_words($string, $word_limit) {
-	
+
      $words = explode(' ', $string);
      return implode(' ', array_slice($words, 0, $word_limit));
-     
+
 }
 
 function closeOpenTags($html) {
@@ -175,62 +175,62 @@ function closeOpenTags($html) {
 }
 
 // http://php.net/manual/en/function.strip-tags.php
-function remove_HTML($s , $keep = '' , $expand = 'script|style|noframes|select|option'){ 
-	
+function remove_HTML($s , $keep = '' , $expand = 'script|style|noframes|select|option'){
+
 	// This function is throwing the server into an infinite loop on a specific MS-Word WYSIWYG gobledeegook
 	// So, for now, revert to strip_tags()
-	return strip_tags($s);	
-	
-	/**///prep the string 
-	$s = ' ' . $s; 
-	/**///initialize keep tag logic 
- 	if(strlen($keep) > 0){ 
-            $k = explode('|',$keep); 
-            for($i=0;$i<count($k);$i++){ 
-                $s = str_replace('<' . $k[$i],'[{(' . $k[$i],$s); 
-                $s = str_replace('</' . $k[$i],'[{(/' . $k[$i],$s); 
-            } 
-	} 
-	//begin removal 
-	/**///remove comment blocks 
-	while(stripos($s,'<!--') > 0){ 
-            $pos[1] = stripos($s,'<!--'); 
-            $pos[2] = stripos($s,'-->', $pos[1]); 
-            $len[1] = $pos[2] - $pos[1] + 3; 
-            $x = substr($s,$pos[1],$len[1]); 
-            $s = str_replace($x,'',$s); 
-	}   
-	/**///remove tags with content between them 
-	if(strlen($expand) > 0){ 
-            $e = explode('|',$expand); 
-            for($i=0;$i<count($e);$i++){ 
-                while(stripos($s,'<' . $e[$i]) > 0){ 
-                    $len[1] = strlen('<' . $e[$i]); 
-                    $pos[1] = stripos($s,'<' . $e[$i]); 
-                    $pos[2] = stripos($s,$e[$i] . '>', $pos[1] + $len[1]); 
-                    $len[2] = $pos[2] - $pos[1] + $len[1]; 
-                    $x = substr($s,$pos[1],$len[2]); 
-                    $s = str_replace($x,'',$s); 
-                } 
-            } 
-	}  
-	/**///remove remaining tags 
-	while(stripos($s,'<') > 0){ 
-            $pos[1] = stripos($s,'<'); 
-            $pos[2] = stripos($s,'>', $pos[1]); 
-            $len[1] = $pos[2] - $pos[1] + 1; 
-            $x = substr($s,$pos[1],$len[1]); 
-            $s = str_replace($x,'',$s); 
-	} 
-	/**///finalize keep tag 
-	if(strlen($keep) > 0){ 
-        	for($i=0;$i<count($k);$i++){ 
-          	  $s = str_replace('[{(' . $k[$i],'<' . $k[$i],$s); 
-          	  $s = str_replace('[{(/' . $k[$i],'</' . $k[$i],$s); 
+	return strip_tags($s);
+
+	/**///prep the string
+	$s = ' ' . $s;
+	/**///initialize keep tag logic
+ 	if(strlen($keep) > 0){
+            $k = explode('|',$keep);
+            for($i=0;$i<count($k);$i++){
+                $s = str_replace('<' . $k[$i],'[{(' . $k[$i],$s);
+                $s = str_replace('</' . $k[$i],'[{(/' . $k[$i],$s);
+            }
+	}
+	//begin removal
+	/**///remove comment blocks
+	while(stripos($s,'<!--') > 0){
+            $pos[1] = stripos($s,'<!--');
+            $pos[2] = stripos($s,'-->', $pos[1]);
+            $len[1] = $pos[2] - $pos[1] + 3;
+            $x = substr($s,$pos[1],$len[1]);
+            $s = str_replace($x,'',$s);
+	}
+	/**///remove tags with content between them
+	if(strlen($expand) > 0){
+            $e = explode('|',$expand);
+            for($i=0;$i<count($e);$i++){
+                while(stripos($s,'<' . $e[$i]) > 0){
+                    $len[1] = strlen('<' . $e[$i]);
+                    $pos[1] = stripos($s,'<' . $e[$i]);
+                    $pos[2] = stripos($s,$e[$i] . '>', $pos[1] + $len[1]);
+                    $len[2] = $pos[2] - $pos[1] + $len[1];
+                    $x = substr($s,$pos[1],$len[2]);
+                    $s = str_replace($x,'',$s);
+                }
+            }
+	}
+	/**///remove remaining tags
+	while(stripos($s,'<') > 0){
+            $pos[1] = stripos($s,'<');
+            $pos[2] = stripos($s,'>', $pos[1]);
+            $len[1] = $pos[2] - $pos[1] + 1;
+            $x = substr($s,$pos[1],$len[1]);
+            $s = str_replace($x,'',$s);
+	}
+	/**///finalize keep tag
+	if(strlen($keep) > 0){
+        	for($i=0;$i<count($k);$i++){
+          	  $s = str_replace('[{(' . $k[$i],'<' . $k[$i],$s);
+          	  $s = str_replace('[{(/' . $k[$i],'</' . $k[$i],$s);
         	}
-	} 	
-        
-	return trim($s); 
-} 
+	}
+
+	return trim($s);
+}
 
 ?>

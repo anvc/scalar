@@ -2,39 +2,55 @@ Options +FollowSymlinks
 
 RewriteEngine On
 
-# Scalar pages have default views that are called when a URI has no file extension
-# Turn off the MultiView option (if it's on) so it doesn't conflict
-Options -MultiViews -Indexes
+# Scalar pages have default views that are called when a URI has no
+# file extension Turn off the MultiView option (if it's on) so it
+# doesn't conflict
+Options -MultiViews
 
 # To route all requests to a maintenance page, uncomment these lines
-#RewriteCond %{REQUEST_FILENAME} !maintenance.html [NC]
-#RewriteRule (.*) maintenance.html [L]
+#RewriteCond $1 !^maintenance.html$ [NC]
+#RewriteRule (.*) maintenance.html [R=503,L]
 
-# To route the home page (book index) to some place else, uncomment these lines
+# To protect all hidden files and directories
+# (including, most importantly, .git)
+RewriteRule (^\.)|(/\.) - [R=404,L]
+
+# Block any files in the root directory other
+# than codeigniter.php and maintenance.html
+RewriteCond ${REQUEST_FILENAME} -f
+RewriteCond $1 !maintenance.html$
+RewriteCond $1 !codeigniter.php$
+RewriteRule ^([^/]+)$  - [R=404,L]
+
+# To route the home page (book index) to some place else, uncomment
+# these lines
 #RewriteCond %{REQUEST_FILENAME} ^/Library/WebServer/scalar\.usc\.edu/anvc/index\.php$
 #RewriteRule (.*) /Library/WebServer/scalar.usc.edu/anvc_site/ [L]
 #RewriteCond %{REQUEST_FILENAME} ^/Library/WebServer/scalar\.usc\.edu/anvc/$
 #RewriteRule (.*) /Library/WebServer/scalar.usc.edu/anvc_site/ [L]
 
-# If your server is running SSL, uncomment these lines to force all requests through https
+# If your server is running SSL, uncomment these lines to force all
+# requests through https
 #RewriteCond %{SERVER_PORT} 80 
 #RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
 
-# To protect against malicious file uploads (e.g., PHP files) uncomment these lines
-# and make sure to set "/scalar" in the second line to the path to your Scalar install
+# To protect against malicious file uploads (e.g., PHP files)
+# uncomment these lines
 #RewriteCond %{REQUEST_FILENAME} -f
-#RewriteCond %{REQUEST_URI} !^/scalar/system(.*) [NC]
-#RewriteCond %{REQUEST_FILENAME} !codeigniter.php [NC]
 #RewriteCond %{REQUEST_FILENAME} (\.php)$ [NC]
-#RewriteRule ^(.*)$ - [R=404,L]
+#RewriteCond $1 !^system/(.*) [NC]
+#RewriteCond $1 !^codeigniter.php(/.*)?$ [NC]
+#RewriteRule (.*) - [R=404,L]
 
-# To route to an alternative file uploads path (e.g. "uploads" directory) uncomment these lines
-# or change to the desired location. This should match the localDir specified in local_settings.php
-#RewriteCond         "%{DOCUMENT_ROOT}/uploads/%{REQUEST_URI}"  -f
-#RewriteRule "^(.+)" "%{DOCUMENT_ROOT}/uploads/$1"  [L]
+# To route to an alternative file uploads path (e.g. "uploads"
+# directory) uncomment these lines and change to the desired
+# location. This should match the localDir specified in
+# local_settings.php
+#RewriteCond      "%{CONTEXT_DOCUMENT_ROOT}/uploads/$1"  -f
+#RewriteRule (.+) "%{CONTEXT_DOCUMENT_ROOT}/uploads/$1"  [L]
 
 # Route to codeigniter if file or directory doesn't exist
-RewriteCond %{REQUEST_FILENAME} !codeigniter.php [NC]
+RewriteCond $1 !^codeigniter.php(/.*)?$ [NC]
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule (.*) codeigniter.php/$1 [L]
@@ -49,7 +65,7 @@ RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^/(.*)$ - [L]
 
 # Pass through directory
-RewriteCond %{REQUEST_FILENAME} !codeigniter.php [NC]
+RewriteCond $1 !^codeigniter.php(/.*)?$ [NC]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule (.*) codeigniter.php/$1 [L]
 

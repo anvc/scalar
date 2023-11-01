@@ -33,80 +33,63 @@
 		this.options = $.extend( {}, defaults, options );
 		this._defaults = defaults;
 		this._name = pluginName;
-
+		this.ontologyOptions = {
+			"dcterms":"Dublin Core (dcterms)",
+			"art":"Artstor (art)",
+			"iptc":"IPTC",
+			"bibo":"BIBO",
+			"id3":"ID3",
+			"dwc":"Darwin Core (dwc)",
+			"vra":"VRA Ontology (vra)",
+			"cp":"Common Place (cp)",
+			"gpano": "gpano",
+			"scalar": "Scalar",
+			"sioc": "SIOC",
+			"rdf": "RDF"
+		};
 		this.init();
-
 	}
 
-	ScalarSearch.prototype.bodyContent = null;			// body content container
-	ScalarSearch.prototype.resultsTable = null;			// Table for the results
-	ScalarSearch.prototype.modal = null; // bootstrap modal
+	ScalarSearch.prototype.bodyContent = null;
+	ScalarSearch.prototype.resultsTable = null;
+	ScalarSearch.prototype.modal = null;
 	ScalarSearch.prototype.searchField = null;
-
-	ScalarSearch.prototype.currentPage = null;			// Current page of results being displayed
-	ScalarSearch.prototype.pagination = null;			// Pagination interface
-	ScalarSearch.prototype.resultsPerPage = null;		// Results to show per page
-	ScalarSearch.prototype.maxPages = null;				// Maximum number of pages with known results
-	ScalarSearch.prototype.tabIndex = 9000; // starting tabindex
-
-	ScalarSearch.prototype.query = null; // query
+	ScalarSearch.prototype.currentPage = null;
+	ScalarSearch.prototype.pagination = null;
+	ScalarSearch.prototype.resultsPerPage = null;
+	ScalarSearch.prototype.maxPages = null;
+	ScalarSearch.prototype.query = null;
 
 	ScalarSearch.prototype.init = function () {
-
-		var me = this;
-
-		this.currentPage = 1;
-		this.maxPages = 1;
-		this.resultsPerPage = 10;
-
 		this.element.addClass('search');
 		this.bodyContent = $('<div class="body_copy"></div>').appendTo(this.element);
 
-		$('<form role="form" class="form-inline"><div class="form-group" style="margin-right: 10px"><label class="sr-only" for="modal_keyword">Search</label><input type="text" autocomplete="off" class="search_input form-control" tabindex="'+this.tabIndex+'" name="keyword" id="modal_keyword" placeholder="Enter search terms" /></div><button tabindex="'+(++this.tabIndex)+'" type="submit" class="btn btn-default">Search</button> &nbsp; <span class="search_loading text-danger">Loading...</span> &nbsp; <div class="s_all_label caption_font">Search: &nbsp; <label for="s_not_all"><input tabindex="'+(++this.tabIndex)+'" type="radio" id="s_not_all" name="s_all" value="0" checked /> &nbsp;title &amp; description (fast)</label> &nbsp; <label for="s_all"><input tabindex="'+(++this.tabIndex)+'" type="radio" id="s_all" name="s_all" value="1" /> &nbsp;all fields & metadata (slow)</label></div></form><br>').appendTo(this.bodyContent);
-
-		$( '<div class="results_list search_results caption_font"><table summary="Search Results" class="table table-striped table-hover table-responsive small"></table></div>' ).appendTo( this.bodyContent );
-		$( '<ul class="pagination caption_font"></ul>' ).appendTo( this.bodyContent );
-		$('<div class="loading"><p>Loading...</p></div>').hide().insertAfter(this.resultsTable);
-
-		this.modal = this.bodyContent.bootstrapModal({title: 'Search Results', size_class:'modal-lg'});
-		this.resultsTable = this.modal.find('.results_list table');
-		this.loading = this.modal.find('.loading');
-		this.pagination = this.modal.find('ul.pagination');
-		this.searchField = this.modal.find('input[name="keyword"]');
-		this.searchMetadata = this.modal.find('input[name="s_all"][value="1"]');
-		this.searchForm = this.modal.find('form');
-
-		this.searchForm.on('submit', function(event) {
-			event.preventDefault();
-			me.doSearch(me.searchField.val());
-		});
-
-		// upate main search field
-		this.searchField.on('keyup', function(event) {
-			$('#search').val($(this).val());
-		})
+		this.modal = this.bodyContent.bootstrapModal({title: 'Search', size_class:'modal-lg'});
+		if (typeof CustomSearchManager === 'function') {
+			this.searchManager = new CustomSearchManager(this.modal)
+		} else {
+			this.searchManager = new SearchManager(this.modal)
+		}
 
 		// tabbing forward from close button brings focus to search field
-		this.modal.find( '.close' ).on('keydown',  function(e) {
+		this.modal.find( '.close' ).on('keydown', (e) => {
 			var keyCode = e.keyCode || e.which;
-			if( keyCode == 9 ) {
-				if( !e.shiftKey ) {
-			    	e.preventDefault();
-					me.firstFocus();
-			    }
-		    }
-		} );
+			if (keyCode == 9) {
+				if (!e.shiftKey) {
+					e.preventDefault();
+					this.searchManager.firstFocus();
+				}
+			}
+		});
 
-		// tabbing backwards from search field link brings focus to close button
-		this.searchField.on('keydown',  function(e) {
-			var keyCode = e.keyCode || e.which;
-			if( keyCode == 9 ) {
-				if( e.shiftKey ) {
-			    	e.preventDefault();
-					me.modal.find( '.close' )[ 0 ].trigger('focus');
-			    }
-		    }
-		} );
+		this.ontologyMenu = this.searchManager.getOntologyMenu();
+		if (this.ontologyMenu) {
+			this.ontologyMenu.on('change', (event) => {
+				this.updateOntologyPropertyMenu();
+			})
+		}
+
+		this.getOntologyData();
 	}
 
 	ScalarSearch.prototype.showSearch = function() {
@@ -118,170 +101,387 @@
 	}
 
 	ScalarSearch.prototype.doSearch = function(query, callback) {
-		$('.search_loading').show();
-		var firstTime = false;
 		if ($.isFunction(query))  {
 			callback = query;
-		} else {
-			newQuery = !this.query || query != this.query;
-			if (newQuery) {
-				this.reset()
-			}
-			this.query = query;
 		}
-		this.searchField.val(this.query);
-		var me = this;
-		this.showLoading();
-		this.showSearch();
-		scalarapi.model.removeNodes();
-		scalarapi.nodeSearch(
-			this.query,
-			function( data ) {
-				$('.search_loading').hide();
-				me.handleResults( data, callback );
-				me.modal.find('.results_list').scrollTop(0);
-				if (newQuery) {
-					me.firstFocus();
-				}
-			},
-			null, 0, false, null,
-			( me.currentPage - 1 ) * me.resultsPerPage, me.resultsPerPage, null, null,
-			(this.searchMetadata.is(':checked') ? 1 : null),
-			(this.searchMetadata.is(':checked') ? true : false)
-		);
+		this.searchManager.setSearchField(query)
+		this.showSearch()
+		setTimeout(() => { this.searchManager.doSearch(query) }, 500)
 	}
 
-	ScalarSearch.prototype.reset = function() {
-		this.currentPage = 1;
-		this.maxPages = 1;
-		this.pagination.empty();
+	ScalarSearch.prototype.getOntologyData = function() {
+		let me = this;
+		let newURL = $('link#approot').attr('href').replace('application', 'ontologies');
+		$.ajax({
+			url: newURL,
+			type: "GET",
+			dataType: 'json',
+			contentType: 'application/json',
+			async: true,
+			context: this,
+			success: this.handleOntologyData,
+			error: function error(response) {
+				 console.log('There was an error attempting to communicate with the server.');
+				 console.log(response);
+			}
+		})
+	};
+
+	ScalarSearch.prototype.handleOntologyData = function(response) {
+		this.ontologyData = response;
+		this.ontologyData.dcterms.unshift('description');
+		this.ontologyData.dcterms.unshift('title');
+		this.ontologyData.sioc = ['content'];
+		this.ontologyData.rdf = ['type'];
+		this.ontologyData.scalar = ['urn','url','default_view','continue_to_content_id','sort_number'];
+		this.populateOntologyMenu(this.createOntologyList());
 	}
 
-	ScalarSearch.prototype.showLoading = function() {
-		var h = this.resultsTable.height();
-		var $p = this.loading.find('p');
-		this.loading.width(this.resultsTable.width()).height(h);
-		$p.css('top', (((h-$p.height())/2)-5)+'px');
-		this.loading.show();
-	}
-
-	ScalarSearch.prototype.handleResults = function( data, callback ) {
-
-		var i, node, description, row, prev, next,
-			me = this,
-			nodes = scalarapi.model.getNodes();
-
-		this.resultsTable.empty();
-		var tabindex = this.tabIndex;
-		for ( i in nodes ) {
-			tabindex++;
-			node = nodes[i];
-			if (node.current != null) {
-				description = node.current.description;
-				citation = node.current.properties["http://scalar.usc.edu/2012/01/scalar-ns#citation"];
-			}
-			if (description == null) {
-				description = '(No description)';
-			} else {
-				description = description.replace(/<\/?[^>]+>/gi, '');
-			}
-			var thumb = '';
-			if (node.thumbnail) {
-				thumb = '<img src="'+node.getAbsoluteThumbnailURL()+'" alt="Thumbnail for '+node.getDisplayTitle()+'" />';
-			}
-			var matched = '';
-			if ('undefined'!=typeof(citation)) {
-				matched = '<span class="h">Matched:</span> ';
-				matched += '<span class="b">'+citation[0].value.substr(citation[0].value.indexOf('=')+1).split(',').join('</span>, <span class="b">')+'</span>';
-			}
-			row = $( '<tr><td class="title"><a href="javascript:;" tabindex="'+tabindex+'">'+node.getDisplayTitle()+'</a></td><td class="desc">'+description+'</td><td class="thumb">'+thumb+'</td><td class="matched hidden-xs hidden-sm">'+matched+'</td></tr>' ).appendTo( this.resultsTable );
-
-			row.data( 'node', node );
-			row.on('click',  function() { document.location = addTemplateToURL($(this).data('node').url, 'cantaloupe'); } );
-		}
-
-		this.pagination.empty();
-		if ( nodes.length == 0 ) {
-			row = $( '<tr><td style="width:30%">No results found.</td><td></td></tr>' ).appendTo( this.resultsTable );
-
-			this.modal.on('shown.bs.modal', function(e) {
-				me.modal.find('button.close').trigger('focus');
-			});
-		} else {
-			this.modal.on('shown.bs.modal', function(e) {
-				me.firstFocus();
+	ScalarSearch.prototype.createOntologyList = function(){
+		const ontologyArray = [];
+		for (let [key, value] of Object.entries(this.ontologyData)) {
+			ontologyArray.push({
+				label: this.ontologyOptions[key],
+				value: key
 			});
 		}
-		// pagination
-		if (( nodes.length == this.resultsPerPage ) || ( this.currentPage > 1 )) {
-			if ( this.currentPage > 1 ) {
-				tabindex++;
-				prev = $('<li><a tabindex="'+tabindex+'" title="Previous results page" href="javascript:;">&laquo;</a></li>').appendTo( this.pagination );
-				prev.find('a').on('click',  function() { me.previousPage(); } );
-			} else {
-				prev = $('<li class="disabled"><a href="javascript:;">&laquo;</a></li>').appendTo( this.pagination );
-			}
-			for ( i = 1; i <= this.maxPages; i++ ) {
-				tabindex++;
-				var pageBtn = $( '<li><a data-page="'+i+'" title="Go to results page ' + i + '" tabindex="'+tabindex+'" href="javascript:;">' + i + '</a></li>' ).appendTo( this.pagination );
-				pageBtn.data( 'page', i );
-				if ( i == this.currentPage ) {
-					pageBtn.addClass( 'active' );
-				}
-				pageBtn.on('click',  function() {
-					me.goToPage( $( this ).data( 'page' ) );
-				} );
-			}
-			if ( nodes.length == this.resultsPerPage ) {
-				tabindex++;
-				next = $( '<li><a tabindex="'+tabindex+'" title="Next results page" href="javascript:;">&raquo;</a></li>' ).appendTo( this.pagination );
-				next.find('a').on('click',  function() { me.nextPage(); } );
-			} else {
-				next = $( '<li class="disabled"><a href="javascript:;">&raquo;</a></li>' ).appendTo( this.pagination );
-			}
-		}
+		return ontologyArray;
+	};
 
-		if (callback) callback();
+	ScalarSearch.prototype.updateOntologyPropertyMenu = function() {
+		const ontologyName = this.ontologyMenu.val();
+		const propertyArray = this.createPropertyList(ontologyName);
+		this.populateOntologyPropertyMenu(propertyArray);
 	}
 
-	ScalarSearch.prototype.firstFocus = function() {
+	ScalarSearch.prototype.populateOntologyMenu = function(ontologyArray) {
+		const ontologyMenu = this.searchManager.getOntologyMenu();
+		ontologyArray.forEach(element => {
+			ontologyMenu.append($('<option>', {
+				value: element.value,
+				text: element.label
+			}));
+		});
+	}
+
+	ScalarSearch.prototype.createPropertyList = function(ontologyName){
+		const propertyArray = [];
+		if(!ontologyName || ontologyName === 'none') {
+			propertyArray.push({
+				label: 'Select field',
+				value: null
+			});
+		} else {
+			this.ontologyData[ontologyName].forEach(element =>  {
+				propertyArray.push({
+					label: element,
+					value: element
+				});
+			});
+		}
+		return propertyArray;
+	};
+
+	ScalarSearch.prototype.populateOntologyPropertyMenu = function(propertyArray) {
+		const ontologyPropertyMenu = this.searchManager.getOntologyPropertyMenu();
+		ontologyPropertyMenu.empty();
+		propertyArray.forEach(element => {
+			ontologyPropertyMenu.append($('<option>', {
+				value: element.value,
+				text: element.label
+			}));
+		});
+	}
+
+	$.fn[pluginName] = function ( options ) {
+		return this.each(function () {
+			if (!$.data(this, "plugin_" + pluginName)) {
+				$.data( this, "plugin_" + pluginName,
+				new ScalarSearch(this, options));
+			}
+		});
+	}
+
+})( jQuery, window, document );
+
+class SearchManager {
+	constructor(modal) {
+		this.modal = modal
+		this.bodyContent = this.modal.find('.modal-body')
+		this.setup()
+	}
+	
+	setup() {
+		$('<form id="modal_search" role="form" class="form-horizontal">'+
+			'<div class="form-group condensed">'+
+				'<label for="modal_search_term" class="col-sm-2 text-right">Search for</label>'+
+				'<div class="col-sm-6">'+
+					'<input id="modal_search_term" name="search_term" type="text" autocomplete="off" class="form-control" placeholder="Enter search terms">'+
+				'</div>'+
+			'</div>'+
+			'<div class="form-group condensed">'+
+				'<label for="modal_scope" class="col-sm-2 text-right">in</label>'+
+				'<div class="col-sm-4">'+
+					'<select id="modal_scope" class="form-control">'+
+						'<option value="content" selected="selected">content only</option>'+
+						'<option value="titles">titles only</option>'+
+						'<option value="titles_content">titles and content</option>'+
+						'<option value="metadata">a metadata field</option>'+
+					'</select>'+
+					'<small class="caption_font">Want more search options? Try <a href="https://scalar.usc.edu/works/guide2/lenses" target="_blank">Lenses</a></small>'+
+				'</div>'+
+				'<div class="col-sm-2 search_metadata_option">'+
+					'<select id="modal_ontology" class="form-control" aria-label="Select ontology">'+
+						'<option value="none" selected="selected">Select ontology</option>'+
+					'</select>'+
+				'</div>'+
+				'<div class="col-sm-2 search_metadata_option">'+
+					'<select id="modal_metadata_field" class="form-control" aria-label="Select ontology">'+
+						'<option value="none" selected="selected">Select field</option>'+
+					'</select>'+
+				'</div>'+
+				'<div class="col-sm-1">'+
+					'<button type="submit" class="btn btn-default">Search</button> &nbsp; '+
+				'</div>'+
+			'</div>'+
+			'<div class="error-msg hidden form-group condensed caption_font">'+
+				'<label class="col-sm-2"></label>'+
+				'<small class="text-danger col-sm-6">* Please correct the errors in the highlighted items above.</small>'+
+			'</div>'+
+		'</form><br>').appendTo(this.bodyContent)
+		
+		this.resultsTable = $('<div class="modalVisualization"></div>').appendTo(this.bodyContent);
+		this.searchField = this.modal.find('input[name="search_term"]');
+		this.ontologyMenu = this.modal.find('#modal_ontology');
+		this.ontologyPropertyMenu = this.modal.find('#modal_metadata_field');
+		this.searchForm = this.modal.find('form');
+		this.searchForm.on('submit', (event) => {
+			event.preventDefault();
+			this.doSearch(this.searchField.val());
+		});
+
+		this.updateForm();
+		$('#modal_scope').on('change', (event) => {
+			this.updateForm();
+		})
+
+		// tabbing backwards from search field link brings focus to close button
+		this.searchField.on('keydown', (e) => {
+			var keyCode = e.keyCode || e.which;
+			if(keyCode == 9) {
+				if(e.shiftKey) {
+					e.preventDefault();
+					me.modal.find( '.close' )[ 0 ].trigger('focus');
+				}
+			}
+		});
+	}
+
+	setSearchField(query) {
+		this.searchField.val(query);
+	}
+
+	firstFocus() {
 		this.searchField.trigger('focus');
 	}
 
-
-	ScalarSearch.prototype.previousPage = function() {
-		if ( this.currentPage > 1) {
-			this.currentPage--;
-			this.maxPages = Math.max( this.maxPages, this.currentPage );
-			var self = this;
-			this.doSearch(function() { self.focusOnCurrentPage() });
+	updateForm() {
+		if ($('#modal_scope').val() != 'metadata') {
+			$('.search_metadata_option').hide()
+		} else {
+			$('.search_metadata_option').show()
 		}
 	}
 
-	ScalarSearch.prototype.nextPage = function() {
-		this.currentPage++;
-		this.maxPages = Math.max( this.maxPages, this.currentPage );
-		var self = this;
-		this.doSearch(function() { self.focusOnCurrentPage() });
+	getOntologyMenu() {
+		return this.ontologyMenu;
 	}
 
-	ScalarSearch.prototype.goToPage = function( pageNum ) {
-		this.currentPage = pageNum;
-		var self = this;
-		this.doSearch(function() { self.focusOnCurrentPage() });
+	getOntologyPropertyMenu() {
+		return this.ontologyPropertyMenu;
 	}
 
-	ScalarSearch.prototype.focusOnCurrentPage = function() {
-		this.pagination.find('a[data-page="'+this.currentPage+'"]').trigger('focus');
+	getLensForQuery(query) {
+		let lens = {}
+		let errors = []
+		if (query == '') {
+			errors.push('missingQuery')
+		}
+		switch ($('#modal_scope').val()) {
+
+			case 'content':
+				lens = {
+					"visualization": {
+						"type": "list",
+						"options": []
+					},
+					"components": [
+						{
+							"content-selector": {
+								"type": "items-by-type",
+								"content-type": "all-content"
+							},
+							"modifiers": [
+								{
+									"type": "filter",
+									"subtype": "content",
+									"operator": "inclusive",
+									"content": query,
+									"metadata-field": "sioc:content"
+								}
+							]
+						},
+					],
+					"sorts": [],
+				}
+				break
+
+			case 'titles':
+				lens = {
+					"visualization": {
+						"type": "list",
+						"options": []
+					},
+					"components": [
+						{
+							"content-selector": {
+								"type": "items-by-type",
+								"content-type": "all-content"
+							},
+							"modifiers": [
+								{
+									"type": "filter",
+									"subtype": "metadata",
+									"operator": "inclusive",
+									"content": query,
+									"metadata-field": "dcterms:title"
+								}
+							]
+						}
+					],
+					"sorts": [],
+				}
+				break
+
+			case 'titles_content':
+				lens = {
+					"visualization": {
+						"type": "list",
+						"options": {
+							"operation": "or"
+						}
+					},
+					"components": [{
+						"content-selector": {
+							"type": "items-by-type",
+							"content-type": "all-content"
+						},
+						"modifiers": [{
+							"type": "filter",
+							"subtype": "metadata",
+							"operator": "inclusive",
+							"content": query,
+							"metadata-field": "dcterms:title"
+						}]
+					}, {
+						"content-selector": {
+							"type": "items-by-type",
+							"content-type": "all-content"
+						},
+						"modifiers": [{
+							"type": "filter",
+							"subtype": "metadata",
+							"operator": "inclusive",
+							"content": query,
+							"metadata-field": "sioc:content"
+						}]
+					}],
+					"sorts": [],
+				}
+				break
+				
+			case 'metadata':
+				if (this.ontologyMenu.val() == 'none') {
+					errors.push('missingMetadataOntology')
+				}
+				if (this.ontologyPropertyMenu.val() == 'none') {
+					errors.push('missingMetadataProperty')
+				}
+				lens = {
+					"visualization": {
+						"type": "list",
+						"options": []
+					},
+					"components": [
+						{
+							"content-selector": {
+								"type": "items-by-type",
+								"content-type": "all-content"
+							},
+							"modifiers": [
+								{
+									"type": "filter",
+									"subtype": "metadata",
+									"operator": "inclusive",
+									"content": query,
+									"metadata-field": `${this.ontologyMenu.val()}:${this.ontologyPropertyMenu.val()}`
+								}
+							]
+						}
+					],
+					"sorts": [],
+				}
+				break
+		}
+		if (errors.length > 0) {
+			return {
+				error: errors
+			}
+		} else {
+			return lens
+		}
 	}
 
-    $.fn[pluginName] = function ( options ) {
-        return this.each(function () {
-            if ( !$.data(this, "plugin_" + pluginName )) {
-                $.data( this, "plugin_" + pluginName,
-                new ScalarSearch( this, options ));
-            }
-        });
-    }
+	removeAllErrors() {
+		$('#modal_search').find('div').removeClass('has-error')
+		$('#modal_search').find('.error-msg').addClass('hidden')
+	}
 
-})( jQuery, window, document );
+	handleErrors(errors) {
+		$('#modal_search').find('.error-msg').removeClass('hidden')
+		for (let i=0; i<errors.length; i++) {
+			switch (errors[i]) {
+				case 'missingQuery':
+					$('#modal_search_term').parent().addClass('has-error')
+					break
+				case 'missingMetadataOntology':
+					$('#modal_ontology').parent().addClass('has-error')
+					break
+				case 'missingMetadataProperty':
+					$('#modal_metadata_field').parent().addClass('has-error')
+					break
+			}
+		}
+	}
+	
+	doSearch(query) {
+		this.removeAllErrors()
+		const lens = this.getLensForQuery(query)
+		if (lens.error) {
+			this.handleErrors(lens.error)
+		} else {
+			const visOptions = {
+				modal: false,
+				widget: true,
+				content: 'lens',
+				lens: this.getLensForQuery(query)
+			}
+			if (!this.scalarvis) {
+				this.resultsTable.scalarvis(visOptions);
+				this.scalarvis = this.resultsTable.data('scalarvis')
+			} else {
+				this.scalarvis.setOptions(visOptions)
+			}
+		}
+	}
+}

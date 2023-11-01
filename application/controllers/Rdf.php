@@ -161,7 +161,7 @@ class Rdf extends MY_Controller {
 	/**
 	 * Get pages based on queries of the semantic (ARC) tables
 	 */
-	
+
 	public function query() {
 
 		if (empty($this->data['book'])) {
@@ -243,10 +243,10 @@ class Rdf extends MY_Controller {
 		$this->template->set_template('blank');
 		$this->template->write_view('content', 'modules/data/'.$this->data['format'], $this->data);
 		$this->template->render();
-		
-		
+
+
 	}
-	
+
 	/**
 	 * Output information about a page
 	 */
@@ -320,11 +320,11 @@ class Rdf extends MY_Controller {
 		$this->template->render();
 
 	}
-	
+
 	/**
 	 * Output information about a media-page based on a file URL
 	 */
-	
+
 	public function file() {
 
 		if (empty($this->data['book'])) {
@@ -403,7 +403,7 @@ class Rdf extends MY_Controller {
 		$this->template->set_template('blank');
 		$this->template->write_view('content', 'modules/data/'.$this->data['format'], $this->data);
 		$this->template->render();
-		
+
 	}
 
 	/**
@@ -482,9 +482,9 @@ class Rdf extends MY_Controller {
 			// All other gathering of content
 			} else {
 				$content = $this->$model->get_all(
-					$this->data['book']->book_id, 
-					$type, 
-					$category, 
+					$this->data['book']->book_id,
+					$type,
+					$category,
 					(($this->data['hidden'])?false:true),
 					(is_array($this->data['use_versions'])) ? array_keys($this->data['use_versions']) : null
 				);

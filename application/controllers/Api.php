@@ -46,10 +46,10 @@ Class Api extends CI_Controller {
 
 	//Valid fields for each type of action
 	//TODO: Pretty sure we can clean up the add_fields|update_fields array then remove options_* arrays, since 'scalar' prefix is now allowed globally ~cd
-	private $add_fields = array('dcterms:title','dcterms:description','rdf:type','scalar:child_urn','scalar:child_type','scalar:child_rel','scalar:fullname','sioc:content');
-	private $optional_add_fields = array('dcterms:description','scalar:fullname','sioc:content');
-	private $update_fields = array('dcterms:title','dcterms:description','rdf:type','scalar:urn','scalar:fullname','sioc:content');
-	private $optional_update_fields = array('dcterms:description','scalar:fullname','sioc:content');
+	private $add_fields = array('dcterms:title','dcterms:description','scalar:altText','rdf:type','scalar:child_urn','scalar:child_type','scalar:child_rel','scalar:fullname','sioc:content');
+	private $optional_add_fields = array('dcterms:description','scalar:altText','scalar:fullname','sioc:content');
+	private $update_fields = array('dcterms:title','dcterms:description','scalar:altText','rdf:type','scalar:urn','scalar:fullname','sioc:content');
+	private $optional_update_fields = array('dcterms:description','scalar:altText','scalar:fullname','sioc:content');
 	private $relate_fields = array('scalar:urn', 'scalar:child_urn', 'scalar:child_rel');
 	private $content_metadata = array('category', 'thumbnail', 'background', 'banner', 'custom_style', 'custom_scripts', 'color', 'slug', 'audio', 'is_live');
 	private $version_metadata = array('url', 'default_view', 'continue_to_content_id', 'sort_number','editorial_state','usage_rights','editorial_queries');
@@ -58,7 +58,7 @@ Class Api extends CI_Controller {
 
 	//Valid relationship types and metadata
 	private $rel_types = array('page', 'annotated', 'contained', 'referenced', 'replied', 'tagged','grouped');
-	private $rel_annotated = array('start_seconds', 'end_seconds', 'start_line_num', 'end_line_num', 'points', 'position_3d');
+	private $rel_annotated = array('start_seconds', 'end_seconds', 'start_line_num', 'end_line_num', 'points', 'position_3d', 'position_gis');
 	private $rel_contained = array('sort_number');
 	private $rel_referenced = array('reference_text');
 	private $rel_replied = array('paragraph_num', 'datetime');
@@ -638,6 +638,7 @@ Class Api extends CI_Controller {
 		$save['user_id'] = $this->user->user_id;
 		$save['title'] = $this->data['dcterms:title'];
 		$save['description'] = $this->data['dcterms:description'];
+		$save['alt_text'] = $this->data['scalar:altText'];
 		$save['content'] = isset($this->data['sioc:content']) ? $this->data['sioc:content'] : '';
 		$save['type'] = $this->data['rdf:type'];
 		if (!isset($this->data['scalar:fullname'])) $this->data['scalar:fullname'] = '';
@@ -706,7 +707,7 @@ Class Api extends CI_Controller {
 		switch($this->data['scalar:child_rel']) {
 			case 'annotated':
 				$this->load->model('annotation_model', 'annotations');
-				$this->annotations->save_children($parent_id, array($this->data['scalar:child_urn']), array($save['start_seconds']), array($save['end_seconds']), array($save['start_line_num']), array($save['end_line_num']), array($save['points']), array($save['position_3d']));
+				$this->annotations->save_children($parent_id, array($this->data['scalar:child_urn']), array($save['start_seconds']), array($save['end_seconds']), array($save['start_line_num']), array($save['end_line_num']), array($save['points']), array($save['position_3d']), array($save['position_gis']));
 				break;
 			case 'contained':
 				$this->load->model('path_model', 'paths');
@@ -748,11 +749,11 @@ Class Api extends CI_Controller {
 				case 'annotations':
 					$children = $this->annotations->get_children($old_version_id);
 					foreach ($children as $child) {
-						$this->annotations->save_children($new_version_id, array($child->child_version_id), array($child->start_seconds), array($child->end_seconds), array($child->start_line_num), array($child->end_line_num), array($child->points), array($child->position_3d));
+						$this->annotations->save_children($new_version_id, array($child->child_version_id), array($child->start_seconds), array($child->end_seconds), array($child->start_line_num), array($child->end_line_num), array($child->points), array($child->position_3d), array($child->position_gis));
 					}
 					$parents = $this->annotations->get_parents($old_version_id);
 					foreach ($parents as $parent) {
-						$this->annotations->save_parents($new_version_id, array($parent->parent_version_id), array($parent->start_seconds), array($parent->end_seconds), array($parent->start_line_num), array($parent->end_line_num), array($parent->points), array($parent->position_3d));
+						$this->annotations->save_parents($new_version_id, array($parent->parent_version_id), array($parent->start_seconds), array($parent->end_seconds), array($parent->start_line_num), array($parent->end_line_num), array($parent->points), array($parent->position_3d), array($parent->position_gis));
 					}
 					break;
 				case 'paths':
@@ -831,7 +832,7 @@ Class Api extends CI_Controller {
 	private function _tklabels($book_id) {
 
 		$enable = $this->config->item('enable_tklabels');
-		if (empty($enable)) return null;
+		if (!$enable) return null;
 		$namespaces = $this->config->item('namespaces');
 		if (!isset($namespaces['tk'])) return null;
 		$this->load->model('resource_model', 'resources');
