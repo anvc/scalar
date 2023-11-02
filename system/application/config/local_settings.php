@@ -90,7 +90,7 @@ $config['airtable'] = array(
 		'table_name' => '',  // Table name
 		'field_to_search' => '',  // Field in the table to search on
 		'name' => '',  // Name of the table to appear in the Scalar header bar
-		'api_key' => ''  // API key
+		'token' => ''  // Personal access token, see https://airtable.com/developers/web/guides/personal-access-tokens#creating-a-token
 	)	
 );
 */
