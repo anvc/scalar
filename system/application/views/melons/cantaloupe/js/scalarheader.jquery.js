@@ -1099,6 +1099,7 @@
 
     base.navigationMenus = function() {
       let navigationMenus = $('<ul class="nav navbar-nav" id="ScalarHeaderMenuLeft"></ul>')
+      navigationMenus.append(base.skipLink())
       navigationMenus.append(base.homeLink())
       navigationMenus.append(base.headerMenu(base.menuData.main))
       navigationMenus.append(base.headerMenu(base.menuData.wayfinding))
@@ -1147,6 +1148,14 @@
       base.addAirtableImportItems()
 
       return utilityOptions
+    }
+
+    base.skipLink = function() {
+      const skipLink = $('<button id="skip">Skip to Main Content</button>')
+      skipLink.on('click', () => {
+        $('article a:not(.metadata)').first().focus()
+      })
+      return skipLink
     }
 
     base.homeLink = function() {

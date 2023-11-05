@@ -82,7 +82,7 @@
 		this.modal = content.bootstrapModal({title: 'Help'});
 
 		this.modal.on('shown.bs.modal', function() {
-			me.modal.find( '.modal-body a' )[ 0 ].trigger('focus');
+			me.modal.find( '.modal-body a' )[ 0 ].focus();
 		});
 
 		this.element.replaceWith(this.element);
@@ -96,12 +96,12 @@
 
 		// tabbing forward from close button brings focus to first link
 		this.modal.find( '.close' ).onTab( function() {
-			me.modal.find( '.modal-body a' )[ 0 ].trigger('focus');
+			me.modal.find( '.modal-body a' )[ 0 ].focus();
 		});
 
 		// tabbing backwards from first link brings focus to close button
 		this.modal.find( '.modal-body a:eq(0)' ).onTabBack( function() {
-			me.modal.find( '.close' )[ 0 ].trigger('focus');
+			me.modal.find( '.close' )[ 0 ].focus();
 		});
 
 	}
