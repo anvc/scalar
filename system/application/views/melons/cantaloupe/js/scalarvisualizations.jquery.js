@@ -233,7 +233,7 @@ window.scalarvis = { instanceCount: -1 };
       }
 
       // help popover
-      base.helpButton = $('<button class="btn btn-link btn-xs" data-toggle="popover" data-placement="top">About this visualization</button>');
+      base.helpButton = $('<button tabindex class="btn btn-link btn-xs" data-toggle="popover" data-placement="top">About this visualization</button>');
       visFooter.append(base.helpButton);
       base.helpButton.popover({
         trigger: "hover click",
@@ -245,7 +245,7 @@ window.scalarvis = { instanceCount: -1 };
       let format = base.getFormat();
       if (format != "tagcloud" && format != "list" && format != "word-cloud") {
         visFooter.append(' | ');
-        base.legendButton = $('<button class="btn btn-link btn-xs" data-toggle="popover" data-placement="top" >Legend</button>');
+        base.legendButton = $('<button tabindex class="btn btn-link btn-xs" data-toggle="popover" data-placement="top" >Legend</button>');
         visFooter.append(base.legendButton);
         var type, color, name,
           legendMarkup = "";
@@ -272,11 +272,11 @@ window.scalarvis = { instanceCount: -1 };
 
       if (!isMobile) {
         base.inspectorSpan = $('<span> | </span>').appendTo(visFooter);
-        base.inspectorButton = $('<button class="btn btn-link btn-xs">Inspector</button>').appendTo(base.inspectorSpan);
+        base.inspectorButton = $('<button tabindex class="btn btn-link btn-xs">Inspector</button>').appendTo(base.inspectorSpan);
         base.inspectorButton.on('click', base.toggleInspector);
 
         visFooter.append(' | ');
-        base.fullScreenButton = $('<button class="btn btn-link btn-xs"><img style="margin-top: -1px;" src="' + modules_uri + '/cantaloupe/images/fs_icon@2x.png" width="15" height="12" alt=""/> Full screen</button>');
+        base.fullScreenButton = $('<button tabindex class="btn btn-link btn-xs"><img style="margin-top: -1px;" src="' + modules_uri + '/cantaloupe/images/fs_icon@2x.png" width="15" height="12" alt=""/> Full screen</button>');
         visFooter.append(base.fullScreenButton);
         base.fullScreenButton.on('click', base.enterFullScreen);
       }

@@ -70,17 +70,6 @@
 			this.searchManager = new SearchManager(this.modal)
 		}
 
-		// tabbing forward from close button brings focus to search field
-		this.modal.find( '.close' ).on('keydown', (e) => {
-			var keyCode = e.keyCode || e.which;
-			if (keyCode == 9) {
-				if (!e.shiftKey) {
-					e.preventDefault();
-					this.searchManager.firstFocus();
-				}
-			}
-		});
-
 		this.ontologyMenu = this.searchManager.getOntologyMenu();
 		if (this.ontologyMenu) {
 			this.ontologyMenu.on('change', (event) => {
@@ -93,6 +82,9 @@
 
 	ScalarSearch.prototype.showSearch = function() {
 		this.modal.modal('show');
+		setTimeout(() => {
+			this.searchManager.getFirstFocusable().focus()
+		}, 500)
 	}
 
 	ScalarSearch.prototype.hideSearch = function() {
@@ -105,7 +97,55 @@
 		}
 		this.searchManager.setSearchField(query)
 		this.showSearch()
-		setTimeout(() => { this.searchManager.doSearch(query) }, 500)
+		console.log('do search')
+		setTimeout(() => { 
+			this.searchManager.doSearch(query)
+			this.setupFocusTrap()
+		}, 500)
+	}
+
+	ScalarSearch.prototype.setupFocusTrap = function() {
+
+		var closeBtn = this.modal.find( '.close' )
+		var firstFocusable = this.searchManager.getFirstFocusable()
+		var lastFocusable = this.searchManager.getLastFocusable()
+
+		console.log(firstFocusable, lastFocusable)
+
+		// tabbing forward from close button brings focus to search field
+		closeBtn.on('keydown', (e) => {
+			var keyCode = e.keyCode || e.which;
+			if (keyCode == 9) {
+				if (!e.shiftKey) {
+					e.preventDefault();
+					firstFocusable.focus();
+				} else {
+					e.preventDefault();
+					lastFocusable.focus()
+				}
+			}
+		});
+
+		// tabbing backwards from search field link brings focus to close button
+		firstFocusable.on('keydown', (e) => {
+			var keyCode = e.keyCode || e.which;
+			if(keyCode == 9) {
+				if (e.shiftKey) {
+					e.preventDefault();
+					closeBtn.focus();
+				}
+			}
+		});
+
+		lastFocusable.on('keydown', (e) => {
+			var keyCode = e.keyCode || e.which;
+			if(keyCode == 9) {
+				if (!e.shiftKey) {
+					e.preventDefault();
+					closeBtn.focus();
+				}
+			}
+		});
 	}
 
 	ScalarSearch.prototype.getOntologyData = function() {
@@ -263,25 +303,18 @@ class SearchManager {
 		$('#modal_scope').on('change', (event) => {
 			this.updateForm();
 		})
-
-		// tabbing backwards from search field link brings focus to close button
-		this.searchField.on('keydown', (e) => {
-			var keyCode = e.keyCode || e.which;
-			if(keyCode == 9) {
-				if(e.shiftKey) {
-					e.preventDefault();
-					me.modal.find( '.close' )[ 0 ].trigger('focus');
-				}
-			}
-		});
 	}
 
 	setSearchField(query) {
 		this.searchField.val(query);
 	}
 
-	firstFocus() {
-		this.searchField.trigger('focus');
+	getFirstFocusable() {
+		return this.searchField
+	}
+
+	getLastFocusable() {
+		return this.modal.find('.vis_footer button').last()
 	}
 
 	updateForm() {
