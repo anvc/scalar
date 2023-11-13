@@ -175,6 +175,17 @@
             },
           ]
         },
+        search: {
+          menu: {
+            id: 'ScalarHeaderSearch',
+            label: 'Search',
+          },
+          items: [
+            {
+              text: 'Advanced search'
+            }
+          ]
+        },
         import: {
           menu: {
             id: 'ScalarHeaderAnnotate',
@@ -1121,7 +1132,7 @@
 
     base.utilityOptions = function() {
       let utilityOptions = $('<ul class="nav navbar-nav navbar-right" id="ScalarHeaderMenuRight"></ul>')
-      utilityOptions.append(base.headerControl(base.controlData.search))
+      utilityOptions.append(base.headerControl(base.controlData.search, base.menuData.search))
       utilityOptions.append(base.searchForm())
       utilityOptions.append(base.headerControl(base.controlData.help))
       let user = scalarapi.model.getUser()
@@ -1195,7 +1206,7 @@
       return menuStructure
     }
 
-    base.headerControl = function(controlData) {
+    base.headerControl = function(controlData, menuData) {
       if (controlData.include == undefined || controlData.include) {
         const control = $('<li><a class="headerIcon" role="button"><span class="hidden-sm hidden-md hidden-lg"></span></a></li>')
         control.attr('id', controlData.id)
@@ -1203,6 +1214,14 @@
         control.find('a').attr('id', controlData.icon).attr('aria-labelledby', labelId).attr('title', controlData.description)
         control.find('span').attr('id', labelId).append(controlData.label)
         if (controlData.url) control.find('a').attr('href', controlData.url).attr('aria-role', 'link')
+        if (menuData) {
+          control.addClass('dropdown')
+          control.find('a').addClass('dropdown-toggle').attr({'data-toggle': 'dropdown', 'aria-expanded': 'false', 'role': 'menuitem'})
+          control.append('<ul class="dropdown-menu dropdown-menu-left" role="menu"></ul>')
+          for (let i=0; i<menuData.items.length; i++) {
+            control.children('ul').append(base.menuItem(menuData.items[i]))
+          }
+        }
         return control
       } else {
         return null
@@ -1222,7 +1241,7 @@
     }
 
     base.addSearchFunctionality = function() {
-      $('#ScalarHeaderMenuSearch a').on('click', function(e) {
+      $('#ScalarHeaderMenuSearch>a').on('click', function(e) {
         if (base.isMobile || base.$el.find('.navbar-toggle').is(':visible')) {
           $('#ScalarHeaderMenuSearch').toggleClass('search_open');
           $('#ScalarHeaderMenuSearchForm').toggleClass('open');
@@ -1284,6 +1303,12 @@
         e.preventDefault();
         return false;
       });
+      $('#ScalarHeaderMenuSearch ul>li>a').on('click', function(e) {
+        base.search.data('plugin_scalarsearch').showSearch();
+        e.stopPropagation();
+        e.preventDefault();
+        return false;
+      })
     }
 
     base.addAirtableImportItems = function() {
@@ -1327,13 +1352,14 @@
 
     base.menuItem = function(itemData) {
       let listItem = $(`<li id="${itemData.id}" class="dropdown"></li>`)
-      let link = $('<a role="menuitem" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></a>')
+      let link = $('<a role="menuitem" aria-expanded="false"><span class="menuIcon pull-right"></a>')
       if (itemData.icon) {
         link.append(`<span class="menuIcon" id="${itemData.icon}"></span>`)
       }
       link.append(itemData.text)
       listItem.append(link)
       if (itemData.submenu) {
+        link.find('span').eq(0).addClass('rightArrowIcon')
         submenu = $('<ul class="dropdown-menu" role="menu"><ul>')
         for (let i=0; i<itemData.submenu.length; i++) {
           if (itemData.submenu[i].include == undefined || itemData.submenu[i].include) {
