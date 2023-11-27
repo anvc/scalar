@@ -235,9 +235,10 @@ class Page_model extends MY_Model {
     	$query = $this->db->get();
     	if (!$query->num_rows) return null;
     	$result = $query->result();
-    	
+
     	// Group by content ID
     	for ($j = 0; $j < count($result); $j++) {
+    		if (!$this->is_most_recent_version($result[$j]->content_id, $result[$j]->version_id)) continue;  // Only pass through the most recent versions
     		if (!array_key_exists($result[$j]->content_id, $return)) {
     			$return[$result[$j]->content_id] = (object) array();
     			$return[$result[$j]->content_id]->versions = array();
@@ -524,6 +525,39 @@ class Page_model extends MY_Model {
 		}
 		return false;
 
+	}
+	
+	/**
+	 * Determine whether a version is the most recent version
+	 */
+	
+	protected function is_most_recent_version($content_id = 0, $version_id = 0) {
+	
+		$this->db->select('*');
+		$this->db->from($this->pages_table);
+		$this->db->where('content_id =', $content_id);
+		$this->db->limit(1);
+		$query = $this->db->get();
+		$result = $query->result();
+		if (!isset($result[0])) return false;
+		$recent_version_id = (int) $result[0]->recent_version_id;
+
+		if (!$recent_version_id) {  // Recent version ID hasn't been set
+			$this->db->select('*');
+			$this->db->from($this->versions_table);
+			$this->db->where('content_id =', $content_id);
+			$this->db->order_by('version_id', 'desc');
+			$this->db->limit(1);
+			$query = $this->db->get();
+			$result = $query->result();
+			if (!isset($result[0])) return false;
+			if ($result[0]->version_id != $version_id) return false;
+			return true;
+		}
+		
+		if ($recent_version_id == $version_id) return true;
+		return false;
+		
 	}
 
 }
