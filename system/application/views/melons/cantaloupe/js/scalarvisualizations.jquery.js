@@ -4718,69 +4718,33 @@ window.scalarvis = { instanceCount: -1 };
           this.visList.find('td[prop="author"]').before('<td class="lg" prop="fieldToAdd"><a href="javascript:void(null);">' + candidates[fieldToAdd] + '</a></td>');
         };
 
+        var columns = ['title', 'description', 'content', 'fieldToAdd', 'author', 'dateEdited', 'version']
+        var conditionalColumns = ['created', 'relationType', 'numRelations', 'stringMatches', 'visitDate']
+
         // Output rows
         var $tbody = this.visList.find('tbody');
         $tbody.find('.visListRow').remove();
         var maxLength = 100;
         var authorFields = {};
         for (var j = 0; j < base.contentNodes.length; j++) {
-          // Fields
-          var url = base.contentNodes[j].url;
-          var title = base.contentNodes[j].current.title;
-          if (null === title) continue;
-          title = title.replace(/(<([^>]+)>)/gi, "");
-          var description = ('undefined' != typeof (base.contentNodes[j].current.description) && null !== base.contentNodes[j].current.description) ? base.contentNodes[j].current.description : '';
-          if (description.length > maxLength) description = description.substr(0, maxLength) + '...';
-          description = description.replace(/(<([^>]+)>)/gi, "");
-          var content = ('undefined' != typeof (base.contentNodes[j].current.content) && null !== base.contentNodes[j].current.content) ? base.contentNodes[j].current.content : '';
-          if (content.length > maxLength) content = content.substr(0, maxLength) + '...';
-          content = content.replace(/(<([^>]+)>)/gi, "");
-          var author = base.contentNodes[j].current.properties['http://www.w3.org/ns/prov#wasAttributedTo'][0].value;  // Most recent version
-          var authorUrl = $('link#parent').attr('href') + author;
-          var authorId = parseInt(authorUrl.substr(authorUrl.lastIndexOf('/') + 1));
-          var fullname = ('undefined' != typeof (base.options.lens) && 'undefined' != typeof (base.options.lens.users[authorId])) ? base.options.lens.users[authorId] : '';
-          var lastEdited = (base.contentNodes[j].current.created) ? base.contentNodes[j].current.created.substr(0, base.contentNodes[j].current.created.indexOf('T')) : '';
-          var versions = base.contentNodes[j].current.number;
+
+          var node = base.contentNodes[j]
           var isSelected = (base.selectedNodes.indexOf(base.contentNodes[j]) != -1) ? true : false;
-          // Output rows
           var $row = $('<tr class="visListRow ' + ((isSelected) ? 'selected' : '') + '" data-index="' + j + '"></div>').appendTo($tbody);
-          $row.append('<td class="sm" prop="title"><a href="' + url + '" target="_blank">' + title + '</a></td>');
-          $row.append('<td class="md" prop="description">' + description + '</td>');
-          $row.append('<td class="md" prop="content">' + content + '</td>');
-          if (null != fieldToAdd) {
-            var valueToAdd = ('undefined' != typeof (base.contentNodes[j].current.properties[fieldToAdd])) ? base.contentNodes[j].current.properties[fieldToAdd][0].value : '';
-            $row.append('<td class="lg" prop="fieldToAdd">' + valueToAdd + '</td>');
-          };
-          $row.append('<td class="lg" prop="author"><a href="' + authorUrl + '" target="_blank">' + fullname + '</a></td>');
-          $row.append('<td class="lg" prop="lastEdited">' + lastEdited + '</td>');
-          $row.append('<td class="lg" prop="version" style="text-align:center;">' + versions + '</td>');
-          // Sort-specific fields
-          if ('undefined' != typeof (base.contentNodes[j].sorts) && 'undefined' != typeof (base.contentNodes[j].sorts.created)) {
-            if (!this.visList.find('td[prop="created"]').length) this.visList.find('.header').append('<td class="md" prop="created" style="text-align:center;"><a href="javascript:void(null);">Date Created</a></td>');
-            $row.append('<td class="md" prop="created" style="text-align:center;">' + base.contentNodes[j].sorts.created.split(" ")[0] + '</td>');
-          };
-          if ('undefined' != typeof (base.contentNodes[j].sorts) && 'undefined' != typeof (base.contentNodes[j].sorts.relationType)) {
-            if (!this.visList.find('td[prop="relationType"]').length) this.visList.find('.header').append('<td class="md" prop="relationType" style="text-align:center;"><a href="javascript:void(null);">Item Type</a></td>');
-            $row.append('<td class="md" prop="relationType" style="text-align:center;">' + base.contentNodes[j].sorts.relationType + '</td>');
-          };
-          if ('undefined' != typeof (base.contentNodes[j].sorts) && 'undefined' != typeof (base.contentNodes[j].sorts.numRelations)) {
-            if (!this.visList.find('td[prop="numRelations"]').length) this.visList.find('.header').append('<td class="md" prop="numRelations" style="text-align:center;"><a href="javascript:void(null);"># Relations</a></td>');
-            $row.append('<td class="md" prop="numRelations" style="text-align:center;">' + base.contentNodes[j].sorts.numRelations + '</td>');
-          };
-          if ('undefined' != typeof (base.contentNodes[j].sorts) && 'undefined' != typeof (base.contentNodes[j].sorts.stringMatches)) {
-            if (!this.visList.find('td[prop="stringMatches"]').length) this.visList.find('.header').append('<td class="md" prop="stringMatches" style="text-align:center;"><a href="javascript:void(null);">Matches</a></td>');
-            $row.append('<td class="md" prop="stringMatches" style="text-align:center;">' + base.contentNodes[j].sorts.stringMatches + '</td>');
-          };
-          if ('undefined' != typeof (base.contentNodes[j].sorts) && 'undefined' != typeof (base.contentNodes[j].sorts.visitDate)) {
-            if (!this.visList.find('td[prop="visitDate"]').length) this.visList.find('.header').append('<td class="md" prop="visitDate" style="text-align:center;"><a href="javascript:void(null);">Visit Date</a></td>');
-            var date = '';
-            if (base.contentNodes[j].sorts.visitDate != 0) {
-              var date = new Date(parseInt(base.contentNodes[j].sorts.visitDate));
-              date = (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear();
-              // +" "+date.getHours()+":"+date.getMinutes()+":"+date.getSeconds();
+          for (var i = 0; i < columns.length; i++) {
+            if (columns[i] != 'fieldToAdd') {
+              this.addColumnToRowForNode(columns[i], $row, node)
+            } else if ((columns[i] == 'fieldToAdd' && fieldToAdd)) {
+              this.addColumnToRowForNode(columns[i], $row, node)
             }
-            $row.append('<td class="md" prop="visitDate" style="text-align:center;">' + date + '</td>');
-          };
+          }
+
+          // add sort-based conditional columns
+          for (var i=0; i< conditionalColumns.length; i++) {
+            if (this.nodeHasSort(node, conditionalColumns[i])) {
+              this.addColumnToRowForNode(conditionalColumns[i], $row, node)
+            }
+          }
         };
 
         // Add/remove items from selectedNodes
@@ -4812,6 +4776,93 @@ window.scalarvis = { instanceCount: -1 };
           this.visList.find('.sm, .md, .lg').show();
         };
 
+      }
+
+      nodeHasSort(node, sort) {
+        return 'undefined' != typeof (node.sorts) && 'undefined' != typeof (node.sorts[sort])
+      }
+
+      addColumnToRowForNode(columnType, row, node, content) {
+        console.log('addColumn', columnType)
+        var maxLength = 100;
+        switch (columnType) {
+
+          case 'title':
+            var url = node.url;
+            var title = node.current.title;
+            if (null === title) return;
+            title = title.replace(/(<([^>]+)>)/gi, "");
+            row.append('<td class="sm" prop="title"><a href="' + url + '" target="_blank">' + title + '</a></td>');
+            break
+
+          case 'description':
+            var description = ('undefined' != typeof (node.current.description) && null !== node.current.description) ? node.current.description : '';
+            if (description.length > maxLength) description = description.substr(0, maxLength) + '...';
+            description = description.replace(/(<([^>]+)>)/gi, "");
+            row.append('<td class="md" prop="description">' + description + '</td>');
+            break
+
+          case 'content':
+            var content = ('undefined' != typeof (node.current.content) && null !== node.current.content) ? node.current.content : '';
+            if (content.length > maxLength) content = content.substr(0, maxLength) + '...';
+            content = content.replace(/(<([^>]+)>)/gi, "");
+            row.append('<td class="md" prop="content">' + content + '</td>');
+            break
+
+          case 'fieldToAdd':
+            var valueToAdd = ('undefined' != typeof (node.current.properties[content])) ? node.current.properties[content][0].value : '';
+            row.append('<td class="lg" prop="fieldToAdd">' + valueToAdd + '</td>');
+            break
+
+          case 'author':
+            var author = node.current.properties['http://www.w3.org/ns/prov#wasAttributedTo'][0].value;  // Most recent version
+            var authorUrl = $('link#parent').attr('href') + author;
+            var authorId = parseInt(authorUrl.substr(authorUrl.lastIndexOf('/') + 1));
+            var fullname = ('undefined' != typeof (base.options.lens) && 'undefined' != typeof (base.options.lens.users[authorId])) ? base.options.lens.users[authorId] : '';
+            row.append('<td class="lg" prop="author"><a href="' + authorUrl + '" target="_blank">' + fullname + '</a></td>');
+            break
+
+          case 'dateEdited':
+            var dateEdited = (node.current.created) ? node.current.created.substr(0, node.current.created.indexOf('T')) : '';
+            row.append('<td class="lg" prop="lastEdited">' + dateEdited + '</td>');
+            break
+
+          case 'version':
+            var versions = node.current.number;
+            row.append('<td class="lg" prop="version" style="text-align:center;">' + versions + '</td>');
+            break
+
+          case 'created':
+            if (!this.visList.find('td[prop="created"]').length) this.visList.find('.header').append('<td class="md" prop="created" style="text-align:center;"><a href="javascript:void(null);">Date Created</a></td>');
+            row.append('<td class="md" prop="created" style="text-align:center;">' + node.sorts.created.split(" ")[0] + '</td>');
+            break;
+
+          case 'relationType':
+            if (!this.visList.find('td[prop="relationType"]').length) this.visList.find('.header').append('<td class="md" prop="relationType" style="text-align:center;"><a href="javascript:void(null);">Item Type</a></td>');
+            row.append('<td class="md" prop="relationType" style="text-align:center;">' + node.sorts.relationType + '</td>');
+            break;
+
+          case 'numRelations':
+            if (!this.visList.find('td[prop="numRelations"]').length) this.visList.find('.header').append('<td class="md" prop="numRelations" style="text-align:center;"><a href="javascript:void(null);"># Relations</a></td>');
+            row.append('<td class="md" prop="numRelations" style="text-align:center;">' + node.sorts.numRelations + '</td>');
+            break;
+          
+          case 'stringMatches':
+            if (!this.visList.find('td[prop="stringMatches"]').length) this.visList.find('.header').append('<td class="md" prop="stringMatches" style="text-align:center;"><a href="javascript:void(null);">Matches</a></td>');
+            row.append('<td class="md" prop="stringMatches" style="text-align:center;">' + node.sorts.stringMatches + '</td>');
+            break;
+
+          case 'visitDate':
+            if (!this.visList.find('td[prop="visitDate"]').length) this.visList.find('.header').append('<td class="md" prop="visitDate" style="text-align:center;"><a href="javascript:void(null);">Visit Date</a></td>');
+            var date = '';
+            if (node.sorts.visitDate != 0) {
+              var date = new Date(parseInt(node.sorts.visitDate));
+              date = (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear();
+            }
+            row.append('<td class="md" prop="visitDate" style="text-align:center;">' + date + '</td>');
+            break;
+          
+        }
       }
 
       getHelpContent() {
