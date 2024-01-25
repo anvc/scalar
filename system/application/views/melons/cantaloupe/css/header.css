@@ -395,6 +395,9 @@ span.navbar-text.navbar-left.pull-left.title_wrapper.visible-xs{
 	margin-bottom: 1rem;
 	font-weight: bold;
 }
+.navbar ul.dropdown-menu>li:last-child, .navbar ul.dropdown-menu .body>ol>li:last-child, .navbar ul.dropdown-menu li.static:last-child, .navbar ul.dropdown-menu .relationships li:last-child {
+	margin-bottom: 0;
+}
 .navbar ul.dropdown-menu .relationships>ul>li{
 	margin-bottom: 4.4rem;
 }
@@ -615,7 +618,7 @@ span.navbar-text.navbar-left.pull-left.title_wrapper.visible-xs{
 	background-color: transparent;
 }
 .navbar li.mainMenu>.mainMenuDropdown>#mainMenuInside>li.static{
-	padding: 0 3rem;
+	padding: 1.5rem 3rem 0 3rem;
 }
 .navbar li.mainMenu>.mainMenuDropdown>#mainMenuInside>li.top{
 	margin-bottom: 1rem;

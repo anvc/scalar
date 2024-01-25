@@ -4684,6 +4684,22 @@ window.scalarvis = { instanceCount: -1 };
       constructor() {
         super();
         this.visList = null;
+        this.columnSpecs = {
+          'author': { size: 'lg', name: 'Edited By', style: '' },
+          'content': { size: 'md', name: 'Content', style: '' },
+          'dateCreated': { size: 'lg', name: 'Date Created', style: 'text-align:center' },
+          'description': { size: 'md', name: 'Description', style: '' },
+          'originalAuthor': { size: 'lg', name: 'Author', style: '' },
+          'lastEdited': { size: 'lg', name: 'Last Edited', style: 'text-align:center' },
+          'numRelations': { size: 'md', name: '# Relations', style: 'text-align:center' },
+          'relationType': { size: 'md', name: 'Item Type', style: 'text-align:center' },
+          'stringMatches': { size: 'md', name: 'Matches', style: 'text-align:center' },
+          'title': { size: 'sm', name: 'Title', style: '' },
+          'version': { size: 'sm', name: 'Version', style: 'text-align:center' },
+          'visitDate': { size: 'md', name: 'Visit Date', style: 'text-align:center' }
+        }
+        this.defaultColumns = ['title', 'description', 'content', 'originalAuthor', 'author', 'lastEdited', 'version']
+        this.conditionalColumns = ['created', 'relationType', 'numRelations', 'stringMatches', 'visitDate']
       }
 
       draw() {
@@ -4691,59 +4707,19 @@ window.scalarvis = { instanceCount: -1 };
 
         this.updateNoResultsMessage(base.contentNodes);
 
-        // Determine if there is a author/creator field to add based on metadata
-        var candidates = {
-          "http://ns.exiftool.ca/IPTC/IPTC/1.0/By-line": "iptc:By-line",
-          "http://ns.exiftool.ca/IPTC/IPTC/1.0/Writer-Editor": "iptc:Writer-Editor",
-          "http://purl.org/dc/terms/creator": "dcterms:creator"
-        }
-        var counts = {};
-        for (var j = 0; j < base.contentNodes.length; j++) {
-          for (var uri in candidates) {
-            if ('undefined' != typeof (base.contentNodes[j].current.properties[uri])) {
-              if ('undefined' == typeof (counts[uri])) counts[uri] = 0;
-              counts[uri]++;
-            }
-          }
-        };
-        var fieldValue = 0;
-        var fieldToAdd = null;
-        for (var field in counts) {
-          if (counts[field] > 0 && counts[field] > fieldValue) {
-            fieldValue = counts[field];
-            fieldToAdd = field;
-          }
-        };
-        if (null != fieldToAdd && !this.visList.find('td[prop="fieldToAdd"]').length) {
-          this.visList.find('td[prop="author"]').before('<td class="lg" prop="fieldToAdd"><a href="javascript:void(null);">' + candidates[fieldToAdd] + '</a></td>');
-        };
-
-        var columns = ['title', 'description', 'content', 'fieldToAdd', 'author', 'dateEdited', 'version']
-        var conditionalColumns = ['created', 'relationType', 'numRelations', 'stringMatches', 'visitDate']
+        var columns = this.getColumns();
+        this.setupTable(columns);
 
         // Output rows
         var $tbody = this.visList.find('tbody');
         $tbody.find('.visListRow').remove();
         var maxLength = 100;
-        var authorFields = {};
         for (var j = 0; j < base.contentNodes.length; j++) {
-
           var node = base.contentNodes[j]
           var isSelected = (base.selectedNodes.indexOf(base.contentNodes[j]) != -1) ? true : false;
           var $row = $('<tr class="visListRow ' + ((isSelected) ? 'selected' : '') + '" data-index="' + j + '"></div>').appendTo($tbody);
           for (var i = 0; i < columns.length; i++) {
-            if (columns[i] != 'fieldToAdd') {
-              this.addColumnToRowForNode(columns[i], $row, node)
-            } else if ((columns[i] == 'fieldToAdd' && fieldToAdd)) {
-              this.addColumnToRowForNode(columns[i], $row, node)
-            }
-          }
-
-          // add sort-based conditional columns
-          for (var i=0; i< conditionalColumns.length; i++) {
-            if (this.nodeHasSort(node, conditionalColumns[i])) {
-              this.addColumnToRowForNode(conditionalColumns[i], $row, node)
-            }
+            this.addColumnToRowForNode(columns[i], $row, node)
           }
         };
 
@@ -4778,13 +4754,92 @@ window.scalarvis = { instanceCount: -1 };
 
       }
 
-      nodeHasSort(node, sort) {
-        return 'undefined' != typeof (node.sorts) && 'undefined' != typeof (node.sorts[sort])
+      getColumns() {
+        var columns = this.defaultColumns.concat();
+        var hiddenColumns = base.options.lens.visualization.options.hiddenColumns;
+        this.setOriginalAuthorColumnInfo();
+        if (this.originalAuthor) {
+          this.columnSpecs.originalAuthor.name = this.originalAuthor.name;
+        } else {
+          var index = columns.indexOf('originalAuthor');
+          columns.splice(index, 1);
+        }
+        // add sort-based conditional columns
+        for (var i=0; i < this.conditionalColumns.length; i++) {
+          var column = this.conditionalColumns[i]
+          if (this.lensHasSort(column)) {
+            columns.push(column)
+          }
+        }
+        if (hiddenColumns) {
+          for (var i=0; i < hiddenColumns.length; i++) {
+            var hiddenColumn = hiddenColumns[i];
+            var index = columns.indexOf(hiddenColumn);
+            if (index != -1) {
+              columns.splice(index, 1);
+            }
+          }
+        }
+        return columns;
       }
 
-      addColumnToRowForNode(columnType, row, node, content) {
-        console.log('addColumn', columnType)
+      setOriginalAuthorColumnInfo() {
+        // Determine if there is an original author/creator field to add based on metadata
+        var candidates = {
+          "http://ns.exiftool.ca/IPTC/IPTC/1.0/By-line": "iptc:By-line",
+          "http://ns.exiftool.ca/IPTC/IPTC/1.0/Writer-Editor": "iptc:Writer-Editor",
+          "http://purl.org/dc/terms/creator": "dcterms:creator"
+        }
+        var counts = {};
+        for (var j = 0; j < base.contentNodes.length; j++) {
+          for (var uri in candidates) {
+            if ('undefined' != typeof (base.contentNodes[j].current.properties[uri])) {
+              if ('undefined' == typeof (counts[uri])) counts[uri] = 0;
+              counts[uri]++;
+            }
+          }
+        };
+        var fieldValue = 0;
+        var fieldToAdd = null;
+        for (var field in counts) {
+          if (counts[field] > 0 && counts[field] > fieldValue) {
+            fieldValue = counts[field];
+            fieldToAdd = field;
+          }
+        };
+        if (fieldToAdd) {
+          this.originalAuthor =  { field: fieldToAdd, name: candidates[fieldToAdd] }
+        } else {
+          this.originalAuthor = null
+        }
+      }
+
+      lensHasSort(sort) {
+        return 'undefined' != typeof (base.options.lens.sorts) && 'undefined' != typeof (base.options.lens.sorts[sort])
+      }
+
+      headerExistsForColumn(columnType) {
+        return this.visList.find('td[prop="' + columnType + '"]').length
+      }
+
+      appendColumnHeader(columnType, columnSpec) {
+        var row = '<td class="' + columnSpec.size + '" prop="' + columnType + '" style="' + columnSpec.style + '"><a href="javascript:void(null);">' + columnSpec.name + '</a></td>'
+        this.visList.find('.header').append(row);
+      }
+
+      getRowContent(columnType, columnSpec, content, url) {
+        var row = $('<td class="' + columnSpec.size + '" prop="' + columnType + '"></td>');
+        if (url) {
+          row.append('<a href="' + url + '" target="_blank">' + content + '</a>')
+        } else {
+          row.append(content);
+        }
+        return row;
+      }
+
+      addColumnToRowForNode(columnType, row, node) {
         var maxLength = 100;
+        var columnSpec = this.columnSpecs[columnType];
         switch (columnType) {
 
           case 'title':
@@ -4792,26 +4847,27 @@ window.scalarvis = { instanceCount: -1 };
             var title = node.current.title;
             if (null === title) return;
             title = title.replace(/(<([^>]+)>)/gi, "");
-            row.append('<td class="sm" prop="title"><a href="' + url + '" target="_blank">' + title + '</a></td>');
+            row.append(this.getRowContent(columnType, columnSpec, title, url));
             break
 
           case 'description':
             var description = ('undefined' != typeof (node.current.description) && null !== node.current.description) ? node.current.description : '';
             if (description.length > maxLength) description = description.substr(0, maxLength) + '...';
             description = description.replace(/(<([^>]+)>)/gi, "");
-            row.append('<td class="md" prop="description">' + description + '</td>');
+            row.append(this.getRowContent(columnType, columnSpec, description));
             break
 
           case 'content':
             var content = ('undefined' != typeof (node.current.content) && null !== node.current.content) ? node.current.content : '';
             if (content.length > maxLength) content = content.substr(0, maxLength) + '...';
             content = content.replace(/(<([^>]+)>)/gi, "");
-            row.append('<td class="md" prop="content">' + content + '</td>');
+            row.append(this.getRowContent(columnType, columnSpec, content));
             break
-
-          case 'fieldToAdd':
-            var valueToAdd = ('undefined' != typeof (node.current.properties[content])) ? node.current.properties[content][0].value : '';
-            row.append('<td class="lg" prop="fieldToAdd">' + valueToAdd + '</td>');
+          
+          case 'originalAuthor':
+            //console.log(columnType, content, node.current.properties)
+            var valueToAdd = ('undefined' != typeof (node.current.properties[this.originalAuthor.field])) ? node.current.properties[this.originalAuthor.field][0].value : '';
+            row.append(this.getRowContent(columnType, columnSpec, valueToAdd));
             break
 
           case 'author':
@@ -4819,47 +4875,42 @@ window.scalarvis = { instanceCount: -1 };
             var authorUrl = $('link#parent').attr('href') + author;
             var authorId = parseInt(authorUrl.substr(authorUrl.lastIndexOf('/') + 1));
             var fullname = ('undefined' != typeof (base.options.lens) && 'undefined' != typeof (base.options.lens.users[authorId])) ? base.options.lens.users[authorId] : '';
-            row.append('<td class="lg" prop="author"><a href="' + authorUrl + '" target="_blank">' + fullname + '</a></td>');
+            row.append(this.getRowContent(columnType, columnSpec, fullname, authorUrl));
             break
 
-          case 'dateEdited':
-            var dateEdited = (node.current.created) ? node.current.created.substr(0, node.current.created.indexOf('T')) : '';
-            row.append('<td class="lg" prop="lastEdited">' + dateEdited + '</td>');
+          case 'lastEdited':
+            var lastEdited = (node.current.created) ? node.current.created.substr(0, node.current.created.indexOf('T')) : '';
+            row.append(this.getRowContent(columnType, columnSpec, lastEdited));
             break
 
           case 'version':
             var versions = node.current.number;
-            row.append('<td class="lg" prop="version" style="text-align:center;">' + versions + '</td>');
+            row.append(this.getRowContent(columnType, columnSpec, versions));
             break
 
           case 'created':
-            if (!this.visList.find('td[prop="created"]').length) this.visList.find('.header').append('<td class="md" prop="created" style="text-align:center;"><a href="javascript:void(null);">Date Created</a></td>');
-            row.append('<td class="md" prop="created" style="text-align:center;">' + node.sorts.created.split(" ")[0] + '</td>');
+            row.append(this.getRowContent(columnType, columnSpec, node.sorts.created.split(" ")[0]));
             break;
 
           case 'relationType':
-            if (!this.visList.find('td[prop="relationType"]').length) this.visList.find('.header').append('<td class="md" prop="relationType" style="text-align:center;"><a href="javascript:void(null);">Item Type</a></td>');
-            row.append('<td class="md" prop="relationType" style="text-align:center;">' + node.sorts.relationType + '</td>');
+            row.append(this.getRowContent(columnType, columnSpec, node.sorts.relationType));
             break;
 
           case 'numRelations':
-            if (!this.visList.find('td[prop="numRelations"]').length) this.visList.find('.header').append('<td class="md" prop="numRelations" style="text-align:center;"><a href="javascript:void(null);"># Relations</a></td>');
-            row.append('<td class="md" prop="numRelations" style="text-align:center;">' + node.sorts.numRelations + '</td>');
+            row.append(this.getRowContent(columnType, columnSpec, node.sorts.numRelations));
             break;
           
           case 'stringMatches':
-            if (!this.visList.find('td[prop="stringMatches"]').length) this.visList.find('.header').append('<td class="md" prop="stringMatches" style="text-align:center;"><a href="javascript:void(null);">Matches</a></td>');
-            row.append('<td class="md" prop="stringMatches" style="text-align:center;">' + node.sorts.stringMatches + '</td>');
+            row.append(this.getRowContent(columnType, columnSpec, node.sorts.stringMatches));
             break;
 
           case 'visitDate':
-            if (!this.visList.find('td[prop="visitDate"]').length) this.visList.find('.header').append('<td class="md" prop="visitDate" style="text-align:center;"><a href="javascript:void(null);">Visit Date</a></td>');
             var date = '';
             if (node.sorts.visitDate != 0) {
               var date = new Date(parseInt(node.sorts.visitDate));
               date = (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear();
             }
-            row.append('<td class="md" prop="visitDate" style="text-align:center;">' + date + '</td>');
+            row.append(this.getRowContent(columnType, columnSpec, date));
             break;
           
         }
@@ -4874,26 +4925,16 @@ window.scalarvis = { instanceCount: -1 };
         return helpContent;
       }
 
-      // one-time visualization setup
-      setupElement() {
-
-        this.hasBeenDrawn = true;
-        base.visualization.empty(); // empty the element where this vis is to be shown
-        base.visualization.css('height', this.size.height + 'px');
-        var approot = $('link#approot').attr('href');
-        var css = approot + 'views/melons/cantaloupe/css/vis.css';
-        if (!$('head').find('[href="' + css + '"]').length) $('head').append('<link rel="stylesheet" type="text/css" href="' + css + '">');
-        var $overflow = $('<div style="overflow:auto;"></div>').appendTo(base.visualization);
-        $overflow.height($overflow.parent().height());
-        this.visList = $('<table class="visList"></table>').appendTo($overflow);
+      setupTable(columns) {
+        console.log('setup table', columns);
+        this.visList.empty();
         var $tbody = this.visList.append('<tbody></tbody>');
         var $header = $('<tr class="header"></tr>').appendTo($tbody);
-        $header.append('<td class="sm" prop="title"><a href="javascript:void(null);">Title</a></td>');
-        $header.append('<td class="md" prop="description"><a href="javascript:void(null);">Description</a></td>');
-        $header.append('<td class="md" prop="content"><a href="javascript:void(null);">Content</a></td>');
-        $header.append('<td class="lg" prop="author"><a href="javascript:void(null);">Last Edited By</a></td>');
-        $header.append('<td class="lg" prop="lastEdited"><a href="javascript:void(null);">Date Edited</a></td>');
-        $header.append('<td class="lg" prop="version"><a href="javascript:void(null);">Version</a></td>');
+        for (var i=0; i<columns.length; i++) {
+          var columnType = columns[i];
+          var columnSpec = this.columnSpecs[columnType];
+          this.appendColumnHeader(columnType, columnSpec);
+        }
         $header.on('click', 'a', function() {
           var $this = $(this);
           var index = $header.find('a').index($this);
@@ -4911,6 +4952,19 @@ window.scalarvis = { instanceCount: -1 };
             }
           }).appendTo($tbody);
         });
+      }
+
+      // one-time visualization setup
+      setupElement() {
+        this.hasBeenDrawn = true;
+        base.visualization.empty(); // empty the element where this vis is to be shown
+        base.visualization.css('height', this.size.height + 'px');
+        var approot = $('link#approot').attr('href');
+        var css = approot + 'views/melons/cantaloupe/css/vis.css';
+        if (!$('head').find('[href="' + css + '"]').length) $('head').append('<link rel="stylesheet" type="text/css" href="' + css + '">');
+        var $overflow = $('<div style="overflow:auto;"></div>').appendTo(base.visualization);
+        $overflow.height($overflow.parent().height());
+        this.visList = $('<table class="visList"></table>').appendTo($overflow);
       }
 
     }
