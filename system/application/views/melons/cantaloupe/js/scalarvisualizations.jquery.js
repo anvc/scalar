@@ -4695,10 +4695,11 @@ window.scalarvis = { instanceCount: -1 };
           'relationType': { size: 'md', name: 'Item Type', style: 'text-align:center' },
           'stringMatches': { size: 'md', name: 'Matches', style: 'text-align:center' },
           'title': { size: 'sm', name: 'Title', style: '' },
+          'thumbnail': { size: 'sm', name: 'Thumbnail', style: 'text-align:center' },
           'version': { size: 'sm', name: 'Version', style: 'text-align:center' },
           'visitDate': { size: 'md', name: 'Visit Date', style: 'text-align:center' }
         }
-        this.defaultColumns = ['title', 'description', 'content', 'originalAuthor', 'author', 'lastEdited', 'version']
+        this.defaultColumns = ['title', 'description', 'thumbnail', 'content', 'originalAuthor', 'author', 'lastEdited', 'version']
         this.conditionalColumns = ['created', 'relationType', 'numRelations', 'stringMatches', 'visitDate']
       }
 
@@ -4757,13 +4758,30 @@ window.scalarvis = { instanceCount: -1 };
       getColumns() {
         var columns = this.defaultColumns.concat();
         var hiddenColumns = base.options.lens.visualization.options.hiddenColumns;
+        if (!hiddenColumns) hiddenColumns = [];
+
+        // figure out if we're keeping the originalAuthor column
         this.setOriginalAuthorColumnInfo();
         if (this.originalAuthor) {
           this.columnSpecs.originalAuthor.name = this.originalAuthor.name;
         } else {
-          var index = columns.indexOf('originalAuthor');
-          columns.splice(index, 1);
+          var index = hiddenColumns.indexOf('originalAuthor');
+          if (index == -1) hiddenColumns.push('originalAuthor');
         }
+
+        // figure out if we're keeping the thumbnail column
+        var thumbnailCount = 0;
+        for (var i = 0; i < base.contentNodes.length; i++) {
+          if (base.contentNodes[i].thumbnail) {
+            thumbnailCount++;
+          }
+        };
+        console.log('thumbnails', thumbnailCount);
+        if (thumbnailCount == 0) {
+          var index = hiddenColumns.indexOf('thumbnail');
+          if (index == -1) hiddenColumns.push('thumbnail');
+        }
+
         // add sort-based conditional columns
         for (var i=0; i < this.conditionalColumns.length; i++) {
           var column = this.conditionalColumns[i]
@@ -4780,6 +4798,8 @@ window.scalarvis = { instanceCount: -1 };
             }
           }
         }
+
+        console.log(this.defaultColumns, hiddenColumns, columns)
         return columns;
       }
 
@@ -4828,7 +4848,7 @@ window.scalarvis = { instanceCount: -1 };
       }
 
       getRowContent(columnType, columnSpec, content, url) {
-        var row = $('<td class="' + columnSpec.size + '" prop="' + columnType + '"></td>');
+        var row = $('<td class="' + columnSpec.size + '" prop="' + columnType + '" style="' + columnSpec.style + '"></td>');
         if (url) {
           row.append('<a href="' + url + '" target="_blank">' + content + '</a>')
         } else {
@@ -4855,6 +4875,23 @@ window.scalarvis = { instanceCount: -1 };
             if (description.length > maxLength) description = description.substr(0, maxLength) + '...';
             description = description.replace(/(<([^>]+)>)/gi, "");
             row.append(this.getRowContent(columnType, columnSpec, description));
+            break
+
+          case 'thumbnail':
+            if ( node.thumbnail != undefined ) {
+              var alttext = node.current.getAltTextWithFallback().replace(/"/g, '&#34;');
+              if (alttext != null) alttext = alttext.replace(/([^"\\]*(?:\\.[^"\\]*)*)"/g, '$1\\"');
+              var tooltipText = node.getDisplayTitle() + ' (' + node.current.mediaSource.contentType + ')';
+              tooltipText = tooltipText.replace(/"/g,'&quot;');
+              var url = node.getAbsoluteThumbnailURL();
+              var thumbnail = '<img id="img-' + node.slug.replace( "/", "-" ) + '" class="thumb" src="' + url + '" alt="' +
+                alttext + '" data-html="true" data-toggle="tooltip" title="' + tooltipText + '"/>';
+            // generic thumbnail
+            } else {
+              thumbnail = '<img id="img-' + node.slug.replace( "/", "-" ) + '" class="thumb" src="' + modules_uri +
+                '/cantaloupe/images/media_icon_chip.png" alt="' + alttext + '" data-toggle="tooltip" data-html="true" title="' + tooltipText + '"/>';
+            }
+            row.append(this.getRowContent(columnType, columnSpec, thumbnail));
             break
 
           case 'content':
@@ -4926,7 +4963,6 @@ window.scalarvis = { instanceCount: -1 };
       }
 
       setupTable(columns) {
-        console.log('setup table', columns);
         this.visList.empty();
         var $tbody = this.visList.append('<tbody></tbody>');
         var $header = $('<tr class="header"></tr>').appendTo($tbody);
