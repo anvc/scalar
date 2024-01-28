@@ -4685,7 +4685,7 @@ window.scalarvis = { instanceCount: -1 };
         super();
         this.visList = null;
         this.columnSpecs = {
-          'author': { size: 'lg', name: 'Edited By', style: '' },
+          'author': { size: 'lg', name: 'Edited By', style: 'text-align:center' },
           'content': { size: 'md', name: 'Content', style: '' },
           'dateCreated': { size: 'lg', name: 'Date Created', style: 'text-align:center' },
           'description': { size: 'md', name: 'Description', style: '' },
@@ -4776,10 +4776,23 @@ window.scalarvis = { instanceCount: -1 };
             thumbnailCount++;
           }
         };
-        console.log('thumbnails', thumbnailCount);
         if (thumbnailCount == 0) {
           var index = hiddenColumns.indexOf('thumbnail');
           if (index == -1) hiddenColumns.push('thumbnail');
+        }
+
+        // figure out if we're keeping the content column
+        var contentCount = 0;
+        for (var i = 0; i < base.contentNodes.length; i++) {
+          if (base.contentNodes[i].current.content) {
+            if (base.contentNodes[i].current.content.trim() != '') {
+              contentCount++;
+            }
+          }
+        };
+        if (contentCount == 0) {
+          var index = hiddenColumns.indexOf('content');
+          if (index == -1) hiddenColumns.push('content');
         }
 
         // add sort-based conditional columns
@@ -4799,7 +4812,6 @@ window.scalarvis = { instanceCount: -1 };
           }
         }
 
-        console.log(this.defaultColumns, hiddenColumns, columns)
         return columns;
       }
 
