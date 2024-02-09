@@ -3990,7 +3990,7 @@
     ScalarLenses.prototype.saveLens = function(successHandler){
       //console.log(JSON.stringify(this.scalarLensObject, null, 2));
 
-      // update the lens even if the user isn't logged in or if they are a reader
+      // refresh the visualization if the user isn't logged in or if they are a reader
       if (this.userLevel == 'unknown' || this.userLevel == 'scalar:Reader') {
         if (this.canSave == true) {
           this.updateLensByUserId(successHandler);
