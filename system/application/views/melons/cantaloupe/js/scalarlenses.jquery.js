@@ -3711,23 +3711,29 @@
 
     ScalarLenses.prototype.updateDuplicateCopyPrompt = function() {
       $('#duplicate-copy-prompt').find('.save').off();
-      if (this.myLenses.length >= this.maxLenses) {
+      if (this.userId == 'unknown') {
         $('#duplicate-copy-prompt .row').html(`<div class="col-xs-12">
-          <p class="caption_font"><strong>You have made edits to this lens which have not been saved, since you are not its owner.</strong>
-          As you have already reached the maximum of ${this.maxLenses} lenses, saving your changes to a new copy of the lens is not possible.</p>
+          <p class="caption_font"><strong>You have made edits to this lens which have not been saved because you are not logged in.</strong>
         </div>`);
       } else {
-        $('#duplicate-copy-prompt .row').html(`<div class="col-xs-10">
-          <p class="caption_font"><strong>You have made edits to this lens which have not been saved, since you are not its owner.</strong>
-          Would you like to save these changes to your own copy of the lens?</p>
-        </div>
-        <div class="col-xs-2">
-          <button type="button" class="btn btn-default pull-right save">Save</button>
-        </div>`);
-        // save create copy of lens
-        $('#duplicate-copy-prompt').find('.save').on('click', () => {
+        if (this.myLenses.length >= this.maxLenses) {
+          $('#duplicate-copy-prompt .row').html(`<div class="col-xs-12">
+            <p class="caption_font"><strong>You have made edits to this lens which have not been saved, since you are not its owner.</strong>
+            As you have already reached the maximum of ${this.maxLenses} lenses, saving your changes to a new copy of the lens is not possible.</p>
+          </div>`);
+        } else {
+          $('#duplicate-copy-prompt .row').html(`<div class="col-xs-10">
+            <p class="caption_font"><strong>You have made edits to this lens which have not been saved, since you are not its owner.</strong>
+            Would you like to save these changes to your own copy of the lens?</p>
+          </div>
+          <div class="col-xs-2">
+            <button type="button" class="btn btn-default pull-right save">Save</button>
+          </div>`);
+          // save create copy of lens
+          $('#duplicate-copy-prompt').find('.save').on('click', () => {
             this.duplicateLensByUserId();
-        });
+          });
+        }
       }
     }
 
