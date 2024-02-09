@@ -3990,8 +3990,8 @@
     ScalarLenses.prototype.saveLens = function(successHandler){
       //console.log(JSON.stringify(this.scalarLensObject, null, 2));
 
-      // reader not added to the book, or reader added to book
-      if ((this.userId != 'unknown' && this.userLevel == 'unknown') || this.userLevel == 'scalar:Reader') {
+      // update the lens even if the user isn't logged in or if they are a reader
+      if (this.userLevel == 'unknown' || this.userLevel == 'scalar:Reader') {
         if (this.canSave == true) {
           this.updateLensByUserId(successHandler);
       	  return;
