@@ -372,13 +372,6 @@
       } else {
         $(snowflake).hide();
       }
-
-      // if not logged in
-      // buttons can't be clicked
-      let lensButtons = $(this.element).find('.lens-editor .btn');
-      if(this.userId == 'unknown'){
-        lensButtons.addClass('disabled');
-      }
       // load frozen lens if frozen is true
       if(this.scalarLensObject.frozen === true){
         $(this.element).find('.lens-tags .btn').addClass('disabled');
@@ -3258,12 +3251,7 @@
           </div>
         </div>`
       );
-      // hide if user not logged in
-      if(this.userId == 'unknown'){
-        $(button).hide();
-      } else {
-        return button;
-      }
+      return button;
     }
 
     // update options menu
