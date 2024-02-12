@@ -372,13 +372,6 @@
       } else {
         $(snowflake).hide();
       }
-
-      // if not logged in
-      // buttons can't be clicked
-      let lensButtons = $(this.element).find('.lens-editor .btn');
-      if(this.userId == 'unknown'){
-        lensButtons.addClass('disabled');
-      }
       // load frozen lens if frozen is true
       if(this.scalarLensObject.frozen === true){
         $(this.element).find('.lens-tags .btn').addClass('disabled');
@@ -3258,12 +3251,7 @@
           </div>
         </div>`
       );
-      // hide if user not logged in
-      if(this.userId == 'unknown'){
-        $(button).hide();
-      } else {
-        return button;
-      }
+      return button;
     }
 
     // update options menu
@@ -3723,23 +3711,29 @@
 
     ScalarLenses.prototype.updateDuplicateCopyPrompt = function() {
       $('#duplicate-copy-prompt').find('.save').off();
-      if (this.myLenses.length >= this.maxLenses) {
+      if (this.userId == 'unknown') {
         $('#duplicate-copy-prompt .row').html(`<div class="col-xs-12">
-          <p class="caption_font"><strong>You have made edits to this lens which have not been saved, since you are not its owner.</strong>
-          As you have already reached the maximum of ${this.maxLenses} lenses, saving your changes to a new copy of the lens is not possible.</p>
+          <p class="caption_font"><strong>You have made edits to this lens which have not been saved because you are not logged in.</strong>
         </div>`);
       } else {
-        $('#duplicate-copy-prompt .row').html(`<div class="col-xs-10">
-          <p class="caption_font"><strong>You have made edits to this lens which have not been saved, since you are not its owner.</strong>
-          Would you like to save these changes to your own copy of the lens?</p>
-        </div>
-        <div class="col-xs-2">
-          <button type="button" class="btn btn-default pull-right save">Save</button>
-        </div>`);
-        // save create copy of lens
-        $('#duplicate-copy-prompt').find('.save').on('click', () => {
+        if (this.myLenses.length >= this.maxLenses) {
+          $('#duplicate-copy-prompt .row').html(`<div class="col-xs-12">
+            <p class="caption_font"><strong>You have made edits to this lens which have not been saved, since you are not its owner.</strong>
+            As you have already reached the maximum of ${this.maxLenses} lenses, saving your changes to a new copy of the lens is not possible.</p>
+          </div>`);
+        } else {
+          $('#duplicate-copy-prompt .row').html(`<div class="col-xs-10">
+            <p class="caption_font"><strong>You have made edits to this lens which have not been saved, since you are not its owner.</strong>
+            Would you like to save these changes to your own copy of the lens?</p>
+          </div>
+          <div class="col-xs-2">
+            <button type="button" class="btn btn-default pull-right save">Save</button>
+          </div>`);
+          // save create copy of lens
+          $('#duplicate-copy-prompt').find('.save').on('click', () => {
             this.duplicateLensByUserId();
-        });
+          });
+        }
       }
     }
 
@@ -3996,8 +3990,8 @@
     ScalarLenses.prototype.saveLens = function(successHandler){
       //console.log(JSON.stringify(this.scalarLensObject, null, 2));
 
-      // reader not added to the book, or reader added to book
-      if ((this.userId != 'unknown' && this.userLevel == 'unknown') || this.userLevel == 'scalar:Reader') {
+      // refresh the visualization if the user isn't logged in or if they are a reader
+      if (this.userLevel == 'unknown' || this.userLevel == 'scalar:Reader') {
         if (this.canSave == true) {
           this.updateLensByUserId(successHandler);
       	  return;
