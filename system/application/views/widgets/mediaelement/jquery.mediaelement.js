@@ -2986,6 +2986,8 @@ function YouTubeGetID(url){
 				obj.find( 'video' ).attr( 'autoplay', 'true' );
 			}
 
+			this.addCaptionTracksToVideo(obj.find('video'))
+
 			// apply the poster image only if the thumbnail loads successfully
 			var thumbnailURL;
 			if (this.model.node.thumbnail) {
@@ -3031,7 +3033,7 @@ function YouTubeGetID(url){
           me.parentView.intrinsicDim.x = me.video[0].videoWidth;
   				me.parentView.intrinsicDim.y = me.video[0].videoHeight;
   				me.parentView.controllerOffset = 0;
-        }		console.log('metadatafunc');
+        }	
 				if (hls) {
 					me.video[0].removeEventListener('progress', metadataFunc, false);
 				}
@@ -3064,6 +3066,37 @@ function YouTubeGetID(url){
 			}
 
 			return;
+		}
+
+		jQuery.HTML5VideoObjectView.prototype.addCaptionTracksToVideo = function(videoObj) {
+			let relations = this.model.node.current.auxProperties['dcterms:relation']
+			for (var i=0; i<relations.length; i++) {
+				var data = {
+					src: null,
+					label: 'Track ' + (i + 1),
+					kind: 'captions',
+					srclang: 'en-us',
+					default: false
+				}
+				if (scalarapi.getFileExtension(relations[i]) == 'vtt') {
+					data.src = relations[i] // contents are the VTT url
+				} else {
+					try {
+						// contents are JSON describing the VTT track
+						var obj = JSON.parse(relations[i])
+						for (var prop in obj) {
+							data[prop] = obj[prop]
+						}
+					} catch(error) {
+						// no valid JSON found
+					}
+				}
+				if (data.src) {
+					var track = $('<track src="' + data.src + '" label="' + data.label + '" kind="' + data.kind + '" srclang="' + data.srclang + '">')
+					if (data.default) track.attr('default', '')
+					videoObj.append(track)
+				}
+			}
 		}
 
 
