@@ -295,8 +295,6 @@
 					method = 'appendTo';
 				}
 
-				console.log(node.current)
-
 				alttext = node.current.getAltTextWithFallback().replace(/"/g, '&#34;');
 				if (alttext != null) alttext = alttext.replace(/([^"\\]*(?:\\.[^"\\]*)*)"/g, '$1\\"');
 
