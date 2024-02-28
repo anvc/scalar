@@ -28,7 +28,6 @@
 	 * Manages the search results dialog.
 	 */
 	function ScalarSearch( element, options ) {
-
 		this.element = $(element);
 		this.options = $.extend( {}, defaults, options );
 		this._defaults = defaults;
@@ -64,23 +63,17 @@
 		this.element.addClass('search');
 		this.bodyContent = $('<div class="body_copy"></div>').appendTo(this.element);
 
-		this.modal = this.bodyContent.bootstrapModal({title: 'Search', size_class:'modal-lg'});
-		if (typeof CustomSearchManager === 'function') {
-			this.searchManager = new CustomSearchManager(this.modal)
-		} else {
-			this.searchManager = new SearchManager(this.modal)
+		var handleFormUpdated = function() {
+			this.removeFocusTrap()
+			this.setupFocusTrap()
 		}
 
-		// tabbing forward from close button brings focus to search field
-		this.modal.find( '.close' ).on('keydown', (e) => {
-			var keyCode = e.keyCode || e.which;
-			if (keyCode == 9) {
-				if (!e.shiftKey) {
-					e.preventDefault();
-					this.searchManager.firstFocus();
-				}
-			}
-		});
+		this.modal = this.bodyContent.bootstrapModal({title: 'Search', size_class:'modal-lg'});
+		if (typeof CustomSearchManager === 'function') {
+			this.searchManager = new CustomSearchManager(this.modal, handleFormUpdated.bind(this))
+		} else {
+			this.searchManager = new SearchManager(this.modal, handleFormUpdated.bind(this))
+		}
 
 		this.ontologyMenu = this.searchManager.getOntologyMenu();
 		if (this.ontologyMenu) {
@@ -94,6 +87,10 @@
 
 	ScalarSearch.prototype.showSearch = function() {
 		this.modal.modal('show');
+		setTimeout(() => {
+			this.searchManager.getInitialFocusable().focus()
+			this.setupFocusTrap()
+		}, 500)
 	}
 
 	ScalarSearch.prototype.hideSearch = function() {
@@ -106,7 +103,60 @@
 		}
 		this.searchManager.setSearchField(query)
 		this.showSearch()
-		setTimeout(() => { this.searchManager.doSearch(query) }, 500)
+		setTimeout(() => { 
+			this.searchManager.doSearch(query)
+		}, 500)
+	}
+
+	ScalarSearch.prototype.setupFocusTrap = function() {
+
+		this.closeBtn = this.modal.find( '.close' )
+		this.firstFocusable = this.searchManager.getFirstFocusable()
+		this.lastFocusable = this.searchManager.getLastFocusable()
+
+		var me = this
+
+		// tab from close btn to first/last focusable
+		this.closeBtn.on('keydown.focusTrap', function(e) {
+			var keyCode = e.keyCode || e.which;
+			if (keyCode == 9) {
+				if (!e.shiftKey) {
+					e.preventDefault();
+					me.firstFocusable.focus();
+				} else {
+					e.preventDefault();
+					me.lastFocusable.focus()
+				}
+			}
+		});
+
+		// tab back from first focusable to close btn
+		this.firstFocusable.on('keydown.focusTrap', function(e) {
+			var keyCode = e.keyCode || e.which;
+			if(keyCode == 9) {
+				if (e.shiftKey) {
+					e.preventDefault();
+					me.closeBtn.focus();
+				}
+			}
+		});
+
+		// tap forward from last focusable to close btn
+		this.lastFocusable.on('keydown.focusTrap', function(e) {
+			var keyCode = e.keyCode || e.which;
+			if(keyCode == 9) {
+				if (!e.shiftKey) {
+					e.preventDefault();
+					me.closeBtn.focus();
+				}
+			}
+		});
+	}
+
+	ScalarSearch.prototype.removeFocusTrap = function() {
+		if (this.closeBtn) this.closeBtn.off('keydown.focusTrap')
+		if (this.firstFocusable) this.firstFocusable.off('keydown.focusTrap')
+		if (this.lastFocusable) this.lastFocusable.off('keydown.focusTrap')
 	}
 
 	ScalarSearch.prototype.getOntologyData = function() {
@@ -205,8 +255,9 @@
 })( jQuery, window, document );
 
 class SearchManager {
-	constructor(modal) {
+	constructor(modal, onFormUpdated) {
 		this.modal = modal
+		this.onFormUpdated = onFormUpdated
 		this.bodyContent = this.modal.find('.modal-body')
 		this.setup()
 	}
@@ -260,29 +311,33 @@ class SearchManager {
 			this.doSearch(this.searchField.val());
 		});
 
-		this.updateForm();
+		// wait a frame so init has a chance to happen
+		setTimeout(this.updateForm.bind(this), 1);
+
 		$('#modal_scope').on('change', (event) => {
 			this.updateForm();
 		})
-
-		// tabbing backwards from search field link brings focus to close button
-		this.searchField.on('keydown', (e) => {
-			var keyCode = e.keyCode || e.which;
-			if(keyCode == 9) {
-				if(e.shiftKey) {
-					e.preventDefault();
-					me.modal.find( '.close' )[ 0 ].trigger('focus');
-				}
-			}
-		});
 	}
 
 	setSearchField(query) {
 		this.searchField.val(query);
 	}
 
-	firstFocus() {
-		this.searchField.trigger('focus');
+	getInitialFocusable() {
+		return this.searchField
+	}
+
+	getFirstFocusable() {
+		return this.modal.find('#modal_search_term')
+	}
+
+	getLastFocusable() {
+		var visFooterBtns = this.modal.find('.vis_footer button')
+		if (visFooterBtns.length > 0) {
+			return visFooterBtns.last()
+		} else {
+			return this.modal.find('button[type="submit"]')
+		}
 	}
 
 	updateForm() {
@@ -291,6 +346,7 @@ class SearchManager {
 		} else {
 			$('.search_metadata_option').show()
 		}
+		if (this.onFormUpdated) this.onFormUpdated()
 	}
 
 	getOntologyMenu() {
@@ -482,6 +538,7 @@ class SearchManager {
 			} else {
 				this.scalarvis.setOptions(visOptions)
 			}
+			if (this.onFormUpdated) this.onFormUpdated()
 		}
 	}
 }

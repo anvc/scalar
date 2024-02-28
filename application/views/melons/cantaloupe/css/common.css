@@ -1175,7 +1175,10 @@ label {
 button, .btn, input, optgroup, select, textarea {
   font-family: Lato, Arial, sans-serif;
 }
-
+.search .form-horizontal .form-group {
+	margin-right: 0;
+	margin-left: 0;
+}
 .btn-primary { background-color: #026697; border-color: #026697; }
 
 /* editorial workflow */
