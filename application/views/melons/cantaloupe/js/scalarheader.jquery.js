@@ -652,7 +652,7 @@
         } else if (base.is_editor) {
           userType = "editor";
         }
-    
+
         scalarType = base.currentNode.getDominantScalarType('page');
         if (scalarType == null) {
           scalarType = base.currentNode.getDominantScalarType('media');
@@ -665,9 +665,9 @@
             contentType = 'page';
           }
         }
-    
+
         var version = scalarapi.getVersionExtension(window.location.href);
-    
+
         if (base.editorialBarData[userType] != null) {
           var editorialBarData;
           if (version == '') {
@@ -677,7 +677,7 @@
           }
           if (editorialBarData != null) {
             editorialBar.addClass(base.editorialState.id + '-state');
-    
+
             // get number of open queries
             var queryCount = 0;
             if (base.currentNode.current != null) {
@@ -692,7 +692,7 @@
                 }
               }
             }
-    
+
             // text
             var text = editorialBarData.text;
             text = text.replace('$contentType', contentType);
@@ -714,7 +714,7 @@
             if (queryCount == 0) {
               editorialBar.find('span.query-msg').remove();
             }
-    
+
             // buttons
             editorialControls = $('<div></div>').appendTo(editorialBar);
             editorialControls.wrap('<div class="controls"></div>');
@@ -760,25 +760,25 @@
     }
 
     base.setupMobileMainMenu = function() {
-      base.mobileMainMenu = $('<div id="mobileMainMenuSubmenus" class="heading_font tocMenu">' + 
-        '<div class="toc">' + 
-          '<header class="mainMenu">' + 
-            '<a class="headerIcon">' + 
-              '<span class="visible-xs">Table of Contents</span>' + 
-            '</a>' + 
-          '</header>' + 
-          '<footer>' + 
-            '<div class="footer_content">' + 
-              '<button class="btn back text-center">' + 
-                '<img src="' + $('link#approot').attr('href') + 'views/melons/cantaloupe/images/back_icon.png" width="30" alt="Go back"/>' + 
-              '</button>' + 
-              '<button class="btn close_menu text-center">' + 
-                '<img src="' + $('link#approot').attr('href') + 'views/melons/cantaloupe/images/close_menu_icon.png" width="30" alt="Close all submenus"/>' + 
-              '</button>' + 
-            '</div>' + 
-          '</footer>' + 
-        '</div>' + 
-        '<div class="pages"></div>' + 
+      base.mobileMainMenu = $('<div id="mobileMainMenuSubmenus" class="heading_font tocMenu">' +
+        '<div class="toc">' +
+          '<header class="mainMenu">' +
+            '<a class="headerIcon">' +
+              '<span class="visible-xs">Table of Contents</span>' +
+            '</a>' +
+          '</header>' +
+          '<footer>' +
+            '<div class="footer_content">' +
+              '<button class="btn back text-center">' +
+                '<img src="' + $('link#approot').attr('href') + 'views/melons/cantaloupe/images/back_icon.png" width="30" alt="Go back"/>' +
+              '</button>' +
+              '<button class="btn close_menu text-center">' +
+                '<img src="' + $('link#approot').attr('href') + 'views/melons/cantaloupe/images/close_menu_icon.png" width="30" alt="Close all submenus"/>' +
+              '</button>' +
+            '</div>' +
+          '</footer>' +
+        '</div>' +
+        '<div class="pages"></div>' +
       '</div>').appendTo('body');
       base.mobileMainMenu.find('.close_menu, header > a').on('click', function(e){
         $('#mobileMainMenuSubmenus').removeClass('active');
@@ -1002,7 +1002,7 @@
     }
 
     base.getLensData = function(){
-      let baseURL = scalarapi.model.baseURL.replace('application', 'lenses');
+      let baseURL = scalarapi.model.baseURL.replace('application', 'main/lenses');
       let mainURL = `${baseURL}?book_id=${scalarapi.model.bookId}`;
       $.ajax({
         url:mainURL,
@@ -1628,19 +1628,19 @@
               })
               .addClass((base.parentNodes.indexOf(tocNode.slug) < 0 && (typeof base.currentNode === 'undefined' || tocNode.slug != base.currentNode.slug)) ? '' : 'is_parent')
               .addClass((base.visitedPages.indexOf(tocNode.url) < 0 && (typeof base.currentNode === 'undefined' || tocNode.url != base.currentNode.url)) ? '' : 'visited');
-    
+
             $('<a class="expand" title="Explore ' + tocNode.getDisplayTitle(true) + '"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(listItem).on('click', function(e) {
               var base = $('#scalarheader.navbar').data('scalarheader');
               var target_toc_item = $(this).parent().data('node');
               base.expandMenu(target_toc_item, 0);
               var menu = $('.mainMenu>.dropdown-menu .body>ol>li.active').removeClass('active');
               $(this).parent().addClass('active');
-    
+
               $("#mainMenuSubmenus").removeClass(function(index, className) {
                 return (className.match(/(^|\s)submenu-\S+/g) || []).join(' ');
               });
               $('#mainMenuSubmenus').addClass('submenu-' + target_toc_item.slug)
-    
+
               e.preventDefault();
               return false;
             })
@@ -1649,11 +1649,11 @@
       }
       $('.mainMenu').addClass('ready');
     }
-    
+
     base.setupTrash = function() {
       base.$el.find('#ScalarHeaderDelete').on('click', function() {
         var result = confirm('Are you sure you wish to hide this page from view?');
-    
+
         if (result) {
           // assemble params for the trash action
           var pageData = {
@@ -1680,7 +1680,7 @@
         }
       });
     }
-    
+
     base.setupKeyboardNavigation = function() {
       $('#scalarheader>div>div>ul>li>a, .title_wrapper a').each(function() {
         $(this).attr('tabindex', 0);
@@ -1702,7 +1702,7 @@
       } else {
         $('#mainMenuSubmenus').show();
       }
-    
+
       var currentMenuWidth = $('.mainMenuDropdown').width();
       var offset = 0;
       if (!base.usingMobileView) {
@@ -1714,13 +1714,13 @@
           }
         });
       }
-    
+
       if (!base.usingMobileView && ($(window).width() - currentMenuWidth) < (base.remToPx * 38)) {
         offset = parseInt('-' + (currentMenuWidth - ($(window).width() - (base.remToPx * 38))));
       } else if (base.usingMobileView) {
         offset = ($(window).width() * -n);
       }
-    
+
       var translateX = 'translateX(' + offset + 'px)';
       if (base.usingMobileView) {
         $('#ScalarHeaderMenu').css({
@@ -1740,20 +1740,20 @@
           '-moz-transform': translateX
         });
       }
-    
+
       if (base.usingMobileView) {
         offset = -n * $(window).width();
       } else {
         offset = -n * (base.remToPx * 38);
       }
-    
+
       var description = node.current.description;
-    
+
       var container = $('<div class="expandedPage"><h2 class="title">' + node.getDisplayTitle(true) + '</h2><div class="description">' + description + '</div><ul class="description_more_link_container"><li class="pull-right"><a class="description_more_link" title="Display full description">more</a></li></ul><ul class="links"><!--<a class="details">Details</a>--><li><a class="visit" href="' + base.get_param(node.url) + '" title="Visit page, \'' + node.getDisplayTitle(true) + '\'">Visit page</a></li></ul><div class="relationships"><i class="loader"></i></div></div>').data({
         'index': n,
         'slug': node.slug
       }).css('right', offset + 'px').appendTo(expanded_menu);
-    
+
       if (!base.usingMobileView) {
         container.prepend('<div class="close" role="link" title="Close expanded panel"><span class="menuIcon closeIcon"></span></div>');
       }
@@ -1779,14 +1779,14 @@
           expanded_menu = $('#mobileMainMenuSubmenus .pages');
         }
         var currentMenuWidth = base.remToPx * 38;
-    
+
         if (base.usingMobileView) {
           max_n = $('#mobileMainMenuSubmenus .expandedPage').length - 2;
         } else {
           max_n = parseInt($(this).parents('.expandedPage').data('index')) - 1;
         }
         var removed_pages = [];
-    
+
         expanded_menu.find('.expandedPage').each(function() {
           if (!base.usingMobileView) {
             if ($(this).data('index') > max_n) {
@@ -1794,13 +1794,13 @@
             }
           }
         });
-    
+
         if (expanded_menu.find('.expandedPage').length > 0) {
           expanded_menu.find('.expandedPage').last().find('li.active').removeClass('active').find('.expand').trigger('focus');
         } else {
           $('.mainMenuDropdown li.active .expand').trigger('focus');
         }
-    
+
         currentMenuWidth += (expanded_menu.find('.expandedPage').length * (base.remToPx * 38));
         offset = 0;
         if (!base.usingMobileView && ($(window).width() - currentMenuWidth) < 0) {
@@ -1808,7 +1808,7 @@
         } else if (base.usingMobileView) {
           offset = $(window).width() * (-max_n);
         }
-    
+
         var translateX = 'translateX(' + offset + 'px)';
         if (base.usingMobileView) {
           $('#ScalarHeaderMenu').css({
@@ -1831,10 +1831,10 @@
             '-moz-transform': translateX
           });
         }
-    
+
         if (expanded_menu.find('.expandedPage').length == 0 || max_n < 0) {
           if (base.usingMobileView) {
-    
+
             $('#mobileMainMenuSubmenus').removeClass('active');
             $('.mainMenuDropdown, #ScalarHeaderMenu').css({
               'transform': 'translateX(0px)',
@@ -1854,11 +1854,11 @@
             $('#mobileMainMenuSubmenus .expandedPage').last().remove();
           }, 500);
         }
-    
+
         if (!base.usingMobileView && expanded_menu.find('.tall').length == 0) {
           $('body').removeClass('in_menu'); //.css('margin-top','0px').scrollTop($('body').data('scrollTop'));
         }
-    
+
         return false;
       });
       if (description == null) {
@@ -1868,7 +1868,7 @@
         ellipsis: '…',
         watch: "window"
       });
-    
+
       if (container.find('.description').triggerHandler("isTruncated")) {
         container.find('.description_more_link').on('click', function() {
           if ($(this).text() == 'more') {
@@ -1882,30 +1882,30 @@
               });
             container.find('.description_more_link').text('more');
           }
-    
+
         });
       } else {
         container.find('.description_more_link_container').remove();
       }
-    
+
       if (!base.usingMobileView) {
         base.focusExpandedPage(container);
       }
-    
+
       var handleRequest = function() { //this function is scoped instantaneously to this anonymous function, so we can pass it to loadPage while preserving the container reference
         var relationships = $(this).find('.relationships');
-    
+
         var splitList = $('<ul></ul>');
-    
+
         var node = scalarapi.getNode($(this).data('slug'));
         var splitList = $('<ul></ul>');
-    
+
         var path_of = node.getRelatedNodes('path', 'outgoing');
         var features = node.getRelatedNodes('reference', 'outgoing');
         var tag_of = node.getRelatedNodes('tag', 'incoming');
         var annotates = node.getRelatedNodes('annotation', 'outgoing');
         var comments_on = node.getRelatedNodes('comment', 'outgoing');
-    
+
         if (path_of.length > 0) {
           var newList = $('<li><strong>Contains</strong><ol></ol></li>').appendTo(splitList).find('ol');
           for (var i in path_of) {
@@ -1917,13 +1917,13 @@
               })
               .addClass(((base.parentNodes.indexOf(relNode.slug) < 0 && (typeof base.currentNode === 'undefined' || relNode.slug != base.currentNode.slug))) ? '' : 'is_parent')
               .addClass((base.visitedPages.indexOf(relNode.url) < 0 && (typeof base.currentNode === 'undefined' || relNode.url != base.currentNode.url)) ? '' : 'visited');
-    
+
             $('<a class="expand" tabindex="-1"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
-    
+
             newList.append(nodeItem);
           }
         }
-    
+
         if (features.length > 0) {
           var newList = $('<li><strong>Features</strong><ol></ol></li>').appendTo(splitList).find('ol');
           for (var i in features) {
@@ -1935,14 +1935,14 @@
               })
               .addClass(((base.parentNodes.indexOf(relNode.slug) < 0 && (typeof base.currentNode === 'undefined' || relNode.slug != base.currentNode.slug))) ? '' : 'is_parent')
               .addClass((base.visitedPages.indexOf(relNode.url) < 0 && (typeof base.currentNode === 'undefined' || relNode.url != base.currentNode.url)) ? '' : 'visited');
-    
+
             $('<a class="expand" tabindex="-1"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
-    
+
             newList.append(nodeItem);
-    
+
           }
         }
-    
+
         if (tag_of.length > 0) {
           var newList = $('<li><strong>Tagged by</strong><ol class="tags"></ol></li>').appendTo(splitList).find('ol');
           for (var i in tag_of) {
@@ -1954,14 +1954,14 @@
               })
               .addClass(((base.parentNodes.indexOf(relNode.slug) < 0 && (typeof base.currentNode === 'undefined' || relNode.slug != base.currentNode.slug))) ? '' : 'is_parent')
               .addClass((base.visitedPages.indexOf(relNode.url) < 0 && (typeof base.currentNode === 'undefined' || relNode.url != base.currentNode.url)) ? '' : 'visited');
-    
+
             $('<a class="expand"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
-    
+
             newList.append(nodeItem);
-    
+
           }
         }
-    
+
         if (annotates.length > 0) {
           var newList = $('<li><strong>Annotates</strong><ol></ol></li>').appendTo(splitList).find('ol');
           for (var i in annotates) {
@@ -1973,14 +1973,14 @@
               })
               .addClass(((base.parentNodes.indexOf(relNode.slug) < 0 && (typeof base.currentNode === 'undefined' || relNode.slug != base.currentNode.slug))) ? '' : 'is_parent')
               .addClass((base.visitedPages.indexOf(relNode.url) < 0 && (typeof base.currentNode === 'undefined' || relNode.url != base.currentNode.url)) ? '' : 'visited');
-    
+
             $('<a class="expand" tabindex="-1"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
-    
+
             newList.append(nodeItem);
-    
+
           }
         }
-    
+
         if (comments_on.length > 0) {
           var newList = $('<li><strong>Comments on</strong><ol></ol></li>').appendTo(splitList).find('ol');
           for (var i in comments_on) {
@@ -1992,9 +1992,9 @@
               })
               .addClass(((base.parentNodes.indexOf(relNode.slug) < 0 && (typeof base.currentNode === 'undefined' || relNode.slug != base.currentNode.slug))) ? '' : 'is_parent')
               .addClass((base.visitedPages.indexOf(relNode.url) < 0 && (typeof base.currentNode === 'undefined' || relNode.url != base.currentNode.url)) ? '' : 'visited');
-    
+
             $('<a class="expand"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(nodeItem);
-    
+
             newList.append(nodeItem);
           }
         }
@@ -2013,7 +2013,7 @@
             var max_height = $(window).height() - 50;
             if (containerHeight >= max_height) {
               $(this).css('max-height', max_height + 'px').addClass('tall');
-    
+
               var offset = $('body').scrollTop();
               $('body').addClass('in_menu'); //.css('margin-top','-'+offset+'px').data('scrollTop',offset);
             }

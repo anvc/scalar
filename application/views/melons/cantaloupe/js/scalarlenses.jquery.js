@@ -4091,7 +4091,7 @@
 
      ScalarLenses.prototype.getOntologyData = function() {
        let me = this;
-       let newURL = $('link#approot').attr('href').replace('application', 'ontologies');
+       let newURL = $('link#approot').attr('href').replace('application', 'main/ontologies');
        $.ajax({
          url: newURL,
          type: "GET",

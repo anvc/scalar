@@ -103,7 +103,7 @@
 		}
 		this.searchManager.setSearchField(query)
 		this.showSearch()
-		setTimeout(() => { 
+		setTimeout(() => {
 			this.searchManager.doSearch(query)
 		}, 500)
 	}
@@ -161,7 +161,7 @@
 
 	ScalarSearch.prototype.getOntologyData = function() {
 		let me = this;
-		let newURL = $('link#approot').attr('href').replace('application', 'ontologies');
+		let newURL = $('link#approot').attr('href').replace('application', 'main/ontologies');
 		$.ajax({
 			url: newURL,
 			type: "GET",
@@ -261,7 +261,7 @@ class SearchManager {
 		this.bodyContent = this.modal.find('.modal-body')
 		this.setup()
 	}
-	
+
 	setup() {
 		$('<form id="modal_search" role="form" class="form-horizontal">'+
 			'<div class="form-group condensed">'+
@@ -300,7 +300,7 @@ class SearchManager {
 				'<small class="text-danger col-sm-6">* Please correct the errors in the highlighted items above.</small>'+
 			'</div>'+
 		'</form><br>').appendTo(this.bodyContent)
-		
+
 		this.resultsTable = $('<div class="modalVisualization"></div>').appendTo(this.bodyContent);
 		this.searchField = this.modal.find('input[name="search_term"]');
 		this.ontologyMenu = this.modal.find('#modal_ontology');
@@ -455,7 +455,7 @@ class SearchManager {
 					"sorts": [],
 				}
 				break
-				
+
 			case 'metadata':
 				if (this.ontologyMenu.val() == 'none') {
 					errors.push('missingMetadataOntology')
@@ -519,7 +519,7 @@ class SearchManager {
 			}
 		}
 	}
-	
+
 	doSearch(query) {
 		this.removeAllErrors()
 		const lens = this.getLensForQuery(query)
