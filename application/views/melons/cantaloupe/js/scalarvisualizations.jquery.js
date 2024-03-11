@@ -477,7 +477,7 @@ window.scalarvis = { instanceCount: -1 };
 
     base.getLensResults = function(success) {
       base.options.lens.book_urn = 'urn:scalar:book:' + $('link#book_id').attr('href');
-      let url = $('link#approot').attr('href').replace('application/', '') + 'lenses';
+      let url = $('link#approot').attr('href').replace('application/', 'main/') + 'lenses';
       base.loadingMsgShown = false;
       base.startTime = new Date();
       var percentDone = 0;
@@ -4912,7 +4912,7 @@ window.scalarvis = { instanceCount: -1 };
             content = content.replace(/(<([^>]+)>)/gi, "");
             row.append(this.getRowContent(columnType, columnSpec, content));
             break
-          
+
           case 'originalAuthor':
             //console.log(columnType, content, node.current.properties)
             var valueToAdd = ('undefined' != typeof (node.current.properties[this.originalAuthor.field])) ? node.current.properties[this.originalAuthor.field][0].value : '';
@@ -4948,7 +4948,7 @@ window.scalarvis = { instanceCount: -1 };
           case 'numRelations':
             row.append(this.getRowContent(columnType, columnSpec, node.sorts.numRelations));
             break;
-          
+
           case 'stringMatches':
             row.append(this.getRowContent(columnType, columnSpec, node.sorts.stringMatches));
             break;
@@ -4961,7 +4961,7 @@ window.scalarvis = { instanceCount: -1 };
             }
             row.append(this.getRowContent(columnType, columnSpec, date));
             break;
-          
+
         }
       }
 
