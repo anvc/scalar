@@ -5660,7 +5660,6 @@ function YouTubeGetID(url){
     }
 
     jQuery.UnityWebGLObjectView.prototype.handleAnnotationsUpdated = function(slugs) {
-      console.log('handleAnnotationsUpdated');
       this.receiver.postMessage({
         "objectName": "ScalarCamera",
         "methodName": "HandleAnnotationsUpdated",
