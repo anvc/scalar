@@ -4923,7 +4923,12 @@ window.scalarvis = { instanceCount: -1 };
             var author = node.current.properties['http://www.w3.org/ns/prov#wasAttributedTo'][0].value;  // Most recent version
             var authorUrl = $('link#parent').attr('href') + author;
             var authorId = parseInt(authorUrl.substr(authorUrl.lastIndexOf('/') + 1));
-            var fullname = ('undefined' != typeof (base.options.lens) && 'undefined' != typeof (base.options.lens.users[authorId])) ? base.options.lens.users[authorId] : '';
+            var fullname;
+            try {
+              fullname = base.options.lens.users[authorId];
+            } catch { 
+              fullname = '';
+            }
             row.append(this.getRowContent(columnType, columnSpec, fullname, authorUrl));
             break
 
