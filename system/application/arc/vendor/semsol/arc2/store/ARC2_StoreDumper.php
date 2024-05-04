@@ -4,6 +4,7 @@
  *
  * @author Benjamin Nowack
  * @license W3C Software License and GPL
+ *
  * @homepage <https://github.com/semsol/arc2>
  *
  * @version 2010-11-16
@@ -12,6 +13,10 @@ ARC2::inc('Class');
 
 class ARC2_StoreDumper extends ARC2_Class
 {
+    public int $keep_time_limit;
+    public int $limit;
+    public $store;
+
     public function __construct($a, &$caller)
     {
         parent::__construct($a, $caller);
@@ -47,7 +52,7 @@ class ARC2_StoreDumper extends ARC2_Class
             if (false == is_array($rows)) {
                 break;
             }
-            foreach($rows as $row) {
+            foreach ($rows as $row) {
                 echo $this->getEntry($row);
                 $proceed = 1;
             }
@@ -72,7 +77,7 @@ class ARC2_StoreDumper extends ARC2_Class
             if (false == is_array($rows)) {
                 break;
             }
-            foreach($rows as $row) {
+            foreach ($rows as $row) {
                 fwrite($fp, $this->getEntry($row));
                 $proceed = 1;
             }
@@ -219,7 +224,7 @@ class ARC2_StoreDumper extends ARC2_Class
             $froms[$i] = urldecode($from);
         }
         $val = str_replace($froms, $tos, $val);
-        if (false !== strpos($val, '</')) {
+        if (str_contains($val, '</')) {
             $val = "\n<![CDATA[\n".$val."\n]]>\n";
         } else {
             $val = htmlspecialchars($val);

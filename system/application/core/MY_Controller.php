@@ -36,6 +36,11 @@ class MY_Controller extends CI_Controller {
 		header("Cache-Control: no-cache, must-revalidate"); // HTTP/1.1
 		header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Date in the past
 
+		// ARC2 requires PHP 8
+		if (((int) phpversion()) < 8) {
+			die('This Scalar version requires PHP 8 or above. Current version is: ' . phpversion());
+		}
+		
 		// GET vars, note that this requires 'uri_protocol' to be 'PATH_INFO' in config.php
 		parse_str($_SERVER['QUERY_STRING'], $_GET);
 

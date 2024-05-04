@@ -50,9 +50,9 @@ class ARC2_AtomParser extends ARC2_LegacyXMLParser
 
     public function addT($t)
     {
-        //if (!isset($t['o_datatype']))
+        // if (!isset($t['o_datatype']))
         if ($this->skip_dupes) {
-            //$h = md5(print_r($t, 1));
+            // $h = md5(print_r($t, 1));
             $h = md5(serialize($t));
             if (!isset($this->added_triples[$h])) {
                 $this->triples[$this->t_count] = $t;
@@ -83,7 +83,7 @@ class ARC2_AtomParser extends ARC2_LegacyXMLParser
     public function extractRDF()
     {
         $index = $this->getNodeIndex();
-        //print_r($index);
+        // print_r($index);
         $this->rdf = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
         $this->atom = 'http://www.w3.org/2005/Atom';
         $this->rss = 'http://purl.org/rss/1.0/';
@@ -159,7 +159,7 @@ class ARC2_AtomParser extends ARC2_LegacyXMLParser
             } else {/* qname */
                 $k = $this->expandPName($tag);
             }
-            //echo $k . "\n";
+            // echo $k . "\n";
             if (('channel' == $container) && ($k == $this->rss.'item')) {
                 continue;
             }
@@ -215,7 +215,7 @@ class ARC2_AtomParser extends ARC2_LegacyXMLParser
                 }
                 /* date handling */
                 elseif (in_array($k, [$this->dc.'date', $this->dct.'modified'])) {
-                    if (!preg_match('/^[0-9]{4}/', $v) && ($sub_v = strtotime($v)) && ($sub_v != -1)) {
+                    if (!preg_match('/^[0-9]{4}/', $v) && ($sub_v = strtotime($v)) && (-1 != $sub_v)) {
                         $tz = date('Z', $sub_v); /* timezone offset */
                         $sub_v -= $tz; /* utc */
                         $v = date('Y-m-d\TH:i:s\Z', $sub_v);
@@ -249,8 +249,8 @@ class ARC2_AtomParser extends ARC2_LegacyXMLParser
         if (!isset($this->xml_parser)) {
             $enc = preg_match('/^(utf\-8|iso\-8859\-1|us\-ascii)$/i', $this->getEncoding(), $m) ? $m[1] : 'UTF-8';
             $parser = xml_parser_create($enc);
-            xml_parser_set_option($parser, XML_OPTION_SKIP_WHITE, 0);
-            xml_parser_set_option($parser, XML_OPTION_CASE_FOLDING, 0);
+            xml_parser_set_option($parser, \XML_OPTION_SKIP_WHITE, 0);
+            xml_parser_set_option($parser, \XML_OPTION_CASE_FOLDING, 0);
             xml_set_element_handler($parser, 'open', 'close');
             xml_set_character_data_handler($parser, 'cData');
             xml_set_start_namespace_decl_handler($parser, 'nsDecl');

@@ -4,6 +4,7 @@
  *
  * @author Benjamin Nowack
  * @license W3C Software License and GPL
+ *
  * @homepage <https://github.com/semsol/arc2>
  *
  * @version 2010-11-16
@@ -41,6 +42,7 @@ class ARC2_StoreAskQueryHandler extends ARC2_StoreSelectQueryHandler
     {
         $row = $this->store->a['db_object']->fetchRow('SELECT success FROM '.$tmp_tbl);
         $r = isset($row['success']) ? $row['success'] : 0;
+
         return $r ? true : false;
     }
 }

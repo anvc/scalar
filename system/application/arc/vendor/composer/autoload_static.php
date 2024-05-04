@@ -4,12 +4,9 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit5897c92ae8ac679f3bafab60b785c538
+class ComposerStaticInitd35e27bc89c001c5c6fe9cbade4a5122
 {
     public static $files = array (
-        'a4a119a56e50fbb293281d9a48007e0e' => __DIR__ . '/..' . '/symfony/polyfill-php80/bootstrap.php',
-        '71ecd0286a4e74fd8732297fb587023c' => __DIR__ . '/..' . '/thingengineer/mysqli-database-class/MysqliDb.php',
-        'd383f1ec7b1e54a09cb53eb6fcf751e0' => __DIR__ . '/..' . '/thingengineer/mysqli-database-class/dbObject.php',
         '20540fee703fb26b5e46ea2c1cb78d78' => __DIR__ . '/..' . '/semsol/arc2/ARC2.php',
         'e98ae83aaf42bb653417458ae576b2d4' => __DIR__ . '/..' . '/semsol/arc2/ARC2_Class.php',
         'c1bf40f92dcf21e0b8a469c0c90a013a' => __DIR__ . '/..' . '/semsol/arc2/ARC2_getFormat.php',
@@ -20,21 +17,6 @@ class ComposerStaticInit5897c92ae8ac679f3bafab60b785c538
     );
 
     public static $prefixLengthsPsr4 = array (
-        'S' => 
-        array (
-            'Symfony\\Polyfill\\Php80\\' => 23,
-            'Symfony\\Contracts\\Service\\' => 26,
-            'Symfony\\Contracts\\Cache\\' => 24,
-            'Symfony\\Component\\VarExporter\\' => 30,
-            'Symfony\\Component\\Cache\\' => 24,
-        ),
-        'P' => 
-        array (
-            'Psr\\SimpleCache\\' => 16,
-            'Psr\\Log\\' => 8,
-            'Psr\\Container\\' => 14,
-            'Psr\\Cache\\' => 10,
-        ),
         'A' => 
         array (
             'ARC2\\' => 5,
@@ -42,42 +24,6 @@ class ComposerStaticInit5897c92ae8ac679f3bafab60b785c538
     );
 
     public static $prefixDirsPsr4 = array (
-        'Symfony\\Polyfill\\Php80\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/symfony/polyfill-php80',
-        ),
-        'Symfony\\Contracts\\Service\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/symfony/service-contracts',
-        ),
-        'Symfony\\Contracts\\Cache\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/symfony/cache-contracts',
-        ),
-        'Symfony\\Component\\VarExporter\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/symfony/var-exporter',
-        ),
-        'Symfony\\Component\\Cache\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/symfony/cache',
-        ),
-        'Psr\\SimpleCache\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/psr/simple-cache/src',
-        ),
-        'Psr\\Log\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/psr/log/Psr/Log',
-        ),
-        'Psr\\Container\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/psr/container/src',
-        ),
-        'Psr\\Cache\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/psr/cache/src',
-        ),
         'ARC2\\' => 
         array (
             0 => __DIR__ . '/..' . '/semsol/arc2/src/ARC2',
@@ -135,18 +81,15 @@ class ComposerStaticInit5897c92ae8ac679f3bafab60b785c538
         'ARC2_StoreTurtleLoader' => __DIR__ . '/..' . '/semsol/arc2/store/ARC2_StoreTurtleLoader.php',
         'ARC2_TurtleParser' => __DIR__ . '/..' . '/semsol/arc2/parsers/ARC2_TurtleParser.php',
         'ARC2_TurtleSerializer' => __DIR__ . '/..' . '/semsol/arc2/serializers/ARC2_TurtleSerializer.php',
-        'Attribute' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',
-        'Stringable' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Stringable.php',
-        'UnhandledMatchError' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/UnhandledMatchError.php',
-        'ValueError' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/ValueError.php',
+        'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
     );
 
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit5897c92ae8ac679f3bafab60b785c538::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit5897c92ae8ac679f3bafab60b785c538::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit5897c92ae8ac679f3bafab60b785c538::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInitd35e27bc89c001c5c6fe9cbade4a5122::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInitd35e27bc89c001c5c6fe9cbade4a5122::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInitd35e27bc89c001c5c6fe9cbade4a5122::$classMap;
 
         }, null, ClassLoader::class);
     }

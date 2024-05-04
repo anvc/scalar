@@ -4,6 +4,8 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 class SendMail {
 
+	private $CI;
+	
     public function __construct()  {
 
     	require_once(APPPATH.'libraries/PHPMailer/PHPMailerAutoload.php');

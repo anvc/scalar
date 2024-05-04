@@ -9,8 +9,13 @@
  */
 ARC2::inc('Store');
 
+/**
+ * @todo move its functionality to a class in src/ARC2/Store/TableManager
+ */
 class ARC2_StoreTableManager extends ARC2_Store
 {
+    protected string $engine_type;
+
     public function __construct($a, &$caller)
     {
         parent::__construct($a, $caller);
@@ -19,7 +24,7 @@ class ARC2_StoreTableManager extends ARC2_Store
     public function __init()
     {
         parent::__init();
-        $this->engine_type = $this->v('store_engine_type', 'MyISAM', $this->a);
+        $this->engine_type = $this->v('store_engine_type', 'InnoDB', $this->a);
     }
 
     public function getTableOptionsCode()
@@ -75,6 +80,7 @@ class ARC2_StoreTableManager extends ARC2_Store
         UNIQUE KEY (t), '.$index_code.' KEY (misc)
       ) '.$this->getTableOptionsCode().'
     ';
+
         return $this->a['db_object']->simpleQuery($sql);
     }
 
@@ -145,7 +151,7 @@ class ARC2_StoreTableManager extends ARC2_Store
 
     public function createS2ValTable()
     {
-        //$indexes = 'UNIQUE KEY (id), KEY vh (val_hash), KEY v (val(64))';
+        // $indexes = 'UNIQUE KEY (id), KEY vh (val_hash), KEY v (val(64))';
         $indexes = 'UNIQUE KEY (id), KEY vh (val_hash)';
         $sql = '
       CREATE TABLE IF NOT EXISTS '.$this->getTablePrefix().'s2val (
@@ -215,7 +221,6 @@ class ARC2_StoreTableManager extends ARC2_Store
 
     public function extendColumns()
     {
-        $tbl_prefix = $this->getTablePrefix();
         $tbls = $this->getTables();
         foreach ($tbls as $suffix) {
             if (preg_match('/^(triple|g2t|id2val|s2val|o2val)/', $suffix, $m)) {
@@ -251,10 +256,10 @@ class ARC2_StoreTableManager extends ARC2_Store
         $old_tbl = $this->getTablePrefix().$suffix;
         $new_tbl = $this->getTablePrefix().'triple';
         $p_id = $this->getTermID($p, 'p');
-        $sql = '
-      INSERT IGNORE INTO '.$new_tbl.'
-      SELECT * FROM '.$old_tbl.' WHERE '.$old_tbl.'.p = '.$p_id.'
-    ';
+
+        $sqlHead = 'INSERT IGNORE INTO ';
+
+        $sql = $sqlHead.$new_tbl.' SELECT * FROM '.$old_tbl.' WHERE '.$old_tbl.'.p = '.$p_id;
         if ($this->a['db_object']->simpleQuery($sql)) {
             $this->a['db_object']->simpleQuery('DROP TABLE '.$old_tbl);
 
@@ -271,10 +276,10 @@ class ARC2_StoreTableManager extends ARC2_Store
         $old_tbl = $this->getTablePrefix().'triple';
         $new_tbl = $this->getTablePrefix().$suffix;
         $p_id = $this->getTermID($p, 'p');
-        $sql = '
-      INSERT IGNORE INTO '.$new_tbl.'
-      SELECT * FROM '.$old_tbl.' WHERE '.$old_tbl.'.p = '.$p_id.'
-    ';
+
+        $sqlHead = 'INSERT IGNORE INTO ';
+
+        $sql = $sqlHead.$new_tbl.'SELECT * FROM '.$old_tbl.' WHERE '.$old_tbl.'.p = '.$p_id;
         if ($this->a['db_object']->simpleQuery($sql)) {
             $this->a['db_object']->simpleQuery('DELETE FROM '.$old_tbl.' WHERE '.$old_tbl.'.p = '.$p_id);
 

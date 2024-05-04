@@ -28,6 +28,7 @@
  * @author		EllisLab Dev Team
  * @link		http://codeigniter.com/user_guide/general/controllers.html
  */
+#[\AllowDynamicProperties]
 class CI_Controller {
 
 	private static $instance;
