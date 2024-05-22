@@ -15,10 +15,10 @@ function latlng_distance($latitudeFrom, $longitudeFrom, $latitudeTo, $longitudeT
 	$lonFrom = deg2rad($longitudeFrom);
 	$latTo = deg2rad($latitudeTo);
 	$lonTo = deg2rad($longitudeTo);
-	
+
 	$latDelta = $latTo - $latFrom;
 	$lonDelta = $lonTo - $lonFrom;
-	
+
 	$angle = 2 * asin(sqrt(pow(sin($latDelta / 2), 2) + cos($latFrom) * cos($latTo) * pow(sin($lonDelta / 2), 2)));
 	return $angle * $earthRadius;
 }
@@ -43,12 +43,12 @@ function search_split_terms($terms){
 }
 
 function edition_cookie_name($url) {  // This mimics cookieName() in javascript
-	
+
 	$url= preg_replace('#^https?://#', '', $url);
 	$url = str_replace('/', '_', $url);
 	$url= preg_replace("/[^a-zA-Z0-9_]+/", "", $url);
 	return 'scalar_edition_index_'.$url;
-	
+
 }
 
 // http://www.phpro.org/examples/Find-Position-Of-Nth-Occurrence-Of-String.html
@@ -189,6 +189,7 @@ function fix_latin($instr){
   return $outstr;
 }
 
+/*
 $byte_map=array();
 init_byte_map();
 $ascii_char='[\x00-\x7F]';
@@ -198,5 +199,5 @@ $utf8_3='[\xE0-\xEF]'.$cont_byte.'{2}';
 $utf8_4='[\xF0-\xF7]'.$cont_byte.'{3}';
 $utf8_5='[\xF8-\xFB]'.$cont_byte.'{4}';
 $nibble_good_chars = "@^($ascii_char+|$utf8_2|$utf8_3|$utf8_4|$utf8_5)(.*)$@s";
-
+*/
 ?>

@@ -13,7 +13,7 @@
 	"require": {
 		"php": ">=5.2.4",
 		"phpseclib/mcrypt_compat": "^2.0",
-		"semsol/arc2": "^2.5",
+		"semsol/arc2": "3",
 		"tpyo/amazon-s3-php-class": "^0.5.1",
 		"sonata-project/google-authenticator": "^2.3",
 		"phpmailer/phpmailer": "^6.7",
@@ -30,10 +30,5 @@
 		"platform": {
 			"php": "7.4"
 		}
-	},
-	"autoload": {
-		"classmap": ["composer-overrides/arc2/", "composer-overrides/arc2/store/"],
-		"exclude-from-classmap": ["/vendor/semsol/arc2/ARC2_Resource.php", "/vendor/semsol/arc2/store/ARC2_Store.php", "/vendor/semsol/arc2/store/ARC2_StoreLoadQueryHandler.php"]
 	}
-
 }

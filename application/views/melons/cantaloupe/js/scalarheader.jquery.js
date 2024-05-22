@@ -1315,7 +1315,8 @@
       var $airtables = $('link#airtable');
       if ($airtables.length) {
         for (var j = 0; j < $airtables.length; j++) {
-          navbar.find('#ScalarHeaderMenuImportList').find('ul.other-archives').append('<li><a  role="menuitem" ref="' + base.get_param(scalarapi.model.urlPrefix + 'import/airtable/'+encodeURIComponent($airtables.eq(j).attr('href'))) + '">Airtable: '+$airtables.eq(j).attr('href')+'</a></li>');
+          // TODO: this doesn't work anymore after the refactor ~Craig
+          $('#ScalarHeaderMenuImportList').find('ul:eq(2)').append('<li><a  role="menuitem" ref="' + base.get_param(scalarapi.model.urlPrefix + 'import/airtable/' + encodeURIComponent($airtables.eq(j).attr('href'))) + '">Airtable: ' + $airtables.eq(j).attr('href') + '</a></li>');
         }
       }
     }
