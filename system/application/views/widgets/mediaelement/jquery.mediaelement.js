@@ -1610,9 +1610,9 @@ function YouTubeGetID(url){
 		 * Removes the loading message.
 		 */
 		jQuery.MediaElementView.prototype.removeLoadingMessage = function() {
+			$('body').trigger('mediaElementMediaLoaded', [$(this.model.link)]);
       if (this.mediaContainer.parent().parent().css('background-image') != 'none') {
         this.mediaContainer.parent().parent().css('background-image', 'none');
-  			$('body').trigger('mediaElementMediaLoaded', [$(this.model.link)]);
       }
 		}
 
