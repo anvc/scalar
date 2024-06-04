@@ -46,7 +46,6 @@
             generateIconCache: {},
             mapMarkers: [],
             pendingDeferredScripts: {},
-            usingHypothesis: ($('link#hypothesis').attr('href') === 'true'),
 
             dateParseRegex : /^(?:(?:(?:(\d+)[\/-])?(?:(\d+)[\/-])?)?([-]?\d+)(?:\s+)?(bce|BCE|bc|BC|ad|AD|ce|CE)?)(?:\s+)?((?:(?:[0-1][0-9])|(?:[2][0-3])|(?:[0-9]))(?::(?:[0-5][0-9])(?::[0-5][0-9])?)?(?:\s?(?:am|AM|pm|PM))?)?(?:(?:\s+-\s+)(?:(?:(?:(\d+)[\/-])?(?:(\d+)[\/-])?)?([-]?\d+)(?:\s+)?(bce|BCE|bc|BC|ad|AD|ce|CE)?)(?:\s+)?((?:(?:[0-1][0-9])|(?:[2][0-3])|(?:[0-9]))(?::(?:[0-5][0-9])(?::[0-5][0-9])?)?(?:\s?(?:am|AM|pm|PM))?)?)?$/,
 
@@ -779,7 +778,7 @@
                         if (contextCount > 1) {
                             contextButton.addClass('multi');
                         }
-                        if (page.usingHypothesis) {
+                        if (scalarapi.model.usingHypothesis) {
                         	contextButton.addClass('hypothesis_active');
                         }
                         contextButton.popover({

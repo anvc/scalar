@@ -1576,8 +1576,8 @@
         }else if(typeof extra_offset != 'undefined' && extra_offset!=null){
           title_width -= extra_offset;
         }
-
-        if (base.usingHypothesis) {
+        
+        if (scalarapi.model.usingHypothesis) {
           title_width -= 60;
         }
       }

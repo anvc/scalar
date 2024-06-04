@@ -109,7 +109,7 @@
         	if (opts.show_featured) {
 	        	$('<div name="featured" class="description">Fields that have special uses in Scalar\'s interface, layouts, and widgets:</div>').appendTo($div);
 	        	var $content = $('<div></div>').appendTo($div);
-	        	var featured = ['dcterms:source','iptc:By-line','dcterms:coverage','dcterms:spatial','dcterms:temporal','dcterms:date'];
+	        	var featured = ['dcterms:source','iptc:By-line','dcterms:coverage','dcterms:spatial','dcterms:temporal','dcterms:date','dcterms:relation'];
 	    		for (var j = 0; j < featured.length; j+=3) {
 	    			var $row = $('<div class="row"></div>').appendTo($content);
 	    			if ('undefined'!=typeof(featured[j])) $('<div class="cell col-xs-12 col-sm-4"><label><input type="checkbox" name="'+featured[j]+'" value="1" />&nbsp; '+featured[j]+'</label></div>').appendTo($row);
