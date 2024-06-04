@@ -846,6 +846,7 @@
               $('#mainMenuInside').css('max-height','').removeClass('tall');
               return true;
           }else{
+            console.log('expand?')
               $(this).addClass('open').find('[aria-expanded="false"]').attr('aria-expanded', 'true');
               return false;
           }
@@ -853,6 +854,7 @@
 
       // submenu opens
       base.$el.find('.mainMenu>a.dropdown-toggle').on('click', function(e){
+        console.log('submenu open?')
           $(this).attr('aria-expanded', 'true').parent('.mainMenu').addClass('open').trigger('show.bs.dropdown').find('[aria-expanded="false"]').attr('aria-expanded', 'true');
           e.preventDefault();
           e.stopPropagation();
@@ -885,7 +887,7 @@
               '-moz-transform': 'translateX(0px)'
             }).removeClass('expandedMenuOpen');
           }
-          $(this).addClass('open').trigger('show.bs.dropdown').find('[aria-expanded="false"]').attr('aria-expanded', 'true');
+          $(this).addClass('open').trigger('show.bs.dropdown').children('[aria-expanded="false"]').attr('aria-expanded', 'true');
         }
       }).on('mouseleave', function(e) {
         // TODO: this is the area that is causing Win10 touch problems ~Craig
@@ -1397,10 +1399,11 @@
     }
 
     base.initSubmenus = function(el) {
+      $(el).attr('aria-expanded', 'true');
       var li = $(el).is('li.dropdown')?$(el):$(el).parent('li.dropdown');
       var a = $(el).is('li.dropdown>a')?$(el):$(el).children('a').first();
       var dropdown = li.find('ul.dropdown-menu');
-      li.addClass('open').removeClass('left right').addClass(a.offset().left>($(window).width()/2)?'left':'right').siblings('li').removeClass('open left right');
+      li.addClass('open').removeClass('left right').addClass(a.offset().left>($(window).width()/2)?'left':'right').siblings('li').removeClass('open left right').find('[aria-expanded="true"]').attr('aria-expanded', 'false');
       if (li.hasClass('right')) {
         max_width = $(window).width() - (a.offset().left + a.outerWidth() );
       } else {
