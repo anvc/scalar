@@ -846,7 +846,6 @@
               $('#mainMenuInside').css('max-height','').removeClass('tall');
               return true;
           }else{
-            console.log('expand?')
               $(this).addClass('open').find('[aria-expanded="false"]').attr('aria-expanded', 'true');
               return false;
           }
@@ -854,7 +853,6 @@
 
       // submenu opens
       base.$el.find('.mainMenu>a.dropdown-toggle').on('click', function(e){
-        console.log('submenu open?')
           $(this).attr('aria-expanded', 'true').parent('.mainMenu').addClass('open').trigger('show.bs.dropdown').find('[aria-expanded="false"]').attr('aria-expanded', 'true');
           e.preventDefault();
           e.stopPropagation();
@@ -893,7 +891,9 @@
         // TODO: this is the area that is causing Win10 touch problems ~Craig
         var base = $('#scalarheader.navbar').data('scalarheader');
         if (!base.usingMobileView) {
-          $(this).removeClass('open').trigger('hide.bs.dropdown').find('[aria-expanded="true"]').attr('aria-expanded', 'false');
+          if ($(this).find('ul [aria-expanded="true"]').length == 0) {
+            $(this).removeClass('open').trigger('hide.bs.dropdown').find('[aria-expanded="true"]').attr('aria-expanded', 'false');
+          }
         }
       }).on('keydown', function(e) {
         // press ESC
@@ -1632,11 +1632,13 @@
               .addClass((base.parentNodes.indexOf(tocNode.slug) < 0 && (typeof base.currentNode === 'undefined' || tocNode.slug != base.currentNode.slug)) ? '' : 'is_parent')
               .addClass((base.visitedPages.indexOf(tocNode.url) < 0 && (typeof base.currentNode === 'undefined' || tocNode.url != base.currentNode.url)) ? '' : 'visited');
     
-            $('<a class="expand" title="Explore ' + tocNode.getDisplayTitle(true) + '"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(listItem).on('click', function(e) {
+            $('<a class="expand" title="Explore ' + tocNode.getDisplayTitle(true) + '" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(listItem).on('click', function(e) {
               var base = $('#scalarheader.navbar').data('scalarheader');
               var target_toc_item = $(this).parent().data('node');
               base.expandMenu(target_toc_item, 0);
+              $('.mainMenu>.dropdown-menu .body>ol>li.active > a').attr('aria-expanded', 'false');
               var menu = $('.mainMenu>.dropdown-menu .body>ol>li.active').removeClass('active');
+              $(this).attr('aria-expanded', 'true')
               $(this).parent().addClass('active');
     
               $("#mainMenuSubmenus").removeClass(function(index, className) {
@@ -1782,6 +1784,8 @@
           expanded_menu = $('#mobileMainMenuSubmenus .pages');
         }
         var currentMenuWidth = base.remToPx * 38;
+
+        $(this).parent().parent().parent().find('[aria-expanded="true"]').attr('aria-expanded', 'false');
     
         if (base.usingMobileView) {
           max_n = $('#mobileMainMenuSubmenus .expandedPage').length - 2;
