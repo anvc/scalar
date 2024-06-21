@@ -288,15 +288,14 @@
 
 			addThumbnailForNode: function( element, node, method ) {
 
-				var alttext, thumbnail,
+				var altText, thumbnail,
 					me = this;
 
 				if ( method == null ) {
 					method = 'appendTo';
 				}
 
-				alttext = node.current.getAltTextWithFallback().replace(/"/g, '&#34;');
-				if (alttext != null) alttext = alttext.replace(/([^"\\]*(?:\\.[^"\\]*)*)"/g, '$1\\"');
+				altText = node.current.getAltTextWithFallback();
 
 				var tooltipText = node.getDisplayTitle() + ' (' + node.current.mediaSource.contentType + ')';
 				tooltipText = tooltipText.replace(/"/g,'&quot;');
@@ -305,11 +304,11 @@
 				if ( node.thumbnail != undefined ) {
 					var url = node.getAbsoluteThumbnailURL();
 					thumbnail = $( '<img id="img-' + node.slug.replace( "/", "-" ) + '" class="thumb" src="' + url + '" alt="' +
-						alttext + '" data-html="true" data-toggle="tooltip" title="' + tooltipText + '"/>' )[method]( element );
+						altText + '" data-html="true" data-toggle="tooltip" title="' + tooltipText + '"/>' )[method]( element );
 				// generic thumbnail
 				} else {
 					thumbnail = $( '<img id="img-' + node.slug.replace( "/", "-" ) + '" class="thumb" src="' + modules_uri +
-						'/cantaloupe/images/media_icon_chip.png" alt="' + alttext + '" data-toggle="tooltip" data-html="true" title="' + tooltipText + '"/>' )[method]( element );
+						'/cantaloupe/images/media_icon_chip.png" alt="' + altText + '" data-toggle="tooltip" data-html="true" title="' + tooltipText + '"/>' )[method]( element );
 				}
 				if (!isMobile) {
 					thumbnail.tooltip( {

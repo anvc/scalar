@@ -813,8 +813,10 @@ ScalarAPI.prototype.getVersionExtension = function(uri) {
  *
  * @return	The modified string.
  */
-ScalarAPI.prototype.removeMarkup = function( string ) {
-	return string.replace(/<\/?[^>]+>/gi, '');
+ScalarAPI.prototype.removeMarkup = function( html ) {
+	var tempDiv = document.createElement("div");
+	tempDiv.innerHTML = html;
+	return tempDiv.textContent || tempDiv.innerText || "";
 }
 
 /**
@@ -4042,12 +4044,15 @@ ScalarVersion.prototype.parseRelations = function() {
 }
 
 ScalarVersion.prototype.getAltTextWithFallback = function() {
+	var result = ''
 	if (this.altText) {
-		return this.altText
+		result = this.altText
 	} else if (this.description) {
-		return this.description
+		result = this.description
 	}
-	return ''
+	result = scalarapi.removeMarkup(result)
+	result = result.replace(/"/g, '\\"');
+	return result
 }
 
 /**

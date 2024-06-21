@@ -354,9 +354,10 @@ window.scalarvis = { instanceCount: -1 };
           } else {
             thumbnailClass += ' hidden';
           }
+          var altText = node.current.getAltTextWithFallback();
           inspectorInfo = $('<div class="media-preview">' +
             '<p class="inspector-description"></p>' +
-            '<img class="' + thumbnailClass + '" src="' + thumbnailUrl + '" alt="' + node.current.getAltTextWithFallback() + '" />' +
+            '<img class="' + thumbnailClass + '" src="' + thumbnailUrl + '" alt="' + altText + '" />' +
             '<div class="inspector-buttons">' +
             '<a class="btn btn-primary btn-xs view-node-btn" role="button" target="_blank" href="' + node.url + '">View media page</a> ' +
             '<a class="btn btn-primary btn-xs view-media-btn" role="button" target="_blank" href="' + node.current.sourceFile + '">View source file</a>' +
@@ -4236,8 +4237,9 @@ window.scalarvis = { instanceCount: -1 };
             if (-1 == urls.indexOf(relations[k].target.url)) urls.push(relations[k].target.url);
             var thumbnail = relations[k].target.thumbnail;
             var description = relations[k].target.getDescription(true);
+            var altText = relations[k].target.current.getAltTextWithFallback();
             titleMarkup = '<div class="caption_font path-breadcrumb"><a href="' + relations[k].body.url + '">' + pathTitle + '</a> (' + relations[k].index + '/' + containingPathNodes.length + ')</div><h2 class="heading_font heading_weight"><a href="' + relations[k].target.url + '">' + relations[k].target.getDisplayTitle() + '</a></h2>';
-            thumbnailMarkup = (null != thumbnail) ? '<img style="float:right; margin: 0 0 1rem 1rem;" src="' + thumbnail + '" alt="Thumbnail image" width="120" />' : '';
+            thumbnailMarkup = (null != thumbnail) ? '<img style="float:right; margin: 0 0 1rem 1rem;" src="' + thumbnail + '" alt="' + altText + '" width="120" />' : '';
             descriptionMarkup = (description && description.length) ? description : '';
             contentString = '<div class="google-info-window caption_font">' + titleMarkup + '<div>' + thumbnailMarkup + descriptionMarkup + '</div>';
             var icon = this.getIcon(relations[k].target.scalarTypes);
@@ -4265,8 +4267,9 @@ window.scalarvis = { instanceCount: -1 };
           var title = base.sortedNodes[j].getDisplayTitle();
           var thumbnail = base.sortedNodes[j].thumbnail;
           var description = base.sortedNodes[j].getDescription(true);
+          var altText = base.sortedNodes[j].current.getAltTextWithFallback();
           titleMarkup = '<h2 class="heading_font heading_weight"><a href="' + base.sortedNodes[j].url + '">' + title + '</a></h2>';
-          thumbnailMarkup = (null != thumbnail) ? '<img style="float:right; margin: 0 0 1rem 1rem;" src="' + thumbnail + '" alt="Thumbnail image" width="120" />' : '';
+          thumbnailMarkup = (null != thumbnail) ? '<img style="float:right; margin: 0 0 1rem 1rem;" src="' + thumbnail + '" alt="' + altText + '" width="120" />' : '';
           descriptionMarkup = (description && description.length) ? description : '';
           contentString = '<div class="google-info-window caption_font">' + titleMarkup + '<div>' + thumbnailMarkup + descriptionMarkup + '</div>';
           var icon = this.getIcon(base.sortedNodes[j].scalarTypes);
@@ -4891,17 +4894,16 @@ window.scalarvis = { instanceCount: -1 };
 
           case 'thumbnail':
             if ( node.thumbnail != undefined ) {
-              var alttext = node.current.getAltTextWithFallback().replace(/"/g, '&#34;');
-              if (alttext != null) alttext = alttext.replace(/([^"\\]*(?:\\.[^"\\]*)*)"/g, '$1\\"');
+              var altText = node.current.getAltTextWithFallback();
               var tooltipText = node.getDisplayTitle() + ' (' + node.current.mediaSource.contentType + ')';
               tooltipText = tooltipText.replace(/"/g,'&quot;');
               var url = node.getAbsoluteThumbnailURL();
               var thumbnail = '<img id="img-' + node.slug.replace( "/", "-" ) + '" class="thumb" src="' + url + '" alt="' +
-                alttext + '" data-html="true" data-toggle="tooltip" title="' + tooltipText + '"/>';
+                altText + '" data-html="true" data-toggle="tooltip" title="' + tooltipText + '"/>';
             // generic thumbnail
             } else {
               thumbnail = '<img id="img-' + node.slug.replace( "/", "-" ) + '" class="thumb" src="' + modules_uri +
-                '/cantaloupe/images/media_icon_chip.png" alt="' + alttext + '" data-toggle="tooltip" data-html="true" title="' + tooltipText + '"/>';
+                '/cantaloupe/images/media_icon_chip.png" alt="Generic media thumbnail" data-toggle="tooltip" data-html="true" title="' + tooltipText + '"/>';
             }
             row.append(this.getRowContent(columnType, columnSpec, thumbnail));
             break

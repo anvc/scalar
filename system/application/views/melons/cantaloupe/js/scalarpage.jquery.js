@@ -2463,7 +2463,7 @@
                 });
             },
 
-            addMarkerFromLatLonStrToMap: function(latlngstr, title, desc, link, map, infoWindow, thumbnail, label, mapElement, markers) {
+            addMarkerFromLatLonStrToMap: function(latlngstr, title, desc, alt, link, map, infoWindow, thumbnail, label, mapElement, markers) {
                 if ((typeof mapElement == "undefined" || mapElement == null || !mapElement) && typeof $gmaps != "undefined") {
                     mapElement = $gmaps;
                 }
@@ -2496,7 +2496,7 @@
                         if (thumbnail.indexOf('://') == -1) {
                             url = scalarapi.model.urlPrefix + thumbnail;
                         }
-                        thumbnailMarkup = '<img style="float:right; margin: 0 0 1rem 1rem;" src="' + url + '" alt="Thumbnail image" width="120"/>';
+                        thumbnailMarkup = '<img style="float:right; margin: 0 0 1rem 1rem;" src="' + url + '" alt="' + alt + '" width="120"/>';
                     }
 
                     // add marker and info window for current page
@@ -2506,7 +2506,7 @@
                         contentString = '<div class="google-info-window caption_font">' + titleMarkup + '<div>' + thumbnailMarkup + '</div>';
                     }
                     page.generateIcon(label, function(src) {
-                        marker = new google.maps.Marker({
+                        marker = new google.maps.AdvancedMarkerElement({
                             position: latlng,
                             map: map,
                             html: contentString,
@@ -2670,7 +2670,8 @@
                 // create map
                 var mapOptions = {
                     zoom: 8,
-                    mapTypeId: google.maps.MapTypeId.ROADMAP
+                    mapTypeId: google.maps.MapTypeId.ROADMAP,
+                    mapId: 'google-maps-layout',
                 }
                 var map = new google.maps.Map(document.getElementById('google-maps'), mapOptions);
                 var markerCount = 0;
@@ -2711,6 +2712,7 @@
                                 currentNode.current.properties[property][i].value,
                                 currentNode.getDisplayTitle(),
                                 currentNode.current.description,
+                                currentNode.current.getAltTextWithFallback(),
                                 null,
                                 map,
                                 infoWindow,
@@ -2746,6 +2748,7 @@
                                     node.current.properties[property][j].value,
                                     node.getDisplayTitle(),
                                     node.current.description,
+                                    node.current.getAltTextWithFallback(),
                                     node.url,
                                     map,
                                     infoWindow,

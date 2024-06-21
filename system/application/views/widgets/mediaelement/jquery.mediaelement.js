@@ -2268,7 +2268,7 @@ function YouTubeGetID(url){
 
 			this.wrapper = $('<div class="mediaObject"></div>');
 			this.image = new Image();
-			this.image.alt = this.model.node.current.getAltTextWithFallback().replace(/([^"\\]*(?:\\.[^"\\]*)*)"/g, '$1\\"');
+			this.image.alt = this.model.node.current.getAltTextWithFallback();
 			$(this.image).appendTo(this.wrapper);
 			$(this.image).css('display', 'none');
 			$(this.wrapper).appendTo(this.parentView.mediaContainer);
@@ -5165,7 +5165,8 @@ function YouTubeGetID(url){
 			this.parentView.removeLoadingMessage();
 
 			var mapOptions = {
-				mapTypeId: google.maps.MapTypeId.ROADMAP
+				mapTypeId: google.maps.MapTypeId.ROADMAP,
+				mapId: me.model.id + '-map'
 			}
 			var map = new google.maps.Map(document.getElementById('googlemaps'+me.model.id), mapOptions);
 			var kmlLayer = new google.maps.KmlLayer(this.model.path);
