@@ -46,7 +46,6 @@
             generateIconCache: {},
             mapMarkers: [],
             pendingDeferredScripts: {},
-            usingHypothesis: ($('link#hypothesis').attr('href') === 'true'),
 
             dateParseRegex : /^(?:(?:(?:(\d+)[\/-])?(?:(\d+)[\/-])?)?([-]?\d+)(?:\s+)?(bce|BCE|bc|BC|ad|AD|ce|CE)?)(?:\s+)?((?:(?:[0-1][0-9])|(?:[2][0-3])|(?:[0-9]))(?::(?:[0-5][0-9])(?::[0-5][0-9])?)?(?:\s?(?:am|AM|pm|PM))?)?(?:(?:\s+-\s+)(?:(?:(?:(\d+)[\/-])?(?:(\d+)[\/-])?)?([-]?\d+)(?:\s+)?(bce|BCE|bc|BC|ad|AD|ce|CE)?)(?:\s+)?((?:(?:[0-1][0-9])|(?:[2][0-3])|(?:[0-9]))(?::(?:[0-5][0-9])(?::[0-5][0-9])?)?(?:\s?(?:am|AM|pm|PM))?)?)?$/,
 
@@ -91,7 +90,7 @@
 
                     if(date_parts[4]!=undefined){
                         var era = date_parts[4].toLowerCase();
-                        if(($.inArray(era, ['bce','bc']) > -1 && entry.start_date.year > 0) || ($.inArray(era, ['ce','ad']) > -1 && entry.start_date.year > 0)){
+                        if(($.inArray(era, ['bce','bc']) > -1 && entry.start_date.year > 0)){
                             entry.start_date.year *= -1;
                         }
                     }
@@ -467,9 +466,11 @@
 
                 page.pageWidth = parseInt($('.page').width());
 
-                // calculate the size of the content area minus margin-s
+                // calculate the size of the content area minus margins
                 var temp = $('<div class="body_copy"></div>');
                 temp.appendTo('.page');
+                // these two may differ depending on the width of the window
+                // (large windows have extra margin on the right side)
                 page.pageWidthMinusMargins = page.pageWidth - (parseInt(temp.css('padding-left')) * 2);
                 page.bodyCopyWidth = temp.width();
                 temp.remove();
@@ -478,7 +479,9 @@
 
             addInlineNoteElementForLink: function(link) {
 
-            	link.wrap('<div class="inlineNoteBody body_copy"></div>');
+            	if (!link.parent().is('.inlineNoteBody')) {
+            		link.wrap('<div class="inlineNoteBody body_copy"></div>');
+            	}
             	link.text('Go to note').attr('href', $('link#parent').attr('href')+link.attr('resource'));
             	var wrapper = link.parent();
             	var slug = link.attr('resource');
@@ -509,6 +512,7 @@
 	            	}
             	}
             	scalarapi.loadNode(slug, true, function(node) {
+            		wrapper.find('.content, .description, .title').remove();
             		for (uri in node) {
             			var version_uri = node[uri]['http://purl.org/dc/terms/hasVersion'][0].value;
             			var version = node[version_uri];
@@ -774,7 +778,7 @@
                         if (contextCount > 1) {
                             contextButton.addClass('multi');
                         }
-                        if (page.usingHypothesis) {
+                        if (scalarapi.model.usingHypothesis) {
                         	contextButton.addClass('hypothesis_active');
                         }
                         contextButton.popover({
@@ -2423,7 +2427,7 @@
                     var well = collapsible.find(".well");
                     well.append(table);
 
-                    page.bodyContent().append(metadata);
+                    page.bodyContent().after(metadata);
                     metadata.wrap('<div class="paragraph_wrapper"></div>');
 
                 }
@@ -3097,7 +3101,7 @@
                             if(typeof page.pendingDeferredScripts.GoogleMaps == 'undefined'){
                                 page.pendingDeferredScripts.GoogleMaps = [];
                                 $.when(
-                                    $.getScript('https://maps.googleapis.com/maps/api/js?key=' + $('link#google_maps_key').attr('href'))
+                                    $.getScript('https://maps.googleapis.com/maps/api/js?callback=initGoogleMap&key=' + $('link#google_maps_key').attr('href'))
                                 ).then(function(){
                                     for(var i = 0; i < page.pendingDeferredScripts.GoogleMaps.length; i++){
                                         page.pendingDeferredScripts.GoogleMaps[i].resolve();

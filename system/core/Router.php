@@ -27,6 +27,7 @@
  * @category	Libraries
  * @link		http://codeigniter.com/user_guide/general/routing.html
  */
+#[\AllowDynamicProperties]
 class CI_Router {
 
 	/**

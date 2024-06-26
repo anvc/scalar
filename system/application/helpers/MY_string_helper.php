@@ -189,6 +189,7 @@ function fix_latin($instr){
   return $outstr;
 }
 
+/*
 $byte_map=array();
 init_byte_map();
 $ascii_char='[\x00-\x7F]';
@@ -198,5 +199,5 @@ $utf8_3='[\xE0-\xEF]'.$cont_byte.'{2}';
 $utf8_4='[\xF0-\xF7]'.$cont_byte.'{3}';
 $utf8_5='[\xF8-\xFB]'.$cont_byte.'{4}';
 $nibble_good_chars = "@^($ascii_char+|$utf8_2|$utf8_3|$utf8_4|$utf8_5)(.*)$@s";
-
+*/
 ?>

@@ -125,7 +125,7 @@ class Duplicate {
 		$index = (is_array($index)) ? $index[0] : $index;
 
 		// Annotations
-		$save['scalar:child_urn'] = $save['start_seconds'] = $save['end_seconds'] = $save['start_line_num'] = $save['end_line_num'] = $save['points'] = $save['position_3d'] = array();
+		$save['scalar:child_urn'] = $save['start_seconds'] = $save['end_seconds'] = $save['start_line_num'] = $save['end_line_num'] = $save['points'] = $save['position_3d'] = $save['position_gis'] = array();
     	foreach ($index->versions[0]->annotation_of as $annotation_of) {
     		$child 						= $this->CI->pages->get_by_slug($book->book_id, $annotation_of->slug);
 			$child->versions 			= $this->CI->versions->get_all($child->content_id, 1);  // Most recent version
@@ -136,8 +136,9 @@ class Duplicate {
     		$save['end_line_num'][] 	= $annotation_of->versions[0]->end_line_num;
     		$save['points'][]			= $annotation_of->versions[0]->points;
     		$save['position_3d'][]			= $annotation_of->versions[0]->position_3d;
+    		$save['position_gis'][]			= $annotation_of->versions[0]->position_gis;
     	}
-    	$this->CI->annotations->save_children($parent_id, $save['scalar:child_urn'], $save['start_seconds'], $save['end_seconds'], $save['start_line_num'], $save['end_line_num'], $save['points'], $save['position_3d']);
+    	$this->CI->annotations->save_children($parent_id, $save['scalar:child_urn'], $save['start_seconds'], $save['end_seconds'], $save['start_line_num'], $save['end_line_num'], $save['points'], $save['position_3d'], $save['position_gis']);
 		// Paths
 		$save['scalar:child_urn'] = $save['sort_numbers'] = array();
 		$j = 1;

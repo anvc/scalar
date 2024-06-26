@@ -388,6 +388,7 @@ function addMetadataTableForNodeToElement(node, element) {
   }
   table.append('<tr><td>dcterms:title</td><td>'+node.getDisplayTitle()+'</td></tr>');
   if (null!=node.current.description) table.append('<tr><td>dcterms:description</td><td>'+linkify(node.current.description)+'</td></tr>');
+  if (null!=node.current.altText) table.append('<tr><td>scalar:altText</td><td>'+linkify(node.current.altText)+'</td></tr>');
   if ('undefined'!=typeof(node.current.properties['http://ns.exiftool.ca/IPTC/IPTC/1.0/By-line'])) {
     table.append('<tr><td>iptc:By-line</td><td>'+linkify(node.current.properties['http://ns.exiftool.ca/IPTC/IPTC/1.0/By-line'][0].value)+'</td></tr>');
   }
@@ -530,6 +531,8 @@ $(window).ready(function() {
            }},
 	    ]);
 	};
+
+	window.initGoogleMap = function() {} // google maps api requires a callback
 
 	// Accept posted messages (e.g., if in an iframe)
 	window.addEventListener('message', function(event) {

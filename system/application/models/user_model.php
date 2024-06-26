@@ -761,7 +761,11 @@ class User_model extends MY_Model {
     	if (empty($user_id)) return;
     	$user = $this->get_by_user_id($user_id);
     	if (!property_exists($user, 'previous_passwords')) return;  // Database hasn't been updated
-    	$previous_passwords = json_decode($user->previous_passwords, true);
+    	if ($user->previous_passwords) {
+	    	$previous_passwords = json_decode($user->previous_passwords, true);
+    	} else {
+    		$previous_passwords = array();
+    	}
     	if (empty($previous_passwords) || !is_array($previous_passwords)) $previous_passwords = array();
     	$current_time = time();
     	$least_days = null;

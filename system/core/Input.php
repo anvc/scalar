@@ -27,6 +27,7 @@
  * @author		EllisLab Dev Team
  * @link		http://codeigniter.com/user_guide/libraries/input.html
  */
+#[\AllowDynamicProperties]
 class CI_Input {
 
 	/**

@@ -122,7 +122,7 @@ class File_Upload {
         try {
             $this->storage->store($tempFile, $targetFile);
         } catch (Scalar_Storage_Exception $e) {
-            throw new Exception('Problem moving temp file. The file is likely larger than the system\'s max upload size (' . $this->getMaximumFileUploadSize() . ').');
+        	throw new Exception('Problem moving temp file. '.$e->getMessage().' The file is likely larger than the system\'s max upload size (' . $this->getMaximumFileUploadSize() . ').');
         }
         return $this->storage->getUri($targetFile);
     }
@@ -154,6 +154,7 @@ class File_Upload {
         if ('oga' == $ext || 'oga' == substr($ext, 0, 3)) return true;
         if ('tif' == $ext || 'tif' == substr($ext, 0, 3)) return true;
         if ('webm' == $ext || 'webm' == substr($ext, 0, 4)) return true;
+        if ('webp' == $ext || 'webp' == substr($ext, 0, 4)) return true;
         return false;
 
     }
@@ -174,6 +175,9 @@ class File_Upload {
             case 3:
                 $src_im = imagecreatefrompng($file);
                 break;
+            case 18:
+                $src_im = imagecreatefromwebp($file);
+                break;
             default:
                 throw new Exception('Image not of proper type');
         }
@@ -191,6 +195,9 @@ class File_Upload {
                 break;
             case 3:
                 imagepng($dst_im, $resized_file);
+                break;
+            case 18:
+                imagewebp($dst_im, $resized_file);
                 break;
         }
         imagedestroy($dst_im); // free memory

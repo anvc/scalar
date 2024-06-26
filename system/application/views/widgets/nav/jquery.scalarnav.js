@@ -97,7 +97,7 @@
 		 */
 		jQuery.NavModel.prototype.init = function() {
 
-			switch (scalarapi.model.user_level) {
+			switch (scalarapi.model.getUser().user_level) {
 
 				// these roles get an added "import" option in the menu
 				case "scalar:Author":
@@ -819,7 +819,7 @@
 				this.element = this.element.add(this.createButton('comment', 'incoming'));
 
 				// add editing buttons if the user has the right privileges
-				if (((scalarapi.model.user_level == "scalar:Author") || (scalarapi.model.user_level == "scalar:Commentator") || (scalarapi.model.user_level == "scalar:Reviewer")) && (window.location.href.substr(window.location.href.length - 5) != '.edit')) {
+				if (((scalarapi.model.getUser().user_level == "scalar:Author") || (scalarapi.model.getUser().user_level == "scalar:Commentator") || (scalarapi.model.getUser().user_level == "scalar:Reviewer")) && (window.location.href.substr(window.location.href.length - 5) != '.edit')) {
 					this.element = this.element.add('<div class="utility"><p><a class="utility_button" href="'+scalarapi.model.urlPrefix+'/new.edit">New</a> <a class="utility_button" href="'+this.node.url+'.edit">Edit</a> <a class="utility_button" href="javascript:;">Hide</a> </p></div>').appendTo(this.model.element);
 					this.element.find('.utility_button').eq(2).on('click', this.handleDelete);
 				}
@@ -1140,7 +1140,7 @@
 			this.element = this.element.add(tagBtn);
 
 			// user's guide button, only shown to those with authoring privileges
-			if ((scalarapi.model.user_level == "scalar:Author") || (scalarapi.model.user_level == "scalar:Commentator") || (scalarapi.model.user_level == "scalar:Reviewer")) {
+			if ((scalarapi.model.getUser().user_level == "scalar:Author") || (scalarapi.model.getUser().user_level == "scalar:Commentator") || (scalarapi.model.getUser().user_level == "scalar:Reviewer")) {
 				var guideBtn = $('<div class="button"><p><b>User\'s Guide</b></p></div>');
 				guideBtn.data('url', 'http://scalar.usc.edu/works/guide/');
 				guideBtn.on('click', function() { window.open($(this).data('url'), '_blank'); });

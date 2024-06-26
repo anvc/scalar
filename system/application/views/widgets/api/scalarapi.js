@@ -17,6 +17,25 @@
  * permissions and limitations under the License.
  */
 
+const ScalarRole =  {
+	Unknown: 'unknown',
+	Reader: 'reader',
+	Commentator: 'commentator',
+	Reviewer: 'reviewer',
+	Author: 'author',
+	Editor: 'editor',
+}
+
+const ScalarEditorialState = {
+	None: "none",
+	Draft: "draft",
+	Edit: "edit",
+	EditReview: "editreview",
+	Clean: "clean",
+	Ready: "ready",
+	Published: "published",
+}
+
 var scalarapi = new ScalarAPI();
 
 function is_array(input){
@@ -35,11 +54,7 @@ function ScalarAPI() {
 
 	var me = this;
 
-	this.model = new ScalarModel({
-		parent_uri: $('link#parent').attr('href'),
-		logged_in: $('link#logged_in').attr('href'),
-		user_level: $('link#user_level').attr('href')
-	});
+	this.model = new ScalarModel();
 
 	/**
 	 * Browser detection script from http://www.quirksmode.org/js/detect.html
@@ -234,6 +249,20 @@ function ScalarAPI() {
 				'MobileSafari': {extensions:['aif','aiff'], format:'AIFF', player:'native', specifiesDimensions:false},
 				'Safari': {extensions:['aif','aiff'], format:'AIFF', player:'native', specifiesDimensions:false},
 				'Other': {extensions:['aif','aiff'], format:'AIFF', player:'QuickTime', specifiesDimensions:false}
+			}},
+		'ArcGIS WebScene': {
+			name:'ArcGIS WebScene',
+			extensions:[],
+			isProprietary:true,
+			contentType:'3D-GIS',
+			browserSupport: {
+				'Mozilla': {extensions:[], format:'', player:'proprietary', specifiesDimensions:false},
+				'Explorer': {extensions:[], format:'', player:'proprietary', specifiesDimensions:false},
+				'MobileSafari': {extensions:[], format:'', player:'proprietary', specifiesDimensions:false},
+				'Safari': {extensions:[], format:'', player:'proprietary', specifiesDimensions:false},
+				'Chrome': {extensions:[], format:'', player:'proprietary', specifiesDimensions:false},
+				'Android': {extensions:[], format:'', player:'proprietary', specifiesDimensions:false},
+				'Other': {extensions:[], format:'', player:'proprietary', specifiesDimensions:false}
 			}},
 		'CriticalCommons-LegacyVideo': {
 			name:'CriticalCommons-LegacyVideo',
@@ -659,6 +688,20 @@ function ScalarAPI() {
 				'Android': {extensions:['webm'], format:'WebM', player:'native', specifiesDimensions:true},
 				'Other': {extensions:['webm'], format:'WebM', player:'native', specifiesDimensions:true}
 			}},
+		'WebP': {
+			name: 'WebP',
+			extensions:['webp'],
+			isProprietary:false,
+			contentType:'image',
+			browserSupport: {
+				'Mozilla': {extensions:['webp'], format:'WebP', player:'native', specifiesDimensions:true},
+				'MobileSafari': {extensions:['webp'], format:'WebP', player:'native', specifiesDimensions:true},
+				'Safari': {extensions:['webp'], format:'WebP', player:'native', specifiesDimensions:true},
+				'Chrome': {extensions:['webp'], format:'WebP', player:'native', specifiesDimensions:true},
+				'Android': {extensions:['webp'], format:'WebP', player:'native', specifiesDimensions:true},
+				'Other': {extensions:['webp'], format:'WebP', player:'native', specifiesDimensions:true}
+			}
+		},
 		'YouTube': {
 			name:'YouTube',
 			extensions:['mp4'],
@@ -697,6 +740,7 @@ ScalarAPI.prototype.loadPagesByTypeStatus = null;
 ScalarAPI.prototype.browserDetect = null;
 ScalarAPI.prototype.nodeExistsCallback = null;
 ScalarAPI.prototype.untitledNodeString = null;
+
 
 /**
  * Returns the specified uri without any extraneous trailing content (getVars, etc.)
@@ -894,6 +938,8 @@ ScalarAPI.prototype.parseMediaSource = function(uri) {
 			source = this.mediaSources['PDF'];
     } else if (uri.indexOf('?iiif-manifest=1') != -1) {
       source = this.mediaSources['IIIF'];
+		} else if (uri.indexOf('arcgis.com') != -1 && uri.indexOf('webscene') != -1) {
+			source = this.mediaSources['ArcGIS WebScene'];
     } else if (uri.indexOf('?unity-webgl=1') != -1) {
       source = this.mediaSources['Unity WebGL'];
 		// no special cases; handle normally
@@ -1194,6 +1240,23 @@ ScalarAPI.prototype.toNS = function(uri) {
   return false;
 };
 
+ScalarAPI.prototype.getCapabilitiesFromURL = function(url) {
+	let capabilities = {
+		canAnnotate: true,
+		canEdit: true,
+		canDelete: true,
+		unrestricted: true,
+	}
+	let suffix = this.getFileExtension(url);
+	if(['versions','history','annotation_editor','manage_lenses'].indexOf(suffix)!==-1){
+		capabilities.unrestricted = capabilities.canDelete = false
+		if (suffix == 'edit') {
+			capabilities.canAnnotate = capabilities.canEdit = false
+		}
+	}
+	return capabilities
+}
+
 /**
  * saveManyRelations, queueManyRelations, runManyRelations
  * A basic Ajax queue for saving relationships, as the save API presently saves one relationship at a time
@@ -1341,6 +1404,7 @@ ScalarAPI.prototype.queueRelationsFromDataByType = function(data, types, isOutgo
       case 'annotated':
       properties = ['start_seconds', 'end_seconds', 'start_line_num', 'end_line_num', 'points'];
       if (data['annotation_of_position_3d'] || data['has_annotation_position_3d']) properties.push('position_3d');
+      if (data['annotation_of_position_gis'] || data['has_annotation_position_gis']) properties.push('position_gis');
       this.addRelationPropertiesToBaseData(data, baseData, 'annotation', properties, index, isOutgoing, isFormData);
       break;
 
@@ -1532,14 +1596,15 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 		// gather data from existing node
 		var completePageData = {
 			'dcterms:title': node.current.title,
-			'dcterms.description': node.current.description,
+			'dcterms:description': node.current.description,
 			'sioc:content': node.current.content,
 			'rdf:type': node.baseType,
 			'scalar:urn': node.current.urn,
 			'scalar:url': node.current.sourceFile,
 			'scalar:default_view': node.current.defaultView,
 			'scalar:continue_to_content_id': node.current.continueTo,
-			'scalar:sort_number': node.current.sortNumber
+			'scalar:sort_number': node.current.sortNumber,
+			'scalar:altText': node.current.altText,
 		};
 
 		// add base properties
@@ -1627,7 +1692,8 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 							'scalar:start_line_num': '',
 							'scalar:end_line_num': '',
 							'scalar:points': '',
-							'scalar:position_3d': ''
+							'scalar:position_3d': '',
+							'scalar:position_gis': ''
 						};
 						break;
 
@@ -1645,7 +1711,8 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 							'scalar:start_line_num': this.properties.start,
 							'scalar:end_line_num': this.properties.end,
 							'scalar:points': '',
-              'scalar:position_3d': ''
+              'scalar:position_3d': '',
+              'scalar:position_gis': ''
 						};
 						break;
 
@@ -1663,7 +1730,8 @@ ScalarAPI.prototype.modifyPageAndRelations = function(baseProperties, pageData, 
 							'scalar:start_line_num': '',
 							'scalar:end_line_num': '',
 							'scalar:points': this.properties.x+','+this.properties.y+','+this.properties.width+','+this.properties.height,
-							'scalar:position_3d': this.properties.x+','+this.properties.y+','+this.properties.z+','+this.properties.heading+','+this.properties.tilt+','+this.properties.fieldOfView
+							'scalar:position_3d': this.properties.targetX+','+this.properties.targetY+','+this.properties.targetZ+','+this.properties.cameraX+','+this.properties.cameraY+','+this.properties.cameraZ+','+this.properties.roll+','+this.properties.tilt+','+this.properties.fieldOfView,
+							'scalar:position_gis': this.properties.latitude+','+this.properties.longitude+','+this.properties.altitude+','+this.properties.heading+','+this.properties.tilt+','+this.properties.fieldOfView
 						};
 						break;
 
@@ -2561,15 +2629,29 @@ function ScalarModel(options) {
 
 	var me = this;
 
-	this.urlPrefix;								// home page of the book
-	this.parent_uri = options['parent_uri'];	// parent uri of the book
-	this.logged_in = options['logged_in'];		// is the user currently logged in
-	this.user_level = options['user_level'];	// level of the current user
-	this.nodes = [];							// all known nodes
-	this.nodesByURL = {};						// all known nodes, indexed by their URLs
-	this.nodesByURN = {};						// all known nodes, indexed by their URNs
+	this.urlPrefix;										// home page of the book
+	this.baseURL = $('link#approot').attr('href')
+	this.parent_uri = $('link#parent').attr('href')
+	this.bookId = parseInt($('link#book_id').attr('href'))
+	this.usingHypothesis = $('link#hypothesis').attr('href') === 'true'
+	this.nodes = [];									// all known nodes
+	this.nodesByURL = {};							// all known nodes, indexed by their URLs
+	this.nodesByURN = {};							// all known nodes, indexed by their URNs
 	this.relationsById = {};					// all known relations, indexed by their ids
 	this.crossDomain = false;					// are we making cross-domain requests for testing purposes?
+
+	this.isEditorialPathPage = $('.editorialpath-page>#editorialPath').length > 0;
+	this.editorialWorkflowEnabled = $('link#editorial_workflow').attr('href') === 'true';
+	this.editorialState = ScalarEditorialState.None
+	if (this.editorialWorkflowEnabled) {
+			if ($('header span.metadata[property="scalar:editorialState"]').length > 0) {
+				let state = $('header span.metadata[property="scalar:editorialState"]').text()
+				state = state[0].toUpperCase() + state.slice(1).toLowerCase()
+				this.editorialState = ScalarEditorialState[state];
+			} else {
+					base.editorialState = ScalarEditorialState.Draft;
+			}
+	}
 
 	// list of namespaces and the prefixes used by Scalar, grabbed from xmlns attributes of <html> tag
 	// TODO: "the usage of 'xmlns' for prefix definition is deprecated; please use the 'prefix' attribute instead"
@@ -2631,7 +2713,8 @@ function ScalarModel(options) {
 		{property:'wasAttributedTo', uri:'http://www.w3.org/ns/prov#wasAttributedTo', type:'string'},
 		{property:'references', uri:'http://purl.org/dc/terms/references', type:'string'},
 		{property:'isReferencedBy', uri:'http://purl.org/dc/terms/isReferencedBy', type:'string'},
-		{property:'isLensOf', uri:'http://scalar.usc.edu/2012/01/scalar-ns#isLensOf', type:'json'}
+		{property:'isLensOf', uri:'http://scalar.usc.edu/2012/01/scalar-ns#isLensOf', type:'json'},
+		{property:'altText', uri:'http://scalar.usc.edu/2012/01/scalar-ns#altText', type:'string'}
 	];
 
 	// metadata about each relation type
@@ -2681,7 +2764,7 @@ function ScalarModel(options) {
 
 	// figure out where we are
 	if (!this.crossDomain) {
-		this.urlPrefix = options['parent_uri'];
+		this.urlPrefix = this.parent_uri;
 	}
 
 	// scrape book title from page
@@ -2709,6 +2792,13 @@ ScalarModel.prototype.bookNode = null;
 ScalarModel.prototype.scalarTypes = null;
 ScalarModel.prototype.relationTypes = null;
 ScalarModel.prototype.userTypes = null;
+
+ScalarModel.prototype.getUser = function() {
+	if (!this.user) {
+		this.user = new ScalarUser()
+	}
+	return this.user
+}
 
 /**
  * Parses the specified json, creating/updating any referenced nodes.
@@ -3090,6 +3180,79 @@ ScalarModel.prototype.getCurrentPageNode = function() {
  */
 ScalarModel.prototype.getPublisherNode = function() {
 	return this.nodesByURL[this.urlPrefix+'publisher'];
+}
+
+function ScalarUser() {
+	let me = this
+	this.logged_in = $('link#logged_in').length > 0 && $('link#logged_in').attr('href')!=''
+	this.user_level = $('link#user_level').attr('href')
+	this.role = ScalarRole.Unknown
+	if (this.user_level?.length > 0) {
+		switch (this.user_level) {
+			case 'scalar:Reader':
+				this.role = ScalarRole.Author
+				break
+			case 'scalar:Commentator':
+				this.role = ScalarRole.Commentator
+				break
+			case 'scalar:Reviewer':
+				this.role = ScalarRole.Reviewer
+				break
+			case 'scalar:Author':
+				this.role = ScalarRole.Author
+				break
+			case 'scalar:Editor':
+				this.role = ScalarRole.Editor
+				break
+			default:
+				this.role = ScalarRole.Unknown
+				break
+		}
+	}
+}
+
+ScalarUser.prototype.logged_in = null;
+ScalarUser.prototype.user_level = null;
+ScalarUser.prototype.role = null;
+
+ScalarUser.prototype.canEdit = function() {
+	const roles = [ScalarRole.Author, ScalarRole.commentator, ScalarRole.Reviewer, ScalarRole.Editor]
+	return roles.indexOf(this.role) != -1
+}
+
+ScalarUser.prototype.canEditThisUrl = function(url) {
+	if (this.canEdit()) {
+		let dataType = scalarapi.getFileExtension(url)
+		return ['edit','versions','history','annotation_editor','manage_lenses'].indexOf(dataType) == -1
+	} else {
+		return false
+	}
+}
+
+ScalarUser.prototype.canAdd = function() {
+	const roles = [ScalarRole.Author, ScalarRole.commentator]
+	return roles.indexOf(this.role) != -1
+}
+
+ScalarUser.prototype.canDelete = function() {
+	const roles = [ScalarRole.Author, ScalarRole.commentator]
+	const states = [ScalarEditorialState.Edit, ScalarEditorialState.Clean, ScalarEditorialState.Published]
+	return roles.indexOf(this.role) != -1 && states.indexOf(scalarapi.model.editorialState) == -1
+}
+
+ScalarUser.prototype.canDeleteThisUrl = function(url) {
+	if (this.canDelete) {
+		let dataType = scalarapi.getFileExtension(url)
+		return ['versions','history','annotation_editor','manage_lenses'].indexOf(dataType) == -1
+	} else {
+		return false
+	}
+}
+
+ScalarUser.prototype.canCopyEdit = function() {
+	const roles = [ScalarRole.Author, ScalarRole.commentator]
+	const states = [ScalarEditorialState.Edit, ScalarEditorialState.Clean, ScalarEditorialState.Ready]
+	return roles.indexOf(this.role) != -1 && states.indexOf(scalarapi.model.editorialState) == -1
 }
 
 /**
@@ -3721,7 +3884,6 @@ function ScalarVersion(data, node) {
 	var me = this;
 
 	this.auxProperties = {};
-
 	this.parseData(data, node);
 
 }
@@ -3730,6 +3892,7 @@ ScalarVersion.prototype.url = null;
 ScalarVersion.prototype.data = null;
 ScalarVersion.prototype.title = null;
 ScalarVersion.prototype.description = null;
+ScalarVersion.prototype.altText = null;
 ScalarVersion.prototype.baseType = null;
 ScalarVersion.prototype.content = null;
 ScalarVersion.prototype.sourceFile = null;
@@ -3878,6 +4041,15 @@ ScalarVersion.prototype.parseRelations = function() {
 
 }
 
+ScalarVersion.prototype.getAltTextWithFallback = function() {
+	if (this.altText) {
+		return this.altText
+	} else if (this.description) {
+		return this.description
+	}
+	return ''
+}
+
 /**
  * Creates a new ScalarRelation.
  * @constructor Represents a relation between two Scalar nodes. The structure of the object is
@@ -4005,6 +4177,27 @@ function ScalarRelation(json, body, target, type, content) {
 						this.separator = ' ';
 						this.subType = 'spatial';
 						this.index = parseFloat(this.properties.targetX) * parseFloat(this.properties.targetY) * parseFloat(this.properties.targetZ);
+						this.id += prop + this.index;
+						break;
+
+						case 'posgis':
+						if (!this.type) this.type = scalarapi.model.relationTypes.annotation;
+						temp = anchorVars[prop].split(',');
+						this.properties.latitude = temp[0];
+						this.properties.longitude = temp[1];
+						this.properties.altitude = temp[2];
+						this.properties.heading = temp[3];
+						this.properties.tilt = temp[4];
+						this.properties.fieldOfView = temp[7];
+						this.startString = 'lat:' + Math.round( parseFloat( this.properties.latitude ));
+						this.startString += ' lon:' + Math.round( parseFloat( this.properties.longitude ));
+						this.startString += ' alt:' + Math.round( parseFloat( this.properties.altitude ));
+						this.endString += ' heading:' + Math.round( parseFloat( this.properties.heading ));
+						this.endString += ' tilt:' + Math.round( parseFloat( this.properties.tilt ));
+						this.endString += ' fov:' + Math.round( parseFloat( this.properties.fieldOfView ));
+						this.separator = ' ';
+						this.subType = 'spatial';
+						this.index = parseFloat(this.properties.latitude) * parseFloat(this.properties.longitude) * parseFloat(this.properties.altitude);
 						this.id += prop + this.index;
 						break;
 

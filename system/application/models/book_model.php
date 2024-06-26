@@ -310,7 +310,7 @@ class Book_model extends MY_Model {
     		 "AND A.book_id = $book_id " .
     		 "AND A.type='media' " .
     	     "AND A.is_live = 1 " .
-    		 "AND (B.url LIKE '%.gif%' OR B.url LIKE '%.jpg%' OR B.url LIKE '%.jpeg%' OR B.url LIKE '%.png%' OR B.url LIKE '%JPEG%' ".$add_str.") " .
+    		 "AND (B.url LIKE '%.gif%' OR B.url LIKE '%.jpg%' OR B.url LIKE '%.jpeg%' OR B.url LIKE '%.png%' OR B.url LIKE '%JPEG%' OR B.url LIKE '%webp%' ".$add_str.") " .
     		 "ORDER BY B.title ASC, B.version_num ASC";
     	$query = $this->db->query($q);
     	$result = $query->result();
@@ -738,8 +738,8 @@ class Book_model extends MY_Model {
 				$this->db->join($this->books_table, $this->pages_table.'.book_id='.$this->books_table.'.book_id');
 				$this->db->where($this->books_table.'.book_id', $book_id);
 				$query = $this->db->get();
+				$book_version_ids = array();
 				if ($query->num_rows()) {
-					$book_version_ids = array();
 					$result = $query->result();
 					foreach ($result as $row) $book_version_ids[] = $row->version_id;
 				}
@@ -749,8 +749,8 @@ class Book_model extends MY_Model {
 				$this->db->join($this->books_table, $this->pages_table.'.book_id='.$this->books_table.'.book_id');
 				$this->db->where($this->books_table.'.book_id', $book_id);
 				$query = $this->db->get();
+				$book_page_ids = array();
 				if ($query->num_rows()) {
-					$book_page_ids = array();
 					$result = $query->result();
 					foreach ($result as $row) $book_page_ids[] = $row->content_id;
 				}

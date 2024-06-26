@@ -219,16 +219,28 @@ $(document).ready(function() {
 				var slug = nodes[j].slug;
 				var title = nodes[j].version["http://purl.org/dc/terms/title"][0].value;
 				var url = nodes[j].version["http://simile.mit.edu/2003/10/ontologies/artstor#url"][0].value;
-				var annotation_type = scalarapi.parseMediaSource(url).contentType;
+				var mediaSource = scalarapi.parseMediaSource(url);
+				var annotation_type = mediaSource.contentType;
 				var annotation = $('<li><input type="hidden" name="annotation_of" value="'+slug+'" />'+title+'&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span><br /></li>').appendTo('#annotation_of');
 				switch (annotation_type) {
 					case "3D":
-						var str = '<div class="form-inline"><div class="form-group"><label>Target X, Y, Z, Camera X, Y,, Roll, Field of View (degrees) &nbsp; <input class="form-control" type="text" name="annotation_of_position_3d" value="0,0,0,1,1,1,0,60" /></label></div></div>';
+						var str = '<div class="form-inline"><div class="form-group"><label>Target X, Y, Z, Camera X, Y, Z, Roll, Field of View (degrees) &nbsp; <input class="form-control" type="text" name="annotation_of_position_3d" value="0,0,0,1,1,1,0,60" /></label></div></div>';
 						str += '<input type="hidden" name="annotation_of_start_line_num" value="" />';
 						str += '<input type="hidden" name="annotation_of_end_line_num" value="" />';
 						str += '<input type="hidden" name="annotation_of_start_seconds" value="" />';
 						str += '<input type="hidden" name="annotation_of_end_seconds" value="" />';
 						str += '<input type="hidden" name="annotation_of_points" value="" />';
+						str += '<input type="hidden" name="annotation_of_position_gis" value="" />';
+						annotation.append('<div>'+str+'</div>');
+						break;
+					case "3D-GIS":
+						var str = '<div class="form-inline"><div class="form-group"><label>Latitude, Longitude, Altitude (meters), Heading (degrees), Tilt (degrees), Field of View (degrees) &nbsp; <input class="form-control" type="text" name="annotation_of_position_gis" value="0,0,0,1,1,1,0,60" /></label></div></div>';
+						str += '<input type="hidden" name="annotation_of_start_line_num" value="" />';
+						str += '<input type="hidden" name="annotation_of_end_line_num" value="" />';
+						str += '<input type="hidden" name="annotation_of_start_seconds" value="" />';
+						str += '<input type="hidden" name="annotation_of_end_seconds" value="" />';
+						str += '<input type="hidden" name="annotation_of_points" value="" />';
+						str += '<input type="hidden" name="annotation_of_position_3D" value="" />';
 						annotation.append('<div>'+str+'</div>');
 						break;
 					case "audio":
@@ -239,6 +251,7 @@ $(document).ready(function() {
 						str += '<input type="hidden" name="annotation_of_end_line_num" value="" />';
 						str += '<input type="hidden" name="annotation_of_points" value="" />';
 						str += '<input type="hidden" name="annotation_of_position_3d" value="" />';
+						str += '<input type="hidden" name="annotation_of_position_gis" value="" />';
 						annotation.append('<div>'+str+'</div>');
 						break;
 					case "html":
@@ -250,6 +263,7 @@ $(document).ready(function() {
 						str += '<input type="hidden" name="annotation_of_end_seconds" value="" />';
 						str += '<input type="hidden" name="annotation_of_points" value="" />';
 						str += '<input type="hidden" name="annotation_of_position_3d" value="" />';
+						str += '<input type="hidden" name="annotation_of_position_gis" value="" />';
 						annotation.append('<div>'+str+'</div>');
 						break;
 					case "image":
@@ -260,6 +274,7 @@ $(document).ready(function() {
 						str += '<input type="hidden" name="annotation_of_start_seconds" value="" />';
 						str += '<input type="hidden" name="annotation_of_end_seconds" value="" />';
 						str += '<input type="hidden" name="annotation_of_position_3d" value="" />';
+						str += '<input type="hidden" name="annotation_of_position_gis" value="" />';
 						annotation.append('<div>'+str+'</div>');
 						break;
 					default:
@@ -852,6 +867,14 @@ if($currentRole == 'commentator'){
 		<label for="page_description" class="col-sm-2">Description</label>
 		<div class="col-sm-10">
 			<input id="page_description" type="text" class="form-control" name="dcterms:description" value="<?=@htmlspecialchars($version->description)?>"<?=$canChangeState?'':' disabled'?> />
+			<small>Summary text displayed when this content is referenced in passing</small>
+		</div>
+	</div>
+	<div class="form-group type_media">
+		<label for="alt_text" class="col-sm-2">Alt text</label>
+		<div class="col-sm-10">
+			<input id="alt_text" type="text" class="form-control" name="scalar:altText" value="<?=@htmlspecialchars($version->alt_text)?>"<?=$canChangeState?'':' disabled'?> />
+			<small>For images, concise description to improve accessibility, including for people who are blind or have low vision</small>
 		</div>
 	</div>
 	<?if (isset($book->editorial_is_on) && $book->editorial_is_on === '1' && $currentRole != 'commentator'): ?>
@@ -889,9 +912,9 @@ if($currentRole == 'commentator'){
 			</div>
 		</div>
 		<div class="form-group usageGroup">
-			<label for="page_description" class="col-sm-2">&nbsp;</label>
+			<label for="usage_rights" class="col-sm-2">&nbsp;</label>
 			<div class="col-sm-10">
-				<label><input type="checkbox" name="scalar:usage_rights" value="1"<?=((isset($page->versions)&&isset($page->versions[$page->version_index]->usage_rights)&&!empty($page->versions[$page->version_index]->usage_rights))?' checked':'')?><?=$canChangeState?'':' disabled class="disabled"'?>/> &nbsp; Usage rights</label>
+				<label><input id="usage_rights" type="checkbox" name="scalar:usage_rights" value="1"<?=((isset($page->versions)&&isset($page->versions[$page->version_index]->usage_rights)&&!empty($page->versions[$page->version_index]->usage_rights))?' checked':'')?><?=$canChangeState?'':' disabled class="disabled"'?>/> &nbsp; Usage rights</label>
 			</div>
 		</div>
 	<? endif ?>
@@ -1125,6 +1148,7 @@ if($currentRole == 'commentator'){
 								echo '<input type="hidden" name="annotation_of_end_line_num" value="'.@$node->versions[0]->end_line_num.'" />';
 								echo '<input type="hidden" name="annotation_of_points" value="'.@$node->versions[0]->points.'" />';
 								echo '<input type="hidden" name="annotation_of_position_3d" value="'.@$node->versions[0]->position_3d.'" />';
+								echo '<input type="hidden" name="annotation_of_position_gis" value="'.@$node->versions[0]->position_gis.'" />';
 							} elseif (!empty($node->versions[0]->start_line_num) || !empty($node->versions[0]->end_line_num)) {
 								echo '<div class="form-inline"><div class="form-group"><label>Start line&nbsp; <input class="form-control" onblur="check_start_end_values(this, $(this).nextAll(\'input:first\'))" type="text" style="width:75px;" name="annotation_of_start_line_num" value="'.$node->versions[0]->start_line_num.'" /></label>';
 								echo '<label for="annotation_of_end_line_num">End line&nbsp; <input id="annotation_of_end_line_num" class="form-control" onblur="check_start_end_values($(this).prevAll(\'input:first\'), this)" type="text" style="width:75px;" name="annotation_of_end_line_num" value="'.$node->versions[0]->end_line_num.'" /></label></div></div>';
@@ -1132,6 +1156,7 @@ if($currentRole == 'commentator'){
 								echo '<input type="hidden" name="annotation_of_end_seconds" value="'.@$node->versions[0]->end_seconds.'" />';
 								echo '<input type="hidden" name="annotation_of_points" value="'.@$node->versions[0]->points.'" />';
 								echo '<input type="hidden" name="annotation_of_position_3d" value="'.@$node->versions[0]->position_3d.'" />';
+								echo '<input type="hidden" name="annotation_of_position_gis" value="'.@$node->versions[0]->position_gis.'" />';
 							} elseif (!empty($node->versions[0]->points)) {
 								echo '<div class="form-inline"><div class="form-group"><label>Left (x), Top (y), Width, Height&nbsp; <input type="text" class="form-control" name="annotation_of_points" value="'.$node->versions[0]->points.'" /></label></div></div>';
 								echo '<input type="hidden" name="annotation_of_start_seconds" value="'.@$node->versions[0]->start_seconds.'" />';
@@ -1139,6 +1164,7 @@ if($currentRole == 'commentator'){
 								echo '<input type="hidden" name="annotation_of_start_line_num" value="'.@$node->versions[0]->start_line_num.'" />';
 								echo '<input type="hidden" name="annotation_of_end_line_num" value="'.@$node->versions[0]->end_line_num.'" />';
 								echo '<input type="hidden" name="annotation_of_position_3d" value="'.@$node->versions[0]->position_3d.'" />';
+								echo '<input type="hidden" name="annotation_of_position_gis" value="'.@$node->versions[0]->position_gis.'" />';
 								echo '<small>May be pixel or percentage values; for percentage add "%" after each value.</small>';
 							} elseif (!empty($node->versions[0]->position_3d)) {
 								echo '<div class="form-inline"><div class="form-group"><label>Target X, Y, Z, Camera X, Y, Z, Roll, Field of View (degrees)&nbsp; <input type="text" class="form-control" name="annotation_of_position_3d" value="'.$node->versions[0]->position_3d.'" /></label></div></div>';
@@ -1147,6 +1173,15 @@ if($currentRole == 'commentator'){
 								echo '<input type="hidden" name="annotation_of_start_line_num" value="'.@$node->versions[0]->start_line_num.'" />';
 								echo '<input type="hidden" name="annotation_of_end_line_num" value="'.@$node->versions[0]->end_line_num.'" />';
 								echo '<input type="hidden" name="annotation_of_points" value="'.@$node->versions[0]->points.'" />';
+								echo '<input type="hidden" name="annotation_of_position_gis" value="'.@$node->versions[0]->position_gis.'" />';
+							} elseif (!empty($node->versions[0]->position_gis)) {
+								echo '<div class="form-inline"><div class="form-group"><label>Latitude, Longitude, Altitude (meters), Heading (degrees), Tilt (degrees), Field of View (degrees)&nbsp; <input type="text" class="form-control" name="annotation_of_position_gis" value="'.$node->versions[0]->position_gis.'" /></label></div></div>';
+								echo '<input type="hidden" name="annotation_of_start_seconds" value="'.@$node->versions[0]->start_seconds.'" />';
+								echo '<input type="hidden" name="annotation_of_end_seconds" value="'.@$node->versions[0]->end_seconds.'" />';
+								echo '<input type="hidden" name="annotation_of_start_line_num" value="'.@$node->versions[0]->start_line_num.'" />';
+								echo '<input type="hidden" name="annotation_of_end_line_num" value="'.@$node->versions[0]->end_line_num.'" />';
+								echo '<input type="hidden" name="annotation_of_points" value="'.@$node->versions[0]->points.'" />';
+								echo '<input type="hidden" name="annotation_of_position_3d" value="'.@$node->versions[0]->position_3d.'" />';
 							}
 							echo '</li>'."\n";
 						}
@@ -1175,6 +1210,7 @@ if($currentRole == 'commentator'){
 							echo '<input type="hidden" name="has_annotation_end_line_num" value="'.@$node->versions[0]->end_line_num.'" />';
 							echo '<input type="hidden" name="has_annotation_points" value="'.@$node->versions[0]->points.'" />';
 							echo '<input type="hidden" name="has_annotation_position_3d" value="'.@$node->versions[0]->position_3d.'" />';
+							echo '<input type="hidden" name="has_annotation_position_gis" value="'.@$node->versions[0]->position_gis.'" />';
 						} elseif (!empty($node->versions[0]->start_line_num) || !empty($node->versions[0]->end_line_num)) {
 							echo 'Start line #: <input type="text" style="width:75px;" name="has_annotation_start_line_num" value="'.$node->versions[0]->start_line_num.'" />';
 							echo '&nbsp; End line #<input type="text" style="width:75px;" name="has_annotation_end_line_num" value="'.$node->versions[0]->end_line_num.'" />';
@@ -1182,6 +1218,7 @@ if($currentRole == 'commentator'){
 							echo '<input type="hidden" name="has_annotation_end_seconds" value="'.@$node->versions[0]->end_seconds.'" />';
 							echo '<input type="hidden" name="has_annotation_points" value="'.@$node->versions[0]->points.'" />';
 							echo '<input type="hidden" name="has_annotation_position_3d" value="'.@$node->versions[0]->position_3d.'" />';
+							echo '<input type="hidden" name="has_annotation_position_gis" value="'.@$node->versions[0]->position_gis.'" />';
 						} elseif (!empty($node->versions[0]->points)) {
 							echo 'Left (x), Top (y), Width, Height: <input type="text" style="width:125px;" name="has_annotation_points" value="'.$node->versions[0]->points.'" />';
 							echo '<input type="hidden" name="has_annotation_start_seconds" value="'.@$node->versions[0]->start_seconds.'" />';
@@ -1189,6 +1226,7 @@ if($currentRole == 'commentator'){
 							echo '<input type="hidden" name="has_annotation_start_line_num" value="'.@$node->versions[0]->start_line_num.'" />';
 							echo '<input type="hidden" name="has_annotation_end_line_num" value="'.@$node->versions[0]->end_line_num.'" />';
 							echo '<input type="hidden" name="has_annotation_position_3d" value="'.@$node->versions[0]->position_3d.'" />';
+							echo '<input type="hidden" name="has_annotation_position_gis" value="'.@$node->versions[0]->position_gis.'" />';
 							echo '<br /><small>May be pixel or percentage values; for percentage add "%" after each value.</small>';
 						} elseif (!empty($node->versions[0]->position_3d)) {
 							echo 'Target X, Y, Z, Camera X, Y, Z, Roll, Field of View (degrees): <input type="text" style="width:125px;" name="has_annotation_position_3d" value="'.$node->versions[0]->position_3d.'" />';
@@ -1197,6 +1235,15 @@ if($currentRole == 'commentator'){
 							echo '<input type="hidden" name="has_annotation_start_line_num" value="'.@$node->versions[0]->start_line_num.'" />';
 							echo '<input type="hidden" name="has_annotation_end_line_num" value="'.@$node->versions[0]->end_line_num.'" />';
 							echo '<input type="hidden" name="has_annotation_points" value="'.@$node->versions[0]->points.'" />';
+							echo '<input type="hidden" name="has_annotation_position_gis" value="'.@$node->versions[0]->position_gis.'" />';
+						} elseif (!empty($node->versions[0]->position_gis)) {
+							echo 'Latitude, Longitude, Altitude (meters), Heading (degrees), Tilt (degrees), Field of View (degrees): <input type="text" style="width:125px;" name="has_annotation_position_gis" value="'.$node->versions[0]->position_gis.'" />';
+							echo '<input type="hidden" name="has_annotation_start_seconds" value="'.@$node->versions[0]->start_seconds.'" />';
+							echo '<input type="hidden" name="has_annotation_end_seconds" value="'.@$node->versions[0]->end_seconds.'" />';
+							echo '<input type="hidden" name="has_annotation_start_line_num" value="'.@$node->versions[0]->start_line_num.'" />';
+							echo '<input type="hidden" name="has_annotation_end_line_num" value="'.@$node->versions[0]->end_line_num.'" />';
+							echo '<input type="hidden" name="has_annotation_points" value="'.@$node->versions[0]->points.'" />';
+							echo '<input type="hidden" name="has_annotation_position_3d" value="'.@$node->versions[0]->position_3d.'" />';
 						}
 						echo '&nbsp; <span class="remove">(<a href="javascript:;">remove</a>)</span>';
 						echo '</li>';

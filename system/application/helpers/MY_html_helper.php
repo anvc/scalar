@@ -17,7 +17,7 @@ function is_opengraphable_image($url) {
 	
 	if (is_array($url)) $url = $url[0];
 	if (empty($url)) return false;
-	if (strtolower(substr($url, -4, 4)) == '.jpg' || strtolower(substr($url, -4, 4)) == '.png' || strtolower(substr($url, -4, 4)) == 'jpeg') {
+	if (strtolower(substr($url, -4, 4)) == '.jpg' || strtolower(substr($url, -4, 4)) == '.png' || strtolower(substr($url, -4, 4)) == 'jpeg' || strtolower(substr($url, -4, 4)) == 'webp') {
 		return true;	
 	}	
 	return false;

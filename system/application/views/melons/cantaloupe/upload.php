@@ -102,7 +102,8 @@ function insert_rel_fields(current_urn, current_slug) {
         if (current_uri==data[s]['http://www.openannotation.org/ns/hasBody'][0].value) {
         	fields.push({name:'annotation_of',value:get_urn_from_uri(data,data[s]['http://www.openannotation.org/ns/hasTarget'][0].value)});
         	var points = data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.substr(data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#xywh=')+6);
-					var position_3d = data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.substr(data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#pos3d=')+8);
+					var position_3d = data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.substr(data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#pos3d=')+7);
+					var position_gis = data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.substr(data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#posgis=')+8);
         	var line_num = data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.substr(data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#line=')+6);
         	var start_line_num = (-1!=data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#line=')) ? line_num.split(',')[0] : 0;
         	var end_line_num = (-1!=data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#line=')) ? line_num.split(',')[1] : 0;
@@ -111,6 +112,7 @@ function insert_rel_fields(current_urn, current_slug) {
         	var end_seconds = (-1!=data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#npt=')) ? seconds.split(',')[1] : 0;
         	fields.push({name:'annotation_of_points',value:points});
 					fields.push({name:'annotation_of_position_3d',value:position_3d});
+					fields.push({name:'annotation_of_position_gis',value:position_gis});
 					fields.push({name:'annotation_of_start_line_num',value:start_line_num});
 					fields.push({name:'annotation_of_end_line_num',value:end_line_num});
 					fields.push({name:'annotation_of_start_seconds',value:start_seconds});
@@ -118,8 +120,9 @@ function insert_rel_fields(current_urn, current_slug) {
         } else {
         	fields.push({name:'has_annotation',value:get_urn_from_uri(data,data[s]['http://www.openannotation.org/ns/hasBody'][0].value)});
         	var points = data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.substr(data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#xywh=')+6);
-					var position_3d = data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.substr(data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#pos3d=')+8);
-        	var line_num = data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.substr(data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#line=')+6);
+					var position_3d = data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.substr(data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#pos3d=')+7);
+					var position_gis = data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.substr(data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#posgis=')+8);
+					var line_num = data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.substr(data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#line=')+6);
         	var start_line_num = (-1!=data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#line=')) ? line_num.split(',')[0] : 0;
         	var end_line_num = (-1!=data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#line=')) ? line_num.split(',')[1] : 0;
         	var seconds = data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.substr(data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#npt=')+5);
@@ -127,6 +130,7 @@ function insert_rel_fields(current_urn, current_slug) {
         	var end_seconds = (-1!=data[s]['http://www.openannotation.org/ns/hasTarget'][0].value.indexOf('#npt=')) ? seconds.split(',')[1] : 0;
         	fields.push({name:'has_annotation_points',value:points});
 					fields.push({name:'has_annotation_position_3d',value:position_3d});
+					fields.push({name:'has_annotation_position_gis',value:position_gis});
 					fields.push({name:'has_annotation_start_line_num',value:start_line_num});
 					fields.push({name:'has_annotation_end_line_num',value:end_line_num});
 					fields.push({name:'has_annotation_start_seconds',value:start_seconds});
@@ -250,7 +254,7 @@ $this->template->add_css($css, 'embed');
 <?=(!empty($content)) ? $content.'<br /><br />' : ''?>
 Use this form to upload media from your local drive for use in Scalar. <b>Each file must be less than <?=ini_get('upload_max_filesize')?> in size.</b> Larger files can be hosted at a Scalar-supported archive (use the Affiliated Archives or Other Archives options in the Import menu at left to import), or on any public web server (use the Internet Media Files option in the Import menu at left to import).<br /><br />
 Recommended formats (most compatible): gif, kml, jpg, m4v, mp3, mp4, pdf, png, txt, wav<br />
-Other supported formats: 3gp, aif, mov, mpg, oga, tif, webm<br />
+Other supported formats: 3gp, aif, mov, mpg, oga, tif, webm, webp<br />
 <span style="color:#c90000;">Files will overwrite.</span> Uploading the same file to the same place will overwrite an existing file of the same name.<br /><br />
 <form target="hidden_upload" id="file_upload_form" method="post" enctype="multipart/form-data" action="<?=$base_uri?>upload" class="panel" onsubmit="return validate_upload_form_file($(this));">
 <input type="hidden" name="action" value="add" />
@@ -264,8 +268,9 @@ Other supported formats: 3gp, aif, mov, mpg, oga, tif, webm<br />
 <input type="hidden" name="sioc:content" value="" />
 <input type="hidden" name="rdf:type" value="http://scalar.usc.edu/2012/01/scalar-ns#Media" />
 <table>
-	<tr><td>Title</td><td><input type="text" id="title" name="dcterms:title" class="form-control" /></td></tr>
-	<tr><td>Description</td><td><input type="text" id="description" name="dcterms:description" class="form-control" /></td></tr>
+	<tr><td><label for="title">Title</label></td><td><input type="text" id="title" name="dcterms:title" class="form-control" /></td></tr>
+	<tr><td><label for="description">Description</label></td><td><input type="text" id="description" name="dcterms:description" class="form-control" /></td></tr>
+	<tr><td><label for="alt_text">Alt text</label></td><td><input type="text" id="alt_text" name="scalar:altText" class="form-control" /><small>For images, concise description to improve accessibility, including for people who are blind or have low vision</small></td></tr>
 	<tr><td>Upload to</td><td>
 		<label><input type="radio" name="slug_prepend" value="" />&nbsp; <?=confirm_slash($book->slug)?></label>&nbsp; &nbsp;
 		<label><input type="radio" id="upload_to" name="slug_prepend" value="media" CHECKED />&nbsp; <?=confirm_slash($book->slug)?>media</label>

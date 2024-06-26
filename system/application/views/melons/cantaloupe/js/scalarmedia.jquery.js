@@ -61,12 +61,12 @@
 										var relation = $(this).data('relation');
 										$(this).data('media').seek(relation);
 										media.sendMessage($(this).data('media'), media.annotationHasMessage(relation));
-										if (( relation.target.current.mediaSource.contentType != 'document' ) && ( relation.target.current.mediaSource.contentType != 'image' ) && ( relation.target.current.mediaSource.contentType != '3D' )) {
-						       				setTimeout(function() {
-						           				if(!$(this).data('media').is_playing()) {
-													$(this).data('media').play();
-						           				}
-						       				},250);
+										if (( relation.target.current.mediaSource.contentType != 'document' ) && ( relation.target.current.mediaSource.contentType != 'image' ) && ( relation.target.current.mediaSource.contentType != '3D' ) && ( relation.target.current.mediaSource.contentType != '3D-GIS' )) {
+											setTimeout(function() {
+													if(!$(this).data('media').is_playing()) {
+											$(this).data('media').play();
+													}
+											},250);
 										}
 									}
 								});
@@ -270,12 +270,74 @@
 						col.append('<p>'+rowRelation.body.getDisplayTitle()+'</p>');
 					});
 				}
+			},
+
+			addNextRelatedMedia: function() {
+				if (!relations) return
+				relationIndex++
+				if (relationIndex < relations.length) {
+					var relation = relations[relationIndex];
+					try {
+						var obj = JSON.parse(relation)
+						// if no error, then we got legal JSON and this item is not related media; try the next one
+						this.addNextRelatedMedia()
+						return
+					} catch(error) {
+						// no valid JSON found; continue
+					}
+					if (scalarapi.getFileExtension(relation) == 'vtt') {
+						// if extension is 'vtt', then this item is a vtt file; try the next one
+						this.addNextRelatedMedia()
+						return
+					} else {
+						if (scalarapi.loadNode(relation, null, this.handleRelatedMediaLoaded, this.handleRelatedMediaError) == 'loaded') media.handleRelatedMediaLoaded()
+					}
+				} else {
+					this.displayRelatedMedia()
+				}
+			},
+
+			handleRelatedMediaLoaded: function() {
+				var node = scalarapi.getNode(relations[relationIndex])
+				relatedNodes.push(node)
+				media.addNextRelatedMedia()
+			},
+
+			handleRelatedMediaError: function() {
+				console.log('error loading related media')
+			},
+
+			showTab: function(tab, pane) {
+				tab.parent().parent().find('.pane').hide();
+				media.minimizeAnnotationPane();
+				pane.show();
+				tab.parent().find('.media_tab').removeClass('select');
+				tab.addClass('select');
+				if (currentRelation != null) {
+					currentAnnotation.slideUp();
+					media.showAnnotation(null, currentRelation, mediaelement, true);
+				}
+			},
+
+			displayRelatedMedia: function() {
+				if (relatedNodes.length > 0) {
+					var relatedTab = $('<div class="media_tab">Related</div>').appendTo(mediaTabs);
+					var relatedPane = $('<div class="media_related pane"></div>').appendTo(element);
+					relatedNodes.forEach(function (node) {
+						var nodeDescription = ''
+						if (node.current.description) nodeDescription = node.current.description
+						relatedPane.append('<p><a href="'+node.url+'"><strong>'+node.current.title+'</strong></a> ('+node.current.mediaSource.name+' '+node.current.mediaSource.contentType+')</br>'+nodeDescription+'</p>')
+					})
+					relatedPane.hide()
+					relatedTab.on('click', function() { media.showTab($(this), relatedPane) });
+				}
 			}
-		}  //!var media
+		}
 
 		var node = mediaelement.model.node;
-
-		//if (node.current.description != null) mediaelement.view.footer.append('<div><a class="media_info" href="javascript:;">i</a> '+node.current.description+'</div>');
+		var relations = node.current.auxProperties['dcterms:relation']
+		var relationIndex = -1;
+		var relatedNodes = []
 
 		if (element != null) {
 			var currentAnnotation = $('<div class="current_annotation"><table></table></div>').appendTo(element);
@@ -355,16 +417,7 @@
 					media.options[ 'details' ].show( node );
 				} );
 				var descriptionTab = $('<div class="media_tab select">Description</div>').appendTo(mediaTabs);
-				descriptionTab.on('click', function() {
-					$(this).parent().parent().find('.pane').hide();
-					media.minimizeAnnotationPane();
-					descriptionPane.show();
-					$(this).parent().find('.media_tab').removeClass('select');
-					descriptionTab.addClass('select');
-					if (currentRelation != null) {
-						media.showAnnotation(null, currentRelation, mediaelement, true);
-					}
-				});
+				descriptionTab.on('click', function() { media.showTab($(this), descriptionPane) });
 				element.find('.media_description').show();
 			}
 			foundAuxContent = true;
@@ -393,17 +446,7 @@
 
 			if (annotations.length > 0) {
 				var annotationTab = $('<div class="media_tab">Annotations</div>').appendTo(mediaTabs);
-				annotationTab.on('click', function() {
-					$(this).parent().parent().find('.pane').hide();
-					annotationPane.show();
-					$(this).parent().find('.media_tab').removeClass('select');
-					annotationTab.addClass('select');
-					if (currentRelation != null) {
-						currentAnnotation.slideUp();
-						media.showAnnotation(null, currentRelation, mediaelement, true);
-						//media.hideAnnotation(null, null, mediaelement, true);
-					}
-				});
+				annotationTab.on('click', function() { media.showTab($(this), annotationPane) });
 				var annotationPane = $('<div class="media_annotations pane"></div>').appendTo(element);
 				var table = $('<table></table>').appendTo(annotationPane);
 				for (i in annotations) {
@@ -418,12 +461,12 @@
 							$(this).data('media').seek(relation);
 							media.sendMessage($(this).data('media'), media.annotationHasMessage(relation));
 							var me = this;
-							if (( relation.target.current.mediaSource.contentType != 'document' ) && ( relation.target.current.mediaSource.contentType != 'image' ) && ( relation.target.current.mediaSource.contentType != '3D' )) {
-	              				setTimeout(function() {
-	                				if(!$(me).data('media').is_playing()) {
-	      								$(me).data('media').play();
-	                				}
-	              				},250);
+							if (( relation.target.current.mediaSource.contentType != 'document' ) && ( relation.target.current.mediaSource.contentType != 'image' ) && ( relation.target.current.mediaSource.contentType != '3D' ) && ( relation.target.current.mediaSource.contentType != '3D-GIS' )) {
+								setTimeout(function() {
+									if(!$(me).data('media').is_playing()) {
+								$(me).data('media').play();
+									}
+								},250);
 							}
 						}
 
@@ -440,16 +483,7 @@
 			if (media.options.caption != 'metadata') {
 				var metadataTab = $('<div class="media_tab">Details</div>').appendTo(mediaTabs);
 				var metadataPane = $('<div class="media_metadata pane"></div>').appendTo(element);
-				metadataTab.on('click', function() {
-					$(this).parent().parent().find('.pane').hide();
-					media.minimizeAnnotationPane();
-					metadataPane.show();
-					$(this).parent().find('.media_tab').removeClass('select');
-					metadataTab.addClass('select');
-					if (currentRelation != null) {
-						media.showAnnotation(null, currentRelation, mediaelement, true);
-					}
-				});
+				metadataTab.on('click', function() { media.showTab($(this), metadataPane) });
 				addMetadataTableForNodeToElement(node, metadataPane);
 				if (!foundAuxContent) {
 					element.find('.media_metadata').show();
@@ -507,14 +541,15 @@
 			})
 
 			$('body').on('show_annotation', media.showAnnotation);
-
 			$('body').on('hide_annotation', media.hideAnnotation);
+
+			media.addNextRelatedMedia();
 
 			element.addClass('caption_font');
 			element.addClass('mediainfo');
-		  	$('.media_metadata').addClass('caption_font');
+			$('.media_metadata').addClass('caption_font');
 
-		  	$('body').trigger('scalarMediaReady', [mediaelement.view])
+			$('body').trigger('scalarMediaReady', [mediaelement.view])
 		}
 
 	}

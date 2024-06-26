@@ -57,7 +57,7 @@ function print_rdf($rdf, $tabs=0, $ns=array(), $hide=array(), $aria=false, $forc
 		if (in_array($p, $hide)) continue;
 		foreach ($values as $value) {
 			if (isURL($value['value']) && !in_array(toNS($p,$ns), $force_literal)) {
-				$str = '<a class="metadata" aria-hidden="'.(($aria)?'false':'true').'" rel="'.toNS($p,$ns).'" href="'.htmlspecialchars($value['value']).'"></a>'."\n";
+				$str = '<a class="metadata" tabindex="-1" aria-hidden="'.(($aria)?'false':'true').'" rel="'.toNS($p,$ns).'" href="'.htmlspecialchars($value['value']).'"></a>'."\n";
 			} else {
 				$str = '<span class="metadata" aria-hidden="'.(($aria)?'false':'true').'" property="'.toNS($p,$ns).'">'.$value['value'].'</span>'."\n";
 			}
@@ -175,7 +175,7 @@ if (isset($page->version_index)) {
 <link id="CI_elapsed_time" href="<?php echo $this->benchmark->elapsed_time()?>" />
 <? if (!empty($_styles)) echo $_styles?>
 <?=template_script_tag_relative(__FILE__, 'js/jquery-3.4.1.min.js')."\n"?>
-<?=template_script_tag_relative(__FILE__, 'js/yepnope.1.5.3-min.js')."\n"?>
+<?=template_script_tag_relative(__FILE__, 'js/yepnope.1.5.4-min.js')."\n"?>
 <?=template_script_tag_relative(__FILE__, 'js/yepnope.css.js')."\n"?>
 <script type="text/javascript" src="https://www.google.com/recaptcha/api.js?render=explicit"></script>
 <? if (!empty($_scripts)) echo $_scripts?>
@@ -203,19 +203,19 @@ endif;
 		<!-- Book -->
 		<span resource="<?=rtrim($base_uri,'/')?>" typeof="scalar:Book">
 			<span property="dcterms:title" content="<?=htmlspecialchars(strip_tags($book->title))?>"><a id="book-title" href="<?=$base_uri?>index"><?=$book->title?><?=(isset($book->subtitle)&&!empty($book->subtitle))?'<span class="subtitle">: '.$book->subtitle.'</span>':''?></a></span>
-<? 			if (isset($page->slug)) echo '			<a class="metadata" aria-hidden="true" rel="dcterms:hasPart" href="'.$base_uri.$page->slug.'"></a>'."\n"; ?>
-			<a class="metadata" aria-hidden="true" rel="dcterms:tableOfContents" href="<?=$base_uri?>toc"></a>
+<? 			if (isset($page->slug)) echo '			<a class="metadata" tabindex="-1" aria-hidden="true" rel="dcterms:hasPart" href="'.$base_uri.$page->slug.'"></a>'."\n"; ?>
+			<a class="metadata" tabindex="-1" aria-hidden="true" rel="dcterms:tableOfContents" href="<?=$base_uri?>toc"></a>
 <?
 			foreach ($book->contributors as $contrib):
 				if (empty($contrib->list_in_index)) continue;
-				echo '			<a class="metadata" aria-hidden="true" rel="sioc:has_owner" href="'.$base_uri.'users/'.$contrib->user_id.$this->rdf_object->annotation_append($contrib).'"></a>'."\n";
+				echo '			<a class="metadata" tabindex="-1" aria-hidden="true" rel="sioc:has_owner" href="'.$base_uri.'users/'.$contrib->user_id.$this->rdf_object->annotation_append($contrib).'"></a>'."\n";
 			endforeach;
 ?>
-<?			echo (($publisher||$publisher_thumbnail) ? '			<a class="metadata" aria-hidden="true" rel="dcterms:publisher" href="'.$base_uri.'publisher"></a>'."\n" : '')?>
+<?			echo (($publisher||$publisher_thumbnail) ? '			<a class="metadata" tabindex="-1" aria-hidden="true" rel="dcterms:publisher" href="'.$base_uri.'publisher"></a>'."\n" : '')?>
 <?
 			if (!empty($book->editions)):
 				for ($j = count($book->editions)-1; $j >= 0; $j--):
-					echo '			<a class="metadata" aria-hidden="true" rel="scalar:hasEdition" href="'.base_url().$book->slug.'.'.($j+1).'"></a>'."\n";
+					echo '			<a class="metadata" tabindex="-1" aria-hidden="true" rel="scalar:hasEdition" href="'.base_url().$book->slug.'.'.($j+1).'"></a>'."\n";
 				endfor;
 			endif;
 ?>
@@ -223,7 +223,7 @@ endif;
 		<span aria-hidden="true" resource="<?=$base_uri?>toc" typeof="scalar:Page">
 			<span class="metadata" property="dcterms:title">Main Menu</span>
 <?			for ($j = 0; $j < count($book->versions); $j++): ?>
-			<a class="metadata" rel="dcterms:references" href="<?=$base_uri.$book->versions[$j]->slug?>#index=<?=($j+1)?>"></a>
+			<a class="metadata" tabindex="-1" rel="dcterms:references" href="<?=$base_uri.$book->versions[$j]->slug?>#index=<?=($j+1)?>"></a>
 <?	 		endfor;?>
 		</span>
 <?  for ($j = 0; $j < count($book->versions); $j++):
@@ -231,13 +231,13 @@ endif;
 			if ($book->versions[$j]->content_id == @$page->content_id) continue;
 ?>
 		<span aria-hidden="true" resource="<?=$base_uri.$book->versions[$j]->slug?>" typeof="scalar:<?=('media'==$book->versions[$j]->type)?'Media':'Composite'?>">
-			<a class="metadata" rel="dcterms:hasVersion" href="<?=$base_uri.$book->versions[$j]->slug.'.'.$book->versions[$j]->versions[0]->version_num?>"></a>
-			<a class="metadata" rel="dcterms:isPartOf" href="<?=rtrim($base_uri,'/')?>"></a>
+			<a class="metadata" tabindex="-1" rel="dcterms:hasVersion" href="<?=$base_uri.$book->versions[$j]->slug.'.'.$book->versions[$j]->versions[0]->version_num?>"></a>
+			<a class="metadata" tabindex="-1" rel="dcterms:isPartOf" href="<?=rtrim($base_uri,'/')?>"></a>
 		</span>
 		<span aria-hidden="true" resource="<?=$base_uri.$book->versions[$j]->slug.'.'.$book->versions[$j]->versions[0]->version_num?>" typeof="scalar:Version">
 			<span class="metadata" property="dcterms:title"><?=$book->versions[$j]->versions[0]->title?></span>
 			<span class="metadata" property="dcterms:description"><?=$book->versions[$j]->versions[0]->description?></span>
-			<a class="metadata" rel="dcterms:isVersionOf" href="<?=$base_uri.$book->versions[$j]->slug?>"></a>
+			<a class="metadata" tabindex="-1" rel="dcterms:isVersionOf" href="<?=$base_uri.$book->versions[$j]->slug?>"></a>
 		</span>
 <?
  		endfor;
@@ -251,7 +251,7 @@ endif;
 ?>
 		<span aria-hidden="true" resource="<?=$base_uri?>publisher" typeof="scalar:Page">
 			<span class="metadata" property="dcterms:title"><?=$publisher?></span>
-<? 		if ($publisher_thumbnail): echo '			<a class="metadata" rel="art:thumbnail" href="'.abs_url($publisher_thumbnail, base_url().$book->slug).'"></a>'."\n"; endif; ?>
+<? 		if ($publisher_thumbnail): echo '			<a class="metadata" tabindex="-1" rel="art:thumbnail" href="'.abs_url($publisher_thumbnail, base_url().$book->slug).'"></a>'."\n"; endif; ?>
 		</span>
 <?		endif; ?>
 <?
@@ -277,15 +277,15 @@ endif;
 ?>
 		<h1 property="dcterms:title"><?=$title?></h1>
 		<span resource="<?=$base_uri.$page->slug?>" typeof="scalar:<?=('media'==$page->type)?'Media':'Composite'?>">
-			<a class="metadata" aria-hidden="true" rel="dcterms:hasVersion" href="<?=$base_uri.$page->slug.'.'.$page->versions[$page->version_index]->version_num?>"></a>
-			<a class="metadata" aria-hidden="true" rel="dcterms:isPartOf" href="<?=rtrim($base_uri,'/')?>"></a>
+			<a class="metadata" tabindex="-1" aria-hidden="true" rel="dcterms:hasVersion" href="<?=$base_uri.$page->slug.'.'.$page->versions[$page->version_index]->version_num?>"></a>
+			<a class="metadata" tabindex="-1" aria-hidden="true" rel="dcterms:isPartOf" href="<?=rtrim($base_uri,'/')?>"></a>
 <? 		print_rdf($this->pages->rdf($page, $base_uri), 3, $ns); ?>
 		</span>
 		<span resource="<?=$page->user->uri?>" typeof="foaf:Person">
 <?		print_rdf($this->users->rdf($page->user, $base_uri), 3, $ns); ?>
 		</span>
 		<span class="metadata" aria-hidden="true" id="book-id"><?=$book->book_id?></span>
-		<a class="metadata" aria-hidden="true" rel="dcterms:isVersionOf" href="<?=$base_uri.$page->slug?>"></a>
+		<a class="metadata" tabindex="-1" aria-hidden="true" rel="dcterms:isVersionOf" href="<?=$base_uri.$page->slug?>"></a>
 <?
 		print_rdf($this->versions->rdf($page->versions[$page->version_index], $base_uri), 2, $ns, array('sioc:content'));
 ?>
@@ -298,14 +298,14 @@ endif;
 ?>
 		<span aria-hidden="true" resource="<?=$base_uri.$page->versions[$page->version_index]->continue_to[0]->slug?>" typeof="scalar:<?=('media'==$base_uri.$page->versions[$page->version_index]->continue_to[0]->type)?'Media':'Composite'?>">
 			<span class="metadata" class="color" style="background-color:<?=$page->versions[$page->version_index]->continue_to[0]->color?>" property="scalar:color" content="<?=$page->versions[$page->version_index]->continue_to[0]->color?>"></span>
-			<a class="metadata" rel="dcterms:hasVersion" href="<?=$base_uri.$page->versions[$page->version_index]->continue_to[0]->slug.'.'.$page->versions[$page->version_index]->continue_to[0]->versions[$page->versions[$page->version_index]->continue_to[0]->version_index]->version_num?>"></a>
+			<a class="metadata" tabindex="-1" rel="dcterms:hasVersion" href="<?=$base_uri.$page->versions[$page->version_index]->continue_to[0]->slug.'.'.$page->versions[$page->version_index]->continue_to[0]->versions[$page->versions[$page->version_index]->continue_to[0]->version_index]->version_num?>"></a>
 		</span>
 		<span aria-hidden="true" resource="<?=$base_uri.$page->versions[$page->version_index]->continue_to[0]->slug.'.'.$page->versions[$page->version_index]->continue_to[0]->versions[$page->versions[$page->version_index]->continue_to[0]->version_index]->version_num?>" typeof="scalar:Version">
 			<span property="dcterms:title" content="<?=htmlspecialchars($page->versions[$page->version_index]->continue_to[0]->versions[$page->versions[$page->version_index]->continue_to[0]->version_index]->title)?>">
 				<a href="<?=$base_uri.$page->versions[$page->version_index]->continue_to[0]->slug?>"><?=$page->versions[$page->version_index]->continue_to[0]->versions[$page->versions[$page->version_index]->continue_to[0]->version_index]->title?></a>
 			</span>
 			<span class="metadata" property="dcterms:description"><?=$page->versions[$page->version_index]->continue_to[0]->versions[$page->versions[$page->version_index]->continue_to[0]->version_index]->description?></span>
-			<a class="metadata" rel="dcterms:isVersionOf" href="<?=$base_uri.$page->versions[$page->version_index]->continue_to[0]->slug?>"></a>
+			<a class="metadata" tabindex="-1" rel="dcterms:isVersionOf" href="<?=$base_uri.$page->versions[$page->version_index]->continue_to[0]->slug?>"></a>
 		</span>
 <?
 		endif;

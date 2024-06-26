@@ -5,11 +5,11 @@ namespace Tests\db_adapter_depended\store\query;
 use Tests\ARC2_TestCase;
 
 /**
- * Tests for query method - focus on INSERT INTO queries
+ * Tests for query method - focus on INSERT INTO queries.
  */
 class InsertIntoQueryTest extends ARC2_TestCase
 {
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -18,7 +18,7 @@ class InsertIntoQueryTest extends ARC2_TestCase
         $this->fixture->setup();
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $this->fixture->closeDBCon();
     }
@@ -55,7 +55,7 @@ class InsertIntoQueryTest extends ARC2_TestCase
         // e.g. file:///var/www/html/pier-and-peer/ARC2/vendor/phpunit/phpunit/phpunit#
         // therefore we build this prefix manually to check later
         $filePrefix = 'file://'.str_replace('tests/db_adapter_depended/store/query', '', __DIR__);
-        $filePrefix .= 'vendor/phpunit/phpunit/phpunit#';
+        $filePrefix .= 'vendor/bin/phpunit#';
 
         $this->assertEquals(
             [
@@ -219,9 +219,9 @@ class InsertIntoQueryTest extends ARC2_TestCase
                             'o' => '21 August 2007',
                             'o type' => 'literal',
                         ],
-                    ]
+                    ],
                 ],
-                'query_time' => $res['query_time']
+                'query_time' => $res['query_time'],
             ],
             $res
         );
@@ -289,9 +289,9 @@ class InsertIntoQueryTest extends ARC2_TestCase
                 'query_type' => 'select',
                 'result' => [
                     'variables' => ['s', 'p', 'o'],
-                    'rows' => []
+                    'rows' => [],
                 ],
-                'query_time' => $res['query_time']
+                'query_time' => $res['query_time'],
             ],
             $res
         );
@@ -379,9 +379,9 @@ class InsertIntoQueryTest extends ARC2_TestCase
 
         $this->markTestSkipped(
             'ARC2 does not check the WHERE clause when inserting data. No data added at all.'
-            .PHP_EOL
-            .PHP_EOL.'FYI: https://www.w3.org/Submission/SPARQL-Update/#sec_examples and '
-            .PHP_EOL.'https://github.com/semsol/arc2/wiki/SPARQL-#insert-example'
+            .\PHP_EOL
+            .\PHP_EOL.'FYI: https://www.w3.org/Submission/SPARQL-Update/#sec_examples and '
+            .\PHP_EOL.'https://github.com/semsol/arc2/wiki/SPARQL-#insert-example'
         );
     }
 }

@@ -9,7 +9,7 @@ use Tests\ARC2_TestCase;
  */
 class KnownNotWorkingSparqlQueriesTest extends ARC2_TestCase
 {
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -18,13 +18,13 @@ class KnownNotWorkingSparqlQueriesTest extends ARC2_TestCase
         $this->fixture->setup();
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $this->fixture->closeDBCon();
     }
 
     /**
-     * Variable alias
+     * Variable alias.
      */
     public function testSelectAlias()
     {
@@ -41,7 +41,7 @@ class KnownNotWorkingSparqlQueriesTest extends ARC2_TestCase
     }
 
     /**
-     * FILTER: langMatches with *
+     * FILTER: langMatches with *.
      *
      * Based on the specification (https://www.w3.org/TR/rdf-sparql-query/#func-langMatches)
      * langMatches with * has to return all entries with no language set.
@@ -66,21 +66,26 @@ class KnownNotWorkingSparqlQueriesTest extends ARC2_TestCase
                 'query_type' => 'select',
                 'result' => [
                     'variables' => [
-                        's', 'o'
+                        's', 'o',
                     ],
                     'rows' => [],
                 ],
-                'query_time' => $res['query_time']
+                'query_time' => $res['query_time'],
             ],
             $res
         );
     }
 
     /**
-     * sameTerm
+     * sameTerm.
      */
     public function testSelectSameTerm()
     {
+        $this->markTestSkipped(
+            'ARC2: solving sameterm does not work properly. The result contains elements multiple times. '
+            .\PHP_EOL.'Expected behavior is described here: https://www.w3.org/TR/rdf-sparql-query/#func-sameTerm'
+        );
+
         // test data
         $this->fixture->query('INSERT INTO <http://example.com/> {
             <http://container1> <http://weight> "100" .
@@ -99,7 +104,7 @@ class KnownNotWorkingSparqlQueriesTest extends ARC2_TestCase
                 'query_type' => 'select',
                 'result' => [
                     'variables' => [
-                        'c1', 'c2'
+                        'c1', 'c2',
                     ],
                     'rows' => [
                         [
@@ -109,15 +114,15 @@ class KnownNotWorkingSparqlQueriesTest extends ARC2_TestCase
                             'c2 type' => 'uri',
                         ],
                         [
-                            'c1' => 'http://container2',
-                            'c1 type' => 'uri',
-                            'c2' => 'http://container1',
-                            'c2 type' => 'uri',
-                        ],
-                        [
                             'c1' => 'http://container1',
                             'c1 type' => 'uri',
                             'c2' => 'http://container2',
+                            'c2 type' => 'uri',
+                        ],
+                        [
+                            'c1' => 'http://container2',
+                            'c1 type' => 'uri',
+                            'c2' => 'http://container1',
                             'c2 type' => 'uri',
                         ],
                         [
@@ -128,7 +133,7 @@ class KnownNotWorkingSparqlQueriesTest extends ARC2_TestCase
                         ],
                     ],
                 ],
-                'query_time' => $res['query_time']
+                'query_time' => $res['query_time'],
             ],
             $res,
             '',
@@ -136,15 +141,10 @@ class KnownNotWorkingSparqlQueriesTest extends ARC2_TestCase
             10,
             true
         );
-
-        $this->markTestSkipped(
-            'ARC2: solving sameterm does not work properly. The result contains elements multiple times. '
-            . PHP_EOL . 'Expected behavior is described here: https://www.w3.org/TR/rdf-sparql-query/#func-sameTerm'
-        );
     }
 
     /**
-     * Sub Select
+     * Sub Select.
      */
     public function testSelectSubSelect()
     {
