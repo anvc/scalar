@@ -103,10 +103,14 @@
 				//mediaDetails.contentElement.prepend('<div class="dialog_header heading_font">From &ldquo;'+source.getDisplayTitle()+'&rdquo;:</div>');
 				var buttons = $('<div class="right"></div>').appendTo(slideshowHeader);
 				slideshowHeader.append('<hr>');
-				addIconBtn(buttons, 'close_icon_dark.png', 'close_icon_dark_hover.png', 'Close');
+				mediaDetails.closeBtn = addIconBtn(buttons, 'close_icon_dark.png', 'close_icon_dark_hover.png', 'Close');
 				mediaDetails.contentElement.find('[title="Close"]').on('click', mediaDetails.hide);
 
-				element.show();
+				element.show(200, function() {
+					mediaDetails.setupFocusTrap
+					console.log(mediaDetails.getFirstFocusable())
+					mediaDetails.getFirstFocusable().focus()
+				});
 
 				setState( ViewState.Modal );
 
@@ -120,6 +124,7 @@
 
 			hide: function() {
 				mediaDetails.contentElement.empty();
+				mediaDetails.removeFocusTrap();
 				element.hide();
 				restoreState();
 			},
@@ -137,6 +142,65 @@
           mediaelement.sendMessage(message);
     		}
     	},
+
+			getFirstFocusable: function() {
+				var links = element.find('.media_sidebar a')
+				return links.first()
+			},
+		
+			getLastFocusable: function() {
+				var links = element.find('.media_sidebar a')
+				return links.last()
+			},
+
+			setupFocusTrap: function() {
+
+				mediaDetails.firstFocusable = mediaDetails.getFirstFocusable()
+				mediaDetails.lastFocusable = mediaDetails.getLastFocusable()
+
+				// tab from close btn to first/last focusable
+				mediaDetails.closeBtn.on('keydown.focusTrap', function(e) {
+					var keyCode = e.keyCode || e.which;
+					if (keyCode == 9) {
+						if (!e.shiftKey) {
+							e.preventDefault();
+							mediaDetails.firstFocusable.focus();
+						} else {
+							e.preventDefault();
+							mediaDetails.lastFocusable.focus()
+						}
+					}
+				});
+
+				// tab back from first focusable to close btn
+				mediaDetails.firstFocusable.on('keydown.focusTrap', function(e) {
+					var keyCode = e.keyCode || e.which;
+					if(keyCode == 9) {
+
+						if (e.shiftKey) {
+							e.preventDefault();
+							mediaDetails.closeBtn.focus();
+						}
+					}
+				});
+
+				// tap forward from last focusable to close btn
+				mediaDetails.lastFocusable.on('keydown.focusTrap', function(e) {
+					var keyCode = e.keyCode || e.which;
+					if(keyCode == 9) {
+						if (!e.shiftKey) {
+							e.preventDefault();
+							mediaDetails.closeBtn.focus();
+						}
+					}
+				});
+			},
+
+			removeFocusTrap: function() {
+				if (mediaDetails.closeBtn) mediaDetails.closeBtn.off('keydown.focusTrap')
+				if (mediaDetails.firstFocusable) mediaDetails.firstFocusable.off('keydown.focusTrap')
+				if (mediaDetails.lastFocusable) mediaDetails.lastFocusable.off('keydown.focusTrap')
+			},
 
 			/**
 			 * Called when a mediaelement instance has gathered metadata about the media.

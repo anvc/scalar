@@ -149,7 +149,7 @@ function addIconBtn(element, filename, hoverFilename, title, url) {
 	var img_url_1 = modules_uri+'/cantaloupe/images/'+filename;
 	var img_url_2 = modules_uri+'/cantaloupe/images/'+hoverFilename;
 	if (url == undefined) url = 'javascript:;';
-	var button = $('<a href="'+url+'" title="'+title+'"><img src="'+img_url_1+'" onmouseover="this.src=\''+img_url_2+'\'" onmouseout="this.src=\''+img_url_1+'\'" width="30" height="30" /></a>').appendTo(element);
+	var button = $('<a href="'+url+'" title="'+title+'"><img src="'+img_url_1+'" onmouseover="this.src=\''+img_url_2+'\'" onmouseout="this.src=\''+img_url_1+'\'" width="30" height="30" alt="" /></a>').appendTo(element);
 	return button;
 }
 
