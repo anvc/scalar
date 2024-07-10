@@ -307,6 +307,7 @@
 						altText + '" data-html="true" data-toggle="tooltip" title="' + tooltipText + '"/>' )[method]( element );
 				// generic thumbnail
 				} else {
+					if (altText == '') altText = 'Generic media icon'
 					thumbnail = $( '<img id="img-' + node.slug.replace( "/", "-" ) + '" class="thumb" src="' + modules_uri +
 						'/cantaloupe/images/media_icon_chip.png" alt="' + altText + '" data-toggle="tooltip" data-html="true" title="' + tooltipText + '"/>' )[method]( element );
 				}
@@ -319,6 +320,7 @@
 				thumbnail.data('node', node);
 				thumbnail.on('error', function() {
 					$(this).attr('src', modules_uri + '/cantaloupe/images/media_icon_chip.png');
+					$(this).attr('alt', 'Generic media icon');
 				});
 
 				thumbnail.on('click', function() {
