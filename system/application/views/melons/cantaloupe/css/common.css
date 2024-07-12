@@ -34,6 +34,17 @@ article h6 { font-size: 1.4rem; line-height: 2.4rem; margin-top: 2.4rem; margin-
 
 .alert .alert-link { font-weight: 900; }
 
+/* remove default button styling */
+button {
+	display: inline-block;
+	border: none;
+	font-family: sans-serif;
+	cursor: pointer;
+	text-align: center;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+}
+
 .page_margins { padding-left: 7.2rem; padding-right: 7.2rem; }
 .left_margin { min-width: 7.2rem; float: left; }
 
@@ -924,7 +935,6 @@ audio::-webkit-media-controls-enclosure { max-width: 100%; /* removes chrome's m
 #comment_control {
 	color: #a6a6a6;
 	background: url(images/comments.png) no-repeat;
-	line-height: 2.7rem;
 	padding-left: 4rem;
 	float: left;
 	cursor: pointer;
