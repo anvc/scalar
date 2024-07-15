@@ -4043,8 +4043,8 @@ ScalarVersion.prototype.parseRelations = function() {
 
 }
 
-ScalarVersion.prototype.getAltTextWithFallback = function() {
-	var result = ''
+ScalarVersion.prototype.getAltTextWithFallback = function(fallback) {
+	var result = fallback
 	if (this.altText) {
 		result = this.altText
 	} else if (this.description) {

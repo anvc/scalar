@@ -2808,6 +2808,47 @@
                     $gmaps.find('.alert').remove();
                     $gmaps.append('<div class="alert alert-danger" style="margin: 1rem;">Scalar couldn\'t find any geographic metadata associated with this page.</div>');
                 }
+            },
+
+            getAltTextFromProperty: function(property) {
+                var altText = ''
+                if (!property) return altText
+                var data = property['http://scalar.usc.edu/2012/01/scalar-ns#altText']
+                if (!data) {
+                    data = property['http://purl.org/dc/terms/description']
+                }
+                if (data) {
+                    altText = data[0].value
+                }
+                return altText
+            },
+
+            getAltTextFromMediaNode: function(media_node) {
+                var altText = ''
+                for (var uri in media_node) {
+                    var data = media_node[uri]['http://scalar.usc.edu/2012/01/scalar-ns#altText']
+                    if (!data) {
+                        data = media_node[uri]['http://purl.org/dc/terms/description']
+                    }
+                    if (data) {
+                        altText = data[0].value
+                    }
+                }
+                return altText
+            },
+
+            getMetadataForBanner: function (banner, success) {
+                // Information about the banner
+                var parent = $('link#parent').attr('href');
+                var api_url = null;
+                if (-1 == banner.indexOf(parent)) {  // External file
+                    // TODO
+                } else {  // Local file
+                    api_url = parent+'rdf/file/'+banner.replace(parent,'')+'?format=json';
+                }
+                if (null != api_url) {
+                    $.getJSON(api_url, success);
+                };
             }
 
         };
@@ -2953,7 +2994,7 @@
                     		}).trigger('resize');
                     	});
                     } else {
-                    	element.css('background-image', "url('" + banner + "')");
+                    	element.css('background-image', "url('" + banner + "')").attr('role', 'img').attr('aria-label', 'Splash image');
                     }
                     $('body').css('backgroundImage', 'none');
                     $('.paragraph_wrapper').remove();
@@ -2967,27 +3008,21 @@
                             next();
                         });
                     }, 200);
-                    // Information about the banner
-                    var parent = $('link#parent').attr('href');
-                    var api_url = null;
-                    if (-1 == banner.indexOf(parent)) {  // External file
-                    	// TODO
-                    } else {  // Local file
-                    	api_url = parent+'rdf/file/'+banner.replace(parent,'')+'?format=json';
-                    }
-                    if (null != api_url) {
-	                    $.getJSON(api_url, function(media_node) {
-	                    	for (var uri in media_node) {
-	                    		if ('undefined' == typeof(media_node[uri]['http://open.vocab.org/terms/versionnumber'])) continue;
-	                    		var url = media_node[uri]['http://purl.org/dc/terms/isVersionOf'][0].value;
-	                    		var title = media_node[uri]['http://purl.org/dc/terms/title'][0].value;
-	                    		var source = ('undefined'!=typeof(media_node[uri]['http://purl.org/dc/terms/source'])) ? media_node[uri]['http://purl.org/dc/terms/source'][0].value : null;
-	                    		if (source) if (-1 != source.indexOf('//')) source = null;  // Is a URL
-	                    		var html = '<div class="citation caption_font"><a href="'+url+'">Background: '+title+''+((null!=source)?' ('+source+')':'')+'</a></div>';
-	                    		$('.title_card').append(html);
-	                    	}
-	                    });
-                    };
+                    page.getMetadataForBanner(banner, function(media_node) {
+                        for (var uri in media_node) {
+                            if ('undefined' == typeof(media_node[uri]['http://open.vocab.org/terms/versionnumber'])) continue;
+                            var url = media_node[uri]['http://purl.org/dc/terms/isVersionOf'][0].value;
+                            var title = media_node[uri]['http://purl.org/dc/terms/title'][0].value;
+                            var source = ('undefined'!=typeof(media_node[uri]['http://purl.org/dc/terms/source'])) ? media_node[uri]['http://purl.org/dc/terms/source'][0].value : null;
+                            var altText = page.getAltTextFromProperty(media_node[uri])
+                            if (source) if (-1 != source.indexOf('//')) source = null;  // Is a URL
+                            var html = '<div class="citation caption_font"><a href="'+url+'">Background: '+title+''+((null!=source)?' ('+source+')':'')+'</a></div>';
+                            $('.title_card').append(html);
+                            if (altText.trim() != '') {
+                                $('.splash').attr('aria-label', altText)
+                            }
+                        }
+                    })
                     break;
 
                 case 'gallery':
@@ -3071,7 +3106,13 @@
                     		}).trigger('resize');
                     	});
                     } else {
-                    	$('.image_header').css('background-image', "url('" + banner + "')");
+                    	$('.image_header').css('background-image', "url('" + banner + "')").attr('role', 'img').attr('aria-label', 'Image header');
+                        page.getMetadataForBanner(banner, function(media_node) {
+                            var altText = page.getAltTextFromMediaNode(media_node)
+                            if (altText.trim() != '') {
+                                $('.image_header').attr('aria-label', altText)
+                            }
+                        })
                     };
                     $('.title_card').append($('header > h1'));
                     if (currentNode.current.description != null) {
