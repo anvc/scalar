@@ -2810,8 +2810,8 @@
                 }
             },
 
-            getAltTextFromProperty: function(property) {
-                var altText = ''
+            getAltTextFromProperty: function(property, fallback = '') {
+                var altText = fallback
                 if (!property) return altText
                 var data = property['http://scalar.usc.edu/2012/01/scalar-ns#altText']
                 if (!data) {
@@ -2823,12 +2823,12 @@
                 return altText
             },
 
-            getAltTextFromMediaNode: function(media_node) {
+            getAltTextFromMetadata: function(metadata) {
                 var altText = ''
-                for (var uri in media_node) {
-                    var data = media_node[uri]['http://scalar.usc.edu/2012/01/scalar-ns#altText']
+                for (var uri in metadata) {
+                    var data = metadata[uri]['http://scalar.usc.edu/2012/01/scalar-ns#altText']
                     if (!data) {
-                        data = media_node[uri]['http://purl.org/dc/terms/description']
+                        data = metadata[uri]['http://purl.org/dc/terms/description']
                     }
                     if (data) {
                         altText = data[0].value
@@ -2837,7 +2837,7 @@
                 return altText
             },
 
-            getMetadataForBanner: function (banner, success) {
+            getMetadataForMediaUrl: function (banner, success) {
                 // Information about the banner
                 var parent = $('link#parent').attr('href');
                 var api_url = null;
@@ -3008,13 +3008,13 @@
                             next();
                         });
                     }, 200);
-                    page.getMetadataForBanner(banner, function(media_node) {
-                        for (var uri in media_node) {
-                            if ('undefined' == typeof(media_node[uri]['http://open.vocab.org/terms/versionnumber'])) continue;
-                            var url = media_node[uri]['http://purl.org/dc/terms/isVersionOf'][0].value;
-                            var title = media_node[uri]['http://purl.org/dc/terms/title'][0].value;
-                            var source = ('undefined'!=typeof(media_node[uri]['http://purl.org/dc/terms/source'])) ? media_node[uri]['http://purl.org/dc/terms/source'][0].value : null;
-                            var altText = page.getAltTextFromProperty(media_node[uri])
+                    page.getMetadataForMediaUrl(banner, function(metadata) {
+                        for (var uri in metadata) {
+                            if ('undefined' == typeof(metadata[uri]['http://open.vocab.org/terms/versionnumber'])) continue;
+                            var url = metadata[uri]['http://purl.org/dc/terms/isVersionOf'][0].value;
+                            var title = metadata[uri]['http://purl.org/dc/terms/title'][0].value;
+                            var source = ('undefined'!=typeof(metadata[uri]['http://purl.org/dc/terms/source'])) ? metadata[uri]['http://purl.org/dc/terms/source'][0].value : null;
+                            var altText = page.getAltTextFromProperty(metadata[uri])
                             if (source) if (-1 != source.indexOf('//')) source = null;  // Is a URL
                             var html = '<div class="citation caption_font"><a href="'+url+'">Background: '+title+''+((null!=source)?' ('+source+')':'')+'</a></div>';
                             $('.title_card').append(html);
@@ -3107,8 +3107,8 @@
                     	});
                     } else {
                     	$('.image_header').css('background-image', "url('" + banner + "')").attr('role', 'img').attr('aria-label', 'Image header');
-                        page.getMetadataForBanner(banner, function(media_node) {
-                            var altText = page.getAltTextFromMediaNode(media_node)
+                        page.getMetadataForMediaUrl(banner, function(metadata) {
+                            var altText = page.getAltTextFromMetadata(metadata)
                             if (altText.trim() != '') {
                                 $('.image_header').attr('aria-label', altText)
                             }
@@ -3573,6 +3573,7 @@
                             // load HTML
                             if (pathContents.length > 0) {
                                 var base_url = $('link#parent').attr('href');
+                                var bgElements = [];
                                 for (var i = 0; i < pathContents.length; i++) {
                                     var title = pathContents[i].current.title;
                                     var slug = pathContents[i].slug
@@ -3605,7 +3606,20 @@
                                     		}).trigger('resize');
                                     	});
                                     } else {
-                                        $("#"+slugProxy).css({ "background-image": 'url("'+((key.length)?key:'')+'")' });
+                                        bgElements.push($("#"+slugProxy))
+                                        $("#"+slugProxy).css({ "background-image": 'url("'+((key.length)?key:'')+'")' }).attr({ role: 'img', 'data-url': key, 'aria-label': 'Background image' });
+                                        page.getMetadataForMediaUrl(key, function(metadata) {
+                                            for (var uri in metadata) {
+                                                if ('undefined' == typeof(metadata[uri]['http://open.vocab.org/terms/versionnumber'])) continue;
+                                                var altText = page.getAltTextFromProperty(metadata[uri], 'Background image')
+                                                $(bgElements).each((i) => {
+                                                    var url = metadata[uri]['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value
+                                                    if ($(bgElements[i]).attr('data-url') == url) {
+                                                        $(bgElements[i]).attr('aria-label', altText)
+                                                    }
+                                                })
+                                            }
+                                        })
                                         if (isMobile) $("#"+slugProxy).addClass('mobile');
                                     };
                                     // end set background
