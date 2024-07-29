@@ -446,7 +446,7 @@
 
     ScalarLenses.prototype.addVisualizationButton = function(){
       let element = $(
-         `<div class="visualization-btn-group btn-group"><button type="button" class="btn btn-primary btn-xs dropdown-toggle caption_font visualization-button" data-toggle="dropdown" aria-haspopup="true">
+         `<div class="visualization-btn-group btn-group"><button type="button" class="btn btn-primary btn-xs dropdown-toggle caption_font visualization-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Select visualization <span class="caret"></span></button>
            <ul id="visualization-dropdown" class="dropdown-menu" aria-expanded="false">
            <li><a tabindex="-1"><span class="viz-icon force-directed"></span>Force-Directed</a></li>

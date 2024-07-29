@@ -2511,7 +2511,7 @@
                         contentString = '<div class="google-info-window caption_font">' + titleMarkup + '<div>' + thumbnailMarkup + '</div>';
                     }
                     page.generateIcon(label, function(src) {
-                        marker = new google.maps.AdvancedMarkerElement({
+                        marker = new google.maps.Marker({
                             position: latlng,
                             map: map,
                             html: contentString,
