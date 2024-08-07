@@ -2787,7 +2787,7 @@
 
                 $(window).on('resize', function() {
                     var markers = $gmaps.data('markers')
-                    if (markers.length > 1) {
+                    if ('undefined' != typeof(markers) && markers.length > 1) {
                         $gmaps.data('map').fitBounds($('#google-maps').data('bounds'));
                     }
                     $gmaps.css('max-height', 0.6 * $(window).height());
