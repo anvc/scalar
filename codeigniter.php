@@ -18,7 +18,12 @@
  * NOTE: If you change these, also change the error_reporting() code below
  *
  */
-define('ENVIRONMENT', 'development');
+if (array_key_exists('ENVIRONMENT', $_SERVER)) {
+  define('ENVIRONMENT', $_SERVER['ENVIRONMENT']);
+}
+else {
+  define('ENVIRONMENT', 'production');
+}
 /*
  *---------------------------------------------------------------
  * ERROR REPORTING
