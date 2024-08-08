@@ -68,7 +68,9 @@ class RDF_Store {
 
 		$q = 'DESCRIBE <'.$urn.'>';
 		$rs = $this->store->query($q);
-		if ($this->store->getErrors()) return null;
+		if ($this->store->getErrors()) {
+			threw new Exception('There were ARC2 errors: ' . $this->store->getErrors());
+		}
 		if (empty($rs['result'])) return null;
 		if (!isset($rs['result'][$urn]) || empty($rs['result'][$urn])) return null;
 		return $rs['result'][$urn];
