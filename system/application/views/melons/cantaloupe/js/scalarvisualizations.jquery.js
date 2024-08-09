@@ -3924,6 +3924,7 @@ window.scalarvis = { instanceCount: -1 };
 
       constructor() {
         super();
+        this.zoom = null;
       }
 
       draw() {
@@ -3955,28 +3956,56 @@ window.scalarvis = { instanceCount: -1 };
           this.nodeSelection = this.container.selectAll('g.node')
             .data(base.force.nodes(), function(d) { return d.node.slug; });
 
+          var toggleSelection = (d) => {
+            if (d3.event.defaultPrevented) return; // ignore drag
+            d3.event.stopPropagation();
+            var index = base.selectedNodes.indexOf(d.node);
+            if (index == -1) {
+              base.selectedNodes.push(d.node);
+              if (base.options.content == "current" || base.options.content == "lens") {
+                base.loadNode(d.node.slug, false, 1, base.updateInspector);
+              }
+            } else {
+              base.selectedNodes.splice(index, 1);
+              base.removeRelatedNodesFromManuallyLoaded(d.node);
+            }
+            base.updateInspector();
+            this.updateGraph();
+          }
+
+          var zoom = this.zoom
+
+          function centerNode(targetNode) {
+              const x = base.visualization.width() / 2 - targetNode.x;
+              const y = base.visualization.height() / 2 - targetNode.y;
+              base.svg.transition()
+                  .duration(matchMedia('(prefers-reduced-motion)').matches ? 0 : 750)
+                  .call(
+                      zoom.transform,
+                      d3.zoomIdentity.translate(x, y).scale(1)
+                  );
+          }
+
           var nodeEnter = this.nodeSelection.enter().append('svg:g')
             .attr('class', 'node')
+            .attr('tabindex', 0)
+            .attr('aria-role', 'button')
+            .attr('aria-label', (d) => {
+              return 'Select node: ' + d.node.getDisplayTitle();
+            })
+            .attr('aria-pressed', (d) => {
+              return (base.selectedNodes.indexOf(d.node) != -1)
+            })
             .attr('x', (d) => { d.x = this.size.width * .5 + (Math.random() * 200 - 100); return d.x; })
             .attr('y', (d) => { d.y = this.size.height * .5 + (Math.random() * 200 - 100); return d.y; })
             .call(this.dragHandling(base.force))
             .on('touchstart', function(d) { d3.event.stopPropagation(); })
             .on('mousedown', function(d) { d3.event.stopPropagation(); })
-            .on('click', (d) => {
-              if (d3.event.defaultPrevented) return; // ignore drag
-              d3.event.stopPropagation();
-              var index = base.selectedNodes.indexOf(d.node);
-              if (index == -1) {
-                base.selectedNodes.push(d.node);
-                if (base.options.content == "current" || base.options.content == "lens") {
-                  base.loadNode(d.node.slug, false, 1, base.updateInspector);
-                }
-              } else {
-                base.selectedNodes.splice(index, 1);
-                base.removeRelatedNodesFromManuallyLoaded(d.node);
+            .on('click', toggleSelection)
+            .on('keyup', (d) => {
+              if (d3.event.code == 'Enter' || d3.event.code == 'Space') {
+                toggleSelection(d)
               }
-              base.updateInspector();
-              this.updateGraph();
             })
             .on("mouseover", (d) => {
               base.rolloverNode = d.node;
@@ -3985,7 +4014,8 @@ window.scalarvis = { instanceCount: -1 };
             .on("mouseout", () => {
               base.rolloverNode = null;
               this.updateGraph();
-            });
+            })
+            .on("focus", centerNode);
 
           nodeEnter.append('svg:circle')
             .attr('class', 'node')
@@ -4011,10 +4041,21 @@ window.scalarvis = { instanceCount: -1 };
             .attr('ry', '5')
             .attr('width', '48')
             .attr('height', '22')
+            .attr('tabindex', 0)
+            .attr('aria-role', 'button')
+            .attr('aria-label', (d) => {
+              return 'Click to open:  ' + d.node.getDisplayTitle();
+            })
             .style('display', 'none')
             .on('click', function(d) {
               d3.event.stopPropagation();
               window.open(d.node.url, '_blank');
+            })
+            .on('keyup', (d) => {
+              if (d3.event.code == 'Enter' || d3.event.code == 'Space') {
+                d3.event.stopPropagation();
+                window.open(d.node.url, '_blank');
+              }
             });
 
           nodeEnter.append('svg:text')
@@ -4055,7 +4096,8 @@ window.scalarvis = { instanceCount: -1 };
           .attr('width', this.size.width)
           .attr('height', this.size.height);
         var container = base.svg.append('g').attr('class', 'container');
-        base.svg.call(d3.zoom().on("zoom", function() { container.attr("transform", d3.event.transform); }));
+        this.zoom = d3.zoom()
+        base.svg.call(this.zoom.on("zoom", function() { container.attr("transform", d3.event.transform); }));
         base.svg.style("cursor", "move");
 
         // once we upgrade to D3 4.0, we should implement custom x and y accessors
@@ -4121,6 +4163,11 @@ window.scalarvis = { instanceCount: -1 };
       }
 
       updateGraph() {
+
+        this.nodeSelection
+          .attr('aria-pressed', (d) => {
+            return (base.selectedNodes.indexOf(d.node) != -1)
+          })
 
         this.linkSelection
           .attr('stroke-width', function(d) {
