@@ -35,6 +35,7 @@ window.scalarvis = { instanceCount: -1 };
     base.resultsPerPage = 50;
     base.loadedAllContent = false;
     base.inspectorVisible = false;
+    base.prefersReducedMotion = matchMedia('(prefers-reduced-motion)').matches;
     base.canonicalTypeOrder = ["path", "page", "comment", "tag", "annotation", "media"];
     base.canonicalRelationOrder = [
       { type: 'path', direction: 'outgoing' },
@@ -3083,7 +3084,7 @@ window.scalarvis = { instanceCount: -1 };
       }
 
       pathUpdate(root, instantaneous) {
-        var duration = instantaneous ? 0 : d3.event && d3.event.altKey ? 5000 : 500;
+        var duration = (instantaneous || base.prefersReducedMotion) ? 0 : d3.event && d3.event.altKey ? 5000 : 500;
 
         base.tree(this.root);
         var nodes = this.root.descendants();
@@ -3121,50 +3122,83 @@ window.scalarvis = { instanceCount: -1 };
             return "translate(" + source.y0 + "," + source.x0 + ")";
           });
 
+        var me = this;
+
+        function handleNodeClick(d) {
+          // the non-node "d" items here aren't the right ones, for some reason...
+          // so getDescendantForData finds the most updated "d" (shouldn't be necessary)
+          d = me.getDescendantForData(d.data);
+          if (d.data.children) {
+            me.lastToggledNode = d;
+            if (d3.event.defaultPrevented) return; // ignore drag
+            me.branchToggle(d);
+            me.pathUpdate(me.root);
+            if (base.isHierarchyNodeMaximized(d)) {
+              if (base.isVisOfCurrentPage()) {
+                setTimeout(function() { base.loadNode(d.data.node.slug, false, 2, base.updateInspector); }, 500);
+              }
+            }
+          }
+          var index;
+          index = base.selectedNodes.indexOf(d.data.node);
+          if (index == -1) {
+            base.selectedNodes = [d.data.node];
+          } else {
+            base.selectedNodes = [];
+          }
+          base.updateInspector();
+        }
+
+        function handleLabelClick(d) {
+          if (d3.event.defaultPrevented) return; // ignore drag
+          d3.event.stopPropagation();
+          if (d.data.node) {
+            window.open(d.data.node.url, '_blank');
+          }
+        }
+
         nodeEnter.append("svg:circle")
           .attr("r", 1e-6)
           .style("fill", (d) => { return !d.children && d._children ? d3.hsl(base.highlightColorScale(d.data.type, "noun", '#777')).brighter(1.5) : "#fff"; })
           .style("stroke", (d) => { return base.highlightColorScale(d.data.type, "noun", '#777') })
+          .attr('tabindex', 0)
+          .attr('aria-role', 'button')
+          .attr('aria-label', (d) => {
+            return 'Click to toggle branch';
+          })
           .on('touchstart', function(d) { d3.event.stopPropagation(); })
           .on('mousedown', function(d) { d3.event.stopPropagation(); })
-          .on("click", (d) => {
-            // the non-node "d" items here aren't the right ones, for some reason...
-            // so getDescendantForData finds the most updated "d" (shouldn't be necessary)
-            d = this.getDescendantForData(d.data);
-            if (d.data.children) {
-              this.lastToggledNode = d;
-              if (d3.event.defaultPrevented) return; // ignore drag
-              this.branchToggle(d);
-              this.pathUpdate(this.root);
-              if (base.isHierarchyNodeMaximized(d)) {
-                if (base.isVisOfCurrentPage()) {
-                  setTimeout(function() { base.loadNode(d.data.node.slug, false, 2, base.updateInspector); }, 500);
-                }
-              }
+          .on("click", handleNodeClick)
+          .on('keyup', (d) => {
+            if (d3.event.code == 'Enter' || d3.event.code == 'Space') {
+              d3.event.stopPropagation();
+              handleNodeClick(d)
             }
-            var index;
-            index = base.selectedNodes.indexOf(d.data.node);
-            if (index == -1) {
-              base.selectedNodes = [d.data.node];
-            } else {
-              base.selectedNodes = [];
-            }
-            base.updateInspector();
           });
 
         nodeEnter.append("svg:text")
           .attr("x", function(d) { return d.children || d._children ? -14 : 14; })
           .attr("dy", ".35em")
+          .attr('tabindex', (d) => {
+            return d.data.node ? 0 : -1
+          })
+          .attr('aria-role', (d) => {
+            return d.data.node ? 'button' : null
+          })
+          .attr('aria-label', (d) => {
+            return d.data.node ? 'Click to open:  ' + d.data.node.getDisplayTitle() : null
+          })
           .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
           .text(function(d) { return d.data.title; })
           .style("fill-opacity", 1e-6)
           .on('touchstart', function(d) { d3.event.stopPropagation(); })
           .on('mousedown', function(d) { d3.event.stopPropagation(); })
-          .on('click', function(d) {
-            if (d3.event.defaultPrevented) return; // ignore drag
-            d3.event.stopPropagation();
+          .on('click', handleLabelClick)
+          .on('keyup', (d) => {
             if (d.data.node) {
-              window.open(d.data.node.url, '_blank');
+              if (d3.event.code == 'Enter' || d3.event.code == 'Space') {
+                handleLabelClick(d)
+              }
             }
           });
 
@@ -3975,11 +4009,11 @@ window.scalarvis = { instanceCount: -1 };
 
           var zoom = this.zoom
 
-          function centerNode(targetNode) {
+          function centerOnNode(targetNode) {
               const x = base.visualization.width() / 2 - targetNode.x;
               const y = base.visualization.height() / 2 - targetNode.y;
               base.svg.transition()
-                  .duration(matchMedia('(prefers-reduced-motion)').matches ? 0 : 750)
+                  .duration(base.prefersReducedMotion ? 0 : 750)
                   .call(
                       zoom.transform,
                       d3.zoomIdentity.translate(x, y).scale(1)
@@ -4015,7 +4049,7 @@ window.scalarvis = { instanceCount: -1 };
               base.rolloverNode = null;
               this.updateGraph();
             })
-            .on("focus", centerNode);
+            .on("focus", centerOnNode);
 
           nodeEnter.append('svg:circle')
             .attr('class', 'node')
