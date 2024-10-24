@@ -736,9 +736,6 @@ function YouTubeGetID(url){
 			},this));
 		}
 
-		/**
-		 * Populates the header element with content.
-		 */
 		jQuery.MediaElementView.prototype.populateHeader = function() {
 
 			if (!this.model.isChromeless) {
@@ -889,9 +886,6 @@ function YouTubeGetID(url){
 			}
 		}
 
-		/**
-		 * Populates the media container element with content.
-		 */
 		jQuery.MediaElementView.prototype.populateContainer = function() {
 
 			switch (this.model.containerLayout) {
@@ -922,9 +916,6 @@ function YouTubeGetID(url){
 
 		}
 
-		/**
-		 * Populates the sidebar element with content.
-		 */
 		jQuery.MediaElementView.prototype.populateSidebar = function() {
 
 			if (this.model.containerLayout == "horizontal") {
@@ -976,9 +967,6 @@ function YouTubeGetID(url){
 
 		}
 
-		/**
-		 * Populates the footer element with content.
-		 */
 		jQuery.MediaElementView.prototype.populateFooter = function() {
 
 			// no footer if menu is showing
@@ -1056,9 +1044,6 @@ function YouTubeGetID(url){
 
 		}
 
-		/**
-		 * Parses the media type to determine what kind of player to create.
-		 */
 		jQuery.MediaElementView.prototype.parseMediaType = function() {
 
 			if ( this.model.mediaSource.browserSupport[scalarapi.scalarBrowser] == null ) {
@@ -1237,9 +1222,6 @@ function YouTubeGetID(url){
 			}
 		}
 
-		/**
-		 * Lays out the media object.
-		 */
 		jQuery.MediaElementView.prototype.layoutMediaObject = function() {
 			this.calculateMediaSize();
 			this.mediaObjectView.resize(this.resizedDim.x, this.resizedDim.y);
@@ -1464,9 +1446,6 @@ function YouTubeGetID(url){
 
 		}
 
-		/**
-		 * Calculates and updates the media object's margins
-		 */
 		jQuery.MediaElementView.prototype.updateMargins = function() {
 
 			switch (this.model.containerLayout) {
@@ -1535,17 +1514,11 @@ function YouTubeGetID(url){
 
 		}
 
-		/**
-		 * Toggles the annotation viewer open and closed.
-		 */
 		jQuery.MediaElementView.prototype.toggleAnnotations = function() {
 			this.annotationsVisible = !this.annotationsVisible;
 			this.updateSidebarDisplay();
 		}
 
-		/**
-		 * Makes adjustments to show/hide the sidebar.
-		 */
 		jQuery.MediaElementView.prototype.updateSidebarDisplay = function() {
 
 			this.calculateContainerSize();
@@ -1606,23 +1579,49 @@ function YouTubeGetID(url){
 
 		}
 
-		/**
-		 * Removes the loading message.
-		 */
 		jQuery.MediaElementView.prototype.removeLoadingMessage = function() {
+			$('body').trigger('mediaElementMediaLoaded', [$(this.model.link)]);
       if (this.mediaContainer.parent().parent().css('background-image') != 'none') {
         this.mediaContainer.parent().parent().css('background-image', 'none');
-  			$('body').trigger('mediaElementMediaLoaded', [$(this.model.link)]);
       }
 		}
 
-		/**
-		 * Begins playback of time-based media.
-		 */
 		jQuery.MediaElementView.prototype.play = function() {
 			if ((this.model.mediaSource.contentType == 'video') || (this.model.mediaSource.contentType == 'audio') || (this.model.mediaSource.contentType == 'document')) {
 				this.mediaObjectView.play();
  				this.overrideAutoSeek = false;
+			}
+		}
+
+		jQuery.MediaElementView.prototype.addWebVTTTracksToVideo = function(videoObj) {
+			let relations = this.model.node.current.auxProperties['dcterms:relation']
+			if (!relations) return
+			for (var i=0; i<relations.length; i++) {
+				var data = {
+					src: null,
+					label: 'Track ' + (i + 1),
+					kind: 'captions',
+					srclang: 'en-us',
+					default: false
+				}
+				if (scalarapi.getFileExtension(relations[i]) == 'vtt') {
+					data.src = relations[i] // contents are the VTT url
+				} else {
+					try {
+						// contents are JSON describing the VTT track
+						var obj = JSON.parse(relations[i])
+						for (var prop in obj) {
+							data[prop] = obj[prop]
+						}
+					} catch(error) {
+						// no valid JSON found
+					}
+				}
+				if (data.src) {
+					var track = $('<track src="' + data.src + '" label="' + data.label + '" kind="' + data.kind + '" srclang="' + data.srclang + '">')
+					if (data.default) track.attr('default', '')
+					videoObj.append(track)
+				}
 			}
 		}
 
@@ -2986,6 +2985,10 @@ function YouTubeGetID(url){
 				obj.find( 'video' ).attr( 'autoplay', 'true' );
 			}
 
+			this.video = obj.find('video#'+this.model.filename+'_'+this.model.id);
+
+			this.parentView.addWebVTTTracksToVideo(obj.find('video'))
+
 			// apply the poster image only if the thumbnail loads successfully
 			var thumbnailURL;
 			if (this.model.node.thumbnail) {
@@ -3013,8 +3016,6 @@ function YouTubeGetID(url){
 				}).attr('src', thumbnailURL);
 			}
 
-			this.video = obj.find('video#'+this.model.filename+'_'+this.model.id);
-
 			this.parentView.controllerOffset = 22;
 
 			var metadataFunc = function() {
@@ -3031,7 +3032,7 @@ function YouTubeGetID(url){
           me.parentView.intrinsicDim.x = me.video[0].videoWidth;
   				me.parentView.intrinsicDim.y = me.video[0].videoHeight;
   				me.parentView.controllerOffset = 0;
-        }		console.log('metadatafunc');
+        }	
 				if (hls) {
 					me.video[0].removeEventListener('progress', metadataFunc, false);
 				}
@@ -3523,6 +3524,8 @@ function YouTubeGetID(url){
 			}
 
 			this.video = obj.find('video#'+HLSObjectId);
+
+			this.parentView.addWebVTTTracksToVideo(obj.find('video'))
 
 			var thumbnailURL;
 			if (this.model.node.thumbnail) {
@@ -5657,7 +5660,6 @@ function YouTubeGetID(url){
     }
 
     jQuery.UnityWebGLObjectView.prototype.handleAnnotationsUpdated = function(slugs) {
-      console.log('handleAnnotationsUpdated');
       this.receiver.postMessage({
         "objectName": "ScalarCamera",
         "methodName": "HandleAnnotationsUpdated",
