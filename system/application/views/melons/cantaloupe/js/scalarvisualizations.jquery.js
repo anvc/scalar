@@ -2473,6 +2473,7 @@ window.scalarvis = { instanceCount: -1 };
         e.stopPropagation();
         // if we just selected a node
         if (this.lastActivatedInfoBoxBtn) {
+          // necessary because selecting a node causes focus to move to the body element
           var btnSlug = $(this.lastActivatedInfoBoxBtn).attr('data-node');
           var rowBox = $('.rowBox[data-node="' + btnSlug + '"]');
           if (!e.shiftKey) {
@@ -2503,13 +2504,13 @@ window.scalarvis = { instanceCount: -1 };
         } else {
           var slug = $(document.activeElement).attr('data-node');
           if (e.shiftKey) {
-            // and the user tabbed forward
-            // and a selected box currently has focus
+            // and if the user tabbed backward
+            // and the node from the previous box is selected
             // then focus the info btn for that node
             this.focusInfoBtnForSlugIfSelected(slug)
           } else {
-            // but if the user tabbed backward
-            // and the node from the previous box is selected
+            // but the user tabbed forward
+            // and the previously selected box currently has focus
             // then focus the info btn for that node
             var rowBox = $('.rowBox[data-node="' + slug + '"]').prev();
             this.focusInfoBtnForSlugIfSelected(rowBox.attr('data-node'))
@@ -3393,23 +3394,70 @@ window.scalarvis = { instanceCount: -1 };
         this.maximizedNode = null;
         this.highlightedNode = null;
         this.currentNode = scalarapi.model.getCurrentPageNode();
+        this.lastActivatedLabel = null;
       }
 
+      // The code below implements this focus logic (and its converse):
+      // if an item has children, then tabbing forward focuses its first child. 
+      // if an item is selected, then tabbing forward focuses its label.
+      // if an item is the last child of its parent, then tabbing forward focuses its parent's next sibling.
       handleTab(e) {
         e.stopPropagation();
-        console.log(document.activeElement.getAttribute('data-node'));
-        var slug = document.activeElement.getAttribute('data-node')
-
-        if (!e.shiftKey) {
-        // if tabbing forward, then
-          console.log($('svg:text[data-node="' + slug + '"]'));
-          $('svg:text[data-node="' + slug + '"]').focus();
-        // if the current node is selected, then focus its label
-        // if the current node has children, then focus its first child
+        // if we just selected a node
+        if (this.lastActivatedLabel) {
+          var btnSlug = $(this.lastActivatedLabel).attr('data-node');
+          var arc = $('.ring[data-node="' + btnSlug + '"]');
+          if (!e.shiftKey) {
+            var firstChildSlug = $(document.activeElement).prev().attr('data-first-node-child')
+            if (firstChildSlug) {
+              var arc = $('.ring[data-node="' + firstChildSlug + '"]');
+              arc.focus();
+            } else if (btnSlug == $(document.activeElement).attr('data-node')) {
+              $(this.lastActivatedLabel).focus()
+            } else {
+              if (arc) arc.next().focus();
+              this.lastActivatedLabel = null;
+            }
+          } else {
+            if (document.activeElement.nodeName.toLowerCase() == 'text') {
+              if (arc) arc.focus();
+            } else {
+              this.lastActivatedLabel = null;
+            }
+          }
+        // if we didn't just select a node
         } else {
-        // if tabbing backward, then
-        // if the current node is the first child of a parent, then focus the parent
-        // if the previous node is selected, then focus its label
+          var slug = $(document.activeElement).attr('data-node');
+          if (e.shiftKey) {
+            var nextSlug = $(document.activeElement).next().attr('data-node')
+            var parent = $('.ring[data-first-node-child="' + nextSlug + '"]');
+            if (parent.length > 0) {
+              parent.focus();
+            } else {
+              this.focusLabelForSlugIfSelected(slug)
+            }
+          } else {
+            var prevSlug = $(document.activeElement).prev().attr('data-node')
+            var parent = $('.ring[data-last-node-child="' + prevSlug + '"]');
+            var childSlug = $(document.activeElement).prev().attr('data-first-node-child')
+            if (childSlug) {
+              var arc = $('.ring[data-node="' + childSlug + '"]');
+              arc.focus();
+            } else if (parent.length > 0) {
+              parent.next().focus();
+            } else {
+              var arc = $('.ring[data-node="' + slug + '"]').prev();
+              this.focusLabelForSlugIfSelected(arc.attr('data-node'))
+            }
+          }
+        }
+      }
+
+      focusLabelForSlugIfSelected(slug) {
+        var node = scalarapi.getNode(slug);
+        if (node && base.selectedNodes.includes(node)) {
+          this.lastActivatedLabel = $('text[data-node="' + slug + '"]')[0];
+          $(this.lastActivatedLabel).focus()
         }
       }
 
@@ -3518,6 +3566,18 @@ window.scalarvis = { instanceCount: -1 };
                         return d.data.children[0].node.slug;
                       } else {
                         return d.data.children[0].title;
+                      }
+                    }
+                  }
+                  return null;
+                })
+                .attr('data-last-node-child', (d) => {
+                  if (d.data.children) {
+                    if (d.data.children.length > 0) {
+                      if (d.data.children[d.data.children.length - 1].node) {
+                        return d.data.children[d.data.children.length - 1].node.slug;
+                      } else {
+                        return d.data.children[d.data.children.length - 1].title;
                       }
                     }
                   }
@@ -3697,6 +3757,7 @@ window.scalarvis = { instanceCount: -1 };
 
       toggleNodeSelected(d) {
         var index;
+        var wasSelected = false;
         index = base.selectedNodes.indexOf(d.data.node);
         if (index == -1) {
           base.selectedNodes.push(d.data.node);
@@ -3705,6 +3766,7 @@ window.scalarvis = { instanceCount: -1 };
             base.selectedHierarchyNodes.push(d.data);
           }
           //base.loadNode(d.data.node.slug, 0, 0, base.updateInspector);
+          wasSelected = true;
         } else {
           base.selectedNodes.splice(index, 1);
           index = base.selectedHierarchyNodes.indexOf(d.data);
@@ -3715,6 +3777,10 @@ window.scalarvis = { instanceCount: -1 };
         base.updateInspector();
         this.updateSelectedLabels();
         this.updateHighlights(d);
+        if (wasSelected) {
+          this.lastActivatedLabel = $('text[data-node="' + d.slug + '"]')[0];
+          $(this.lastActivatedLabel).focus();
+        }
       }
 
       updateSelectedLabels() {
@@ -3768,6 +3834,13 @@ window.scalarvis = { instanceCount: -1 };
               .on("click", (d) => {
                 if (d.data.node) {
                   window.open(d.data.node.url, '_blank');
+                }
+              })
+              .on('keyup', (d) => {
+                if (d.data.node) {
+                  if (d3.event.code == 'Enter' || d3.event.code == 'Space') {
+                    window.open(d.data.node.url, '_blank');
+                  }
                 }
               })
               .each(function(d) { d.textWidth = this.getComputedTextLength(); }),
