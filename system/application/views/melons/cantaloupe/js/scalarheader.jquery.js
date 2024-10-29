@@ -1120,7 +1120,7 @@
     }
 
     base.titleAndCredit = function() {
-      const element = $('<span class="navbar-text navbar-left pull-left title_wrapper hidden-xs" id="desktopTitleWrapper">'+
+      const element = $('<span class="navbar-text navbar-left pull-left title_wrapper hidden-xs" id="desktopTitleWrapper" role="banner">'+
         '<span class="hidden-xs author_text">'+
           '<span id="header_authors" data-placement="bottom"></span>'+
         '</span>'+

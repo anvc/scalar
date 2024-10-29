@@ -195,7 +195,7 @@ endif;
 <body class="<?=((!empty($primary_role))?'primary_role_'.strtolower(substr($primary_role,strpos($primary_role,'#')+1)):'')?>"<?=(!empty($background))?' style="background-image:url('.str_replace(' ','%20',abs_url($background,$base_uri)).');"':''?>>
 
 <?php echo $content; ?>
-<article>
+<article role="main">
 	<header>
 <?
 		$this->load->view('arbors/html5_RDFa/noticebar');

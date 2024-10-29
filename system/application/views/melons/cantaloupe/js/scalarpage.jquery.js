@@ -2894,7 +2894,7 @@
 
         $('section').hide(); // TODO: Make this more targeted
 
-        $('article').append('<div id="footer" class="caption_font"></div>');
+        $('article').append('<div id="footer" class="caption_font" role="contentinfo"></div>');
 
         $('body').on('delayedResize', page.handleDelayedResize);
 
