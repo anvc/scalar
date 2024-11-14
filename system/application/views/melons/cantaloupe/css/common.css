@@ -965,6 +965,26 @@ audio::-webkit-media-controls-enclosure { max-width: 100%; /* removes chrome's m
 	vertical-align: top;
 }
 
+.custom-file-selector {
+	border: 1px solid;
+}
+
+.custom-file-selector:focus-within {
+	outline: 5px auto -webkit-focus-ring-color;
+}
+
+.custom-file-selector > input[type="file"] {
+	position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap; /* 1 */
+  clip-path: inset(50%);
+  border: 0;
+}
+
 #edit_form { padding-top: 4.8rem; }
 
 .input_text { max-width: 50rem; width: 100%; }
