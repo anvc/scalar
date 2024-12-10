@@ -303,13 +303,13 @@
 				// custom thumbnail
 				if ( node.thumbnail != undefined ) {
 					var url = node.getAbsoluteThumbnailURL();
-					thumbnail = $( '<img id="img-' + node.slug.replace( "/", "-" ) + '" class="thumb" src="' + url + '" alt="' +
-						altText + '" data-html="true" data-toggle="tooltip" title="' + tooltipText + '"/>' )[method]( element );
+					thumbnail = $( '<button aria-label="' + node.getDisplayTitle() + '"><img id="img-' + node.slug.replace( "/", "-" ) + '" class="thumb" src="' + url + '" alt="' +
+						altText + '" data-html="true" data-toggle="tooltip" title="' + tooltipText + '"/></button>' )[method]( element );
 				// generic thumbnail
 				} else {
 					if (altText == '') altText = 'Generic media icon'
-					thumbnail = $( '<img id="img-' + node.slug.replace( "/", "-" ) + '" class="thumb" src="' + modules_uri +
-						'/cantaloupe/images/media_icon_chip.png" alt="' + altText + '" data-toggle="tooltip" data-html="true" title="' + tooltipText + '"/>' )[method]( element );
+					thumbnail = $( '<button aria-label="' + node.getDisplayTitle() + '"><img id="img-' + node.slug.replace( "/", "-" ) + '" class="thumb" src="' + modules_uri +
+						'/cantaloupe/images/media_icon_chip.png" alt="' + altText + '" data-toggle="tooltip" data-html="true" title="' + tooltipText + '"/></button>' )[method]( element );
 				}
 				if (!isMobile) {
 					thumbnail.tooltip( {
@@ -317,6 +317,11 @@
 						template: '<div class="tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="caption_font tooltip-inner"></div></div>'
 					} );
 				}
+				thumbnail.attr('tabindex', -1);
+				thumbnail.find('img').on('load', function() {
+					$(this).parent().attr('tabindex', 0);
+					console.log('thumbnail loaded', this);
+				})
 				thumbnail.data('node', node);
 				thumbnail.on('error', function() {
 					$(this).attr('src', modules_uri + '/cantaloupe/images/media_icon_chip.png');
@@ -324,12 +329,7 @@
 				});
 
 				thumbnail.on('click', function() {
-					/*if (me.currentDisplayMode != DisplayMode.All) {
-						var source = $(this).parent();
-						me.mediaDetails.show($(this).data('node'), source.data('node'), source.find('img'));
-					} else {*/
-						me.mediaDetails.show($(this).data('node'));
-					//}
+					me.mediaDetails.show($(this).data('node'), null, null, this);
 				});
 
 				$('body').trigger('structuredGalleryThumbnailLoaded', [thumbnail]);

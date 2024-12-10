@@ -30,7 +30,7 @@
 
 			loadCount: 0,
 
-			showMedia: function(node, source, collection) {
+			showMedia: function(node, source, collection, returnFocus) {
 				if(node != undefined) {
 					$.scalarmediadetailsstate = {
 						node:node,
@@ -45,6 +45,7 @@
 				mediaDetails.source = source;
 				mediaDetails.collection = collection;
 				mediaDetails.targetNode = node;
+				mediaDetails.returnFocus = returnFocus;
 
 				mediaDetails.loadCount = 0;
 
@@ -126,6 +127,7 @@
 				mediaDetails.contentElement.empty();
 				mediaDetails.removeFocusTrap();
 				element.hide();
+				if (mediaDetails.returnFocus) mediaDetails.returnFocus.focus();
 				restoreState();
 			},
 
