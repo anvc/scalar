@@ -1056,7 +1056,7 @@
 
     ScalarLenses.prototype.addPlusButton = function(componentContainer, componentIndex){
       let button = $(
-         `<div class="btn-group plus-btn-group"><button type="button" class="btn btn-default btn-xs plus-btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+         `<div class="btn-group plus-btn-group"><button aria-label="Add filter" type="button" class="btn btn-default btn-xs plus-btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
            <span class="plus-icon"></span></button>
            <ul id="content-dropdown" class="dropdown-menu">
              <li><a tabindex="-1">Add content</a></li>
@@ -3251,7 +3251,7 @@
       let button = $(
         `<div class="options-menu">
           <div class="btn-group">
-            <button  type="button" class="btn btn-default btn-md dropdown-toggle option-menu-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <button aria-label="Options" type="button" class="btn btn-default btn-md dropdown-toggle option-menu-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <span class="ellipsis"></span>
             </button>
             <ul class="dropdown-menu dropdown-menu-right option-menu-list"></ul>
