@@ -769,12 +769,12 @@
                         contextMarkup += '<p class="citation">Tagged by <a href="' + relation.body.url + '">&ldquo;' + relation.body.getDisplayTitle() + '&rdquo;</a></p>';
                     }
 
-                    contextMarkup += '<p><a id="visualize-this-link" href="javascript:;" class="btn btn-default btn-xs">Visualize...</a></p>';
+                    contextMarkup += '<p><a id="visualize-this-link" tabindex="0" href="#" class="btn btn-default btn-xs">Visualize...</a></p>';
 
                     $(".path-nav.info").remove();
                     if (contextMarkup != '') {
                         contextMarkup = '<div class="citations">' + contextMarkup + '</div>';
-                        var contextButton = $('<img class="path-nav info" title="Citations and context" data-toggle="popover" data-placement="bottom" src="' + page.options.root_url + '/images/context@2x.png" alt="up arrow"/>').insertBefore($('nav'));
+                        var contextButton = $('<button class="path-nav info" aria-label="Citations and context" data-toggle="popover" data-placement="bottom"><img title="Citations and context" src="' + page.options.root_url + '/images/context@2x.png"/></button>').insertBefore($('nav'));
                         if (contextCount > 1) {
                             contextButton.addClass('multi');
                         }
@@ -894,7 +894,7 @@
                 	if (thumbnailURL != null) {
                 		content = '<img class="thumbnail" height="120" src=\"' + thumbnailURL + '\" alt=\"Thumbnail image of destination content\"/><br>' + content;
                 	}
-                    var arrow = $('<a class="path-nav ' + direction + '" data-toggle="popover" data-placement="' + popooverPlacement + '" href="' + destinationNode.url + pathVar + '"><img src="' + page.options.root_url + '/images/arrow_' + direction + '@2x.png" alt="' + direction + ' arrow"/></a>').insertBefore($('nav'));
+                    var arrow = $('<a class="path-nav ' + direction + '" data-toggle="popover" data-placement="' + popooverPlacement + '" href="' + destinationNode.url + pathVar + '"><img src="' + page.options.root_url + '/images/arrow_' + direction + '@2x.png" alt="' + prefix + ' ' + destinationNode.getDisplayTitle() + '"/></a>').insertBefore($('nav'));
                 	arrow.popover({
                 		trigger: "hover click",
                 		html: true,
