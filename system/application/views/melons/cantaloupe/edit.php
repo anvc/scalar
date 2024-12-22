@@ -45,6 +45,7 @@ $css = <<<END
 article > *:not(span) {display:none !important;}
 .ci-template-html {font-family:Georgia,Times,serif !important; padding-left:7.2rem; padding-right:7.2rem;}
 .body_copy {max-width:100% !important;}
+.error {margin-bottom:-20px; margin-top:0px;}
 label {padding-right:8px;}
 label, .sortable li, .ui-sortable-handle {cursor:pointer;}
 .ui-sortable-helper {background-color:#dddddd; font-family:"Lato",Arial,sans-serif; font-size:16px;}
@@ -842,6 +843,21 @@ if($currentRole == 'commentator'){
     </div>
   </div>
 </div>
+<?php 
+// A super admin is editing a page for a book they're not an author of
+if ($login->is_super) {
+	$super_is_author = false;
+	foreach ($book->contributors as $contrib) {
+		if ($contrib->user_id == $login->user_id && ($contrib->relationship == 'author' || $contrib->relationship == 'editor')) {
+			$super_is_author= true;
+			break;
+		}
+	}
+	if (!$super_is_author) {
+		echo '<div class="error notice-super-not-author"><p>You are a super admin, however, you are not connected to this book as an Author. This means that you can view the edit page but you can not save the page. <a href="'.confirm_slash(base_url()).'system/dashboard?book_id='.$book->book_id.'&zone=users#tabs-users">Add yourself as an author in the Dashboard</a></p></div>'."\n";
+	}
+}
+?>
 <form id="edit_form" class="caption_font" method="post" action="<?=base_url().$book->slug.'/'?>" onsubmit="<?= (isset($book->editorial_is_on) && $book->editorial_is_on === '1')?'confirm_editorial_state_then_save':'validate_edit_form' ?>($(this));return false;" autocomplete="off">
 <input type="hidden" name="action" value="<?=(isset($page->version_index))?'update':'add'?>" />
 <input type="hidden" name="native" value="1" />
