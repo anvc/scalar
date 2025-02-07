@@ -23,7 +23,7 @@ $.fn.bootstrapModal = function(options) {
     keyboard: true,
     backdrop: true,
     show: false,
-    close_tabindex: 10000,
+    close_tabindex: 0,
     size_class: ''
   }, options);
 

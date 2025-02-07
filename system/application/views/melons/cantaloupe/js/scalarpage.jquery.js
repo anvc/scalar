@@ -990,7 +990,7 @@
 
                                 // back button
                                 if (page.containingPathIndex > 0) {
-                                    var back_button = $('<a id="back-btn" class="nav_btn bordered" href="' + page.containingPathNodes[page.containingPathIndex - 1].url + '?path=' + page.containingPath.slug + '">&laquo;</a> ').prependTo(links);
+                                    var back_button = $('<a id="back-btn" aria-label="Back" class="nav_btn bordered" href="' + page.containingPathNodes[page.containingPathIndex - 1].url + '?path=' + page.containingPath.slug + '">&laquo;</a> ').prependTo(links);
                                 }
 
                                 section.append(links);
@@ -999,7 +999,7 @@
                             containingPathOptionCount++;
 
                         } else if (page.containingPathIndex == (page.containingPathNodes.length - 1)) {
-                            section.append('<p><a id="back-btn" class="nav_btn" href="' + page.containingPathNodes[page.containingPathIndex - 1].url + '?path=' + page.containingPath.slug + '">&laquo; Back to &ldquo;' + page.containingPathNodes[page.containingPathIndex - 1].getDisplayTitle() + '&rdquo;</a></p>');
+                            section.append('<p><a id="back-btn" aria-label="Back" class="nav_btn" href="' + page.containingPathNodes[page.containingPathIndex - 1].url + '?path=' + page.containingPath.slug + '">&laquo; Back to &ldquo;' + page.containingPathNodes[page.containingPathIndex - 1].getDisplayTitle() + '&rdquo;</a></p>');
                         }
                         if (page.containingPathIndex > 0) {
                         	var prevNodeOnPath = page.containingPathNodes[page.containingPathIndex - 1];
@@ -1041,7 +1041,7 @@
 
                             if (page.containingPathIndex > 0) {
                                 $('#back-btn').parents('section').remove(); // remove the intra-path back button and its enclosing section
-                                back_button = $('<a id="back-btn" class="nav_btn bordered" href="' + page.containingPathNodes[page.containingPathIndex - 1].url + '?path=' + page.containingPath.slug + '">&laquo;</a> ').prependTo(links);
+                                back_button = $('<a id="back-btn" aria-label="Back" class="nav_btn bordered" href="' + page.containingPathNodes[page.containingPathIndex - 1].url + '?path=' + page.containingPath.slug + '">&laquo;</a> ').prependTo(links);
                             }
                             section.append(links);
 
@@ -2994,7 +2994,7 @@
                     		}).trigger('resize');
                     	});
                     } else {
-                    	element.css('background-image', "url('" + banner + "')").attr('role', 'img').attr('aria-label', 'Splash image');
+                    	element.css('background-image', "url('" + banner + "')");
                     }
                     $('body').css('backgroundImage', 'none');
                     $('.paragraph_wrapper').remove();
@@ -3009,9 +3009,15 @@
                         });
                     }, 200);
                     page.getMetadataForMediaUrl(banner, function(metadata) {
+                        console.log('metadata', metadata)
+                        var urls = []
                         for (var uri in metadata) {
+                            console.log(uri);
                             if ('undefined' == typeof(metadata[uri]['http://open.vocab.org/terms/versionnumber'])) continue;
                             var url = metadata[uri]['http://purl.org/dc/terms/isVersionOf'][0].value;
+                            console.log('url', url);
+                            if (-1 != urls.indexOf(url)) continue;
+                            urls.push(url);
                             var title = metadata[uri]['http://purl.org/dc/terms/title'][0].value;
                             var source = ('undefined'!=typeof(metadata[uri]['http://purl.org/dc/terms/source'])) ? metadata[uri]['http://purl.org/dc/terms/source'][0].value : null;
                             var altText = page.getAltTextFromProperty(metadata[uri])

@@ -63,6 +63,8 @@ var isTablet = ((navigator.userAgent.match(/iPad/i)) || (navigator.userAgent.mat
 var isMobileNotTablet = ((navigator.userAgent.match(/iPhone/i)) || (navigator.userAgent.match(/iPod/i)) || ((navigator.userAgent.match(/Android/i)) && (navigator.userAgent.match(/mobile/i)))); // TODO: Does this weed out Android tablets?
 var isNative = (document.location.href.indexOf('=cantaloupe') == -1);
 var typeLimits = null;
+var firstFocusable = null;
+var lastFocusable = null;
 
 function when(tester_func, callback) {
 	var timeout = 50;
@@ -172,6 +174,43 @@ function pullOutElement($pull) {
     $pull.insertAfter($par);
     $par = $pull.parent();
   }
+}
+
+function setupFocusTrap(firstFocusElement, lastFocusElement) {
+	firstFocusable = firstFocusElement;
+	lastFocusable = lastFocusElement;
+
+	console.log('firstFocusable', firstFocusable);
+	console.log('lastFocusable', lastFocusable);
+
+	// tab back from first focusable to last
+	firstFocusable.on('keydown.focusTrap', function(e) {
+		var keyCode = e.keyCode || e.which;
+		console.log('firstFocusable keydown', keyCode);
+		if(keyCode == 9) {
+			if (e.shiftKey) {
+				e.preventDefault();
+				lastFocusable.focus();
+			}
+		}
+	});
+
+	// tap forward from last focusable to first
+	lastFocusable.on('keydown.focusTrap', function(e) {
+		var keyCode = e.keyCode || e.which;
+		console.log('lastFocusable keydown', keyCode);
+		if(keyCode == 9) {
+			if (!e.shiftKey) {
+				e.preventDefault();
+				firstFocusable.focus();
+			}
+		}
+	});
+}
+
+function removeFocusTrap() {
+	if (firstFocusable) firstFocusable.off('keydown.focusTrap')
+	if (lastFocusable) lastFocusable.off('keydown.focusTrap')
 }
 
 /**

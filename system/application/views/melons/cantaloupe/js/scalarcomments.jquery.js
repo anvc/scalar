@@ -45,7 +45,6 @@
 	ScalarComments.prototype.results = null;		// results container
 	ScalarComments.prototype.userReply = null;		// user reply container
 	ScalarComments.prototype.firstRun = null;		// is this the first run of the plug-in?
-	ScalarComments.prototype.tabIndex = null;		// tracks element tab indexes
 	ScalarComments.prototype.quickStart = null;		// true if the dialog is just being loaded to show an alert
 
 	ScalarComments.prototype.init = function () {
@@ -74,19 +73,31 @@
 			}
 		}
 
-		this.modal.on('shown.bs.modal', function() { me.firstFocus() });
-
-		this.modal.find('.close').onTab(function() { me.firstFocus() });
+		this.modal.on('shown.bs.modal', function() { 
+			me.initialFocus() 
+			setupFocusTrap( me.getFirstFocusable(), me.getLastFocusable());
+		});
+		this.modal.on('hidden.bs.modal', function() { 
+			removeFocusTrap();
+		});
 
 	}
 
-	ScalarComments.prototype.firstFocus = function() {
+	ScalarComments.prototype.initialFocus = function() {
 		if ( this.bodyContent.find( '.comment' ).length > 0 ) {
 			this.bodyContent.find('.comment:eq(0) h3 a').trigger('focus');
 		} else {
 			this.bodyContent.find( 'p:visible > a:eq(0)' ).trigger('focus');
 		}
 	}
+
+	ScalarComments.prototype.getFirstFocusable = function() {
+		return this.modal.find('.close')
+	},
+
+	ScalarComments.prototype.getLastFocusable = function() {
+		return this.modal.find('input').last()
+	},
 
 	ScalarComments.prototype.showComments = function( qs ) {
 		this.quickStart = qs;
@@ -104,7 +115,6 @@
 			relations = scalarapi.model.getCurrentPageNode().getRelations('comment', 'incoming', 'reverseindex');
 		this.results.empty();
 
-		this.tabIndex = 100;
 		for (var i in relations) {
 			relation = relations[i];
 			container = $('<div class="comment"></div>').appendTo(this.results);
@@ -115,7 +125,7 @@
 				authorNode = scalarapi.getNode(relation.body.author);
 			}
 			var content = relation.body.current.content.replace(/(?:\r\n|\r|\n)/g, '<br />');
-			container.append('<h3 class="heading_font heading_weight"><a tabindex="'+(++this.tabIndex)+'" href="'+relation.body.url+'">'+relation.body.getDisplayTitle()+'</a></h3><div>'+content+'</div><div class="attribution caption_font">Posted on '+date.toLocaleString()+' by '+authorNode.getDisplayTitle()+'</div>');
+			container.append('<h3 class="heading_font heading_weight"><a href="'+relation.body.url+'">'+relation.body.getDisplayTitle()+'</a></h3><div>'+content+'</div><div class="attribution caption_font">Posted on '+date.toLocaleString()+' by '+authorNode.getDisplayTitle()+'</div>');
 		}
 
 		if (relations.length > 0) {
@@ -126,27 +136,7 @@
 			this.setupCommentForm();
 			this.firstRun = false;
 		}
-		this.firstFocus();
-
-		var me = this;
-		this.bodyContent.find('.comment:eq(0) h3 a').onTabBack(function() {
-			me.modal.find('.close').trigger('focus');
-		});
-
-	}
-
-	ScalarComments.prototype.updateTabIndexForReCaptcha = function() {
-		var ti = parseInt( $( '.comment_form' ).find( "input[class='input_text']" ).attr( 'tabindex' ) );
-		$( '#comment_captcha' ).find( 'input' ).each( function() {
-			$( this ).attr( 'tabindex', ++ti );
-		} );
-		$( '#comment_captcha' ).find( 'a' ).each( function() {
-			$( this ).attr( 'tabindex', ++ti );
-			if ( $( this ).attr( 'href' ) == null ) {
-				$( this ).attr( 'href', 'javascript:;' );
-			}
-		} );
-		$( '.comment_form' ).find( "input[type='submit']" ).attr( 'tabindex', ++ti );
+		this.initialFocus();
 	}
 
 	ScalarComments.prototype.setupCommentForm = function() {
@@ -157,8 +147,8 @@
 		this.userReply = $('<div class="comment_form"></div>').appendTo(this.bodyContent);
 		this.userReply.append('<h3 class="heading_font heading_weight">Add your voice</h3>');
 		this.userReply.append('<p id="checking_logged_in_status">Checking your signed in status…</p>');
-		this.userReply.append('<p id="commenter_logged_in" style="display:none;">You are signed in as <a tabindex="'+(++this.tabIndex)+'" title="Your user page" href=""></a> (<a tabindex="'+(++this.tabIndex)+'" href="javascript:void(null);" title="Logout">Sign out</a>).<br />Enter your comment below. Submissions are moderated. Please be respectful.</p>');
-		this.userReply.append('<p id="commenter_anonymous" style="display:none;">To comment, enter your name and text below (you can also <a tabindex="'+(++this.tabIndex)+'" href="'+addTemplateToURL(system_uri+'/login?redirect_url='+encodeURIComponent(currentNode.url), 'cantaloupe')+'">sign in</a> to use your Scalar account).<br />Comments are moderated. Please be respectful.</p>');
+		this.userReply.append('<p id="commenter_logged_in" style="display:none;">You are signed in as <a title="Your user page" href=""></a> (<a href="javascript:void(null);" title="Logout">Sign out</a>).<br />Enter your comment below. Submissions are moderated. Please be respectful.</p>');
+		this.userReply.append('<p id="commenter_anonymous" style="display:none;">To comment, enter your name and text below (you can also <a href="'+addTemplateToURL(system_uri+'/login?redirect_url='+encodeURIComponent(currentNode.url), 'cantaloupe')+'">sign in</a> to use your Scalar account).<br />Comments are moderated. Please be respectful.</p>');
 
 		var commentFormWrapper = $('<div id="comment_form_wrapper" style="display:none;">').appendTo(this.userReply);
 		var commentForm = $('<form id="comment_contribute_form" method="post" action="'+currentNode.url+'" onsubmit="ajaxComment();return false;">').appendTo(commentFormWrapper);
@@ -168,7 +158,7 @@
 		commentForm.append('<input type="hidden" name="user" value="0" id="comment_user_id" />');
 		commentForm.append('<input type="hidden" name="recaptcha2_site_key" value="'+$('link#recaptcha2_site_key').attr('href')+'" />');
 		commentForm.append('<input type="hidden" name="recaptcha_public_key" value="'+$('link#recaptcha_public_key').attr('href')+'" />');
-		commentForm.append('<table summary="Comment form" class="form_fields comment_form_table"><tbody><tr id="comment_your_name"><td class="field"><label for="fullname_field">Your name</label></td><td class="value"><input id="fullname_field" autocomplete="off" tabindex="'+(++this.tabIndex)+'" type="text" name="fullname" value="" class="input_text"></td></tr><tr><td class="field"><label for="title_field">Comment title</label></td><td class="value"><input id="title_field" autocomplete="off" tabindex="'+(++this.tabIndex)+'" type="text" name="dcterms:title" value="" class="input_text"></td></tr><tr><td class="field"><label for="comment_field">Content</label><br /><small style="color:#222222;"></small></td><td class="value"><textarea id="comment_field" tabindex="'+(++this.tabIndex)+'" name="sioc:content" value="" rows="6" class="input_text"></textarea></td></tr><tr id="comment_captcha"><td class="field"></td><td class="value" id="comment_captcha_wrapper"></td></tr><tr><td></td><td class="form_buttons" colspan="4"><input type="submit" class="generic_button large" value="Submit comment" /></td></tr></tbody></table>');
+		commentForm.append('<table summary="Comment form" class="form_fields comment_form_table"><tbody><tr id="comment_your_name"><td class="field"><label for="fullname_field">Your name</label></td><td class="value"><input id="fullname_field" autocomplete="off" type="text" name="fullname" value="" class="input_text"></td></tr><tr><td class="field"><label for="title_field">Comment title</label></td><td class="value"><input id="title_field" autocomplete="off" type="text" name="dcterms:title" value="" class="input_text"></td></tr><tr><td class="field"><label for="comment_field">Content</label><br /><small style="color:#222222;"></small></td><td class="value"><textarea id="comment_field" name="sioc:content" value="" rows="6" class="input_text"></textarea></td></tr><tr id="comment_captcha"><td class="field"></td><td class="value" id="comment_captcha_wrapper"></td></tr><tr><td></td><td class="form_buttons" colspan="4"><input type="submit" class="generic_button large" value="Submit comment" /></td></tr></tbody></table>');
 
 		// Check whether a user is logged in or not, and change the UI accordingly
 		var parent = scalarapi.model.parent_uri;
@@ -195,20 +185,6 @@
 				});
 				$('#comment_your_name').hide();
 				$('#comment_captcha').hide();
-				$( '.comment_form' ).find( "input[type='submit']" ).attr( 'tabindex', ++me.tabIndex );
-
-				// handle tab back on first link
-				$( '#commenter_logged_in' ).find( 'a:eq(0)' ).onTabBack(function() {
-
-					// tab back to close button if no comments are visible
-					if ( me.bodyContent.find('.comment:eq(0) h3 a').length == 0 ) {
-						me.modal.find('.close').trigger('focus');
-
-					// otherwise tab back to the last comment
-					} else {
-						me.bodyContent.find('.comment:last h3 a').trigger('focus');
-					}
-				});
 
 			} else {  // note logged in
 				$('#commenter_anonymous').fadeIn('fast');
@@ -226,23 +202,9 @@
 				            'sitekey' : recaptcha2_site_key
 				          });
 					} else if (recaptcha_public_key.length) {
-						Recaptcha.create(recaptcha_public_key, "comment_captcha_wrapper", { theme: "white", tabindex: ++me.tabIndex });
+						Recaptcha.create(recaptcha_public_key, "comment_captcha_wrapper", { theme: "white" });
 					}
-					setTimeout( me.updateTabIndexForReCaptcha, 500 );
 				}
-
-				// handle tab back on first link
-				$( '#commenter_anonymous' ).find( 'a:eq(0)' ).onTabBack(function() {
-
-					// tab back to close button if no comments are visible
-					if ( me.bodyContent.find('.comment:eq(0) h3 a').length == 0 ) {
-						me.modal.find('.close').trigger('focus');
-
-					// otherwise tab back to the last comment
-					} else {
-						me.bodyContent.find('.comment:last h3 a').trigger('focus');
-					}
-				});
 			}
 			$('#comment_form_wrapper').fadeIn('fast');
 		});

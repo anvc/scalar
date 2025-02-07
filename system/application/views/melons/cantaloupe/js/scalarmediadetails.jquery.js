@@ -109,7 +109,6 @@
 
 				element.show(200, function() {
 					mediaDetails.setupFocusTrap
-					console.log(mediaDetails.getFirstFocusable())
 					mediaDetails.getFirstFocusable().focus()
 				});
 

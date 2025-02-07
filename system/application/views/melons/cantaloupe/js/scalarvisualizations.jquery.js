@@ -115,7 +115,7 @@ window.scalarvis = { instanceCount: -1 };
         });
         base.$el.append('<div class="modal-dialog modal-lg modal-xlg"><div class="modal-content index_modal"></div></div>');
         var modalContent = base.$el.find('.modal-content');
-        var header = $('<header class="modal-header"><h2 id="vis-modal-title" class="modal-title heading_font heading_weight">Visualization</h2><button tabindex="10000" type="button" title="Close" class="close" data-dismiss="modal"><span>Close</span></button></header>').appendTo(modalContent);
+        var header = $('<header class="modal-header"><h2 id="vis-modal-title" class="modal-title heading_font heading_weight">Visualization</h2><button type="button" title="Close" class="close" data-dismiss="modal"><span>Close</span></button></header>').appendTo(modalContent);
         var body = $('<div class="modal-body"></div>').appendTo(modalContent);
         base.visElement = $('<div class="modalVisualization"></div>').appendTo(body);
 
@@ -130,15 +130,21 @@ window.scalarvis = { instanceCount: -1 };
           base.modalIsOpen = false;
         });
 
+
         // when the modal is shown, redraw the visualization
         base.$el.on('shown.bs.modal', function() {
           base.draw();
           base.modalIsOpen = true;
+          var modal = base.$el.modal()
+          var firstFocusable = modal.find('.close');
+          var lastFocusable = modal.find('.modal-body button').last();
+          setupFocusTrap(firstFocusable, lastFocusable);
         });
 
         // adjust overflow so the modal hides correctly
         base.$el.on('hidden.bs.modal', function() {
           $('body').css('overflowY', 'auto');
+          removeFocusTrap();
         });
 
         // otherwise, if the vis is embedded directly in the page

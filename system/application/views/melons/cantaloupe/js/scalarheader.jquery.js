@@ -1166,7 +1166,11 @@
     base.skipLink = function() {
       const skipLink = $('<button id="skip">Skip to Main Content</button>')
       skipLink.on('click', () => {
-        $('article a:not(.metadata)').first().focus()
+        if ($('.title_card').length) {
+          $('.title_card a:not(.metadata):not([inert]):not("li a")').first().focus()
+        } else {
+          $('article a:not(.metadata), article input').first().focus()
+        }
       })
       return skipLink
     }

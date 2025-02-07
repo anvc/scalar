@@ -43,16 +43,6 @@
 			Comment: 'Reply'
 		};
 
-		this.tabIndex = {
-			Path: 1001,
-			Page: 1002,
-			Media: 1003,
-			Tag: 1004,
-			Annotation: 1005,
-			Comment: 1006,
-			Close: 100000
-		}
-
 		this.init();
 
 	}
@@ -83,16 +73,16 @@
 		} );
 		this.element.append( '<div class="modal-dialog modal-lg"><div class="modal-content index_modal"></div></div>' );
 		var modalContent = this.element.find( '.modal-content' );
-		var header = $( '<header class="modal-header"><h2 id="index-modal-title" class="modal-title heading_font heading_weight">Index</h2><button tabindex="'+this.tabIndex.Close+'" type="button" title="Close" class="close" data-dismiss="modal"><span>Close</span></button></header>' ).appendTo( modalContent );
+		var header = $( '<header class="modal-header"><h2 id="index-modal-title" class="modal-title heading_font heading_weight">Index</h2><button type="button" title="Close" class="close" data-dismiss="modal"><span>Close</span></button></header>' ).appendTo( modalContent );
 		this.bodyContent = $( '<div class="modal-body"></div>' ).appendTo( modalContent );
 
 		this.controlBar = $( '<ul class="nav nav-tabs"></ul>' ).appendTo( this.bodyContent );
-		var pathBtn = $( '<li id="pathBtn" class="active caption_font"><a tabindex="'+this.tabIndex.Path+'" href="#Path">Paths</a></li>' ).appendTo( this.controlBar );
-		var pageBtn = $( '<li id="pageBtn" class="caption_font"><a tabindex="'+this.tabIndex.Page+'" href="#Page">Pages</a></li>' ).appendTo( this.controlBar );
-		var mediaBtn = $( '<li id="mediaBtn" class="caption_font"><a tabindex="'+this.tabIndex.Media+'" href="#Media">Media</a></li>' ).appendTo( this.controlBar );
-		var tagBtn = $( '<li id="tagBtn" class="caption_font"><a tabindex="'+this.tabIndex.Tag+'" href="#Tag">Tags</a></li>' ).appendTo( this.controlBar );
-		var annotationBtn = $( '<li id="annotationBtn" class="caption_font"><a tabindex="'+this.tabIndex.Annotation+'" href="#Annotation">Annotations</a></li>' ).appendTo( this.controlBar );
-		var commentBtn = $( '<li id="replyBtn" class="caption_font"><a tabindex="'+this.tabIndex.Comment+'" href="#Comment">Comments</a></li>' ).appendTo( this.controlBar );
+		var pathBtn = $( '<li id="pathBtn" class="active caption_font"><a href="#Path">Paths</a></li>' ).appendTo( this.controlBar );
+		var pageBtn = $( '<li id="pageBtn" class="caption_font"><a href="#Page">Pages</a></li>' ).appendTo( this.controlBar );
+		var mediaBtn = $( '<li id="mediaBtn" class="caption_font"><a href="#Media">Media</a></li>' ).appendTo( this.controlBar );
+		var tagBtn = $( '<li id="tagBtn" class="caption_font"><a href="#Tag">Tags</a></li>' ).appendTo( this.controlBar );
+		var annotationBtn = $( '<li id="annotationBtn" class="caption_font"><a href="#Annotation">Annotations</a></li>' ).appendTo( this.controlBar );
+		var commentBtn = $( '<li id="replyBtn" class="caption_font"><a href="#Comment">Comments</a></li>' ).appendTo( this.controlBar );
 
 		var showTab = function(event) {
 			event.preventDefault();
@@ -102,28 +92,27 @@
 
 		this.controlBar.find('li>a').on('click', showTab);
 
-		// tabbing forward from close button brings focus to path tab
-		header.find( '.close' ).onTab(function() {
-			pathBtn.find( 'a' )[ 0 ].trigger('focus');
-		});
-
-		// tabbing backwards from path tab brings focus to close button
-		pathBtn.find('a').onTabBack(function() {
-			header.find( '.close' )[ 0 ].trigger('focus');
-		});
-
 		var resultsDiv = $( '<div class="results_list caption_font"></div>' ).appendTo( this.bodyContent );
 		this.resultsTable = $( '<table summary="" class="table table-striped table-hover table-responsive small"></table>' ).appendTo( resultsDiv );
 		this.loading = $('<div class="loading"><p>Loading...</p></div>').hide().insertAfter(this.resultsTable);
 
 		this.pagination = $( '<ul class="pagination caption_font"></ul>' ).appendTo( this.bodyContent );
-		//this.controlBar.accessibleBootstrapTabs();
 	}
 
 	ScalarIndex.prototype.showIndex = function() {
 
-		this.element.modal().on('hidden.bs.modal', function (e) {
+		var me = this;
+		var modal = this.element.modal();
+		modal.on('shown.bs.modal', function() {
+			modal.find( '.modal-body a' )[ 0 ].focus();
+			var firstFocusable = modal.find('.close');
+			var lastFocusable = modal.find('.modal-body a').last();
+			setupFocusTrap(firstFocusable, lastFocusable)
+		});
+
+		modal.on('hidden.bs.modal', function (e) {
 			$( 'body' ).css( 'overflowY', 'auto' );
+			removeFocusTrap();
 		});
 
 		var mode = this.currentMode || this.DisplayMode.Path;
@@ -207,11 +196,7 @@
 			this.resultsTable.attr('summary', 'Results for '+$a.html().toLowerCase());
 		}
 
-		// tabindex
-		var tabindex = this.tabIndex.Comment;
-
 		for ( i in nodes ) {
-			tabindex++;
 			node = nodes[i];
 			description = node.current.description;
 			if (description == null) {
@@ -223,7 +208,7 @@
 			if (node.thumbnail) {
 				thumb = '<img src="'+node.getAbsoluteThumbnailURL()+'" alt="'+node.current.getAltTextWithFallback('Thumbnail for ' + node.getDisplayTitle())+'" />';
 			}
-			row = $( '<tr><td class="title"><a href="javascript:;" tabindex="'+tabindex+'">'+node.getDisplayTitle()+'</a></td><td class="desc">'+description+'</td><td class="thumb">'+thumb+'</td></tr>' ).appendTo( this.resultsTable );
+			row = $( '<tr><td class="title"><a href="javascript:;">'+node.getDisplayTitle()+'</a></td><td class="desc">'+description+'</td><td class="thumb">'+thumb+'</td></tr>' ).appendTo( this.resultsTable );
 			row.data( 'node', node );
 			row.on('click',  function() { document.location = addTemplateToURL($(this).data('node').url, 'cantaloupe'); } );
 		}
@@ -245,31 +230,23 @@
 
 		if(me.maxPages > 1 && this.pagination.html() == ""){
 			if (me.maxPages > 15) {
-				tabindex++;
-				prevx10 = $('<li class="disabled prevPagex10"><a tabindex="'+tabindex+'" aria-label="Jump back 10 pages" href="javascript:;">&laquo;</a></li>').appendTo( this.pagination );
+				prevx10 = $('<li class="disabled prevPagex10"><a aria-label="Jump back 10 pages" href="javascript:;">&laquo;</a></li>').appendTo( this.pagination );
 				prevx10.find('a').on('click',  function() { if(!$(this).parent().hasClass('disabled')){me.goToPage(Math.max(1,me.currentPage-10));} } );
 			}
 			if(me.maxPages > 1){
-				tabindex++;
-				prev = $('<li class="disabled prevPage"><a tabindex="'+tabindex+'" aria-label="Previous results page" href="javascript:;">&lsaquo;</a></li>').appendTo( this.pagination );
+				prev = $('<li class="disabled prevPage"><a aria-label="Previous results page" href="javascript:;">&lsaquo;</a></li>').appendTo( this.pagination );
 				prev.find('a').on('click',  function() { if(!$(this).parent().hasClass('disabled')){me.previousPage();} } );
 			}
 			this.pagination.append('<li class="disabled"><a href="#">Page <span class="current-page">' + this.currentPage + '</span> of ' + me.maxPages + '</a></li>');
 			if(me.maxPages > 1){
-				tabindex++;
-				next = $( '<li class="nextPage"><a tabindex="'+tabindex+'" aria-label="Next results page" href="javascript:;">&rsaquo;</a></li>' ).appendTo( this.pagination );
+				next = $( '<li class="nextPage"><a aria-label="Next results page" href="javascript:;">&rsaquo;</a></li>' ).appendTo( this.pagination );
 				next.find('a').on('click',  function() { if(!$(this).parent().hasClass('disabled')){me.nextPage();} } );
 			}
 			if(me.maxPages > 15){
-				tabindex++;
-				nextx10 = $( '<li class="nextPagex10"><a tabindex="'+tabindex+'" aria-label="Jump ahead 10 pages" href="javascript:;">&raquo;</a></li>' ).appendTo( this.pagination );
+				nextx10 = $( '<li class="nextPagex10"><a aria-label="Jump ahead 10 pages" href="javascript:;">&raquo;</a></li>' ).appendTo( this.pagination );
 				nextx10.find('a').on('click',  function() { if(!$(this).parent().hasClass('disabled')){me.goToPage(Math.min(me.maxPages,me.currentPage+10));} } );
 			}
 		}
-
-		// dynamically update tab index of close button
-		tabindex++;
-		this.element.find( '.close' ).attr( 'tabindex', tabindex );
 
 	}
 
