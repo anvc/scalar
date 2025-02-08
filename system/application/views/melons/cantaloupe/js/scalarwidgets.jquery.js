@@ -492,6 +492,7 @@
                                node.current.properties[ property ][ j ].value,
                                node.getDisplayTitle(),
                                node.current.description,
+                               node.current.getAltTextWithFallback(),
                                node.url,
                                map,
                                infoWindow,
@@ -677,6 +678,19 @@
              var $carousel = $('<div id="' + carouselId + '" class="carousel slide" data-interval="false" style=""></div>').appendTo($element);
              var $wrapper = $( '<div class="carousel-inner" role="listbox"></div>' ).appendTo( $carousel );
 
+             // announce alt text when navigating carousel
+             var liveregion = document.createElement('div');
+             $(liveregion).attr({
+               'aria-live': 'polite',
+               'aria-atomic': 'true'
+             })
+             $(liveregion).addClass('sr-only')
+             $carousel.append(liveregion);
+             $carousel.on('slide.bs.carousel', function (evt) {
+              var altText = $(evt.relatedTarget).find('a').data('node').current.getAltTextWithFallback()
+              liveregion.textContent = altText;
+             })
+
              if ( page.adaptiveMedia == "mobile" ) {
                var galleryHeight = 300;
              } else {
@@ -765,14 +779,12 @@
        						}
        						$carousel.find( '.mediaelement' ).css( 'z-index', 'inherit' );
        						$carousel.find( '.slot' ).css( 'margin-top', '0' );
-       						$carousel.append( '<a class="left carousel-control" role="button" data-slide="prev">' +
+       						$carousel.append( '<button class="left carousel-control" aria-label="Previous carousel item" tabindex="0" data-slide="prev">' +
        							'<span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>' +
-       							'<span class="sr-only">Previous</span>' +
-       							'</a>' +
-       							'<a class="right carousel-control" role="button" data-slide="next">' +
+       							'</button>' +
+       							'<button class="right carousel-control" aria-label="Next carousel item" tabindex="0" data-slide="next">' +
        							'<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>' +
-       							'<span class="sr-only">Next</span>' +
-       							'</a>' );
+       							'</button>' );
 
                   $carousel.carousel( { interval: false } );
                   $carousel.find('.carousel-control').on('click', function(e){
@@ -917,10 +929,11 @@
 
          base.createCardFromNode = function(node,$target){
             var markup = '<div class="card"><div class="thumbnail">';
+            var altText = node.current.getAltTextWithFallback();
             if(typeof node.current.mediaSource != 'undefined' && node.current.mediaSource.contentType == 'image' && !node.current.mediaSource.isProprietary){
-              markup += '<div class="thumbnail_container"><img src="' + node.current.sourceFile + '" alt="" class="img-responsive center-block"></div><hr />';
+              markup += '<div class="thumbnail_container"><img src="' + node.current.sourceFile + '" alt="' + altText + '" class="img-responsive center-block"></div><hr />';
             }else if (node.thumbnail != null) {
-            	markup += '<div class="thumbnail_container"><img src="' + node.getAbsoluteThumbnailURL() + '" alt="" class="img-responsive center-block"></div><hr />';
+            	markup += '<div class="thumbnail_container"><img src="' + node.getAbsoluteThumbnailURL() + '" alt="' + altText + '" class="img-responsive center-block"></div><hr />';
             }
             markup += '<div class="caption"><h4 class="heading_font heading_weight">' + node.getDisplayTitle() + '</h4>';
             if (node.current.description != null) {
@@ -938,9 +951,10 @@
                 children = [];
               }
 
+              var altText = node.current.getAltTextWithFallback();    
               var markup = '<li class="media summary"><div class="media-left">';
               if (node.thumbnail != null) {
-               markup += '<a href="' + node.url + '"><img src="' + node.getAbsoluteThumbnailURL() + '" alt="" class="media-object center-block"></a>';
+                markup += '<a href="' + node.url + '"><img src="' + node.getAbsoluteThumbnailURL() + '" alt="' + altText + '" class="media-object center-block"></a>';
               }
               markup += '</div><div class="media-body"><h4 class="heading_font heading_weight media-heading">' + node.getDisplayTitle() + '</h4>';
               if (node.current.description != null) {
@@ -954,7 +968,7 @@
                   var child = children[i];
                   markup += '<li class="media summary"><div class="media-left">';
                   if (child.thumbnail != null) {
-                   markup += '<a href="' + child.url + '"><img src="' + child.getAbsoluteThumbnailURL() + '" alt="" class="media-object center-block"></a>';
+                   markup += '<a href="' + child.url + '"><img src="' + child.getAbsoluteThumbnailURL() + '" alt="= "' + altText + '" class="media-object center-block"></a>';
                   }
                   markup += '</div><div class="media-body"><h4 class="heading_font heading_weight media-heading">' + child.getDisplayTitle() + '</h4>';
                   if (child.current.description != null) {

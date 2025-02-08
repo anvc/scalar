@@ -34,6 +34,17 @@ article h6 { font-size: 1.4rem; line-height: 2.4rem; margin-top: 2.4rem; margin-
 
 .alert .alert-link { font-weight: 900; }
 
+/* remove default button styling */
+button {
+	display: inline-block;
+	border: none;
+	font-family: sans-serif;
+	cursor: pointer;
+	text-align: center;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+}
+
 .page_margins { padding-left: 7.2rem; padding-right: 7.2rem; }
 .left_margin { min-width: 7.2rem; float: left; }
 
@@ -304,8 +315,8 @@ ol.has_tags li:last-child:after { content: ""; }
 	transition: none;
 }
 
-.path-nav { position: fixed; top: 50%; opacity: .25; }
-.path-nav img { width: 3.2rem; }
+.path-nav { position: fixed; top: 50%; background-color: transparent; }
+.path-nav img { width: 3.2rem; opacity: .25; }
 img.path-nav { width: 3.2rem; }
 /*.popover { width: 20rem; }*/
 .popover.vis-help { font-size: 1.4rem; }
@@ -398,14 +409,15 @@ a:hover { text-decoration: underline; cursor: pointer; }
 .tag_cloud a:hover {text-decoration:underline;}
 
 #gallery_content { margin: 1rem 7.2rem 0 7.2rem; max-width: none; clear: both; }
-#gallery_content .thumb { margin-right: 0.7rem; margin-bottom: 0.7rem; cursor: pointer; max-height: 8.4rem; max-width: 20rem; }
+#gallery_content .thumb { cursor: pointer; max-height: 8.4rem; max-width: 20rem; }
 #gallery_content .thumb:hover { opacity:0.65; }
 #gallery_content h3 { margin: 0 0 1rem 0; padding: 0; }
+#gallery_content button { margin-right: 0.7rem; margin-bottom: 0.7rem; padding: 0; background-color: transparent; }
 
 #gallery { margin-bottom: 4.8rem; }
 .carousel-control.right, #gallery .carousel-control.left { background-image: none; }
-.carousel-control { top: 50%; width: 10%; bottom: inherit; }
-.carousel-caption { padding-bottom: .4rem; padding-top: 0; text-shadow: none; text-align: left; top: 0; left: 7.2rem; bottom: inherit; font-size: 1.4rem; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.carousel-control { top: 50%; width: 10%; bottom: inherit; border: none; background: none; text-shadow: none; background-image: none !important; }
+.carousel-caption { padding-bottom: .4rem; padding-top: 0; text-shadow: none; text-align: left; top: 0; left: 7.2rem; bottom: inherit; font-size: 1.4rem; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background-color: transparent !important; }
 .carousel-caption span { background-color: white; margin-bottom: 0; padding: .5rem 2rem 0.75rem 2rem;}
 #gallery .popover, .carousel > .popover { color: black; font-size: 1.2rem; text-shadow: none; color: #666; line-height: 140%; }
 .popover > h3 { margin: 0; padding: 8px 14px !important; }
@@ -863,24 +875,39 @@ a.media_info {
 
 .mediainfo td:first-child, .additional_metadata td:first-child { font-weight: bold; padding-right: .5rem; }
 
-.media_tab {
+.media_tabs label {
 	padding: .2rem 1.0rem;
 	text-transform: uppercase;
 	display: inline-block;
 	cursor: pointer;
 }
 
-.media_tab:hover { background-color: #eee; }
+.media_tabs label:hover { background-color: #eee; }
+
+.media_tabs input[type="radio"]:checked + label {
+	background-color: #595959;
+	color: white;
+	-webkit-font-smoothing: subpixel-antialiased;
+}
+
+.media_tabs input[type="radio"]:focus + label {
+  outline: 5px auto Highlight;
+  outline: 5px auto -webkit-focus-ring-color;
+}
 
 .media_tabs {
 	display: none;
 	margin-top: 1.2rem;
 }
 
-.media_tab.select {
-	background-color: #595959;
-	color: white;
-	-webkit-font-smoothing: subpixel-antialiased;
+.media_tabs input[type="radio"] {
+	border: 0 !important;
+  clip: rect(1px, 1px, 1px, 1px);
+  height: 1px !important;
+  overflow: hidden;
+  padding: 0 !important;
+  position: absolute !important;
+  width: 1px !important;
 }
 
 .media_page_wrap .body_copy{
@@ -924,7 +951,6 @@ audio::-webkit-media-controls-enclosure { max-width: 100%; /* removes chrome's m
 #comment_control {
 	color: #a6a6a6;
 	background: url(images/comments.png) no-repeat;
-	line-height: 2.7rem;
 	padding-left: 4rem;
 	float: left;
 	cursor: pointer;
@@ -953,6 +979,26 @@ audio::-webkit-media-controls-enclosure { max-width: 100%; /* removes chrome's m
 	white-space: nowrap;
 	padding-right: 6px;
 	vertical-align: top;
+}
+
+.custom-file-selector {
+	border: 1px solid;
+}
+
+.custom-file-selector:focus-within {
+	outline: 5px auto -webkit-focus-ring-color;
+}
+
+.custom-file-selector > input[type="file"] {
+	position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap; /* 1 */
+  clip-path: inset(50%);
+  border: 0;
 }
 
 #edit_form { padding-top: 4.8rem; }

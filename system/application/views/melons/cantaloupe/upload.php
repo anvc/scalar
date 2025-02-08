@@ -306,14 +306,14 @@ Other supported formats: 3gp, aif, mov, mpg, oga, tif, webm, webp<br />
 	</td></tr>
 	<tr><td class="field">Choose file</td><td>
 		<!-- <input type="file" name="source_file" /> -->
-		<label class="btn btn-grey" for="my-file-selector">
-		    <input id="my-file-selector" name="source_file" type="file" style="display:none;" onchange="custom_file_input(this);">
+		<label class="btn btn-grey custom-file-selector">
+		    <input name="source_file" type="file" onchange="custom_file_input(this);">
 		    Choose File
 		</label>
 		<span class='label' id="upload-file-info">No file chosen.</span>
 	</td></tr>
 	<tr><td>&nbsp;</td><td class="buttons">
-		<input type="submit" value="Upload" id="submit_button" class="btn btn-primary" />
+		<button type="submit" value="Upload" id="submit_button" class="btn btn-primary" >Upload</button>
 		<small style="color:red;display:none;" id="loading">&nbsp; Loading media metadata...</small>
 	</td></tr>
 </table>

@@ -274,8 +274,8 @@ class SearchManager {
 				'<label for="modal_scope" class="col-sm-2 text-right">in</label>'+
 				'<div class="col-sm-4">'+
 					'<select id="modal_scope" class="form-control">'+
-						'<option value="content" selected="selected">content only</option>'+
-						'<option value="titles">titles only</option>'+
+						'<option value="titles" selected="selected">titles only</option>'+
+						'<option value="content">content only</option>'+
 						'<option value="titles_content">titles and content</option>'+
 						'<option value="metadata">a metadata field</option>'+
 					'</select>'+
