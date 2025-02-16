@@ -1,6 +1,8 @@
 <?$this->template->add_css(path_from_file(__FILE__).'css/reset.css')?>
 <?$this->template->add_css(path_from_file(__FILE__).'css/bootstrap.min.css')?>
 <?$this->template->add_css(path_from_file(__FILE__).'css/bootstrap-accessibility.css')?>
+<?$this->template->add_css(path_from_file(__FILE__).'../../widgets/mediaelement/css/annotorious.css')?>
+<?$this->template->add_css(path_from_file(__FILE__).'../../widgets/mediaelement/mediaelement.css')?>
 <?$this->template->add_css(path_from_file(__FILE__).'css/common.css')?>
 <?$this->template->add_css(path_from_file(__FILE__).'css/scalarvis.css')?>
 <?$this->template->add_css(path_from_file(__FILE__).'css/header.css');?>
