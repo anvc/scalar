@@ -228,6 +228,25 @@ svg {
 .node {
 	cursor: pointer;
 }
+.node:focus > circle {
+	outline-color: -webkit-focus-ring-color;
+	outline-style: auto;
+	outline-width: 5px;
+}
+
+.info_box .content a.btn:focus, .selectedLabel:focus {
+	outline-color: -webkit-focus-ring-color;
+	outline-style: auto;
+	outline-width: 5px;
+	outline-offset: 1px;
+}
+
+.rowBox:focus {
+	outline-color: -webkit-focus-ring-color;
+	outline-style: auto;
+	outline-width: 5px;
+	stroke-opacity: 1;
+}
 
 .node circle {
   stroke-width: 1.5px;
