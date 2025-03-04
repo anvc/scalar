@@ -83,27 +83,16 @@
 
 		this.modal.on('shown.bs.modal', function() {
 			me.modal.find( '.modal-body a' )[ 0 ].focus();
+			var firstFocusable = me.modal.find('.close');
+			var lastFocusable = me.modal.find('.modal-body a').last();
+			setupFocusTrap(firstFocusable, lastFocusable)
 		});
 
-		this.element.replaceWith(this.element);
-
-		// set tab order for links
-		var ti = 1000;
-		this.modal.find( '.modal-body a' ).each( function() {
-			$( this ).attr( 'tabindex', ti );
-			ti++;
+		this.modal.on('hidden.bs.modal', function() {
+			removeFocusTrap();
 		} );
 
-		// tabbing forward from close button brings focus to first link
-		this.modal.find( '.close' ).onTab( function() {
-			me.modal.find( '.modal-body a' )[ 0 ].focus();
-		});
-
-		// tabbing backwards from first link brings focus to close button
-		this.modal.find( '.modal-body a:eq(0)' ).onTabBack( function() {
-			me.modal.find( '.close' )[ 0 ].focus();
-		});
-
+		this.element.replaceWith(this.element);
 	}
 
 	ScalarHelp.prototype.showHelp = function() {

@@ -18,7 +18,7 @@
  */
 
 /**
- * @projectDescription  Boot Scalar Javascript/jQuery using yepnope.js + some global functions
+ * @projectDescription  Boot Scalar RDF, mediaelement, and other resources
  * @author              Erik Loyer
  * @author				Craig Dietrich
  * @version             Cantaloupe
@@ -63,6 +63,8 @@ var isTablet = ((navigator.userAgent.match(/iPad/i)) || (navigator.userAgent.mat
 var isMobileNotTablet = ((navigator.userAgent.match(/iPhone/i)) || (navigator.userAgent.match(/iPod/i)) || ((navigator.userAgent.match(/Android/i)) && (navigator.userAgent.match(/mobile/i)))); // TODO: Does this weed out Android tablets?
 var isNative = (document.location.href.indexOf('=cantaloupe') == -1);
 var typeLimits = null;
+var firstFocusable = null;
+var lastFocusable = null;
 
 function when(tester_func, callback) {
 	var timeout = 50;
@@ -149,7 +151,7 @@ function addIconBtn(element, filename, hoverFilename, title, url) {
 	var img_url_1 = modules_uri+'/cantaloupe/images/'+filename;
 	var img_url_2 = modules_uri+'/cantaloupe/images/'+hoverFilename;
 	if (url == undefined) url = 'javascript:;';
-	var button = $('<a href="'+url+'" title="'+title+'"><img src="'+img_url_1+'" onmouseover="this.src=\''+img_url_2+'\'" onmouseout="this.src=\''+img_url_1+'\'" width="30" height="30" /></a>').appendTo(element);
+	var button = $('<a href="'+url+'" title="'+title+'"><img src="'+img_url_1+'" onmouseover="this.src=\''+img_url_2+'\'" onmouseout="this.src=\''+img_url_1+'\'" width="30" height="30" alt="" /></a>').appendTo(element);
 	return button;
 }
 
@@ -172,6 +174,43 @@ function pullOutElement($pull) {
     $pull.insertAfter($par);
     $par = $pull.parent();
   }
+}
+
+function setupFocusTrap(firstFocusElement, lastFocusElement) {
+	firstFocusable = firstFocusElement;
+	lastFocusable = lastFocusElement;
+
+	console.log('firstFocusable', firstFocusable);
+	console.log('lastFocusable', lastFocusable);
+
+	// tab back from first focusable to last
+	firstFocusable.on('keydown.focusTrap', function(e) {
+		var keyCode = e.keyCode || e.which;
+		console.log('firstFocusable keydown', keyCode);
+		if(keyCode == 9) {
+			if (e.shiftKey) {
+				e.preventDefault();
+				lastFocusable.focus();
+			}
+		}
+	});
+
+	// tap forward from last focusable to first
+	lastFocusable.on('keydown.focusTrap', function(e) {
+		var keyCode = e.keyCode || e.which;
+		console.log('lastFocusable keydown', keyCode);
+		if(keyCode == 9) {
+			if (!e.shiftKey) {
+				e.preventDefault();
+				firstFocusable.focus();
+			}
+		}
+	});
+}
+
+function removeFocusTrap() {
+	if (firstFocusable) firstFocusable.off('keydown.focusTrap')
+	if (lastFocusable) lastFocusable.off('keydown.focusTrap')
 }
 
 /**
@@ -525,11 +564,12 @@ $(window).ready(function() {
 
   	// Cookie for clearing a notice
 	if ($('.scalarnotice').length) {
-		yepnope([
-		   {load: [widgets_uri+'/cookie/jquery.cookie.js',widgets_uri+'/notice/jquery.scalarnotice.js'], complete:function() {
+		$.when(
+			$.get(widgets_uri+'/cookie/jquery.cookie.js'),
+			$.get(widgets_uri+'/notice/jquery.scalarnotice.js')
+		).then(function( data, textStatus, jqXHR ) {
 			  $('.scalarnotice').scalarnotice();
-           }},
-	    ]);
+		});
 	};
 
 	window.initGoogleMap = function() {} // google maps api requires a callback
@@ -539,16 +579,14 @@ $(window).ready(function() {
 		switch (event.data) {};
 	});
 
-	yepnope([
-
-		  // Scalar API
-		  {load: [base_uri+'/js/jquery.rdfquery.rules-1.0.js',
-		          base_uri+'/js/jquery.RDFa.js',
-		          base_uri+'/js/form-validation.js?v=2',
-		          widgets_uri+'/nav/jquery.scalarrecent.js',
-		          widgets_uri+'/cookie/jquery.cookie.js',
-		          widgets_uri+'/api/scalarapi.js'], complete:function() {
-
+	$.when(
+		$.get(base_uri+'/js/jquery.rdfquery.rules-1.0.js'),
+		$.get(base_uri+'/js/jquery.RDFa.js'),
+		$.get(base_uri+'/js/form-validation.js?v=2'),
+		$.get(widgets_uri+'/nav/jquery.scalarrecent.js'),
+		$.get(widgets_uri+'/cookie/jquery.cookie.js'),
+		$.get(widgets_uri+'/api/scalarapi.js')
+	).then(function( data, textStatus, jqXHR ) {
 				/**
 				 * Get raw JSON
 				 */
@@ -612,12 +650,12 @@ $(window).ready(function() {
 				var rel = rdf.predicates('http://purl.org/dc/terms/references');
 				for (var uri in rel) console.log('references: '+rdf.predicate(rel[uri].value, 'http://purl.org/dc/terms/title'));
 				*/
+	});
 
-		  }},
-
-		  {load: [widgets_uri+'/spinner/spin.min.js',
-        widgets_uri+'/d3/d3.v5.min.js'], complete:function() {
-
+	$.when(
+		$.get(widgets_uri+'/spinner/spin.min.js'),
+		$.get(widgets_uri+'/d3/d3.v5.min.js')
+	).then(function( data, textStatus, jqXHR ) {
         var currentNode = scalarapi.model.getCurrentPageNode();
         var extension = scalarapi.getFileExtension( window.location.href );
 
@@ -631,11 +669,8 @@ $(window).ready(function() {
 			  $('article').before($('#book-title').parent().parent());
 
 				header = $('#book-title').parent().parent().scalarheader( { root_url: modules_uri+'/cantaloupe'} );
-
 				page = $.scalarpage( $('article'),  { root_url: modules_uri+'/cantaloupe'} );
-
 				widgets = page.bodyContent().scalarwidgets().data('scalarwidgets');
-
 
 				$( '[property="art:url"]' ).css( 'display', 'none' );
 
@@ -650,15 +685,12 @@ $(window).ready(function() {
 				});
 
 				$('body').trigger( "pageLoadComplete" );
+	});
 
-		  }},
-
-		  // Mediaelement
-		  {load: [
-				widgets_uri+'/mediaelement/annotorious.debug.js',
-				widgets_uri+'/mediaelement/css/annotorious.css',
-				widgets_uri+'/mediaelement/mediaelement.css',
-				widgets_uri+'/mediaelement/jquery.mediaelement.js'], complete:function() {
+	$.when(
+		$.get(widgets_uri+'/mediaelement/annotorious.debug.js'),
+		$.get(widgets_uri+'/mediaelement/jquery.mediaelement.js')
+	).then(function( data, textStatus, jqXHR ) {
 
 		        var currentNode = scalarapi.model.getCurrentPageNode();
 
@@ -676,20 +708,16 @@ $(window).ready(function() {
 				}
 
 				var savedState = $.cookie('viewstate');
+	});
 
-		  }},
+	//$('head').append('<link rel="stylesheet" href="'+widgets_uri+'/mediaelement/css/annotorious.css" type="text/css" />');
+	//$('head').append('<link rel="stylesheet" href="'+widgets_uri+'/mediaelement/mediaelement.css" type="text/css" />');
 
-		  // Maximize + comments
-		  {load: ['//www.google.com/recaptcha/api.js',
-		          widgets_uri+'/replies/replies.js'], complete:function() {}
-		  },
+	$.get('//www.google.com/recaptcha/api.js');
+	$.get(widgets_uri+'/replies/replies.js');
 
-		  // Hypothesis
-		  {
-			  test: ('true'==$('link#hypothesis').attr('href')),
-			  yep: 'https://hypothes.is/embed.js'
-		  },
-
-	]);  // !yepnope
+	if ('true'==$('link#hypothesis').attr('href')) {
+		$.get('https://hypothes.is/embed.js')
+	}
 
 });

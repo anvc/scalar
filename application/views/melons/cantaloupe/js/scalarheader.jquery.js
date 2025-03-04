@@ -885,13 +885,15 @@
               '-moz-transform': 'translateX(0px)'
             }).removeClass('expandedMenuOpen');
           }
-          $(this).addClass('open').trigger('show.bs.dropdown').find('[aria-expanded="false"]').attr('aria-expanded', 'true');
+          $(this).addClass('open').trigger('show.bs.dropdown').children('[aria-expanded="false"]').attr('aria-expanded', 'true');
         }
       }).on('mouseleave', function(e) {
         // TODO: this is the area that is causing Win10 touch problems ~Craig
         var base = $('#scalarheader.navbar').data('scalarheader');
         if (!base.usingMobileView) {
-          $(this).removeClass('open').trigger('hide.bs.dropdown').find('[aria-expanded="true"]').attr('aria-expanded', 'false');
+          if ($(this).find('ul [aria-expanded="true"]').length == 0) {
+            $(this).removeClass('open').trigger('hide.bs.dropdown').find('[aria-expanded="true"]').attr('aria-expanded', 'false');
+          } 
         }
       }).on('keydown', function(e) {
         // press ESC
@@ -1118,7 +1120,7 @@
     }
 
     base.titleAndCredit = function() {
-      const element = $('<span class="navbar-text navbar-left pull-left title_wrapper hidden-xs" id="desktopTitleWrapper">'+
+      const element = $('<span class="navbar-text navbar-left pull-left title_wrapper hidden-xs" id="desktopTitleWrapper" role="banner">'+
         '<span class="hidden-xs author_text">'+
           '<span id="header_authors" data-placement="bottom"></span>'+
         '</span>'+
@@ -1164,7 +1166,11 @@
     base.skipLink = function() {
       const skipLink = $('<button id="skip">Skip to Main Content</button>')
       skipLink.on('click', () => {
-        $('article a:not(.metadata)').first().focus()
+        if ($('.title_card').length) {
+          $('.title_card a:not(.metadata):not([inert]):not("li a")').first().focus()
+        } else {
+          $('article a:not(.metadata), article input').first().focus()
+        }
       })
       return skipLink
     }
@@ -1398,10 +1404,11 @@
     }
 
     base.initSubmenus = function(el) {
+      $(el).attr('aria-expanded', 'true');
       var li = $(el).is('li.dropdown')?$(el):$(el).parent('li.dropdown');
       var a = $(el).is('li.dropdown>a')?$(el):$(el).children('a').first();
       var dropdown = li.find('ul.dropdown-menu');
-      li.addClass('open').removeClass('left right').addClass(a.offset().left>($(window).width()/2)?'left':'right').siblings('li').removeClass('open left right');
+      li.addClass('open').removeClass('left right').addClass(a.offset().left>($(window).width()/2)?'left':'right').siblings('li').removeClass('open left right').find('[aria-expanded="true"]').attr('aria-expanded', 'false');
       if (li.hasClass('right')) {
         max_width = $(window).width() - (a.offset().left + a.outerWidth() );
       } else {
@@ -1630,11 +1637,13 @@
               .addClass((base.parentNodes.indexOf(tocNode.slug) < 0 && (typeof base.currentNode === 'undefined' || tocNode.slug != base.currentNode.slug)) ? '' : 'is_parent')
               .addClass((base.visitedPages.indexOf(tocNode.url) < 0 && (typeof base.currentNode === 'undefined' || tocNode.url != base.currentNode.url)) ? '' : 'visited');
 
-            $('<a class="expand" title="Explore ' + tocNode.getDisplayTitle(true) + '"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(listItem).on('click', function(e) {
+            $('<a class="expand" title="Explore ' + tocNode.getDisplayTitle(true) + '" aria-expanded="false"><span class="menuIcon rightArrowIcon pull-right"></span></a>').appendTo(listItem).on('click', function(e) {
               var base = $('#scalarheader.navbar').data('scalarheader');
               var target_toc_item = $(this).parent().data('node');
               base.expandMenu(target_toc_item, 0);
+              $('.mainMenu>.dropdown-menu .body>ol>li.active > a').attr('aria-expanded', 'false');
               var menu = $('.mainMenu>.dropdown-menu .body>ol>li.active').removeClass('active');
+              $(this).attr('aria-expanded', 'true')
               $(this).parent().addClass('active');
 
               $("#mainMenuSubmenus").removeClass(function(index, className) {
@@ -1780,6 +1789,8 @@
           expanded_menu = $('#mobileMainMenuSubmenus .pages');
         }
         var currentMenuWidth = base.remToPx * 38;
+
+        $(this).parent().parent().parent().find('[aria-expanded="true"]').attr('aria-expanded', 'false');
 
         if (base.usingMobileView) {
           max_n = $('#mobileMainMenuSubmenus .expandedPage').length - 2;

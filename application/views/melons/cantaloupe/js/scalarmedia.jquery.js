@@ -321,7 +321,7 @@
 
 			displayRelatedMedia: function() {
 				if (relatedNodes.length > 0) {
-					var relatedTab = $('<div class="media_tab">Related</div>').appendTo(mediaTabs);
+					var relatedTab = $('<input type="radio" class="media_tab" name="media_tab" id="relatedTab"><label for="relatedTab">Related</label>').appendTo(mediaTabs);
 					var relatedPane = $('<div class="media_related pane"></div>').appendTo(element);
 					relatedNodes.forEach(function (node) {
 						var nodeDescription = ''
@@ -416,7 +416,7 @@
 				descriptionPane.find('a.citations-link').on('click',  function() {
 					media.options[ 'details' ].show( node );
 				} );
-				var descriptionTab = $('<div class="media_tab select">Description</div>').appendTo(mediaTabs);
+				var descriptionTab = $('<input type="radio" class="media_tab" name="media_tab" id="descriptionTab" checked="checked"><label for="descriptionTab">Description</label>').appendTo(mediaTabs);
 				descriptionTab.on('click', function() { media.showTab($(this), descriptionPane) });
 				element.find('.media_description').show();
 			}
@@ -445,7 +445,7 @@
 			}
 
 			if (annotations.length > 0) {
-				var annotationTab = $('<div class="media_tab">Annotations</div>').appendTo(mediaTabs);
+				var annotationTab = $('<input type="radio" class="media_tab" name="media_tab" id="annotationsTab"><label for="annotationsTab">Annotations</label>').appendTo(mediaTabs);
 				annotationTab.on('click', function() { media.showTab($(this), annotationPane) });
 				var annotationPane = $('<div class="media_annotations pane"></div>').appendTo(element);
 				var table = $('<table></table>').appendTo(annotationPane);
@@ -481,7 +481,7 @@
 
 			// hide metadata tab if the media's description tab includes the metadata
 			if (media.options.caption != 'metadata') {
-				var metadataTab = $('<div class="media_tab">Details</div>').appendTo(mediaTabs);
+				var metadataTab = $('<input type="radio" class="media_tab" name="media_tab" id="metadataTab"><label foc for="metadataTab">Details</label>').appendTo(mediaTabs);
 				var metadataPane = $('<div class="media_metadata pane"></div>').appendTo(element);
 				metadataTab.on('click', function() { media.showTab($(this), metadataPane) });
 				addMetadataTableForNodeToElement(node, metadataPane);
@@ -493,14 +493,14 @@
 			}
 
 			if ('undefined'==typeof(scalarMediaHideCitationsTab) || !scalarMediaHideCitationsTab) {
-				var detailsTab = $( '<div class="media_tab">Citations</div>' ).appendTo( mediaTabs );
+				var detailsTab = $( '<input type="radio" class="media_tab" name="media_tab" id="detailsTab"><label for="detailsTab">Citations</label>' ).appendTo( mediaTabs );
 				detailsTab.on('click',  function() {
-					media.options[ 'details' ].show( node );
+					media.options[ 'details' ].show( node, null, null, detailsTab );
 				} );
 			}
 
 			if ('undefined'==typeof(scalarMediaHideSourceFileTab) || !scalarMediaHideSourceFileTab) {
-				var sourceTab = $( '<div class="media_tab">Source file</div>' ).appendTo( mediaTabs );
+				var sourceTab = $( '<input type="radio" class="media_tab" name="media_tab" id="sourceTab"><label for="sourceTab">Source file</label>' ).appendTo( mediaTabs );
 				sourceTab.on('click',  function() {
 					window.open( node.current.sourceFile, 'popout' );
 				} );
