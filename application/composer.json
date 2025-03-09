@@ -13,7 +13,7 @@
 	"require": {
 		"php": ">=5.2.4",
 		"phpseclib/mcrypt_compat": "^2.0",
-		"semsol/arc2": "3",
+		"semsol/arc2": "^3",
 		"tpyo/amazon-s3-php-class": "^0.5.1",
 		"sonata-project/google-authenticator": "^2.3",
 		"phpmailer/phpmailer": "^6.7",
@@ -25,10 +25,5 @@
 	},
 	"require-dev": {
 		"mikey179/vfsstream": "1.1.*"
-	},
-	"config": {
-		"platform": {
-			"php": "7.4"
-		}
 	}
 }

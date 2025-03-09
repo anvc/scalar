@@ -1,0 +1,20 @@
+# allow access to css/image/js/html files in views folder and all subdirs
+<FilesMatch "\.(css|gif|png|jpe?g|js|html)$">
+	<IfModule authz_core_module>
+		Require all granted
+	</IfModule>
+	<IfModule !authz_core_module>
+		Allow from all
+	</IfModule>
+</FilesMatch>
+
+# allow access to font files in views folder and all subdirs
+<FilesMatch "\.(eot|svg|ttf|woff|woff2)$">
+	<IfModule authz_core_module>
+		Require all granted
+	</IfModule>
+	<IfModule !authz_core_module>
+		Allow from all
+	</IfModule>
+</FilesMatch>
+
