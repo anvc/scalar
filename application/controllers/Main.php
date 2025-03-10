@@ -412,7 +412,7 @@ class Main extends MY_Controller {
 			} else {
 				$reset_string = $this->users->set_reset_string($email);
 				$this->sendmail->reset_password($email, $reset_string);
-				header('Location: '.confirm_slash(base_url()).'system/forgot_password?action=sent');
+				header('Location: '.confirm_slash(base_url()).'main/forgot_password?action=sent');
 				exit;
 			}
 		}
