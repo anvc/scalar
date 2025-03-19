@@ -24,6 +24,7 @@
  * @version					2.3
  */
 
+ #[AllowDynamicProperties]
 class MY_Controller extends CI_Controller {
 
 	public $data = array();
