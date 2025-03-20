@@ -214,8 +214,9 @@ class MY_Controller extends CI_Controller {
 
 	protected function login_is_book_admin($level='Editor') {
 
-		if (null != $this->data['user_level']) $this->data['user_level'] = strtolower($this->data['user_level']);  // Can't send null to strtolower() anymore
-		if ($this->users->is_a($this->data['user_level'], $level)) return true;
+		$user_level = $this->data['user_level'];
+		if (null != $user_level) $user_level = strtolower($user_level); // Can't send null to strtolower() anymore
+		if ($this->users->is_a($user_level, $level)) return true;
 		return false;
 
 	}
