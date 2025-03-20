@@ -29,7 +29,7 @@
  * @author		EllisLab Dev Team
  * @link		http://codeigniter.com/user_guide/database/
  */
-#[\AllowDynamicProperties]
+#[AllowDynamicProperties]
 class CI_DB_driver {
 
 	var $username;
