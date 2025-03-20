@@ -180,9 +180,6 @@ function setupFocusTrap(firstFocusElement, lastFocusElement) {
 	firstFocusable = firstFocusElement;
 	lastFocusable = lastFocusElement;
 
-	console.log('firstFocusable', firstFocusable);
-	console.log('lastFocusable', lastFocusable);
-
 	// tab back from first focusable to last
 	firstFocusable.on('keydown.focusTrap', function(e) {
 		var keyCode = e.keyCode || e.which;
@@ -567,7 +564,7 @@ $(window).ready(function() {
 		$.when(
 			$.get(widgets_uri+'/cookie/jquery.cookie.js'),
 			$.get(widgets_uri+'/notice/jquery.scalarnotice.js')
-		).then(function( data, textStatus, jqXHR ) {
+		).done(function( data, textStatus, jqXHR ) {
 			$('.scalarnotice').scalarnotice();
 		});
 	};
@@ -586,7 +583,7 @@ $(window).ready(function() {
 		$.get(widgets_uri+'/nav/jquery.scalarrecent.js'),
 		$.get(widgets_uri+'/cookie/jquery.cookie.js'),
 		$.get(widgets_uri+'/api/scalarapi.js')
-	).then(function( data, textStatus, jqXHR ) {
+	).done(function( data, textStatus, jqXHR ) {
 		/**
 		 * Get raw JSON
 		 */
@@ -650,64 +647,65 @@ $(window).ready(function() {
 		var rel = rdf.predicates('http://purl.org/dc/terms/references');
 		for (var uri in rel) console.log('references: '+rdf.predicate(rel[uri].value, 'http://purl.org/dc/terms/title'));
 		*/		
-	});
+		
 
-	$.when(
-		$.get(widgets_uri+'/spinner/spin.min.js'),
-		$.get(widgets_uri+'/d3/d3.v5.min.js')
-	).then(function( data, textStatus, jqXHR ) {
-        var currentNode = scalarapi.model.getCurrentPageNode();
-        var extension = scalarapi.getFileExtension( window.location.href );
+		$.when(
+			$.get(widgets_uri+'/spinner/spin.min.js'),
+			$.get(widgets_uri+'/d3/d3.v5.min.js')
+		).done(function( data, textStatus, jqXHR ) {
+					var currentNode = scalarapi.model.getCurrentPageNode();
+					var extension = scalarapi.getFileExtension( window.location.href );
 
-	    if ( currentNode == null || currentNode.current == null) {
-	   		if ( extension != 'edit' && $('span[property="sioc:content"]').is(':empty')) {
-	   			$( 'body' ).append( '<div id="centered-message"><span>This page contains no content.</span> <span>Click the <img src="' + modules_uri + '/cantaloupe/images/edit_icon.png" alt="Edit button. Click to edit the current page or media." width="30" height="30" /> button above to add some.</span></div>' );
-	   		}
-	   	}
+				if ( currentNode == null || currentNode.current == null) {
+					if ( extension != 'edit' && $('span[property="sioc:content"]').is(':empty')) {
+						$( 'body' ).append( '<div id="centered-message"><span>This page contains no content.</span> <span>Click the <img src="' + modules_uri + '/cantaloupe/images/edit_icon.png" alt="Edit button. Click to edit the current page or media." width="30" height="30" /> button above to add some.</span></div>' );
+					}
+				}
 
-		 $('#book-title').parent().wrap('<nav role="navigation"></nav>');
-		 $('article').before($('#book-title').parent().parent());
+			$('#book-title').parent().wrap('<nav role="navigation"></nav>');
+			$('article').before($('#book-title').parent().parent());
 
-		header = $('#book-title').parent().parent().scalarheader( { root_url: modules_uri+'/cantaloupe'} );
-		page = $.scalarpage( $('article'),  { root_url: modules_uri+'/cantaloupe'} );
-		widgets = page.bodyContent().scalarwidgets().data('scalarwidgets');
+			header = $('#book-title').parent().parent().scalarheader( { root_url: modules_uri+'/cantaloupe'} );
+			page = $.scalarpage( $('article'),  { root_url: modules_uri+'/cantaloupe'} );
+			widgets = page.bodyContent().scalarwidgets().data('scalarwidgets');
 
-		$( '[property="art:url"]' ).css( 'display', 'none' );
+			$( '[property="art:url"]' ).css( 'display', 'none' );
 
-		$('body').css('visibility', 'visible').attr( 'ontouchstart', '' );
-		if (page.containingPath) $('body').addClass('parent-' + page.containingPath.slug)
-		if (currentNode && currentNode.slug) $('body').addClass('page-' + currentNode.slug)
+			$('body').css('visibility', 'visible').attr( 'ontouchstart', '' );
+			if (page.containingPath) $('body').addClass('parent-' + page.containingPath.slug)
+			if (currentNode && currentNode.slug) $('body').addClass('page-' + currentNode.slug)
 
-		var timeout;
-		$( window ).on('resize',  function() {
-			clearTimeout( timeout );
-			timeout = setTimeout( handleDelayedResize, 300 );
+			var timeout;
+			$( window ).on('resize',  function() {
+				clearTimeout( timeout );
+				timeout = setTimeout( handleDelayedResize, 300 );
+			});
+
+			$('body').trigger( "pageLoadComplete" );			
+
+			$.when(
+				$.get(widgets_uri+'/mediaelement/annotorious.debug.js'),
+				$.get(widgets_uri+'/mediaelement/jquery.mediaelement.js')
+			).done(function( data, textStatus, jqXHR ) {
+		
+				var currentNode = scalarapi.model.getCurrentPageNode();
+		
+				if ( currentNode != null ) {
+					page.addMediaElements();
+				}
+		
+				var extension = scalarapi.getFileExtension( window.location.href );
+				if (extension == "") {
+					$audio = $('section.audio');
+					if($audio.length) {
+						$audio.show();
+						page.addMediaElementsForElement($audio);
+					}
+				}
+		
+				var savedState = $.cookie('viewstate');
+			});	
 		});
-
-		$('body').trigger( "pageLoadComplete" );				
-	});
-
-	$.when(
-		$.get(widgets_uri+'/mediaelement/annotorious.debug.js'),
-		$.get(widgets_uri+'/mediaelement/jquery.mediaelement.js')
-	).then(function( data, textStatus, jqXHR ) {
-
-		var currentNode = scalarapi.model.getCurrentPageNode();
-
-		if ( currentNode != null ) {
-			page.addMediaElements();
-		}
-
-		var extension = scalarapi.getFileExtension( window.location.href );
-		if (extension == "") {
-			$audio = $('section.audio');
-			if($audio.length) {
-				$audio.show();
-				page.addMediaElementsForElement($audio);
-			}
-		}
-
-		var savedState = $.cookie('viewstate');
 	});
 	
 	//$('head').append('<link rel="stylesheet" href="'+widgets_uri+'/mediaelement/css/annotorious.css" type="text/css" />');
