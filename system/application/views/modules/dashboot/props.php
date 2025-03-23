@@ -262,7 +262,7 @@ function select_versions() {
       <div class="form-group">
         <label for="subtitle" class="col-sm-2 control-label">Subtitle</label>
         <div class="col-sm-10">
-          <input type="text" class="form-control" id="subtitle" name="subtitle" value="<?=htmlspecialchars($book->subtitle)?>">
+          <input type="text" class="form-control" id="subtitle" name="subtitle" value="<?=htmlspecialchars($book->subtitle !== null ? $book->subtitle : "")?>">
         </div>
       </div>
       <div class="form-group">
@@ -376,7 +376,7 @@ function select_versions() {
       <div class="form-group">
         <label for="publisher" class="col-sm-2 control-label">Publisher Credit</label>
         <div class="col-sm-10">
-          <input type="text" class="form-control" id="publisher" name="publisher" value="<?=htmlspecialchars($book->publisher)?>">
+          <input type="text" class="form-control" id="publisher" name="publisher" value="<?=htmlspecialchars($book->publisher !== null ? $book->publisher : "")?>">
           <small>Any HTML hyperlink included here will also be applied to the publisher logo</small>
         </div>
       </div>
@@ -412,7 +412,7 @@ function select_versions() {
       <div class="form-group">
         <label for="publisher" class="col-sm-2 control-label">Terms of Service</label>
         <div class="col-sm-10">
-          <input type="text" class="form-control" id="terms_of_service" name="terms_of_service" value="<?=htmlspecialchars($book->terms_of_service)?>">
+          <input type="text" class="form-control" id="terms_of_service" name="terms_of_service" value="<?=htmlspecialchars($book->terms_of_service !== null ? $book->terms_of_service : "")?>">
           <small>Enter the URL to your Terms of Service</small>
         </div>
       </div>
@@ -420,7 +420,7 @@ function select_versions() {
 			<div class="form-group">
 				<label for="publisher" class="col-sm-2 control-label">Privacy Policy</label>
 				<div class="col-sm-10">
-					<input type="text" class="form-control" id="privacy_policy" name="privacy_policy" value="<?=htmlspecialchars($book->privacy_policy)?>">
+					<input type="text" class="form-control" id="privacy_policy" name="privacy_policy" value="<?=htmlspecialchars($book->privacy_policy !== null ? $book->privacy_policy : "")?>">
           <small>Enter the URL to your Privacy Policy</small>
 				</div>
 			</div>
