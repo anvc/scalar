@@ -27,7 +27,7 @@
  * @author		EllisLab Dev Team
  * @link		http://codeigniter.com/user_guide/libraries/uri.html
  */
-#[AllowDynamicProperties]
+#[\AllowDynamicProperties]
 class CI_URI {
 
 	/**

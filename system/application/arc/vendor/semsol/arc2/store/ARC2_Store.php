@@ -14,7 +14,7 @@ use ARC2\Store\TableManager\SQLite;
 
 ARC2::inc('Class');
 
-#[AllowDynamicProperties]
+#[\AllowDynamicProperties]
 class ARC2_Store extends ARC2_Class
 {
     public $cache;
