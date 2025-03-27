@@ -182,8 +182,8 @@ class File_Upload {
                 throw new Exception('Image not of proper type');
         }
 
-        $dst_im = imagecreatetruecolor($newwidth, $newheight);
-        imagecopyresampled($dst_im, $src_im, 0, 0, 0, 0, $newwidth, $newheight, $width, $height);
+        $dst_im = imagecreatetruecolor(intval($newwidth), intval($newheight));
+        imagecopyresampled($dst_im, $src_im, 0, 0, 0, 0, intval($newwidth), intval($newheight), $width, $height);
 
         $resized_file = tempnam(sys_get_temp_dir(), 'scalarimage');
         switch ($type) {
