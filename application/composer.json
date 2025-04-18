@@ -11,7 +11,7 @@
 		"source": "https://github.com/bcit-ci/CodeIgniter"
 	},
 	"require": {
-		"php": ">=5.2.4",
+		"php": ">=8.0",
 		"phpseclib/mcrypt_compat": "^2.0",
 		"semsol/arc2": "^3",
 		"tpyo/amazon-s3-php-class": "^0.5.1",

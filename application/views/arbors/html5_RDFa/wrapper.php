@@ -105,7 +105,7 @@ if (isset($page->version_index)) {
 		echo $default_img;
 	}
 } else {
-	echo $default_img;
+	echo $default_img = confirm_slash($app_root) .'views/arbors/html5_RDFa/scalar_logo_300x300.png';
 }
 ?>" />
 <meta property="og:type" content="article" />
@@ -142,9 +142,9 @@ if (isset($page->version_index)) {
 ?>" />
 <link id="book_id" href="<?=$book->book_id?>" />
 <link id="parent" href="<?=$base_uri?>" />
-<link id="approot" href="<?=base_url('application') . '/'?>" />
+<link id="approot" href="<?=confirm_slash(base_url())?>application/" />
 <? if ($login->is_logged_in): ?>
-<link id="logged_in" href="<?=confirm_slash(base_url())?>system/users/<?=$login->user_id?>" />
+<link id="logged_in" href="<?=confirm_slash(base_url())?>main/users/<?=$login->user_id?>" />
 <? endif ?>
 <? if (null !== $user_level): ?>
 <link id="user_level" href="scalar:<?=ucwords(((!empty($user_level_as_defined))?$user_level_as_defined:'Author'))?>" />
@@ -175,8 +175,6 @@ if (isset($page->version_index)) {
 <link id="CI_elapsed_time" href="<?php echo $this->benchmark->elapsed_time()?>" />
 <? if (!empty($_styles)) echo $_styles?>
 <?=template_script_tag_relative(__FILE__, 'js/jquery-3.4.1.min.js')."\n"?>
-<?=template_script_tag_relative(__FILE__, 'js/yepnope.1.5.4-min.js')."\n"?>
-<?=template_script_tag_relative(__FILE__, 'js/yepnope.css.js')."\n"?>
 <script type="text/javascript" src="https://www.google.com/recaptcha/api.js?render=explicit"></script>
 <? if (!empty($_scripts)) echo $_scripts?>
 <?

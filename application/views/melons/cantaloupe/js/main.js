@@ -180,9 +180,6 @@ function setupFocusTrap(firstFocusElement, lastFocusElement) {
 	firstFocusable = firstFocusElement;
 	lastFocusable = lastFocusElement;
 
-	console.log('firstFocusable', firstFocusable);
-	console.log('lastFocusable', lastFocusable);
-
 	// tab back from first focusable to last
 	firstFocusable.on('keydown.focusTrap', function(e) {
 		var keyCode = e.keyCode || e.which;
@@ -567,8 +564,8 @@ $(window).ready(function() {
 		$.when(
 			$.get(widgets_uri+'/cookie/jquery.cookie.js'),
 			$.get(widgets_uri+'/notice/jquery.scalarnotice.js')
-		).then(function( data, textStatus, jqXHR ) {
-			  $('.scalarnotice').scalarnotice();
+		).done(function( data, textStatus, jqXHR ) {
+			$('.scalarnotice').scalarnotice();
 		});
 	};
 
@@ -586,10 +583,10 @@ $(window).ready(function() {
 		$.get(widgets_uri+'/nav/jquery.scalarrecent.js'),
 		$.get(widgets_uri+'/cookie/jquery.cookie.js'),
 		$.get(widgets_uri+'/api/scalarapi.js')
-	).then(function( data, textStatus, jqXHR ) {
-				/**
-				 * Get raw JSON
-				 */
+	).done(function( data, textStatus, jqXHR ) {
+		/**
+		 * Get raw JSON
+		 */
 
 				var rdf = $(document.body).RDFa();
 				var rdf_json = rdf.dump();
@@ -604,9 +601,9 @@ $(window).ready(function() {
 						if ( datum[ 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type' ][ 0 ].value == 'http://scalar.usc.edu/2012/01/scalar-ns#Book' ) {
 							scalarapi.model.urlPrefix = i + '/';
 							break;
-						}
-					}
 				}
+			}
+		}
 
 				// fallback method for determining the book URL; will fail if URL structure is non-standard
 				if ( scalarapi.model.urlPrefix == null ) {
@@ -650,12 +647,11 @@ $(window).ready(function() {
 				var rel = rdf.predicates('http://purl.org/dc/terms/references');
 				for (var uri in rel) console.log('references: '+rdf.predicate(rel[uri].value, 'http://purl.org/dc/terms/title'));
 				*/
-	});
 
 	$.when(
 		$.get(widgets_uri+'/spinner/spin.min.js'),
 		$.get(widgets_uri+'/d3/d3.v5.min.js')
-	).then(function( data, textStatus, jqXHR ) {
+	).done(function( data, textStatus, jqXHR ) {
         var currentNode = scalarapi.model.getCurrentPageNode();
         var extension = scalarapi.getFileExtension( window.location.href );
 
@@ -685,12 +681,11 @@ $(window).ready(function() {
 				});
 
 				$('body').trigger( "pageLoadComplete" );
-	});
 
-	$.when(
-		$.get(widgets_uri+'/mediaelement/annotorious.debug.js'),
-		$.get(widgets_uri+'/mediaelement/jquery.mediaelement.js')
-	).then(function( data, textStatus, jqXHR ) {
+				$.when(
+					$.get(widgets_uri+'/mediaelement/annotorious.debug.js'),
+					$.get(widgets_uri+'/mediaelement/jquery.mediaelement.js')
+				).done(function( data, textStatus, jqXHR ) {
 
 		        var currentNode = scalarapi.model.getCurrentPageNode();
 
@@ -708,6 +703,8 @@ $(window).ready(function() {
 				}
 
 				var savedState = $.cookie('viewstate');
+			});
+		});
 	});
 
 	//$('head').append('<link rel="stylesheet" href="'+widgets_uri+'/mediaelement/css/annotorious.css" type="text/css" />');
