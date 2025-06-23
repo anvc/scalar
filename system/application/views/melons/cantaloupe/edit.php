@@ -1597,7 +1597,9 @@ if (isset($page->version_index)):
 	if (!empty($page->versions[$page->version_index]->has_references)) {
 		foreach ($page->versions[$page->version_index]->has_references as $node) {
 			echo '<input type="hidden" name="has_reference" value="'.$node->slug.'" />';
-			echo '<input type="hidden" name="has_reference_reference_text" value="'.htmlspecialchars(@$node->versions[0]->reference_text).'" />'."\n";
+			$reference_text = @$node->versions[0]->reference_text;
+			if (empty($reference_text)) $reference_text = '';
+			echo '<input type="hidden" name="has_reference_reference_text" value="'.htmlspecialchars($reference_text).'" />'."\n";
 		}
 	}
 	// Table of Contents
