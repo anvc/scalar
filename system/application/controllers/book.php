@@ -609,7 +609,7 @@ class Book extends MY_Controller {
 					$title = $archive['http://purl.org/dc/elements/1.1/title'][0]['value'];
 					$identifier =@ $archive['http://purl.org/dc/terms/identifier'][0]['value'];
 					if (strtolower($title) == strtolower($archive_title)) $found[$archive_uri] = $archive;
-					if (!isset($found[$archive_uri]) && strtolower($identifier) == strtolower($archive_title)) $found[$archive_uri] = $archive;
+					if ($identifier != null && !isset($found[$archive_uri]) && strtolower($identifier) == strtolower($archive_title)) $found[$archive_uri] = $archive;
 				}
 				if (!$found) die('Could not find archive');
 				$this->data['external'] = $this->rdf_store->helper($found);
