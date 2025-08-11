@@ -711,11 +711,11 @@ $(window).ready(function() {
 	//$('head').append('<link rel="stylesheet" href="'+widgets_uri+'/mediaelement/css/annotorious.css" type="text/css" />');
 	//$('head').append('<link rel="stylesheet" href="'+widgets_uri+'/mediaelement/mediaelement.css" type="text/css" />');
 	
-	$.get('//www.google.com/recaptcha/api.js');
-	$.get(widgets_uri+'/replies/replies.js');
+	$.getScript('//www.google.com/recaptcha/api.js');
+	$.getScript(widgets_uri+'/replies/replies.js');
 	
 	if ('true'==$('link#hypothesis').attr('href')) {
-		$.get('https://hypothes.is/embed.js')
+		$.getScript('https://hypothes.is/embed.js')
 	}
 
 });
