@@ -146,19 +146,19 @@ $(document).ready(function() {
         <div class="form-group">
           <label for="fullname" class="col-sm-4 control-label">Full name</label>
           <div class="col-sm-8">
-            <input type="text" class="form-control" id="fullname" name="fullname" value="<?=htmlspecialchars($login->fullname)?>">
+            <input type="text" class="form-control" id="fullname" name="fullname" value="<?=htmlspecialchars($login->fullname ?? '')?>">
           </div>
         </div>
         <div class="form-group">
           <label for="email" class="col-sm-4 control-label">Email (login)</label>
           <div class="col-sm-8">
-            <input type="email" class="form-control" id="email" name="email" value="<?=htmlspecialchars($login->email)?>">
+            <input type="email" class="form-control" id="email" name="email" value="<?=htmlspecialchars($login->email ?? '')?>">
           </div>
         </div>
         <div class="form-group">
           <label for="url" class="col-sm-4 control-label">Website</label>
           <div class="col-sm-8">
-            <input type="url" class="form-control" id="url" name="url" value="<?=htmlspecialchars($login->url)?>" placeholder="http://">
+            <input type="url" class="form-control" id="url" name="url" value="<?=htmlspecialchars($login->url ?? '')?>" placeholder="http://">
           </div>
         </div>
 <?php if ($login_is_super): ?>
