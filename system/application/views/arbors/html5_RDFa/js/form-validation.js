@@ -298,7 +298,7 @@ function send_form($form, additional_values, success, redirect_url) {
 	}
 
 	var error = function(message) {
-		alert('Something went wrong while attempting to save: '+message);
+		alert('Something went wrong while attempting to save: '+message.responseJSON.error.message[0].value);
 		send_form_hide_loading();
 	}
 
