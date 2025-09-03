@@ -17,7 +17,7 @@ RewriteRule (^\.)|(/\.) - [R=404,L]
 
 # Block any files in the root directory other
 # than codeigniter.php and maintenance.html
-RewriteCond ${REQUEST_FILENAME} -f
+RewriteCond %{REQUEST_FILENAME} -f
 RewriteCond $1 !maintenance.html$
 RewriteCond $1 !codeigniter.php$
 RewriteRule ^([^/]+)$  - [R=404,L]
@@ -60,4 +60,5 @@ RewriteRule ^$ codeigniter.php [L]
 RewriteCond $1 !^codeigniter.php(/.*)?$ [NC]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule (.*) codeigniter.php/$1 [L]
+
 
