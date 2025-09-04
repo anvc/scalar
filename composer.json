@@ -1,0 +1,11 @@
+{
+  "require-dev": {
+      "squizlabs/php_codesniffer": "~3.1",
+      "phpcompatibility/php-compatibility": "*"
+  },
+  "prefer-stable" : true,
+  "scripts": {
+      "post-install-cmd": "\"vendor/bin/phpcs\" --config-set installed_paths vendor/phpcompatibility/php-compatibility",
+      "post-update-cmd" : "\"vendor/bin/phpcs\" --config-set installed_paths vendor/phpcompatibility/php-compatibility"
+  }
+}
