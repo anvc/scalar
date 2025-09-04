@@ -769,12 +769,12 @@
                         contextMarkup += '<p class="citation">Tagged by <a href="' + relation.body.url + '">&ldquo;' + relation.body.getDisplayTitle() + '&rdquo;</a></p>';
                     }
 
-                    contextMarkup += '<p><a id="visualize-this-link" href="javascript:;" class="btn btn-default btn-xs">Visualize...</a></p>';
+                    contextMarkup += '<p><a id="visualize-this-link" tabindex="0" href="#" class="btn btn-default btn-xs">Visualize...</a></p>';
 
                     $(".path-nav.info").remove();
                     if (contextMarkup != '') {
                         contextMarkup = '<div class="citations">' + contextMarkup + '</div>';
-                        var contextButton = $('<img class="path-nav info" title="Citations and context" data-toggle="popover" data-placement="bottom" src="' + page.options.root_url + '/images/context@2x.png" alt="up arrow"/>').insertBefore($('nav'));
+                        var contextButton = $('<button class="path-nav info" aria-label="Citations and context" data-toggle="popover" data-placement="bottom"><img title="Citations and context" src="' + page.options.root_url + '/images/context@2x.png"/></button>').insertBefore($('nav'));
                         if (contextCount > 1) {
                             contextButton.addClass('multi');
                         }
@@ -894,7 +894,7 @@
                 	if (thumbnailURL != null) {
                 		content = '<img class="thumbnail" height="120" src=\"' + thumbnailURL + '\" alt=\"Thumbnail image of destination content\"/><br>' + content;
                 	}
-                    var arrow = $('<a class="path-nav ' + direction + '" data-toggle="popover" data-placement="' + popooverPlacement + '" href="' + destinationNode.url + pathVar + '"><img src="' + page.options.root_url + '/images/arrow_' + direction + '@2x.png" alt="' + direction + ' arrow"/></a>').insertBefore($('nav'));
+                    var arrow = $('<a class="path-nav ' + direction + '" data-toggle="popover" data-placement="' + popooverPlacement + '" href="' + destinationNode.url + pathVar + '"><img src="' + page.options.root_url + '/images/arrow_' + direction + '@2x.png" alt="' + prefix + ' ' + destinationNode.getDisplayTitle() + '"/></a>').insertBefore($('nav'));
                 	arrow.popover({
                 		trigger: "hover click",
                 		html: true,
@@ -990,7 +990,7 @@
 
                                 // back button
                                 if (page.containingPathIndex > 0) {
-                                    var back_button = $('<a id="back-btn" class="nav_btn bordered" href="' + page.containingPathNodes[page.containingPathIndex - 1].url + '?path=' + page.containingPath.slug + '">&laquo;</a> ').prependTo(links);
+                                    var back_button = $('<a id="back-btn" aria-label="Back" class="nav_btn bordered" href="' + page.containingPathNodes[page.containingPathIndex - 1].url + '?path=' + page.containingPath.slug + '">&laquo;</a> ').prependTo(links);
                                 }
 
                                 section.append(links);
@@ -999,7 +999,7 @@
                             containingPathOptionCount++;
 
                         } else if (page.containingPathIndex == (page.containingPathNodes.length - 1)) {
-                            section.append('<p><a id="back-btn" class="nav_btn" href="' + page.containingPathNodes[page.containingPathIndex - 1].url + '?path=' + page.containingPath.slug + '">&laquo; Back to &ldquo;' + page.containingPathNodes[page.containingPathIndex - 1].getDisplayTitle() + '&rdquo;</a></p>');
+                            section.append('<p><a id="back-btn" aria-label="Back" class="nav_btn" href="' + page.containingPathNodes[page.containingPathIndex - 1].url + '?path=' + page.containingPath.slug + '">&laquo; Back to &ldquo;' + page.containingPathNodes[page.containingPathIndex - 1].getDisplayTitle() + '&rdquo;</a></p>');
                         }
                         if (page.containingPathIndex > 0) {
                         	var prevNodeOnPath = page.containingPathNodes[page.containingPathIndex - 1];
@@ -1041,7 +1041,7 @@
 
                             if (page.containingPathIndex > 0) {
                                 $('#back-btn').parents('section').remove(); // remove the intra-path back button and its enclosing section
-                                back_button = $('<a id="back-btn" class="nav_btn bordered" href="' + page.containingPathNodes[page.containingPathIndex - 1].url + '?path=' + page.containingPath.slug + '">&laquo;</a> ').prependTo(links);
+                                back_button = $('<a id="back-btn" aria-label="Back" class="nav_btn bordered" href="' + page.containingPathNodes[page.containingPathIndex - 1].url + '?path=' + page.containingPath.slug + '">&laquo;</a> ').prependTo(links);
                             }
                             section.append(links);
 
@@ -1227,8 +1227,13 @@
             addIncomingComments: function() {
                 var currentPageNode = scalarapi.model.getCurrentPageNode();
                 var comments = currentPageNode.getRelatedNodes('comment', 'incoming');
-                //$('article').append('<div id="footer"><div id="comment" class="reply_link">'+((comments.length > 0) ? comments.length : '&nbsp;')+'</div><div id="footer-right"></div></div>');
-                $('#footer').before('<div id="incoming_comments" class="caption_font"><div id="comment_control" class="reply_link"><strong>' + ((comments.length > 0) ? comments.length : '&nbsp;') + '</strong></div></div>');
+                var label = 'Add a comment'
+                if (comments.length == 1) {
+                    label = 'View 1 comment'
+                } else if (comments.length > 1) {
+                    label = 'View ' + comments.length + ' comments'
+                }
+                $('#footer').before('<div id="incoming_comments" class="caption_font"><button id="comment_control" aria-label="' + label + '" class="reply_link"><strong>' + ((comments.length > 0) ? comments.length : '&nbsp;') + '</strong></button></div>');
                 var commentDialogElement = $('<div></div>').appendTo('body');
                 commentDialog = commentDialogElement.scalarcomments({ root_url: modules_uri + '/cantaloupe' });
                 $('.reply_link').on('click', function() {
@@ -2463,7 +2468,7 @@
                 });
             },
 
-            addMarkerFromLatLonStrToMap: function(latlngstr, title, desc, link, map, infoWindow, thumbnail, label, mapElement, markers) {
+            addMarkerFromLatLonStrToMap: function(latlngstr, title, desc, alt, link, map, infoWindow, thumbnail, label, mapElement, markers) {
                 if ((typeof mapElement == "undefined" || mapElement == null || !mapElement) && typeof $gmaps != "undefined") {
                     mapElement = $gmaps;
                 }
@@ -2496,7 +2501,7 @@
                         if (thumbnail.indexOf('://') == -1) {
                             url = scalarapi.model.urlPrefix + thumbnail;
                         }
-                        thumbnailMarkup = '<img style="float:right; margin: 0 0 1rem 1rem;" src="' + url + '" alt="Thumbnail image" width="120"/>';
+                        thumbnailMarkup = '<img style="float:right; margin: 0 0 1rem 1rem;" src="' + url + '" alt="' + alt + '" width="120"/>';
                     }
 
                     // add marker and info window for current page
@@ -2670,7 +2675,8 @@
                 // create map
                 var mapOptions = {
                     zoom: 8,
-                    mapTypeId: google.maps.MapTypeId.ROADMAP
+                    mapTypeId: google.maps.MapTypeId.ROADMAP,
+                    mapId: 'google-maps-layout',
                 }
                 var map = new google.maps.Map(document.getElementById('google-maps'), mapOptions);
                 var markerCount = 0;
@@ -2711,6 +2717,7 @@
                                 currentNode.current.properties[property][i].value,
                                 currentNode.getDisplayTitle(),
                                 currentNode.current.description,
+                                currentNode.current.getAltTextWithFallback(),
                                 null,
                                 map,
                                 infoWindow,
@@ -2746,6 +2753,7 @@
                                     node.current.properties[property][j].value,
                                     node.getDisplayTitle(),
                                     node.current.description,
+                                    node.current.getAltTextWithFallback(),
                                     node.url,
                                     map,
                                     infoWindow,
@@ -2787,7 +2795,7 @@
 
                 $(window).on('resize', function() {
                     var markers = $gmaps.data('markers')
-                    if (markers.length > 1) {
+                    if ('undefined' != typeof(markers) && markers.length > 1) {
                         $gmaps.data('map').fitBounds($('#google-maps').data('bounds'));
                     }
                     $gmaps.css('max-height', 0.6 * $(window).height());
@@ -2800,6 +2808,47 @@
                     $gmaps.find('.alert').remove();
                     $gmaps.append('<div class="alert alert-danger" style="margin: 1rem;">Scalar couldn\'t find any geographic metadata associated with this page.</div>');
                 }
+            },
+
+            getAltTextFromProperty: function(property, fallback = '') {
+                var altText = fallback
+                if (!property) return altText
+                var data = property['http://scalar.usc.edu/2012/01/scalar-ns#altText']
+                if (!data) {
+                    data = property['http://purl.org/dc/terms/description']
+                }
+                if (data) {
+                    altText = data[0].value
+                }
+                return altText
+            },
+
+            getAltTextFromMetadata: function(metadata) {
+                var altText = ''
+                for (var uri in metadata) {
+                    var data = metadata[uri]['http://scalar.usc.edu/2012/01/scalar-ns#altText']
+                    if (!data) {
+                        data = metadata[uri]['http://purl.org/dc/terms/description']
+                    }
+                    if (data) {
+                        altText = data[0].value
+                    }
+                }
+                return altText
+            },
+
+            getMetadataForMediaUrl: function (banner, success) {
+                // Information about the banner
+                var parent = $('link#parent').attr('href');
+                var api_url = null;
+                if (-1 == banner.indexOf(parent)) {  // External file
+                    // TODO
+                } else {  // Local file
+                    api_url = parent+'rdf/file/'+banner.replace(parent,'')+'?format=json';
+                }
+                if (null != api_url) {
+                    $.getJSON(api_url, success);
+                };
             }
 
         };
@@ -2845,7 +2894,7 @@
 
         $('section').hide(); // TODO: Make this more targeted
 
-        $('article').append('<div id="footer" class="caption_font"></div>');
+        $('article').append('<div id="footer" class="caption_font" role="contentinfo"></div>');
 
         $('body').on('delayedResize', page.handleDelayedResize);
 
@@ -2959,27 +3008,27 @@
                             next();
                         });
                     }, 200);
-                    // Information about the banner
-                    var parent = $('link#parent').attr('href');
-                    var api_url = null;
-                    if (-1 == banner.indexOf(parent)) {  // External file
-                    	// TODO
-                    } else {  // Local file
-                    	api_url = parent+'rdf/file/'+banner.replace(parent,'')+'?format=json';
-                    }
-                    if (null != api_url) {
-	                    $.getJSON(api_url, function(media_node) {
-	                    	for (var uri in media_node) {
-	                    		if ('undefined' == typeof(media_node[uri]['http://open.vocab.org/terms/versionnumber'])) continue;
-	                    		var url = media_node[uri]['http://purl.org/dc/terms/isVersionOf'][0].value;
-	                    		var title = media_node[uri]['http://purl.org/dc/terms/title'][0].value;
-	                    		var source = ('undefined'!=typeof(media_node[uri]['http://purl.org/dc/terms/source'])) ? media_node[uri]['http://purl.org/dc/terms/source'][0].value : null;
-	                    		if (source) if (-1 != source.indexOf('//')) source = null;  // Is a URL
-	                    		var html = '<div class="citation caption_font"><a href="'+url+'">Background: '+title+''+((null!=source)?' ('+source+')':'')+'</a></div>';
-	                    		$('.title_card').append(html);
-	                    	}
-	                    });
-                    };
+                    page.getMetadataForMediaUrl(banner, function(metadata) {
+                        console.log('metadata', metadata)
+                        var urls = []
+                        for (var uri in metadata) {
+                            console.log(uri);
+                            if ('undefined' == typeof(metadata[uri]['http://open.vocab.org/terms/versionnumber'])) continue;
+                            var url = metadata[uri]['http://purl.org/dc/terms/isVersionOf'][0].value;
+                            console.log('url', url);
+                            if (-1 != urls.indexOf(url)) continue;
+                            urls.push(url);
+                            var title = metadata[uri]['http://purl.org/dc/terms/title'][0].value;
+                            var source = ('undefined'!=typeof(metadata[uri]['http://purl.org/dc/terms/source'])) ? metadata[uri]['http://purl.org/dc/terms/source'][0].value : null;
+                            var altText = page.getAltTextFromProperty(metadata[uri])
+                            if (source) if (-1 != source.indexOf('//')) source = null;  // Is a URL
+                            var html = '<div class="citation caption_font"><a href="'+url+'">Background: '+title+''+((null!=source)?' ('+source+')':'')+'</a></div>';
+                            $('.title_card').append(html);
+                            if (altText.trim() != '') {
+                                $('.splash').attr('aria-label', altText)
+                            }
+                        }
+                    })
                     break;
 
                 case 'gallery':
@@ -3063,7 +3112,13 @@
                     		}).trigger('resize');
                     	});
                     } else {
-                    	$('.image_header').css('background-image', "url('" + banner + "')");
+                    	$('.image_header').css('background-image', "url('" + banner + "')").attr('role', 'img').attr('aria-label', 'Image header');
+                        page.getMetadataForMediaUrl(banner, function(metadata) {
+                            var altText = page.getAltTextFromMetadata(metadata)
+                            if (altText.trim() != '') {
+                                $('.image_header').attr('aria-label', altText)
+                            }
+                        })
                     };
                     $('.title_card').append($('header > h1'));
                     if (currentNode.current.description != null) {
@@ -3524,6 +3579,7 @@
                             // load HTML
                             if (pathContents.length > 0) {
                                 var base_url = $('link#parent').attr('href');
+                                var bgElements = [];
                                 for (var i = 0; i < pathContents.length; i++) {
                                     var title = pathContents[i].current.title;
                                     var slug = pathContents[i].slug
@@ -3556,7 +3612,20 @@
                                     		}).trigger('resize');
                                     	});
                                     } else {
-                                        $("#"+slugProxy).css({ "background-image": 'url("'+((key.length)?key:'')+'")' });
+                                        bgElements.push($("#"+slugProxy))
+                                        $("#"+slugProxy).css({ "background-image": 'url("'+((key.length)?key:'')+'")' }).attr({ role: 'img', 'data-url': key, 'aria-label': 'Background image' });
+                                        page.getMetadataForMediaUrl(key, function(metadata) {
+                                            for (var uri in metadata) {
+                                                if ('undefined' == typeof(metadata[uri]['http://open.vocab.org/terms/versionnumber'])) continue;
+                                                var altText = page.getAltTextFromProperty(metadata[uri], 'Background image')
+                                                $(bgElements).each((i) => {
+                                                    var url = metadata[uri]['http://simile.mit.edu/2003/10/ontologies/artstor#url'][0].value
+                                                    if ($(bgElements[i]).attr('data-url') == url) {
+                                                        $(bgElements[i]).attr('aria-label', altText)
+                                                    }
+                                                })
+                                            }
+                                        })
                                         if (isMobile) $("#"+slugProxy).addClass('mobile');
                                     };
                                     // end set background

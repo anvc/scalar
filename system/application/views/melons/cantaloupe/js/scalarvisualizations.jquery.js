@@ -35,6 +35,7 @@ window.scalarvis = { instanceCount: -1 };
     base.resultsPerPage = 50;
     base.loadedAllContent = false;
     base.inspectorVisible = false;
+    base.prefersReducedMotion = matchMedia('(prefers-reduced-motion)').matches;
     base.canonicalTypeOrder = ["path", "page", "comment", "tag", "annotation", "media"];
     base.canonicalRelationOrder = [
       { type: 'path', direction: 'outgoing' },
@@ -100,6 +101,8 @@ window.scalarvis = { instanceCount: -1 };
         base.processNode(base.currentNode);
       }
 
+      document.addEventListener('keyup', base.handleKeyUp);
+
       // if we're booting the vis up in a modal, then
       if (base.options.modal) {
 
@@ -112,7 +115,7 @@ window.scalarvis = { instanceCount: -1 };
         });
         base.$el.append('<div class="modal-dialog modal-lg modal-xlg"><div class="modal-content index_modal"></div></div>');
         var modalContent = base.$el.find('.modal-content');
-        var header = $('<header class="modal-header"><h2 id="vis-modal-title" class="modal-title heading_font heading_weight">Visualization</h2><button tabindex="10000" type="button" title="Close" class="close" data-dismiss="modal"><span>Close</span></button></header>').appendTo(modalContent);
+        var header = $('<header class="modal-header"><h2 id="vis-modal-title" class="modal-title heading_font heading_weight">Visualization</h2><button type="button" title="Close" class="close" data-dismiss="modal"><span>Close</span></button></header>').appendTo(modalContent);
         var body = $('<div class="modal-body"></div>').appendTo(modalContent);
         base.visElement = $('<div class="modalVisualization"></div>').appendTo(body);
 
@@ -127,20 +130,25 @@ window.scalarvis = { instanceCount: -1 };
           base.modalIsOpen = false;
         });
 
+
         // when the modal is shown, redraw the visualization
         base.$el.on('shown.bs.modal', function() {
           base.draw();
           base.modalIsOpen = true;
+          var modal = base.$el.modal()
+          var firstFocusable = modal.find('.close');
+          var lastFocusable = modal.find('.modal-body button').last();
+          setupFocusTrap(firstFocusable, lastFocusable);
         });
 
         // adjust overflow so the modal hides correctly
         base.$el.on('hidden.bs.modal', function() {
           $('body').css('overflowY', 'auto');
+          removeFocusTrap();
         });
 
         // otherwise, if the vis is embedded directly in the page
       } else {
-
         base.visElement = base.$el;
 
         // redraw non-modal vis whenever a modal vis is closed so coordinates get reset on the nodes
@@ -209,7 +217,6 @@ window.scalarvis = { instanceCount: -1 };
 
         base.updateControls();
       }
-
 
       // create visualization div
       base.visualization = $('<div id="' + base.instanceId + '" class="scalarvis"></div>').appendTo(base.visElement);
@@ -354,9 +361,10 @@ window.scalarvis = { instanceCount: -1 };
           } else {
             thumbnailClass += ' hidden';
           }
+          var altText = node.current.getAltTextWithFallback();
           inspectorInfo = $('<div class="media-preview">' +
             '<p class="inspector-description"></p>' +
-            '<img class="' + thumbnailClass + '" src="' + thumbnailUrl + '" alt="' + node.current.getAltTextWithFallback() + '" />' +
+            '<img class="' + thumbnailClass + '" src="' + thumbnailUrl + '" alt="' + altText + '" />' +
             '<div class="inspector-buttons">' +
             '<a class="btn btn-primary btn-xs view-node-btn" role="button" target="_blank" href="' + node.url + '">View media page</a> ' +
             '<a class="btn btn-primary btn-xs view-media-btn" role="button" target="_blank" href="' + node.current.sourceFile + '">View source file</a>' +
@@ -801,12 +809,14 @@ window.scalarvis = { instanceCount: -1 };
         if (itemCount > 0) str += '<p style="color:' + d3.rgb(base.neutralColor).brighter(1.5) + ';">' + description + ' ' + itemCount + ' ' + itemName + '</p>';
       }
 
+      var markup = '<a href="' + d.url + '" target="_blank" data-node="' + d.slug + '" aria-label="Visit ' + d.getDisplayTitle() + '" class="btn btn-primary btn-xs nodeInfoBox-btn" role="button">Visit &raquo;</a>';
+
       if (base.rolloverNode != null) {
         if ((base.rolloverNode.url != d.url) || (base.selectedNodes.indexOf(d) != -1) || isMobile) {
-          str += '<a href="' + d.url + '" target="_blank" class="btn btn-primary btn-xs" role="button">Visit &raquo;</a>';
+          str += markup;
         }
       } else {
-        str += '<a href="' + d.url + '" target="_blank" class="btn btn-primary btn-xs" role="button">Visit &raquo;</a>';
+        str += markup;
       }
 
       str += '</div></div>';
@@ -952,6 +962,12 @@ window.scalarvis = { instanceCount: -1 };
       }
 
     };
+
+    base.handleKeyUp = function(e) {
+      if (e.key === 'Tab' && base.visInstance) {
+        base.visInstance.handleTab(e);
+      }
+    }
 
     // figures out what data to load based on current options
     base.buildLoadSequence = function() {
@@ -2372,6 +2388,10 @@ window.scalarvis = { instanceCount: -1 };
         this.updateNoResultsMessage();
       }
 
+      handleTab(e) {
+        // nothing
+      }
+
       // no need to call directly
       updateSize() {
         var isFullScreenNow = document.fullScreen || document.mozFullScreen || document.webkitIsFullScreen;
@@ -2451,6 +2471,65 @@ window.scalarvis = { instanceCount: -1 };
         this.colWidth = 36;
         this.boxSize = 36;
         this.currentNode = scalarapi.model.getCurrentPageNode();
+        this.lastActivatedInfoBoxBtn = null;
+        var me = this;
+      }
+
+      handleTab(e) {
+        e.stopPropagation();
+        // if we just selected a node
+        if (this.lastActivatedInfoBoxBtn) {
+          // necessary because selecting a node causes focus to move to the body element
+          var btnSlug = $(this.lastActivatedInfoBoxBtn).attr('data-node');
+          var rowBox = $('.rowBox[data-node="' + btnSlug + '"]');
+          if (!e.shiftKey) {
+            // and the user tabbed forward
+            if (btnSlug == $(document.activeElement).attr('data-node')) {
+              // and the box for the node we just selected is focused
+              // then focus the info button for that node
+              $(this.lastActivatedInfoBoxBtn).focus()
+            } else {
+              // but if the box for a different node has focus
+              // the just advance focus to the next box
+              if (rowBox) rowBox.next().focus();
+              this.lastActivatedInfoBoxBtn = null;
+            }
+          } else {
+            // and the user tabbed backward
+            if (document.activeElement.nodeName.toLowerCase() == 'a') {
+              // if an info button currently has focus
+              // the focus its related box
+              if (rowBox) rowBox.focus();
+            } else {
+              // but if an info button doesn't currently have focus
+              // then we've moved away from the last selected node
+              this.lastActivatedInfoBoxBtn = null;
+            }
+          }
+        // if we didn't just select a node
+        } else {
+          var slug = $(document.activeElement).attr('data-node');
+          if (e.shiftKey) {
+            // and if the user tabbed backward
+            // and the node from the previous box is selected
+            // then focus the info btn for that node
+            this.focusInfoBtnForSlugIfSelected(slug)
+          } else {
+            // but the user tabbed forward
+            // and the previously selected box currently has focus
+            // then focus the info btn for that node
+            var rowBox = $('.rowBox[data-node="' + slug + '"]').prev();
+            this.focusInfoBtnForSlugIfSelected(rowBox.attr('data-node'))
+          }
+        }
+      }
+
+      focusInfoBtnForSlugIfSelected(slug) {
+        var node = scalarapi.getNode(slug);
+        if (node && base.selectedNodes.includes(node)) {
+          this.lastActivatedInfoBoxBtn = $('a[data-node="' + slug + '"]')[0];
+          $(this.lastActivatedInfoBoxBtn).focus()
+        }
       }
 
       draw() {
@@ -2495,12 +2574,40 @@ window.scalarvis = { instanceCount: -1 };
             this.gridNodes.splice(index, 1);
           }
 
+          var toggleSelection = (d) => {
+            var index = base.selectedNodes.indexOf(d);
+            var wasSelected = false;
+            if (index == -1) {
+              base.selectedNodes.push(d);
+              base.loadNode(d.slug, 0, 0, base.updateInspector);
+              wasSelected = true;
+            } else {
+              base.selectedNodes.splice(index, 1);
+            }
+            base.updateInspector();
+            this.updateGraph();
+            if (wasSelected) {
+              this.lastActivatedInfoBoxBtn = $('a[data-node="' + d.slug + '"]')[0];
+              $(this.lastActivatedInfoBoxBtn).focus();
+            }
+            return true;
+          }
+
           this.box = this.gridBoxLayer.selectAll('.rowBox')
             .data(this.gridNodes, (d) => { return d.type.id + '-' + d.slug; })
             .join(
               enter => enter.append('svg:rect')
                 .each(function(d) { d.svgTarget = this; })
                 .attr('class', 'rowBox')
+                .attr('tabindex', 0)
+                .attr('aria-role', 'button')
+                .attr('aria-label', (d) => {
+                  return 'Select node: ' + d.getDisplayTitle();
+                })
+                .attr('aria-pressed', (d) => {
+                  return (base.selectedNodes.indexOf(d.node) != -1)
+                })
+                .attr('data-node', (d) => { return d.slug })
                 .attr('x', (d, i) => { d[base.instanceId].x = this.colScale(i % this.itemsPerRow) + 0.5; return d[base.instanceId].x; })
                 .attr('y', (d, i) => { d[base.instanceId].y = this.rowScale(Math.floor(i / this.itemsPerRow) + 1) - this.boxSize + 0.5; return d[base.instanceId].y; })
                 .attr('width', this.boxSize)
@@ -2512,17 +2619,11 @@ window.scalarvis = { instanceCount: -1 };
                 .attr('fill', function(d) {
                   return base.highlightColorScale(d.type.singular);
                 })
-                .on("click", (d) => {
-                  var index = base.selectedNodes.indexOf(d);
-                  if (index == -1) {
-                    base.selectedNodes.push(d);
-                    base.loadNode(d.slug, 0, 0, base.updateInspector);
-                  } else {
-                    base.selectedNodes.splice(index, 1);
+                .on("click", toggleSelection)
+                .on('keyup', (d) => {
+                  if (d3.event.code == 'Enter' || d3.event.code == 'Space') {
+                    toggleSelection(d)
                   }
-                  base.updateInspector();
-                  this.updateGraph();
-                  return true;
                 })
                 .on("mouseover", (d) => {
                   if (!isMobile) {
@@ -3082,7 +3183,7 @@ window.scalarvis = { instanceCount: -1 };
       }
 
       pathUpdate(root, instantaneous) {
-        var duration = instantaneous ? 0 : d3.event && d3.event.altKey ? 5000 : 500;
+        var duration = (instantaneous || base.prefersReducedMotion) ? 0 : d3.event && d3.event.altKey ? 5000 : 500;
 
         base.tree(this.root);
         var nodes = this.root.descendants();
@@ -3120,50 +3221,83 @@ window.scalarvis = { instanceCount: -1 };
             return "translate(" + source.y0 + "," + source.x0 + ")";
           });
 
+        var me = this;
+
+        function handleNodeClick(d) {
+          // the non-node "d" items here aren't the right ones, for some reason...
+          // so getDescendantForData finds the most updated "d" (shouldn't be necessary)
+          d = me.getDescendantForData(d.data);
+          if (d.data.children) {
+            me.lastToggledNode = d;
+            if (d3.event.defaultPrevented) return; // ignore drag
+            me.branchToggle(d);
+            me.pathUpdate(me.root);
+            if (base.isHierarchyNodeMaximized(d)) {
+              if (base.isVisOfCurrentPage()) {
+                setTimeout(function() { base.loadNode(d.data.node.slug, false, 2, base.updateInspector); }, 500);
+              }
+            }
+          }
+          var index;
+          index = base.selectedNodes.indexOf(d.data.node);
+          if (index == -1) {
+            base.selectedNodes = [d.data.node];
+          } else {
+            base.selectedNodes = [];
+          }
+          base.updateInspector();
+        }
+
+        function handleLabelClick(d) {
+          if (d3.event.defaultPrevented) return; // ignore drag
+          d3.event.stopPropagation();
+          if (d.data.node) {
+            window.open(d.data.node.url, '_blank');
+          }
+        }
+
         nodeEnter.append("svg:circle")
           .attr("r", 1e-6)
           .style("fill", (d) => { return !d.children && d._children ? d3.hsl(base.highlightColorScale(d.data.type, "noun", '#777')).brighter(1.5) : "#fff"; })
           .style("stroke", (d) => { return base.highlightColorScale(d.data.type, "noun", '#777') })
+          .attr('tabindex', 0)
+          .attr('aria-role', 'button')
+          .attr('aria-label', (d) => {
+            return 'Click to toggle branch';
+          })
           .on('touchstart', function(d) { d3.event.stopPropagation(); })
           .on('mousedown', function(d) { d3.event.stopPropagation(); })
-          .on("click", (d) => {
-            // the non-node "d" items here aren't the right ones, for some reason...
-            // so getDescendantForData finds the most updated "d" (shouldn't be necessary)
-            d = this.getDescendantForData(d.data);
-            if (d.data.children) {
-              this.lastToggledNode = d;
-              if (d3.event.defaultPrevented) return; // ignore drag
-              this.branchToggle(d);
-              this.pathUpdate(this.root);
-              if (base.isHierarchyNodeMaximized(d)) {
-                if (base.isVisOfCurrentPage()) {
-                  setTimeout(function() { base.loadNode(d.data.node.slug, false, 2, base.updateInspector); }, 500);
-                }
-              }
+          .on("click", handleNodeClick)
+          .on('keyup', (d) => {
+            if (d3.event.code == 'Enter' || d3.event.code == 'Space') {
+              d3.event.stopPropagation();
+              handleNodeClick(d)
             }
-            var index;
-            index = base.selectedNodes.indexOf(d.data.node);
-            if (index == -1) {
-              base.selectedNodes = [d.data.node];
-            } else {
-              base.selectedNodes = [];
-            }
-            base.updateInspector();
           });
 
         nodeEnter.append("svg:text")
           .attr("x", function(d) { return d.children || d._children ? -14 : 14; })
           .attr("dy", ".35em")
+          .attr('tabindex', (d) => {
+            return d.data.node ? 0 : -1
+          })
+          .attr('aria-role', (d) => {
+            return d.data.node ? 'button' : null
+          })
+          .attr('aria-label', (d) => {
+            return d.data.node ? 'Click to open:  ' + d.data.node.getDisplayTitle() : null
+          })
           .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
           .text(function(d) { return d.data.title; })
           .style("fill-opacity", 1e-6)
           .on('touchstart', function(d) { d3.event.stopPropagation(); })
           .on('mousedown', function(d) { d3.event.stopPropagation(); })
-          .on('click', function(d) {
-            if (d3.event.defaultPrevented) return; // ignore drag
-            d3.event.stopPropagation();
+          .on('click', handleLabelClick)
+          .on('keyup', (d) => {
             if (d.data.node) {
-              window.open(d.data.node.url, '_blank');
+              if (d3.event.code == 'Enter' || d3.event.code == 'Space') {
+                handleLabelClick(d)
+              }
             }
           });
 
@@ -3266,6 +3400,71 @@ window.scalarvis = { instanceCount: -1 };
         this.maximizedNode = null;
         this.highlightedNode = null;
         this.currentNode = scalarapi.model.getCurrentPageNode();
+        this.lastActivatedLabel = null;
+      }
+
+      // The code below implements this focus logic (and its converse):
+      // if an item has children, then tabbing forward focuses its first child. 
+      // if an item is selected, then tabbing forward focuses its label.
+      // if an item is the last child of its parent, then tabbing forward focuses its parent's next sibling.
+      handleTab(e) {
+        e.stopPropagation();
+        // if we just selected a node
+        if (this.lastActivatedLabel) {
+          var btnSlug = $(this.lastActivatedLabel).attr('data-node');
+          var arc = $('.ring[data-node="' + btnSlug + '"]');
+          if (!e.shiftKey) {
+            var firstChildSlug = $(document.activeElement).prev().attr('data-first-node-child')
+            if (firstChildSlug) {
+              var arc = $('.ring[data-node="' + firstChildSlug + '"]');
+              arc.focus();
+            } else if (btnSlug == $(document.activeElement).attr('data-node')) {
+              $(this.lastActivatedLabel).focus()
+            } else {
+              if (arc) arc.next().focus();
+              this.lastActivatedLabel = null;
+            }
+          } else {
+            if (document.activeElement.nodeName.toLowerCase() == 'text') {
+              if (arc) arc.focus();
+            } else {
+              this.lastActivatedLabel = null;
+            }
+          }
+        // if we didn't just select a node
+        } else {
+          var slug = $(document.activeElement).attr('data-node');
+          if (e.shiftKey) {
+            var nextSlug = $(document.activeElement).next().attr('data-node')
+            var parent = $('.ring[data-first-node-child="' + nextSlug + '"]');
+            if (parent.length > 0) {
+              parent.focus();
+            } else {
+              this.focusLabelForSlugIfSelected(slug)
+            }
+          } else {
+            var prevSlug = $(document.activeElement).prev().attr('data-node')
+            var parent = $('.ring[data-last-node-child="' + prevSlug + '"]');
+            var childSlug = $(document.activeElement).prev().attr('data-first-node-child')
+            if (childSlug) {
+              var arc = $('.ring[data-node="' + childSlug + '"]');
+              arc.focus();
+            } else if (parent.length > 0) {
+              parent.next().focus();
+            } else {
+              var arc = $('.ring[data-node="' + slug + '"]').prev();
+              this.focusLabelForSlugIfSelected(arc.attr('data-node'))
+            }
+          }
+        }
+      }
+
+      focusLabelForSlugIfSelected(slug) {
+        var node = scalarapi.getNode(slug);
+        if (node && base.selectedNodes.includes(node)) {
+          this.lastActivatedLabel = $('text[data-node="' + slug + '"]')[0];
+          $(this.lastActivatedLabel).focus()
+        }
       }
 
       draw() {
@@ -3307,11 +3506,99 @@ window.scalarvis = { instanceCount: -1 };
           // layout which drives the arc display
           d3.partition().size([Math.PI * 2, this.r * this.r])(this.root);
 
+          var toggleSelection = (d) => {
+            var dx = this.arcs.centroid(d)[0];
+            var dy = this.arcs.centroid(d)[1];
+            var hw = this.size.width * .5;
+
+            // if the node was maximized, normalize it
+            if (this.maximizedNode == d) {
+              this.maximizedNode = null;
+              this.root.sum((d) => { return this.sumHierarchy(d); }).sort();
+              d3.partition().size([Math.PI * 2, this.r * this.r])(this.root);
+              this.transitionRings();
+              this.transitionChords();
+              this.transitionTypeLabels();
+              this.transitionSelectedLabels();
+              this.transitionSelectedPointers();
+
+            } else {
+              // if the node has children, then maximize it and transition the vis to its maximized state
+              if (d.children != null) {
+                var numChildren = d.data.descendantCount;
+                var curPercentage = numChildren / base.sortedNodes.length;
+                var targetPercentage = Math.min(.75, (numChildren * 15) / 360);
+                if (targetPercentage > curPercentage) {
+                  this.maximizedNode = d;
+
+                  // set the relative values of the farthest descendants of the maximized and non-maximized nodes
+                  this.myModPercentage = targetPercentage / curPercentage;
+                  this.otherModPercentage = (1 - targetPercentage) / (1 - curPercentage);
+
+                  this.root.sum((d) => { return this.sumHierarchy(d); }).sort();
+                  d3.partition().size([Math.PI * 2, this.r * this.r])(this.root);
+                  this.transitionRings();
+                  this.transitionChords();
+                  this.transitionTypeLabels();
+                  this.transitionSelectedLabels();
+                  this.transitionSelectedPointers();
+                }
+              } else {
+                this.toggleNodeSelected(d);
+              }
+            }
+          }
+
+          var counter = 0;
+
           this.vis.selectAll('path.ring')
-            .data(this.root.descendants())
+            .data(this.root.descendants(), function(d) { return d.id || (d.id = ++i); })
             .join(
               enter => enter.append('svg:path')
                 .attr('class', 'ring')
+                .attr('tabindex', 0)
+                .attr('aria-role', 'button')
+                .attr('aria-label', (d) => {
+                  return 'Toggle arc';
+                })
+                .attr('aria-pressed', (d) => {
+                  return this.maximizedNode == d
+                })
+                .attr('data-node', (d, i) => { return d.data.node ? d.data.node.slug : d.data.title })
+                .attr('data-first-node-child', (d) => { 
+                  if (d.data.children) {
+                    if (d.data.children.length > 0) {
+                      if (d.data.children[0].node) {
+                        return d.data.children[0].node.slug;
+                      } else {
+                        return d.data.children[0].title;
+                      }
+                    }
+                  }
+                  return null;
+                })
+                .attr('data-last-node-child', (d) => {
+                  if (d.data.children) {
+                    if (d.data.children.length > 0) {
+                      if (d.data.children[d.data.children.length - 1].node) {
+                        return d.data.children[d.data.children.length - 1].node.slug;
+                      } else {
+                        return d.data.children[d.data.children.length - 1].title;
+                      }
+                    }
+                  }
+                  return null;
+                })
+                .attr('data-parent', (d) => {
+                  if (d.parent) {
+                    if (d.parent.node) {
+                      return d.parent.node.slug;
+                    } else {
+                      return d.parent.data.title;
+                    }
+                  }
+                  return null;
+                })
                 .attr('d', this.arcs)
                 .style('stroke-width', (d) => { return this.calculateRingStroke(d); })
                 .style('stroke', 'white')
@@ -3334,46 +3621,10 @@ window.scalarvis = { instanceCount: -1 };
                     window.open(d.data.node.url, '_blank');
                   }
                 })
-                .on('click', (d) => {
-                  var dx = this.arcs.centroid(d)[0];
-                  var dy = this.arcs.centroid(d)[1];
-                  var hw = this.size.width * .5;
-
-                  // if the node was maximized, normalize it
-                  if (this.maximizedNode == d) {
-                    this.maximizedNode = null;
-                    this.root.sum((d) => { return this.sumHierarchy(d); }).sort();
-                    d3.partition().size([Math.PI * 2, this.r * this.r])(this.root);
-                    this.transitionRings();
-                    this.transitionChords();
-                    this.transitionTypeLabels();
-                    this.transitionSelectedLabels();
-                    this.transitionSelectedPointers();
-
-                  } else {
-                    // if the node has children, then maximize it and transition the vis to its maximized state
-                    if (d.children != null) {
-                      var numChildren = d.data.descendantCount;
-                      var curPercentage = numChildren / base.sortedNodes.length;
-                      var targetPercentage = Math.min(.75, (numChildren * 15) / 360);
-                      if (targetPercentage > curPercentage) {
-                        this.maximizedNode = d;
-
-                        // set the relative values of the farthest descendants of the maximized and non-maximized nodes
-                        this.myModPercentage = targetPercentage / curPercentage;
-                        this.otherModPercentage = (1 - targetPercentage) / (1 - curPercentage);
-
-                        this.root.sum((d) => { return this.sumHierarchy(d); }).sort();
-                        d3.partition().size([Math.PI * 2, this.r * this.r])(this.root);
-                        this.transitionRings();
-                        this.transitionChords();
-                        this.transitionTypeLabels();
-                        this.transitionSelectedLabels();
-                        this.transitionSelectedPointers();
-                      }
-                    } else {
-                      this.toggleNodeSelected(d);
-                    }
+                .on('click', toggleSelection)
+                .on('keyup', (d) => {
+                  if (d3.event.code == 'Enter' || d3.event.code == 'Space') {
+                    toggleSelection(d)
                   }
                 })
             )
@@ -3512,6 +3763,7 @@ window.scalarvis = { instanceCount: -1 };
 
       toggleNodeSelected(d) {
         var index;
+        var wasSelected = false;
         index = base.selectedNodes.indexOf(d.data.node);
         if (index == -1) {
           base.selectedNodes.push(d.data.node);
@@ -3520,6 +3772,7 @@ window.scalarvis = { instanceCount: -1 };
             base.selectedHierarchyNodes.push(d.data);
           }
           //base.loadNode(d.data.node.slug, 0, 0, base.updateInspector);
+          wasSelected = true;
         } else {
           base.selectedNodes.splice(index, 1);
           index = base.selectedHierarchyNodes.indexOf(d.data);
@@ -3530,6 +3783,10 @@ window.scalarvis = { instanceCount: -1 };
         base.updateInspector();
         this.updateSelectedLabels();
         this.updateHighlights(d);
+        if (wasSelected) {
+          this.lastActivatedLabel = $('text[data-node="' + d.slug + '"]')[0];
+          $(this.lastActivatedLabel).focus();
+        }
       }
 
       updateSelectedLabels() {
@@ -3554,6 +3811,12 @@ window.scalarvis = { instanceCount: -1 };
           .join(
             enter => enter.append('svg:text')
               .attr('class', 'selectedLabel')
+              .attr('tabindex', 0)
+              .attr('aria-role', 'button')
+              .attr('aria-label', (d) => {
+                return 'Click to open:  ' + d.data.node.getDisplayTitle();
+              })
+              .attr('data-node', (d, i) => { return d.data.node ? d.data.node.slug : null })
               .attr('dx', (d) => {
                 if (this.arcs.centroid(d)[0] < 0) {
                   return -(this.size.width * .5) + 10;
@@ -3577,6 +3840,13 @@ window.scalarvis = { instanceCount: -1 };
               .on("click", (d) => {
                 if (d.data.node) {
                   window.open(d.data.node.url, '_blank');
+                }
+              })
+              .on('keyup', (d) => {
+                if (d.data.node) {
+                  if (d3.event.code == 'Enter' || d3.event.code == 'Space') {
+                    window.open(d.data.node.url, '_blank');
+                  }
                 }
               })
               .each(function(d) { d.textWidth = this.getComputedTextLength(); }),
@@ -3923,6 +4193,7 @@ window.scalarvis = { instanceCount: -1 };
 
       constructor() {
         super();
+        this.zoom = null;
       }
 
       draw() {
@@ -3954,28 +4225,56 @@ window.scalarvis = { instanceCount: -1 };
           this.nodeSelection = this.container.selectAll('g.node')
             .data(base.force.nodes(), function(d) { return d.node.slug; });
 
+          var toggleSelection = (d) => {
+            if (d3.event.defaultPrevented) return; // ignore drag
+            d3.event.stopPropagation();
+            var index = base.selectedNodes.indexOf(d.node);
+            if (index == -1) {
+              base.selectedNodes.push(d.node);
+              if (base.options.content == "current" || base.options.content == "lens") {
+                base.loadNode(d.node.slug, false, 1, base.updateInspector);
+              }
+            } else {
+              base.selectedNodes.splice(index, 1);
+              base.removeRelatedNodesFromManuallyLoaded(d.node);
+            }
+            base.updateInspector();
+            this.updateGraph();
+          }
+
+          var zoom = this.zoom
+
+          function centerOnNode(targetNode) {
+              const x = base.visualization.width() / 2 - targetNode.x;
+              const y = base.visualization.height() / 2 - targetNode.y;
+              base.svg.transition()
+                  .duration(base.prefersReducedMotion ? 0 : 750)
+                  .call(
+                      zoom.transform,
+                      d3.zoomIdentity.translate(x, y).scale(1)
+                  );
+          }
+
           var nodeEnter = this.nodeSelection.enter().append('svg:g')
             .attr('class', 'node')
+            .attr('tabindex', 0)
+            .attr('aria-role', 'button')
+            .attr('aria-label', (d) => {
+              return 'Select node: ' + d.node.getDisplayTitle();
+            })
+            .attr('aria-pressed', (d) => {
+              return (base.selectedNodes.indexOf(d.node) != -1)
+            })
             .attr('x', (d) => { d.x = this.size.width * .5 + (Math.random() * 200 - 100); return d.x; })
             .attr('y', (d) => { d.y = this.size.height * .5 + (Math.random() * 200 - 100); return d.y; })
             .call(this.dragHandling(base.force))
             .on('touchstart', function(d) { d3.event.stopPropagation(); })
             .on('mousedown', function(d) { d3.event.stopPropagation(); })
-            .on('click', (d) => {
-              if (d3.event.defaultPrevented) return; // ignore drag
-              d3.event.stopPropagation();
-              var index = base.selectedNodes.indexOf(d.node);
-              if (index == -1) {
-                base.selectedNodes.push(d.node);
-                if (base.options.content == "current" || base.options.content == "lens") {
-                  base.loadNode(d.node.slug, false, 1, base.updateInspector);
-                }
-              } else {
-                base.selectedNodes.splice(index, 1);
-                base.removeRelatedNodesFromManuallyLoaded(d.node);
+            .on('click', toggleSelection)
+            .on('keyup', (d) => {
+              if (d3.event.code == 'Enter' || d3.event.code == 'Space') {
+                toggleSelection(d)
               }
-              base.updateInspector();
-              this.updateGraph();
             })
             .on("mouseover", (d) => {
               base.rolloverNode = d.node;
@@ -3984,7 +4283,8 @@ window.scalarvis = { instanceCount: -1 };
             .on("mouseout", () => {
               base.rolloverNode = null;
               this.updateGraph();
-            });
+            })
+            .on("focus", centerOnNode);
 
           nodeEnter.append('svg:circle')
             .attr('class', 'node')
@@ -4010,10 +4310,21 @@ window.scalarvis = { instanceCount: -1 };
             .attr('ry', '5')
             .attr('width', '48')
             .attr('height', '22')
+            .attr('tabindex', 0)
+            .attr('aria-role', 'button')
+            .attr('aria-label', (d) => {
+              return 'Click to open:  ' + d.node.getDisplayTitle();
+            })
             .style('display', 'none')
             .on('click', function(d) {
               d3.event.stopPropagation();
               window.open(d.node.url, '_blank');
+            })
+            .on('keyup', (d) => {
+              if (d3.event.code == 'Enter' || d3.event.code == 'Space') {
+                d3.event.stopPropagation();
+                window.open(d.node.url, '_blank');
+              }
             });
 
           nodeEnter.append('svg:text')
@@ -4054,7 +4365,8 @@ window.scalarvis = { instanceCount: -1 };
           .attr('width', this.size.width)
           .attr('height', this.size.height);
         var container = base.svg.append('g').attr('class', 'container');
-        base.svg.call(d3.zoom().on("zoom", function() { container.attr("transform", d3.event.transform); }));
+        this.zoom = d3.zoom()
+        base.svg.call(this.zoom.on("zoom", function() { container.attr("transform", d3.event.transform); }));
         base.svg.style("cursor", "move");
 
         // once we upgrade to D3 4.0, we should implement custom x and y accessors
@@ -4120,6 +4432,11 @@ window.scalarvis = { instanceCount: -1 };
       }
 
       updateGraph() {
+
+        this.nodeSelection
+          .attr('aria-pressed', (d) => {
+            return (base.selectedNodes.indexOf(d.node) != -1)
+          })
 
         this.linkSelection
           .attr('stroke-width', function(d) {
@@ -4236,8 +4553,9 @@ window.scalarvis = { instanceCount: -1 };
             if (-1 == urls.indexOf(relations[k].target.url)) urls.push(relations[k].target.url);
             var thumbnail = relations[k].target.thumbnail;
             var description = relations[k].target.getDescription(true);
+            var altText = relations[k].target.current.getAltTextWithFallback();
             titleMarkup = '<div class="caption_font path-breadcrumb"><a href="' + relations[k].body.url + '">' + pathTitle + '</a> (' + relations[k].index + '/' + containingPathNodes.length + ')</div><h2 class="heading_font heading_weight"><a href="' + relations[k].target.url + '">' + relations[k].target.getDisplayTitle() + '</a></h2>';
-            thumbnailMarkup = (null != thumbnail) ? '<img style="float:right; margin: 0 0 1rem 1rem;" src="' + thumbnail + '" alt="Thumbnail image" width="120" />' : '';
+            thumbnailMarkup = (null != thumbnail) ? '<img style="float:right; margin: 0 0 1rem 1rem;" src="' + thumbnail + '" alt="' + altText + '" width="120" />' : '';
             descriptionMarkup = (description && description.length) ? description : '';
             contentString = '<div class="google-info-window caption_font">' + titleMarkup + '<div>' + thumbnailMarkup + descriptionMarkup + '</div>';
             var icon = this.getIcon(relations[k].target.scalarTypes);
@@ -4265,8 +4583,9 @@ window.scalarvis = { instanceCount: -1 };
           var title = base.sortedNodes[j].getDisplayTitle();
           var thumbnail = base.sortedNodes[j].thumbnail;
           var description = base.sortedNodes[j].getDescription(true);
+          var altText = base.sortedNodes[j].current.getAltTextWithFallback();
           titleMarkup = '<h2 class="heading_font heading_weight"><a href="' + base.sortedNodes[j].url + '">' + title + '</a></h2>';
-          thumbnailMarkup = (null != thumbnail) ? '<img style="float:right; margin: 0 0 1rem 1rem;" src="' + thumbnail + '" alt="Thumbnail image" width="120" />' : '';
+          thumbnailMarkup = (null != thumbnail) ? '<img style="float:right; margin: 0 0 1rem 1rem;" src="' + thumbnail + '" alt="' + altText + '" width="120" />' : '';
           descriptionMarkup = (description && description.length) ? description : '';
           contentString = '<div class="google-info-window caption_font">' + titleMarkup + '<div>' + thumbnailMarkup + descriptionMarkup + '</div>';
           var icon = this.getIcon(base.sortedNodes[j].scalarTypes);
@@ -4891,17 +5210,16 @@ window.scalarvis = { instanceCount: -1 };
 
           case 'thumbnail':
             if ( node.thumbnail != undefined ) {
-              var alttext = node.current.getAltTextWithFallback().replace(/"/g, '&#34;');
-              if (alttext != null) alttext = alttext.replace(/([^"\\]*(?:\\.[^"\\]*)*)"/g, '$1\\"');
+              var altText = node.current.getAltTextWithFallback();
               var tooltipText = node.getDisplayTitle() + ' (' + node.current.mediaSource.contentType + ')';
               tooltipText = tooltipText.replace(/"/g,'&quot;');
               var url = node.getAbsoluteThumbnailURL();
               var thumbnail = '<img id="img-' + node.slug.replace( "/", "-" ) + '" class="thumb" src="' + url + '" alt="' +
-                alttext + '" data-html="true" data-toggle="tooltip" title="' + tooltipText + '"/>';
+                altText + '" data-html="true" data-toggle="tooltip" title="' + tooltipText + '"/>';
             // generic thumbnail
             } else {
               thumbnail = '<img id="img-' + node.slug.replace( "/", "-" ) + '" class="thumb" src="' + modules_uri +
-                '/cantaloupe/images/media_icon_chip.png" alt="' + alttext + '" data-toggle="tooltip" data-html="true" title="' + tooltipText + '"/>';
+                '/cantaloupe/images/media_icon_chip.png" alt="Generic media thumbnail" data-toggle="tooltip" data-html="true" title="' + tooltipText + '"/>';
             }
             row.append(this.getRowContent(columnType, columnSpec, thumbnail));
             break

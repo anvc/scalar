@@ -18,7 +18,7 @@
  */
 
 /**
- * @projectDescription  Boot Scalar Javascript/jQuery using yepnope.js + some global functions
+ * @projectDescription  Boot Scalar RDF, mediaelement, and other resources
  * @author              Erik Loyer
  * @author				Craig Dietrich
  * @version             Cantaloupe
@@ -63,6 +63,8 @@ var isTablet = ((navigator.userAgent.match(/iPad/i)) || (navigator.userAgent.mat
 var isMobileNotTablet = ((navigator.userAgent.match(/iPhone/i)) || (navigator.userAgent.match(/iPod/i)) || ((navigator.userAgent.match(/Android/i)) && (navigator.userAgent.match(/mobile/i)))); // TODO: Does this weed out Android tablets?
 var isNative = (document.location.href.indexOf('=cantaloupe') == -1);
 var typeLimits = null;
+var firstFocusable = null;
+var lastFocusable = null;
 
 function when(tester_func, callback) {
 	var timeout = 50;
@@ -149,7 +151,7 @@ function addIconBtn(element, filename, hoverFilename, title, url) {
 	var img_url_1 = modules_uri+'/cantaloupe/images/'+filename;
 	var img_url_2 = modules_uri+'/cantaloupe/images/'+hoverFilename;
 	if (url == undefined) url = 'javascript:;';
-	var button = $('<a href="'+url+'" title="'+title+'"><img src="'+img_url_1+'" onmouseover="this.src=\''+img_url_2+'\'" onmouseout="this.src=\''+img_url_1+'\'" width="30" height="30" /></a>').appendTo(element);
+	var button = $('<a href="'+url+'" title="'+title+'"><img src="'+img_url_1+'" onmouseover="this.src=\''+img_url_2+'\'" onmouseout="this.src=\''+img_url_1+'\'" width="30" height="30" alt="" /></a>').appendTo(element);
 	return button;
 }
 
@@ -172,6 +174,40 @@ function pullOutElement($pull) {
     $pull.insertAfter($par);
     $par = $pull.parent();
   }
+}
+
+function setupFocusTrap(firstFocusElement, lastFocusElement) {
+	firstFocusable = firstFocusElement;
+	lastFocusable = lastFocusElement;
+
+	// tab back from first focusable to last
+	firstFocusable.on('keydown.focusTrap', function(e) {
+		var keyCode = e.keyCode || e.which;
+		console.log('firstFocusable keydown', keyCode);
+		if(keyCode == 9) {
+			if (e.shiftKey) {
+				e.preventDefault();
+				lastFocusable.focus();
+			}
+		}
+	});
+
+	// tap forward from last focusable to first
+	lastFocusable.on('keydown.focusTrap', function(e) {
+		var keyCode = e.keyCode || e.which;
+		console.log('lastFocusable keydown', keyCode);
+		if(keyCode == 9) {
+			if (!e.shiftKey) {
+				e.preventDefault();
+				firstFocusable.focus();
+			}
+		}
+	});
+}
+
+function removeFocusTrap() {
+	if (firstFocusable) firstFocusable.off('keydown.focusTrap')
+	if (lastFocusable) lastFocusable.off('keydown.focusTrap')
 }
 
 /**
@@ -525,11 +561,12 @@ $(window).ready(function() {
 
   	// Cookie for clearing a notice
 	if ($('.scalarnotice').length) {
-		yepnope([
-		   {load: [widgets_uri+'/cookie/jquery.cookie.js',widgets_uri+'/notice/jquery.scalarnotice.js'], complete:function() {
-			  $('.scalarnotice').scalarnotice();
-           }},
-	    ]);
+		$.when(
+			$.get(widgets_uri+'/cookie/jquery.cookie.js'),
+			$.get(widgets_uri+'/notice/jquery.scalarnotice.js')
+		).done(function( data, textStatus, jqXHR ) {
+			$('.scalarnotice').scalarnotice();
+		});
 	};
 
 	window.initGoogleMap = function() {} // google maps api requires a callback
@@ -539,133 +576,124 @@ $(window).ready(function() {
 		switch (event.data) {};
 	});
 
-	yepnope([
+	$.when(
+		$.get(base_uri+'/js/jquery.rdfquery.rules-1.0.js'),
+		$.get(base_uri+'/js/jquery.RDFa.js'),
+		$.get(base_uri+'/js/form-validation.js?v=2'),
+		$.get(widgets_uri+'/nav/jquery.scalarrecent.js'),
+		$.get(widgets_uri+'/cookie/jquery.cookie.js'),
+		$.get(widgets_uri+'/api/scalarapi.js')
+	).done(function( data, textStatus, jqXHR ) {
+		/**
+		 * Get raw JSON
+		 */
 
-		  // Scalar API
-		  {load: [base_uri+'/js/jquery.rdfquery.rules-1.0.js',
-		          base_uri+'/js/jquery.RDFa.js',
-		          base_uri+'/js/form-validation.js?v=2',
-		          widgets_uri+'/nav/jquery.scalarrecent.js',
-		          widgets_uri+'/cookie/jquery.cookie.js',
-		          widgets_uri+'/api/scalarapi.js'], complete:function() {
+		var rdf = $(document.body).RDFa();
+		var rdf_json = rdf.dump();
+		//console.log('------- RDFa JSON ----------------------------');
+		//console.log(rdf_json);
 
-				/**
-				 * Get raw JSON
-				 */
+		// use the RDF data for the book to set the book's base URL
+		var datum;
+		for ( var i in rdf_json ) {
+			datum = rdf_json[ i ];
+			if ( datum[ 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type' ] ) {
+				if ( datum[ 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type' ][ 0 ].value == 'http://scalar.usc.edu/2012/01/scalar-ns#Book' ) {
+					scalarapi.model.urlPrefix = i + '/';
+					break;
+				}
+			}
+		}
 
-				var rdf = $(document.body).RDFa();
-				var rdf_json = rdf.dump();
-				//console.log('------- RDFa JSON ----------------------------');
-				//console.log(rdf_json);
+		// fallback method for determining the book URL; will fail if URL structure is non-standard
+		if ( scalarapi.model.urlPrefix == null ) {
+			scalarapi.setBook($('link#parent').attr('href'));
+		}
 
-				// use the RDF data for the book to set the book's base URL
-				var datum;
-				for ( var i in rdf_json ) {
-					datum = rdf_json[ i ];
-					if ( datum[ 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type' ] ) {
-						if ( datum[ 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type' ][ 0 ].value == 'http://scalar.usc.edu/2012/01/scalar-ns#Book' ) {
-							scalarapi.model.urlPrefix = i + '/';
-							break;
-						}
+		// use scalarapi to parse the JSON
+		scalarapi.model.parseNodes(rdf_json);
+		scalarapi.model.parseRelations(rdf_json);
+		var currentNode = scalarapi.model.getCurrentPageNode();
+
+		/*
+		console.log('------- Current page from RDFa ---------------');
+		console.log( 'current page title: '+rdf.predicate('http://purl.org/dc/terms/title') );
+		console.log( 'current page description: '+rdf.predicate('http://purl.org/dc/terms/description') );
+		console.log( 'current page content: '+rdf.predicate('http://rdfs.org/sioc/ns#content') );
+		console.log('------- Relationships from RDFa  -------------');
+		// Tags
+		var rel = rdf.relations('in').nodes_by_type();
+		for (var uri in rel) console.log('has tag: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title'));
+		var rel = rdf.relations('out').nodes_by_type();
+		for (var uri in rel) console.log('tag of: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title'));
+		// Paths
+		var rel = rdf.relations('in').nodes_by_type('index');
+		for (var uri in rel) console.log('has path: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title')+" at '"+rdf.types(rel[uri])+"'");
+		var rel = rdf.relations('out').nodes_by_type('index');
+		for (var uri in rel) console.log('path of: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title')+" at '"+rdf.types(rel[uri])+"'");
+		// Annotations
+		var rel = rdf.relations('in').nodes_by_type('t');
+		for (var uri in rel) console.log('has annotation: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title')+" at '"+rdf.types(rel[uri])+"'");
+		var rel = rdf.relations('out').nodes_by_type('t');
+		for (var uri in rel) console.log('annotation of: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title')+" at '"+rdf.types(rel[uri])+"'");
+		// Comments
+		var rel = rdf.relations('in').nodes_by_type('datetime');
+		for (var uri in rel) console.log('has reply: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title')+" at '"+rdf.types(rel[uri])+"'");
+		var rel = rdf.relations('out').nodes_by_type('datetime');
+		for (var uri in rel) console.log('reply of: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title')+" at '"+rdf.types(rel[uri])+"'");
+		// References
+		var rel = rdf.predicates('http://purl.org/dc/terms/isReferencedBy');
+		for (var uri in rel) console.log('is referenced by: '+rdf.predicate(rel[uri].value, 'http://purl.org/dc/terms/title'));
+		var rel = rdf.predicates('http://purl.org/dc/terms/references');
+		for (var uri in rel) console.log('references: '+rdf.predicate(rel[uri].value, 'http://purl.org/dc/terms/title'));
+		*/		
+		
+
+		$.when(
+			$.get(widgets_uri+'/spinner/spin.min.js'),
+			$.get(widgets_uri+'/d3/d3.v5.min.js')
+		).done(function( data, textStatus, jqXHR ) {
+					var currentNode = scalarapi.model.getCurrentPageNode();
+					var extension = scalarapi.getFileExtension( window.location.href );
+
+				if ( currentNode == null || currentNode.current == null) {
+					if ( extension != 'edit' && $('span[property="sioc:content"]').is(':empty')) {
+						$( 'body' ).append( '<div id="centered-message"><span>This page contains no content.</span> <span>Click the <img src="' + modules_uri + '/cantaloupe/images/edit_icon.png" alt="Edit button. Click to edit the current page or media." width="30" height="30" /> button above to add some.</span></div>' );
 					}
 				}
 
-				// fallback method for determining the book URL; will fail if URL structure is non-standard
-				if ( scalarapi.model.urlPrefix == null ) {
-					scalarapi.setBook($('link#parent').attr('href'));
-				}
+			$('#book-title').parent().wrap('<nav role="navigation"></nav>');
+			$('article').before($('#book-title').parent().parent());
 
-				// use scalarapi to parse the JSON
-				scalarapi.model.parseNodes(rdf_json);
-				scalarapi.model.parseRelations(rdf_json);
+			header = $('#book-title').parent().parent().scalarheader( { root_url: modules_uri+'/cantaloupe'} );
+			page = $.scalarpage( $('article'),  { root_url: modules_uri+'/cantaloupe'} );
+			widgets = page.bodyContent().scalarwidgets().data('scalarwidgets');
+
+			$( '[property="art:url"]' ).css( 'display', 'none' );
+
+			$('body').css('visibility', 'visible').attr( 'ontouchstart', '' );
+			if (page.containingPath) $('body').addClass('parent-' + page.containingPath.slug)
+			if (currentNode && currentNode.slug) $('body').addClass('page-' + currentNode.slug)
+
+			var timeout;
+			$( window ).on('resize',  function() {
+				clearTimeout( timeout );
+				timeout = setTimeout( handleDelayedResize, 300 );
+			});
+
+			$('body').trigger( "pageLoadComplete" );			
+
+			$.when(
+				$.get(widgets_uri+'/mediaelement/annotorious.debug.js'),
+				$.get(widgets_uri+'/mediaelement/jquery.mediaelement.js')
+			).done(function( data, textStatus, jqXHR ) {
+		
 				var currentNode = scalarapi.model.getCurrentPageNode();
-
-				/*
-				console.log('------- Current page from RDFa ---------------');
-				console.log( 'current page title: '+rdf.predicate('http://purl.org/dc/terms/title') );
-				console.log( 'current page description: '+rdf.predicate('http://purl.org/dc/terms/description') );
-				console.log( 'current page content: '+rdf.predicate('http://rdfs.org/sioc/ns#content') );
-				console.log('------- Relationships from RDFa  -------------');
-				// Tags
-				var rel = rdf.relations('in').nodes_by_type();
-				for (var uri in rel) console.log('has tag: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title'));
-				var rel = rdf.relations('out').nodes_by_type();
-				for (var uri in rel) console.log('tag of: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title'));
-				// Paths
-				var rel = rdf.relations('in').nodes_by_type('index');
-				for (var uri in rel) console.log('has path: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title')+" at '"+rdf.types(rel[uri])+"'");
-				var rel = rdf.relations('out').nodes_by_type('index');
-				for (var uri in rel) console.log('path of: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title')+" at '"+rdf.types(rel[uri])+"'");
-				// Annotations
-				var rel = rdf.relations('in').nodes_by_type('t');
-				for (var uri in rel) console.log('has annotation: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title')+" at '"+rdf.types(rel[uri])+"'");
-				var rel = rdf.relations('out').nodes_by_type('t');
-				for (var uri in rel) console.log('annotation of: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title')+" at '"+rdf.types(rel[uri])+"'");
-				// Comments
-				var rel = rdf.relations('in').nodes_by_type('datetime');
-				for (var uri in rel) console.log('has reply: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title')+" at '"+rdf.types(rel[uri])+"'");
-				var rel = rdf.relations('out').nodes_by_type('datetime');
-				for (var uri in rel) console.log('reply of: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title')+" at '"+rdf.types(rel[uri])+"'");
-				// References
-				var rel = rdf.predicates('http://purl.org/dc/terms/isReferencedBy');
-				for (var uri in rel) console.log('is referenced by: '+rdf.predicate(rel[uri].value, 'http://purl.org/dc/terms/title'));
-				var rel = rdf.predicates('http://purl.org/dc/terms/references');
-				for (var uri in rel) console.log('references: '+rdf.predicate(rel[uri].value, 'http://purl.org/dc/terms/title'));
-				*/
-
-		  }},
-
-		  {load: [widgets_uri+'/spinner/spin.min.js',
-        widgets_uri+'/d3/d3.v5.min.js'], complete:function() {
-
-        var currentNode = scalarapi.model.getCurrentPageNode();
-        var extension = scalarapi.getFileExtension( window.location.href );
-
-	   		if ( currentNode == null || currentNode.current == null) {
-	   			if ( extension != 'edit' && $('span[property="sioc:content"]').is(':empty')) {
-	   				$( 'body' ).append( '<div id="centered-message"><span>This page contains no content.</span> <span>Click the <img src="' + modules_uri + '/cantaloupe/images/edit_icon.png" alt="Edit button. Click to edit the current page or media." width="30" height="30" /> button above to add some.</span></div>' );
-	   			}
-	   		}
-
-			  $('#book-title').parent().wrap('<nav role="navigation"></nav>');
-			  $('article').before($('#book-title').parent().parent());
-
-				header = $('#book-title').parent().parent().scalarheader( { root_url: modules_uri+'/cantaloupe'} );
-
-				page = $.scalarpage( $('article'),  { root_url: modules_uri+'/cantaloupe'} );
-
-				widgets = page.bodyContent().scalarwidgets().data('scalarwidgets');
-
-
-				$( '[property="art:url"]' ).css( 'display', 'none' );
-
-				$('body').css('visibility', 'visible').attr( 'ontouchstart', '' );
-				if (page.containingPath) $('body').addClass('parent-' + page.containingPath.slug)
-				if (currentNode && currentNode.slug) $('body').addClass('page-' + currentNode.slug)
-
-				var timeout;
-				$( window ).on('resize',  function() {
-					clearTimeout( timeout );
-					timeout = setTimeout( handleDelayedResize, 300 );
-				});
-
-				$('body').trigger( "pageLoadComplete" );
-
-		  }},
-
-		  // Mediaelement
-		  {load: [
-				widgets_uri+'/mediaelement/annotorious.debug.js',
-				widgets_uri+'/mediaelement/css/annotorious.css',
-				widgets_uri+'/mediaelement/mediaelement.css',
-				widgets_uri+'/mediaelement/jquery.mediaelement.js'], complete:function() {
-
-		        var currentNode = scalarapi.model.getCurrentPageNode();
-
+		
 				if ( currentNode != null ) {
 					page.addMediaElements();
 				}
-
+		
 				var extension = scalarapi.getFileExtension( window.location.href );
 				if (extension == "") {
 					$audio = $('section.audio');
@@ -674,22 +702,20 @@ $(window).ready(function() {
 						page.addMediaElementsForElement($audio);
 					}
 				}
-
+		
 				var savedState = $.cookie('viewstate');
-
-		  }},
-
-		  // Maximize + comments
-		  {load: ['//www.google.com/recaptcha/api.js',
-		          widgets_uri+'/replies/replies.js'], complete:function() {}
-		  },
-
-		  // Hypothesis
-		  {
-			  test: ('true'==$('link#hypothesis').attr('href')),
-			  yep: 'https://hypothes.is/embed.js'
-		  },
-
-	]);  // !yepnope
+			});	
+		});
+	});
+	
+	//$('head').append('<link rel="stylesheet" href="'+widgets_uri+'/mediaelement/css/annotorious.css" type="text/css" />');
+	//$('head').append('<link rel="stylesheet" href="'+widgets_uri+'/mediaelement/mediaelement.css" type="text/css" />');
+	
+	$.getScript('//www.google.com/recaptcha/api.js');
+	$.getScript(widgets_uri+'/replies/replies.js');
+	
+	if ('true'==$('link#hypothesis').attr('href')) {
+		$.getScript('https://hypothes.is/embed.js')
+	}
 
 });
