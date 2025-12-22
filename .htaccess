@@ -17,7 +17,7 @@ RewriteRule (^\.)|(/\.) - [R=404,L]
 
 # Block any files in the root directory other
 # than codeigniter.php and maintenance.html
-RewriteCond ${REQUEST_FILENAME} -f
+RewriteCond %{REQUEST_FILENAME} -f
 RewriteCond $1 !maintenance.html$
 RewriteCond $1 !codeigniter.php$
 RewriteRule ^([^/]+)$  - [R=404,L]
@@ -56,16 +56,9 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule (.*) codeigniter.php/$1 [L]
 RewriteRule ^$ codeigniter.php [L]
 
-# If a directory, don't send to codeigniter if it's the root folder
-# the server in turn will add the trailing slash and things are back to normal
-# This is to overcome what appears to be an old server setting on Vectors
-# and/or not being able to change DirectorySlash
-RewriteCond %{REQUEST_FILENAME} !codeigniter.php [NC]
-RewriteCond %{REQUEST_FILENAME} -d
-RewriteRule ^/(.*)$ - [L]
-
 # Pass through directory
 RewriteCond $1 !^codeigniter.php(/.*)?$ [NC]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule (.*) codeigniter.php/$1 [L]
+
 
