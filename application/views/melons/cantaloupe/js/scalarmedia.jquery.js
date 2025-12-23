@@ -61,12 +61,12 @@
 										var relation = $(this).data('relation');
 										$(this).data('media').seek(relation);
 										media.sendMessage($(this).data('media'), media.annotationHasMessage(relation));
-										if ((relation.target.current.mediaSource.contentType != 'document') && (relation.target.current.mediaSource.contentType != 'image') && (relation.target.current.mediaSource.contentType != '3D') && (relation.target.current.mediaSource.contentType != '3D-GIS')) {
-											setTimeout(function () {
-												if (!$(this).data('media').is_playing()) {
-													$(this).data('media').play();
-												}
-											}, 250);
+										if (( relation.target.current.mediaSource.contentType != 'document' ) && ( relation.target.current.mediaSource.contentType != 'image' ) && ( relation.target.current.mediaSource.contentType != '3D' ) && ( relation.target.current.mediaSource.contentType != '3D-GIS' )) {
+											setTimeout(function() {
+													if(!$(this).data('media').is_playing()) {
+											$(this).data('media').play();
+													}
+											},250);
 										}
 									}
 								});
@@ -284,7 +284,7 @@
 						return
 					} catch(error) {
 						// no valid JSON found; continue
-			}
+					}
 					if (scalarapi.getFileExtension(relation) == 'vtt') {
 						// if extension is 'vtt', then this item is a vtt file; try the next one
 						this.addNextRelatedMedia()
@@ -461,12 +461,12 @@
 							$(this).data('media').seek(relation);
 							media.sendMessage($(this).data('media'), media.annotationHasMessage(relation));
 							var me = this;
-							if ((relation.target.current.mediaSource.contentType != 'document') && (relation.target.current.mediaSource.contentType != 'image') && (relation.target.current.mediaSource.contentType != '3D') && (relation.target.current.mediaSource.contentType != '3D-GIS')) {
-								setTimeout(function () {
-									if (!$(me).data('media').is_playing()) {
-										$(me).data('media').play();
+							if (( relation.target.current.mediaSource.contentType != 'document' ) && ( relation.target.current.mediaSource.contentType != 'image' ) && ( relation.target.current.mediaSource.contentType != '3D' ) && ( relation.target.current.mediaSource.contentType != '3D-GIS' )) {
+								setTimeout(function() {
+									if(!$(me).data('media').is_playing()) {
+								$(me).data('media').play();
 									}
-								}, 250);
+								},250);
 							}
 						}
 
@@ -547,9 +547,9 @@
 
 			element.addClass('caption_font');
 			element.addClass('mediainfo');
-		  	$('.media_metadata').addClass('caption_font');
+			$('.media_metadata').addClass('caption_font');
 
-		  	$('body').trigger('scalarMediaReady', [mediaelement.view])
+			$('body').trigger('scalarMediaReady', [mediaelement.view])
 		}
 
 	}

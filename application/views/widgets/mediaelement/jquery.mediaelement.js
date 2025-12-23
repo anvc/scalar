@@ -1074,7 +1074,7 @@ function YouTubeGetID(url){
 							this.mediaObjectView = new $.ThreejsObjectView(this.model, this);
             } else if (this.model.mediaSource.name == 'Unity WebGL') {
               this.mediaObjectView = new $.UnityWebGLObjectView(this.model, this);
-						}
+            }
 						break;
 
 						case '3D-GIS':
