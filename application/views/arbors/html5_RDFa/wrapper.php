@@ -89,7 +89,7 @@ endforeach;
 <meta property="og:url" content="<? echo confirm_slash($base_uri).((isset($page->version_index))?$page->slug:''); ?>" />
 <meta property="og:description" content="<? if (isset($page->version_index) && !empty($page->versions[$page->version_index]->description)) {echo htmlspecialchars($page->versions[$page->version_index]->description);} elseif (isset($page->version_index)) {echo htmlspecialchars(create_excerpt($page->versions[$page->version_index]->content, 34));} else {echo htmlspecialchars(trim(strip_tags($description)));} ?>" />
 <meta property="og:image" content="<?php
-$default_img = confirm_slash($app_root) . 'views/arbors/html5_RDFa/scalar_logo_300x300.png';
+$default_img = $app_root.'views/arbors/html5_RDFa/scalar_logo_300x300.png';
 if (isset($page->version_index)) {
 	$img = first_og_image_from_html_string($page->versions[$page->version_index]->content);
 	$url = $page->versions[$page->version_index]->url;
@@ -105,7 +105,7 @@ if (isset($page->version_index)) {
 		echo $default_img;
 	}
 } else {
-	echo $default_img = confirm_slash($app_root) .'views/arbors/html5_RDFa/scalar_logo_300x300.png';
+	echo $default_img = $app_root.'views/arbors/html5_RDFa/scalar_logo_300x300.png';
 }
 ?>" />
 <meta property="og:type" content="article" />
@@ -144,7 +144,7 @@ if (isset($page->version_index)) {
 <link id="parent" href="<?=$base_uri?>" />
 <link id="approot" href="<?=confirm_slash(base_url())?>application/" />
 <? if ($login->is_logged_in): ?>
-<link id="logged_in" href="<?=confirm_slash(base_url())?>main/users/<?=$login->user_id?>" />
+<link id="logged_in" href="<?=confirm_slash(base_url())?>users/<?=$login->user_id?>" />
 <? endif ?>
 <? if (null !== $user_level): ?>
 <link id="user_level" href="scalar:<?=ucwords(((!empty($user_level_as_defined))?$user_level_as_defined:'Author'))?>" />
@@ -352,7 +352,7 @@ foreach ($models as $rel):
 <?		print_rdf($this->users->rdf($inward_item->user, $base_uri), 5, $ns); ?>				</span>
 				<span resource="<?=$base_uri.$inward_item->slug.'.'.$inward_item->versions[$inward_item->version_index]->version_num?>" typeof="scalar:Version">
 					<a inert rel="dcterms:isVersionOf" href="<?=$base_uri.$inward_item->slug?>"></a>
-					<span inert property="dcterms:title" content="<?=htmlspecialchars($inward_item->versions[$inward_item->version_index]->title)?>">
+					<span property="dcterms:title" content="<?=htmlspecialchars($inward_item->versions[$inward_item->version_index]->title)?>">
 						<a href="<?=$base_uri.$inward_item->slug?>"><?=$inward_item->versions[$inward_item->version_index]->title?></a>
 					</span>
 					<span inert property="scalar:fullname"><?=@$inward_item->versions[$inward_item->version_index]->user->fullname?></span>
@@ -362,7 +362,7 @@ foreach ($models as $rel):
 ?>				</span>
 				<span inert resource="<?=$inward_item->versions[$inward_item->version_index]->user->uri?>" typeof="foaf:Person">
 <?		print_rdf($this->users->rdf($inward_item->versions[$inward_item->version_index]->user, $base_uri), 5, $ns); ?>				</span>
-				<a rel="oac:hasTarget" href="<?=$base_uri.$page->slug.'.'.$page->versions[$page->version_index]->version_num?><?=annotation_append($inward_item->versions[$inward_item->version_index])?>"></a>
+				<a inert rel="oac:hasTarget" href="<?=$base_uri.$page->slug.'.'.$page->versions[$page->version_index]->version_num?><?=annotation_append($inward_item->versions[$inward_item->version_index])?>"></a>
 <? 				if (isset($inward_item->versions[0]->$outward_rel) && !empty($inward_item->versions[0]->$outward_rel)): ?>
 				<!-- Items that the inward item contains -->
 				<aside>
@@ -399,7 +399,7 @@ foreach ($models as $rel):
 		print_rdf($this->versions->rdf($outward_item->versions[$outward_item->version_index], $base_uri), 8, $ns);
 		if ($output_inward_content) echo "\t\t\t\t\t\t\t\t".'<span class="metadata" property="'.$rdf_fields['content'].'">'.$outward_item->versions[$outward_item->version_index]->content.'</span>'."\n";
 ?>							</span>
-							<a rel="oac:hasTarget" href="<?=$base_uri.$outward_item->slug.'.'.$outward_item->versions[$outward_item->version_index]->version_num?><?=annotation_append($outward_item->versions[$outward_item->version_index])?>"></a>
+							<a inert rel="oac:hasTarget" href="<?=$base_uri.$outward_item->slug.'.'.$outward_item->versions[$outward_item->version_index]->version_num?><?=annotation_append($outward_item->versions[$outward_item->version_index])?>"></a>
 						</li>
 <? 					endforeach; ?>
 					</ol>
@@ -464,11 +464,11 @@ if (!empty($has_references)):
 				<span resource="<?=$base_uri.$reference_item->slug?>" typeof="scalar:<?=('media'==$reference_item->type)?'Media':'Composite'?>">
 					<a inert rel="dcterms:hasVersion" href="<?=$base_uri.$reference_item->slug.'.'.$reference_item->versions[$reference_item->version_index]->version_num?>"></a>
 <? 		print_rdf($this->pages->rdf($reference_item), 5, $ns); ?>				</span>
-				<span inert resource="<?=$base_uri.$reference_item->slug.'.'.$reference_item->versions[$reference_item->version_index]->version_num?>" typeof="scalar:Version">
+				<span resource="<?=$base_uri.$reference_item->slug.'.'.$reference_item->versions[$reference_item->version_index]->version_num?>" typeof="scalar:Version">
 					<span property="dcterms:title" content="<?=htmlspecialchars($reference_item->versions[$reference_item->version_index]->title)?>">
 						<a href="<?=$base_uri.$reference_item->slug?>"><?=$reference_item->versions[$reference_item->version_index]->title?></a>
 					</span>
-					<a rel="dcterms:isVersionOf" href="<?=$base_uri.$reference_item->slug?>"></a>
+					<a inert rel="dcterms:isVersionOf" href="<?=$base_uri.$reference_item->slug?>"></a>
 <?
 		print_rdf($this->versions->rdf($reference_item->versions[$reference_item->version_index]), 5, $ns);
 		if ($output_references_content) echo "\t\t\t\t\t".'<span class="metadata" property="'.$rdf_fields['content'].'">'.$reference_item->versions[$reference_item->version_index]->content.'</span>'."\n";
