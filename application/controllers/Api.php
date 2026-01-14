@@ -40,6 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 	exit(0);
 }
 
+#[\AllowDynamicProperties]
 Class Api extends CI_Controller {
 
 	private $actions = array('ADD', 'DELETE', 'UNDELETE', 'UPDATE', 'RELATE');	//valid actions, redundant with URI but kept for clarity's sake
@@ -126,7 +127,7 @@ Class Api extends CI_Controller {
  		$this->tklabels = $this->_tklabels($this->user->book_id);
  		if (!isset($this->tklabels['labels'])) $this->tklabels = null;
  		if (!empty($this->tklabels)) array_push($this->allowable_metadata_prefixes, 'tk');
-
+ 		
  		//Determine if the incoming request has a payload (JSON blob) and convert to post fields if available
  		$this->_payload_to_data($this->data['book']);
 	}
@@ -733,15 +734,15 @@ Class Api extends CI_Controller {
 
 		return $parent_id;
 	}
-
+	
 	private function _versions_copy_relations($old_version_id=0, $new_version_id=0, $exempt_types=array()) {
-
+		
 		$this->load->model('annotation_model', 'annotations');
 		$this->load->model('path_model', 'paths');
 		$this->load->model('tag_model', 'tags');
 		$this->load->model('reply_model', 'replies');
 		$this->load->model('reference_model', 'references');
-
+		
 		$rel_types = array_merge($this->config->item('rel'), $this->config->item('ref'));
 		foreach ($rel_types as $rel_type) {
 			if (in_array($rel_type, $exempt_types)) continue;
@@ -798,7 +799,7 @@ Class Api extends CI_Controller {
 					break;
 			}
  		}
-
+		
 	}
 
 	private function _fill_user_session_data(){
@@ -854,7 +855,7 @@ Class Api extends CI_Controller {
 		$json = json_decode($request_body, true);
 		if (!$json) return false;
 		if (!isset($json[0])) $json = array($json);
-
+		
 		// IIIF from the Semantic Annotation Tool
 		if (isset($json[0]['@context']) && is_array($json[0]['@context']) && 'http://www.w3.org/ns/anno.jsonld' == $json[0]['@context'][0] && 'http://iiif.io/api/presentation/3/context.json' == $json[0]['@context'][1]) {
 			$_POST['native'] = 'true';
@@ -938,7 +939,7 @@ Class Api extends CI_Controller {
 				$this->_output();
 				exit;  // There will only be one annotation to save
 			}
-
+		
 		// OAC from Semantic Annotation Tool
 		} elseif (isset($json[0]['@context']) && 'http://www.w3.org/ns/anno.jsonld' == $json[0]['@context']) {
 			$this->load->library('OAC_Object','oac_object');

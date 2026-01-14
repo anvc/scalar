@@ -317,18 +317,19 @@
 						template: '<div class="tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="caption_font tooltip-inner"></div></div>'
 					} );
 				}
+				thumbnail.attr('tabindex', -1);
+				thumbnail.find('img').on('load', function() {
+					$(this).parent().attr('tabindex', 0);
+					console.log('thumbnail loaded', this);
+				})
 				thumbnail.data('node', node);
 				thumbnail.on('error', function() {
 					$(this).attr('src', modules_uri + '/cantaloupe/images/media_icon_chip.png');
+					$(this).attr('alt', 'Generic media icon');
 				});
 
 				thumbnail.on('click', function() {
-					/*if (me.currentDisplayMode != DisplayMode.All) {
-						var source = $(this).parent();
-						me.mediaDetails.show($(this).data('node'), source.data('node'), source.find('img'));
-					} else {*/
-						me.mediaDetails.show($(this).data('node'));
-					//}
+					me.mediaDetails.show($(this).data('node'), null, null, this);
 				});
 
 				$('body').trigger('structuredGalleryThumbnailLoaded', [thumbnail]);

@@ -90,7 +90,7 @@
 
 		this.modal.on('hidden.bs.modal', function() {
 			removeFocusTrap();
-		} );
+		});
 
 		this.element.replaceWith(this.element);
 	}

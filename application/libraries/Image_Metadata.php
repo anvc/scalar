@@ -1,5 +1,6 @@
 <?php  if (!defined('BASEPATH')) exit('No direct script access allowed');
 
+#[\AllowDynamicProperties]
 class Image_Metadata {
 
 	const FORMAT_NS = 0;

@@ -588,111 +588,112 @@ $(window).ready(function() {
 		 * Get raw JSON
 		 */
 
-				var rdf = $(document.body).RDFa();
-				var rdf_json = rdf.dump();
-				//console.log('------- RDFa JSON ----------------------------');
-				//console.log(rdf_json);
+		var rdf = $(document.body).RDFa();
+		var rdf_json = rdf.dump();
+		//console.log('------- RDFa JSON ----------------------------');
+		//console.log(rdf_json);
 
-				// use the RDF data for the book to set the book's base URL
-				var datum;
-				for ( var i in rdf_json ) {
-					datum = rdf_json[ i ];
-					if ( datum[ 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type' ] ) {
-						if ( datum[ 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type' ][ 0 ].value == 'http://scalar.usc.edu/2012/01/scalar-ns#Book' ) {
-							scalarapi.model.urlPrefix = i + '/';
-							break;
+		// use the RDF data for the book to set the book's base URL
+		var datum;
+		for ( var i in rdf_json ) {
+			datum = rdf_json[ i ];
+			if ( datum[ 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type' ] ) {
+				if ( datum[ 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type' ][ 0 ].value == 'http://scalar.usc.edu/2012/01/scalar-ns#Book' ) {
+					scalarapi.model.urlPrefix = i + '/';
+					break;
 				}
 			}
 		}
 
-				// fallback method for determining the book URL; will fail if URL structure is non-standard
-				if ( scalarapi.model.urlPrefix == null ) {
-					scalarapi.setBook($('link#parent').attr('href'));
+		// fallback method for determining the book URL; will fail if URL structure is non-standard
+		if ( scalarapi.model.urlPrefix == null ) {
+			scalarapi.setBook($('link#parent').attr('href'));
+		}
+
+		// use scalarapi to parse the JSON
+		scalarapi.model.parseNodes(rdf_json);
+		scalarapi.model.parseRelations(rdf_json);
+		var currentNode = scalarapi.model.getCurrentPageNode();
+
+		/*
+		console.log('------- Current page from RDFa ---------------');
+		console.log( 'current page title: '+rdf.predicate('http://purl.org/dc/terms/title') );
+		console.log( 'current page description: '+rdf.predicate('http://purl.org/dc/terms/description') );
+		console.log( 'current page content: '+rdf.predicate('http://rdfs.org/sioc/ns#content') );
+		console.log('------- Relationships from RDFa  -------------');
+		// Tags
+		var rel = rdf.relations('in').nodes_by_type();
+		for (var uri in rel) console.log('has tag: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title'));
+		var rel = rdf.relations('out').nodes_by_type();
+		for (var uri in rel) console.log('tag of: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title'));
+		// Paths
+		var rel = rdf.relations('in').nodes_by_type('index');
+		for (var uri in rel) console.log('has path: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title')+" at '"+rdf.types(rel[uri])+"'");
+		var rel = rdf.relations('out').nodes_by_type('index');
+		for (var uri in rel) console.log('path of: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title')+" at '"+rdf.types(rel[uri])+"'");
+		// Annotations
+		var rel = rdf.relations('in').nodes_by_type('t');
+		for (var uri in rel) console.log('has annotation: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title')+" at '"+rdf.types(rel[uri])+"'");
+		var rel = rdf.relations('out').nodes_by_type('t');
+		for (var uri in rel) console.log('annotation of: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title')+" at '"+rdf.types(rel[uri])+"'");
+		// Comments
+		var rel = rdf.relations('in').nodes_by_type('datetime');
+		for (var uri in rel) console.log('has reply: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title')+" at '"+rdf.types(rel[uri])+"'");
+		var rel = rdf.relations('out').nodes_by_type('datetime');
+		for (var uri in rel) console.log('reply of: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title')+" at '"+rdf.types(rel[uri])+"'");
+		// References
+		var rel = rdf.predicates('http://purl.org/dc/terms/isReferencedBy');
+		for (var uri in rel) console.log('is referenced by: '+rdf.predicate(rel[uri].value, 'http://purl.org/dc/terms/title'));
+		var rel = rdf.predicates('http://purl.org/dc/terms/references');
+		for (var uri in rel) console.log('references: '+rdf.predicate(rel[uri].value, 'http://purl.org/dc/terms/title'));
+		*/		
+		
+
+		$.when(
+			$.get(widgets_uri+'/spinner/spin.min.js'),
+			$.get(widgets_uri+'/d3/d3.v5.min.js')
+		).done(function( data, textStatus, jqXHR ) {
+					var currentNode = scalarapi.model.getCurrentPageNode();
+					var extension = scalarapi.getFileExtension( window.location.href );
+
+				if ( currentNode == null || currentNode.current == null) {
+					if ( extension != 'edit' && $('span[property="sioc:content"]').is(':empty')) {
+						$( 'body' ).append( '<div id="centered-message"><span>This page contains no content.</span> <span>Click the <img src="' + modules_uri + '/cantaloupe/images/edit_icon.png" alt="Edit button. Click to edit the current page or media." width="30" height="30" /> button above to add some.</span></div>' );
+					}
 				}
 
-				// use scalarapi to parse the JSON
-				scalarapi.model.parseNodes(rdf_json);
-				scalarapi.model.parseRelations(rdf_json);
+			$('#book-title').parent().wrap('<nav role="navigation"></nav>');
+			$('article').before($('#book-title').parent().parent());
+
+			header = $('#book-title').parent().parent().scalarheader( { root_url: modules_uri+'/cantaloupe'} );
+			page = $.scalarpage( $('article'),  { root_url: modules_uri+'/cantaloupe'} );
+			widgets = page.bodyContent().scalarwidgets().data('scalarwidgets');
+
+			$( '[property="art:url"]' ).css( 'display', 'none' );
+
+			$('body').css('visibility', 'visible').attr( 'ontouchstart', '' );
+			if (page.containingPath) $('body').addClass('parent-' + page.containingPath.slug)
+			if (currentNode && currentNode.slug) $('body').addClass('page-' + currentNode.slug)
+
+			var timeout;
+			$( window ).on('resize',  function() {
+				clearTimeout( timeout );
+				timeout = setTimeout( handleDelayedResize, 300 );
+			});
+
+			$('body').trigger( "pageLoadComplete" );			
+
+			$.when(
+				$.get(widgets_uri+'/mediaelement/annotorious.debug.js'),
+				$.get(widgets_uri+'/mediaelement/jquery.mediaelement.js')
+			).done(function( data, textStatus, jqXHR ) {
+		
 				var currentNode = scalarapi.model.getCurrentPageNode();
-
-				/*
-				console.log('------- Current page from RDFa ---------------');
-				console.log( 'current page title: '+rdf.predicate('http://purl.org/dc/terms/title') );
-				console.log( 'current page description: '+rdf.predicate('http://purl.org/dc/terms/description') );
-				console.log( 'current page content: '+rdf.predicate('http://rdfs.org/sioc/ns#content') );
-				console.log('------- Relationships from RDFa  -------------');
-				// Tags
-				var rel = rdf.relations('in').nodes_by_type();
-				for (var uri in rel) console.log('has tag: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title'));
-				var rel = rdf.relations('out').nodes_by_type();
-				for (var uri in rel) console.log('tag of: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title'));
-				// Paths
-				var rel = rdf.relations('in').nodes_by_type('index');
-				for (var uri in rel) console.log('has path: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title')+" at '"+rdf.types(rel[uri])+"'");
-				var rel = rdf.relations('out').nodes_by_type('index');
-				for (var uri in rel) console.log('path of: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title')+" at '"+rdf.types(rel[uri])+"'");
-				// Annotations
-				var rel = rdf.relations('in').nodes_by_type('t');
-				for (var uri in rel) console.log('has annotation: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title')+" at '"+rdf.types(rel[uri])+"'");
-				var rel = rdf.relations('out').nodes_by_type('t');
-				for (var uri in rel) console.log('annotation of: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title')+" at '"+rdf.types(rel[uri])+"'");
-				// Comments
-				var rel = rdf.relations('in').nodes_by_type('datetime');
-				for (var uri in rel) console.log('has reply: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title')+" at '"+rdf.types(rel[uri])+"'");
-				var rel = rdf.relations('out').nodes_by_type('datetime');
-				for (var uri in rel) console.log('reply of: '+rdf.predicate(rel[uri], 'http://purl.org/dc/terms/title')+" at '"+rdf.types(rel[uri])+"'");
-				// References
-				var rel = rdf.predicates('http://purl.org/dc/terms/isReferencedBy');
-				for (var uri in rel) console.log('is referenced by: '+rdf.predicate(rel[uri].value, 'http://purl.org/dc/terms/title'));
-				var rel = rdf.predicates('http://purl.org/dc/terms/references');
-				for (var uri in rel) console.log('references: '+rdf.predicate(rel[uri].value, 'http://purl.org/dc/terms/title'));
-				*/
-
-	$.when(
-		$.get(widgets_uri+'/spinner/spin.min.js'),
-		$.get(widgets_uri+'/d3/d3.v5.min.js')
-	).done(function( data, textStatus, jqXHR ) {
-        var currentNode = scalarapi.model.getCurrentPageNode();
-        var extension = scalarapi.getFileExtension( window.location.href );
-
-	   		if ( currentNode == null || currentNode.current == null) {
-	   			if ( extension != 'edit' && $('span[property="sioc:content"]').is(':empty')) {
-	   				$( 'body' ).append( '<div id="centered-message"><span>This page contains no content.</span> <span>Click the <img src="' + modules_uri + '/cantaloupe/images/edit_icon.png" alt="Edit button. Click to edit the current page or media." width="30" height="30" /> button above to add some.</span></div>' );
-	   			}
-	   		}
-
-			  $('#book-title').parent().wrap('<nav role="navigation"></nav>');
-			  $('article').before($('#book-title').parent().parent());
-
-				header = $('#book-title').parent().parent().scalarheader( { root_url: modules_uri+'/cantaloupe'} );
-				page = $.scalarpage( $('article'),  { root_url: modules_uri+'/cantaloupe'} );
-				widgets = page.bodyContent().scalarwidgets().data('scalarwidgets');
-
-				$( '[property="art:url"]' ).css( 'display', 'none' );
-
-				$('body').css('visibility', 'visible').attr( 'ontouchstart', '' );
-				if (page.containingPath) $('body').addClass('parent-' + page.containingPath.slug)
-				if (currentNode && currentNode.slug) $('body').addClass('page-' + currentNode.slug)
-
-				var timeout;
-				$( window ).on('resize',  function() {
-					clearTimeout( timeout );
-					timeout = setTimeout( handleDelayedResize, 300 );
-				});
-
-				$('body').trigger( "pageLoadComplete" );
-
-				$.when(
-					$.get(widgets_uri+'/mediaelement/annotorious.debug.js'),
-					$.get(widgets_uri+'/mediaelement/jquery.mediaelement.js')
-				).done(function( data, textStatus, jqXHR ) {
-
-		        var currentNode = scalarapi.model.getCurrentPageNode();
-
+		
 				if ( currentNode != null ) {
 					page.addMediaElements();
 				}
-
+		
 				var extension = scalarapi.getFileExtension( window.location.href );
 				if (extension == "") {
 					$audio = $('section.audio');
@@ -701,20 +702,20 @@ $(window).ready(function() {
 						page.addMediaElementsForElement($audio);
 					}
 				}
-
+		
 				var savedState = $.cookie('viewstate');
-			});
+			});	
 		});
 	});
-
+	
 	//$('head').append('<link rel="stylesheet" href="'+widgets_uri+'/mediaelement/css/annotorious.css" type="text/css" />');
 	//$('head').append('<link rel="stylesheet" href="'+widgets_uri+'/mediaelement/mediaelement.css" type="text/css" />');
-
-	$.get('//www.google.com/recaptcha/api.js');
-	$.get(widgets_uri+'/replies/replies.js');
-
+	
+	$.getScript('//www.google.com/recaptcha/api.js');
+	$.getScript(widgets_uri+'/replies/replies.js');
+	
 	if ('true'==$('link#hypothesis').attr('href')) {
-		$.get('https://hypothes.is/embed.js')
+		$.getScript('https://hypothes.is/embed.js')
 	}
 
 });

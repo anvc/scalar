@@ -201,7 +201,7 @@
 				if (mediaDetails.closeBtn) mediaDetails.closeBtn.off('keydown.focusTrap')
 				if (mediaDetails.firstFocusable) mediaDetails.firstFocusable.off('keydown.focusTrap')
 				if (mediaDetails.lastFocusable) mediaDetails.lastFocusable.off('keydown.focusTrap')
-    	},
+			},
 
 			/**
 			 * Called when a mediaelement instance has gathered metadata about the media.
