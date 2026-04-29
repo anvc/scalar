@@ -77,6 +77,25 @@ class RDF_Store {
 		return $rs['result'][$urn];
 
     }
+
+    /**
+     * Describe multiple nodes by URN in a single SPARQL query.
+     * Returns a flat array keyed by URN: [ urn => [ predicate => [{value, type}] ] ]
+     * URNs with no triples are omitted from the result.
+     */
+    public function get_by_urns(array $urns) {
+
+    	if (empty($urns)) return array();
+    	$parts = array();
+    	foreach ($urns as $urn) {
+    		$parts[] = '<' . $urn . '>';
+    	}
+    	$q  = 'DESCRIBE ' . implode(' ', $parts);
+    	$rs = $this->store->query($q);
+    	if (empty($rs['result'])) return array();
+    	return $rs['result'];
+
+    }
     
     /**
      * Select based on a predicate

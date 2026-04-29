@@ -47,8 +47,17 @@ $(document).ready(function() {
 		var url = $(this).attr('href');
 		var $content = $('#export-content').show();
 		$content.html('Media export starting...');
-		
+
 		window.location.href = url;
+	});
+	$('#static-export-btn').on('click', function(e) {
+		e.preventDefault();
+		var url = $(this).attr('href');
+		var $content = $('#export-content').show();
+		$content.html('Generating static site export\u2026 This may take a minute.');
+		var $form = $('<form method="post" style="display:none;"></form>').attr('action', url);
+		$('body').append($form);
+		$form.submit();
 	});
 	$('#do_delete_books_form').on('submit', function() {
 		if (!$(this).prev().find('input:checked').length) return false;
@@ -182,6 +191,11 @@ $(document).ready(function() {
 				 You can also export and download all media files from the project.<br /><br />
 			   <a class="btn btn-default export-media-link" href="<?=confirm_slash(base_url())?>system/dashboard?action=export_media_folder&book_id=<?=((isset($book) && !empty($book))?$book->book_id:'0')?>#tabs-utils" style="width:160px;">Export media folder</a> &nbsp; &nbsp;
 			   <small>Download all media files as a ZIP archive</small>
+			<?php if ($login_is_super || (isset($user_level) && 'Author' === $user_level)): ?>
+			   <br /><br />You can also export the entire book as a self-contained static website.<br /><br />
+			   <a class="btn btn-default" id="static-export-btn" href="<?=confirm_slash(base_url())?><?=$book->slug?>/static_export" style="width:160px;">Export as static site</a> &nbsp; &nbsp;
+			   <small>Download all pages, media, and assets as a static ZIP</small>
+			<?php endif; ?>
 			    </p>
 			    <p class="m" id="export-content"></p>
 	    <?php endif; ?>
