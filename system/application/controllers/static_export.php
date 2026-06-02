@@ -53,9 +53,32 @@ class Static_Export extends MY_Controller {
 		}
 
 		// Stub: confirm the route is wired correctly before implementing real export logic
-		http_response_code(200);
+		/*http_response_code(200);
 		header('Content-Type: text/plain');
 		echo 'static_export OK';
+		exit;*/
+
+		$this->load->model('static_export_model', 'static_export_model');
+		$book_data = $this->static_export_model->get_book_data($this->data['book']->book_id);
+
+		$tmp_dir = sys_get_temp_dir() . '/scalar_export_' . $this->data['book']->slug . '_' . time();
+		if (!mkdir($tmp_dir, 0755, true)) {
+			http_response_code(500);
+			header('Content-Type: text/plain');
+			echo 'Could not create temp directory: ' . $tmp_dir;
+			exit;
+		}
+
+		$result = $this->static_export_model->render_book($book_data, $tmp_dir);
+
+		http_response_code(200);
+		header('Content-Type: application/json');
+		echo json_encode(array(
+			'tmp_dir'  => $tmp_dir,
+			'rendered' => $result['rendered'],
+			'skipped'  => $result['skipped'],
+			'errors'   => $result['errors'],
+		), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 		exit;
 
 	}

@@ -102,6 +102,104 @@ class Static_Export_Model extends MY_Model {
 
 	}
 
+	/**
+	 * Render all composite pages to <tmp_dir>/<slug>/index.html using page.php.
+	 * Media pages are noted but skipped for now (Phase 1: plain layout only).
+	 *
+	 * Also writes <tmp_dir>/index.html:
+	 *   - If a page with slug 'index' exists, copies its rendered HTML there.
+	 *   - Otherwise, emits a <meta refresh> redirect to the first TOC page.
+	 *
+	 * @param  array  $book_data  Full normalized structure from get_book_data()
+	 * @param  string $tmp_dir    Absolute path to the writable temp directory (no trailing slash)
+	 * @return array  ['rendered' => [...], 'skipped' => [...], 'errors' => [slug => msg]]
+	 */
+	public function render_book($book_data, $tmp_dir) {
+
+		$CI =& get_instance();
+
+		$book_url  = confirm_slash(base_url()) . confirm_slash($book_data['meta']['slug']);
+		$rendered  = array();
+		$skipped   = array();
+		$errors    = array();
+		$index_html = null;   // will hold the rendered HTML for the root index.html
+
+		foreach ($book_data['pages'] as $slug => $page) {
+
+			$page_dir = $tmp_dir . '/' . $slug;
+
+			if (!is_dir($page_dir) && !mkdir($page_dir, 0755, true)) {
+				$errors[$slug] = 'Could not create directory: ' . $page_dir;
+				continue;
+			}
+
+			$view_data = array(
+				'page'       => $page,
+				'book_data'  => $book_data,
+				'asset_root' => '../',   // slug pages live one level deep
+				'book_url'   => $book_url,
+			);
+
+			try {
+				$html = $CI->load->view('static_export/page', $view_data, true);
+			} catch (Exception $e) {
+				$errors[$slug] = $e->getMessage();
+				continue;
+			}
+
+			if (file_put_contents($page_dir . '/index.html', $html) === false) {
+				$errors[$slug] = 'Could not write: ' . $page_dir . '/index.html';
+				continue;
+			}
+
+			$rendered[] = $slug;
+
+			if ($slug === 'index') {
+				$index_html = $html;
+			}
+		}
+
+		// Skip media pages in Phase 1.
+		foreach ($book_data['media'] as $slug => $page) {
+			$skipped[] = $slug;
+		}
+
+		// Write root index.html.
+		if ($index_html !== null) {
+			// A page named 'index' was rendered — use it as-is but fix asset_root to './'.
+			// Re-render with corrected asset_root rather than string-replacing paths.
+			$view_data = array(
+				'page'       => $book_data['pages']['index'],
+				'book_data'  => $book_data,
+				'asset_root' => './',   // root index.html sits at export root
+				'book_url'   => $book_url,
+			);
+			$index_html = $CI->load->view('static_export/page', $view_data, true);
+		} else {
+			// No 'index' page — emit a meta-refresh redirect to the first TOC page.
+			$first_slug = !empty($book_data['toc']) ? $book_data['toc'][0] : null;
+			if ($first_slug) {
+				$index_html = '<!DOCTYPE html><html><head>'
+					. '<meta http-equiv="refresh" content="0; url=' . htmlspecialchars($first_slug) . '/" />'
+					. '<title>' . htmlspecialchars(strip_tags($book_data['meta']['title'])) . '</title>'
+					. '</head><body></body></html>';
+			}
+		}
+
+		if ($index_html !== null) {
+			if (file_put_contents($tmp_dir . '/index.html', $index_html) === false) {
+				$errors['index.html'] = 'Could not write root index.html';
+			}
+		}
+
+		return array(
+			'rendered' => $rendered,
+			'skipped'  => $skipped,
+			'errors'   => $errors,
+		);
+
+	}
+
 	// -------------------------------------------------------------------------
 	// Private — section builders
 	// -------------------------------------------------------------------------
