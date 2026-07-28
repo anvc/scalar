@@ -192,6 +192,14 @@ class Static_Export_Model extends MY_Model {
 			}
 		}
 
+		// Write the API intercept bridge script that all pages reference.
+		$bridge_js = $CI->load->view('static_export/bridge', array(), true);
+		if (file_put_contents($tmp_dir . '/scalar-static-bridge.js', $bridge_js) === false) {
+			$errors['scalar-static-bridge.js'] = 'Could not write scalar-static-bridge.js';
+		}
+
+		$this->_copy_assets($tmp_dir, $errors);
+
 		return array(
 			'rendered' => $rendered,
 			'skipped'  => $skipped,
@@ -701,6 +709,198 @@ class Static_Export_Model extends MY_Model {
 			'start' => (float) $target->start_seconds,
 			'end'   => (float) $target->end_seconds,
 		);
+
+	}
+
+	// -------------------------------------------------------------------------
+	// Private — asset bundling
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Copy all reader-facing static assets from the live Scalar installation into
+	 * the export temp directory, preserving the same relative path structure that
+	 * page.php's asset references already expect.
+	 *
+	 * Source root:      APPPATH . 'views/'
+	 * Destination root: $tmp_dir . '/system/application/views/'
+	 *
+	 * After copying, applies a one-line patch to the vendored main.js so that
+	 * relative jQuery <script> src paths are resolved to absolute URLs before
+	 * main.js's scheme detection logic runs (which breaks on relative paths).
+	 *
+	 * @param  string $tmp_dir  Absolute path to the export temp directory (no trailing slash)
+	 * @param  array  &$errors  Errors array from render_book(); populated on failure
+	 * @return int              Number of files successfully copied
+	 */
+	private function _copy_assets($tmp_dir, &$errors) {
+
+		$src_base  = APPPATH . 'views/';
+		$dest_base = $tmp_dir . '/system/application/views/';
+
+		// Static asset directories to vendor, relative to $src_base.
+		$copy_dirs = array(
+			'melons/cantaloupe/css',
+			'melons/cantaloupe/js',
+			'melons/cantaloupe/fonts',
+			'melons/cantaloupe/images',
+			'arbors/html5_RDFa/js',
+		);
+
+		// Individual files from arbors/html5_RDFa/ (favicons, book logo).
+		$copy_files = array(
+			'arbors/html5_RDFa/favicon_16.gif',
+			'arbors/html5_RDFa/favicon_114.jpg',
+			'arbors/html5_RDFa/scalar_logo_300x300.png',
+		);
+
+		// Widget subdirectories to skip — editor-only tools with no reader-facing role.
+		// ckeditor alone is ~34 MB; excluding these keeps the export under 15 MB.
+		$exclude_widgets = array(
+			'annobuilder', 'ckeditor', 'diff', 'edit', 'import',
+			'slotmanager', 'spectrum', 'vrview', 'waldorf', 'wysiwyg',
+		);
+
+		// Discover all widget subdirs not on the exclusion list.
+		$widget_src = $src_base . 'widgets/';
+		if (is_dir($widget_src)) {
+			foreach (scandir($widget_src) as $entry) {
+				if ($entry === '.' || $entry === '..') continue;
+				if (!is_dir($widget_src . $entry)) continue;
+				if (in_array($entry, $exclude_widgets, true)) continue;
+				$copy_dirs[] = 'widgets/' . $entry;
+			}
+		}
+
+		$file_count = 0;
+
+		foreach ($copy_dirs as $rel_dir) {
+			$src  = $src_base . $rel_dir;
+			$dest = $dest_base . $rel_dir;
+			if (!is_dir($src)) continue;
+			$count = $this->_copy_dir($src, $dest);
+			if ($count === false) {
+				$errors['assets:' . $rel_dir] = 'Could not copy asset directory: ' . $rel_dir;
+			} else {
+				$file_count += $count;
+			}
+		}
+
+		foreach ($copy_files as $rel_file) {
+			$src  = $src_base . $rel_file;
+			$dest = $dest_base . $rel_file;
+			if (!file_exists($src)) continue;
+			$dir = dirname($dest);
+			if (!is_dir($dir) && !mkdir($dir, 0755, true)) {
+				$errors['assets:' . $rel_file] = 'Could not create directory for: ' . $rel_file;
+				continue;
+			}
+			if (copy($src, $dest)) {
+				$file_count++;
+			} else {
+				$errors['assets:' . $rel_file] = 'Could not copy asset file: ' . $rel_file;
+			}
+		}
+
+		// Patch main.js in the vendored copy only (never the live source).
+		$this->_patch_main_js(
+			$dest_base . 'melons/cantaloupe/js/main.js',
+			$errors
+		);
+
+		return $file_count;
+
+	}
+
+	/**
+	 * Recursively copy $src directory into $dest, skipping all .php files.
+	 *
+	 * @param  string $src   Absolute source path (no trailing slash)
+	 * @param  string $dest  Absolute destination path (no trailing slash)
+	 * @return int|false     Number of files copied, or false if dest could not be created
+	 */
+	private function _copy_dir($src, $dest) {
+
+		if (!is_dir($dest) && !mkdir($dest, 0755, true)) return false;
+
+		$count = 0;
+		$it    = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator($src, RecursiveDirectoryIterator::SKIP_DOTS),
+			RecursiveIteratorIterator::SELF_FIRST
+		);
+
+		foreach ($it as $item) {
+			$rel       = $it->getSubPathName();
+			$dest_path = $dest . '/' . $rel;
+
+			if ($item->isDir()) {
+				if (!is_dir($dest_path)) mkdir($dest_path, 0755, true);
+			} elseif (strtolower($item->getExtension()) !== 'php') {
+				copy($item->getPathname(), $dest_path);
+				$count++;
+			}
+		}
+
+		return $count;
+
+	}
+
+	/**
+	 * Patch the vendored copy of main.js to replace its 4-line scheme+URI-derivation
+	 * block with a URL-API-based version that works under http://, https://, and file://.
+	 *
+	 * The original block determines the scheme by checking for 'https://' in the jQuery
+	 * script src, defaults to 'http://', then string-replaces that scheme out of the src
+	 * to isolate the path. This fails in two ways for static exports:
+	 *   1. Relative src (no '://') → invalid base URI like 'http://../system/...'
+	 *   2. file:// src → 'http://' is not in the string, so replace() is a no-op,
+	 *      yielding 'http://file:///...' — which browsers interpret as HTTP to host 'file'
+	 *
+	 * The replacement uses new URL() to resolve the src to an absolute URL regardless
+	 * of protocol, then splits the pathname component for the directory derivations.
+	 * The patch is idempotent.
+	 *
+	 * @param  string $path    Absolute path to the vendored main.js
+	 * @param  array  &$errors Errors array; populated if the patch cannot be applied
+	 */
+	private function _patch_main_js($path, &$errors) {
+
+		if (!file_exists($path)) {
+			$errors['assets:main.js-patch'] = 'Vendored main.js not found; nav path resolution may fail';
+			return;
+		}
+
+		$content = file_get_contents($path);
+
+		// Already patched — nothing to do.
+		if (strpos($content, 'new URL(script_uri, window.location.href)') !== false) return;
+
+		// Match the exact 4-line block, tolerating both LF and CRLF line endings.
+		$search_lf = "var scheme = (script_uri.indexOf('https://') != -1) ? 'https://' : 'http://';"
+		           . "\nvar base_uri = scheme+script_uri.replace(scheme,'').split('/').slice(0,-2).join('/');"
+		           . "\nvar system_uri = scheme+script_uri.replace(scheme,'').split('/').slice(0,-6).join('/');"
+		           . "\nvar index_uri = scheme+script_uri.replace(scheme,'').split('/').slice(0,-7).join('/');";
+		$search_crlf = str_replace("\n", "\r\n", $search_lf);
+
+		if (strpos($content, $search_lf) !== false) {
+			$search = $search_lf;
+			$nl     = "\n";
+		} elseif (strpos($content, $search_crlf) !== false) {
+			$search = $search_crlf;
+			$nl     = "\r\n";
+		} else {
+			$errors['assets:main.js-patch'] = 'Could not locate URI-derivation block in main.js; nav path resolution may fail in static export';
+			return;
+		}
+
+		$replace = "var _su = new URL(script_uri, window.location.href);"
+		         . $nl . "var scheme = _su.protocol === 'file:' ? 'file://' : (_su.protocol === 'https:' ? 'https://' : 'http://');"
+		         . $nl . "var _origin = _su.protocol === 'file:' ? 'file://' : (_su.protocol + '//' + _su.host);"
+		         . $nl . "var _strip = function(n) { return _origin + _su.pathname.split('/').slice(0, -n).join('/'); };"
+		         . $nl . "var base_uri   = _strip(2);"
+		         . $nl . "var system_uri = _strip(6);"
+		         . $nl . "var index_uri  = _strip(7);";
+
+		file_put_contents($path, str_replace($search, $replace, $content));
 
 	}
 

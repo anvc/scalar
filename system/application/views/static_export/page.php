@@ -70,6 +70,17 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 <script src="<?= $assets ?>views/melons/cantaloupe/js/bootstrap.min.js"></script>
 <script src="<?= $assets ?>views/melons/cantaloupe/js/jquery.bootstrap-modal.js"></script>
 <script src="<?= $assets ?>views/melons/cantaloupe/js/jquery.bootstrap-accessibility.js"></script>
+<!-- Pre-load scripts that main.js fetches via $.get() so they run on any protocol.
+     Over file:// browsers return no Content-Type, so jQuery won't eval dynamically-fetched
+     JS; pre-loading as <script> tags guarantees the plugins are registered before main.js. -->
+<script src="<?= $assets ?>views/arbors/html5_RDFa/js/jquery.rdfquery.rules-1.0.js"></script>
+<script src="<?= $assets ?>views/arbors/html5_RDFa/js/jquery.RDFa.js"></script>
+<script src="<?= $assets ?>views/arbors/html5_RDFa/js/form-validation.js"></script>
+<script src="<?= $assets ?>views/widgets/nav/jquery.scalarrecent.js"></script>
+<script src="<?= $assets ?>views/widgets/cookie/jquery.cookie.js"></script>
+<script src="<?= $assets ?>views/widgets/spinner/spin.min.js"></script>
+<script src="<?= $assets ?>views/widgets/d3/d3.v5.min.js"></script>
+<script src="<?= $assets ?>views/widgets/api/scalarapi.js"></script>
 <script src="<?= $assets ?>views/melons/cantaloupe/js/main.js"></script>
 <script src="<?= $assets ?>views/melons/cantaloupe/js/jquery.dotdotdot.js"></script>
 <script src="<?= $assets ?>views/melons/cantaloupe/js/jquery.scrollTo.min.js"></script>
@@ -86,7 +97,6 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 <script src="<?= $assets ?>views/melons/cantaloupe/js/scalarwidgets.jquery.js"></script>
 <script src="<?= $assets ?>views/melons/cantaloupe/js/scalarlenses.jquery.js"></script>
 <script src="<?= $assets ?>views/melons/cantaloupe/js/jquery.tabbing.js"></script>
-<script src="<?= $assets ?>views/widgets/api/scalarapi.js"></script>
 </head>
 <body>
 
