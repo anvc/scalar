@@ -5,12 +5,42 @@
 (function () {
     'use strict';
 
-    function isScalarApiCall(url) {
+    // Static asset extensions — requests for these pass through to the real XHR.
+    var STATIC_EXTS = {
+        css:1, png:1, jpg:1, jpeg:1, gif:1, svg:1,
+        woff:1, woff2:1, ttf:1, eot:1, ico:1,
+        mp4:1, mp3:1, webm:1, ogg:1, pdf:1, zip:1,
+        html:1, htm:1, txt:1, map:1
+    };
+
+    // True for any XHR request that should be silently stubbed:
+    //   • .js files — already pre-loaded as <script> tags; returning '' lets
+    //     jQuery's .done() chain fire without re-eval (avoids duplicate let/const errors)
+    //   • Scalar server endpoints (any same-origin URL that isn't a static asset) —
+    //     prevents 404s for API endpoints, lenses, editorial workflow, rdf/*, etc.
+    function shouldIntercept(url) {
         if (typeof url !== 'string') return false;
-        return url.indexOf('format=json') !== -1 ||
-               url.indexOf('format=xml')  !== -1 ||
-               url.indexOf('method=book') !== -1 ||
-               url.indexOf('method=node') !== -1;
+
+        var path = url.split('?')[0].split('#')[0];
+
+        // .js files: always intercept regardless of origin
+        if (path.slice(-3) === '.js') return true;
+
+        // For other URLs, only intercept same-origin requests
+        try {
+            var here   = new URL(window.location.href);
+            var there  = new URL(url, window.location.href);
+            if (there.host !== here.host) return false;   // cross-origin: pass through
+        } catch (e) {
+            return false;
+        }
+
+        // If it has a known static extension, pass through (real file fetch)
+        var ext = path.split('.').pop().toLowerCase();
+        if (STATIC_EXTS[ext]) return false;
+
+        // Everything else on the same host is a Scalar server endpoint
+        return true;
     }
 
     // --- Override XMLHttpRequest ---
@@ -33,7 +63,7 @@
     StaticXHR.prototype.open = function (method, url) {
         this._method = method;
         this._url    = url;
-        if (isScalarApiCall(url)) {
+        if (shouldIntercept(url)) {
             this.readyState = 1;
         } else {
             this._real = new OriginalXHR();
@@ -43,15 +73,31 @@
 
     StaticXHR.prototype.send = function (body) {
         var self = this;
-        if (isScalarApiCall(this._url)) {
-            // Return an empty Scalar-style response without hitting the network.
+        if (shouldIntercept(this._url)) {
+            var path = this._url.split('?')[0].split('#')[0];
+            var isJs = path.slice(-3) === '.js';
             setTimeout(function () {
-                self.status       = 200;
-                self.responseText = '{}';
-                self.response     = '{}';
-                self.readyState   = 4;
-                if (self.onreadystatechange) self.onreadystatechange();
-                if (self.onload) self.onload({ target: self });
+                if (isJs) {
+                    // .js: return 200 + empty body so jQuery's .done() chain fires
+                    // but globalEval('') is a no-op (no duplicate let/const errors).
+                    self.status       = 200;
+                    self.responseText = '';
+                    self.response     = '';
+                    self.readyState   = 4;
+                    if (self.onreadystatechange) self.onreadystatechange();
+                    if (self.onload) self.onload({ target: self });
+                } else {
+                    // Server endpoint: return 503 so jQuery fires the *error* callback,
+                    // not the success callback. Success callbacks expect specific data
+                    // shapes (arrays, ontology objects) and crash on '{}'. Error callbacks
+                    // in Scalar are universally benign (console.log only).
+                    self.status       = 503;
+                    self.responseText = '';
+                    self.response     = '';
+                    self.readyState   = 4;
+                    if (self.onreadystatechange) self.onreadystatechange();
+                    // Do NOT fire onload for error responses — jQuery uses status to route.
+                }
             }, 0);
         } else {
             var real = this._real;
@@ -90,10 +136,14 @@
         window.fetch = function (url, options) {
             var urlStr = typeof url === 'string' ? url
                        : (url && typeof url.url === 'string' ? url.url : String(url));
-            if (isScalarApiCall(urlStr)) {
-                return Promise.resolve(new Response('{}', {
-                    status: 200,
-                    headers: { 'Content-Type': 'application/json' }
+            if (shouldIntercept(urlStr)) {
+                var path = urlStr.split('?')[0].split('#')[0];
+                var isJs = path.slice(-3) === '.js';
+                // .js: 200 + empty body (no-op globalEval)
+                // server endpoints: 503 so callers treat it as an error, not success
+                return Promise.resolve(new Response('', {
+                    status: isJs ? 200 : 503,
+                    headers: { 'Content-Type': 'text/plain' }
                 }));
             }
             return originalFetch.call(window, url, options);
@@ -101,3 +151,4 @@
     }
 
 }());
+

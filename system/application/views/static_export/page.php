@@ -27,7 +27,15 @@ $assets = $asset_root . 'system/application/';
 echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 ?>
 <!DOCTYPE html>
-<html xml:lang="en" lang="en">
+<html xml:lang="en" lang="en"
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:dc="http://purl.org/dc/elements/1.1/"
+  xmlns:dcterms="http://purl.org/dc/terms/"
+  xmlns:sioc="http://rdfs.org/sioc/ns#"
+  xmlns:scalar="http://scalar.usc.edu/2012/01/scalar-ns#"
+  xmlns:art="http://simile.mit.edu/2003/10/ontologies/artstor#"
+  xmlns:oac="http://www.openannotation.org/ns/"
+  xmlns:foaf="http://xmlns.com/foaf/0.1/">
 <head>
 <title><?= htmlspecialchars(strip_tags($page['title'])) ?><?= !empty($meta['title']) ? ' — ' . htmlspecialchars(strip_tags($meta['title'])) : '' ?></title>
 <meta name="description" content="<?= htmlspecialchars(strip_tags(isset($page['description']) ? $page['description'] : '')) ?>" />
@@ -44,6 +52,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 <link id="approot"         href="<?= htmlspecialchars($asset_root) ?>system/application/" />
 <link id="view"            href="plain" />
 <link id="default_view"    href="<?= htmlspecialchars($layout) ?>" />
+<link id="current_node"    href="<?= htmlspecialchars($book_url . $slug) ?>" />
 
 <!-- Favicon -->
 <link rel="shortcut icon" href="<?= $assets ?>views/arbors/html5_RDFa/favicon_16.gif" />
@@ -81,6 +90,45 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 <script src="<?= $assets ?>views/widgets/spinner/spin.min.js"></script>
 <script src="<?= $assets ?>views/widgets/d3/d3.v5.min.js"></script>
 <script src="<?= $assets ?>views/widgets/api/scalarapi.js"></script>
+<script>
+/* getCurrentPageNode() fix for static export.
+ *
+ * scalarapi looks up document.location.href in nodesByURL, but on a static
+ * host that never matches the live Scalar node URLs. This script runs
+ * synchronously after scalarapi.js (so ScalarModel and ScalarNode are defined)
+ * but before main.js (so the patch is in place before any async $.get()
+ * callbacks call getCurrentPageNode()).
+ *
+ * Two-part fix:
+ * 1. Patch the prototype to look up by the canonical Scalar URL stored in
+ *    <link id="current_node"> rather than document.location.href.
+ * 2. Pre-seed a minimal ScalarNode so currentNode.current is non-null even if
+ *    the RDFa parseNodes() call fails to build the node (e.g. if the CURIE
+ *    expansion still has edge cases). parseNodes() will overwrite this with
+ *    real data if it succeeds. */
+(function () {
+    var linkEl = document.getElementById('current_node');
+    if (!linkEl || typeof ScalarModel === 'undefined' || typeof ScalarNode === 'undefined') return;
+    var canonicalUrl = linkEl.getAttribute('href');
+
+    ScalarModel.prototype.getCurrentPageNode = function () {
+        return this.nodesByURL[canonicalUrl] ||
+               this.nodesByURL[unescape(canonicalUrl)] ||
+               undefined;
+    };
+
+    if (!scalarapi.model.nodesByURL[canonicalUrl]) {
+        var minJson = {
+            'http://www.w3.org/1999/02/22-rdf-syntax-ns#type': [
+                { value: 'http://scalar.usc.edu/2012/01/scalar-ns#Composite', type: 'uri' }
+            ]
+        };
+        var node = new ScalarNode(canonicalUrl, minJson,
+            [{ url: canonicalUrl + '.1', json: {} }]);
+        scalarapi.model.addNode(node);
+    }
+}());
+</script>
 <script src="<?= $assets ?>views/melons/cantaloupe/js/main.js"></script>
 <script src="<?= $assets ?>views/melons/cantaloupe/js/jquery.dotdotdot.js"></script>
 <script src="<?= $assets ?>views/melons/cantaloupe/js/jquery.scrollTo.min.js"></script>
