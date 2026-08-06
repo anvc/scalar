@@ -5,8 +5,8 @@ $background = $banner = $style = $js = $hypothesis = $margin_nav = $editorial = 
 $publisher = $publisher_thumbnail = null;
 $is_new = true;
 if (isset($book) && !empty($book)) {
-	$title = $book->title;
-	$description = $book->description;
+	$title = $book->title ?? '';
+	$description = $book->description ?? '';
 	if (!empty($book->background)) $background = trim($book->background);
 	if (!empty($book->custom_style)) $style .= $book->custom_style."\n";
 	if (!empty($book->custom_js)) $js .= $book->custom_js."\n";
@@ -34,8 +34,8 @@ if (isset($page->versions) && isset($page->versions[$page->version_index]->has_p
 	if (!empty($page->versions[$page->version_index]->has_paths[$path_index]->custom_scripts)) $js .= trim($page->versions[$page->version_index]->has_paths[$path_index]->custom_scripts)."\n";
 }
 if (isset($page->version_index)) {
-	$title = $page->versions[$page->version_index]->title;
-	$description = $page->versions[$page->version_index]->description;
+	$title = $page->versions[$page->version_index]->title ?? '';
+	$description = $page->versions[$page->version_index]->description ?? '';
 	$default_view = $page->versions[$page->version_index]->default_view;
 	$color = $page->color;
 	$primary_role = $page->primary_role;

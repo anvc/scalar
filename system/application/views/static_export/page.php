@@ -89,6 +89,8 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 <script src="<?= $assets ?>views/widgets/cookie/jquery.cookie.js"></script>
 <script src="<?= $assets ?>views/widgets/spinner/spin.min.js"></script>
 <script src="<?= $assets ?>views/widgets/d3/d3.v5.min.js"></script>
+<script src="<?= $assets ?>views/widgets/mediaelement/annotorious.debug.js"></script>
+<script src="<?= $assets ?>views/widgets/mediaelement/jquery.mediaelement.js"></script>
 <script src="<?= $assets ?>views/widgets/api/scalarapi.js"></script>
 <script>
 /* getCurrentPageNode() fix for static export.

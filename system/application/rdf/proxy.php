@@ -93,7 +93,7 @@ function jsonToXMLNodes($row) {
 		if ('array'==gettype($value)) {
 			$return .= jsonToXMLNodes($value);
 		} else {
-			if ('null'==$value) $value = '';
+			if (is_null($value) || 'null'==$value) $value = '';
 			$return .= '<![CDATA['.trim($value).']]>';
 		}
 		$return .= '</'.$field.'>';

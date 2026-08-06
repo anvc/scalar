@@ -44,19 +44,26 @@ function validate_upload_form_file($form) {
 
 }
 
+// The upload target is expected to return JSON. If it returns something
+// else (e.g., an HTML error page from the server), surface a message the
+// user can actually act on instead of the underlying parser error.
+function parse_upload_response(content) {
+	content = (content) ? String(content).replace(/^\s+|\s+$/, '').replace(/\s+$/, '') : '';
+	if (content.length==0 || content.charAt(0)!='{') {
+		return { error: 'The server did not return a valid response. This usually means the file is too large for the server to accept, or a server error occurred while processing the upload.' };
+	}
+	try {
+		return JSON.parse(content);
+	} catch(err) {
+		return { error: 'The server\'s response could not be understood. This usually means the file is too large for the server to accept, or a server error occurred while processing the upload.' };
+	}
+}
+
 function validate_upload_form_file_return($form) {
 
 	var iframe = $form.find('iframe:first')[0];
 	var content = iframe.contentWindow.document.getElementsByTagName("body")[0].innerHTML;
-	try {
-		var obj = JSON.parse(content);
-	} catch(err) {
-		$(iframe).off();
-		$(iframe).attr('src', '');
-		send_form_hide_loading();
-		alert('There was an error saving the file: '+err);
-		return;
-	}
+	var obj = parse_upload_response(content);
 	if ('undefined'!=typeof(obj) && 'undefined'!=typeof(obj.error) && obj.error.length) {
 		$(iframe).off();
 		$(iframe).attr('src', '');

@@ -133,8 +133,11 @@ class Static_Export_Model extends MY_Model {
 				continue;
 			}
 
+			$render_page         = $page;
+			$render_page['body'] = $this->_rewrite_internal_links($page['body'], $book_url, '../');
+
 			$view_data = array(
-				'page'       => $page,
+				'page'       => $render_page,
 				'book_data'  => $book_data,
 				'asset_root' => '../',   // slug pages live one level deep
 				'book_url'   => $book_url,
@@ -168,8 +171,11 @@ class Static_Export_Model extends MY_Model {
 		if ($index_html !== null) {
 			// A page named 'index' was rendered — use it as-is but fix asset_root to './'.
 			// Re-render with corrected asset_root rather than string-replacing paths.
+			$root_page         = $book_data['pages']['index'];
+			$root_page['body'] = $this->_rewrite_internal_links($root_page['body'], $book_url, './');
+
 			$view_data = array(
-				'page'       => $book_data['pages']['index'],
+				'page'       => $root_page,
 				'book_data'  => $book_data,
 				'asset_root' => './',   // root index.html sits at export root
 				'book_url'   => $book_url,
@@ -455,6 +461,81 @@ class Static_Export_Model extends MY_Model {
 			'annotations'        => array(),
 			'additionalMetadata' => $arc_meta,
 		);
+
+	}
+
+	// -------------------------------------------------------------------------
+	// Private — link rewriting
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Rewrite href attributes in body HTML that point to this book's live URL
+	 * into relative paths that work in the static export.
+	 *
+	 * All content pages live at <export-root>/<slug>/index.html, so the
+	 * relative prefix from any slug page to any other slug is '../'.
+	 * The root index.html sits at the export root, so its prefix is './'.
+	 *
+	 * Only href= attributes are rewritten; src= attributes (images, media)
+	 * are handled separately in the media-bundling phase.
+	 *
+	 * @param  string $html        Raw page body HTML from the database.
+	 * @param  string $book_url    Live Scalar base URL for this book, trailing slash included.
+	 *                             e.g. 'https://scalar.usc.edu/works/mybook/'
+	 * @param  string $asset_root  Relative path from this page's directory to the export root.
+	 *                             '../' for slug pages, './' for the root index.
+	 * @return string              HTML with internal hrefs rewritten.
+	 */
+	private function _rewrite_internal_links($html, $book_url, $asset_root = '../') {
+
+		if (empty($html)) return $html;
+
+		// --- Pass 1: absolute internal URLs (href="https://scalar.../works/book/slug") ---
+		$escaped = preg_quote($book_url, '/');
+
+		$html = preg_replace_callback(
+			'/\bhref=(["\'])' . $escaped . '([^"\']*)\1/i',
+			function ($m) use ($asset_root) {
+				$quote = $m[1];
+				$after = $m[2];   // everything after the book_url prefix
+
+				$slug = $after;
+				$rest = '';
+				$q    = strpos($after, '?');
+				$h    = strpos($after, '#');
+				$cut  = PHP_INT_MAX;
+				if ($q !== false) $cut = min($cut, $q);
+				if ($h !== false) $cut = min($cut, $h);
+				if ($cut < PHP_INT_MAX) {
+					$slug = substr($after, 0, $cut);
+					$rest = substr($after, $cut);
+				}
+
+				$slug    = trim($slug, '/');
+				$rel_url = $asset_root . (empty($slug) ? '' : $slug . '/');
+
+				return 'href=' . $quote . $rel_url . $rest . $quote;
+			},
+			$html
+		);
+
+		// --- Pass 2: bare-slug hrefs (href="getting-started") ---
+		// Rewrite directly to the correct relative path. The $.fn.attr guard in
+		// scalar-static-bridge.js prevents scalarpage.makeRelativeLinksAbsolute()
+		// from overwriting these at runtime.
+		$html = preg_replace_callback(
+			'/\bhref=(["\'])([a-z0-9][a-z0-9_-]*)([?#][^"\']*)?(\1)/i',
+			function ($m) use ($asset_root) {
+				$quote = $m[1];
+				$slug  = $m[2];
+				$rest  = isset($m[3]) ? $m[3] : '';
+				$end   = $m[4];
+				return 'href=' . $quote . $asset_root . $slug . '/' . $rest . $end;
+			},
+			$html
+		);
+
+		return $html;
 
 	}
 

@@ -152,3 +152,25 @@
 
 }());
 
+// Protect static relative hrefs (../slug/ or ./slug/) from being overwritten
+// by scalarpage.makeRelativeLinksAbsolute() at runtime. This guard runs
+// synchronously in <head>, before scalarpage.jquery.js initialises, so the
+// patched $.fn.attr is already in place when scalarpage tries to rewrite links.
+(function ($) {
+    if (!$ || !$.fn) return;
+    var _attr = $.fn.attr;
+    $.fn.attr = function (name, value) {
+        if (name === 'href' && typeof value === 'string') {
+            this.each(function () {
+                var cur = this.getAttribute ? this.getAttribute('href') : null;
+                if (cur && (cur.slice(0, 3) === '../' || cur.slice(0, 2) === './')) {
+                    return;  // already a correct static-relative path — leave it
+                }
+                _attr.call($(this), 'href', value);
+            });
+            return this;
+        }
+        return _attr.apply(this, arguments);
+    };
+}(window.jQuery));
+
