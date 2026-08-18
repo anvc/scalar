@@ -33,7 +33,8 @@ class Static_Export_Model extends MY_Model {
 	 * These are excluded from additionalMetadata to avoid duplication.
 	 */
 	private static $EXCLUDED_PREDICATES = array(
-		// Core content — in normalized schema as title/description/body/layout/created/sourceUrl/thumbnail
+		// Core content — in normalized schema as
+		// title/description/body/layout/created/sourceUrl/thumbnail/versionNumber
 		'http://purl.org/dc/terms/title',
 		'http://purl.org/dc/terms/description',
 		'http://rdfs.org/sioc/ns#content',
@@ -41,14 +42,20 @@ class Static_Export_Model extends MY_Model {
 		'http://purl.org/dc/terms/created',
 		'http://simile.mit.edu/2003/10/ontologies/artstor#url',
 		'http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail',
+		'http://open.vocab.org/terms/versionnumber',
 		// Structural — versioning/identity bookkeeping, not meaningful in a static export
 		'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
 		'http://purl.org/dc/terms/hasVersion',
 		'http://purl.org/dc/terms/isVersionOf',
 		'http://scalar.usc.edu/2012/01/scalar-ns#urn',
-		'http://open.vocab.org/terms/versionnumber',
 		'http://www.w3.org/ns/prov#wasAttributedTo',
 	);
+
+	/**
+	 * Total bytes of self-hosted media above which _copy_media_files() logs a
+	 * non-fatal size warning (200 MB).
+	 */
+	const MEDIA_SIZE_WARNING_BYTES = 209715200;
 
 	public function __construct() {
 
@@ -103,8 +110,10 @@ class Static_Export_Model extends MY_Model {
 	}
 
 	/**
-	 * Render all composite pages to <tmp_dir>/<slug>/index.html using page.php.
-	 * Media pages are noted but skipped for now (Phase 1: plain layout only).
+	 * Render all composite pages and media items to <tmp_dir>/<slug>/index.html using
+	 * page.php, bundling self-hosted media into <tmp_dir>/media/ along the way. Each item
+	 * also gets a plain metadata page at <tmp_dir>/<slug>.meta/index.html (see
+	 * _write_meta_page()).
 	 *
 	 * Also writes <tmp_dir>/index.html:
 	 *   - If a page with slug 'index' exists, copies its rendered HTML there.
@@ -124,6 +133,10 @@ class Static_Export_Model extends MY_Model {
 		$errors    = array();
 		$index_html = null;   // will hold the rendered HTML for the root index.html
 
+		// Copy self-hosted media into the export first, so page bodies can be rewritten
+		// (below) to point at the bundled local copies rather than the live server.
+		$this->_copy_media_files($book_data, $tmp_dir, $errors);
+
 		foreach ($book_data['pages'] as $slug => $page) {
 
 			$page_dir = $tmp_dir . '/' . $slug;
@@ -134,21 +147,10 @@ class Static_Export_Model extends MY_Model {
 			}
 
 			$render_page         = $page;
-			$render_page['body'] = $this->_rewrite_internal_links($page['body'], $book_url, '../');
+			$render_page['body'] = $this->_rewrite_links($page['body'], $book_data['media'], $book_url, '../');
 
-			$view_data = array(
-				'page'       => $render_page,
-				'book_data'  => $book_data,
-				'asset_root' => '../',   // slug pages live one level deep
-				'book_url'   => $book_url,
-			);
-
-			try {
-				$html = $CI->load->view('static_export/page', $view_data, true);
-			} catch (Exception $e) {
-				$errors[$slug] = $e->getMessage();
-				continue;
-			}
+			$html = $this->_render_content_view($CI, $render_page, $book_data, '../', $book_url, $slug, $errors);
+			if ($html === null) continue;
 
 			if (file_put_contents($page_dir . '/index.html', $html) === false) {
 				$errors[$slug] = 'Could not write: ' . $page_dir . '/index.html';
@@ -160,11 +162,33 @@ class Static_Export_Model extends MY_Model {
 			if ($slug === 'index') {
 				$index_html = $html;
 			}
+
+			$this->_write_meta_page($CI, $render_page, $book_data, $tmp_dir, $book_url, $slug, $errors);
 		}
 
-		// Skip media pages in Phase 1.
-		foreach ($book_data['media'] as $slug => $page) {
-			$skipped[] = $slug;
+		// Render each media item's own permalink page (<slug>/index.html). The current-page
+		// media embed is generated entirely client-side (scalarpage.jquery.js, gated on
+		// typeof="scalar:Media" — see page.php) once the node's RDFa carries its source URL.
+		foreach ($book_data['media'] as $slug => $item) {
+
+			$page_dir = $tmp_dir . '/' . $slug;
+
+			if (!is_dir($page_dir) && !mkdir($page_dir, 0755, true)) {
+				$errors[$slug] = 'Could not create directory: ' . $page_dir;
+				continue;
+			}
+
+			$html = $this->_render_content_view($CI, $item, $book_data, '../', $book_url, $slug, $errors);
+			if ($html === null) continue;
+
+			if (file_put_contents($page_dir . '/index.html', $html) === false) {
+				$errors[$slug] = 'Could not write: ' . $page_dir . '/index.html';
+				continue;
+			}
+
+			$rendered[] = $slug;
+
+			$this->_write_meta_page($CI, $item, $book_data, $tmp_dir, $book_url, $slug, $errors);
 		}
 
 		// Write root index.html.
@@ -172,15 +196,9 @@ class Static_Export_Model extends MY_Model {
 			// A page named 'index' was rendered — use it as-is but fix asset_root to './'.
 			// Re-render with corrected asset_root rather than string-replacing paths.
 			$root_page         = $book_data['pages']['index'];
-			$root_page['body'] = $this->_rewrite_internal_links($root_page['body'], $book_url, './');
+			$root_page['body'] = $this->_rewrite_links($root_page['body'], $book_data['media'], $book_url, './');
 
-			$view_data = array(
-				'page'       => $root_page,
-				'book_data'  => $book_data,
-				'asset_root' => './',   // root index.html sits at export root
-				'book_url'   => $book_url,
-			);
-			$index_html = $CI->load->view('static_export/page', $view_data, true);
+			$index_html = $this->_render_content_view($CI, $root_page, $book_data, './', $book_url, 'index', $errors);
 		} else {
 			// No 'index' page — emit a meta-refresh redirect to the first TOC page.
 			$first_slug = !empty($book_data['toc']) ? $book_data['toc'][0] : null;
@@ -211,6 +229,179 @@ class Static_Export_Model extends MY_Model {
 			'skipped'  => $skipped,
 			'errors'   => $errors,
 		);
+
+	}
+
+	/**
+	 * Render a static_export view for one content item (page or media) and return the HTML,
+	 * or null (with $errors populated) if rendering failed.
+	 */
+	private function _render_content_view($CI, $render_page, $book_data, $asset_root, $book_url, $slug, &$errors, $view = 'static_export/page') {
+
+		$view_data = array(
+			'page'       => $render_page,
+			'book_data'  => $book_data,
+			'asset_root' => $asset_root,
+			'book_url'   => $book_url,
+		);
+
+		try {
+			return $CI->load->view($view, $view_data, true);
+		} catch (Exception $e) {
+			$errors[$slug] = $e->getMessage();
+			return null;
+		}
+
+	}
+
+	/**
+	 * Write <tmp_dir>/<slug>.meta/index.html — the same Scalar interface as <slug>/index.html
+	 * (same static_export/page.php template, full header/JS chain), with the body replaced by
+	 * a metadata table instead of the item's normal content. Replaces the live site's ".meta"
+	 * URL extension (see static_export/bridge.php's colophon patch, which points the footer's
+	 * "Metadata" link here instead).
+	 *
+	 * Rendering through the full page.php — rather than a bare, JS-free page, which is what
+	 * this used to do — matters for more than cosmetics: main.js only reveals <body> (it's
+	 * hidden by default until boot completes) once its own script chain finishes running, so a
+	 * page carrying none of that JS never uncovers its content at all.
+	 *
+	 * The 'meta' item also carries 'isMetaView' => true, which page.php uses to emit
+	 * scalar:defaultView=meta as RDFa on the current node — this is what makes
+	 * scalarpage.jquery.js pick its case "meta" branch client-side (inserting the "Metadata"
+	 * h2, etc.), the same way a live ".meta"-extension URL would. Extension-based routing
+	 * itself doesn't work for us: scalarapi.getFileExtension() reads the last path segment of
+	 * the URL, which for a directory-style static host is "index.html" (or empty), never
+	 * literally "meta".
+	 *
+	 * Lives at the same directory depth as <slug>/index.html (a sibling directory), so it's
+	 * always reachable with the same '../' asset_root already used to render that page —
+	 * including from the root index.html duplicate, whose own '../'-relative-to-'./' asset
+	 * root still resolves to the same physical file.
+	 */
+	private function _write_meta_page($CI, $item, $book_data, $tmp_dir, $book_url, $slug, &$errors) {
+
+		$meta_dir = $tmp_dir . '/' . $slug . '.meta';
+
+		if (!is_dir($meta_dir) && !mkdir($meta_dir, 0755, true)) {
+			$errors['meta:' . $slug] = 'Could not create directory: ' . $meta_dir;
+			return;
+		}
+
+		$is_media = isset($book_data['media'][$slug]);
+
+		$meta_item              = $item;
+		$meta_item['body']      = $this->_build_meta_page_body($item, $is_media, '../');
+		$meta_item['isMetaView'] = true;
+
+		$html = $this->_render_content_view($CI, $meta_item, $book_data, '../', $book_url, 'meta:' . $slug, $errors);
+		if ($html === null) return;
+
+		if (file_put_contents($meta_dir . '/index.html', $html) === false) {
+			$errors['meta:' . $slug] = 'Could not write: ' . $meta_dir . '/index.html';
+		}
+
+	}
+
+	/**
+	 * Build the metadata table HTML shown on a content item's .meta page — a static-export
+	 * equivalent of the live site's system/application/views/melons/cantaloupe/meta.php
+	 * (resource row + one row per RDF predicate). Historical versions are omitted: the live
+	 * template loops over $page->versions showing each one's full metadata, but a static
+	 * export only ever contains the single most-recent version (see CLAUDE.md — version
+	 * history is dropped), so there is nothing to loop over.
+	 *
+	 * Wrapped in the same "ci-template-html meta-page page_margins" div the live site's
+	 * content wrapper puts around a loaded partial view (meta.php, versions.php, etc.) in
+	 * place of ordinary sioc:content body-copy — scalarpage.jquery.js's case "meta" branch
+	 * (see the switch(viewType) block) reclasses .meta-page to page_margins itself, but only
+	 * if that class is already present to find; this bakes the end state in directly rather
+	 * than relying on a swap it isn't otherwise triggering here.
+	 *
+	 * @param  array  $item      Normalized page or media entry (book_data['pages'|'media'])
+	 * @param  bool   $is_media
+	 * @param  string $asset_root  Relative path from this page's directory to the export root
+	 * @return string              HTML for the wrapping <div> (<h3> label + <table>)
+	 */
+	private function _build_meta_page_body($item, $is_media, $asset_root) {
+
+		$html  = '<div class="ci-template-html meta-page page_margins">' . "\n";
+		$html .= '<h3 style="clear:both;">' . ($is_media ? 'Media' : 'Page') . '</h3>' . "\n";
+		$html .= '<table class="table table-striped caption_font small" cellspacing="2" cellpadding="0">' . "\n";
+		$html .= $this->_meta_table_row(
+			'resource',
+			'rdf:resource',
+			'<a href="' . htmlspecialchars($item['url']) . '">' . htmlspecialchars($item['url']) . '</a>'
+		);
+
+		if (!empty($item['title'])) {
+			$html .= $this->_meta_table_row('title', 'dcterms:title', htmlspecialchars($item['title']));
+		}
+		if (!empty($item['description'])) {
+			$html .= $this->_meta_table_row('description', 'dcterms:description', htmlspecialchars($item['description']));
+		}
+		if (!empty($item['created'])) {
+			$html .= $this->_meta_table_row('created', 'dcterms:created', htmlspecialchars($item['created']));
+		}
+		if (!empty($item['versionNumber'])) {
+			$html .= $this->_meta_table_row('versionnumber', 'ov:versionnumber', (int) $item['versionNumber']);
+		}
+
+		if ($is_media) {
+			$source_href = $item['localPath'] !== null ? $asset_root . $item['localPath'] : $item['sourceUrl'];
+			$html .= $this->_meta_table_row(
+				'url',
+				'art:url',
+				'<a href="' . htmlspecialchars($source_href) . '">' . htmlspecialchars($source_href) . '</a>'
+			);
+			if (!empty($item['thumbnail'])) {
+				$html .= $this->_meta_table_row(
+					'thumbnail',
+					'art:thumbnail',
+					'<a href="' . htmlspecialchars($item['thumbnail']) . '">' . htmlspecialchars($item['thumbnail']) . '</a>'
+				);
+			}
+		}
+
+		foreach ((isset($item['additionalMetadata']) ? $item['additionalMetadata'] : array()) as $predicate => $values) {
+			foreach ((array) $values as $v) {
+				if (empty($v['value'])) continue;
+				$value_html = filter_var($v['value'], FILTER_VALIDATE_URL)
+					? '<a href="' . htmlspecialchars($v['value']) . '">' . htmlspecialchars($v['value']) . '</a>'
+					: htmlspecialchars($v['value']);
+				$html .= $this->_meta_table_row($this->_humanize_predicate($predicate), htmlspecialchars($predicate), $value_html);
+			}
+		}
+
+		$html .= '</table>' . "\n";
+		$html .= '</div>' . "\n";
+
+		return $html;
+
+	}
+
+	private function _meta_table_row($human_label, $predicate, $value_html) {
+		return '<tr><td style="white-space:nowrap;"><b>' . $human_label . '</b></td>'
+			. '<td>' . $predicate . '</td>'
+			. '<td>' . $value_html . '</td></tr>' . "\n";
+	}
+
+	/**
+	 * Mirrors the live meta.php template's predicate-to-label transform:
+	 * no_ns($p) -> spacify() -> lowercase -> strip anything before a trailing '#' fragment.
+	 */
+	private function _humanize_predicate($predicate) {
+
+		$CI =& get_instance();
+		$CI->load->helper('string');
+
+		$label = strtolower(spacify(str_replace('_', ' ', no_ns($predicate))));
+		$hash  = strpos($label, '#');
+		if ($hash !== false) {
+			$label = substr($label, $hash + 1);
+		}
+
+		return htmlspecialchars($label);
 
 	}
 
@@ -443,6 +634,11 @@ class Static_Export_Model extends MY_Model {
 			'created'            => !empty($version->created) ? date('c', strtotime($version->created)) : null,
 			'modified'           => !empty($version->created) ? date('c', strtotime($version->created)) : null,
 			'thumbnail'          => !empty($content->thumbnail) ? $content->thumbnail : null,
+			// The version number this export was taken at — NOT a link to the older versions
+			// themselves (those are dropped, per CLAUDE.md). Surfacing just the count lets the
+			// "Scalar URL (version N)" metadata-table row read correctly and gives readers a
+			// sense of how much a page was revised, without exporting the revision history itself.
+			'versionNumber'      => isset($version->version_num) ? (int) $version->version_num : null,
 			'additionalMetadata' => $arc_meta,
 		);
 
@@ -450,14 +646,27 @@ class Static_Export_Model extends MY_Model {
 
 	private function _normalize_media($content, $version, $base_uri, array $arc_meta = array()) {
 
+		// versions.url is stored as a storage-relative path for self-hosted uploads
+		// (e.g. 'media/foo.jpg') and as a full http(s):// URL for third-party media —
+		// see File_Upload/Scalar_Storage_Adapter_Filesystem, which never prefixes the
+		// stored value. isURL() is the same test Version_model::rdf() uses to decide
+		// whether to prepend the book's base URI before serving the value as RDF.
+		$raw_url     = trim($version->url);
+		$is_external = isURL($raw_url);
+
 		return array(
 			'url'                => $base_uri . $content->slug,
 			'slug'               => $content->slug,
 			'title'              => $version->title,
+			'description'        => $version->description,
 			'mediaType'          => $this->_classify_media_type($version),
-			'sourceUrl'          => $version->url,
-			'localPath'          => null,   // populated later by the packaging step
+			'sourceUrl'          => abs_url($raw_url, $base_uri),
+			'localPath'          => null,   // populated by _copy_media_files() for self-hosted media
+			'isExternal'         => $is_external,
+			'rawUrl'             => $is_external ? null : $raw_url,   // storage-relative; used only to locate the file on disk
 			'thumbnail'          => !empty($content->thumbnail) ? $content->thumbnail : null,
+			'created'            => !empty($version->created) ? date('c', strtotime($version->created)) : null,
+			'versionNumber'      => isset($version->version_num) ? (int) $version->version_num : null,
 			'annotations'        => array(),
 			'additionalMetadata' => $arc_meta,
 		);
@@ -476,42 +685,55 @@ class Static_Export_Model extends MY_Model {
 	 * relative prefix from any slug page to any other slug is '../'.
 	 * The root index.html sits at the export root, so its prefix is './'.
 	 *
-	 * Only href= attributes are rewritten; src= attributes (images, media)
-	 * are handled separately in the media-bundling phase.
+	 * Inline media links (<a href="[sourceFile]" resource="[slug]">, written by Scalar's
+	 * editor with the media's raw source file URL, not its permalink) are also rewritten
+	 * here: self-hosted files that were successfully bundled point at their local copy;
+	 * everything else — external media, or a self-hosted file whose copy failed — is left
+	 * pointing at its original absolute URL so the link degrades gracefully instead of
+	 * being mistaken for a page slug by the generic rewriting below.
 	 *
 	 * @param  string $html        Raw page body HTML from the database.
+	 * @param  array  $media       $book_data['media'] — used to redirect inline media hrefs.
 	 * @param  string $book_url    Live Scalar base URL for this book, trailing slash included.
 	 *                             e.g. 'https://scalar.usc.edu/works/mybook/'
 	 * @param  string $asset_root  Relative path from this page's directory to the export root.
 	 *                             '../' for slug pages, './' for the root index.
 	 * @return string              HTML with internal hrefs rewritten.
 	 */
-	private function _rewrite_internal_links($html, $book_url, $asset_root = '../') {
+	private function _rewrite_links($html, array $media, $book_url, $asset_root = '../') {
 
 		if (empty($html)) return $html;
+
+		// Self-hosted media, indexed by the exact raw storage-relative URL that Scalar's
+		// editor would have written into an inline <a href="..."> for that item.
+		$media_by_raw_url = array();
+		foreach ($media as $item) {
+			if (empty($item['isExternal']) && !empty($item['rawUrl'])) {
+				$media_by_raw_url[$item['rawUrl']] = $item;
+			}
+		}
 
 		// --- Pass 1: absolute internal URLs (href="https://scalar.../works/book/slug") ---
 		$escaped = preg_quote($book_url, '/');
 
 		$html = preg_replace_callback(
 			'/\bhref=(["\'])' . $escaped . '([^"\']*)\1/i',
-			function ($m) use ($asset_root) {
+			function ($m) use ($asset_root, $media_by_raw_url) {
 				$quote = $m[1];
 				$after = $m[2];   // everything after the book_url prefix
 
-				$slug = $after;
-				$rest = '';
-				$q    = strpos($after, '?');
-				$h    = strpos($after, '#');
-				$cut  = PHP_INT_MAX;
-				if ($q !== false) $cut = min($cut, $q);
-				if ($h !== false) $cut = min($cut, $h);
-				if ($cut < PHP_INT_MAX) {
-					$slug = substr($after, 0, $cut);
-					$rest = substr($after, $cut);
+				$path_only = preg_replace('/[?#].*$/', '', $after);
+				$rest      = substr($after, strlen($path_only));
+
+				if (isset($media_by_raw_url[$path_only])) {
+					$media_item = $media_by_raw_url[$path_only];
+					$target = $media_item['localPath'] !== null
+						? $asset_root . $media_item['localPath']
+						: $media_item['sourceUrl'];
+					return 'href=' . $quote . $target . $quote;
 				}
 
-				$slug    = trim($slug, '/');
+				$slug    = trim($path_only, '/');
 				$rel_url = $asset_root . (empty($slug) ? '' : $slug . '/');
 
 				return 'href=' . $quote . $rel_url . $rest . $quote;
@@ -798,6 +1020,91 @@ class Static_Export_Model extends MY_Model {
 	// -------------------------------------------------------------------------
 
 	/**
+	 * Copy self-hosted media files into the export, and set each copied item's 'localPath'
+	 * (relative to the export root) so page rendering can link to the bundled copy instead
+	 * of the live server. Mutates $book_data['media'] in place.
+	 *
+	 * Each file is written to <tmp_dir>/<slug>.<ext> — i.e. it mirrors the slug's own path
+	 * exactly the way render_book() already does for that item's own permalink directory
+	 * (<tmp_dir>/<slug>/index.html). This matters because Scalar's media slugs commonly
+	 * carry their own 'media/' segment already (e.g. slug 'media/foo'), so a fixed
+	 * '<tmp_dir>/media/' bucket would double up into '<tmp_dir>/media/media/foo.jpg' for
+	 * those items; mirroring the slug avoids assuming any particular slug convention.
+	 * A permalink directory and its bundled file for the same slug never collide: the
+	 * directory is exactly <slug>, the file is always <slug>.<ext> (extensionless sources
+	 * fall back to '.bin' so the file path can never equal the bare slug path).
+	 *
+	 * Self-hosted files live on the same filesystem this code is running on — Scalar's
+	 * filesystem storage adapter resolves them to FCPATH/<book-slug>/<raw-url> (see
+	 * Scalar_Storage_Adapter_Filesystem::_getAbsPath()) — so this is a local copy(),
+	 * not a network fetch; no rate limiting is needed.
+	 *
+	 * Failures (missing source file, copy() failure) are recorded in $errors and leave
+	 * 'localPath' null; the affected item's sourceUrl (the live absolute URL) is used as
+	 * a fallback wherever it's linked, per docs/media-strategy.md's fail-gracefully rule.
+	 *
+	 * @param  array  &$book_data  Full normalized structure from get_book_data(); mutated.
+	 * @param  string $tmp_dir     Absolute path to the export temp directory (no trailing slash)
+	 * @param  array  &$errors     Errors array from render_book(); populated on failure
+	 * @return array               ['filesCopied' => int, 'bytesCopied' => int]
+	 */
+	private function _copy_media_files(&$book_data, $tmp_dir, &$errors) {
+
+		$files_copied = 0;
+		$bytes_copied = 0;
+
+		if (empty($book_data['media'])) {
+			return array('filesCopied' => 0, 'bytesCopied' => 0);
+		}
+
+		$book_slug = $book_data['meta']['slug'];
+		$src_base  = rtrim(FCPATH, '/') . '/' . $book_slug . '/';
+
+		foreach ($book_data['media'] as $slug => &$item) {
+
+			if (!empty($item['isExternal']) || empty($item['rawUrl'])) continue;
+
+			$src = $src_base . $item['rawUrl'];
+
+			if (!is_file($src)) {
+				$errors['media:' . $slug] = 'Source media file not found on disk: ' . $item['rawUrl'];
+				continue;
+			}
+
+			$ext       = pathinfo($item['rawUrl'], PATHINFO_EXTENSION);
+			$local_path = $slug . '.' . ($ext !== '' ? $ext : 'bin');
+			$dest       = $tmp_dir . '/' . $local_path;
+			$dest_dir   = dirname($dest);
+
+			if (!is_dir($dest_dir) && !mkdir($dest_dir, 0755, true)) {
+				$errors['media:' . $slug] = 'Could not create media directory';
+				continue;
+			}
+
+			if (copy($src, $dest)) {
+				$item['localPath'] = $local_path;
+				$bytes_copied      += filesize($dest);
+				$files_copied++;
+			} else {
+				$errors['media:' . $slug] = 'Could not copy media file: ' . $item['rawUrl'];
+			}
+
+		}
+		unset($item);
+
+		if ($bytes_copied > self::MEDIA_SIZE_WARNING_BYTES) {
+			$errors['media:size-warning'] = sprintf(
+				'Bundled media totals %.1f MB across %d file(s); this export may be slow to download and host.',
+				$bytes_copied / 1048576,
+				$files_copied
+			);
+		}
+
+		return array('filesCopied' => $files_copied, 'bytesCopied' => $bytes_copied);
+
+	}
+
+	/**
 	 * Copy all reader-facing static assets from the live Scalar installation into
 	 * the export temp directory, preserving the same relative path structure that
 	 * page.php's asset references already expect.
@@ -836,9 +1143,12 @@ class Static_Export_Model extends MY_Model {
 
 		// Widget subdirectories to skip — editor-only tools with no reader-facing role.
 		// ckeditor alone is ~34 MB; excluding these keeps the export under 15 MB.
+		// NOTE: slotmanager is NOT editor-only — jquery.mediaelement.js routes every media
+		// element (inline or standalone) through $.fn.slotmanager_create_slot, so it must
+		// be vendored for media to render at all.
 		$exclude_widgets = array(
 			'annobuilder', 'ckeditor', 'diff', 'edit', 'import',
-			'slotmanager', 'spectrum', 'vrview', 'waldorf', 'wysiwyg',
+			'spectrum', 'vrview', 'waldorf', 'wysiwyg',
 		);
 
 		// Discover all widget subdirs not on the exclusion list.

@@ -174,3 +174,158 @@
     };
 }(window.jQuery));
 
+// -----------------------------------------------------------------------
+// Deferred patches to Scalar's own JS for static-export compatibility.
+//
+// Each of these needs Scalar's classes (ScalarModel/ScalarNode/ScalarAPI,
+// $.scalarpage) to already be defined, but must run before main.js's boot
+// logic — registered via $(window).ready(...) in main.js — actually calls
+// into them. jQuery fires ready handlers in registration order once the
+// whole document has finished parsing, regardless of where in the document
+// they were registered; this file loads immediately after jQuery itself
+// (the very first script tag after it), so registering our ready handler
+// here guarantees it fires before main.js's, while still running only
+// after every later <script> tag — including main.js itself — has already
+// executed and defined the globals these patches touch.
+// -----------------------------------------------------------------------
+(function ($) {
+    if (!$) return;
+
+    $(document).ready(function () {
+
+        /* getCurrentPageNode() fix.
+         *
+         * scalarapi looks up document.location.href in nodesByURL, but on a static
+         * host that never matches the live Scalar node URLs.
+         *
+         * Two-part fix:
+         * 1. Patch the prototype to look up by the canonical Scalar URL stored in
+         *    <link id="current_node"> rather than document.location.href.
+         * 2. Pre-seed a minimal ScalarNode so currentNode.current is non-null even if
+         *    the RDFa parseNodes() call fails to build the node (e.g. if the CURIE
+         *    expansion still has edge cases). parseNodes() will overwrite this with
+         *    real data if it succeeds. */
+        (function () {
+            var linkEl = document.getElementById('current_node');
+            if (!linkEl || typeof ScalarModel === 'undefined' || typeof ScalarNode === 'undefined') return;
+            var canonicalUrl = linkEl.getAttribute('href');
+
+            ScalarModel.prototype.getCurrentPageNode = function () {
+                return this.nodesByURL[canonicalUrl] ||
+                       this.nodesByURL[unescape(canonicalUrl)] ||
+                       undefined;
+            };
+
+            if (!scalarapi.model.nodesByURL[canonicalUrl]) {
+                var minJson = {
+                    'http://www.w3.org/1999/02/22-rdf-syntax-ns#type': [
+                        { value: 'http://scalar.usc.edu/2012/01/scalar-ns#Composite', type: 'uri' }
+                    ]
+                };
+                var node = new ScalarNode(canonicalUrl, minJson,
+                    [{ url: canonicalUrl + '.1', json: {} }]);
+                scalarapi.model.addNode(node);
+            }
+        }());
+
+        /* loadNode()/loadPage() fix.
+         *
+         * Callers throughout Scalar's JS (most importantly jquery.mediaelement.js's
+         * loadMetadata(), which every media element goes through) call this with
+         * forceReload hardcoded true, so the original implementation always issues an
+         * AJAX request and only calls the success callback once that resolves. Two
+         * problems in a static export: there's no live server to answer it, and the
+         * request uses dataType:"jsonp" — a dynamically injected <script> tag, not an
+         * XHR/fetch call — so this file's XHR/fetch overrides (above) can't even
+         * intercept it. Every call would previously hang forever and the media
+         * element would never finish initializing.
+         *
+         * Every node in the book is already embedded as RDFa on every rendered page
+         * (see static_export/page.php's "other content nodes" block) and parsed into
+         * scalarapi.model.nodesByURL by main.js at boot — so resolving synchronously
+         * from that cache is always correct here. */
+        if (typeof ScalarAPI !== 'undefined') {
+            ScalarAPI.prototype.loadNode = ScalarAPI.prototype.loadPage = function (uriSegment) {
+                var node = this.model.nodesByURL[this.model.urlPrefix + uriSegment];
+                return node != null ? 'loaded' : 'loading';
+            };
+        }
+
+        /* Page footer ("colophon") fix.
+         *
+         * page.addColophon() (scalarpage.jquery.js) builds three links from data that
+         * doesn't exist in this export: a permalink to this exact version, a link to
+         * the version-history browser, and a link to a live-only ".meta" URL extension
+         * that renders the metadata table server-side. None of that is exported (see
+         * CLAUDE.md — version history is dropped), so:
+         *   - the version permalink becomes plain text (this export only ever has the
+         *     one version)
+         *   - "All versions" is dropped outright (no version history is exported)
+         *   - "Metadata" is repointed at <slug>.meta/, a page static_export_model.php
+         *     writes alongside every <slug>/index.html (see _write_meta_page()) — a real
+         *     local page instead of a JS-only view
+         *   - "Scalar Feedback" (a contact link to the Scalar project itself, not this
+         *     book) is dropped — it's not meaningful once the site is exported
+         *
+         * addColophon() is NOT a hook we can pre-empt: it runs synchronously as part of
+         * $.scalarpage()'s own constructor body (a giant switch(viewType) block, not a
+         * separate .init() called after construction), so by the time $.scalarpage(e,
+         * options) returns, the footer this fixes has already been built — wrapping the
+         * *returned* object's addColophon (as an earlier version of this patch did) never
+         * fires, because addColophon is never called again after that first, internal
+         * call. So this runs the fixup directly on the already-built DOM right after
+         * $.scalarpage() returns, instead of trying to intercept the call that built it. */
+        if (typeof $.scalarpage === 'function') {
+            var _originalScalarpage = $.scalarpage;
+            $.scalarpage = function (e, options) {
+                var page = _originalScalarpage(e, options);   // addColophon has already run by here
+
+                var $par = $('#footer #scalar-credit');
+
+                var versionLink = $par.find('a[title="Go to permalink"]')[0];
+                if (versionLink) {
+                    $(versionLink).replaceWith(versionLink.textContent);
+                }
+
+                var allVersionsLink = $par.find('a[title="View all versions"]')[0];
+                if (allVersionsLink) {
+                    var trailingSep = allVersionsLink.nextSibling;
+                    if (trailingSep && trailingSep.nodeType === 3 && /^\s*\|\s*$/.test(trailingSep.nodeValue)) {
+                        trailingSep.parentNode.removeChild(trailingSep);
+                    }
+                    allVersionsLink.parentNode.removeChild(allVersionsLink);
+                }
+
+                var metaLink = $par.find('a[title="View metadata for this page"]')[0];
+                if (metaLink) {
+                    // <link id="approot" href="[asset_root]system/application/"> is present
+                    // on every page (see page.php); strip the known suffix to recover
+                    // asset_root, the relative path back to the export root from here.
+                    var approot     = $('link#approot').attr('href') || '';
+                    var exportRoot  = approot.replace(/system\/application\/?$/, '');
+                    var currentSlug = scalarapi.model.getCurrentPageNode().slug;
+                    $(metaLink).attr('href', exportRoot + currentSlug + '.meta/');
+                }
+
+                var feedbackLink = $par.find('a[href="http://scalar.usc.edu/contact/"]')[0];
+                if (feedbackLink) {
+                    // Unlike the " | " before "All versions" (its own standalone text node),
+                    // this pipe is the tail of the same text node as ") " from the "Powered by
+                    // Scalar (version)" segment when neither Terms of Service nor Privacy
+                    // Policy links are present (as here — see page.php, neither is emitted) —
+                    // so trim just the trailing "|", not the whole node.
+                    var feedbackSep = feedbackLink.previousSibling;
+                    if (feedbackSep && feedbackSep.nodeType === 3) {
+                        feedbackSep.nodeValue = feedbackSep.nodeValue.replace(/\|\s*$/, '');
+                    }
+                    feedbackLink.parentNode.removeChild(feedbackLink);
+                }
+
+                return page;
+            };
+        }
+
+    });
+
+}(window.jQuery));
+

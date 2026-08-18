@@ -13,16 +13,43 @@
  *                         node identifiers against the pre-baked scalar-data.json.
  */
 
-$meta      = $book_data['meta'];
-$all_pages = array_merge($book_data['pages'], $book_data['media']);
-$toc       = $book_data['toc'];
-$slug      = $page['slug'];
-$layout    = isset($page['layout']) ? $page['layout'] : 'plain';
+$meta             = $book_data['meta'];
+$all_pages        = array_merge($book_data['pages'], $book_data['media']);
+$toc              = $book_data['toc'];
+$slug             = $page['slug'];
+$layout           = isset($page['layout']) ? $page['layout'] : 'plain';
+$is_current_media = isset($book_data['media'][$slug]);
+$is_meta_view     = !empty($page['isMetaView']);
 
 // Relative path prefix for vendored assets (CSS/JS copied into the export root).
 // All asset paths are expressed relative to $asset_root so the ZIP works
 // regardless of where it is hosted or opened locally.
 $assets = $asset_root . 'system/application/';
+
+// Emits the RDFa a Media node's Version span needs so jquery.mediaelement.js can render it
+// without a live API call: source file (required), thumbnail, and the couple of auxProperties
+// (dcterms:accessRights, dcterms:type) it reads for content warnings / audio chrome. A closure
+// (not a top-level function) because this template is included once per rendered page.
+$emit_media_rdfa = function ($media_item) use ($asset_root) {
+	$out = '';
+	if (!empty($media_item['sourceUrl'])) {
+		$source_href = $media_item['localPath'] !== null
+			? $asset_root . $media_item['localPath']
+			: $media_item['sourceUrl'];
+		$out .= "\t\t\t" . '<span class="metadata" property="art:url">' . htmlspecialchars($source_href) . '</span>' . "\n";
+	}
+	if (!empty($media_item['thumbnail'])) {
+		$out .= "\t\t\t" . '<span class="metadata" property="art:thumbnail">' . htmlspecialchars($media_item['thumbnail']) . '</span>' . "\n";
+	}
+	$meta_props = isset($media_item['additionalMetadata']) ? $media_item['additionalMetadata'] : array();
+	if (!empty($meta_props['http://purl.org/dc/terms/accessRights'][0]['value'])) {
+		$out .= "\t\t\t" . '<span class="metadata" property="dcterms:accessRights">' . htmlspecialchars($meta_props['http://purl.org/dc/terms/accessRights'][0]['value']) . '</span>' . "\n";
+	}
+	if (!empty($meta_props['http://purl.org/dc/terms/type'][0]['value'])) {
+		$out .= "\t\t\t" . '<span class="metadata" property="dcterms:type">' . htmlspecialchars($meta_props['http://purl.org/dc/terms/type'][0]['value']) . '</span>' . "\n";
+	}
+	return $out;
+};
 
 echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 ?>
@@ -35,7 +62,8 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
   xmlns:scalar="http://scalar.usc.edu/2012/01/scalar-ns#"
   xmlns:art="http://simile.mit.edu/2003/10/ontologies/artstor#"
   xmlns:oac="http://www.openannotation.org/ns/"
-  xmlns:foaf="http://xmlns.com/foaf/0.1/">
+  xmlns:foaf="http://xmlns.com/foaf/0.1/"
+  xmlns:ov="http://open.vocab.org/terms/">
 <head>
 <title><?= htmlspecialchars(strip_tags($page['title'])) ?><?= !empty($meta['title']) ? ' — ' . htmlspecialchars(strip_tags($meta['title'])) : '' ?></title>
 <meta name="description" content="<?= htmlspecialchars(strip_tags(isset($page['description']) ? $page['description'] : '')) ?>" />
@@ -92,45 +120,6 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 <script src="<?= $assets ?>views/widgets/mediaelement/annotorious.debug.js"></script>
 <script src="<?= $assets ?>views/widgets/mediaelement/jquery.mediaelement.js"></script>
 <script src="<?= $assets ?>views/widgets/api/scalarapi.js"></script>
-<script>
-/* getCurrentPageNode() fix for static export.
- *
- * scalarapi looks up document.location.href in nodesByURL, but on a static
- * host that never matches the live Scalar node URLs. This script runs
- * synchronously after scalarapi.js (so ScalarModel and ScalarNode are defined)
- * but before main.js (so the patch is in place before any async $.get()
- * callbacks call getCurrentPageNode()).
- *
- * Two-part fix:
- * 1. Patch the prototype to look up by the canonical Scalar URL stored in
- *    <link id="current_node"> rather than document.location.href.
- * 2. Pre-seed a minimal ScalarNode so currentNode.current is non-null even if
- *    the RDFa parseNodes() call fails to build the node (e.g. if the CURIE
- *    expansion still has edge cases). parseNodes() will overwrite this with
- *    real data if it succeeds. */
-(function () {
-    var linkEl = document.getElementById('current_node');
-    if (!linkEl || typeof ScalarModel === 'undefined' || typeof ScalarNode === 'undefined') return;
-    var canonicalUrl = linkEl.getAttribute('href');
-
-    ScalarModel.prototype.getCurrentPageNode = function () {
-        return this.nodesByURL[canonicalUrl] ||
-               this.nodesByURL[unescape(canonicalUrl)] ||
-               undefined;
-    };
-
-    if (!scalarapi.model.nodesByURL[canonicalUrl]) {
-        var minJson = {
-            'http://www.w3.org/1999/02/22-rdf-syntax-ns#type': [
-                { value: 'http://scalar.usc.edu/2012/01/scalar-ns#Composite', type: 'uri' }
-            ]
-        };
-        var node = new ScalarNode(canonicalUrl, minJson,
-            [{ url: canonicalUrl + '.1', json: {} }]);
-        scalarapi.model.addNode(node);
-    }
-}());
-</script>
 <script src="<?= $assets ?>views/melons/cantaloupe/js/main.js"></script>
 <script src="<?= $assets ?>views/melons/cantaloupe/js/jquery.dotdotdot.js"></script>
 <script src="<?= $assets ?>views/melons/cantaloupe/js/jquery.scrollTo.min.js"></script>
@@ -189,13 +178,22 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 		<span inert resource="<?= $ver_url ?>" typeof="scalar:Version">
 			<span class="metadata" property="dcterms:title"><?= htmlspecialchars($other_page['title']) ?></span>
 			<span class="metadata" property="dcterms:description"><?= htmlspecialchars(isset($other_page['description']) ? $other_page['description'] : '') ?></span>
+<?php if (!empty($other_page['created'])): ?>
+			<span class="metadata" property="dcterms:created"><?= htmlspecialchars($other_page['created']) ?></span>
+<?php endif; ?>
+<?php if (!empty($other_page['versionNumber'])): ?>
+			<span class="metadata" property="ov:versionnumber"><?= (int) $other_page['versionNumber'] ?></span>
+<?php endif; ?>
 			<a class="metadata" tabindex="-1" rel="dcterms:isVersionOf" href="<?= $node_url ?>"></a>
+<?php if ($is_media): ?>
+<?= $emit_media_rdfa($other_page) ?>
+<?php endif; ?>
 		</span>
 <?php endforeach; ?>
 
 		<!-- Current page -->
 		<h1 property="dcterms:title"><?= htmlspecialchars($page['title']) ?></h1>
-		<span resource="<?= htmlspecialchars($book_url . $slug) ?>" typeof="scalar:Composite">
+		<span resource="<?= htmlspecialchars($book_url . $slug) ?>" typeof="scalar:<?= $is_current_media ? 'Media' : 'Composite' ?>">
 			<a class="metadata" inert rel="dcterms:hasVersion"
 			   href="<?= htmlspecialchars($book_url . $slug . '.1') ?>"></a>
 			<a class="metadata" inert rel="dcterms:isPartOf"
@@ -205,6 +203,21 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 			<a class="metadata" inert rel="dcterms:isVersionOf"
 			   href="<?= htmlspecialchars($book_url . $slug) ?>"></a>
 			<span class="metadata" property="dcterms:description"><?= htmlspecialchars(isset($page['description']) ? $page['description'] : '') ?></span>
+<?php if (!empty($page['created'])): ?>
+			<span class="metadata" property="dcterms:created"><?= htmlspecialchars($page['created']) ?></span>
+<?php endif; ?>
+<?php if (!empty($page['versionNumber'])): ?>
+			<span class="metadata" property="ov:versionnumber"><?= (int) $page['versionNumber'] ?></span>
+<?php endif; ?>
+<?php if ($is_current_media): ?>
+<?= $emit_media_rdfa($page) ?>
+<?php endif; ?>
+<?php if ($is_meta_view): ?>
+			<!-- Drives scalarpage.jquery.js's case "meta" branch client-side (inserts the
+			     "Metadata" h2, etc.) — see _write_meta_page() in static_export_model.php for
+			     why this can't be triggered via URL-extension detection like the live site. -->
+			<span class="metadata" property="scalar:defaultView">meta</span>
+<?php endif; ?>
 		</span>
 
 	</header>
