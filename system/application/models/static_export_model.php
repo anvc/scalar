@@ -115,9 +115,11 @@ class Static_Export_Model extends MY_Model {
 	 * also gets a plain metadata page at <tmp_dir>/<slug>.meta/index.html (see
 	 * _write_meta_page()).
 	 *
-	 * Also writes <tmp_dir>/index.html:
-	 *   - If a page with slug 'index' exists, copies its rendered HTML there.
-	 *   - Otherwise, emits a <meta refresh> redirect to the first TOC page.
+	 * The home page is the one exception to the <slug>/index.html layout: a page with
+	 * slug 'index' is written once, directly to <tmp_dir>/index.html, and gets no
+	 * <tmp_dir>/index/ directory of its own. Books with no 'index' page get a
+	 * <meta refresh> redirect to the first TOC page at <tmp_dir>/index.html instead.
+	 * Either way the home page keeps its <tmp_dir>/index.meta/ sibling.
 	 *
 	 * @param  array  $book_data  Full normalized structure from get_book_data()
 	 * @param  string $tmp_dir    Absolute path to the writable temp directory (no trailing slash)
@@ -131,7 +133,7 @@ class Static_Export_Model extends MY_Model {
 		$rendered  = array();
 		$skipped   = array();
 		$errors    = array();
-		$index_html = null;   // will hold the rendered HTML for the root index.html
+		$wrote_root_index = false;   // true once <tmp_dir>/index.html has been written
 
 		// Copy self-hosted media into the export first, so page bodies can be rewritten
 		// (below) to point at the bundled local copies rather than the live server.
@@ -139,30 +141,39 @@ class Static_Export_Model extends MY_Model {
 
 		foreach ($book_data['pages'] as $slug => $page) {
 
-			$page_dir = $tmp_dir . '/' . $slug;
+			// The home page lives at the export root rather than in a directory of its
+			// own, so it sits one level shallower than every other page and its relative
+			// paths differ accordingly.
+			$is_root_page = ($slug === 'index');
+			$asset_root   = $is_root_page ? './' : '../';
+			$page_dir     = $tmp_dir . '/' . $slug;
+			$out_file     = $is_root_page ? $tmp_dir . '/index.html' : $page_dir . '/index.html';
 
-			if (!is_dir($page_dir) && !mkdir($page_dir, 0755, true)) {
+			if (!$is_root_page && !is_dir($page_dir) && !mkdir($page_dir, 0755, true)) {
 				$errors[$slug] = 'Could not create directory: ' . $page_dir;
 				continue;
 			}
 
 			$render_page         = $page;
-			$render_page['body'] = $this->_rewrite_links($page['body'], $book_data['media'], $book_url, '../');
+			$render_page['body'] = $this->_rewrite_links($page['body'], $book_data['media'], $book_url, $asset_root);
 
-			$html = $this->_render_content_view($CI, $render_page, $book_data, '../', $book_url, $slug, $errors);
+			$html = $this->_render_content_view($CI, $render_page, $book_data, $asset_root, $book_url, $slug, $errors);
 			if ($html === null) continue;
 
-			if (file_put_contents($page_dir . '/index.html', $html) === false) {
-				$errors[$slug] = 'Could not write: ' . $page_dir . '/index.html';
+			if (file_put_contents($out_file, $html) === false) {
+				$errors[$slug] = 'Could not write: ' . $out_file;
 				continue;
 			}
 
 			$rendered[] = $slug;
 
-			if ($slug === 'index') {
-				$index_html = $html;
+			if ($is_root_page) {
+				$wrote_root_index = true;
 			}
 
+			// The .meta page is always a depth-1 sibling directory ('<slug>.meta/'), so it
+			// is rendered with '../' even for the home page. It ignores the body passed in
+			// here — _write_meta_page() substitutes a metadata table of its own.
 			$this->_write_meta_page($CI, $render_page, $book_data, $tmp_dir, $book_url, $slug, $errors);
 		}
 
@@ -191,28 +202,20 @@ class Static_Export_Model extends MY_Model {
 			$this->_write_meta_page($CI, $item, $book_data, $tmp_dir, $book_url, $slug, $errors);
 		}
 
-		// Write root index.html.
-		if ($index_html !== null) {
-			// A page named 'index' was rendered — use it as-is but fix asset_root to './'.
-			// Re-render with corrected asset_root rather than string-replacing paths.
-			$root_page         = $book_data['pages']['index'];
-			$root_page['body'] = $this->_rewrite_links($root_page['body'], $book_data['media'], $book_url, './');
-
-			$index_html = $this->_render_content_view($CI, $root_page, $book_data, './', $book_url, 'index', $errors);
-		} else {
-			// No 'index' page — emit a meta-refresh redirect to the first TOC page.
+		// Books with an 'index' page already wrote <tmp_dir>/index.html in the loop above.
+		// Without one, stand in a meta-refresh redirect to the first TOC page so the export
+		// root still lands somewhere.
+		if (!$wrote_root_index) {
 			$first_slug = !empty($book_data['toc']) ? $book_data['toc'][0] : null;
 			if ($first_slug) {
 				$index_html = '<!DOCTYPE html><html><head>'
 					. '<meta http-equiv="refresh" content="0; url=' . htmlspecialchars($first_slug) . '/" />'
 					. '<title>' . htmlspecialchars(strip_tags($book_data['meta']['title'])) . '</title>'
 					. '</head><body></body></html>';
-			}
-		}
 
-		if ($index_html !== null) {
-			if (file_put_contents($tmp_dir . '/index.html', $index_html) === false) {
-				$errors['index.html'] = 'Could not write root index.html';
+				if (file_put_contents($tmp_dir . '/index.html', $index_html) === false) {
+					$errors['index.html'] = 'Could not write root index.html';
+				}
 			}
 		}
 
@@ -685,6 +688,10 @@ class Static_Export_Model extends MY_Model {
 	 * relative prefix from any slug page to any other slug is '../'.
 	 * The root index.html sits at the export root, so its prefix is './'.
 	 *
+	 * The home page is the exception: it is written to <export-root>/index.html with no
+	 * directory of its own (see render_book()), so links to the 'index' slug resolve to
+	 * that file rather than to an 'index/' directory.
+	 *
 	 * Inline media links (<a href="[sourceFile]" resource="[slug]">, written by Scalar's
 	 * editor with the media's raw source file URL, not its permalink) are also rewritten
 	 * here: self-hosted files that were successfully bundled point at their local copy;
@@ -734,7 +741,7 @@ class Static_Export_Model extends MY_Model {
 				}
 
 				$slug    = trim($path_only, '/');
-				$rel_url = $asset_root . (empty($slug) ? '' : $slug . '/');
+				$rel_url = $asset_root . self::_slug_target($slug);
 
 				return 'href=' . $quote . $rel_url . $rest . $quote;
 			},
@@ -752,12 +759,32 @@ class Static_Export_Model extends MY_Model {
 				$slug  = $m[2];
 				$rest  = isset($m[3]) ? $m[3] : '';
 				$end   = $m[4];
-				return 'href=' . $quote . $asset_root . $slug . '/' . $rest . $end;
+				return 'href=' . $quote . $asset_root . self::_slug_target($slug) . $rest . $end;
 			},
 			$html
 		);
 
 		return $html;
+
+	}
+
+	/**
+	 * The export-root-relative target for a page slug: '<slug>/' for the usual
+	 * <slug>/index.html layout, but 'index.html' for the home page, which render_book()
+	 * writes to the export root without a directory of its own. An empty slug (a link to
+	 * the book root) resolves to the same place.
+	 *
+	 * Named 'index.html' rather than the bare directory so the link also resolves when the
+	 * export is opened from disk over file://, where no server supplies a directory index.
+	 *
+	 * @param  string $slug  Page slug, already trimmed of surrounding slashes.
+	 * @return string        Path relative to the export root.
+	 */
+	private static function _slug_target($slug) {
+
+		if ($slug === '' || $slug === 'index') return 'index.html';
+
+		return $slug . '/';
 
 	}
 

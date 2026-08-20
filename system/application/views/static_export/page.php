@@ -145,7 +145,10 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 		<!-- Book node — scalarapi reads title, tableOfContents, hasPart -->
 		<span resource="<?= htmlspecialchars(rtrim($book_url, '/')) ?>" typeof="scalar:Book">
 			<span property="dcterms:title" content="<?= htmlspecialchars(strip_tags($meta['title'])) ?>">
-				<a id="book-title" href="<?= $asset_root ?>index"><?= htmlspecialchars(strip_tags($meta['title'])) ?></a>
+				<!-- scalarheader.jquery.js detaches this link and reuses its href for both the
+				     navbar book title and the mobile "Home Page" link, so it has to resolve as
+				     a file: "index.html", not the extensionless "index" a live Scalar routes. -->
+				<a id="book-title" href="<?= $asset_root ?>index.html"><?= htmlspecialchars(strip_tags($meta['title'])) ?></a>
 			</span>
 			<a class="metadata" tabindex="-1" inert rel="dcterms:hasPart"
 			   href="<?= htmlspecialchars($book_url . $slug) ?>"></a>

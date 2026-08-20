@@ -193,6 +193,14 @@
 
     $(document).ready(function () {
 
+        /* Relative path from the current page back to the export root.
+         * <link id="approot" href="[asset_root]system/application/"> is present on every
+         * page (see page.php); stripping the known suffix recovers asset_root. */
+        function exportRoot() {
+            var approot = $('link#approot').attr('href') || '';
+            return approot.replace(/system\/application\/?$/, '');
+        }
+
         /* getCurrentPageNode() fix.
          *
          * scalarapi looks up document.location.href in nodesByURL, but on a static
@@ -298,13 +306,8 @@
 
                 var metaLink = $par.find('a[title="View metadata for this page"]')[0];
                 if (metaLink) {
-                    // <link id="approot" href="[asset_root]system/application/"> is present
-                    // on every page (see page.php); strip the known suffix to recover
-                    // asset_root, the relative path back to the export root from here.
-                    var approot     = $('link#approot').attr('href') || '';
-                    var exportRoot  = approot.replace(/system\/application\/?$/, '');
                     var currentSlug = scalarapi.model.getCurrentPageNode().slug;
-                    $(metaLink).attr('href', exportRoot + currentSlug + '.meta/');
+                    $(metaLink).attr('href', exportRoot() + currentSlug + '.meta/');
                 }
 
                 var feedbackLink = $par.find('a[href="http://scalar.usc.edu/contact/"]')[0];
@@ -322,6 +325,41 @@
                 }
 
                 return page;
+            };
+        }
+
+        /* Main menu "Home" link fix.
+         *
+         * scalarheader.jquery.js builds the Table of Contents dropdown's Home item from
+         * scalarapi.model.parent_uri — the live book URL carried in <link id="parent">,
+         * which page.php has to keep intact because it doubles as the RDF resource
+         * namespace scalarapi resolves every node identifier against. So the link is
+         * correct as RDF and wrong as navigation: clicking it leaves the export for the
+         * original Scalar site. Repoint it at the export's own root index.html.
+         *
+         * The mobile "Home Page" link and the navbar book title don't need patching here
+         * — both derive from #book-title's href, which page.php already emits as a
+         * root-relative index.html.
+         *
+         * Like the colophon fix above, this runs on the already-built DOM: base.init() is
+         * called from $.scalarheader's constructor body, so the header is fully rendered
+         * by the time $.fn.scalarheader returns. */
+        if ($.fn.scalarheader) {
+            var _originalScalarheader = $.fn.scalarheader;
+            $.fn.scalarheader = function (options) {
+                var header = _originalScalarheader.call(this, options);
+
+                var homeLink = $('#scalarheader .home_link a')[0];
+                if (homeLink) {
+                    // applyCurrentQueryVarsToURL() may have appended ?path=/&m= state that
+                    // should survive; only the book-URL half of the href is being replaced.
+                    var href  = homeLink.getAttribute('href') || '';
+                    var q     = href.indexOf('?');
+                    var query = q === -1 ? '' : href.slice(q);
+                    homeLink.setAttribute('href', exportRoot() + 'index.html' + query);
+                }
+
+                return header;
             };
         }
 
