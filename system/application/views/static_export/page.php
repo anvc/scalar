@@ -205,6 +205,12 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 		<span resource="<?= htmlspecialchars($book_url . $slug . '.1') ?>" typeof="scalar:Version">
 			<a class="metadata" inert rel="dcterms:isVersionOf"
 			   href="<?= htmlspecialchars($book_url . $slug) ?>"></a>
+			<!-- The <h1> above carries dcterms:title too, but for the *document* subject, not
+			     this Version — so without this span the current page is the one node in the
+			     book whose version has no title, and anything reading titles from the model
+			     renders it as "(No title)". Most visibly: its own entry in the Table of
+			     Contents menu, on the very page a reader is looking at. -->
+			<span class="metadata" property="dcterms:title"><?= htmlspecialchars($page['title']) ?></span>
 			<span class="metadata" property="dcterms:description"><?= htmlspecialchars(isset($page['description']) ? $page['description'] : '') ?></span>
 <?php if (!empty($page['created'])): ?>
 			<span class="metadata" property="dcterms:created"><?= htmlspecialchars($page['created']) ?></span>

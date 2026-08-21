@@ -328,7 +328,47 @@
             };
         }
 
-        /* Main menu "Home" link fix.
+        /* Node URL -> export path.
+         *
+         * Every link Scalar's JS builds for a page comes from ScalarNode.url, the
+         * canonical live Scalar URL. That URL has to stay absolute in the model — it
+         * doubles as the node's RDF identifier, and nodesByURL is keyed on it — so the
+         * links are rewritten after the fact, wherever they land in the DOM.
+         *
+         * slugTarget() mirrors _slug_target() in static_export_model.php: pages live at
+         * <slug>/, except the home page, which is written to the export root as
+         * index.html with no directory of its own. Naming the file explicitly (rather
+         * than linking the bare directory) keeps the link working over file://, where
+         * no server supplies a directory index. */
+        function slugTarget(slug) {
+            return (slug === '' || slug === 'index') ? 'index.html' : slug + '/';
+        }
+
+        var bookUrl = scalarapi.model.urlPrefix || $('link#parent').attr('href') || '';
+
+        function staticHref(href) {
+            if (typeof href !== 'string' || bookUrl === '') return null;
+            if (href.indexOf(bookUrl) !== 0) return null;      // external or already relative
+
+            // Preserve any ?path=/&m= state or #anchor the caller appended.
+            var after = href.slice(bookUrl.length);
+            var cut   = after.search(/[?#]/);
+            var slug  = (cut === -1 ? after : after.slice(0, cut)).replace(/^\/+|\/+$/g, '');
+            var rest  = cut === -1 ? '' : after.slice(cut);
+
+            return exportRoot() + slugTarget(slug) + rest;
+        }
+
+        /* Rewrite in place every node link under the given scope. Skips .metadata links:
+         * those are page.php's inert RDFa, where the absolute URL is the point. */
+        function rewriteNodeLinks(scope) {
+            $(scope).find('a[href]').not('.metadata').each(function () {
+                var href = staticHref(this.getAttribute('href'));
+                if (href !== null) this.setAttribute('href', href);
+            });
+        }
+
+        /* Main menu "Home" link and Table of Contents fixes.
          *
          * scalarheader.jquery.js builds the Table of Contents dropdown's Home item from
          * scalarapi.model.parent_uri — the live book URL carried in <link id="parent">,
@@ -341,6 +381,28 @@
          * — both derive from #book-title's href, which page.php already emits as a
          * root-relative index.html.
          *
+         * The Table of Contents itself — the author-curated page list below Home — needs
+         * no data work: scalarheader builds it from the scalar:Page node at <book_url>toc,
+         * whose dcterms:references list page.php emits as RDFa on every exported page, so
+         * the list already populates. What doesn't survive the move off a live server is
+         * everything the list links to:
+         *
+         *   - The TOC entries, and the "Visit page" and relationship links in the panel
+         *     that slides out from an entry's arrow, are all built from ScalarNode.url and
+         *     so point back at the original Scalar site. rewriteNodeLinks() repoints them
+         *     at the export's own directories.
+         *
+         *   - That slide-out panel is filled by expandMenu() from a scalarapi.loadPage()
+         *     success callback. The callback reads only from scalarapi.model and never
+         *     touches the response, so the data it needs is already in hand — but the
+         *     loadNode()/loadPage() patch above resolves from cache and returns 'loaded'
+         *     without ever invoking it, leaving the panel stuck on its spinner. That patch
+         *     can't simply start firing callbacks: callers like jquery.mediaelement.js's
+         *     loadMetadata() use the `if (loadNode(…, cb) == 'loaded') cb()` idiom and
+         *     would run theirs twice. So expandMenu is wrapped instead, swapping in a
+         *     callback-firing loadPage for the duration of its own call — safe because
+         *     expandMenu makes that call synchronously, as its last statement.
+         *
          * Like the colophon fix above, this runs on the already-built DOM: base.init() is
          * called from $.scalarheader's constructor body, so the header is fully rendered
          * by the time $.fn.scalarheader returns. */
@@ -348,6 +410,8 @@
             var _originalScalarheader = $.fn.scalarheader;
             $.fn.scalarheader = function (options) {
                 var header = _originalScalarheader.call(this, options);
+
+                rewriteNodeLinks(header.$el);
 
                 var homeLink = $('#scalarheader .home_link a')[0];
                 if (homeLink) {
@@ -358,6 +422,29 @@
                     var query = q === -1 ? '' : href.slice(q);
                     homeLink.setAttribute('href', exportRoot() + 'index.html' + query);
                 }
+
+                var _originalExpandMenu = header.expandMenu;
+                header.expandMenu = function () {
+                    var _originalLoadPage = scalarapi.loadPage;
+                    var _originalLoadNode = scalarapi.loadNode;
+
+                    scalarapi.loadPage = scalarapi.loadNode = function (uriSegment, forceReload, successCallback) {
+                        if (typeof successCallback === 'function') successCallback();
+                        // 'queued', not 'loaded': the callback has already run, and
+                        // 'loaded' invites `== 'loaded'` callers to run theirs again.
+                        return 'queued';
+                    };
+
+                    try {
+                        return _originalExpandMenu.apply(this, arguments);
+                    } finally {
+                        scalarapi.loadPage = _originalLoadPage;
+                        scalarapi.loadNode = _originalLoadNode;
+                        // The panel (desktop) or its mobile equivalent now exists, with
+                        // its "Visit page" and relationship links built from node URLs.
+                        rewriteNodeLinks('#mainMenuSubmenus, #mobileMainMenuSubmenus');
+                    }
+                };
 
                 return header;
             };
