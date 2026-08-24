@@ -259,6 +259,85 @@
             };
         }
 
+        /* loadNodesByType()/loadPagesByType() fix — the Index modal, and the lens/grid
+         * visualizations, which are the only exported callers.
+         *
+         * Both go through this one method, which fires
+         * $.ajax({url: 'rdf/instancesof/<type>', dataType: 'jsonp'}) and does nothing until
+         * that resolves. dataType 'jsonp' means a dynamically injected <script> tag, not an
+         * XHR or fetch call, so the overrides at the top of this file cannot intercept it:
+         * the request simply 404s, the success callback never fires, and the caller waits
+         * forever. That is why the Index modal sat on "Loading..." — nothing ever called
+         * ScalarIndex.handleResults() to hide the spinner and fill the table.
+         *
+         * Everything the method needs is already local. getNodesWithProperty() reads straight
+         * out of scalarapi.model, which main.js populates at boot from the RDFa every exported
+         * page carries (see static_export/page.php — every node in the book, plus the
+         * oac:Annotation relations that give path/tag/annotation nodes those scalarTypes in
+         * the first place). So this resolves from the model and hands the callback the same
+         * shape the API would have: an object keyed by node URL.
+         *
+         * The one piece of the response that isn't node data is scalar:citation. The live API
+         * grafts it onto every returned node (see _pagination_by_ref() in RDF_Object.php) to
+         * carry pagination state in its 'methodNumNodes' field, and both callers depend on it:
+         * ScalarIndex reads it off the *node* to size its pager, the visualizations read it off
+         * the *response* to decide when they've reached the last page. Hence both below.
+         *
+         * Note methodNumNodes counts the nodes remaining from `start` onward, NOT the size of
+         * the whole collection — _index_by_ref() decrements $settings['total'] once for each
+         * row it pages past. ScalarIndex's maxPages arithmetic reads it as a total, which is
+         * only correct because setDisplayMode() resets currentPage to 1 whenever it resets
+         * maxPages to 0, so the figure it latches is always the one from a start=0 call.
+         *
+         * Ordering is alphabetical rather than the live API's (which varies by model, since
+         * each content type is fetched through its own). The Index offers no sort control, so
+         * any order is as faithful as another; alphabetical is the one that makes an A–Z
+         * listing browsable, and re-deriving it from the model on each call keeps pagination
+         * consistent across requests. */
+        if (typeof ScalarAPI !== 'undefined') {
+
+            var CITATION = 'http://scalar.usc.edu/2012/01/scalar-ns#citation';
+
+            ScalarAPI.prototype.loadNodesByType = ScalarAPI.prototype.loadPagesByType =
+                function (type, forceReload, successCallback, errorCallback,
+                          depth, references, relation, start, results) {
+
+                var nodes = this.model.getNodesWithProperty('scalarType', type, 'alphabetical');
+                var from  = (start   == null) ? 0            : parseInt(start, 10);
+                var count = (results == null) ? nodes.length : parseInt(results, 10);
+
+                var citation = [{
+                    value: 'method=instancesof;methodNumNodes=' + Math.max(0, nodes.length - from) + ';',
+                    type:  'literal'
+                }];
+
+                var data = {};
+                var page = nodes.slice(from, from + count);
+
+                for (var i = 0; i < page.length; i++) {
+                    var node  = page[i];
+                    // Copy rather than annotate node.data in place: that object is the RDFa
+                    // dump entry the node was parsed from, and citation is per-query state.
+                    var entry = {};
+                    for (var prop in node.data) entry[prop] = node.data[prop];
+                    entry[CITATION] = citation;
+                    node.properties[CITATION] = citation;
+                    data[node.url] = entry;
+                }
+
+                if (typeof successCallback === 'function') {
+                    // Async, like the $.ajax call this replaces: callers show a spinner and
+                    // then keep working on the assumption the callback lands after they return.
+                    window.setTimeout(function () { successCallback(data); }, 0);
+                }
+
+                // 'loading', matching the live method's return on the branch that issues a
+                // request. Not 'loaded' — the visualizations respond to that by calling
+                // parseData() themselves, which would double up with the callback above.
+                return 'loading';
+            };
+        }
+
         /* Page footer ("colophon") fix.
          *
          * page.addColophon() (scalarpage.jquery.js) builds three links from data that
@@ -324,6 +403,23 @@
                     feedbackLink.parentNode.removeChild(feedbackLink);
                 }
 
+                /* Now that page.php emits the book's path/tag/annotation relations (see its
+                 * "Relationships" block), scalarpage builds the navigation that hangs off
+                 * them: path breadcrumbs, prev/next arrows, "Continue to..." buttons, the
+                 * "Step N of the ... path" citation lines, and the tag/path relationship
+                 * lists at the foot of the page. Every one of those hrefs is
+                 * ScalarNode.url — the live Scalar address — sometimes with a "?path=<slug>"
+                 * suffix carrying which path the reader is travelling. staticHref() keeps
+                 * that suffix and replaces only the book-URL half, so path state survives
+                 * the rewrite.
+                 *
+                 * This has to run *after* _originalScalarpage() rather than before: parts of
+                 * addRelationshipNavigation() build their final href by reading an existing
+                 * one back out and appending "?path=...", and the $.fn.attr guard at the top
+                 * of this file deliberately refuses to overwrite an href that already looks
+                 * static — so rewriting first would make those appends silently no-op. */
+                rewriteNodeLinks(document.body);
+
                 return page;
             };
         }
@@ -366,6 +462,44 @@
                 var href = staticHref(this.getAttribute('href'));
                 if (href !== null) this.setAttribute('href', href);
             });
+        }
+
+        /* addTemplateToURL() fix.
+         *
+         * Not every node link Scalar builds is an href for rewriteNodeLinks() to find.
+         * The Index modal's result rows navigate from a click handler instead —
+         *
+         *     row.on('click', function () {
+         *         document.location = addTemplateToURL($(this).data('node').url, 'cantaloupe');
+         *     })
+         *
+         * (scalarindex.jquery.js) — with the row's visible <a> left as href="javascript:;",
+         * so there is no href in the DOM at all and every row in the Index sent the reader
+         * back to the live book. scalarstructuredgallery.jquery.js builds its block headings
+         * through the same call.
+         *
+         * addTemplateToURL() is the common funnel: main.js defines it globally to append
+         * ?template=cantaloupe to any URL belonging to this book. Overriding it reroutes
+         * those destinations through staticHref(), and drops the ?template= var along the
+         * way — it selects a server-side melon, which means nothing in an export. URLs it
+         * doesn't recognise as this book's (the login, register and dashboard links in the
+         * user menu) pass through untouched, exactly as the original does.
+         *
+         * Callers that append their own query string to the result — the structured
+         * gallery's addTemplateToURL(node.url, …) + '?path=' + slug — still compose
+         * correctly, because staticHref() returns a bare '<root><slug>/' with no query of
+         * its own unless the URL it was handed already carried one.
+         *
+         * main.js declares addTemplateToURL as a hoisted `function` statement, so this
+         * assignment has to land after main.js has run. It does: the whole block is a
+         * $(document).ready handler, and every <script> tag on the page — main.js included
+         * — has finished executing before the first ready handler fires. */
+        if (typeof window.addTemplateToURL === 'function') {
+            window.addTemplateToURL = function (url, templateName) {
+                if (typeof url !== 'string') return url;
+                var href = staticHref(url);
+                return (href !== null) ? href : url;
+            };
         }
 
         /* Main menu "Home" link and Table of Contents fixes.

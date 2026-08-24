@@ -229,6 +229,101 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 <?php endif; ?>
 		</span>
 
+		<!-- Relationships (paths, tags, annotations) —————————————————————————
+		     scalarapi derives a node's 'path'/'tag'/'annotation' scalarType — what the Index
+		     modal's tabs filter on, and what path navigation and tag lists read — purely from
+		     parsed relations (ScalarNode.addRelation), never from rdf:type. Relations in turn
+		     come only from Open Annotation resources in the RDFa: a subject typed
+		     oac:Annotation carrying oac:hasBody (the path/tag/annotation node) and oac:hasTarget
+		     (the item it applies to). Without these, four of the Index's six tabs have nothing
+		     to find.
+
+		     The relation's *kind* is inferred by ScalarRelation from the anchor fragment on the
+		     target URL, exactly as annotation_append() (MY_url_helper.php) builds it live:
+
+		         (none)         -> tag
+		         #index=N       -> path, at page N
+		         #t=npt:s,e     -> annotation, temporal
+		         #line=s,e      -> annotation, textual
+		         #xywh=…        -> annotation, spatial region
+		         #pos3d=…       -> annotation, 3D scene position
+		         #posgis=…      -> annotation, geographic position
+
+		     Comments are deliberately absent: they are dropped from the export (see CLAUDE.md),
+		     so the Index's Comments tab reports no results rather than showing stale ones. -->
+<?php
+	// Renders one oac:Annotation relation, or nothing if either endpoint was not exported
+	// (an unpublished or deleted node can still be referenced by a path or tag row).
+	// ScalarRelation resolves both endpoints with stripVersion(), so the '.1' suffix here
+	// only has to be present, not accurate — it matches what the node spans above emit.
+	$emit_relation = function ($urn, $body_slug, $target_slug, $fragment) use ($book_url, $all_pages) {
+		if (!isset($all_pages[$body_slug]) || !isset($all_pages[$target_slug])) return '';
+		return "\t\t" . '<span class="metadata" inert resource="' . htmlspecialchars($urn) . '" typeof="oac:Annotation">' . "\n"
+			. "\t\t\t" . '<a class="metadata" tabindex="-1" rel="oac:hasBody" href="'
+				. htmlspecialchars($book_url . $body_slug . '.1') . '"></a>' . "\n"
+			. "\t\t\t" . '<a class="metadata" tabindex="-1" rel="oac:hasTarget" href="'
+				. htmlspecialchars($book_url . $target_slug . '.1' . $fragment) . '"></a>' . "\n"
+			. "\t\t" . '</span>' . "\n";
+	};
+
+	// Rebuild the anchor fragment for one entry of book_data['annotations'], whose offsets
+	// _normalize_annotation() has already split out of the raw rel_annotated columns. Mirrors
+	// annotation_append()'s output field-for-field, including its habit of emitting nothing
+	// when every offset is empty or zero — in which case ScalarRelation falls back to typing
+	// the relation as a tag, the same as it would on the live site.
+	$annotation_fragment = function (array $a) {
+		$type = isset($a['type']) ? $a['type'] : '';
+
+		if ('textual' === $type) {
+			if (empty($a['startLine']) && empty($a['endLine'])) return '';
+			return '#line=' . $a['startLine'] . ',' . $a['endLine'];
+		}
+
+		if ('spatial' === $type) {
+			switch ($a['spatialType']) {
+				case 'xywh':
+					return '#xywh=' . implode(',', array($a['x'], $a['y'], $a['width'], $a['height']));
+				case 'pos3d':
+					return '#pos3d=' . implode(',', array(
+						$a['targetX'], $a['targetY'], $a['targetZ'],
+						$a['cameraX'], $a['cameraY'], $a['cameraZ'],
+						$a['roll'], $a['tilt'], $a['fieldOfView']));
+				case 'posgis':
+					return '#posgis=' . implode(',', array(
+						$a['latitude'], $a['longitude'], $a['altitude'],
+						$a['heading'], $a['tilt'], $a['fieldOfView']));
+			}
+			return '';
+		}
+
+		if (empty($a['start']) && empty($a['end'])) return '';
+		return '#t=npt:' . $a['start'] . ',' . $a['end'];
+	};
+
+	// Paths: sort_number is 1-based, and is what scalarpage reads to build "page N of M"
+	// navigation as well as what orders the path's contents in the Index.
+	foreach ($book_data['paths'] as $path_slug => $path) {
+		foreach ($path['children'] as $i => $child_slug) {
+			echo $emit_relation(
+				'urn:scalar:path:' . $path_slug . ':' . $child_slug . ':' . ($i + 1),
+				$path_slug, $child_slug, '#index=' . ($i + 1));
+		}
+	}
+
+	foreach ($book_data['tags'] as $tag_slug => $tag) {
+		foreach ($tag['tagged'] as $tagged_slug) {
+			echo $emit_relation(
+				'urn:scalar:tag:' . $tag_slug . ':' . $tagged_slug,
+				$tag_slug, $tagged_slug, '');
+		}
+	}
+
+	foreach ($book_data['annotations'] as $anno_id => $anno) {
+		echo $emit_relation(
+			$anno_id, $anno['bodySlug'], $anno['targetSlug'], $annotation_fragment($anno));
+	}
+?>
+
 	</header>
 
 	<span property="sioc:content"><?= isset($page['body']) ? $page['body'] : '' ?></span>
