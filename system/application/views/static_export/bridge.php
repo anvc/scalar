@@ -250,12 +250,74 @@
          *
          * Every node in the book is already embedded as RDFa on every rendered page
          * (see static_export/page.php's "other content nodes" block) and parsed into
-         * scalarapi.model.nodesByURL by main.js at boot — so resolving synchronously
-         * from that cache is always correct here. */
+         * scalarapi.model.nodesByURL by main.js at boot — so the data is always already
+         * in hand and nothing has to be fetched.
+         *
+         * What this must NOT do is hand that data back synchronously. Two call styles
+         * share this one method:
+         *
+         *     if (scalarapi.loadNode(slug, true, cb, …) == 'loaded') cb();   // idiom A
+         *     scalarapi.loadNode(slug, true, cb, …);                         // idiom B
+         *
+         * Returning 'loaded' without firing the callback serves A and silently strands
+         * every B caller (page notes, annotated media, the TOC submenus). Returning
+         * 'loaded' *and* firing it runs A's callback twice. Firing asynchronously and
+         * returning 'loading' — the live method's return on the branch that issues a
+         * request — is the one combination that serves both, and it also restores the
+         * asynchrony every caller was written against.
+         *
+         * That asynchrony is load-bearing, not just tidy. $.fn.mediaelement stores the
+         * MediaElement on the link *after* `new MediaElement(...)` returns, but the
+         * constructor calls loadMetadata() as its last act. Resolving synchronously
+         * therefore ran the whole metadata chain — including the 'mediaElementMetadataHandled'
+         * and 'mediaElementMediaLoaded' events — while link.data('mediaelement') was still
+         * undefined, so every handler that reads it back (scalarmediadetails' citations
+         * panel, scalarpage's media layout) threw. That is what broke the Citations tab.
+         *
+         * The callback is handed an object in the same shape as the live API's RDF-JSON
+         * response — the node entry keyed by node URL, plus one entry per version keyed
+         * by version URL — because callers index into it that way (see the widget branch
+         * of scalarpage.jquery.js, which walks node[uri]['dcterms:hasVersion'] to reach
+         * the version's sioc:content).
+         *
+         * scalar:citation is grafted on for the same reason loadNodesByType() below does it:
+         * the live API attaches it to every returned node to carry pagination state, and the
+         * visualizations read 'methodNumNodes' off the response to decide whether to ask for
+         * another page. A single node is always the whole result, so the count is 1 — which,
+         * being under the visualizations' page size, reads as "last page" and stops the walk.
+         * Without it they would re-request the same node forever. */
         if (typeof ScalarAPI !== 'undefined') {
-            ScalarAPI.prototype.loadNode = ScalarAPI.prototype.loadPage = function (uriSegment) {
-                var node = this.model.nodesByURL[this.model.urlPrefix + uriSegment];
-                return node != null ? 'loaded' : 'loading';
+
+            var NODE_CITATION = [{
+                value: 'method=node;methodNumNodes=1;',
+                type:  'literal'
+            }];
+
+            ScalarAPI.prototype.loadNode = ScalarAPI.prototype.loadPage =
+                function (uriSegment, forceReload, successCallback) {
+
+                // getNode() rather than a raw nodesByURL lookup: callers pass a slug in
+                // most places but a full node URL in some (scalarmedia's related-media
+                // walk hands it a dcterms:relation value verbatim).
+                var node = this.getNode(uriSegment);
+                if (node == null) return 'loading';
+
+                if (typeof successCallback === 'function') {
+                    // Copy rather than annotate node.data in place: that object is the RDFa
+                    // dump entry the node was parsed from, and citation is per-query state.
+                    var entry = {};
+                    for (var prop in node.data) entry[prop] = node.data[prop];
+                    entry['http://scalar.usc.edu/2012/01/scalar-ns#citation'] = NODE_CITATION;
+
+                    var data = {};
+                    data[node.url] = entry;
+                    for (var i = 0; i < node.versions.length; i++) {
+                        data[node.versions[i].url] = node.versions[i].data.json;
+                    }
+                    window.setTimeout(function () { successCallback(data); }, 0);
+                }
+
+                return 'loading';
             };
         }
 
@@ -455,13 +517,69 @@
             return exportRoot() + slugTarget(slug) + rest;
         }
 
-        /* Rewrite in place every node link under the given scope. Skips .metadata links:
-         * those are page.php's inert RDFa, where the absolute URL is the point. */
+        /* Rewrite in place every node link at or under the given scope. Skips .metadata
+         * links: those are page.php's inert RDFa, where the absolute URL is the point.
+         * addBack() so a scope that is itself an <a> — what the observer below hands it
+         * when a single link is inserted — is rewritten too, not just its descendants.
+         *
+         * A link whose visible text *is* the URL it points at gets its label moved as well,
+         * or it goes on advertising the original site while quietly linking somewhere else.
+         * Two rows are built that way: "Scalar URL" in the metadata table (main.js's
+         * addMetadataTableForNodeToElement) and "rdf:resource" on the .meta pages
+         * (_build_meta_page_body in static_export_model.php). The label becomes the resolved
+         * absolute address — read back off the element, which is what the browser itself
+         * would resolve the new relative href to — rather than the relative href, because
+         * the point of that row is to give the reader an address they can copy.
+         *
+         * Deliberately narrow: it fires only when the text matches the href exactly, so the
+         * neighbouring "Source URL" row, linkified dcterms:source values, and every ordinary
+         * titled link are left alone. */
         function rewriteNodeLinks(scope) {
-            $(scope).find('a[href]').not('.metadata').each(function () {
-                var href = staticHref(this.getAttribute('href'));
-                if (href !== null) this.setAttribute('href', href);
+            $(scope).find('a[href]').addBack('a[href]').not('.metadata').each(function () {
+                var original = this.getAttribute('href');
+                var href     = staticHref(original);
+                if (href === null) return;
+
+                var labelsItsOwnHref = $(this).text().trim() === original.trim();
+                this.setAttribute('href', href);
+                if (labelsItsOwnHref && typeof this.href === 'string') $(this).text(this.href);
             });
+        }
+
+        /* Catch-all rewrite for links Scalar's JS builds after the page has been laid out.
+         *
+         * The explicit rewriteNodeLinks() calls further down cover the DOM as it stands
+         * when $.scalarpage() and $.fn.scalarheader() return, but a lot of node links are
+         * built later and on demand, from ScalarNode.url like all the rest:
+         *
+         *   - the media info tabs (scalarmedia.jquery.js) — an annotation's title link and
+         *     its tag buttons, the Related pane's node links, and the "Scalar URL" row of
+         *     the Details tab; the annotation bodies in particular are only built when the
+         *     reader clicks an annotation, long after any one-shot pass has run
+         *   - the Citations dialog (scalarmediadetails.jquery.js) — "View media page", the
+         *     citing-page attributions, the "Step N of the … path" lines, and tag links
+         *   - the Table of Contents slide-out panels, the visualizations' inspector, and
+         *     the structured gallery
+         *
+         * There is no single hook to wrap for those: $.scalarmedia returns nothing, and the
+         * builders are closures inside it. Watching the document instead catches all of them
+         * — and anything added later by code this file doesn't know about — with one rule.
+         *
+         * Only childList mutations are observed, so setting an href here cannot re-trigger
+         * the observer. Observer callbacks are delivered at the microtask checkpoint after
+         * the script that inserted the nodes has finished, which keeps this clear of the
+         * ordering hazard the $.scalarpage() rewrite below documents: builders that append a
+         * link and then read its href back to tack on "?path=…" always do both within one
+         * synchronous block, so the rewrite lands after the read, not between them. */
+        if (window.MutationObserver) {
+            new MutationObserver(function (records) {
+                for (var i = 0; i < records.length; i++) {
+                    var added = records[i].addedNodes;
+                    for (var j = 0; j < added.length; j++) {
+                        if (added[j].nodeType === 1) rewriteNodeLinks(added[j]);
+                    }
+                }
+            }).observe(document.documentElement, { childList: true, subtree: true });
         }
 
         /* addTemplateToURL() fix.
@@ -502,6 +620,156 @@
             };
         }
 
+        /* Metadata table "View as" row fix.
+         *
+         * addMetadataTableForNodeToElement() (main.js) builds the table behind the media
+         * Details tab, the Citations dialog's Details section and the visualizations'
+         * inspector. Its first row, "Scalar URL", and any node links in the rows below are
+         * ordinary hrefs the observer above repoints at this export, label included — see
+         * rewriteNodeLinks().
+         *
+         * Its last row is the exception. "View as: RDF-XML, RDF-JSON, HTML" links to three
+         * live-only URL extensions on the node; none of them is a page, so the observer would
+         * dutifully rewrite them into three directories that don't exist. Two are dropped
+         * (no RDF is exported) and the third is repointed at <slug>.meta/, the real page
+         * static_export_model.php writes for every item — the same substitution the colophon
+         * fix above makes for its "Metadata" link.
+         *
+         * Wrapping rather than replacing via main.js's customAddMetadataTableForNodeToElement
+         * hook: the table is a long list of predicate rows that only needs this one edit, and
+         * a wrapper can't drift out of sync with it the way a reimplementation would.
+         *
+         * The row is found by its label rather than by position because a node with no
+         * auxProperties puts it at a different index than one with several. */
+        if (typeof window.addMetadataTableForNodeToElement === 'function') {
+            var _originalMetadataTable = window.addMetadataTableForNodeToElement;
+            window.addMetadataTableForNodeToElement = function (node, element) {
+                _originalMetadataTable(node, element);
+                $(element).find('table').last().find('tr').each(function () {
+                    var cells = $(this).children('td');
+                    if (cells.eq(0).text() !== 'View as') return;
+                    if (!node.slug) { $(this).remove(); return; }
+                    cells.eq(1).empty().append(
+                        $('<a>HTML</a>').attr('href', exportRoot() + node.slug + '.meta/'));
+                });
+            };
+        }
+
+        /* Media source paths.
+         *
+         * Bundled media is referenced relative to the page it appears on — page.php emits
+         * art:url as '<asset_root>media/<file>' — so that the export works from any
+         * directory, any host, or from disk over file://.
+         *
+         * jQuery.MediaElementModel.init() then resolves that value the one way a live Scalar
+         * never has to think about:
+         *
+         *     this.path = (this.path.indexOf('://') == -1)
+         *         ? scalarapi.model.urlPrefix + this.path : this.path;
+         *
+         * On the live site a media path is either storage-relative to the book root or
+         * already absolute, so prefixing the book URL is right. Here it turns
+         * '../media/x.jpg' into '<original book URL>/../media/x.jpg' — a request aimed at
+         * the site the export was taken from, for a file that isn't there. Every self-hosted
+         * image, video and audio file fails this way; third-party media is unaffected because
+         * it already carries a scheme.
+         *
+         * The fix belongs on ScalarVersion.sourceFile rather than on the links or on
+         * model.path, because sourceFile is what actually reaches the player:
+         * MediaElementController.handleMetadata() overwrites model.path with
+         * node.current.sourceFile before handing off to the view, so anything corrected
+         * earlier in the chain is thrown away a moment later. It is also the value
+         * scalarpage.jquery.js writes into media links and then compares those links back
+         * against when it re-lays out a page (see the "inline media (subsequent, after page
+         * resize)" branch) — so moving both sides at once, by changing sourceFile itself,
+         * keeps those comparisons matching, which rewriting the hrefs alone would not.
+         *
+         * Unlike the per-instance prototypes inside jquery.mediaelement.js, this one is
+         * declared once at the top level of scalarapi.js, so a single wrapper holds. The
+         * space/'#' escaping mirrors what parseData() itself applies to sourceFile, done
+         * before resolution so a '#' in a filename can't be read as a fragment. */
+        if (typeof ScalarVersion !== 'undefined') {
+            var _originalVersionParseData = ScalarVersion.prototype.parseData;
+            ScalarVersion.prototype.parseData = function (data, node) {
+                _originalVersionParseData.call(this, data, node);
+                var src = this.sourceFile;
+                if (typeof src === 'string' && src !== '' &&
+                    src.charAt(0) !== '#' && !/^[a-z][a-z0-9+.-]*:/i.test(src)) {
+                    try {
+                        this.sourceFile = new URL(
+                            src.replace(/ /g, '%20').replace(/#/g, '%23'),
+                            document.baseURI).href;
+                    } catch (e) { /* unparseable — leave it for Scalar to handle */ }
+                }
+            };
+        }
+
+        /* Citations tab double-open fix.
+         *
+         * scalarmedia.jquery.js builds each media tab as an <input type="radio"> plus its
+         * <label>, keeps both in one jQuery set, and binds the tab's behaviour to the set:
+         *
+         *     var detailsTab = $('<input … id="detailsTab"><label for="detailsTab">Citations</label>')
+         *     detailsTab.on('click', function () { media.options['details'].show(node, …) })
+         *
+         * Clicking the label fires that handler once for the label, and again for the click
+         * the browser forwards to the radio it labels — so the handler runs twice per click.
+         * For every other tab that is harmless, because they all call showTab(), which is
+         * idempotent. The Citations tab is the exception: showMedia() appends a fresh
+         * .manual_slideshow to the dialog every time and only ever clears it from hide(), so
+         * the second call lays a second copy of the panel over the first. .manual_slideshow
+         * is `position:absolute; top:0; width:100%; height:100%`, so that second copy covers
+         * the one the reader is looking at and swallows every click aimed at it — the panel
+         * renders correctly and then responds to nothing.
+         *
+         * Dropping the label's copy of the handler leaves the radio's, which the label still
+         * activates on click and which keyboard activation fires too, so nothing is lost.
+         *
+         * This is a bug in Scalar's own JS, not something the export introduces — the same
+         * double-fire happens on a live server. What the export changes is only how it
+         * presents: the loadNode() patch above resolves metadata on a timer rather than over
+         * the network, fast enough that the callback can land between the two clicks, which
+         * lets the second call rebuild the sidebar as well as the slideshow. Fixing it here
+         * rather than in scalarmedia.jquery.js keeps the live site's behaviour untouched. */
+        if (typeof $.scalarmedia === 'function') {
+            var _originalScalarmedia = $.scalarmedia;
+            $.scalarmedia = function (m, e, options) {
+                var result = _originalScalarmedia.apply(this, arguments);
+                $(e).find('.media_tabs label[for="detailsTab"]').off('click');
+                return result;
+            };
+        }
+
+        /* getFileExtension() vs. the home page's filename.
+         *
+         * scalarpage.addMediaElements() reads a URL extension off the current address and
+         * routes on it — 'edit', 'meta', 'annotation_editor', each with its own branch, and
+         * '' for an ordinary page. Only that last branch builds media: it is where inline
+         * media links become players, where the media info tabs (Description / Details /
+         * Citations / Source file) are attached, and where page.mediaDetails — the Citations
+         * dialog itself — is constructed.
+         *
+         * On a live Scalar every page address is extensionless, so '' is the normal case.
+         * The export's home page is not: it is written to the root as index.html, and linked
+         * that way on purpose, so the link still resolves when the export is opened from disk
+         * over file:// where no server supplies a directory index (see _slug_target() in
+         * static_export_model.php and slugTarget() above). getFileExtension() reads that
+         * filename and reports 'html', no branch matches, and the home page silently ends up
+         * with no media at all — no players, no tabs, no dialog. The same applies to any page
+         * reached as <slug>/index.html rather than <slug>/.
+         *
+         * Special-casing that one filename is narrow enough to be safe: the method is also
+         * used to sniff real media files (jquery.mediaelement.js's format detection,
+         * scalarmedia's .vtt check), and none of those is ever named index.html. */
+        if (typeof ScalarAPI !== 'undefined') {
+            var _originalGetFileExtension = ScalarAPI.prototype.getFileExtension;
+            ScalarAPI.prototype.getFileExtension = function (uri) {
+                if (typeof uri === 'string' &&
+                    uri.split('?')[0].split('#')[0].slice(-11) === '/index.html') return '';
+                return _originalGetFileExtension.apply(this, arguments);
+            };
+        }
+
         /* Main menu "Home" link and Table of Contents fixes.
          *
          * scalarheader.jquery.js builds the Table of Contents dropdown's Home item from
@@ -527,15 +795,9 @@
          *     at the export's own directories.
          *
          *   - That slide-out panel is filled by expandMenu() from a scalarapi.loadPage()
-         *     success callback. The callback reads only from scalarapi.model and never
-         *     touches the response, so the data it needs is already in hand — but the
-         *     loadNode()/loadPage() patch above resolves from cache and returns 'loaded'
-         *     without ever invoking it, leaving the panel stuck on its spinner. That patch
-         *     can't simply start firing callbacks: callers like jquery.mediaelement.js's
-         *     loadMetadata() use the `if (loadNode(…, cb) == 'loaded') cb()` idiom and
-         *     would run theirs twice. So expandMenu is wrapped instead, swapping in a
-         *     callback-firing loadPage for the duration of its own call — safe because
-         *     expandMenu makes that call synchronously, as its last statement.
+         *     success callback — one of the callback-only callers the loadNode()/loadPage()
+         *     patch above now serves, so it fills itself and the links it builds are
+         *     repointed by the MutationObserver when they land.
          *
          * Like the colophon fix above, this runs on the already-built DOM: base.init() is
          * called from $.scalarheader's constructor body, so the header is fully rendered
@@ -556,29 +818,6 @@
                     var query = q === -1 ? '' : href.slice(q);
                     homeLink.setAttribute('href', exportRoot() + 'index.html' + query);
                 }
-
-                var _originalExpandMenu = header.expandMenu;
-                header.expandMenu = function () {
-                    var _originalLoadPage = scalarapi.loadPage;
-                    var _originalLoadNode = scalarapi.loadNode;
-
-                    scalarapi.loadPage = scalarapi.loadNode = function (uriSegment, forceReload, successCallback) {
-                        if (typeof successCallback === 'function') successCallback();
-                        // 'queued', not 'loaded': the callback has already run, and
-                        // 'loaded' invites `== 'loaded'` callers to run theirs again.
-                        return 'queued';
-                    };
-
-                    try {
-                        return _originalExpandMenu.apply(this, arguments);
-                    } finally {
-                        scalarapi.loadPage = _originalLoadPage;
-                        scalarapi.loadNode = _originalLoadNode;
-                        // The panel (desktop) or its mobile equivalent now exists, with
-                        // its "Visit page" and relationship links built from node URLs.
-                        rewriteNodeLinks('#mainMenuSubmenus, #mobileMainMenuSubmenus');
-                    }
-                };
 
                 return header;
             };
