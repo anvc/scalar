@@ -145,7 +145,7 @@ class Static_Export_Model extends MY_Model {
 			// own, so it sits one level shallower than every other page and its relative
 			// paths differ accordingly.
 			$is_root_page = ($slug === 'index');
-			$asset_root   = $is_root_page ? './' : '../';
+			$asset_root   = $is_root_page ? './' : self::_asset_root($slug);
 			$page_dir     = $tmp_dir . '/' . $slug;
 			$out_file     = $is_root_page ? $tmp_dir . '/index.html' : $page_dir . '/index.html';
 
@@ -189,7 +189,7 @@ class Static_Export_Model extends MY_Model {
 				continue;
 			}
 
-			$html = $this->_render_content_view($CI, $item, $book_data, '../', $book_url, $slug, $errors);
+			$html = $this->_render_content_view($CI, $item, $book_data, self::_asset_root($slug), $book_url, $slug, $errors);
 			if ($html === null) continue;
 
 			if (file_put_contents($page_dir . '/index.html', $html) === false) {
@@ -277,10 +277,10 @@ class Static_Export_Model extends MY_Model {
 	 * the URL, which for a directory-style static host is "index.html" (or empty), never
 	 * literally "meta".
 	 *
-	 * Lives at the same directory depth as <slug>/index.html (a sibling directory), so it's
-	 * always reachable with the same '../' asset_root already used to render that page —
-	 * including from the root index.html duplicate, whose own '../'-relative-to-'./' asset
-	 * root still resolves to the same physical file.
+	 * Lives at the same directory depth as <slug>/index.html (a sibling directory), so it
+	 * takes the same _asset_root() as that page. The home page is the one place the two
+	 * differ: it is rendered at the export root with './', but its index.meta/ is a real
+	 * directory and needs '../'.
 	 */
 	private function _write_meta_page($CI, $item, $book_data, $tmp_dir, $book_url, $slug, &$errors) {
 
@@ -293,11 +293,16 @@ class Static_Export_Model extends MY_Model {
 
 		$is_media = isset($book_data['media'][$slug]);
 
+		// <slug>.meta/ is a sibling of <slug>/, so it sits at the same depth and shares
+		// that page's asset root — including for the home page, which is rendered at the
+		// export root with './' but whose index.meta/ still needs '../'.
+		$asset_root = self::_asset_root($slug);
+
 		$meta_item              = $item;
-		$meta_item['body']      = $this->_build_meta_page_body($item, $is_media, '../');
+		$meta_item['body']      = $this->_build_meta_page_body($item, $is_media, $asset_root);
 		$meta_item['isMetaView'] = true;
 
-		$html = $this->_render_content_view($CI, $meta_item, $book_data, '../', $book_url, 'meta:' . $slug, $errors);
+		$html = $this->_render_content_view($CI, $meta_item, $book_data, $asset_root, $book_url, 'meta:' . $slug, $errors);
 		if ($html === null) return;
 
 		if (file_put_contents($meta_dir . '/index.html', $html) === false) {
@@ -684,9 +689,11 @@ class Static_Export_Model extends MY_Model {
 	 * Rewrite href attributes in body HTML that point to this book's live URL
 	 * into relative paths that work in the static export.
 	 *
-	 * All content pages live at <export-root>/<slug>/index.html, so the
-	 * relative prefix from any slug page to any other slug is '../'.
-	 * The root index.html sits at the export root, so its prefix is './'.
+	 * All content pages live at <export-root>/<slug>/index.html, so the caller passes in
+	 * that page's own prefix back to the export root — see _asset_root(), which counts the
+	 * slug's path segments rather than assuming one ('../' for 'introduction', '../../' for
+	 * a media item at 'media/cover-art'). The root index.html sits at the export root
+	 * itself, so its prefix is './'.
 	 *
 	 * The home page is the exception: it is written to <export-root>/index.html with no
 	 * directory of its own (see render_book()), so links to the 'index' slug resolve to
@@ -703,8 +710,8 @@ class Static_Export_Model extends MY_Model {
 	 * @param  array  $media       $book_data['media'] — used to redirect inline media hrefs.
 	 * @param  string $book_url    Live Scalar base URL for this book, trailing slash included.
 	 *                             e.g. 'https://scalar.usc.edu/works/mybook/'
-	 * @param  string $asset_root  Relative path from this page's directory to the export root.
-	 *                             '../' for slug pages, './' for the root index.
+	 * @param  string $asset_root  Relative path from this page's directory to the export root,
+	 *                             as returned by _asset_root(); './' for the root index.
 	 * @return string              HTML with internal hrefs rewritten.
 	 */
 	private function _rewrite_links($html, array $media, $book_url, $asset_root = '../') {
@@ -785,6 +792,29 @@ class Static_Export_Model extends MY_Model {
 		if ($slug === '' || $slug === 'index') return 'index.html';
 
 		return $slug . '/';
+
+	}
+
+	/**
+	 * The relative path back to the export root from a page written at <slug>/index.html,
+	 * or from that page's <slug>.meta/ sibling — one '../' per path segment in the slug.
+	 *
+	 * Most slugs are a single segment, so this is usually '../'. Media slugs are not:
+	 * Scalar names an uploaded item 'media/<filename>', which puts its permalink page at
+	 * <export-root>/media/<filename>/index.html, two directories down. Assuming '../' there
+	 * pointed every stylesheet, script and media reference on those pages one level short
+	 * of the export root — at media/system/application/... rather than system/application/...
+	 * — so media permalink and .meta pages loaded no CSS and no JS at all.
+	 *
+	 * The home page is the one page this does not describe: render_book() writes it to the
+	 * export root itself rather than into a directory, so it passes './' directly.
+	 *
+	 * @param  string $slug  Page or media slug, e.g. 'introduction' or 'media/cover-art'
+	 * @return string        Relative prefix ending in '/', e.g. '../' or '../../'
+	 */
+	private static function _asset_root($slug) {
+
+		return str_repeat('../', substr_count(trim($slug, '/'), '/') + 1);
 
 	}
 
