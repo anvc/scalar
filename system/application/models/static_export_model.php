@@ -362,13 +362,19 @@ class Static_Export_Model extends MY_Model {
 				'art:url',
 				'<a href="' . htmlspecialchars($source_href) . '">' . htmlspecialchars($source_href) . '</a>'
 			);
-			if (!empty($item['thumbnail'])) {
-				$html .= $this->_meta_table_row(
-					'thumbnail',
-					'art:thumbnail',
-					'<a href="' . htmlspecialchars($item['thumbnail']) . '">' . htmlspecialchars($item['thumbnail']) . '</a>'
-				);
-			}
+		}
+
+		// Outside the $is_media branch: Scalar stores the thumbnail on the content row, so a
+		// page can carry one too. The raw stored value is a path relative to the book root,
+		// not to this page, so linking it verbatim (as this row used to) produced a dead link
+		// that the bridge's node-link rewriting then mistook for a page slug.
+		$thumb_href = self::_thumbnail_href($item, $asset_root);
+		if ($thumb_href !== null) {
+			$html .= $this->_meta_table_row(
+				'thumbnail',
+				'art:thumbnail',
+				'<a href="' . htmlspecialchars($thumb_href) . '">' . htmlspecialchars($thumb_href) . '</a>'
+			);
 		}
 
 		foreach ((isset($item['additionalMetadata']) ? $item['additionalMetadata'] : array()) as $predicate => $values) {
@@ -642,6 +648,8 @@ class Static_Export_Model extends MY_Model {
 			'created'            => !empty($version->created) ? date('c', strtotime($version->created)) : null,
 			'modified'           => !empty($version->created) ? date('c', strtotime($version->created)) : null,
 			'thumbnail'          => !empty($content->thumbnail) ? $content->thumbnail : null,
+			'thumbnailUrl'       => abs_url($content->thumbnail, $base_uri),
+			'localThumbnail'     => null,   // populated by _copy_media_files() for self-hosted thumbnails
 			// The version number this export was taken at — NOT a link to the older versions
 			// themselves (those are dropped, per CLAUDE.md). Surfacing just the count lets the
 			// "Scalar URL (version N)" metadata-table row read correctly and gives readers a
@@ -672,7 +680,13 @@ class Static_Export_Model extends MY_Model {
 			'localPath'          => null,   // populated by _copy_media_files() for self-hosted media
 			'isExternal'         => $is_external,
 			'rawUrl'             => $is_external ? null : $raw_url,   // storage-relative; used only to locate the file on disk
+			// Thumbnails mirror the sourceUrl/localPath/rawUrl trio above: 'thumbnail' is the
+			// raw stored value (storage-relative for an uploaded thumb, a full URL for a
+			// third-party one) and is only used to find the file on disk; 'thumbnailUrl' is
+			// the live absolute address to fall back on; 'localThumbnail' is the bundled copy.
 			'thumbnail'          => !empty($content->thumbnail) ? $content->thumbnail : null,
+			'thumbnailUrl'       => abs_url($content->thumbnail, $base_uri),
+			'localThumbnail'     => null,   // populated by _copy_media_files()
 			'created'            => !empty($version->created) ? date('c', strtotime($version->created)) : null,
 			'versionNumber'      => isset($version->version_num) ? (int) $version->version_num : null,
 			'annotations'        => array(),
@@ -815,6 +829,25 @@ class Static_Export_Model extends MY_Model {
 	private static function _asset_root($slug) {
 
 		return str_repeat('../', substr_count(trim($slug, '/'), '/') + 1);
+
+	}
+
+	/**
+	 * Where a content item's thumbnail lives, as seen from a page rendered with $asset_root:
+	 * the bundled copy when _copy_media_files() managed to make one, otherwise the live
+	 * absolute URL so the image degrades to a remote fetch rather than a broken link (the
+	 * fail-gracefully rule in docs/media-strategy.md). Null when the item has no thumbnail.
+	 *
+	 * @param  array  $item        Normalized page or media entry
+	 * @param  string $asset_root  Relative path from the rendering page to the export root
+	 * @return string|null
+	 */
+	private static function _thumbnail_href(array $item, $asset_root) {
+
+		if (!empty($item['localThumbnail'])) return $asset_root . $item['localThumbnail'];
+		if (!empty($item['thumbnailUrl']))   return $item['thumbnailUrl'];
+
+		return null;
 
 	}
 
@@ -1079,7 +1112,9 @@ class Static_Export_Model extends MY_Model {
 	/**
 	 * Copy self-hosted media files into the export, and set each copied item's 'localPath'
 	 * (relative to the export root) so page rendering can link to the bundled copy instead
-	 * of the live server. Mutates $book_data['media'] in place.
+	 * of the live server. Thumbnails are bundled the same way, into 'localThumbnail', for
+	 * every content item that has one — pages as well as media. Mutates $book_data['pages']
+	 * and $book_data['media'] in place.
 	 *
 	 * Each file is written to <tmp_dir>/<slug>.<ext> — i.e. it mirrors the slug's own path
 	 * exactly the way render_book() already does for that item's own permalink directory
@@ -1103,16 +1138,13 @@ class Static_Export_Model extends MY_Model {
 	 * @param  array  &$book_data  Full normalized structure from get_book_data(); mutated.
 	 * @param  string $tmp_dir     Absolute path to the export temp directory (no trailing slash)
 	 * @param  array  &$errors     Errors array from render_book(); populated on failure
-	 * @return array               ['filesCopied' => int, 'bytesCopied' => int]
+	 * @return array               ['filesCopied' => int, 'bytesCopied' => int] — media and
+	 *                             thumbnails together, which is what the size warning measures
 	 */
 	private function _copy_media_files(&$book_data, $tmp_dir, &$errors) {
 
 		$files_copied = 0;
 		$bytes_copied = 0;
-
-		if (empty($book_data['media'])) {
-			return array('filesCopied' => 0, 'bytesCopied' => 0);
-		}
 
 		$book_slug = $book_data['meta']['slug'];
 		$src_base  = rtrim(FCPATH, '/') . '/' . $book_slug . '/';
@@ -1148,6 +1180,51 @@ class Static_Export_Model extends MY_Model {
 
 		}
 		unset($item);
+
+		// Thumbnails. Not part of the loop above for two reasons: any content item can carry
+		// one, pages included (Scalar stores it on the content row, not the version), and an
+		// item whose media lives on a third-party server can still have an uploaded thumbnail
+		// of its own — so locality has to be judged per file rather than per item.
+		foreach (array('pages', 'media') as $collection) {
+
+			foreach ($book_data[$collection] as $slug => &$item) {
+
+				$thumb = isset($item['thumbnail']) ? trim($item['thumbnail']) : '';
+
+				if ($thumb === '' || isURL($thumb)) continue;   // none, or hosted elsewhere
+
+				$src = $src_base . $thumb;
+
+				if (!is_file($src)) {
+					$errors['thumbnail:' . $slug] = 'Thumbnail file not found on disk: ' . $thumb;
+					continue;
+				}
+
+				// '<slug>.thumb.<ext>', mirroring the '<slug>.<ext>' convention above: it can
+				// collide with neither the item's permalink directory (exactly <slug>) nor its
+				// bundled media file (<slug>.<ext>, since 'thumb' is never a real extension).
+				$ext        = pathinfo($thumb, PATHINFO_EXTENSION);
+				$local_path = $slug . '.thumb.' . ($ext !== '' ? $ext : 'bin');
+				$dest       = $tmp_dir . '/' . $local_path;
+				$dest_dir   = dirname($dest);
+
+				if (!is_dir($dest_dir) && !mkdir($dest_dir, 0755, true)) {
+					$errors['thumbnail:' . $slug] = 'Could not create thumbnail directory';
+					continue;
+				}
+
+				if (copy($src, $dest)) {
+					$item['localThumbnail'] = $local_path;
+					$bytes_copied          += filesize($dest);
+					$files_copied++;
+				} else {
+					$errors['thumbnail:' . $slug] = 'Could not copy thumbnail file: ' . $thumb;
+				}
+
+			}
+			unset($item);
+
+		}
 
 		if ($bytes_copied > self::MEDIA_SIZE_WARNING_BYTES) {
 			$errors['media:size-warning'] = sprintf(

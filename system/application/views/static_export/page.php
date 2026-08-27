@@ -27,7 +27,7 @@ $is_meta_view     = !empty($page['isMetaView']);
 $assets = $asset_root . 'system/application/';
 
 // Emits the RDFa a Media node's Version span needs so jquery.mediaelement.js can render it
-// without a live API call: source file (required), thumbnail, and the couple of auxProperties
+// without a live API call: source file (required) and the couple of auxProperties
 // (dcterms:accessRights, dcterms:type) it reads for content warnings / audio chrome. A closure
 // (not a top-level function) because this template is included once per rendered page.
 $emit_media_rdfa = function ($media_item) use ($asset_root) {
@@ -38,9 +38,6 @@ $emit_media_rdfa = function ($media_item) use ($asset_root) {
 			: $media_item['sourceUrl'];
 		$out .= "\t\t\t" . '<span class="metadata" property="art:url">' . htmlspecialchars($source_href) . '</span>' . "\n";
 	}
-	if (!empty($media_item['thumbnail'])) {
-		$out .= "\t\t\t" . '<span class="metadata" property="art:thumbnail">' . htmlspecialchars($media_item['thumbnail']) . '</span>' . "\n";
-	}
 	$meta_props = isset($media_item['additionalMetadata']) ? $media_item['additionalMetadata'] : array();
 	if (!empty($meta_props['http://purl.org/dc/terms/accessRights'][0]['value'])) {
 		$out .= "\t\t\t" . '<span class="metadata" property="dcterms:accessRights">' . htmlspecialchars($meta_props['http://purl.org/dc/terms/accessRights'][0]['value']) . '</span>' . "\n";
@@ -49,6 +46,31 @@ $emit_media_rdfa = function ($media_item) use ($asset_root) {
 		$out .= "\t\t\t" . '<span class="metadata" property="dcterms:type">' . htmlspecialchars($meta_props['http://purl.org/dc/terms/type'][0]['value']) . '</span>' . "\n";
 	}
 	return $out;
+};
+
+// Emits the RDFa that belongs to the *node* rather than to one of its versions. Only
+// art:thumbnail so far, but the distinction matters: Scalar stores the thumbnail on the
+// content row, so the live API reports it as a node property and every consumer reads it
+// that way — ScalarNode.thumbnail and getAbsoluteThumbnailURL(), which the Index modal, the
+// structured gallery, path-navigation previews and video poster frames all go through.
+// Emitting it on the Version span (as this template first did) left node.thumbnail null and
+// every one of those fell back to the generic media icon.
+//
+// Any content item can have one, pages included — hence not folded into $emit_media_rdfa.
+// The path is resolved the same way art:url is: the bundled copy when _copy_media_files()
+// made one, otherwise the live absolute URL so the image degrades to a remote fetch instead
+// of a broken link. (Mirrors _thumbnail_href() in static_export_model.php, which does the
+// same job for the .meta pages.)
+$emit_node_rdfa = function ($item) use ($asset_root) {
+	$href = null;
+	if (!empty($item['localThumbnail'])) {
+		$href = $asset_root . $item['localThumbnail'];
+	} elseif (!empty($item['thumbnailUrl'])) {
+		$href = $item['thumbnailUrl'];
+	}
+	if ($href === null) return '';
+
+	return "\t\t\t" . '<span class="metadata" property="art:thumbnail">' . htmlspecialchars($href) . '</span>' . "\n";
 };
 
 echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
@@ -177,6 +199,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 			<a class="metadata" tabindex="-1" rel="dcterms:hasVersion" href="<?= $ver_url ?>"></a>
 			<a class="metadata" tabindex="-1" rel="dcterms:isPartOf"
 			   href="<?= htmlspecialchars(rtrim($book_url, '/')) ?>"></a>
+<?= $emit_node_rdfa($other_page) ?>
 		</span>
 		<span inert resource="<?= $ver_url ?>" typeof="scalar:Version">
 			<span class="metadata" property="dcterms:title"><?= htmlspecialchars($other_page['title']) ?></span>
@@ -201,6 +224,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 			   href="<?= htmlspecialchars($book_url . $slug . '.1') ?>"></a>
 			<a class="metadata" inert rel="dcterms:isPartOf"
 			   href="<?= htmlspecialchars(rtrim($book_url, '/')) ?>"></a>
+<?= $emit_node_rdfa($page) ?>
 		</span>
 		<span resource="<?= htmlspecialchars($book_url . $slug . '.1') ?>" typeof="scalar:Version">
 			<a class="metadata" inert rel="dcterms:isVersionOf"

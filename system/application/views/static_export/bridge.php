@@ -688,19 +688,54 @@
          * declared once at the top level of scalarapi.js, so a single wrapper holds. The
          * space/'#' escaping mirrors what parseData() itself applies to sourceFile, done
          * before resolution so a '#' in a filename can't be read as a fragment. */
+        /* Resolve one of those page-relative media paths to an absolute URL, the way the
+         * browser would resolve the same value in an href. Returns the value untouched if it
+         * already carries a scheme, is a bare fragment, or won't parse. The space/'#'
+         * escaping mirrors what scalarapi applies to sourceFile itself, done before
+         * resolution so a '#' in a filename can't be read as a fragment. */
+        function resolveAgainstPage(value) {
+            if (typeof value !== 'string' || value === '') return value;
+            if (value.charAt(0) === '#') return value;
+            if (/^[a-z][a-z0-9+.-]*:/i.test(value)) return value;
+            try {
+                return new URL(value.replace(/ /g, '%20').replace(/#/g, '%23'),
+                               document.baseURI).href;
+            } catch (e) {
+                return value;   // unparseable — leave it for Scalar to handle
+            }
+        }
+
         if (typeof ScalarVersion !== 'undefined') {
             var _originalVersionParseData = ScalarVersion.prototype.parseData;
             ScalarVersion.prototype.parseData = function (data, node) {
                 _originalVersionParseData.call(this, data, node);
-                var src = this.sourceFile;
-                if (typeof src === 'string' && src !== '' &&
-                    src.charAt(0) !== '#' && !/^[a-z][a-z0-9+.-]*:/i.test(src)) {
-                    try {
-                        this.sourceFile = new URL(
-                            src.replace(/ /g, '%20').replace(/#/g, '%23'),
-                            document.baseURI).href;
-                    } catch (e) { /* unparseable — leave it for Scalar to handle */ }
-                }
+                this.sourceFile = resolveAgainstPage(this.sourceFile);
+            };
+        }
+
+        /* Thumbnails take the same wrong turn, one method further along.
+         *
+         * page.php emits art:thumbnail as a path relative to the page (see $emit_node_rdfa),
+         * for the same portability reason art:url is relative. ScalarNode keeps that value
+         * verbatim, and getAbsoluteThumbnailURL() — which the Index modal, the structured
+         * gallery, path-navigation previews and video poster frames all call — makes it
+         * absolute the only way a live Scalar ever needs to:
+         *
+         *     if (url.indexOf('://') == -1) url = scalarapi.model.urlPrefix + url;
+         *
+         * which aims the request at the site the export was taken from. Resolving against the
+         * page instead gives the bundled copy. Third-party thumbnails already carry a scheme
+         * and are returned untouched, exactly as before.
+         *
+         * Wrapping the accessor rather than the parse step, because it is the single funnel
+         * every consumer goes through, and because leaving node.thumbnail as the raw relative
+         * value keeps the truthiness checks those consumers guard with ('if (node.thumbnail)')
+         * reading the same as they do on a live server. */
+        if (typeof ScalarNode !== 'undefined') {
+            var _originalAbsoluteThumbnailURL = ScalarNode.prototype.getAbsoluteThumbnailURL;
+            ScalarNode.prototype.getAbsoluteThumbnailURL = function () {
+                var url = _originalAbsoluteThumbnailURL.apply(this, arguments);
+                return (url === null) ? null : resolveAgainstPage(this.thumbnail);
             };
         }
 
