@@ -364,16 +364,23 @@ class Static_Export_Model extends MY_Model {
 			);
 		}
 
-		// Outside the $is_media branch: Scalar stores the thumbnail on the content row, so a
-		// page can carry one too. The raw stored value is a path relative to the book root,
-		// not to this page, so linking it verbatim (as this row used to) produced a dead link
-		// that the bridge's node-link rewriting then mistook for a page slug.
-		$thumb_href = self::_thumbnail_href($item, $asset_root);
-		if ($thumb_href !== null) {
+		// Outside the $is_media branch: Scalar stores these on the content row, so a page can
+		// carry them too. Each raw stored value is a path relative to the book root, not to
+		// this page, so linking it verbatim (as the thumbnail row used to) produced a dead
+		// link that the bridge's node-link rewriting then mistook for a page slug.
+		$aux_predicates = array(
+			'thumbnail'  => 'art:thumbnail',
+			'banner'     => 'scalar:banner',
+			'background' => 'scalar:background',
+		);
+
+		foreach ($aux_predicates as $field => $predicate) {
+			$href = self::_aux_image_href($item, $field, $asset_root);
+			if ($href === null) continue;
 			$html .= $this->_meta_table_row(
-				'thumbnail',
-				'art:thumbnail',
-				'<a href="' . htmlspecialchars($thumb_href) . '">' . htmlspecialchars($thumb_href) . '</a>'
+				$field,
+				$predicate,
+				'<a href="' . htmlspecialchars($href) . '">' . htmlspecialchars($href) . '</a>'
 			);
 		}
 
@@ -431,12 +438,19 @@ class Static_Export_Model extends MY_Model {
 		$CI =& get_instance();
 		$scalar_version = trim($CI->load->view('scalar-version', array(), true));
 
+		// The book's background is the fallback <body> background image for every page that
+		// doesn't set one of its own — the same precedence the live wrapper.php applies.
+		$background = !empty($book->background) ? trim($book->background) : null;
+
 		return array(
-			'title'        => strip_tags($book->title),
-			'slug'         => $book->slug,
-			'description'  => isset($book->description) ? $book->description : '',
-			'exportDate'   => date('c'),
-			'scalarVersion'=> $scalar_version ?: '2.x',
+			'title'          => strip_tags($book->title),
+			'slug'           => $book->slug,
+			'description'    => isset($book->description) ? $book->description : '',
+			'exportDate'     => date('c'),
+			'scalarVersion'  => $scalar_version ?: '2.x',
+			'background'     => $background,
+			'backgroundUrl'  => abs_url($background, confirm_slash(base_url()) . confirm_slash($book->slug)),
+			'localBackground'=> null,   // populated by _copy_media_files()
 		);
 
 	}
@@ -647,16 +661,13 @@ class Static_Export_Model extends MY_Model {
 			'layout'             => !empty($version->default_view) ? $version->default_view : 'plain',
 			'created'            => !empty($version->created) ? date('c', strtotime($version->created)) : null,
 			'modified'           => !empty($version->created) ? date('c', strtotime($version->created)) : null,
-			'thumbnail'          => !empty($content->thumbnail) ? $content->thumbnail : null,
-			'thumbnailUrl'       => abs_url($content->thumbnail, $base_uri),
-			'localThumbnail'     => null,   // populated by _copy_media_files() for self-hosted thumbnails
 			// The version number this export was taken at — NOT a link to the older versions
 			// themselves (those are dropped, per CLAUDE.md). Surfacing just the count lets the
 			// "Scalar URL (version N)" metadata-table row read correctly and gives readers a
 			// sense of how much a page was revised, without exporting the revision history itself.
 			'versionNumber'      => isset($version->version_num) ? (int) $version->version_num : null,
 			'additionalMetadata' => $arc_meta,
-		);
+		) + $this->_aux_images($content, $base_uri);   // thumbnail / banner / background
 
 	}
 
@@ -680,18 +691,40 @@ class Static_Export_Model extends MY_Model {
 			'localPath'          => null,   // populated by _copy_media_files() for self-hosted media
 			'isExternal'         => $is_external,
 			'rawUrl'             => $is_external ? null : $raw_url,   // storage-relative; used only to locate the file on disk
-			// Thumbnails mirror the sourceUrl/localPath/rawUrl trio above: 'thumbnail' is the
-			// raw stored value (storage-relative for an uploaded thumb, a full URL for a
-			// third-party one) and is only used to find the file on disk; 'thumbnailUrl' is
-			// the live absolute address to fall back on; 'localThumbnail' is the bundled copy.
-			'thumbnail'          => !empty($content->thumbnail) ? $content->thumbnail : null,
-			'thumbnailUrl'       => abs_url($content->thumbnail, $base_uri),
-			'localThumbnail'     => null,   // populated by _copy_media_files()
 			'created'            => !empty($version->created) ? date('c', strtotime($version->created)) : null,
 			'versionNumber'      => isset($version->version_num) ? (int) $version->version_num : null,
 			'annotations'        => array(),
 			'additionalMetadata' => $arc_meta,
-		);
+		) + $this->_aux_images($content, $base_uri);   // thumbnail / banner / background
+
+	}
+
+	/**
+	 * The thumbnail / banner / background trio every content row carries, each normalized the
+	 * same way the media file itself is (see _normalize_media's sourceUrl/localPath/rawUrl):
+	 *
+	 *   <field>          the raw stored value — storage-relative for an uploaded image, a full
+	 *                    URL for one hosted elsewhere. Only used to find the file on disk.
+	 *   <field>Url       the live absolute address, to fall back on when bundling didn't happen.
+	 *   local<Field>     the bundled copy, relative to the export root; filled in by
+	 *                    _copy_media_files().
+	 *
+	 * Scalar stores all three on the content row rather than the version, so pages carry them
+	 * as well as media items — a page's banner drives the splash and image-header layouts, and
+	 * its background becomes the <body> background image.
+	 */
+	private function _aux_images($content, $base_uri) {
+
+		$out = array();
+
+		foreach (array('thumbnail', 'banner', 'background') as $field) {
+			$raw = !empty($content->$field) ? trim($content->$field) : null;
+			$out[$field]                    = $raw;
+			$out[$field . 'Url']            = abs_url($raw, $base_uri);
+			$out['local' . ucfirst($field)] = null;
+		}
+
+		return $out;
 
 	}
 
@@ -833,19 +866,24 @@ class Static_Export_Model extends MY_Model {
 	}
 
 	/**
-	 * Where a content item's thumbnail lives, as seen from a page rendered with $asset_root:
-	 * the bundled copy when _copy_media_files() managed to make one, otherwise the live
-	 * absolute URL so the image degrades to a remote fetch rather than a broken link (the
-	 * fail-gracefully rule in docs/media-strategy.md). Null when the item has no thumbnail.
+	 * Where one of a content item's auxiliary images lives, as seen from a page rendered with
+	 * $asset_root: the bundled copy when _copy_media_files() managed to make one, otherwise the
+	 * live absolute URL so the image degrades to a remote fetch rather than a broken link (the
+	 * fail-gracefully rule in docs/media-strategy.md). Null when the item has no such image.
 	 *
-	 * @param  array  $item        Normalized page or media entry
+	 * Also serves $book_data['meta'], which carries the book's own 'background' trio.
+	 *
+	 * @param  array  $item        Normalized page/media entry, or the meta block
+	 * @param  string $field       'thumbnail', 'banner' or 'background'
 	 * @param  string $asset_root  Relative path from the rendering page to the export root
 	 * @return string|null
 	 */
-	private static function _thumbnail_href(array $item, $asset_root) {
+	private static function _aux_image_href(array $item, $field, $asset_root) {
 
-		if (!empty($item['localThumbnail'])) return $asset_root . $item['localThumbnail'];
-		if (!empty($item['thumbnailUrl']))   return $item['thumbnailUrl'];
+		$local = 'local' . ucfirst($field);
+
+		if (!empty($item[$local]))            return $asset_root . $item[$local];
+		if (!empty($item[$field . 'Url']))    return $item[$field . 'Url'];
 
 		return null;
 
@@ -1181,50 +1219,40 @@ class Static_Export_Model extends MY_Model {
 		}
 		unset($item);
 
-		// Thumbnails. Not part of the loop above for two reasons: any content item can carry
-		// one, pages included (Scalar stores it on the content row, not the version), and an
-		// item whose media lives on a third-party server can still have an uploaded thumbnail
-		// of its own — so locality has to be judged per file rather than per item.
+		// Auxiliary images — thumbnails, banners and backgrounds. Not part of the loop above
+		// for two reasons: any content item can carry them, pages included (Scalar stores all
+		// three on the content row, not the version), and an item whose media lives on a
+		// third-party server can still have its own uploaded thumbnail — so locality has to be
+		// judged per file rather than per item.
+		//
+		// Each lands at '<slug>.<suffix>.<ext>', mirroring the '<slug>.<ext>' convention above:
+		// that can collide with neither the item's permalink directory (exactly <slug>) nor its
+		// bundled media file, since none of the suffixes is a real file extension.
+		$aux_images = array('thumbnail' => 'thumb', 'banner' => 'banner', 'background' => 'background');
+
 		foreach (array('pages', 'media') as $collection) {
 
 			foreach ($book_data[$collection] as $slug => &$item) {
+				foreach ($aux_images as $field => $suffix) {
+					$local_path = $this->_copy_aux_image(
+						isset($item[$field]) ? $item[$field] : null,
+						$src_base, $tmp_dir, $slug . '.' . $suffix,
+						$field . ':' . $slug, $errors, $files_copied, $bytes_copied);
 
-				$thumb = isset($item['thumbnail']) ? trim($item['thumbnail']) : '';
-
-				if ($thumb === '' || isURL($thumb)) continue;   // none, or hosted elsewhere
-
-				$src = $src_base . $thumb;
-
-				if (!is_file($src)) {
-					$errors['thumbnail:' . $slug] = 'Thumbnail file not found on disk: ' . $thumb;
-					continue;
+					if ($local_path !== null) $item['local' . ucfirst($field)] = $local_path;
 				}
-
-				// '<slug>.thumb.<ext>', mirroring the '<slug>.<ext>' convention above: it can
-				// collide with neither the item's permalink directory (exactly <slug>) nor its
-				// bundled media file (<slug>.<ext>, since 'thumb' is never a real extension).
-				$ext        = pathinfo($thumb, PATHINFO_EXTENSION);
-				$local_path = $slug . '.thumb.' . ($ext !== '' ? $ext : 'bin');
-				$dest       = $tmp_dir . '/' . $local_path;
-				$dest_dir   = dirname($dest);
-
-				if (!is_dir($dest_dir) && !mkdir($dest_dir, 0755, true)) {
-					$errors['thumbnail:' . $slug] = 'Could not create thumbnail directory';
-					continue;
-				}
-
-				if (copy($src, $dest)) {
-					$item['localThumbnail'] = $local_path;
-					$bytes_copied          += filesize($dest);
-					$files_copied++;
-				} else {
-					$errors['thumbnail:' . $slug] = 'Could not copy thumbnail file: ' . $thumb;
-				}
-
 			}
 			unset($item);
 
 		}
+
+		// And the book's own background, the fallback for pages that set none.
+		$book_background = $this->_copy_aux_image(
+			isset($book_data['meta']['background']) ? $book_data['meta']['background'] : null,
+			$src_base, $tmp_dir, 'book.background',
+			'background:book', $errors, $files_copied, $bytes_copied);
+
+		if ($book_background !== null) $book_data['meta']['localBackground'] = $book_background;
 
 		if ($bytes_copied > self::MEDIA_SIZE_WARNING_BYTES) {
 			$errors['media:size-warning'] = sprintf(
@@ -1235,6 +1263,58 @@ class Static_Export_Model extends MY_Model {
 		}
 
 		return array('filesCopied' => $files_copied, 'bytesCopied' => $bytes_copied);
+
+	}
+
+	/**
+	 * Copy one auxiliary image (a thumbnail, banner or background) into the export and return
+	 * its path relative to the export root, or null if there was nothing to copy or the copy
+	 * failed. Failures are recorded in $errors and leave the caller's 'local…' field null, so
+	 * the live absolute URL is used instead — docs/media-strategy.md's fail-gracefully rule.
+	 *
+	 * @param  string|null $raw           Raw stored value: storage-relative path, or a URL
+	 * @param  string      $src_base      Absolute path to the book's storage directory
+	 * @param  string      $tmp_dir       Export temp directory (no trailing slash)
+	 * @param  string      $dest_base     Destination path without extension, export-root-relative
+	 * @param  string      $error_key     Key to record failures under
+	 * @param  array       &$errors
+	 * @param  int         &$files_copied
+	 * @param  int         &$bytes_copied
+	 * @return string|null
+	 */
+	private function _copy_aux_image($raw, $src_base, $tmp_dir, $dest_base, $error_key,
+	                                 &$errors, &$files_copied, &$bytes_copied) {
+
+		$raw = trim((string) $raw);
+
+		if ($raw === '' || isURL($raw)) return null;   // nothing to bundle, or hosted elsewhere
+
+		$src = $src_base . $raw;
+
+		if (!is_file($src)) {
+			$errors[$error_key] = 'Image file not found on disk: ' . $raw;
+			return null;
+		}
+
+		$ext        = pathinfo($raw, PATHINFO_EXTENSION);
+		$local_path = $dest_base . '.' . ($ext !== '' ? $ext : 'bin');
+		$dest       = $tmp_dir . '/' . $local_path;
+		$dest_dir   = dirname($dest);
+
+		if (!is_dir($dest_dir) && !mkdir($dest_dir, 0755, true)) {
+			$errors[$error_key] = 'Could not create directory for: ' . $raw;
+			return null;
+		}
+
+		if (!copy($src, $dest)) {
+			$errors[$error_key] = 'Could not copy image file: ' . $raw;
+			return null;
+		}
+
+		$bytes_copied += filesize($dest);
+		$files_copied++;
+
+		return $local_path;
 
 	}
 

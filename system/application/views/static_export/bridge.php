@@ -43,6 +43,19 @@
         return true;
     }
 
+    // Ask the endpoint handler (installed later in this file, once scalarapi is loaded)
+    // whether it can answer this request from the local model. Returns a response body
+    // string, or null to fall through to the stubbed 503.
+    function staticEndpointAnswer(method, url, body) {
+        if (typeof window.__scalarStaticEndpoint !== 'function') return null;
+        try {
+            return window.__scalarStaticEndpoint(method || 'GET', url, body);
+        } catch (e) {
+            if (window.console) console.log('static endpoint handler failed for ' + url, e);
+            return null;
+        }
+    }
+
     // --- Override XMLHttpRequest ---
     var OriginalXHR = window.XMLHttpRequest;
     window.XMLHttpRequest_native = OriginalXHR;   // preserve for direct use
@@ -76,8 +89,19 @@
         if (shouldIntercept(this._url)) {
             var path = this._url.split('?')[0].split('#')[0];
             var isJs = path.slice(-3) === '.js';
+            // A few endpoints can be answered locally rather than failed — see
+            // window.__scalarStaticEndpoint, installed further down this file once
+            // scalarapi and the node model are available.
+            var answer = staticEndpointAnswer(this._method, this._url, body);
             setTimeout(function () {
-                if (isJs) {
+                if (answer !== null) {
+                    self.status       = 200;
+                    self.responseText = answer;
+                    self.response     = answer;
+                    self.readyState   = 4;
+                    if (self.onreadystatechange) self.onreadystatechange();
+                    if (self.onload) self.onload({ target: self });
+                } else if (isJs) {
                     // .js: return 200 + empty body so jQuery's .done() chain fires
                     // but globalEval('') is a no-op (no duplicate let/const errors).
                     self.status       = 200;
@@ -139,6 +163,14 @@
             if (shouldIntercept(urlStr)) {
                 var path = urlStr.split('?')[0].split('#')[0];
                 var isJs = path.slice(-3) === '.js';
+                var method = (options && options.method) || 'GET';
+                var answer = staticEndpointAnswer(method, urlStr, options && options.body);
+                if (answer !== null) {
+                    return Promise.resolve(new Response(answer, {
+                        status: 200,
+                        headers: { 'Content-Type': 'application/json' }
+                    }));
+                }
                 // .js: 200 + empty body (no-op globalEval)
                 // server endpoints: 503 so callers treat it as an error, not success
                 return Promise.resolve(new Response('', {
@@ -225,9 +257,16 @@
             };
 
             if (!scalarapi.model.nodesByURL[canonicalUrl]) {
+                // hasVersion has to be here as well as in the versionData below: anything that
+                // later rebuilds an RDF-JSON entry from this node reads its version list back
+                // out of this object, and an entry without it makes parseNodes() throw the
+                // node's real version away for an empty placeholder.
                 var minJson = {
                     'http://www.w3.org/1999/02/22-rdf-syntax-ns#type': [
                         { value: 'http://scalar.usc.edu/2012/01/scalar-ns#Composite', type: 'uri' }
+                    ],
+                    'http://purl.org/dc/terms/hasVersion': [
+                        { value: canonicalUrl + '.1', type: 'uri' }
                     ]
                 };
                 var node = new ScalarNode(canonicalUrl, minJson,
@@ -286,12 +325,38 @@
          * another page. A single node is always the whole result, so the count is 1 — which,
          * being under the visualizations' page size, reads as "last page" and stops the walk.
          * Without it they would re-request the same node forever. */
-        if (typeof ScalarAPI !== 'undefined') {
+        var NODE_CITATION = [{
+            value: 'method=node;methodNumNodes=1;',
+            type:  'literal'
+        }];
 
-            var NODE_CITATION = [{
-                value: 'method=node;methodNumNodes=1;',
-                type:  'literal'
-            }];
+        /* One or more nodes rendered as the live API's RDF-JSON: the node entry keyed by node
+         * URL, plus one entry per version keyed by version URL. The version entries are not
+         * optional — ScalarModel.parseNodes() follows dcterms:hasVersion into the same payload
+         * and builds a ScalarVersion from whatever it finds there, so omitting them replaces a
+         * node's real versions with a broken one and takes node.current with it. */
+        function nodeEntries(nodes, into) {
+            var data = into || {};
+            for (var k = 0; k < nodes.length; k++) {
+                var node = nodes[k];
+                if (node == null) continue;
+                // Copy rather than annotate node.data in place: that object is the RDFa
+                // dump entry the node was parsed from, and citation is per-query state.
+                var entry = {};
+                for (var prop in node.data) entry[prop] = node.data[prop];
+                entry['http://scalar.usc.edu/2012/01/scalar-ns#citation'] = NODE_CITATION;
+
+                data[node.url] = entry;
+                for (var i = 0; i < node.versions.length; i++) {
+                    data[node.versions[i].url] = node.versions[i].data.json;
+                }
+            }
+            return data;
+        }
+
+        function nodeResponse(node) { return nodeEntries([node]); }
+
+        if (typeof ScalarAPI !== 'undefined') {
 
             ScalarAPI.prototype.loadNode = ScalarAPI.prototype.loadPage =
                 function (uriSegment, forceReload, successCallback) {
@@ -303,17 +368,47 @@
                 if (node == null) return 'loading';
 
                 if (typeof successCallback === 'function') {
-                    // Copy rather than annotate node.data in place: that object is the RDFa
-                    // dump entry the node was parsed from, and citation is per-query state.
-                    var entry = {};
-                    for (var prop in node.data) entry[prop] = node.data[prop];
-                    entry['http://scalar.usc.edu/2012/01/scalar-ns#citation'] = NODE_CITATION;
+                    var data = nodeResponse(node);
+                    window.setTimeout(function () { successCallback(data); }, 0);
+                }
 
-                    var data = {};
-                    data[node.url] = entry;
-                    for (var i = 0; i < node.versions.length; i++) {
-                        data[node.versions[i].url] = node.versions[i].data.json;
-                    }
+                return 'loading';
+            };
+
+            /* loadCurrentPage()/loadCurrentNode() fix — the visualizations.
+             *
+             * Same jsonp dead end as loadNode() above, and the same fix, but it needed its own
+             * patch: it takes no slug (it derives one from document.location) and keeps its own
+             * loading-status queue, so it is a separate method rather than a wrapper.
+             *
+             * scalarvisualizations.jquery.js is the only exported caller, and it walks a fixed
+             * load sequence — book, current page, current page's connections, paths, tags,
+             * media, pages, annotations, comments — advancing one step per callback. Steps two
+             * and three are this method. It always took the request branch here (the branch is
+             * gated on model.currentPageNode, which is null in an export for the reason below),
+             * the jsonp <script> 404'd, base.parseData never ran, and the sequence stopped dead
+             * at step two: every visualization sat on its loading bar having drawn nothing.
+             *
+             * Step one, loadBook(), needs no patch — it returns 'loaded' straight from the model
+             * because getBookNode() finds the scalar:Book node page.php emits on every page, and
+             * the caller runs its own callback on that.
+             *
+             * model.currentPageNode is assigned here because nothing else in an export ever
+             * assigns it: ScalarModel.addNode() sets it only for the node whose URL matches
+             * document.location, which is exactly the comparison that fails once the book is
+             * served from somewhere other than the Scalar server it was written on (hence the
+             * getCurrentPageNode() patch above). parseCurrentPage() would have cached it on the
+             * live API's success path, so setting it keeps that side effect intact. */
+            ScalarAPI.prototype.loadCurrentNode = ScalarAPI.prototype.loadCurrentPage =
+                function (forceReload, successCallback) {
+
+                var node = this.model.getCurrentPageNode();
+                if (node == null) return 'loading';
+
+                this.model.currentPageNode = node;
+
+                if (typeof successCallback === 'function') {
+                    var data = nodeResponse(node);
                     window.setTimeout(function () { successCallback(data); }, 0);
                 }
 
@@ -739,6 +834,61 @@
             };
         }
 
+        /* Banners take the same turn again, and this one has no accessor to wrap.
+         *
+         * page.php emits scalar:banner as a page-relative path (see $emit_node_rdfa), and the
+         * 'splash', 'book_splash' and 'image_header' layouts in scalarpage.jquery.js read
+         * ScalarNode.banner and resolve it inline:
+         *
+         *     if (banner.length && -1 == banner.indexOf('//')) {
+         *         banner = $('link#parent').attr('href') + banner;
+         *     }
+         *
+         * That runs inside $.scalarpage()'s constructor body, so there is nothing to intercept
+         * between the read and the use — the value itself has to already be absolute by the
+         * time the node is built. Hence parseData rather than an accessor, matching how
+         * sourceFile is handled above. Once it is absolute the '//' test fails and the layout
+         * uses it as-is.
+         *
+         * A useful side effect: page.getMetadataForMediaUrl(), which those layouts call next to
+         * fetch the banner's title and alt text, only issues a request when the URL sits under
+         * <link id="parent"> — the original book's address. An absolute export URL doesn't, so
+         * it takes the "external file" branch and makes no request, instead of firing a
+         * cross-origin call at the site the export came from. The trade is that a bundled
+         * banner gets no "Background: <title>" credit line under it, exactly as a third-party
+         * banner gets none on a live server.
+         *
+         * thumbnail is deliberately left alone here — it is read through
+         * getAbsoluteThumbnailURL() (patched above), and consumers guard on the raw value with
+         * 'if (node.thumbnail)', which should read the same as it does on a live server. */
+        if (typeof ScalarNode !== 'undefined') {
+            var _originalNodeParseData = ScalarNode.prototype.parseData;
+            ScalarNode.prototype.parseData = function (json, versionData) {
+                _originalNodeParseData.call(this, json, versionData);
+
+                /* ScalarNode.data is assigned once, in the constructor, and never refreshed —
+                 * parseData() updates .properties, .versions and the mapped fields but leaves
+                 * .data holding whatever the node was first built from. Normally invisible,
+                 * because a node is usually built from the data it keeps. Not here: the
+                 * getCurrentPageNode() fix above pre-seeds the current page's node with a
+                 * minimal {rdf:type} stub before main.js has parsed the page's RDFa, so from
+                 * then on .data is that stub even though the node itself is fully populated.
+                 *
+                 * That matters because .data is what an RDF-JSON response gets rebuilt from
+                 * (nodeEntries() above, and loadNodesByType()'s entries). Handing parseNodes()
+                 * a stub with no dcterms:hasVersion made it replace the node's real version
+                 * with an empty '.0' placeholder — so the current page, alone among the nodes
+                 * in the book, lost its title the moment any of those ran: "(No title)" in the
+                 * Index, in the visualizations, and in the Table of Contents.
+                 *
+                 * Keeping .data in step with the last parse is also what the two accessors that
+                 * read it — getReferences() and getOwner() — have always assumed. */
+                this.data = json;
+
+                this.banner = resolveAgainstPage(this.banner);
+            };
+        }
+
         /* Citations tab double-open fix.
          *
          * scalarmedia.jquery.js builds each media tab as an <input type="radio"> plus its
@@ -804,6 +954,225 @@
                 return _originalGetFileExtension.apply(this, arguments);
             };
         }
+
+        /* ------------------------------------------------------------------
+         * Locally answered API endpoints.
+         *
+         * Everything else same-origin is stubbed with a 503 (see the top of this file), which
+         * is right for endpoints whose absence is harmless. These three are not harmless — the
+         * first starves every lens-driven visualization of its data — so they are answered from
+         * the model instead. The transport layer calls this through window.__scalarStaticEndpoint;
+         * returning null falls through to the 503.
+         * ------------------------------------------------------------------ */
+
+        /* Which nodes a lens content-selector picks out. Mirrors
+         * Lens_model::get_pages_from_content_selector() — including its ordering, where an
+         * 'items' array wins over the selector's declared type. Returns null for a selector
+         * this doesn't implement, which aborts the whole resolution rather than silently
+         * returning a wrong (usually much larger) set. */
+        function lensSelectNodes(selector) {
+            if (!selector) return null;
+
+            var model = scalarapi.model, i, nodes = [];
+
+            // specific-items: an explicit list of slugs.
+            if (selector.items && selector.items.length) {
+                for (i = 0; i < selector.items.length; i++) {
+                    var node = scalarapi.getNode(selector.items[i]);
+                    if (node != null) nodes.push(node);
+                }
+                return nodes;
+            }
+
+            if (selector.type !== 'items-by-type') return null;
+
+            switch (selector['content-type']) {
+
+                // The book's table of contents: the scalar:Page node at <book_url>toc, whose
+                // dcterms:references list page.php emits on every exported page.
+                case 'table-of-contents':
+                    var toc = model.nodesByURL[model.urlPrefix + 'toc'];
+                    return toc ? toc.getRelatedNodes('reference', 'outgoing') : [];
+
+                // Every content row in the book — composites and media, which is what the
+                // server's unfiltered pages->get_all() returns.
+                case 'all-content':
+                case 'content':
+                    return model.getNodesWithProperty('scalarType', 'page')
+                        .concat(model.getNodesWithProperty('scalarType', 'media'));
+
+                case 'page':
+                case 'composite':
+                    return model.getNodesWithProperty('scalarType', 'page');
+
+                case 'file':
+                case 'media':
+                    return model.getNodesWithProperty('scalarType', 'media');
+
+                // The relational types. A node carries one of these scalarTypes precisely when
+                // it has relations of that kind, which is the same test the server makes by
+                // asking whether get_children() returns anything.
+                case 'path':
+                case 'tag':
+                case 'annotation':
+                case 'reply':
+                case 'comment':
+                case 'reference':
+                    return model.getNodesWithProperty('scalarType', selector['content-type']);
+            }
+
+            return null;
+        }
+
+        /* Apply one component's modifiers. Only the two the built-in layouts use are
+         * implemented; anything else returns null and aborts, for the same reason as above. */
+        function lensApplyModifiers(nodes, modifiers) {
+            if (!modifiers) return nodes;
+
+            for (var i = 0; i < modifiers.length; i++) {
+                var mod = modifiers[i];
+
+                if (mod.type === 'sort') {
+                    nodes = lensSort(nodes, mod);
+                    continue;
+                }
+
+                if (mod.type !== 'filter' || mod.subtype !== 'relationship') return null;
+
+                /* The server's relationship filter *adds* related content to the selection
+                 * rather than narrowing it (Lens_model pushes onto $my_contents as it walks
+                 * it). It walks the original members only — PHP's foreach iterates a copy —
+                 * so this expands one level, as that does.
+                 *
+                 * 'child' means relations where the node is the body, which is scalarapi's
+                 * 'outgoing'; 'parent' is 'incoming'. A content-types list of ['all-types']
+                 * means every relation kind, which getRelatedNodes() spells as a null type. */
+                var direction = mod.relationship === 'parent' ? 'incoming'
+                              : mod.relationship === 'child'  ? 'outgoing'
+                              : 'both';
+                var types = mod['content-types'];
+                if (!types || !types.length || types[0] === 'all-types') types = [null];
+
+                var expanded = nodes.concat();
+                for (var j = 0; j < nodes.length; j++) {
+                    for (var t = 0; t < types.length; t++) {
+                        expanded = expanded.concat(nodes[j].getRelatedNodes(types[t], direction));
+                    }
+                }
+                nodes = expanded;
+            }
+
+            return nodes;
+        }
+
+        function lensSort(nodes, sort) {
+            var descending = sort['sort-order'] === 'descending';
+            var sorted     = nodes.concat();
+
+            if (sort['sort-type'] === 'alphabetical') {
+                sorted.sort(function (a, b) {
+                    var x = (a.getSortTitle() || '').toLowerCase();
+                    var y = (b.getSortTitle() || '').toLowerCase();
+                    return x < y ? -1 : (x > y ? 1 : 0);
+                });
+            } else if (sort['sort-type'] === 'creation-date') {
+                sorted.sort(function (a, b) {
+                    return String(a.created || '').localeCompare(String(b.created || ''));
+                });
+            } else {
+                // relation-type, num-relations, string-matches and visit-date are all sorts the
+                // server computes from columns it adds to the response; leave the order alone
+                // rather than inventing one.
+                return nodes;
+            }
+
+            return descending ? sorted.reverse() : sorted;
+        }
+
+        /* Resolve a lens against the local model, returning it with 'items' filled in — the
+         * same envelope POST <approot>/lenses returns on a live server.
+         *
+         * base.filter()'s "lens" branch uses items purely as a set of node URLs to look up in
+         * scalarapi.model, and takes relationships from the model rather than from the payload,
+         * so the entries only have to be faithful enough for parsePagesByType() to re-parse
+         * without damage. nodeEntries() builds them from the same RDFa the nodes came from, so
+         * that re-parse is a no-op.
+         *
+         * Multiple components are unioned. The live model picks the set operation from the
+         * visualization type (Lens_model::get_operation_from_visualization) — every built-in
+         * layout has exactly one component, so there is nothing to combine. */
+        function resolveLens(lens) {
+            var components = lens.components || [];
+            var selected   = [];
+
+            for (var i = 0; i < components.length; i++) {
+                var nodes = lensSelectNodes(components[i]['content-selector']);
+                if (nodes === null) return null;
+                nodes = lensApplyModifiers(nodes, components[i].modifiers);
+                if (nodes === null) return null;
+                selected = selected.concat(nodes);
+            }
+
+            // Sorts declared on the lens itself, which the visualization's sort control writes
+            // (see base.updateSorts) and the server applies after the components are combined.
+            if (lens.sorts) {
+                for (var s = 0; s < lens.sorts.length; s++) selected = lensSort(selected, lens.sorts[s]);
+            }
+
+            var resolved = {};
+            for (var key in lens) resolved[key] = lens[key];
+            resolved.items = nodeEntries(selected);
+
+            return resolved;
+        }
+
+        window.__scalarStaticEndpoint = function (method, url, body) {
+
+            var path = url.split('?')[0].split('#')[0].replace(/\/+$/, '');
+
+            /* POST <approot>/lenses — resolve a lens. This is what every lens-driven
+             * visualization runs on: the 'vis', 'visindex', 'vistoc', 'visconnections',
+             * 'visradial', 'vispath', 'vismedia' and 'vistag' layouts, the header's
+             * visualization menu, inline [vis] widgets and search results all build a lens
+             * client-side and POST it here to be resolved. Left to the 503 they showed their
+             * chrome and never received any data. */
+            if (method === 'POST' && path.slice(-7) === '/lenses') {
+                var lens;
+                try {
+                    lens = JSON.parse(typeof body === 'string' ? body : String(body));
+                } catch (e) {
+                    return null;
+                }
+                var resolved = resolveLens(lens);
+                if (resolved === null) {
+                    if (window.console) {
+                        console.log('static export: this lens uses a selector or modifier the ' +
+                                    'export cannot resolve locally; no items returned.', lens);
+                    }
+                    return null;
+                }
+                return JSON.stringify(resolved);
+            }
+
+            /* GET <approot>/lenses?book_id=N — the book's saved lenses, which populate the
+             * header's visualization menu below its built-in entries. Editorial state is not
+             * exported (see CLAUDE.md), so there are none; an empty array is what the live API
+             * returns for a book that has none, and handleLensData() renders the menu without
+             * them. */
+            if (method === 'GET' && path.slice(-7) === '/lenses') return '[]';
+
+            /* GET <approot>/ontologies — the metadata-field vocabulary behind search's field
+             * menu. The live endpoint serves a config array from the server install; rather
+             * than bake a copy that can drift, return the empty envelope its handler expects.
+             * ScalarSearch.handleOntologyData() then adds dcterms:title, dcterms:description,
+             * sioc:content, rdf:type and the scalar: fields itself, so the menu still offers
+             * everything the built-in fields cover — just not any custom namespaces the
+             * original install had configured. It indexes straight into .dcterms, so this
+             * cannot be '{}'. */
+            if (method === 'GET' && path.slice(-11) === '/ontologies') return '{"dcterms":[]}';
+
+            return null;
+        };
 
         /* Main menu "Home" link and Table of Contents fixes.
          *

@@ -26,6 +26,17 @@ $is_meta_view     = !empty($page['isMetaView']);
 // regardless of where it is hosted or opened locally.
 $assets = $asset_root . 'system/application/';
 
+// Where one of an item's auxiliary images (thumbnail, banner, background) lives as seen from
+// this page: the bundled copy when _copy_media_files() made one, otherwise the live absolute
+// URL so the image degrades to a remote fetch instead of a broken link. Mirrors
+// _aux_image_href() in static_export_model.php, which does the same job for the .meta pages.
+$aux_image_href = function ($item, $field) use ($asset_root) {
+	$local = 'local' . ucfirst($field);
+	if (!empty($item[$local]))         return $asset_root . $item[$local];
+	if (!empty($item[$field . 'Url'])) return $item[$field . 'Url'];
+	return null;
+};
+
 // Emits the RDFa a Media node's Version span needs so jquery.mediaelement.js can render it
 // without a live API call: source file (required) and the couple of auxProperties
 // (dcterms:accessRights, dcterms:type) it reads for content warnings / audio chrome. A closure
@@ -48,29 +59,30 @@ $emit_media_rdfa = function ($media_item) use ($asset_root) {
 	return $out;
 };
 
-// Emits the RDFa that belongs to the *node* rather than to one of its versions. Only
-// art:thumbnail so far, but the distinction matters: Scalar stores the thumbnail on the
-// content row, so the live API reports it as a node property and every consumer reads it
-// that way — ScalarNode.thumbnail and getAbsoluteThumbnailURL(), which the Index modal, the
-// structured gallery, path-navigation previews and video poster frames all go through.
-// Emitting it on the Version span (as this template first did) left node.thumbnail null and
-// every one of those fell back to the generic media icon.
+// Emits the RDFa that belongs to the *node* rather than to one of its versions. The
+// distinction matters: Scalar stores these on the content row, so the live API reports them
+// as node properties and every consumer reads them that way —
 //
-// Any content item can have one, pages included — hence not folded into $emit_media_rdfa.
-// The path is resolved the same way art:url is: the bundled copy when _copy_media_files()
-// made one, otherwise the live absolute URL so the image degrades to a remote fetch instead
-// of a broken link. (Mirrors _thumbnail_href() in static_export_model.php, which does the
-// same job for the .meta pages.)
-$emit_node_rdfa = function ($item) use ($asset_root) {
-	$href = null;
-	if (!empty($item['localThumbnail'])) {
-		$href = $asset_root . $item['localThumbnail'];
-	} elseif (!empty($item['thumbnailUrl'])) {
-		$href = $item['thumbnailUrl'];
-	}
-	if ($href === null) return '';
+//   art:thumbnail  ScalarNode.thumbnail and getAbsoluteThumbnailURL(), which the Index modal,
+//                  the structured gallery, path-navigation previews and video poster frames
+//                  all go through. Emitting it on the Version span (as this template first
+//                  did) left node.thumbnail null and every one of those fell back to the
+//                  generic media icon.
+//   scalar:banner  ScalarNode.banner, read directly by scalarpage.jquery.js's 'splash',
+//                  'book_splash' and 'image_header' layouts for their header image or video.
+//
+// Any content item can have either, pages included — hence not folded into $emit_media_rdfa.
+$emit_node_rdfa = function ($item) use ($aux_image_href) {
+	$out = '';
 
-	return "\t\t\t" . '<span class="metadata" property="art:thumbnail">' . htmlspecialchars($href) . '</span>' . "\n";
+	foreach (array('thumbnail' => 'art:thumbnail', 'banner' => 'scalar:banner') as $field => $predicate) {
+		$href = $aux_image_href($item, $field);
+		if ($href === null) continue;
+		$out .= "\t\t\t" . '<span class="metadata" property="' . $predicate . '">'
+			. htmlspecialchars($href) . '</span>' . "\n";
+	}
+
+	return $out;
 };
 
 echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
@@ -159,7 +171,25 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 <script src="<?= $assets ?>views/melons/cantaloupe/js/scalarlenses.jquery.js"></script>
 <script src="<?= $assets ?>views/melons/cantaloupe/js/jquery.tabbing.js"></script>
 </head>
-<body>
+<?php
+// Background image, applied inline exactly as the live wrapper.php does, with the same
+// precedence: the book's background unless this page overrides it. (wrapper.php has a third
+// step between the two — the background of the path the reader arrived by — which depends on
+// the ?path= the request carried, so there is no single right answer to bake into a file.)
+//
+// This is a <body> style rather than RDFa because that is where the page chrome looks for it:
+// scalarpage.jquery.js's setupScreenedBackground(), which the gallery, structured gallery and
+// image-header layouts call, reads the computed background image straight off <body> and moves
+// it onto a screening layer. No scalar:background property is emitted alongside it — its only
+// consumer is the timeline layout's per-event background, which composes its URL as
+// book_url + node.background and so cannot be handed either a page-relative path or an
+// absolute one. (The .meta pages list the value for reference; see _build_meta_page_body().)
+$background_href = $aux_image_href($page, 'background');
+if ($background_href === null) $background_href = $aux_image_href($meta, 'background');
+?>
+<body<?= $background_href !== null
+	? ' style="background-image:url(' . htmlspecialchars(str_replace(' ', '%20', $background_href)) . ');"'
+	: '' ?>>
 
 <article role="main">
 	<header>
@@ -250,6 +280,15 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 			     "Metadata" h2, etc.) — see _write_meta_page() in static_export_model.php for
 			     why this can't be triggered via URL-extension detection like the live site. -->
 			<span class="metadata" property="scalar:defaultView">meta</span>
+<?php elseif ('plain' !== $layout): ?>
+			<!-- The author's chosen layout. Every place scalarpage.jquery.js decides what to
+			     render — addMediaElements(), the main switch(viewType), the lens setup — reads
+			     it from here, from the current node's RDFa; none of them looks at
+			     <link id="default_view"> above, which is why every non-Basic layout used to
+			     come out of the export as a plain text page. 'plain' is skipped because it is
+			     already the default those call sites fall back to when the property is absent,
+			     which is also what a live Scalar emits for a page with no stored view. -->
+			<span class="metadata" property="scalar:defaultView"><?= htmlspecialchars($layout) ?></span>
 <?php endif; ?>
 		</span>
 
