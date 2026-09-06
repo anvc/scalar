@@ -1,3 +1,4 @@
+<? $sq = (null !== $sq) ? $sq : ''; ?>
 <h4>Search</h4>
 <br />
 

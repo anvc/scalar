@@ -20,7 +20,7 @@ echo '<div class="scalar_logo_wrapper">'."\n";
 // Publisher icon
 if (!empty($book->publisher_thumbnail)) {
 	$href = '';
-	$link_tags = get_tag('a', $book->publisher);
+	$link_tags = (!empty($book->publisher)) ? get_tag('a', $book->publisher) : array();
 	if (!empty($link_tags)) $href = getAttribute('href', $link_tags[0]);
 	if (!empty($href)) echo '<a href="'.$href.'">';
 	echo '<img class="publisher-thumb" src="'.confirm_slash(base_url()).confirm_slash($book->slug).$book->publisher_thumbnail.'" />'."\n";

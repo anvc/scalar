@@ -6,7 +6,7 @@ $publisher = $publisher_thumbnail = null;
 $is_new = true;
 if (isset($book) && !empty($book)) {
 	$title = $book->title;
-	$description = $book->description;
+	$description = (null !== $book->description) ? $book->description : '';
 	if (!empty($book->background)) $background = trim($book->background);
 	if (!empty($book->custom_style)) $style .= $book->custom_style."\n";
 	if (!empty($book->custom_js)) $js .= $book->custom_js."\n";

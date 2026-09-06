@@ -11,7 +11,7 @@ $related_content = array();
 				$slug = $tag->slug;
 				$title = $tag->versions[0]->title;
 				$description = $tag->versions[0]->description;
-				$related_content = array_merge($related_content, $tag->versions[0]->tag_of);
+				if (!empty($tag->versions[0]->tag_of)) $related_content = array_merge($related_content, $tag->versions[0]->tag_of);
 				echo '<a class="inline_icon_link tag" href="'.$base_uri.$slug.'">';
 				echo $title;
 				echo '</a>';

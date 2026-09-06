@@ -1479,7 +1479,7 @@ if ($login->is_super) {
 						    	&nbsp; &nbsp;
 							    </span>
 							    <select id="content_type" name="scalar:category" class="form-control"><?
-								$category =@ (!empty($page->category)) ? $page->category : null;
+								$category =@ (!empty($page->category)) ? $page->category : '';
 								if (empty($category) && $is_new) {
 									if (strtolower($user_level)=='commentator') $category = 'commentary';
 									if (strtolower($user_level)=='reviewer') $category = 'review';

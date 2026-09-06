@@ -488,7 +488,7 @@ endif;
 			    </span>
 			    <select name="scalar:category">
 			<?
-				$category =@ (!empty($page->category)) ? $page->category : null;
+				$category =@ (!empty($page->category)) ? $page->category : '';
 				if (empty($category) && $is_new) {
 					if (strtolower($user_level)=='commentator') $category = 'commentary';
 					if (strtolower($user_level)=='reviewer') $category = 'review';
