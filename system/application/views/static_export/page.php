@@ -26,6 +26,116 @@ $is_meta_view     = !empty($page['isMetaView']);
 // regardless of where it is hosted or opened locally.
 $assets = $asset_root . 'system/application/';
 
+// This page's immediate neighbours — the items it is directly related to — and the relations
+// joining them. Everything else in the book lives in scalar-static-data.js, which the bridge
+// seeds into the model at boot (see _build_graph() in static_export_model.php); emitting the
+// whole book on every page was quadratic and ran to hundreds of megabytes on a large one.
+//
+// Neighbours stay inline for two reasons. A page that asserts what it connects to is far more
+// useful on its own — to a crawler, an archivist, or anyone opening a single file — than one
+// asserting only itself. And if the shared file ever fails to load, relationship navigation,
+// the media info tabs and the citations dialog still work from what the page carries; only
+// book-wide views (Index, visualizations, table of contents) degrade.
+//
+// The total cost is linear, not quadratic: the sum of every node's degree is twice the number
+// of relations, however lopsided the degree distribution.
+$neighbour_slugs    = array();
+$incident_relations = array();
+
+foreach ($book_data['relations'] as $relation) {
+	if ($relation['body'] === $slug) {
+		$neighbour_slugs[$relation['target']] = true;
+		$incident_relations[] = $relation;
+	} elseif ($relation['target'] === $slug) {
+		$neighbour_slugs[$relation['body']] = true;
+		$incident_relations[] = $relation;
+	}
+}
+
+// References are a plain dcterms:references predicate rather than an oac:Annotation subject,
+// so they are not in the relations list; gather both directions.
+foreach ((array) (isset($page['references']) ? $page['references'] : array()) as $ref_slug) {
+	$neighbour_slugs[$ref_slug] = true;
+}
+foreach ($all_pages as $other_slug => $other_item) {
+	if (!empty($other_item['references']) && in_array($slug, $other_item['references'], true)) {
+		$neighbour_slugs[$other_slug] = true;
+	}
+}
+
+unset($neighbour_slugs[$slug]);
+
+// Relationship lists — the reader-facing sections a live Scalar renders server-side (see
+// wrapper.php), which scalarpage.jquery.js's addRelationshipNavigation() then decorates:
+// retitling the <h1>, appending "?path=<slug>" to each entry so path state carries, adding
+// the "Begin with …" button, and reordering the sections. Book customizations target the
+// same classes ($('.path_of').prev().text('Choose a page:') and the like), so the class
+// names and the section > h1 + ol structure are a contract, not an implementation detail.
+//
+// Only the lists addRelationshipNavigation() actually handles are emitted. Sections are
+// display:block by default, so one it doesn't claim would sit on the page undecorated;
+// 'has_paths' is omitted for that reason — the containing path is already surfaced by the
+// breadcrumb and prev/next buttons, which scalarpage builds from the model.
+$relationship_lists = array();
+
+// Each entry pairs the listed item with the relation that put it there, so the list can carry
+// that relation's own RDFa the way a live Scalar's does — one piece of markup serving as both
+// the visible list and the statement of the relationship. $rendered_* then lets the plain
+// neighbour and relation blocks skip whatever a list has already spoken for.
+$rendered_slugs     = array();
+$rendered_relations = array();
+
+$add_list = function ($class, $heading, $entries) use (&$relationship_lists, &$rendered_slugs, &$rendered_relations) {
+	if (empty($entries)) return;
+	foreach ($entries as $entry) {
+		$rendered_slugs[$entry['slug']] = true;
+		if ($entry['relation'] !== null) $rendered_relations[$entry['relation']['urn']] = true;
+	}
+	$relationship_lists[] = array('class' => $class, 'heading' => $heading, 'entries' => $entries);
+};
+
+// Relations this page is the body of, grouped by kind: what it collects or annotates.
+$outgoing = array('path' => array(), 'tag' => array(), 'annotation' => array());
+$incoming = array('tag' => array());
+
+foreach ($incident_relations as $relation) {
+	if ($relation['body'] === $slug) {
+		if (isset($book_data['paths'][$slug]))     $outgoing['path'][]       = array('slug' => $relation['target'], 'relation' => $relation);
+		elseif (isset($book_data['tags'][$slug]))  $outgoing['tag'][]        = array('slug' => $relation['target'], 'relation' => $relation);
+		else                                       $outgoing['annotation'][] = array('slug' => $relation['target'], 'relation' => $relation);
+	} elseif ($relation['target'] === $slug && isset($book_data['tags'][$relation['body']])) {
+		$incoming['tag'][] = array('slug' => $relation['body'], 'relation' => $relation);
+	}
+}
+
+$add_list('path_of',       'Contents of this path:',    $outgoing['path']);
+$add_list('tag_of',        'This page is a tag of:',    $outgoing['tag']);
+$add_list('annotation_of', 'This page annotates:',      $outgoing['annotation']);
+$add_list('has_tags',      'This page is tagged by:',   $incoming['tag']);
+
+// Incoming references are a plain dcterms:references predicate on the referencing item rather
+// than an oac:Annotation subject, so these entries carry no relation of their own — the
+// statement lives on the other item's version, which the list renders in full.
+$referenced_by = array();
+foreach ($all_pages as $other_slug => $other_item) {
+	if ($other_slug === $slug) continue;
+	if (!empty($other_item['references']) && in_array($slug, $other_item['references'], true)) {
+		$referenced_by[] = array('slug' => $other_slug, 'relation' => null);
+	}
+}
+$add_list('has_reference', 'This page is referenced by:', $referenced_by);
+
+$annotates = $outgoing['annotation'];
+
+// The item's primary role, as the live wrapper emits it — RDF_Object's precedence, path first.
+// addRelationshipNavigation() reads it off <link id="primary_role"> to word the "referenced by"
+// heading, and would throw on the link being absent.
+if (isset($book_data['paths'][$slug]))      { $primary_role = 'Path'; }
+elseif (isset($book_data['tags'][$slug]))   { $primary_role = 'Tag'; }
+elseif (!empty($annotates))                 { $primary_role = 'Annotation'; }
+elseif ($is_current_media)                  { $primary_role = 'Media'; }
+else                                        { $primary_role = 'Composite'; }
+
 // Where one of an item's auxiliary images (thumbnail, banner, background) lives as seen from
 // this page: the bundled copy when _copy_media_files() made one, otherwise the live absolute
 // URL so the image degrades to a remote fetch instead of a broken link. Mirrors
@@ -56,6 +166,83 @@ $emit_media_rdfa = function ($media_item) use ($asset_root) {
 	if (!empty($meta_props['http://purl.org/dc/terms/type'][0]['value'])) {
 		$out .= "\t\t\t" . '<span class="metadata" property="dcterms:type">' . htmlspecialchars($meta_props['http://purl.org/dc/terms/type'][0]['value']) . '</span>' . "\n";
 	}
+	return $out;
+};
+
+// Emits an item's dcterms:references — the other content it links to or embeds — onto its
+// Version span, which is where ScalarVersion.parseRelations() looks for them. Each value is a
+// bare node URL: that method resolves targets with an exact nodesByURL lookup and no extension
+// stripping, so a version URL would silently match nothing.
+//
+// Emitted for pages and media alike (a media item's caption can link other content), and only
+// for targets that were themselves exported — an unpublished or deleted page can still be
+// referenced by a live one, and a dangling URL here would resolve to no node and drop the
+// relation anyway. One direction is enough: parseRelations() derives the inverse.
+//
+// These edges are what connect pages to the media they use in the connections, radial and tree
+// visualizations, and what fills "Citations of this media" in the media Citations dialog.
+$emit_references_rdfa = function ($item) use ($book_url, $all_pages) {
+	$out = '';
+	if (empty($item['references'])) return $out;
+
+	foreach ($item['references'] as $ref_slug) {
+		if (!isset($all_pages[$ref_slug])) continue;
+		$out .= "\t\t\t" . '<a class="metadata" tabindex="-1" rel="dcterms:references" href="'
+			. htmlspecialchars($book_url . $ref_slug) . '"></a>' . "\n";
+	}
+
+	return $out;
+};
+
+// One item's node and version subjects, the pair that makes a node real to scalarapi. Used
+// both for the plain neighbour spans and inside the relationship lists below, so an item
+// carries identical RDFa whichever way this page happens to reach it.
+//
+// $visible_title turns the title into a rendered link rather than inert metadata — that is
+// what a relationship list shows the reader, and the [property="dcterms:title"] > a shape is
+// the selector addRelationshipNavigation() rewrites to carry "?path=…" state.
+$emit_item_rdfa = function ($item_slug, $item, $visible_title = false)
+		use ($book_url, $book_data, &$emit_node_rdfa, &$emit_references_rdfa, &$emit_media_rdfa) {
+
+	$is_media  = isset($book_data['media'][$item_slug]);
+	$node_url  = htmlspecialchars($book_url . $item_slug);
+	$ver_url   = htmlspecialchars($book_url . $item_slug . '.1');
+	$title     = htmlspecialchars($item['title']);
+	$inert     = $visible_title ? '' : ' inert';
+
+	// The explicit content= matters on the visible form, and the live wrapper.php carries it
+	// for the same reason: with an <a> inside, the RDFa parser does not read the element's text
+	// as the literal, and the title comes out empty — which surfaces as a blank "Begin with
+	// ..." button and "(No title)" wherever the model is read.
+	$title_span = $visible_title
+		? '<span property="dcterms:title" content="' . $title . '"><a href="' . $node_url . '">' . $title . '</a></span>'
+		: '<span class="metadata" property="dcterms:title">' . $title . '</span>';
+
+	$out  = "\t\t" . '<span' . $inert . ' resource="' . $node_url . '" typeof="scalar:'
+		. ($is_media ? 'Media' : 'Composite') . '">' . "\n";
+	$out .= "\t\t\t" . '<a class="metadata" tabindex="-1" rel="dcterms:hasVersion" href="' . $ver_url . '"></a>' . "\n";
+	$out .= "\t\t\t" . '<a class="metadata" tabindex="-1" rel="dcterms:isPartOf" href="'
+		. htmlspecialchars(rtrim($book_url, '/')) . '"></a>' . "\n";
+	$out .= $emit_node_rdfa($item);
+	$out .= "\t\t" . '</span>' . "\n";
+
+	$out .= "\t\t" . '<span' . $inert . ' resource="' . $ver_url . '" typeof="scalar:Version">' . "\n";
+	$out .= "\t\t\t" . $title_span . "\n";
+	$out .= "\t\t\t" . '<span class="metadata" property="dcterms:description">'
+		. htmlspecialchars(isset($item['description']) ? $item['description'] : '') . '</span>' . "\n";
+	if (!empty($item['created'])) {
+		$out .= "\t\t\t" . '<span class="metadata" property="dcterms:created">'
+			. htmlspecialchars($item['created']) . '</span>' . "\n";
+	}
+	if (!empty($item['versionNumber'])) {
+		$out .= "\t\t\t" . '<span class="metadata" property="ov:versionnumber">'
+			. (int) $item['versionNumber'] . '</span>' . "\n";
+	}
+	$out .= "\t\t\t" . '<a class="metadata" tabindex="-1" rel="dcterms:isVersionOf" href="' . $node_url . '"></a>' . "\n";
+	$out .= $emit_references_rdfa($item);
+	if ($is_media) $out .= $emit_media_rdfa($item);
+	$out .= "\t\t" . '</span>' . "\n";
+
 	return $out;
 };
 
@@ -115,6 +302,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 <link id="view"            href="plain" />
 <link id="default_view"    href="<?= htmlspecialchars($layout) ?>" />
 <link id="current_node"    href="<?= htmlspecialchars($book_url . $slug) ?>" />
+<link id="primary_role"    rel="scalar:primary_role" href="http://scalar.usc.edu/2012/01/scalar-ns#<?= $primary_role ?>" />
 
 <!-- Favicon -->
 <link rel="shortcut icon" href="<?= $assets ?>views/arbors/html5_RDFa/favicon_16.gif" />
@@ -135,8 +323,12 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 <link rel="stylesheet" href="<?= $assets ?>views/melons/cantaloupe/css/timeline.theme.scalar.css" />
 <link rel="stylesheet" href="<?= $assets ?>views/melons/cantaloupe/css/screen_print.css" media="screen,print" />
 
-<!-- JS — jQuery first, then bridge (intercepts API calls), then Scalar stack -->
+<!-- JS — jQuery first, then the baked server data and the bridge that answers API calls
+     from it, then the Scalar stack. The data file has to precede the bridge: the bridge
+     reads window.__scalarStaticData when a request comes in, and a missing file would
+     leave it serving the reduced fallbacks instead. -->
 <script src="<?= $assets ?>views/arbors/html5_RDFa/js/jquery-3.4.1.min.js"></script>
+<script src="<?= $asset_root ?>scalar-static-data.js"></script>
 <script src="<?= $asset_root ?>scalar-static-bridge.js"></script>
 <script src="<?= $assets ?>views/melons/cantaloupe/js/bootstrap.min.js"></script>
 <script src="<?= $assets ?>views/melons/cantaloupe/js/jquery.bootstrap-modal.js"></script>
@@ -194,7 +386,8 @@ if ($background_href === null) $background_href = $aux_image_href($meta, 'backgr
 <article role="main">
 	<header>
 
-		<!-- Book node — scalarapi reads title, tableOfContents, hasPart -->
+		<!-- Book node — main.js reads its URI to derive the model's urlPrefix, before
+		     anything is parsed, so this one has to be inline on every page -->
 		<span resource="<?= htmlspecialchars(rtrim($book_url, '/')) ?>" typeof="scalar:Book">
 			<span property="dcterms:title" content="<?= htmlspecialchars(strip_tags($meta['title'])) ?>">
 				<!-- scalarheader.jquery.js detaches this link and reuses its href for both the
@@ -202,50 +395,21 @@ if ($background_href === null) $background_href = $aux_image_href($meta, 'backgr
 				     a file: "index.html", not the extensionless "index" a live Scalar routes. -->
 				<a id="book-title" href="<?= $asset_root ?>index.html"><?= htmlspecialchars(strip_tags($meta['title'])) ?></a>
 			</span>
-			<a class="metadata" tabindex="-1" inert rel="dcterms:hasPart"
-			   href="<?= htmlspecialchars($book_url . $slug) ?>"></a>
 			<a class="metadata" tabindex="-1" inert rel="dcterms:tableOfContents"
 			   href="<?= htmlspecialchars($book_url . 'toc') ?>"></a>
 		</span>
+		<!-- The book's dcterms:hasPart list and the table-of-contents node (whose
+		     dcterms:references drive the main menu) are book-level facts, not page-level ones,
+		     and both are O(number of pages). They come from the baked graph instead. -->
 
-		<!-- TOC node — scalarapi builds the main nav from dcterms:references items -->
-		<span resource="<?= htmlspecialchars($book_url . 'toc') ?>" typeof="scalar:Page">
-			<span class="metadata" property="dcterms:title">Main Menu</span>
-<?php foreach ($toc as $i => $toc_slug): ?>
-			<a class="metadata" tabindex="-1" rel="dcterms:references"
-			   href="<?= htmlspecialchars($book_url . $toc_slug) ?>#index=<?= ($i + 1) ?>"></a>
-<?php endforeach; ?>
-		</span>
-
-		<!-- All other content nodes (inert) — scalarapi builds its full node index from these -->
-<?php foreach ($all_pages as $other_slug => $other_page):
-	if ($other_slug === $slug) continue;
-	$is_media  = isset($book_data['media'][$other_slug]);
-	$node_type = $is_media ? 'Media' : 'Composite';
-	$node_url  = htmlspecialchars($book_url . $other_slug);
-	$ver_url   = htmlspecialchars($book_url . $other_slug . '.1');
-?>
-		<span inert resource="<?= $node_url ?>" typeof="scalar:<?= $node_type ?>">
-			<a class="metadata" tabindex="-1" rel="dcterms:hasVersion" href="<?= $ver_url ?>"></a>
-			<a class="metadata" tabindex="-1" rel="dcterms:isPartOf"
-			   href="<?= htmlspecialchars(rtrim($book_url, '/')) ?>"></a>
-<?= $emit_node_rdfa($other_page) ?>
-		</span>
-		<span inert resource="<?= $ver_url ?>" typeof="scalar:Version">
-			<span class="metadata" property="dcterms:title"><?= htmlspecialchars($other_page['title']) ?></span>
-			<span class="metadata" property="dcterms:description"><?= htmlspecialchars(isset($other_page['description']) ? $other_page['description'] : '') ?></span>
-<?php if (!empty($other_page['created'])): ?>
-			<span class="metadata" property="dcterms:created"><?= htmlspecialchars($other_page['created']) ?></span>
-<?php endif; ?>
-<?php if (!empty($other_page['versionNumber'])): ?>
-			<span class="metadata" property="ov:versionnumber"><?= (int) $other_page['versionNumber'] ?></span>
-<?php endif; ?>
-			<a class="metadata" tabindex="-1" rel="dcterms:isVersionOf" href="<?= $node_url ?>"></a>
-<?php if ($is_media): ?>
-<?= $emit_media_rdfa($other_page) ?>
-<?php endif; ?>
-		</span>
-<?php endforeach; ?>
+		<!-- This page's immediate neighbours (inert). The rest of the book's nodes are seeded
+		     from scalar-static-data.js; see the neighbour computation at the top of this file.
+		     Neighbours a relationship list renders below are skipped here — that markup carries
+		     the same RDFa, fused with the visible entry exactly as a live Scalar does it. -->
+<?php foreach ($neighbour_slugs as $other_slug => $ignored):
+	if (!isset($all_pages[$other_slug]) || isset($rendered_slugs[$other_slug])) continue;
+	echo $emit_item_rdfa($other_slug, $all_pages[$other_slug]);
+endforeach; ?>
 
 		<!-- Current page -->
 		<h1 property="dcterms:title"><?= htmlspecialchars($page['title']) ?></h1>
@@ -272,6 +436,7 @@ if ($background_href === null) $background_href = $aux_image_href($meta, 'backgr
 <?php if (!empty($page['versionNumber'])): ?>
 			<span class="metadata" property="ov:versionnumber"><?= (int) $page['versionNumber'] ?></span>
 <?php endif; ?>
+<?= $emit_references_rdfa($page) ?>
 <?php if ($is_current_media): ?>
 <?= $emit_media_rdfa($page) ?>
 <?php endif; ?>
@@ -292,102 +457,53 @@ if ($background_href === null) $background_href = $aux_image_href($meta, 'backgr
 <?php endif; ?>
 		</span>
 
-		<!-- Relationships (paths, tags, annotations) —————————————————————————
-		     scalarapi derives a node's 'path'/'tag'/'annotation' scalarType — what the Index
-		     modal's tabs filter on, and what path navigation and tag lists read — purely from
-		     parsed relations (ScalarNode.addRelation), never from rdf:type. Relations in turn
-		     come only from Open Annotation resources in the RDFa: a subject typed
-		     oac:Annotation carrying oac:hasBody (the path/tag/annotation node) and oac:hasTarget
-		     (the item it applies to). Without these, four of the Index's six tabs have nothing
-		     to find.
-
-		     The relation's *kind* is inferred by ScalarRelation from the anchor fragment on the
-		     target URL, exactly as annotation_append() (MY_url_helper.php) builds it live:
-
-		         (none)         -> tag
-		         #index=N       -> path, at page N
-		         #t=npt:s,e     -> annotation, temporal
-		         #line=s,e      -> annotation, textual
-		         #xywh=…        -> annotation, spatial region
-		         #pos3d=…       -> annotation, 3D scene position
-		         #posgis=…      -> annotation, geographic position
-
-		     Comments are deliberately absent: they are dropped from the export (see CLAUDE.md),
-		     so the Index's Comments tab reports no results rather than showing stale ones. -->
-<?php
-	// Renders one oac:Annotation relation, or nothing if either endpoint was not exported
-	// (an unpublished or deleted node can still be referenced by a path or tag row).
-	// ScalarRelation resolves both endpoints with stripVersion(), so the '.1' suffix here
-	// only has to be present, not accurate — it matches what the node spans above emit.
-	$emit_relation = function ($urn, $body_slug, $target_slug, $fragment) use ($book_url, $all_pages) {
-		if (!isset($all_pages[$body_slug]) || !isset($all_pages[$target_slug])) return '';
-		return "\t\t" . '<span class="metadata" inert resource="' . htmlspecialchars($urn) . '" typeof="oac:Annotation">' . "\n"
-			. "\t\t\t" . '<a class="metadata" tabindex="-1" rel="oac:hasBody" href="'
-				. htmlspecialchars($book_url . $body_slug . '.1') . '"></a>' . "\n"
-			. "\t\t\t" . '<a class="metadata" tabindex="-1" rel="oac:hasTarget" href="'
-				. htmlspecialchars($book_url . $target_slug . '.1' . $fragment) . '"></a>' . "\n"
-			. "\t\t" . '</span>' . "\n";
-	};
-
-	// Rebuild the anchor fragment for one entry of book_data['annotations'], whose offsets
-	// _normalize_annotation() has already split out of the raw rel_annotated columns. Mirrors
-	// annotation_append()'s output field-for-field, including its habit of emitting nothing
-	// when every offset is empty or zero — in which case ScalarRelation falls back to typing
-	// the relation as a tag, the same as it would on the live site.
-	$annotation_fragment = function (array $a) {
-		$type = isset($a['type']) ? $a['type'] : '';
-
-		if ('textual' === $type) {
-			if (empty($a['startLine']) && empty($a['endLine'])) return '';
-			return '#line=' . $a['startLine'] . ',' . $a['endLine'];
-		}
-
-		if ('spatial' === $type) {
-			switch ($a['spatialType']) {
-				case 'xywh':
-					return '#xywh=' . implode(',', array($a['x'], $a['y'], $a['width'], $a['height']));
-				case 'pos3d':
-					return '#pos3d=' . implode(',', array(
-						$a['targetX'], $a['targetY'], $a['targetZ'],
-						$a['cameraX'], $a['cameraY'], $a['cameraZ'],
-						$a['roll'], $a['tilt'], $a['fieldOfView']));
-				case 'posgis':
-					return '#posgis=' . implode(',', array(
-						$a['latitude'], $a['longitude'], $a['altitude'],
-						$a['heading'], $a['tilt'], $a['fieldOfView']));
-			}
-			return '';
-		}
-
-		if (empty($a['start']) && empty($a['end'])) return '';
-		return '#t=npt:' . $a['start'] . ',' . $a['end'];
-	};
-
-	// Paths: sort_number is 1-based, and is what scalarpage reads to build "page N of M"
-	// navigation as well as what orders the path's contents in the Index.
-	foreach ($book_data['paths'] as $path_slug => $path) {
-		foreach ($path['children'] as $i => $child_slug) {
-			echo $emit_relation(
-				'urn:scalar:path:' . $path_slug . ':' . $child_slug . ':' . ($i + 1),
-				$path_slug, $child_slug, '#index=' . ($i + 1));
-		}
-	}
-
-	foreach ($book_data['tags'] as $tag_slug => $tag) {
-		foreach ($tag['tagged'] as $tagged_slug) {
-			echo $emit_relation(
-				'urn:scalar:tag:' . $tag_slug . ':' . $tagged_slug,
-				$tag_slug, $tagged_slug, '');
-		}
-	}
-
-	foreach ($book_data['annotations'] as $anno_id => $anno) {
-		echo $emit_relation(
-			$anno_id, $anno['bodySlug'], $anno['targetSlug'], $annotation_fragment($anno));
-	}
-?>
+		<!-- Relations incident to this page that no relationship list above already states —
+		     this page's place on a path, and annotations *of* it, neither of which Scalar
+		     renders as a list here. ScalarRelation infers a relation's kind
+		     — path, tag, or which flavour of annotation — from the anchor fragment on its
+		     oac:hasTarget URL; _build_relations() in static_export_model.php builds both these
+		     and the baked graph's copies from one list so the two cannot drift. The '.1'
+		     version suffix only has to be present, not accurate: ScalarRelation resolves both
+		     endpoints with stripVersion(). -->
+<?php foreach ($incident_relations as $relation):
+	if (isset($rendered_relations[$relation['urn']])) continue; ?>
+		<span class="metadata" inert resource="<?= htmlspecialchars($relation['urn']) ?>" typeof="oac:Annotation">
+			<a class="metadata" tabindex="-1" rel="oac:hasBody"
+			   href="<?= htmlspecialchars($book_url . $relation['body'] . '.1') ?>"></a>
+			<a class="metadata" tabindex="-1" rel="oac:hasTarget"
+			   href="<?= htmlspecialchars($book_url . $relation['target'] . '.1' . $relation['fragment']) ?>"></a>
+		</span>
+<?php endforeach; ?>
 
 	</header>
+
+<?php foreach ($relationship_lists as $list): ?>
+	<section>
+		<h1><?= htmlspecialchars($list['heading']) ?></h1>
+		<!-- Each entry states the relationship and renders it at once, the way the live
+		     wrapper.php does: the <li> is the oac:Annotation subject, and the item's own node
+		     and version spans sit inside it carrying the visible title link. That fusion is
+		     why these items are skipped by the plain neighbour block above — this markup is
+		     their RDFa, not a duplicate of it. -->
+		<ol class="<?= $list['class'] ?>">
+<?php	foreach ($list['entries'] as $entry):
+			if (!isset($all_pages[$entry['slug']])) continue;
+			$rel = $entry['relation']; ?>
+<?php		if ($rel !== null): ?>
+			<li resource="<?= htmlspecialchars($rel['urn']) ?>" typeof="oac:Annotation">
+				<a class="metadata" tabindex="-1" inert rel="oac:hasBody"
+				   href="<?= htmlspecialchars($book_url . $rel['body'] . '.1') ?>"></a>
+				<a class="metadata" tabindex="-1" inert rel="oac:hasTarget"
+				   href="<?= htmlspecialchars($book_url . $rel['target'] . '.1' . $rel['fragment']) ?>"></a>
+<?php		else: ?>
+			<li>
+<?php		endif; ?>
+<?= $emit_item_rdfa($entry['slug'], $all_pages[$entry['slug']], true) ?>
+			</li>
+<?php	endforeach; ?>
+		</ol>
+	</section>
+<?php endforeach; ?>
 
 	<span property="sioc:content"><?= isset($page['body']) ? $page['body'] : '' ?></span>
 

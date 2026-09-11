@@ -275,6 +275,110 @@
             }
         }());
 
+        /* Seed the baked book graph into the model.
+         *
+         * page.php carries only the current page, its immediate neighbours and the relations
+         * joining them; every other node in the book lives in scalar-static-data.js (see
+         * _build_graph() in static_export_model.php). Emitting the whole book on every page
+         * was quadratic — hundreds of megabytes on a book of a few hundred items, and an RDFa
+         * parse over every subject on every page load.
+         *
+         * The graph is merged into the page's own RDFa dump and the two parsed together, once,
+         * rather than parsed in sequence. ScalarNode.parseData() replaces a node's properties
+         * wholesale from whatever json it is handed, so two passes would mean one source
+         * silently winning outright — and either direction loses something. The page has to
+         * win for scalar:defaultView, or a .meta page's "meta" view would be overwritten by
+         * the item's real layout; the graph has to win for the book's dcterms:hasPart and the
+         * table of contents, which no single page carries. Merging predicate by predicate,
+         * with the page winning where both speak, gives each what it needs.
+         *
+         * Asset paths in the graph are relative to the export root, since a shared file has no
+         * page to be relative to. They are rewritten here to be relative to this page, which is
+         * what every consumer downstream expects — the same form page.php emits inline. */
+        var ASSET_PREDICATES = [
+            'http://simile.mit.edu/2003/10/ontologies/artstor#url',
+            'http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail',
+            'http://scalar.usc.edu/2012/01/scalar-ns#banner'
+        ];
+
+        var _pageGraph;   // memoized: the rewrite below is done once, not per parse call
+
+        function graphForThisPage() {
+            if (_pageGraph !== undefined) return _pageGraph;
+
+            var baked = window.__scalarStaticData && window.__scalarStaticData.graph;
+            if (!baked) return (_pageGraph = null);
+
+            var root = exportRoot();
+            var out  = {};
+
+            for (var subject in baked) {
+                var entry = {}, predicates = baked[subject];
+                for (var predicate in predicates) {
+                    var values = predicates[predicate];
+                    if (ASSET_PREDICATES.indexOf(predicate) === -1) {
+                        entry[predicate] = values;
+                        continue;
+                    }
+                    // Root-relative -> relative to this page. Anything already carrying a
+                    // scheme is a third-party address and is left alone.
+                    entry[predicate] = values.map(function (v) {
+                        if (typeof v.value !== 'string' || /^[a-z][a-z0-9+.-]*:/i.test(v.value)) return v;
+                        return { value: root + v.value, type: v.type };
+                    });
+                }
+                out[subject] = entry;
+            }
+
+            return (_pageGraph = out);
+        }
+
+        /* Merge the graph under the page's own dump: same subject, same predicate — the page
+         * wins; otherwise both are kept. */
+        function mergeGraph(graph, pageJson) {
+            var merged = {}, subject, predicate;
+
+            for (subject in graph) {
+                merged[subject] = {};
+                for (predicate in graph[subject]) merged[subject][predicate] = graph[subject][predicate];
+            }
+            for (subject in pageJson) {
+                if (!merged[subject]) merged[subject] = {};
+                for (predicate in pageJson[subject]) merged[subject][predicate] = pageJson[subject][predicate];
+            }
+
+            return merged;
+        }
+
+        if (typeof ScalarModel !== 'undefined') {
+
+            /* Both passes need the graph. parseNodes() builds the nodes; parseRelations()
+             * reads the oac:Annotation subjects — the paths, tags and annotations — straight
+             * out of the json it is handed, so seeding only the first would leave every
+             * relation the current page is not itself part of unbuilt.
+             *
+             * Each is seeded once, on its first call. Later calls carry API-shaped payloads
+             * our own loadNode()/lens patches build, which are already in the model. */
+            var seedOnce = function (method) {
+                var original = ScalarModel.prototype[method];
+                var seeded   = false;
+
+                ScalarModel.prototype[method] = function (json) {
+                    if (!seeded) {
+                        var graph = graphForThisPage();
+                        if (graph !== null) {
+                            seeded = true;
+                            json = mergeGraph(graph, json);
+                        }
+                    }
+                    return original.call(this, json);
+                };
+            };
+
+            seedOnce('parseNodes');
+            seedOnce('parseRelations');
+        }
+
         /* loadNode()/loadPage() fix.
          *
          * Callers throughout Scalar's JS (most importantly jquery.mediaelement.js's
@@ -1161,15 +1265,23 @@
              * them. */
             if (method === 'GET' && path.slice(-7) === '/lenses') return '[]';
 
-            /* GET <approot>/ontologies — the metadata-field vocabulary behind search's field
-             * menu. The live endpoint serves a config array from the server install; rather
-             * than bake a copy that can drift, return the empty envelope its handler expects.
-             * ScalarSearch.handleOntologyData() then adds dcterms:title, dcterms:description,
-             * sioc:content, rdf:type and the scalar: fields itself, so the menu still offers
-             * everything the built-in fields cover — just not any custom namespaces the
-             * original install had configured. It indexes straight into .dcterms, so this
-             * cannot be '{}'. */
-            if (method === 'GET' && path.slice(-11) === '/ontologies') return '{"dcterms":[]}';
+            /* GET <approot>/ontologies — the metadata-field vocabulary behind the "Additional
+             * metadata" field menus in search and the lens editor. Baked at export time from
+             * the exporting install's own config (see _build_ontologies() in
+             * static_export_model.php), so a site that has added its own namespaces exports
+             * the vocabulary its content actually uses.
+             *
+             * The fallback matters as much as the data: ScalarSearch.handleOntologyData()
+             * does `this.ontologyData.dcterms.unshift(...)` the moment it gets a response, so
+             * an empty '{}' would throw where a missing prefix simply yields a shorter menu.
+             * It adds dcterms:title, dcterms:description, sioc:content, rdf:type and the
+             * scalar: fields itself, so even the fallback leaves the built-in fields
+             * searchable. */
+            if (method === 'GET' && path.slice(-11) === '/ontologies') {
+                var baked = window.__scalarStaticData && window.__scalarStaticData.ontologies;
+                if (baked && baked.dcterms) return JSON.stringify(baked);
+                return '{"dcterms":[]}';
+            }
 
             return null;
         };

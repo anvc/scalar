@@ -57,6 +57,11 @@ class Static_Export_Model extends MY_Model {
 	 */
 	const MEDIA_SIZE_WARNING_BYTES = 209715200;
 
+	/** Namespace URIs, spelled out because the baked graph is consumed as expanded RDF-JSON. */
+	const RDF_TYPE  = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
+	const NS_SCALAR = 'http://scalar.usc.edu/2012/01/scalar-ns#';
+	const NS_ART    = 'http://simile.mit.edu/2003/10/ontologies/artstor#';
+
 	public function __construct() {
 
 		parent::__construct();
@@ -67,6 +72,7 @@ class Static_Export_Model extends MY_Model {
 		$this->load->model('path_model',       'paths');
 		$this->load->model('tag_model',        'tags');
 		$this->load->model('annotation_model', 'annotations');
+		$this->load->model('reference_model',  'references');
 
 	}
 
@@ -95,9 +101,11 @@ class Static_Export_Model extends MY_Model {
 		$this->_build_paths($book_id, $base_uri, $paths);
 		$this->_build_tags($book_id, $base_uri, $tags);
 		$this->_build_annotations($book_id, $media, $annotations);
+		$this->_build_references($book_id, $pages, $media);
+		$this->_build_excerpts($pages, $media, $base_uri);
 		$toc = $this->_build_toc($book_id);
 
-		return array(
+		$book_data = array(
 			'meta'        => $this->_build_meta($book),
 			'pages'       => $pages,
 			'media'       => $media,
@@ -106,6 +114,13 @@ class Static_Export_Model extends MY_Model {
 			'annotations' => $annotations,
 			'toc'         => $toc,
 		);
+
+		// Flatten paths, tags and annotations into the single list of Open Annotation
+		// relations both the page template and the baked graph render from, so the URN and
+		// anchor-fragment rules live in one place rather than being restated in each.
+		$book_data['relations'] = $this->_build_relations($book_data);
+
+		return $book_data;
 
 	}
 
@@ -218,6 +233,10 @@ class Static_Export_Model extends MY_Model {
 				}
 			}
 		}
+
+		// Write the baked server data the bridge answers API calls from, then the bridge
+		// itself. Order matters only for readability — page.php loads the data file first.
+		$this->_write_static_data($tmp_dir, $book_data, $book_url, $errors);
 
 		// Write the API intercept bridge script that all pages reference.
 		$bridge_js = $CI->load->view('static_export/bridge', array(), true);
@@ -515,6 +534,421 @@ class Static_Export_Model extends MY_Model {
 	}
 
 	/**
+	 * Backfill each item's 'references' — the other content it links to or embeds. A page that
+	 * embeds a media item references it; so does a page whose body links to another page, and
+	 * a "note" relationship. Scalar records all of them in rel_referenced.
+	 *
+	 * These are what draw the edges between pages and the media they use in the connections,
+	 * radial and tree visualizations, and what fills the "Citations of this media" list in the
+	 * media Citations dialog. Without them a book's content nodes appear in those views as
+	 * unconnected islands.
+	 *
+	 * Stored on the referencing item rather than in a collection of their own because that is
+	 * the direction the reader needs: ScalarVersion.parseRelations() builds the relation from
+	 * dcterms:references on the referencing version, and derives the inverse itself.
+	 *
+	 * @param  int    $book_id
+	 * @param  array  &$pages  book_data['pages']; mutated
+	 * @param  array  &$media  book_data['media']; mutated
+	 */
+	private function _build_references($book_id, &$pages, &$media) {
+
+		// As with paths and tags, MY_Model::get_all() on a relationship table returns the
+		// *parent* content rows — here, the items doing the referencing — with content.*
+		// fields, so recent_version_id is present.
+		$parent_rows = $this->references->get_all($book_id);
+
+		foreach ($parent_rows as $parent) {
+
+			if (empty($parent->recent_version_id)) continue;
+
+			$children = $this->references->get_children($parent->recent_version_id, null, null, true);
+			if (empty($children)) continue;
+
+			// A page can reference the same item more than once — embed a media file twice,
+			// or link it and then annotate it. One relation per pair is all the model wants.
+			$slugs = array();
+			foreach ($children as $child) {
+				if (empty($child->child_content_slug)) continue;
+				$slugs[$child->child_content_slug] = true;
+			}
+
+			$slugs = array_keys($slugs);
+			if (empty($slugs)) continue;
+
+			if (isset($pages[$parent->slug])) {
+				$pages[$parent->slug]['references'] = $slugs;
+			} elseif (isset($media[$parent->slug])) {
+				$media[$parent->slug]['references'] = $slugs;
+			}
+
+		}
+
+	}
+
+	/**
+	 * Build the whole book's graph as RDF-JSON — the same shape jquery.RDFa's dump() produces
+	 * from markup, so ScalarModel.parseNodes()/parseRelations() consume it unchanged:
+	 *
+	 *     { "<subject uri>": { "<predicate uri>": [ {value, type}, … ] } }
+	 *
+	 * This replaces the per-page RDFa block that used to restate every node on every page —
+	 * an O(N^2) cost that reached hundreds of megabytes on a book of a few hundred items. Each
+	 * page now carries only itself and its immediate neighbours (see page.php), and the bridge
+	 * seeds this file into the model at boot.
+	 *
+	 * Asset paths (art:url, art:thumbnail, scalar:banner) are stored relative to the *export
+	 * root*, not to any page — a shared file has no single page to be relative to. The bridge
+	 * prefixes them with the reading page's own path back to the root when it seeds; see its
+	 * ASSET_PREDICATES handling.
+	 *
+	 * @param  array  $book_data  Full normalized structure, including ['relations']
+	 * @param  string $book_url   Live Scalar base URL for this book, trailing slash included
+	 * @return array              RDF-JSON for the entire book
+	 */
+	private function _build_graph($book_data, $book_url) {
+
+		$graph     = array();
+		$all_pages = array_merge($book_data['pages'], $book_data['media']);
+		$book_uri  = rtrim($book_url, '/');
+
+		$uri = function ($v) { return array(array('value' => (string) $v, 'type' => 'uri')); };
+		$lit = function ($v) { return array(array('value' => (string) $v, 'type' => 'literal')); };
+
+		// --- Book node ---------------------------------------------------------------
+		$has_part = array();
+		foreach ($all_pages as $s => $ignored) $has_part[] = array('value' => $book_url . $s, 'type' => 'uri');
+
+		$graph[$book_uri] = array(
+			self::RDF_TYPE                       => $uri(self::NS_SCALAR . 'Book'),
+			'http://purl.org/dc/terms/title'     => $lit(strip_tags($book_data['meta']['title'])),
+			'http://purl.org/dc/terms/tableOfContents' => $uri($book_url . 'toc'),
+		);
+		if (!empty($has_part)) $graph[$book_uri]['http://purl.org/dc/terms/hasPart'] = $has_part;
+
+		// --- Table of contents -------------------------------------------------------
+		// scalarheader builds the main menu from this node's dcterms:references, in order.
+		$toc_refs = array();
+		foreach ($book_data['toc'] as $i => $toc_slug) {
+			$toc_refs[] = array('value' => $book_url . $toc_slug . '#index=' . ($i + 1), 'type' => 'uri');
+		}
+		$graph[$book_url . 'toc'] = array(
+			self::RDF_TYPE                   => $uri(self::NS_SCALAR . 'Page'),
+			'http://purl.org/dc/terms/title' => $lit('Main Menu'),
+		);
+		if (!empty($toc_refs)) $graph[$book_url . 'toc']['http://purl.org/dc/terms/references'] = $toc_refs;
+
+		// --- Every content node, and its version --------------------------------------
+		foreach ($all_pages as $slug => $item) {
+			$is_media = isset($book_data['media'][$slug]);
+			$graph    = $graph + $this->_graph_entries_for_item($item, $slug, $is_media, $book_url, $all_pages);
+		}
+
+		// --- Relations ----------------------------------------------------------------
+		foreach ($book_data['relations'] as $rel) {
+			$graph[$rel['urn']] = array(
+				self::RDF_TYPE => $uri('http://www.openannotation.org/ns/Annotation'),
+				'http://www.openannotation.org/ns/hasBody'   => $uri($book_url . $rel['body'] . '.1'),
+				'http://www.openannotation.org/ns/hasTarget' => $uri($book_url . $rel['target'] . '.1' . $rel['fragment']),
+			);
+		}
+
+		return $graph;
+
+	}
+
+	/**
+	 * The node and version subjects for one content item, in RDF-JSON. Kept beside
+	 * _build_graph() but factored out because page.php emits the identical predicate set
+	 * inline for the current page and its neighbours — the two have to stay in step, and a
+	 * node parsed from either source must come out the same.
+	 *
+	 * @return array  two entries: the node URI and its version URI
+	 */
+	private function _graph_entries_for_item($item, $slug, $is_media, $book_url, $all_pages) {
+
+		$uri = function ($v) { return array(array('value' => (string) $v, 'type' => 'uri')); };
+		$lit = function ($v) { return array(array('value' => (string) $v, 'type' => 'literal')); };
+
+		$node_uri = $book_url . $slug;
+		$ver_uri  = $node_uri . '.1';
+
+		// Node subject
+		$node = array(
+			self::RDF_TYPE                        => $uri(self::NS_SCALAR . ($is_media ? 'Media' : 'Composite')),
+			'http://purl.org/dc/terms/hasVersion' => $uri($ver_uri),
+			'http://purl.org/dc/terms/isPartOf'   => $uri(rtrim($book_url, '/')),
+		);
+		// Node-level asset paths, stored export-root-relative for the bridge to resolve.
+		if (!empty($item['localThumbnail'])) {
+			$node[self::NS_ART . 'thumbnail'] = $lit($item['localThumbnail']);
+		} elseif (!empty($item['thumbnailUrl'])) {
+			$node[self::NS_ART . 'thumbnail'] = $lit($item['thumbnailUrl']);
+		}
+		if (!empty($item['localBanner'])) {
+			$node[self::NS_SCALAR . 'banner'] = $lit($item['localBanner']);
+		} elseif (!empty($item['bannerUrl'])) {
+			$node[self::NS_SCALAR . 'banner'] = $lit($item['bannerUrl']);
+		}
+
+		// Version subject
+		$version = array(
+			self::RDF_TYPE                          => $uri(self::NS_SCALAR . 'Version'),
+			'http://purl.org/dc/terms/isVersionOf'  => $uri($node_uri),
+			'http://purl.org/dc/terms/title'        => $lit($item['title']),
+			'http://purl.org/dc/terms/description'  => $lit(isset($item['description']) ? $item['description'] : ''),
+		);
+		// The passage that cites other content, which the media Citations dialog quotes. See
+		// _build_excerpts() for why this is an excerpt rather than the whole body.
+		if (!empty($item['excerpt'])) $version['http://rdfs.org/sioc/ns#content'] = $lit($item['excerpt']);
+		if (!empty($item['created']))       $version['http://purl.org/dc/terms/created'] = $lit($item['created']);
+		if (!empty($item['versionNumber'])) $version['http://open.vocab.org/terms/versionnumber'] = $lit((int) $item['versionNumber']);
+		if (!empty($item['layout']) && 'plain' !== $item['layout']) {
+			$version[self::NS_SCALAR . 'defaultView'] = $lit($item['layout']);
+		}
+
+		// References — the other content this item links to or embeds.
+		if (!empty($item['references'])) {
+			$refs = array();
+			foreach ($item['references'] as $ref_slug) {
+				if (!isset($all_pages[$ref_slug])) continue;
+				$refs[] = array('value' => $book_url . $ref_slug, 'type' => 'uri');
+			}
+			if (!empty($refs)) $version['http://purl.org/dc/terms/references'] = $refs;
+		}
+
+		if ($is_media) {
+			if (!empty($item['sourceUrl'])) {
+				$version[self::NS_ART . 'url'] = $lit(
+					$item['localPath'] !== null ? $item['localPath'] : $item['sourceUrl']);
+			}
+			$props = isset($item['additionalMetadata']) ? $item['additionalMetadata'] : array();
+			foreach (array('accessRights', 'type') as $field) {
+				if (!empty($props['http://purl.org/dc/terms/' . $field][0]['value'])) {
+					$version['http://purl.org/dc/terms/' . $field] =
+						$lit($props['http://purl.org/dc/terms/' . $field][0]['value']);
+				}
+			}
+		}
+
+		return array($node_uri => $node, $ver_uri => $version);
+
+	}
+
+	/**
+	 * Capture, for each item that references media, the passage of its body that does the
+	 * referencing — the block element containing the link.
+	 *
+	 * This is what fills "Citations of this media" in the media Citations dialog. That panel
+	 * quotes the sentence around each citation, and it builds the quote by reading the citing
+	 * page's sioc:content, finding the <a resource="…"> for the media inside it and taking
+	 * that anchor's parent's HTML (see scalarmediadetails.jquery.js). So the content it needs
+	 * is not the whole page — only enough of it to contain the link and its surrounding block.
+	 *
+	 * Baking whole bodies instead would work, and the shared graph could carry them, but every
+	 * page would then download and parse every other page's prose at boot to render a handful
+	 * of quotations. Excerpts keep that cost proportional to the citations themselves.
+	 *
+	 * The consequence to know about: for any node other than the one being viewed, the model's
+	 * version content is this excerpt rather than the full body. Nothing in an export rendered
+	 * body copy from the model before — other nodes carried no content at all — so this is
+	 * strictly more than was there, but a page-content widget pointed at another page will
+	 * show the excerpt, not the whole thing.
+	 *
+	 * @param array &$pages
+	 * @param array &$media
+	 */
+	private function _build_excerpts(&$pages, &$media, $base_uri) {
+
+		foreach (array('pages', 'media') as $collection) {
+			$items = ($collection === 'pages') ? $pages : $media;
+
+			foreach ($items as $slug => $item) {
+				if (empty($item['references']) || empty($item['body'])) continue;
+
+				$excerpt = $this->_excerpt_for_references($item['body'], $item['references'], $base_uri);
+				if ($excerpt === '') continue;
+
+				if ($collection === 'pages') $pages[$slug]['excerpt'] = $excerpt;
+				else                         $media[$slug]['excerpt'] = $excerpt;
+			}
+		}
+
+	}
+
+	/**
+	 * The block elements of $html that contain a link to any of $slugs, concatenated.
+	 *
+	 * Scalar's editor writes an inline media link as <a resource="<slug>" …>, so the anchors
+	 * are found by that attribute rather than by href, which varies with how the media is
+	 * hosted. The enclosing block is returned whole — the dialog quotes the anchor's parent,
+	 * and the anchor's own classes decide whether it reads as an inline embed or a citation.
+	 *
+	 * @param  string $html      Raw body HTML
+	 * @param  array  $slugs     Referenced content slugs
+	 * @param  string $base_uri  Live Scalar base URL for this book, trailing slash included
+	 * @return string            Concatenated block HTML, or '' if no link was found
+	 */
+	private function _excerpt_for_references($html, array $slugs, $base_uri) {
+
+		if (!class_exists('DOMDocument')) return '';
+
+		$doc = new DOMDocument();
+		$previous = libxml_use_internal_errors(true);   // body copy is rarely well-formed XML
+		$loaded = $doc->loadHTML('<?xml encoding="UTF-8">' . $html,
+			LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+		libxml_clear_errors();
+		libxml_use_internal_errors($previous);
+
+		if (!$loaded) return '';
+
+		$blocks  = array('p', 'div', 'li', 'blockquote', 'td', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6');
+		$wanted  = array_flip($slugs);
+		$chosen  = array();
+		$excerpt = '';
+
+		foreach ($doc->getElementsByTagName('a') as $anchor) {
+			$resource = $anchor->getAttribute('resource');
+			if ($resource === '' || !isset($wanted[$resource])) continue;
+
+			// Nearest block ancestor, or the anchor itself if it sits loose in the body.
+			$node = $anchor;
+			while ($node->parentNode !== null && $node->parentNode->nodeType === XML_ELEMENT_NODE) {
+				if (in_array(strtolower($node->parentNode->nodeName), $blocks, true)) {
+					$node = $node->parentNode;
+					break;
+				}
+				$node = $node->parentNode;
+			}
+
+			// Repoint the link at the item's canonical node URL. In the body it addressed the
+			// media file directly, relative to the page it sat on — which is meaningless once
+			// the passage is quoted somewhere else in the book, as this one is. A node URL is
+			// both correct from anywhere and the form the bridge's link rewriting recognises,
+			// so it lands as a working relative path wherever the quote is rendered.
+			$anchor->setAttribute('href', $base_uri . $resource);
+
+			// One block can carry several links; emit it once.
+			$key = spl_object_hash($node);
+			if (isset($chosen[$key])) continue;
+			$chosen[$key] = true;
+
+			$excerpt .= $doc->saveHTML($node);
+		}
+
+		return trim($excerpt);
+
+	}
+
+	/**
+	 * Flatten paths, tags and annotations into one list of Open Annotation relations.
+	 *
+	 * scalarapi derives a node's 'path'/'tag'/'annotation' scalarType — what the Index modal's
+	 * tabs filter on, and what path navigation and tag lists read — purely from parsed
+	 * relations (ScalarNode.addRelation), never from rdf:type. A relation reaches it only as a
+	 * subject typed oac:Annotation carrying oac:hasBody (the path/tag/annotation node) and
+	 * oac:hasTarget (the item it applies to).
+	 *
+	 * The relation's *kind* is inferred by ScalarRelation from the anchor fragment on the
+	 * target URL, exactly as annotation_append() (MY_url_helper.php) builds it live:
+	 *
+	 *     (none)         -> tag
+	 *     #index=N       -> path, at page N
+	 *     #t=npt:s,e     -> annotation, temporal
+	 *     #line=s,e      -> annotation, textual
+	 *     #xywh=…        -> annotation, spatial region
+	 *     #pos3d=…       -> annotation, 3D scene position
+	 *     #posgis=…      -> annotation, geographic position
+	 *
+	 * Comments are deliberately absent: they are dropped from the export (see CLAUDE.md), so
+	 * the Index's Comments tab reports no results rather than showing stale ones.
+	 *
+	 * Endpoints are slugs, left for the caller to turn into URLs — page.php needs versioned
+	 * ones ('.1' suffixed, which ScalarRelation resolves with stripVersion(), so it only has
+	 * to be present rather than accurate) and so does the graph.
+	 *
+	 * @param  array $book_data
+	 * @return array  list of ['urn' => …, 'body' => slug, 'target' => slug, 'fragment' => …]
+	 */
+	private function _build_relations($book_data) {
+
+		$relations = array();
+		$all_pages = array_merge($book_data['pages'], $book_data['media']);
+
+		$add = function ($urn, $body, $target, $fragment) use (&$relations, $all_pages) {
+			// Skip when either endpoint was not exported — an unpublished or deleted node can
+			// still be referenced by a path or tag row.
+			if (!isset($all_pages[$body]) || !isset($all_pages[$target])) return;
+			$relations[] = array(
+				'urn'      => $urn,
+				'body'     => $body,
+				'target'   => $target,
+				'fragment' => $fragment,
+			);
+		};
+
+		// Paths: sort_number is 1-based, and is what scalarpage reads to build "page N of M"
+		// navigation as well as what orders the path's contents in the Index.
+		foreach ($book_data['paths'] as $path_slug => $path) {
+			foreach ($path['children'] as $i => $child_slug) {
+				$add('urn:scalar:path:' . $path_slug . ':' . $child_slug . ':' . ($i + 1),
+					$path_slug, $child_slug, '#index=' . ($i + 1));
+			}
+		}
+
+		foreach ($book_data['tags'] as $tag_slug => $tag) {
+			foreach ($tag['tagged'] as $tagged_slug) {
+				$add('urn:scalar:tag:' . $tag_slug . ':' . $tagged_slug, $tag_slug, $tagged_slug, '');
+			}
+		}
+
+		foreach ($book_data['annotations'] as $anno_id => $anno) {
+			$add($anno_id, $anno['bodySlug'], $anno['targetSlug'], self::_annotation_fragment($anno));
+		}
+
+		return $relations;
+
+	}
+
+	/**
+	 * Rebuild the anchor fragment for one entry of book_data['annotations'], whose offsets
+	 * _normalize_annotation() has already split out of the raw rel_annotated columns. Mirrors
+	 * annotation_append()'s output field-for-field, including its habit of emitting nothing
+	 * when every offset is empty or zero — in which case ScalarRelation falls back to typing
+	 * the relation as a tag, the same as it would on the live site.
+	 */
+	private static function _annotation_fragment(array $a) {
+
+		$type = isset($a['type']) ? $a['type'] : '';
+
+		if ('textual' === $type) {
+			if (empty($a['startLine']) && empty($a['endLine'])) return '';
+			return '#line=' . $a['startLine'] . ',' . $a['endLine'];
+		}
+
+		if ('spatial' === $type) {
+			switch ($a['spatialType']) {
+				case 'xywh':
+					return '#xywh=' . implode(',', array($a['x'], $a['y'], $a['width'], $a['height']));
+				case 'pos3d':
+					return '#pos3d=' . implode(',', array(
+						$a['targetX'], $a['targetY'], $a['targetZ'],
+						$a['cameraX'], $a['cameraY'], $a['cameraZ'],
+						$a['roll'], $a['tilt'], $a['fieldOfView']));
+				case 'posgis':
+					return '#posgis=' . implode(',', array(
+						$a['latitude'], $a['longitude'], $a['altitude'],
+						$a['heading'], $a['tilt'], $a['fieldOfView']));
+			}
+			return '';
+		}
+
+		if (empty($a['start']) && empty($a['end'])) return '';
+		return '#t=npt:' . $a['start'] . ',' . $a['end'];
+
+	}
+
+	/**
 	 * Build the paths collection.
 	 * Each path page also appears in $pages (already added by _build_content).
 	 */
@@ -666,6 +1100,7 @@ class Static_Export_Model extends MY_Model {
 			// "Scalar URL (version N)" metadata-table row read correctly and gives readers a
 			// sense of how much a page was revised, without exporting the revision history itself.
 			'versionNumber'      => isset($version->version_num) ? (int) $version->version_num : null,
+			'references'         => array(),   // populated by _build_references()
 			'additionalMetadata' => $arc_meta,
 		) + $this->_aux_images($content, $base_uri);   // thumbnail / banner / background
 
@@ -694,6 +1129,7 @@ class Static_Export_Model extends MY_Model {
 			'created'            => !empty($version->created) ? date('c', strtotime($version->created)) : null,
 			'versionNumber'      => isset($version->version_num) ? (int) $version->version_num : null,
 			'annotations'        => array(),
+			'references'         => array(),   // populated by _build_references()
 			'additionalMetadata' => $arc_meta,
 		) + $this->_aux_images($content, $base_uri);   // thumbnail / banner / background
 
@@ -1315,6 +1751,83 @@ class Static_Export_Model extends MY_Model {
 		$files_copied++;
 
 		return $local_path;
+
+	}
+
+	/**
+	 * Write <tmp_dir>/scalar-static-data.js — the book's whole graph plus the server-side data
+	 * the bridge answers API calls from, as a plain assignment to window.__scalarStaticData.
+	 *
+	 * A .js file rather than the scalar-data.json CLAUDE.md envisages, for two reasons. A
+	 * <script> tag works when the export is opened from disk over file://, where fetching a
+	 * sibling .json is blocked as a cross-origin read. And the bridge treats every
+	 * extensionless same-origin URL as a Scalar endpoint to intercept, so a file parked at the
+	 * endpoint's own path (system/ontologies) would never be reachable anyway.
+	 *
+	 * @param  string $tmp_dir  Absolute path to the export temp directory (no trailing slash)
+	 * @param  array  &$errors  Errors array from render_book(); populated on failure
+	 * @return bool             True if the file was written
+	 */
+	private function _write_static_data($tmp_dir, $book_data, $book_url, &$errors) {
+
+		$data = array(
+			'graph'      => $this->_build_graph($book_data, $book_url),
+			'ontologies' => $this->_build_ontologies(),
+		);
+
+		$js = "/* scalar-static-data.js\n"
+			. " * Server data baked in at export time, read by scalar-static-bridge.js.\n"
+			. " * Auto-generated by the static exporter — do not edit manually.\n"
+			. " */\n"
+			. 'window.__scalarStaticData = ' . json_encode($data) . ";\n";
+
+		if (file_put_contents($tmp_dir . '/scalar-static-data.js', $js) === false) {
+			$errors['scalar-static-data.js'] = 'Could not write scalar-static-data.js';
+			return false;
+		}
+
+		return true;
+
+	}
+
+	/**
+	 * The metadata-field vocabulary the live GET <approot>/ontologies endpoint serves: a map of
+	 * namespace prefix to the predicates available under it, used to populate the "Additional
+	 * metadata" field menus in search and the lens editor.
+	 *
+	 * Mirrors System::ontologies() exactly, including its removal of the predicates that are
+	 * already built into Scalar's own model ($config['rdf_fields'] — dcterms:title,
+	 * dcterms:description and the like). Those are offered separately by the consumers
+	 * themselves, so leaving them in would list them twice.
+	 *
+	 * Baked from the exporting install's config rather than hardcoded here, so a site that has
+	 * added its own namespaces (the documented way to extend Scalar's vocabulary — see the
+	 * comments atop config/rdf.php) exports the vocabulary its own content actually uses.
+	 *
+	 * @return array  prefix => list of predicate names
+	 */
+	private function _build_ontologies() {
+
+		$CI =& get_instance();
+
+		$ontologies = $CI->config->item('ontologies');
+		$rdf_fields = $CI->config->item('rdf_fields');
+
+		if (!is_array($ontologies)) return array();
+		if (!is_array($rdf_fields)) $rdf_fields = array();
+
+		foreach ($ontologies as $prefix => $values) {
+			foreach ($values as $key => $value) {
+				if (in_array($prefix . ':' . $value, $rdf_fields)) {
+					unset($ontologies[$prefix][$key]);
+				}
+			}
+			// Reindex from 0 — the consumers treat these as JSON arrays, and gaps left by the
+			// unset() above would otherwise make json_encode() emit objects instead.
+			$ontologies[$prefix] = array_values($ontologies[$prefix]);
+		}
+
+		return $ontologies;
 
 	}
 
