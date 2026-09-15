@@ -1069,6 +1069,199 @@
          * returning null falls through to the 503.
          * ------------------------------------------------------------------ */
 
+        /* ---- Reading a node's data the way the lens endpoint does -----------------
+         *
+         * A lens names a field the way the editor's menus write it — "<prefix>:<name>" — and
+         * the server decides from that string alone whether to read one of Scalar's own
+         * columns (Version_model::get_by_predicate's first branch, for anything in
+         * config/rdf.php's $rdf_fields) or to query the triple store for an arbitrary
+         * predicate (its second). Here the two are one lookup, because the baked graph states
+         * Scalar's own fields as RDF alongside everything else: expand the prefix and read the
+         * predicate off the node.
+         *
+         * Expansion goes through scalarapi.model.namespaces, which scalarapi builds from the
+         * <html xmlns:*> attributes — page.php emits the exporting install's full prefix list
+         * there precisely so this can resolve an author's own vocabulary and not just the
+         * handful of prefixes the template writes itself. */
+        function lensPredicateURI(field) {
+            if (typeof field !== 'string') return null;
+            var colon = field.indexOf(':');
+            if (colon < 1) return null;
+            var base = scalarapi.model.namespaces[field.slice(0, colon)];
+            return base ? base + field.slice(colon + 1) : null;
+        }
+
+        var SIOC_CONTENT     = 'http://rdfs.org/sioc/ns#content';
+        var DCTERMS_SPATIAL  = 'http://purl.org/dc/terms/spatial';
+        var DCTERMS_COVERAGE = 'http://purl.org/dc/terms/coverage';
+
+        /* Every value one node states for a predicate. Both subjects are consulted because
+         * Scalar splits its fields across them — title and description belong to the version,
+         * thumbnail and the content URN to the node — and a lens field names one field, not
+         * one subject.
+         *
+         * sioc:content is the exception. The graph's copy is an excerpt (see _build_excerpts in
+         * static_export_model.php), kept short because it rides on every node of every page;
+         * the body copy a content filter is actually searching lives in the separate text map
+         * baked beside the graph. See _build_search_text() for why it is not a predicate. */
+        function lensValuesFor(node, uri) {
+            if (uri === SIOC_CONTENT) {
+                var text = window.__scalarStaticData && window.__scalarStaticData.text;
+                var body = text && text[node.url];
+                return body ? [body] : [];
+            }
+
+            var out = [], sources = [], i, j, values;
+            if (node.current && node.current.properties) sources.push(node.current.properties);
+            if (node.properties) sources.push(node.properties);
+
+            for (i = 0; i < sources.length; i++) {
+                values = sources[i][uri];
+                if (!values) continue;
+                for (j = 0; j < values.length; j++) {
+                    if (values[j] && typeof values[j].value === 'string') out.push(values[j].value);
+                }
+            }
+            return out;
+        }
+
+        /* Does one value match the query? Mirrors both halves of the server, which agree:
+         * an ordinary match is a case-insensitive substring (stristr, and the SPARQL
+         * FILTER regex with the "i" flag); an exact match strips punctuation from the *value*
+         * only and then looks for the query fenced by spaces, so it hits whole words —
+         * "japan" no longer matching "japanese" — which is the comment the server carries
+         * where it does this. The query itself is not normalised there, so a query containing
+         * punctuation can never match an exact search; mirrored rather than corrected. */
+        function lensValueMatches(value, query, exact) {
+            if (typeof value !== 'string') return false;
+            var needle = String(query).toLowerCase();
+
+            if (!exact) return value.toLowerCase().indexOf(needle) !== -1;
+
+            return (' ' + value.toLowerCase().replace(/[^\w\s]/g, ' ') + ' ')
+                       .indexOf(' ' + needle.trim() + ' ') !== -1;
+        }
+
+        /* Whether a node matches "<field> contains <query>". null — not false — when the
+         * field names a prefix this export cannot expand, so the caller aborts instead of
+         * reporting every node as a non-match. */
+        function lensNodeMatchesField(node, field, query, exact) {
+            var uri = lensPredicateURI(String(field).trim());
+            if (uri === null) return null;
+
+            var values = lensValuesFor(node, uri);
+            for (var i = 0; i < values.length; i++) {
+                if (lensValueMatches(values[i], query, exact)) return true;
+            }
+            return false;
+        }
+
+        /* ---- Coordinates ---------------------------------------------------------- */
+
+        /* "<lat>,<lng>" for a node, or '' — Lens_model::get_latlng_from_item(), including its
+         * preference for dcterms:spatial over dcterms:coverage, its use of the first value of
+         * each, and its anchored pattern, which accepts a space only after the comma. A place
+         * name, or a coordinate pair written any other way, reads as no location at all. */
+        var LATLNG_RE = /^-?\d+(\.\d+)?,\s*-?\d+(\.\d+)?$/;
+
+        function lensLatLng(node) {
+            var fields = [DCTERMS_SPATIAL, DCTERMS_COVERAGE];
+            for (var i = 0; i < fields.length; i++) {
+                var values = lensValuesFor(node, fields[i]);
+                if (values.length && LATLNG_RE.test(values[0])) return values[0];
+            }
+            return '';
+        }
+
+        /* Great-circle distance in metres — latlng_distance() from MY_string_helper.php, same
+         * haversine and same 6371 km earth radius, so the two agree on which side of a
+         * boundary an item falls. */
+        function lensDistanceMetres(fromLatLng, toLatLng) {
+            var a = String(fromLatLng).split(','), b = String(toLatLng).split(',');
+            if (a.length !== 2 || b.length !== 2) return null;
+
+            var rad  = Math.PI / 180,
+                lat1 = parseFloat(a[0]) * rad, lon1 = parseFloat(a[1]) * rad,
+                lat2 = parseFloat(b[0]) * rad, lon2 = parseFloat(b[1]) * rad;
+            if (isNaN(lat1) || isNaN(lon1) || isNaN(lat2) || isNaN(lon2)) return null;
+
+            var h = Math.pow(Math.sin((lat2 - lat1) / 2), 2) +
+                    Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin((lon2 - lon1) / 2), 2);
+            return 2 * Math.asin(Math.sqrt(h)) * 6371000;
+        }
+
+        /* Lens_model::get_distance_in_meters(), whose switch has no default — a unit it does
+         * not know is a radius of zero, not an unbounded one. */
+        function lensRadiusMetres(quantity, units) {
+            var q = parseFloat(quantity);
+            if (isNaN(q)) return 0;
+            if (units === 'meters')     return q;
+            if (units === 'kilometers') return q * 1000;
+            if (units === 'miles')      return q * 1609.344;
+            return 0;
+        }
+
+        function lensAllContentNodes() {
+            var model = scalarapi.model;
+            return model.getNodesWithProperty('scalarType', 'page')
+                .concat(model.getNodesWithProperty('scalarType', 'media'));
+        }
+
+        /* Every node in the book that states a location — what the server gets back from
+         * get_by_predicate() with no object to match, and the pool both the distance filter
+         * and the items-by-distance selector search. Not restricted to the current selection:
+         * on the server it isn't either. */
+        function lensGeoNodes() {
+            var all = lensAllContentNodes(), out = [];
+            for (var i = 0; i < all.length; i++) {
+                if (lensLatLng(all[i]) !== '') out.push(all[i]);
+            }
+            return out;
+        }
+
+        /* Lens_model::filter_by_location(). Anything strictly beyond the radius is dropped, so
+         * an item exactly on the boundary is kept, as there. */
+        function lensNodesWithin(origin, radiusMetres) {
+            if (String(origin).split(',').length !== 2) return [];
+
+            var pool = lensGeoNodes(), out = [];
+            for (var i = 0; i < pool.length; i++) {
+                var d = lensDistanceMetres(origin, lensLatLng(pool[i]));
+                if (d === null || d > radiusMetres) continue;
+                out.push(pool[i]);
+            }
+            return out;
+        }
+
+        /* ---- Visit history -------------------------------------------------------- */
+
+        /* The database id behind a node's urn:scalar:content:N, as a string — the key the
+         * reader's own visit history is written under.
+         *
+         * That history is not ours to build: jquery.scalarrecent.js records each page the
+         * reader opens in localStorage, reading the id off the first [rel="scalar:urn"] in
+         * <header> (which page.php emits for the current page alone), and ScalarLenses hands
+         * the resulting id => timestamp map over as the lens's 'history'. All that was missing
+         * from an export was the id on the node, which _graph_entries_for_item() now bakes. */
+        function lensContentId(node) {
+            if (!node || typeof node.urn !== 'string') return null;
+            var id = node.urn.split(':').pop();
+            return id === '' ? null : id;
+        }
+
+        function lensWasVisited(lens, node) {
+            var id = lensContentId(node);
+            return id !== null && !!lens.history &&
+                   Object.prototype.hasOwnProperty.call(lens.history, id);
+        }
+
+        /* When, as a timestamp. Zero for a node the reader has not opened — which is what the
+         * server substitutes too, so an ascending visit-date sort lists the unvisited first. */
+        function lensVisitedAt(lens, node) {
+            if (!lensWasVisited(lens, node)) return 0;
+            return parseInt(lens.history[lensContentId(node)], 10) || 0;
+        }
+
         /* Which nodes a lens content-selector picks out. Mirrors
          * Lens_model::get_pages_from_content_selector() — including its ordering, where an
          * 'items' array wins over the selector's declared type. Returns null for a selector
@@ -1088,6 +1281,13 @@
                 return nodes;
             }
 
+            /* items-by-distance: every located node within a radius of a fixed point the
+             * author typed into the lens, rather than of anything in the selection. */
+            if (selector.type === 'items-by-distance') {
+                return lensNodesWithin(selector.coordinates,
+                                       lensRadiusMetres(selector.quantity, selector.units));
+            }
+
             if (selector.type !== 'items-by-type') return null;
 
             switch (selector['content-type']) {
@@ -1102,8 +1302,7 @@
                 // server's unfiltered pages->get_all() returns.
                 case 'all-content':
                 case 'content':
-                    return model.getNodesWithProperty('scalarType', 'page')
-                        .concat(model.getNodesWithProperty('scalarType', 'media'));
+                    return lensAllContentNodes();
 
                 case 'page':
                 case 'composite':
@@ -1128,20 +1327,125 @@
             return null;
         }
 
-        /* Apply one component's modifiers. Only the two the built-in layouts use are
-         * implemented; anything else returns null and aborts, for the same reason as above. */
-        function lensApplyModifiers(nodes, modifiers) {
+        /* Whether one node counts as the given lens content-type. Mirrors
+         * Lens_model::filter_by_type(): 'page' and 'composite' name the same thing, as do
+         * 'file' and 'media', and the relational types hold of a node precisely when it has
+         * relations of that kind — which is what the server tests by asking whether
+         * get_children() returns anything and what ScalarNode records in scalarTypes.
+         * Returns null for a type this doesn't implement (the 'review', 'commentary' and
+         * 'term' page categories, which the export does not carry). */
+        function lensNodeIsType(node, contentType) {
+            if (contentType === 'all-content' || contentType === 'content') return true;
+
+            var type = (contentType === 'composite') ? 'page'
+                     : (contentType === 'file')      ? 'media'
+                     : contentType;
+
+            switch (type) {
+                case 'page':
+                case 'media':
+                case 'path':
+                case 'tag':
+                case 'annotation':
+                case 'reply':
+                case 'comment':
+                case 'reference':
+                    return node.scalarTypes[type] != null;
+            }
+
+            return null;
+        }
+
+        /* Apply one component's modifiers. Anything not implemented here returns null and
+         * aborts, for the same reason as above.
+         *
+         * Two of the filter subtypes the lens editor writes are handled elsewhere rather than
+         * here: 'quantity' and 'visit-date', which the server applies in a second pass, to the
+         * combined result rather than to any one component's share of it. See
+         * lensPostFilters(). */
+        function lensApplyModifiers(nodes, modifiers, lens) {
             if (!modifiers) return nodes;
 
             for (var i = 0; i < modifiers.length; i++) {
                 var mod = modifiers[i];
 
                 if (mod.type === 'sort') {
-                    nodes = lensSort(nodes, mod);
+                    nodes = lensSort(nodes, mod, lens);
                     continue;
                 }
 
-                if (mod.type !== 'filter' || mod.subtype !== 'relationship') return null;
+                if (mod.type !== 'filter') return null;
+
+                // Applied after the combine, not here; see lensPostFilters().
+                if (mod.subtype === 'quantity' || mod.subtype === 'visit-date') continue;
+
+                /* Match a field's value. 'metadata' and 'content' are one case on the server
+                 * too — which of Scalar's two lookups runs is decided by the field, never by
+                 * the subtype, which is why the search box can send 'metadata' for
+                 * sioc:content and mean the same thing as 'content'.
+                 *
+                 * The server searches the whole book for matches and then intersects that with
+                 * the selection (get_by_predicate, then combine_items with 'and'), which comes
+                 * to the same thing as filtering the selection — so that is what this does.
+                 * 'exclusive' is the documented default, and the operator the server falls
+                 * back to when a lens names one it doesn't recognise. */
+                if (mod.subtype === 'metadata' || mod.subtype === 'content') {
+                    var query    = String(mod.content === undefined ? '' : mod.content).trim(),
+                        drop     = mod.operator !== 'inclusive' && mod.operator !== 'exact-match',
+                        exact    = mod.operator === 'exact-match',
+                        selected = [];
+
+                    for (var m = 0; m < nodes.length; m++) {
+                        var hit = lensNodeMatchesField(nodes[m], mod['metadata-field'], query, exact);
+                        if (hit === null) return null;          // prefix this export can't name
+                        if (hit !== drop) selected.push(nodes[m]);
+                    }
+                    nodes = selected;
+                    continue;
+                }
+
+                /* Widen the selection to everything within a radius of each located member of
+                 * it. Like the relationship filter below this *adds* rather than narrows, and
+                 * like it, only the original members seed the walk — the server appends to the
+                 * array it is iterating, and PHP's foreach iterates a copy. */
+                if (mod.subtype === 'distance') {
+                    var radius   = lensRadiusMetres(mod.quantity, mod.units),
+                        widened  = nodes.concat();
+
+                    for (var d = 0; d < nodes.length; d++) {
+                        var here = lensLatLng(nodes[d]);
+                        if (here === '') continue;
+                        widened = widened.concat(lensNodesWithin(here, radius));
+                    }
+                    nodes = widened;
+                    continue;
+                }
+
+                if (mod.subtype === 'content-type') {
+                    /* Narrow to (or subtract) the named content types. The server applies each
+                     * listed type in turn rather than unioning them, so an inclusive filter
+                     * naming two types intersects to nothing; mirrored rather than corrected,
+                     * since the lens was authored against that behaviour. */
+                    // The server accepts a bare string here as well as a list, and reads a
+                    // singular 'content-type' as one more entry.
+                    var wanted = mod['content-types'] || [];
+                    if (!Array.isArray(wanted)) wanted = [wanted];
+                    if (mod['content-type']) wanted = wanted.concat([mod['content-type']]);
+                    var subtract = mod.operator === 'exclusive';
+
+                    for (var w = 0; w < wanted.length; w++) {
+                        var kept = [];
+                        for (var n = 0; n < nodes.length; n++) {
+                            var is = lensNodeIsType(nodes[n], wanted[w]);
+                            if (is === null) return null;
+                            if (is !== subtract) kept.push(nodes[n]);
+                        }
+                        nodes = kept;
+                    }
+                    continue;
+                }
+
+                if (mod.subtype !== 'relationship') return null;
 
                 /* The server's relationship filter *adds* related content to the selection
                  * rather than narrowing it (Lens_model pushes onto $my_contents as it walks
@@ -1169,28 +1473,84 @@
             return nodes;
         }
 
-        function lensSort(nodes, sort) {
-            var descending = sort['sort-order'] === 'descending';
-            var sorted     = nodes.concat();
+        function lensSort(nodes, sort, lens) {
+            var sorted = nodes.concat();
+            var type   = sort['sort-type'];
 
-            if (sort['sort-type'] === 'alphabetical') {
-                sorted.sort(function (a, b) {
-                    var x = (a.getSortTitle() || '').toLowerCase();
-                    var y = (b.getSortTitle() || '').toLowerCase();
-                    return x < y ? -1 : (x > y ? 1 : 0);
+            /* Direction is applied by the comparator rather than by reversing the result. The
+             * two differ wherever items tie: Array.prototype.sort and PHP's usort are both
+             * stable, so a tie keeps its original order in either direction — but reversing a
+             * descending sort flips those ties back. It shows most on a visit-date sort, where
+             * everything the reader has not opened ties at zero, and any ordering the
+             * components established for that block would come out backwards. */
+            var dir = (sort['sort-order'] === 'descending') ? -1 : 1;
+            var cmp = function (x, y) { return x < y ? -dir : (x > y ? dir : 0); };
+
+            // Sort keyed on one value per node — a metadata field, a distance, a timestamp —
+            // computed once per node rather than inside the comparator.
+            var keyed = function (keyOf) {
+                var keys = [], i;
+                for (i = 0; i < sorted.length; i++) keys.push({ node: sorted[i], key: keyOf(sorted[i]) });
+                keys.sort(function (a, b) { return cmp(a.key, b.key); });
+                for (i = 0; i < keys.length; i++) sorted[i] = keys[i].node;
+            };
+
+            if (type === 'alphabetical') {
+                /* The field defaults to the title, and is written ":" by the editor when the
+                 * author has picked no ontology — but it can name any predicate, and until the
+                 * graph carried metadata this quietly sorted by title whatever was asked for.
+                 * The title path keeps using getSortTitle(), which ignores a leading article
+                 * the way a library catalogue does; the server compares raw titles. */
+                var field = sort['metadata-field'];
+                var uri   = (field && field !== ':' && field !== 'dcterms:title')
+                          ? lensPredicateURI(field) : null;
+
+                if (uri === null) {
+                    keyed(function (node) { return (node.getSortTitle() || '').toLowerCase(); });
+                } else {
+                    keyed(function (node) {
+                        var values = lensValuesFor(node, uri);
+                        return values.length ? values[0].toLowerCase() : '';
+                    });
+                }
+
+            } else if (type === 'creation-date' || type === 'edit-date') {
+                /* The server distinguishes the two — creation-date reads the content row's
+                 * timestamp, edit-date the version's — but an export carries a single version
+                 * per node, so the two dates are the same date and the sorts coincide.
+                 *
+                 * The version's is the one read here because it is the one the graph states:
+                 * _graph_entries_for_item() puts dcterms:created on the version subject, which
+                 * leaves ScalarNode.created undefined. Sorting on that compared undefined with
+                 * undefined for every pair, so a creation-date sort used to be a no-op. */
+                keyed(function (node) {
+                    return String(node.created || (node.current && node.current.created) || '');
                 });
-            } else if (sort['sort-type'] === 'creation-date') {
-                sorted.sort(function (a, b) {
-                    return String(a.created || '').localeCompare(String(b.created || ''));
+
+            } else if (type === 'distance') {
+                // Distance from a fixed point the author typed in, "<lat>,<lng>". A node with
+                // no location sorts as distance zero, which is what the server gives it.
+                var origin = sort['content'];
+                keyed(function (node) {
+                    var here = lensLatLng(node);
+                    if (here === '') return 0;
+                    var d = lensDistanceMetres(origin, here);
+                    return d === null ? 0 : d;
                 });
+
+            } else if (type === 'visit-date') {
+                // Timestamp from the reader's own visit history; never visited sorts as 0, so
+                // ascending puts unvisited items first, as on the server.
+                keyed(function (node) { return lensVisitedAt(lens || {}, node); });
+
             } else {
-                // relation-type, num-relations, string-matches and visit-date are all sorts the
-                // server computes from columns it adds to the response; leave the order alone
-                // rather than inventing one.
+                // relation-type, num-relations and string-matches are computed by the server
+                // into columns it adds to the response; leave the order alone rather than
+                // inventing one.
                 return nodes;
             }
 
-            return descending ? sorted.reverse() : sorted;
+            return sorted;
         }
 
         /* Resolve a lens against the local model, returning it with 'items' filled in — the
@@ -1202,32 +1562,100 @@
          * without damage. nodeEntries() builds them from the same RDFa the nodes came from, so
          * that re-parse is a no-op.
          *
-         * Multiple components are unioned. The live model picks the set operation from the
-         * visualization type (Lens_model::get_operation_from_visualization) — every built-in
-         * layout has exactly one component, so there is nothing to combine. */
+         * Components are combined with the operation the lens declares, defaulting to a union
+         * (Lens_model::get_operation_from_visualization) — which is all any built-in layout
+         * needs, since each has exactly one component. */
         function resolveLens(lens) {
+
+            var resolved = {}, key;
+            for (key in lens) resolved[key] = lens[key];
+
+            /* A frozen lens is a pinned result rather than a query: the author fixed the
+             * members so later edits to the book cannot change what it shows. Lens_model
+             * returns on this before it looks at components, modifiers or sorts, so this
+             * does too — the stored order is the frozen order. */
+            if (lens.frozen) {
+                var frozen = lens['frozen-items'] || [], pinned = [];
+                for (var f = 0; f < frozen.length; f++) {
+                    var pin = scalarapi.getNode(frozen[f]);
+                    if (pin != null) pinned.push(pin);
+                }
+                resolved.items = nodeEntries(pinned);
+                return resolved;
+            }
+
             var components = lens.components || [];
             var selected   = [];
+
+            /* How successive components combine. The server takes it from the visualization's
+             * options and defaults to a union (Lens_model::get_operation_from_visualization);
+             * every built-in layout has a single component, so it only matters for lenses an
+             * author built by hand. */
+            var operation = (lens.visualization && lens.visualization.options &&
+                             lens.visualization.options.operation) || 'or';
 
             for (var i = 0; i < components.length; i++) {
                 var nodes = lensSelectNodes(components[i]['content-selector']);
                 if (nodes === null) return null;
-                nodes = lensApplyModifiers(nodes, components[i].modifiers);
+                nodes = lensApplyModifiers(nodes, components[i].modifiers, lens);
                 if (nodes === null) return null;
-                selected = selected.concat(nodes);
+
+                if (i === 0 || operation !== 'and') {
+                    selected = selected.concat(nodes);
+                } else {
+                    // Intersection, keeping the order and multiplicity of what came before —
+                    // Lens_model::combine_items() unsets from $contents rather than rebuilding.
+                    var kept = [];
+                    for (var k = 0; k < selected.length; k++) {
+                        if (nodes.indexOf(selected[k]) !== -1) kept.push(selected[k]);
+                    }
+                    selected = kept;
+                }
             }
+
+            selected = lensPostFilters(selected, components, lens);
 
             // Sorts declared on the lens itself, which the visualization's sort control writes
             // (see base.updateSorts) and the server applies after the components are combined.
             if (lens.sorts) {
-                for (var s = 0; s < lens.sorts.length; s++) selected = lensSort(selected, lens.sorts[s]);
+                for (var s = 0; s < lens.sorts.length; s++) selected = lensSort(selected, lens.sorts[s], lens);
             }
 
-            var resolved = {};
-            for (var key in lens) resolved[key] = lens[key];
             resolved.items = nodeEntries(selected);
 
             return resolved;
+        }
+
+        /* The modifiers Lens_model applies in its second pass — over every component's list,
+         * but to the combined result rather than to any one component's share of it, and in
+         * the order they are met. */
+        function lensPostFilters(nodes, components, lens) {
+            for (var i = 0; i < components.length; i++) {
+                var modifiers = components[i].modifiers || [];
+
+                for (var j = 0; j < modifiers.length; j++) {
+
+                    if (modifiers[j].subtype === 'quantity') {
+                        nodes = nodes.slice(0, parseInt(modifiers[j].quantity, 10) || 0);
+                        continue;
+                    }
+
+                    /* Keep only what the reader has visited. The window — how far back
+                     * "visited" reaches — was already applied when ScalarLenses built the
+                     * history from localStorage, so this is the membership test the server
+                     * makes and nothing more. A lens carrying no history at all (nothing
+                     * visited yet, or storage unavailable) is left alone rather than emptied,
+                     * as there. */
+                    if (modifiers[j].subtype === 'visit-date' && lens && lens.history) {
+                        var visited = [];
+                        for (var k = 0; k < nodes.length; k++) {
+                            if (lensWasVisited(lens, nodes[k])) visited.push(nodes[k]);
+                        }
+                        nodes = visited;
+                    }
+                }
+            }
+            return nodes;
         }
 
         window.__scalarStaticEndpoint = function (method, url, body) {
@@ -1258,12 +1686,17 @@
                 return JSON.stringify(resolved);
             }
 
-            /* GET <approot>/lenses?book_id=N — the book's saved lenses, which populate the
-             * header's visualization menu below its built-in entries. Editorial state is not
-             * exported (see CLAUDE.md), so there are none; an empty array is what the live API
-             * returns for a book that has none, and handleLensData() renders the menu without
-             * them. */
-            if (method === 'GET' && path.slice(-7) === '/lenses') return '[]';
+            /* GET <approot>/lenses?book_id=N — the book's saved lenses, baked at export time
+             * from the same Lens_model the live endpoint reads (see _build_lenses() in
+             * static_export_model.php). Three things ask for them: the header's Lenses menu,
+             * which lists them under "Browse Lenses"; that browse page itself
+             * (<export-root>/manage_lenses/); and ScalarLenses, which uses the list only to
+             * count how many belong to the reader. All three handle an empty array, which is
+             * what a book with no public lenses gets. */
+            if (method === 'GET' && path.slice(-7) === '/lenses') {
+                var baked = window.__scalarStaticData && window.__scalarStaticData.lenses;
+                return JSON.stringify(baked || []);
+            }
 
             /* GET <approot>/ontologies — the metadata-field vocabulary behind the "Additional
              * metadata" field menus in search and the lens editor. Baked at export time from

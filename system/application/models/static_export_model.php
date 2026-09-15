@@ -103,6 +103,7 @@ class Static_Export_Model extends MY_Model {
 		$this->_build_annotations($book_id, $media, $annotations);
 		$this->_build_references($book_id, $pages, $media);
 		$this->_build_excerpts($pages, $media, $base_uri);
+		$lenses = $this->_build_lenses($book_id, $pages);
 		$toc = $this->_build_toc($book_id);
 
 		$book_data = array(
@@ -112,6 +113,7 @@ class Static_Export_Model extends MY_Model {
 			'paths'       => $paths,
 			'tags'        => $tags,
 			'annotations' => $annotations,
+			'lenses'      => $lenses,
 			'toc'         => $toc,
 		);
 
@@ -204,7 +206,15 @@ class Static_Export_Model extends MY_Model {
 				continue;
 			}
 
-			$html = $this->_render_content_view($CI, $item, $book_data, self::_asset_root($slug), $book_url, $slug, $errors);
+			// Media items carry body copy too (see _normalize_media), so it needs the same
+			// link rewriting the page loop above does.
+			$render_item         = $item;
+			$render_item['body'] = $this->_rewrite_links(
+				isset($item['body']) ? $item['body'] : '',
+				$book_data['media'], $book_url, self::_asset_root($slug)
+			);
+
+			$html = $this->_render_content_view($CI, $render_item, $book_data, self::_asset_root($slug), $book_url, $slug, $errors);
 			if ($html === null) continue;
 
 			if (file_put_contents($page_dir . '/index.html', $html) === false) {
@@ -214,8 +224,12 @@ class Static_Export_Model extends MY_Model {
 
 			$rendered[] = $slug;
 
-			$this->_write_meta_page($CI, $item, $book_data, $tmp_dir, $book_url, $slug, $errors);
+			$this->_write_meta_page($CI, $render_item, $book_data, $tmp_dir, $book_url, $slug, $errors);
 		}
+
+		// The book's lens browser, which is chrome rather than content and so is written
+		// outside both loops above.
+		$this->_write_lens_browser_page($CI, $book_data, $tmp_dir, $book_url, $errors);
 
 		// Books with an 'index' page already wrote <tmp_dir>/index.html in the loop above.
 		// Without one, stand in a meta-refresh redirect to the first TOC page so the export
@@ -250,7 +264,68 @@ class Static_Export_Model extends MY_Model {
 			'rendered' => $rendered,
 			'skipped'  => $skipped,
 			'errors'   => $errors,
+			// Size of the one file every page loads at boot. Worth watching: it holds the whole
+			// book's graph and, since content filters need it, the whole book's prose as well
+			// (see _build_search_text). Reported rather than capped — a book big enough for this
+			// to matter is a judgement call, not an error.
+			'dataBytes' => file_exists($tmp_dir . '/scalar-static-data.js')
+				? filesize($tmp_dir . '/scalar-static-data.js') : 0,
 		);
+
+	}
+
+	/**
+	 * Write <tmp_dir>/manage_lenses/index.html — the "Browse Lenses" page, which the header's
+	 * Lenses menu links to on every page of every book (scalarheader.jquery.js builds that
+	 * entry unconditionally, so before this existed the menu's first item was a 404).
+	 *
+	 * Rendered through the same static_export/page.php as everything else, so it carries the
+	 * book's chrome, navigation and JS stack, with the lens manager's markup as its body and
+	 * 'isLensBrowser' telling the template two things: load the lens editor's assets, and state
+	 * no node for this page. The live site's own manage_lenses view is exactly that shape — a
+	 * view rendered into the content region of a page with no $page behind it.
+	 *
+	 * The slug is 'manage_lenses' because that is what scalarheader builds the link from
+	 * (urlPrefix + 'manage_lenses'), which puts it in the same namespace as the book's own
+	 * slugs — and so under the same rewrite as any other node link, with no special case in
+	 * the bridge. Scalar routes that name itself (see Book::manage_lenses()), so no page of a
+	 * book can be holding it.
+	 *
+	 * No .meta sibling: there is no node here to describe.
+	 */
+	private function _write_lens_browser_page($CI, $book_data, $tmp_dir, $book_url, &$errors) {
+
+		$slug       = 'manage_lenses';
+		$asset_root = self::_asset_root($slug);
+		$page_dir   = $tmp_dir . '/' . $slug;
+
+		if (!is_dir($page_dir) && !mkdir($page_dir, 0755, true)) {
+			$errors[$slug] = 'Could not create directory: ' . $page_dir;
+			return false;
+		}
+
+		$item = array(
+			'slug'          => $slug,
+			'title'         => 'Lenses',
+			'description'   => 'Lenses allow you to search and visualize the content of this project.',
+			'layout'        => 'plain',
+			'isLensBrowser' => true,
+			'body'          => $CI->load->view(
+				'static_export/lens_browser',
+				array('asset_root' => $asset_root),
+				true
+			),
+		);
+
+		$html = $this->_render_content_view($CI, $item, $book_data, $asset_root, $book_url, $slug, $errors);
+		if ($html === null) return false;
+
+		if (file_put_contents($page_dir . '/index.html', $html) === false) {
+			$errors[$slug] = 'Could not write: ' . $page_dir . '/index.html';
+			return false;
+		}
+
+		return true;
 
 	}
 
@@ -320,6 +395,10 @@ class Static_Export_Model extends MY_Model {
 		$meta_item              = $item;
 		$meta_item['body']      = $this->_build_meta_page_body($item, $is_media, $asset_root);
 		$meta_item['isMetaView'] = true;
+		// A lens page's .meta view is a metadata table, not the lens: scalarpage only runs the
+		// lens editor on the 'plain' view, so the property and the editor's assets would both
+		// be dead weight here.
+		unset($meta_item['lens']);
 
 		$html = $this->_render_content_view($CI, $meta_item, $book_data, $asset_root, $book_url, 'meta:' . $slug, $errors);
 		if ($html === null) return;
@@ -464,6 +543,13 @@ class Static_Export_Model extends MY_Model {
 		return array(
 			'title'          => strip_tags($book->title),
 			'slug'           => $book->slug,
+			// Every RDF prefix this install knows, for page.php's <html xmlns:*> declarations.
+			// scalarapi builds model.namespaces from exactly those attributes, and uses it in
+			// toNS() to decide whether a predicate is nameable at all — ScalarVersion.parseData()
+			// drops any predicate toNS() can't shorten, so an undeclared prefix means that
+			// metadata is invisible to the Details tab and unsearchable by a lens. The live
+			// wrapper.php declares the whole config list for the same reason.
+			'namespaces'     => (array) $CI->config->item('namespaces'),
 			'description'    => isset($book->description) ? $book->description : '',
 			'exportDate'     => date('c'),
 			'scalarVersion'  => $scalar_version ?: '2.x',
@@ -679,6 +765,14 @@ class Static_Export_Model extends MY_Model {
 			'http://purl.org/dc/terms/hasVersion' => $uri($ver_uri),
 			'http://purl.org/dc/terms/isPartOf'   => $uri(rtrim($book_url, '/')),
 		);
+		// The content URN, which is how a node is identified in the reader's own visit history.
+		// jquery.scalarrecent.js stores it against each page the reader opens, ScalarLenses
+		// hands the resulting id=>timestamp map to the lens endpoint as 'history', and both the
+		// visit-date filter and the visit-date sort match nodes against it by content id. This
+		// is the only place the id enters the export — everything else addresses nodes by slug.
+		if (!empty($item['contentId'])) {
+			$node[self::NS_SCALAR . 'urn'] = $uri('urn:scalar:content:' . (int) $item['contentId']);
+		}
 		// Node-level asset paths, stored export-root-relative for the bridge to resolve.
 		if (!empty($item['localThumbnail'])) {
 			$node[self::NS_ART . 'thumbnail'] = $lit($item['localThumbnail']);
@@ -717,18 +811,32 @@ class Static_Export_Model extends MY_Model {
 			if (!empty($refs)) $version['http://purl.org/dc/terms/references'] = $refs;
 		}
 
-		if ($is_media) {
-			if (!empty($item['sourceUrl'])) {
-				$version[self::NS_ART . 'url'] = $lit(
-					$item['localPath'] !== null ? $item['localPath'] : $item['sourceUrl']);
-			}
-			$props = isset($item['additionalMetadata']) ? $item['additionalMetadata'] : array();
-			foreach (array('accessRights', 'type') as $field) {
-				if (!empty($props['http://purl.org/dc/terms/' . $field][0]['value'])) {
-					$version['http://purl.org/dc/terms/' . $field] =
-						$lit($props['http://purl.org/dc/terms/' . $field][0]['value']);
-				}
-			}
+		if ($is_media && !empty($item['sourceUrl'])) {
+			$version[self::NS_ART . 'url'] = $lit(
+				$item['localPath'] !== null ? $item['localPath'] : $item['sourceUrl']);
+		}
+
+		/* The item's additional metadata — every predicate an author (or an image's EXIF/IPTC
+		 * block) put on the version beyond Scalar's own fields, already in RDF-JSON shape and
+		 * already stripped of the predicates restated above (see _clean_arc_meta() and
+		 * $EXCLUDED_PREDICATES). Previously only a media item's dcterms:accessRights and
+		 * dcterms:type made it in, which is what jquery.mediaelement.js reads; the rest was
+		 * dropped, and with it:
+		 *
+		 *   - every lens or search that filters on a metadata field, which is how Scalar's
+		 *     search box works for anything but a plain title match;
+		 *   - the distance filter and the items-by-distance selector, which read coordinates
+		 *     out of dcterms:spatial / dcterms:coverage;
+		 *   - the map visualization, which needs those same coordinates;
+		 *   - the Details tab of the media info panel, which lists auxProperties.
+		 *
+		 * Added last, and only where the predicate is otherwise unspoken for, so the version
+		 * row's own title/description/created always win over a stale copy in the triple store.
+		 */
+		foreach ((array) (isset($item['additionalMetadata']) ? $item['additionalMetadata'] : array())
+				as $predicate => $values) {
+			if (isset($version[$predicate]) || !is_array($values) || empty($values)) continue;
+			$version[$predicate] = array_values($values);
 		}
 
 		return array($node_uri => $node, $ver_uri => $version);
@@ -1063,6 +1171,88 @@ class Static_Export_Model extends MY_Model {
 	}
 
 	/**
+	 * The book's public lenses — the saved searches-plus-visualizations that fill the
+	 * header's Lenses menu and the "Browse Lenses" page.
+	 *
+	 * A lens is not a table of its own so much as a rider on a page: the page carries the
+	 * title, slug and public/private flag, and rel_grouped carries a blob of JSON describing
+	 * what the lens selects and how it draws the result. Lens_model::get_children() is what
+	 * fuses the two, so this returns exactly what the live GET <approot>/lenses?book_id=N
+	 * endpoint does (see System::lenses()) — which is what the static bridge answers that
+	 * request with, so the menu and the browser page need no patching of their own.
+	 *
+	 * Only *public* lenses are exported, which is why get_all_with_lens() is asked for live
+	 * content only. A private lens belongs to one signed-in reader, and neither the reader nor
+	 * the sign-in survives the export; a submitted-but-unpublished one is editorial state,
+	 * which CLAUDE.md drops along with comments and version history. The 'hidden' and
+	 * 'submitted' flags are therefore restated rather than trusted: the lens manager branches
+	 * on them to decide which list a lens belongs in, and anything not plainly public would
+	 * land in a section no exported reader can act on.
+	 *
+	 * rel_grouped is an optional table (see MY_Controller::can_save_lenses()) — an install that
+	 * predates lenses simply has no lenses to export.
+	 *
+	 * The stored JSON is also handed back to the lens's own page through $pages, which
+	 * page.php emits as scalar:isLensOf RDFa exactly as a live Scalar does; that property is
+	 * what makes scalarpage.jquery.js turn the page into a visualization of its lens rather
+	 * than an empty page. That copy is the raw stored lens, without the listing fields added
+	 * below: ScalarLenses.getEmbeddedJson() parses it as the lens's own definition, and the
+	 * definition already carries its author's user_id and user_level.
+	 *
+	 * @param  int    $book_id
+	 * @param  array  &$pages  book_data['pages']; the lens page entries gain a 'lens' key
+	 * @return array  List of lens objects in GET /lenses response shape, oldest first
+	 */
+	private function _build_lenses($book_id, &$pages) {
+
+		if (!$this->db->table_exists('rel_grouped')) return array();
+
+		$this->load->model('lens_model', 'lenses');
+		$this->load->model('user_model', 'users');
+
+		$rows    = $this->lenses->get_all_with_lens($book_id, null, null, true);
+		$lenses  = array();
+		$authors = array();   // user_id => fullname, so a book of lenses by one author is one query
+
+		// Backwards, because that is the order the live endpoint emits: get_all() sorts most
+		// recent first and System::lenses() then walks the result from the end. The order is
+		// the menu's order, and it decides which lens the browser page opens on (the manager
+		// selects data[0] when nothing is chosen).
+		for ($j = count($rows) - 1; $j >= 0; $j--) {
+
+			$row = $rows[$j];
+
+			if (empty($row->lens)) continue;
+			$lens = json_decode($row->lens, true);
+			if (!is_array($lens)) continue;
+
+			// The lens as its own page states it — see the note above on why this copy is
+			// taken before the listing fields are added.
+			if (isset($pages[$row->slug])) $pages[$row->slug]['lens'] = $lens;
+
+			$user_id = (int) $row->user;
+			if (!array_key_exists($user_id, $authors)) {
+				$user = $this->users->get_by_user_id($user_id);
+				$authors[$user_id] = (!empty($user) && isset($user->fullname)) ? $user->fullname : '';
+			}
+
+			$lens['user_id']   = $user_id;
+			$lens['hidden']    = false;
+			$lens['submitted'] = false;
+			unset($lens['submitted_comment']);
+			// Only the name: the live endpoint adds the author's email as well, but for book
+			// admins only, and an export has no admins.
+			$lens['user'] = array('fullname' => $authors[$user_id]);
+
+			$lenses[] = $lens;
+
+		}
+
+		return $lenses;
+
+	}
+
+	/**
 	 * Build the TOC as an ordered array of slugs.
 	 * Uses book_model::get_book_versions which returns versions with sort_number > 0,
 	 * sorted by sort_number — i.e. the pages the author explicitly added to the
@@ -1089,6 +1279,10 @@ class Static_Export_Model extends MY_Model {
 		return array(
 			'url'                => $base_uri . $content->slug,
 			'slug'               => $content->slug,
+			// The database id behind urn:scalar:content:N. Not interesting in itself, but it is
+			// the key Scalar's reader-history store uses (see _graph_entries_for_item), so a
+			// lens that filters or sorts by visit date needs it to recognise a node.
+			'contentId'          => (int) $content->content_id,
 			'title'              => $version->title,
 			'description'        => $version->description,
 			'body'               => $version->content,
@@ -1119,8 +1313,14 @@ class Static_Export_Model extends MY_Model {
 		return array(
 			'url'                => $base_uri . $content->slug,
 			'slug'               => $content->slug,
+			'contentId'          => (int) $content->content_id,
 			'title'              => $version->title,
 			'description'        => $version->description,
+			// A media item has body copy just as a page does — Scalar renders it below the
+			// media on the item's own page. _build_excerpts() has always looked for it here;
+			// until now nothing put it here, so a media item contributed no text to citations
+			// and none to the search index built by _build_search_text().
+			'body'               => $version->content,
 			'mediaType'          => $this->_classify_media_type($version),
 			'sourceUrl'          => abs_url($raw_url, $base_uri),
 			'localPath'          => null,   // populated by _copy_media_files() for self-hosted media
@@ -1773,6 +1973,13 @@ class Static_Export_Model extends MY_Model {
 		$data = array(
 			'graph'      => $this->_build_graph($book_data, $book_url),
 			'ontologies' => $this->_build_ontologies(),
+			// The book's body copy as plain text, for lens and search content filters. Kept
+			// beside the graph rather than in it — see _build_search_text() for why.
+			'text'       => $this->_build_search_text($book_data),
+			// The book's public lenses, verbatim in the shape GET <approot>/lenses?book_id=N
+			// returns — see _build_lenses(). Both the header's Lenses menu and the "Browse
+			// Lenses" page ask for them that way, and the bridge answers from here.
+			'lenses'     => isset($book_data['lenses']) ? $book_data['lenses'] : array(),
 		);
 
 		$js = "/* scalar-static-data.js\n"
@@ -1787,6 +1994,61 @@ class Static_Export_Model extends MY_Model {
 		}
 
 		return true;
+
+	}
+
+	/**
+	 * Every item's body copy as plain text, keyed by node URL — the corpus a lens's "content"
+	 * filter searches, and with it Scalar's own search box, whose every scope but one builds
+	 * exactly that filter (see ScalarSearch.getLensForQuery()).
+	 *
+	 * Deliberately *not* a predicate in the baked graph, which is where the rest of a node's
+	 * facts live. Two reasons:
+	 *
+	 *   - resolveLens() answers a lens by JSON.stringify()ing an RDF-JSON entry for every node
+	 *     it selected. A body-sized predicate on each node would put the whole book's prose
+	 *     through that serializer on every keystroke in the search box, for a payload whose
+	 *     only consumer re-parses it back into nodes the model already holds.
+	 *   - sioc:content in the graph is an excerpt, not the body (see _build_excerpts), and it
+	 *     has to stay one: the Citations dialog reads the markup around a citation out of it.
+	 *     The two uses want different things from the same field, so they get different fields.
+	 *
+	 * Plain text rather than the stored HTML, which is what a live server matches against. The
+	 * divergence is deliberate and in the reader's favour: searching a book for "span" or
+	 * "class" should not return every page that happens to contain markup. Entities are decoded
+	 * so a search for "don't" matches text stored as "don&rsquo;t", and runs of whitespace are
+	 * collapsed so a phrase split across two lines of source still matches.
+	 *
+	 * @param  array $book_data  Full normalized structure; reads ['pages'] and ['media']
+	 * @return array             node URL => plain text (items with no body are omitted)
+	 */
+	private function _build_search_text($book_data) {
+
+		$text = array();
+
+		foreach (array('pages', 'media') as $collection) {
+			foreach ($book_data[$collection] as $item) {
+				if (empty($item['body'])) continue;
+
+				// Script and style blocks go whole: strip_tags() removes the tags but keeps what
+				// is between them, and a page carrying an embedded widget would otherwise index
+				// its JavaScript as prose.
+				$plain = preg_replace('#<(script|style)\b[^>]*>.*?</\1>#is', ' ', $item['body']);
+
+				// <br> and block ends become spaces next, or "one<br>two" would index as
+				// "onetwo" and match neither word at its boundary.
+				$plain = preg_replace('/<(br|\/p|\/div|\/li|\/h[1-6]|\/td|\/tr|\/blockquote)\b[^>]*>/i', ' $0',
+					$plain);
+				$plain = strip_tags($plain);
+				$plain = html_entity_decode($plain, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+				$plain = trim(preg_replace('/\s+/u', ' ', $plain));
+
+				if ($plain === '') continue;
+				$text[$item['url']] = $plain;
+			}
+		}
+
+		return $text;
 
 	}
 
@@ -1861,11 +2123,16 @@ class Static_Export_Model extends MY_Model {
 			'arbors/html5_RDFa/js',
 		);
 
-		// Individual files from arbors/html5_RDFa/ (favicons, book logo).
+		// Individual files from arbors/html5_RDFa/ (favicons, book logo), plus the two files
+		// the lens editor needs out of widgets/edit/ — the whole of that directory is skipped
+		// below as editor-only, but the content selector is what a lens picks its content with
+		// and so is reader-facing wherever lenses are (see $needs_lens_editor in page.php).
 		$copy_files = array(
 			'arbors/html5_RDFa/favicon_16.gif',
 			'arbors/html5_RDFa/favicon_114.jpg',
 			'arbors/html5_RDFa/scalar_logo_300x300.png',
+			'widgets/edit/jquery.content_selector_bootstrap.js',
+			'widgets/edit/content_selector.css',
 		);
 
 		// Widget subdirectories to skip — editor-only tools with no reader-facing role.

@@ -78,6 +78,7 @@ class Static_Export extends MY_Controller {
 			'rendered' => $result['rendered'],
 			'skipped'  => $result['skipped'],
 			'errors'   => $result['errors'],
+			'dataBytes' => $result['dataBytes'],
 		), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 		exit;
 

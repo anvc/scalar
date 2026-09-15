@@ -21,6 +21,25 @@ $layout           = isset($page['layout']) ? $page['layout'] : 'plain';
 $is_current_media = isset($book_data['media'][$slug]);
 $is_meta_view     = !empty($page['isMetaView']);
 
+// The "Browse Lenses" page (<export-root>/manage_lenses/), written by _write_lens_browser_page()
+// in static_export_model.php. Like the live site's own manage_lenses view it is a page of the
+// book's chrome wrapped around a lens UI rather than a node of the book, so it states no node
+// of its own — see the "Current page" block below.
+$is_lens_browser = !empty($page['isLensBrowser']);
+
+// A lens page: an ordinary page whose stored lens definition, emitted below as scalar:isLensOf,
+// is what makes scalarpage.jquery.js render it as a visualization of that lens. See
+// _build_lenses() in static_export_model.php.
+$lens_json = isset($page['lens']) ? $page['lens'] : null;
+
+// Both of those run ScalarLenses, the lens editor, which pulls three of its dependencies in at
+// runtime with $.getScript()/$("<link>") rather than declaring them. The bridge answers every
+// same-origin .js request with an empty 200 (so jQuery's .done() chains fire without
+// re-evaluating an already-loaded file), which means a script fetched that way arrives empty:
+// the plugins have to be on the page as real <script> tags before the editor asks for them.
+// Loaded only on the pages that run it — between them the three come to ~150 KB.
+$needs_lens_editor = $is_lens_browser || $lens_json !== null;
+
 // Relative path prefix for vendored assets (CSS/JS copied into the export root).
 // All asset paths are expressed relative to $asset_root so the ZIP works
 // regardless of where it is hosted or opened locally.
@@ -275,16 +294,31 @@ $emit_node_rdfa = function ($item) use ($aux_image_href) {
 echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 ?>
 <!DOCTYPE html>
+<?php
+// Every prefix the exporting install knows, exactly as the live wrapper.php declares them. Two
+// things read these attributes and nothing else: the RDFa parser, to expand the CURIEs below,
+// and scalarapi, which builds model.namespaces from them at boot. The second is why the list
+// has to be the whole config and not the handful of prefixes this template writes itself —
+// ScalarVersion.parseData() puts a predicate into auxProperties only if toNS() can shorten it,
+// so an author's iptc: or dwc: metadata is invisible to the media Details tab, and unreachable
+// by a lens's metadata filter, unless its prefix is declared here.
+$namespaces = !empty($meta['namespaces']) ? $meta['namespaces'] : array(
+	'rdf'     => 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
+	'dc'      => 'http://purl.org/dc/elements/1.1/',
+	'dcterms' => 'http://purl.org/dc/terms/',
+	'sioc'    => 'http://rdfs.org/sioc/ns#',
+	'scalar'  => 'http://scalar.usc.edu/2012/01/scalar-ns#',
+	'art'     => 'http://simile.mit.edu/2003/10/ontologies/artstor#',
+	'oac'     => 'http://www.openannotation.org/ns/',
+	'foaf'    => 'http://xmlns.com/foaf/0.1/',
+	'ov'      => 'http://open.vocab.org/terms/',
+);
+?>
 <html xml:lang="en" lang="en"
-  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-  xmlns:dc="http://purl.org/dc/elements/1.1/"
-  xmlns:dcterms="http://purl.org/dc/terms/"
-  xmlns:sioc="http://rdfs.org/sioc/ns#"
-  xmlns:scalar="http://scalar.usc.edu/2012/01/scalar-ns#"
-  xmlns:art="http://simile.mit.edu/2003/10/ontologies/artstor#"
-  xmlns:oac="http://www.openannotation.org/ns/"
-  xmlns:foaf="http://xmlns.com/foaf/0.1/"
-  xmlns:ov="http://open.vocab.org/terms/">
+<?php foreach ($namespaces as $ns_prefix => $ns_uri): ?>
+  xmlns:<?= htmlspecialchars($ns_prefix) ?>="<?= htmlspecialchars($ns_uri) ?>"
+<?php endforeach; ?>
+>
 <head>
 <title><?= htmlspecialchars(strip_tags($page['title'])) ?><?= !empty($meta['title']) ? ' — ' . htmlspecialchars(strip_tags($meta['title'])) : '' ?></title>
 <meta name="description" content="<?= htmlspecialchars(strip_tags(isset($page['description']) ? $page['description'] : '')) ?>" />
@@ -299,9 +333,11 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 <link id="book_id"         href="<?= htmlspecialchars($meta['slug']) ?>" />
 <link id="parent"          href="<?= htmlspecialchars($book_url) ?>" />
 <link id="approot"         href="<?= htmlspecialchars($asset_root) ?>system/application/" />
-<link id="view"            href="plain" />
+<link id="view"            href="<?= $is_lens_browser ? 'manage_lenses' : 'plain' ?>" />
 <link id="default_view"    href="<?= htmlspecialchars($layout) ?>" />
+<?php if (!$is_lens_browser): ?>
 <link id="current_node"    href="<?= htmlspecialchars($book_url . $slug) ?>" />
+<?php endif; ?>
 <link id="primary_role"    rel="scalar:primary_role" href="http://scalar.usc.edu/2012/01/scalar-ns#<?= $primary_role ?>" />
 
 <!-- Favicon -->
@@ -322,6 +358,10 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 <link rel="stylesheet" href="<?= $assets ?>views/melons/cantaloupe/css/timeline.css" />
 <link rel="stylesheet" href="<?= $assets ?>views/melons/cantaloupe/css/timeline.theme.scalar.css" />
 <link rel="stylesheet" href="<?= $assets ?>views/melons/cantaloupe/css/screen_print.css" media="screen,print" />
+<?php if ($needs_lens_editor): ?>
+<link rel="stylesheet" href="<?= $assets ?>views/melons/cantaloupe/css/lenses.css" />
+<link rel="stylesheet" href="<?= $assets ?>views/widgets/edit/content_selector.css" />
+<?php endif; ?>
 
 <!-- JS — jQuery first, then the baked server data and the bridge that answers API calls
      from it, then the Scalar stack. The data file has to precede the bridge: the bridge
@@ -362,6 +402,17 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 <script src="<?= $assets ?>views/melons/cantaloupe/js/scalarwidgets.jquery.js"></script>
 <script src="<?= $assets ?>views/melons/cantaloupe/js/scalarlenses.jquery.js"></script>
 <script src="<?= $assets ?>views/melons/cantaloupe/js/jquery.tabbing.js"></script>
+<?php if ($needs_lens_editor): ?>
+<!-- The lens editor's runtime-fetched dependencies, pre-loaded — see $needs_lens_editor above.
+     bootbox and the content selector are what ScalarPage.addLensEditor() waits on before it
+     builds anything; papaparse is what the lens menu's "Export to CSV" writes with. -->
+<script src="<?= $assets ?>views/melons/cantaloupe/js/bootbox.min.js"></script>
+<script src="<?= $assets ?>views/widgets/edit/jquery.content_selector_bootstrap.js"></script>
+<script src="<?= $assets ?>views/melons/cantaloupe/js/papaparse.min.js"></script>
+<?php endif; ?>
+<?php if ($is_lens_browser): ?>
+<script src="<?= $assets ?>views/melons/cantaloupe/js/scalarlensmanager.jquery.js"></script>
+<?php endif; ?>
 </head>
 <?php
 // Background image, applied inline exactly as the live wrapper.php does, with the same
@@ -411,6 +462,14 @@ if ($background_href === null) $background_href = $aux_image_href($meta, 'backgr
 	echo $emit_item_rdfa($other_slug, $all_pages[$other_slug]);
 endforeach; ?>
 
+<?php if ($is_lens_browser): ?>
+		<!-- The lens browser states no node of its own: it is the book's chrome around a UI,
+		     not a page of the book. A live Scalar's manage_lenses view renders with $page
+		     empty for the same reason, and wrapper.php skips this whole block there too.
+		     Asserting a node here would put a phantom "Lenses" page into every reader's model
+		     — one with no content, showing up in the Index and in any lens that selects all
+		     content. -->
+<?php else: ?>
 		<!-- Current page -->
 		<h1 property="dcterms:title"><?= htmlspecialchars($page['title']) ?></h1>
 		<span resource="<?= htmlspecialchars($book_url . $slug) ?>" typeof="scalar:<?= $is_current_media ? 'Media' : 'Composite' ?>">
@@ -418,6 +477,16 @@ endforeach; ?>
 			   href="<?= htmlspecialchars($book_url . $slug . '.1') ?>"></a>
 			<a class="metadata" inert rel="dcterms:isPartOf"
 			   href="<?= htmlspecialchars(rtrim($book_url, '/')) ?>"></a>
+<?php if (!empty($page['contentId'])): ?>
+			<!-- The content URN, which jquery.scalarrecent.js copies into the reader's local
+			     visit history for this page. It finds it as the *first* [rel="scalar:urn"] in
+			     <header>, so this is emitted for the current page alone and never for the
+			     neighbour spans above — which is also why it isn't in $emit_node_rdfa(). Every
+			     node's copy is in the baked graph instead, where the visit-date filter and sort
+			     match a history entry back to the node it names. -->
+			<a class="metadata" tabindex="-1" inert rel="scalar:urn"
+			   href="urn:scalar:content:<?= (int) $page['contentId'] ?>"></a>
+<?php endif; ?>
 <?= $emit_node_rdfa($page) ?>
 		</span>
 		<span resource="<?= htmlspecialchars($book_url . $slug . '.1') ?>" typeof="scalar:Version">
@@ -439,6 +508,49 @@ endforeach; ?>
 <?= $emit_references_rdfa($page) ?>
 <?php if ($is_current_media): ?>
 <?= $emit_media_rdfa($page) ?>
+<?php endif; ?>
+<?php
+// This page's own additional metadata — everything an author, or an image's EXIF/IPTC block,
+// put on the version beyond Scalar's built-in fields. The baked graph carries it for every node
+// in the book (see _graph_entries_for_item), so this is not what a lens or the media Details
+// tab reads; it is here for the same reason the neighbour block above exists, so a single file
+// opened on its own still states what it knows about itself. Emitted for the current page only,
+// where it is a handful of values, rather than for every neighbour, where it would multiply.
+//
+// URI-valued entries become rel= links and literals become property= spans, the same split
+// print_rdf() makes in the live wrapper.
+foreach ((array) (isset($page['additionalMetadata']) ? $page['additionalMetadata'] : array())
+		as $predicate => $values):
+	$curie = null;
+	foreach ($namespaces as $ns_prefix => $ns_uri) {
+		if (strpos($predicate, $ns_uri) === 0) { $curie = $ns_prefix . ':' . substr($predicate, strlen($ns_uri)); break; }
+	}
+	if ($curie === null) continue;   // no declared prefix, so nothing downstream could name it
+	foreach ((array) $values as $value):
+		if (!isset($value['value'])) continue;
+		if (isset($value['type']) && 'uri' === $value['type']): ?>
+			<a class="metadata" tabindex="-1" inert rel="<?= htmlspecialchars($curie) ?>" href="<?= htmlspecialchars($value['value']) ?>"></a>
+<?php	else: ?>
+			<span class="metadata" property="<?= htmlspecialchars($curie) ?>"><?= htmlspecialchars($value['value']) ?></span>
+<?php	endif;
+	endforeach;
+endforeach;
+?>
+<?php if ($lens_json !== null): ?>
+			<!-- This page's lens, as a JSON literal — the same property a live Scalar emits
+			     (config/rdf.php maps the version's is_lens_of to scalar:isLensOf), and the
+			     same shape, because both come from Lens_model::get_children().
+			     scalarpage.jquery.js tests for the property's presence to decide whether to
+			     run addLensEditor(), and ScalarLenses.getEmbeddedJson() then reads the
+			     definition straight back out of the element with .html() — so the text has to
+			     survive innerHTML unchanged. Hence the hex escaping rather than
+			     htmlspecialchars(): '<', '>' and '&' leave here as \u003C-style JSON escapes,
+			     which are inert to the HTML parser and still parse as the characters they
+			     stand for, where entities would come back from .html() literally and break
+			     JSON.parse. -->
+			<span class="metadata" property="scalar:isLensOf"><?=
+				json_encode($lens_json, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)
+			?></span>
 <?php endif; ?>
 <?php if ($is_meta_view): ?>
 			<!-- Drives scalarpage.jquery.js's case "meta" branch client-side (inserts the
@@ -474,6 +586,7 @@ endforeach; ?>
 			   href="<?= htmlspecialchars($book_url . $relation['target'] . '.1' . $relation['fragment']) ?>"></a>
 		</span>
 <?php endforeach; ?>
+<?php endif; ?>
 
 	</header>
 
