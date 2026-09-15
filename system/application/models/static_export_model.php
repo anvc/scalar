@@ -549,7 +549,13 @@ class Static_Export_Model extends MY_Model {
 			// drops any predicate toNS() can't shorten, so an undeclared prefix means that
 			// metadata is invisible to the Details tab and unsearchable by a lens. The live
 			// wrapper.php declares the whole config list for the same reason.
-			'namespaces'     => (array) $CI->config->item('namespaces'),
+			//
+			// These live in config/rdf.php, which is loaded by MY_Controller rather than
+			// autoloaded — so it is loaded here too rather than assumed, and the result is
+			// checked before it is trusted. config->item() returns '' for a key it doesn't
+			// have, and casting that to an array yields array(0 => ''), which is not empty and
+			// would have page.php emit a nonsense xmlns:0="".
+			'namespaces'     => $this->_rdf_namespaces(),
 			'description'    => isset($book->description) ? $book->description : '',
 			'exportDate'     => date('c'),
 			'scalarVersion'  => $scalar_version ?: '2.x',
@@ -557,6 +563,26 @@ class Static_Export_Model extends MY_Model {
 			'backgroundUrl'  => abs_url($background, confirm_slash(base_url()) . confirm_slash($book->slug)),
 			'localBackground'=> null,   // populated by _copy_media_files()
 		);
+
+	}
+
+	/**
+	 * The install's RDF prefix => namespace-URI map, or an empty array if config/rdf.php has
+	 * not been loaded and cannot be. See the note in _build_meta() for why this is defensive.
+	 *
+	 * @return array
+	 */
+	private function _rdf_namespaces() {
+
+		$CI =& get_instance();
+
+		$namespaces = $CI->config->item('namespaces');
+		if (!is_array($namespaces)) {
+			$CI->config->load('rdf', false, true);   // fail gracefully; already-loaded is a no-op
+			$namespaces = $CI->config->item('namespaces');
+		}
+
+		return is_array($namespaces) ? $namespaces : array();
 
 	}
 

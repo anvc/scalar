@@ -302,7 +302,15 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 // ScalarVersion.parseData() puts a predicate into auxProperties only if toNS() can shorten it,
 // so an author's iptc: or dwc: metadata is invisible to the media Details tab, and unreachable
 // by a lens's metadata filter, unless its prefix is declared here.
-$namespaces = !empty($meta['namespaces']) ? $meta['namespaces'] : array(
+$namespaces = array();
+foreach ((array) (isset($meta['namespaces']) ? $meta['namespaces'] : array()) as $ns_prefix => $ns_uri) {
+	// Prefix and URI both have to be real: a malformed map would otherwise be emitted verbatim
+	// as attributes, and one bad xmlns is enough to make an RDFa parser distrust the document.
+	if (is_string($ns_prefix) && $ns_prefix !== '' && is_string($ns_uri) && $ns_uri !== '') {
+		$namespaces[$ns_prefix] = $ns_uri;
+	}
+}
+if (empty($namespaces)) $namespaces = array(
 	'rdf'     => 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
 	'dc'      => 'http://purl.org/dc/elements/1.1/',
 	'dcterms' => 'http://purl.org/dc/terms/',

@@ -13,11 +13,28 @@
         html:1, htm:1, txt:1, map:1
     };
 
+    /* The book's live address, from <link id="parent">. Not everything Scalar's JS requests
+     * is built relative to the page: a few callers compose an absolute URL from this instead
+     * — most importantly the content selector, which asks for
+     * "<book_url>rdf/instancesof/<type>". Those have to be recognised as Scalar endpoints
+     * wherever the export is hosted, not only when it happens to sit on the same host as the
+     * server it came from. Read lazily: this file runs before the DOM is complete the first
+     * time a request is made from <head>. */
+    var _bookUrl;
+    function bookUrl() {
+        if (_bookUrl === undefined) {
+            var el = document.getElementById('parent');
+            _bookUrl = (el && el.getAttribute('href')) || null;
+        }
+        return _bookUrl;
+    }
+
     // True for any XHR request that should be silently stubbed:
     //   • .js files — already pre-loaded as <script> tags; returning '' lets
     //     jQuery's .done() chain fire without re-eval (avoids duplicate let/const errors)
-    //   • Scalar server endpoints (any same-origin URL that isn't a static asset) —
-    //     prevents 404s for API endpoints, lenses, editorial workflow, rdf/*, etc.
+    //   • Scalar server endpoints — any URL that isn't a static asset and is either
+    //     same-origin or addressed at the original book URL. Prevents 404s for API
+    //     endpoints, lenses, editorial workflow, rdf/*, etc.
     function shouldIntercept(url) {
         if (typeof url !== 'string') return false;
 
@@ -26,20 +43,29 @@
         // .js files: always intercept regardless of origin
         if (path.slice(-3) === '.js') return true;
 
-        // For other URLs, only intercept same-origin requests
         try {
-            var here   = new URL(window.location.href);
-            var there  = new URL(url, window.location.href);
-            if (there.host !== here.host) return false;   // cross-origin: pass through
+            var here  = new URL(window.location.href);
+            var there = new URL(url, window.location.href);
+            var book  = bookUrl();
+
+            // Same origin, or addressed at the book's own live URL. The second case is what
+            // makes a hosted export behave like a local one: the same request is same-origin
+            // while you are testing under the Scalar server's host and cross-origin once the
+            // export is published somewhere else, and it needs answering either way.
+            if (there.host !== here.host &&
+                !(book && url.indexOf(book) === 0)) return false;
         } catch (e) {
             return false;
         }
 
-        // If it has a known static extension, pass through (real file fetch)
+        // If it has a known static extension, pass through (real file fetch). This is also
+        // what keeps media that stayed on the original server loading: _copy_media_files()
+        // bundles what it can and leaves the rest as absolute URLs under the book URL, which
+        // the clause above would otherwise have captured.
         var ext = path.split('.').pop().toLowerCase();
         if (STATIC_EXTS[ext]) return false;
 
-        // Everything else on the same host is a Scalar server endpoint
+        // Everything else is a Scalar server endpoint
         return true;
     }
 
@@ -1658,6 +1684,68 @@
             return nodes;
         }
 
+        /* The nodes the content selector's type tabs stand for. Mirrors Rdf::instancesof()'s
+         * switch, and shares lensNodeIsType() with the lens content-type filter so a tab and a
+         * filter naming the same type never disagree.
+         *
+         * Two tabs answer empty rather than null, because for a picker an empty tab is honest
+         * and a refusal is not: 'hidden' lists unpublished content, which an export never
+         * carries, and the 'review'/'commentary'/'term' page categories aren't exported either.
+         * null is reserved for a type this doesn't recognise at all. */
+        function instancesOfType(type) {
+
+            if (type === 'hidden' || type === 'review' || type === 'commentary' || type === 'term') {
+                return [];
+            }
+
+            /* Lens pages. Which nodes are lenses is not something the model can answer — a
+             * page states scalar:isLensOf only on its own file (see page.php) — but the baked
+             * lens list names them by slug, which is the same set. */
+            if (type === 'lens') {
+                var lenses = (window.__scalarStaticData && window.__scalarStaticData.lenses) || [];
+                var nodes  = [];
+                for (var i = 0; i < lenses.length; i++) {
+                    var node = scalarapi.getNode(lenses[i].slug);
+                    if (node != null) nodes.push(node);
+                }
+                return nodes;
+            }
+
+            if (type === 'content' || type === 'all-content') return lensAllContentNodes();
+
+            var all = lensAllContentNodes(), out = [], known = null;
+            for (var j = 0; j < all.length; j++) {
+                var is = lensNodeIsType(all[j], type);
+                if (is === null) return null;
+                known = true;
+                if (is) out.push(all[j]);
+            }
+            return known === null ? [] : out;
+        }
+
+        /* Add to an RDF-JSON payload the relation subjects joining the nodes already in it.
+         * The content selector reads these to show what each row contains or is contained by,
+         * and keys that off the urn's own shape (urn:scalar:<kind>:…), so they are copied
+         * straight from the baked graph rather than rebuilt from the model. Only relations
+         * whose body is present are added — the selector dereferences hasBody into the same
+         * payload. */
+        function addIncidentRelations(payload) {
+            var graph = (window.__scalarStaticData && window.__scalarStaticData.graph) || {};
+            var BODY  = 'http://www.openannotation.org/ns/hasBody';
+
+            for (var subject in graph) {
+                if (subject.indexOf('urn:scalar:') !== 0) continue;
+
+                var body = graph[subject][BODY];
+                if (!body || !body[0]) continue;
+
+                // hasBody names the version; the payload is keyed on it too (nodeEntries emits
+                // both), so this is a direct lookup.
+                if (payload[body[0].value] === undefined) continue;
+                payload[subject] = graph[subject];
+            }
+        }
+
         window.__scalarStaticEndpoint = function (method, url, body) {
 
             var path = url.split('?')[0].split('#')[0].replace(/\/+$/, '');
@@ -1696,6 +1784,75 @@
             if (method === 'GET' && path.slice(-7) === '/lenses') {
                 var baked = window.__scalarStaticData && window.__scalarStaticData.lenses;
                 return JSON.stringify(baked || []);
+            }
+
+            /* GET <book_url>rdf/instancesof/<type> — a page of the book's nodes of one type.
+             *
+             * This is what the content selector browses: the picker behind a lens's "Specific
+             * items…" option, and behind every other place Scalar asks an author to choose
+             * content. It builds its URL from <link id="parent">, so before the intercept rule
+             * at the top of this file learned about the book URL it either 503'd (testing an
+             * export on the same host as the Scalar server it came from) or failed CORS
+             * (anywhere else). Either way the picker came up empty.
+             *
+             * The response shape is the live API's and the selector reads it closely: a flat
+             * RDF-JSON index in which every node entry carries dcterms:hasVersion pointing at
+             * its version's entry in the same payload (load_node_list() dereferences that to
+             * read the title, and would throw on a node whose version is missing), plus the
+             * oac:Annotation relation entries incident to those nodes, which it walks to fill
+             * each row's relationship column.
+             *
+             * Paging is by start/results, and the selector stops when a page comes back with
+             * no node entries in it. */
+            if (method === 'GET' && path.indexOf('/rdf/instancesof/') !== -1) {
+
+                var query = {};
+                (url.split('?')[1] || '').split('&').forEach(function (pair) {
+                    if (!pair) return;
+                    var eq = pair.indexOf('=');
+                    var k  = eq === -1 ? pair : pair.slice(0, eq);
+                    query[decodeURIComponent(k)] =
+                        eq === -1 ? '' : decodeURIComponent(pair.slice(eq + 1).replace(/\+/g, ' '));
+                });
+
+                var wanted = path.slice(path.indexOf('/rdf/instancesof/') + 17)
+                                 .replace(/\.[^.\/]*$/, '').toLowerCase();
+
+                var matching = instancesOfType(wanted);
+                if (matching === null) return null;
+
+                // The selector's own search box. The live endpoint's 'sq' searches rather more
+                // broadly than this; title, description and body text are the fields an export
+                // holds in full (see _build_search_text in static_export_model.php).
+                if (query.sq) {
+                    matching = matching.filter(function (node) {
+                        return ['dcterms:title', 'dcterms:description', 'sioc:content']
+                            .some(function (field) {
+                                return lensNodeMatchesField(node, field, query.sq, false) === true;
+                            });
+                    });
+                }
+
+                var first = parseInt(query.start, 10)   || 0;
+                var size  = parseInt(query.results, 10) || matching.length;
+                var slice = matching.slice(first, first + size);
+
+                var payload = nodeEntries(slice);
+
+                /* Pagination state, which the live API attaches to every node it returns (see
+                 * _pagination_by_ref() in RDF_Object.php). methodNumNodes counts what remains
+                 * from `start` onward, not the size of the collection. */
+                var remaining = [{
+                    value: 'method=instancesof;methodNumNodes=' + Math.max(0, matching.length - first) + ';',
+                    type:  'literal'
+                }];
+                for (var c = 0; c < slice.length; c++) {
+                    payload[slice[c].url]['http://scalar.usc.edu/2012/01/scalar-ns#citation'] = remaining;
+                }
+
+                addIncidentRelations(payload);
+
+                return JSON.stringify(payload);
             }
 
             /* GET <approot>/ontologies — the metadata-field vocabulary behind the "Additional
