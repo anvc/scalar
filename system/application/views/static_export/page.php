@@ -84,6 +84,27 @@ foreach ($all_pages as $other_slug => $other_item) {
 
 unset($neighbour_slugs[$slug]);
 
+// The foaf:Person nodes this page needs: everyone this page or any of its neighbours is
+// attributed to. Attribution is never a literal on the item — it is a prov:wasAttributedTo
+// pointing at a person node, and a consumer turns it back into a name by dereferencing that.
+// ScalarComments.formatComments() does so with scalarapi.getNode() and calls getDisplayTitle()
+// on the result, so a person the model can't resolve takes the whole comments dialog down with
+// it. They are in the baked graph too; emitted here for the same reason the neighbours are, so
+// a page opened on its own still names the people behind it.
+//
+// The set is small however large the book: it is bounded by the number of people who wrote it,
+// not by the number of neighbours, since the same handful of URIs recur.
+$incident_people = array();
+$collect_people = function ($item) use (&$incident_people) {
+	foreach (array('nodeAuthorUri', 'authorUri') as $field) {
+		if (!empty($item[$field])) $incident_people[$item[$field]] = true;
+	}
+};
+foreach ($neighbour_slugs as $other_slug => $ignored) {
+	if (isset($all_pages[$other_slug])) $collect_people($all_pages[$other_slug]);
+}
+$collect_people($page);
+
 // Relationship lists — the reader-facing sections a live Scalar renders server-side (see
 // wrapper.php), which scalarpage.jquery.js's addRelationshipNavigation() then decorates:
 // retitling the <h1>, appending "?path=<slug>" to each entry so path state carries, adding
@@ -113,16 +134,19 @@ $add_list = function ($class, $heading, $entries) use (&$relationship_lists, &$r
 	$relationship_lists[] = array('class' => $class, 'heading' => $heading, 'entries' => $entries);
 };
 
-// Relations this page is the body of, grouped by kind: what it collects or annotates.
-$outgoing = array('path' => array(), 'tag' => array(), 'annotation' => array());
+// Relations this page is the body of, grouped by kind: what it collects, annotates or
+// comments on. Grouped by the relation's own 'kind', which _build_relations() records, rather
+// than by what sort of node this page is — a page can be a tag and an annotation at once, and
+// a comment is neither, so guessing from the node put a comment's relations under "This page
+// annotates:".
+$outgoing = array('path' => array(), 'tag' => array(), 'annotation' => array(), 'comment' => array());
 $incoming = array('tag' => array());
 
 foreach ($incident_relations as $relation) {
+	$kind = isset($relation['kind']) ? $relation['kind'] : 'annotation';
 	if ($relation['body'] === $slug) {
-		if (isset($book_data['paths'][$slug]))     $outgoing['path'][]       = array('slug' => $relation['target'], 'relation' => $relation);
-		elseif (isset($book_data['tags'][$slug]))  $outgoing['tag'][]        = array('slug' => $relation['target'], 'relation' => $relation);
-		else                                       $outgoing['annotation'][] = array('slug' => $relation['target'], 'relation' => $relation);
-	} elseif ($relation['target'] === $slug && isset($book_data['tags'][$relation['body']])) {
+		if (isset($outgoing[$kind])) $outgoing[$kind][] = array('slug' => $relation['target'], 'relation' => $relation);
+	} elseif ($relation['target'] === $slug && 'tag' === $kind) {
 		$incoming['tag'][] = array('slug' => $relation['body'], 'relation' => $relation);
 	}
 }
@@ -130,6 +154,11 @@ foreach ($incident_relations as $relation) {
 $add_list('path_of',       'Contents of this path:',    $outgoing['path']);
 $add_list('tag_of',        'This page is a tag of:',    $outgoing['tag']);
 $add_list('annotation_of', 'This page annotates:',      $outgoing['annotation']);
+// 'reply_of' is the class addRelationshipNavigation() looks for under its showComments option,
+// which retitles the heading to "This <page|media> comments on:". Incoming comments get no list
+// of their own — they are the business of the comments dialog, which addIncomingComments()
+// opens from the count button it adds above the footer.
+$add_list('reply_of',      'This page comments on:',    $outgoing['comment']);
 $add_list('has_tags',      'This page is tagged by:',   $incoming['tag']);
 
 // Incoming references are a plain dcterms:references predicate on the referencing item rather
@@ -146,14 +175,17 @@ $add_list('has_reference', 'This page is referenced by:', $referenced_by);
 
 $annotates = $outgoing['annotation'];
 
-// The item's primary role, as the live wrapper emits it — RDF_Object's precedence, path first.
-// addRelationshipNavigation() reads it off <link id="primary_role"> to word the "referenced by"
-// heading, and would throw on the link being absent.
-if (isset($book_data['paths'][$slug]))      { $primary_role = 'Path'; }
-elseif (isset($book_data['tags'][$slug]))   { $primary_role = 'Tag'; }
-elseif (!empty($annotates))                 { $primary_role = 'Annotation'; }
-elseif ($is_current_media)                  { $primary_role = 'Media'; }
-else                                        { $primary_role = 'Composite'; }
+// The item's primary role, as the live wrapper emits it — RDF_Object::_relationships() decides
+// it as: path wins outright, then reply, annotation and tag in that order of precedence (its
+// cascade of assignments means the last one that holds is the one kept), and Composite/Media
+// only where none of them does. addRelationshipNavigation() reads it off <link id="primary_role">
+// to word the "referenced by" heading, and would throw on the link being absent.
+if (isset($book_data['paths'][$slug]))        { $primary_role = 'Path'; }
+elseif (!empty($outgoing['comment']))         { $primary_role = 'Reply'; }
+elseif (!empty($annotates))                   { $primary_role = 'Annotation'; }
+elseif (isset($book_data['tags'][$slug]))     { $primary_role = 'Tag'; }
+elseif ($is_current_media)                    { $primary_role = 'Media'; }
+else                                          { $primary_role = 'Composite'; }
 
 // Where one of an item's auxiliary images (thumbnail, banner, background) lives as seen from
 // this page: the bundled copy when _copy_media_files() made one, otherwise the live absolute
@@ -258,6 +290,22 @@ $emit_item_rdfa = function ($item_slug, $item, $visible_title = false)
 			. (int) $item['versionNumber'] . '</span>' . "\n";
 	}
 	$out .= "\t\t\t" . '<a class="metadata" tabindex="-1" rel="dcterms:isVersionOf" href="' . $node_url . '"></a>' . "\n";
+	// Who last revised this item. Its counterpart on the node span — who created it — is in
+	// $emit_node_rdfa(), for the same reason the thumbnail is: Scalar stores the two on
+	// different rows and every consumer reads them from the matching subject.
+	if (!empty($item['authorUri'])) {
+		$out .= "\t\t\t" . '<a class="metadata" tabindex="-1" rel="prov:wasAttributedTo" href="'
+			. htmlspecialchars($item['authorUri']) . '"></a>' . "\n";
+	}
+	// A comment's own text. The comments dialog renders each comment out of the model rather
+	// than out of the commented-on page's markup, and reads the text from sioc:content — so a
+	// comment that is a neighbour of the page being read has to carry its body here. For every
+	// other item sioc:content is a citation excerpt, which belongs in the shared graph rather
+	// than restated on each page that happens to neighbour it.
+	if (!empty($item['isComment']) && !empty($item['excerpt'])) {
+		$out .= "\t\t\t" . '<span class="metadata" property="sioc:content">'
+			. htmlspecialchars($item['excerpt']) . '</span>' . "\n";
+	}
 	$out .= $emit_references_rdfa($item);
 	if ($is_media) $out .= $emit_media_rdfa($item);
 	$out .= "\t\t" . '</span>' . "\n";
@@ -286,6 +334,14 @@ $emit_node_rdfa = function ($item) use ($aux_image_href) {
 		if ($href === null) continue;
 		$out .= "\t\t\t" . '<span class="metadata" property="' . $predicate . '">'
 			. htmlspecialchars($href) . '</span>' . "\n";
+	}
+
+	//   prov:wasAttributedTo  ScalarNode.author — who created the item, as against the version
+	//                         property of the same name, which is who last revised it. Scalar
+	//                         keeps both because they are not always the same person.
+	if (!empty($item['nodeAuthorUri'])) {
+		$out .= "\t\t\t" . '<a class="metadata" tabindex="-1" rel="prov:wasAttributedTo" href="'
+			. htmlspecialchars($item['nodeAuthorUri']) . '"></a>' . "\n";
 	}
 
 	return $out;
@@ -320,6 +376,7 @@ if (empty($namespaces)) $namespaces = array(
 	'oac'     => 'http://www.openannotation.org/ns/',
 	'foaf'    => 'http://xmlns.com/foaf/0.1/',
 	'ov'      => 'http://open.vocab.org/terms/',
+	'prov'    => 'http://www.w3.org/ns/prov#',
 );
 ?>
 <html xml:lang="en" lang="en"
@@ -470,6 +527,18 @@ if ($background_href === null) $background_href = $aux_image_href($meta, 'backgr
 	echo $emit_item_rdfa($other_slug, $all_pages[$other_slug]);
 endforeach; ?>
 
+		<!-- The people this page and its neighbours are attributed to. A node typed foaf:Person
+		     is the one kind whose title ScalarNode takes from foaf:name rather than from a
+		     version, which is why these are bare nodes with no Version span of their own —
+		     ScalarModel.parseNodes() special-cases the type and skips the empty version it
+		     would otherwise synthesize. -->
+<?php foreach ($incident_people as $person_uri => $ignored):
+	if (empty($book_data['people'][$person_uri])) continue; ?>
+		<span inert resource="<?= htmlspecialchars($person_uri) ?>" typeof="foaf:Person">
+			<span class="metadata" property="foaf:name"><?= htmlspecialchars($book_data['people'][$person_uri]['name']) ?></span>
+		</span>
+<?php endforeach; ?>
+
 <?php if ($is_lens_browser): ?>
 		<!-- The lens browser states no node of its own: it is the book's chrome around a UI,
 		     not a page of the book. A live Scalar's manage_lenses view renders with $page
@@ -507,6 +576,12 @@ endforeach; ?>
 			     Contents menu, on the very page a reader is looking at. -->
 			<span class="metadata" property="dcterms:title"><?= htmlspecialchars($page['title']) ?></span>
 			<span class="metadata" property="dcterms:description"><?= htmlspecialchars(isset($page['description']) ? $page['description'] : '') ?></span>
+<?php if (!empty($page['authorUri'])): ?>
+			<!-- Who last revised this page; its node-level counterpart (who created it) is
+			     emitted by $emit_node_rdfa() on the span above. -->
+			<a class="metadata" tabindex="-1" inert rel="prov:wasAttributedTo"
+			   href="<?= htmlspecialchars($page['authorUri']) ?>"></a>
+<?php endif; ?>
 <?php if (!empty($page['created'])): ?>
 			<span class="metadata" property="dcterms:created"><?= htmlspecialchars($page['created']) ?></span>
 <?php endif; ?>

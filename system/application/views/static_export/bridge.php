@@ -1363,8 +1363,12 @@
         function lensNodeIsType(node, contentType) {
             if (contentType === 'all-content' || contentType === 'content') return true;
 
+            // 'reply' is what the relation is called internally and 'comment' what a reader
+            // calls it; the lens editor writes either. ScalarNode records only the latter in
+            // scalarTypes, and getNodesWithProperty() folds the two for the same reason.
             var type = (contentType === 'composite') ? 'page'
                      : (contentType === 'file')      ? 'media'
+                     : (contentType === 'reply')     ? 'comment'
                      : contentType;
 
             switch (type) {
@@ -1926,6 +1930,54 @@
                 }
 
                 return header;
+            };
+        }
+
+        /* Comments: read the archive, don't add to it.
+         *
+         * The dialog itself needs no patching — ScalarComments.formatComments() builds the list
+         * from getRelations('comment', 'incoming'), and the export now bakes those relations,
+         * each comment's text as sioc:content and its author as a foaf:Person node (see
+         * _build_comments() in static_export_model.php). What can't survive the move off a
+         * live server is the other half of the dialog: setupCommentForm() renders a form that
+         * posts a new comment, and before it can even show the form it POSTs to
+         * <parent_uri>login_status to find out who the reader is. That request is one the
+         * static shim answers with a 503, so the form's own success path never runs and the
+         * dialog is left sitting under "Checking your signed in status…" forever.
+         *
+         * So the form is replaced with a line saying why it isn't there. The existing comments
+         * above it are the point of the dialog and they render normally; what is gone is the
+         * ability to add another, which is true of the export as a whole.
+         *
+         * Patched on the instance rather than the prototype because the prototype lives inside
+         * the plugin's own closure: $.fn.scalarcomments is the only handle on it from out here,
+         * and the instance is retrievable through $.data() the same way scalarpage.jquery.js
+         * retrieves it. setupCommentForm() is called from formatComments() on first show, well
+         * after construction, so replacing it here always lands in time. */
+        if ($.fn.scalarcomments) {
+            var _originalScalarcomments = $.fn.scalarcomments;
+            $.fn.scalarcomments = function (options) {
+                var $el = _originalScalarcomments.call(this, options);
+                $el.each(function () {
+                    var instance = $.data(this, 'plugin_scalarcomments');
+                    if (!instance) return;
+                    instance.setupCommentForm = function () {
+                        this.userReply = $('<div class="comment_form"></div>').appendTo(this.bodyContent);
+                        this.userReply.append('<p class="caption_font">This is an archived copy of ' +
+                            'this project. Existing comments are shown above, but new comments ' +
+                            'can\'t be posted here.</p>');
+                    };
+                    /* The dialog's focus trap ends at the form's last <input>, which the note
+                     * above no longer provides — and setupFocusTrap() binds to whatever it is
+                     * handed, so an empty set silently leaves the modal tab-able out of. Close
+                     * on the last thing actually focusable in it instead. */
+                    instance.getLastFocusable = function () {
+                        var focusable = this.modal.find('a[href], button, input, textarea, select')
+                            .filter(':visible').last();
+                        return focusable.length ? focusable : this.modal.find('.close');
+                    };
+                });
+                return $el;
             };
         }
 

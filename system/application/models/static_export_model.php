@@ -62,6 +62,9 @@ class Static_Export_Model extends MY_Model {
 	const NS_SCALAR = 'http://scalar.usc.edu/2012/01/scalar-ns#';
 	const NS_ART    = 'http://simile.mit.edu/2003/10/ontologies/artstor#';
 
+	/** user_id => user row (or null when the row is gone); see _attributed_to(). */
+	private $_user_cache = array();
+
 	public function __construct() {
 
 		parent::__construct();
@@ -73,6 +76,8 @@ class Static_Export_Model extends MY_Model {
 		$this->load->model('tag_model',        'tags');
 		$this->load->model('annotation_model', 'annotations');
 		$this->load->model('reference_model',  'references');
+		$this->load->model('reply_model',      'replies');
+		$this->load->model('user_model',       'users');
 
 	}
 
@@ -96,13 +101,18 @@ class Static_Export_Model extends MY_Model {
 		$paths       = array();
 		$tags        = array();
 		$annotations = array();
+		$comments    = array();
+		$people      = array();
 
-		$this->_build_content($book_id, $base_uri, $pages, $media);
+		$this->_build_content($book_id, $base_uri, $pages, $media, $people);
 		$this->_build_paths($book_id, $base_uri, $paths);
 		$this->_build_tags($book_id, $base_uri, $tags);
 		$this->_build_annotations($book_id, $media, $annotations);
 		$this->_build_references($book_id, $pages, $media);
 		$this->_build_excerpts($pages, $media, $base_uri);
+		// After _build_excerpts(), which would otherwise overwrite the full comment bodies
+		// this puts in sioc:content — see _build_comments() for why they have to be whole.
+		$this->_build_comments($book_id, $pages, $comments);
 		$lenses = $this->_build_lenses($book_id, $pages);
 		$toc = $this->_build_toc($book_id);
 
@@ -113,11 +123,13 @@ class Static_Export_Model extends MY_Model {
 			'paths'       => $paths,
 			'tags'        => $tags,
 			'annotations' => $annotations,
+			'comments'    => $comments,
+			'people'      => $people,
 			'lenses'      => $lenses,
 			'toc'         => $toc,
 		);
 
-		// Flatten paths, tags and annotations into the single list of Open Annotation
+		// Flatten paths, tags, annotations and comments into the single list of Open Annotation
 		// relations both the page template and the baked graph render from, so the URN and
 		// anchor-fragment rules live in one place rather than being restated in each.
 		$book_data['relations'] = $this->_build_relations($book_data);
@@ -393,7 +405,8 @@ class Static_Export_Model extends MY_Model {
 		$asset_root = self::_asset_root($slug);
 
 		$meta_item              = $item;
-		$meta_item['body']      = $this->_build_meta_page_body($item, $is_media, $asset_root);
+		$meta_item['body']      = $this->_build_meta_page_body($item, $is_media, $asset_root,
+			isset($book_data['people']) ? $book_data['people'] : array());
 		$meta_item['isMetaView'] = true;
 		// A lens page's .meta view is a metadata table, not the lens: scalarpage only runs the
 		// lens editor on the 'plain' view, so the property and the editor's assets would both
@@ -429,7 +442,7 @@ class Static_Export_Model extends MY_Model {
 	 * @param  string $asset_root  Relative path from this page's directory to the export root
 	 * @return string              HTML for the wrapping <div> (<h3> label + <table>)
 	 */
-	private function _build_meta_page_body($item, $is_media, $asset_root) {
+	private function _build_meta_page_body($item, $is_media, $asset_root, array $people = array()) {
 
 		$html  = '<div class="ci-template-html meta-page page_margins">' . "\n";
 		$html .= '<h3 style="clear:both;">' . ($is_media ? 'Media' : 'Page') . '</h3>' . "\n";
@@ -451,6 +464,20 @@ class Static_Export_Model extends MY_Model {
 		}
 		if (!empty($item['versionNumber'])) {
 			$html .= $this->_meta_table_row('versionnumber', 'ov:versionnumber', (int) $item['versionNumber']);
+		}
+
+		// Attribution. The live meta.php prints the raw prov:wasAttributedTo URI, because on a
+		// live server that URI is a working link to the person's user page; here it resolves to
+		// nothing, so the person's name is shown instead — the same fact, in the form that is
+		// still useful once the book is off its server. Both statements are listed only when
+		// they differ, which is the case worth seeing: an item revised by someone other than
+		// whoever created it.
+		foreach (array('nodeAuthorUri' => 'created by', 'authorUri' => 'last revised by') as $field => $label) {
+			if (empty($item[$field]) || empty($people[$item[$field]]['name'])) continue;
+			if ('authorUri' === $field && !empty($item['nodeAuthorUri'])
+					&& $item['nodeAuthorUri'] === $item['authorUri']) continue;
+			$html .= $this->_meta_table_row($label, 'prov:wasAttributedTo',
+				htmlspecialchars($people[$item[$field]]['name']));
 		}
 
 		if ($is_media) {
@@ -593,7 +620,7 @@ class Static_Export_Model extends MY_Model {
 	 * Using two queries (one for content, one bulk version fetch) rather than N+1
 	 * per-item version lookups.
 	 */
-	private function _build_content($book_id, $base_uri, &$pages, &$media) {
+	private function _build_content($book_id, $base_uri, &$pages, &$media, &$people) {
 
 		// 1. All live content rows for this book.
 		$content_rows = $this->pages->get_all($book_id, null, null, true);
@@ -633,13 +660,36 @@ class Static_Export_Model extends MY_Model {
 				? $this->_clean_arc_meta($arc_meta[$row->recent_version_id])
 				: array();
 
+			// Attribution, as the live API reports it: two prov:wasAttributedTo statements,
+			// one on the content node naming whoever created the item and one on the version
+			// naming whoever last revised it. They are usually the same person and sometimes
+			// not, which is the whole reason Scalar keeps both, so both are exported.
+			//
+			// The bulk version fetch above selects versions.*, so 'user' and 'attribution' are
+			// already in hand; attribution is stored serialized and Version_model unserializes
+			// it on its own read path, so it is unpacked here rather than trusted raw.
+			$node_author = $this->_attributed_to(
+				isset($row->user) ? $row->user : '', null, $base_uri);
+			$version_author = $this->_attributed_to(
+				isset($version->user) ? $version->user : '',
+				isset($version->attribution) ? unserialize_recursive($version->attribution) : null,
+				$base_uri);
+
+			$people[$node_author['uri']]    = $node_author;
+			$people[$version_author['uri']] = $version_author;
+
+			$attribution = array(
+				'nodeAuthorUri' => $node_author['uri'],
+				'authorUri'     => $version_author['uri'],
+			);
+
 			if ('media' === $row->type) {
-				$media[$row->slug] = $this->_normalize_media($row, $version, $base_uri, $meta);
+				$media[$row->slug] = $this->_normalize_media($row, $version, $base_uri, $meta) + $attribution;
 			} else {
 				// 'composite' covers pages, paths, tags, and categorized pages
 				// (commentary, review, term). All appear in $pages so the renderer
 				// can display them; paths and tags are also indexed separately.
-				$pages[$row->slug] = $this->_normalize_page($row, $version, $base_uri, $meta);
+				$pages[$row->slug] = $this->_normalize_page($row, $version, $base_uri, $meta) + $attribution;
 			}
 		}
 
@@ -756,6 +806,19 @@ class Static_Export_Model extends MY_Model {
 			$graph    = $graph + $this->_graph_entries_for_item($item, $slug, $is_media, $book_url, $all_pages);
 		}
 
+		// --- People -------------------------------------------------------------------
+		// Everyone the book's content is attributed to, as foaf:Person nodes — the other end of
+		// every prov:wasAttributedTo above. ScalarNode gives a node of this type its title from
+		// foaf:name (nothing else does), which is how a consumer turns one of those URIs back
+		// into a name to print.
+		foreach ((array) (isset($book_data['people']) ? $book_data['people'] : array())
+				as $person_uri => $person) {
+			$graph[$person_uri] = array(
+				self::RDF_TYPE                       => $uri('http://xmlns.com/foaf/0.1/Person'),
+				'http://xmlns.com/foaf/0.1/name'     => $lit($person['name']),
+			);
+		}
+
 		// --- Relations ----------------------------------------------------------------
 		foreach ($book_data['relations'] as $rel) {
 			$graph[$rel['urn']] = array(
@@ -799,6 +862,12 @@ class Static_Export_Model extends MY_Model {
 		if (!empty($item['contentId'])) {
 			$node[self::NS_SCALAR . 'urn'] = $uri('urn:scalar:content:' . (int) $item['contentId']);
 		}
+		// Who created the item, as against who last revised it (that one goes on the version
+		// below). ScalarNode parses this as node.author, which is the fallback the comments
+		// dialog reaches for when a version carries no attribution of its own.
+		if (!empty($item['nodeAuthorUri'])) {
+			$node['http://www.w3.org/ns/prov#wasAttributedTo'] = $uri($item['nodeAuthorUri']);
+		}
 		// Node-level asset paths, stored export-root-relative for the bridge to resolve.
 		if (!empty($item['localThumbnail'])) {
 			$node[self::NS_ART . 'thumbnail'] = $lit($item['localThumbnail']);
@@ -819,8 +888,16 @@ class Static_Export_Model extends MY_Model {
 			'http://purl.org/dc/terms/description'  => $lit(isset($item['description']) ? $item['description'] : ''),
 		);
 		// The passage that cites other content, which the media Citations dialog quotes. See
-		// _build_excerpts() for why this is an excerpt rather than the whole body.
+		// _build_excerpts() for why this is an excerpt rather than the whole body — and
+		// _build_comments() for the one kind of page where it is the whole body, because the
+		// comments dialog renders a comment out of this field.
 		if (!empty($item['excerpt'])) $version['http://rdfs.org/sioc/ns#content'] = $lit($item['excerpt']);
+		// Who last revised the item. Read as version.author by the comments dialog (for the
+		// byline under each comment), by the grid visualization's 'author' column, and by the
+		// lens metadata filter and CSV export, none of which an export could answer before.
+		if (!empty($item['authorUri'])) {
+			$version['http://www.w3.org/ns/prov#wasAttributedTo'] = $uri($item['authorUri']);
+		}
 		if (!empty($item['created']))       $version['http://purl.org/dc/terms/created'] = $lit($item['created']);
 		if (!empty($item['versionNumber'])) $version['http://open.vocab.org/terms/versionnumber'] = $lit((int) $item['versionNumber']);
 		if (!empty($item['layout']) && 'plain' !== $item['layout']) {
@@ -975,9 +1052,9 @@ class Static_Export_Model extends MY_Model {
 	}
 
 	/**
-	 * Flatten paths, tags and annotations into one list of Open Annotation relations.
+	 * Flatten paths, tags, annotations and comments into one list of Open Annotation relations.
 	 *
-	 * scalarapi derives a node's 'path'/'tag'/'annotation' scalarType — what the Index modal's
+	 * scalarapi derives a node's 'path'/'tag'/'annotation'/'comment' scalarType — what the Index modal's
 	 * tabs filter on, and what path navigation and tag lists read — purely from parsed
 	 * relations (ScalarNode.addRelation), never from rdf:type. A relation reaches it only as a
 	 * subject typed oac:Annotation carrying oac:hasBody (the path/tag/annotation node) and
@@ -993,28 +1070,33 @@ class Static_Export_Model extends MY_Model {
 	 *     #xywh=…        -> annotation, spatial region
 	 *     #pos3d=…       -> annotation, 3D scene position
 	 *     #posgis=…      -> annotation, geographic position
+	 *     #datetime=…    -> comment, posted at that moment
 	 *
-	 * Comments are deliberately absent: they are dropped from the export (see CLAUDE.md), so
-	 * the Index's Comments tab reports no results rather than showing stale ones.
+	 * Each entry also records its 'kind' outright. Nothing in the export's data consumes it —
+	 * the reader re-derives the kind from the fragment, as above — but page.php has to sort its
+	 * relationship lists by kind while rendering, and inferring it a second time from the shape
+	 * of the endpoints got a comment wrong (it has no fragment-free tag URL and no path row, so
+	 * it fell through to "This page annotates:").
 	 *
 	 * Endpoints are slugs, left for the caller to turn into URLs — page.php needs versioned
 	 * ones ('.1' suffixed, which ScalarRelation resolves with stripVersion(), so it only has
 	 * to be present rather than accurate) and so does the graph.
 	 *
 	 * @param  array $book_data
-	 * @return array  list of ['urn' => …, 'body' => slug, 'target' => slug, 'fragment' => …]
+	 * @return array  list of ['urn' => …, 'kind' => …, 'body' => slug, 'target' => slug, 'fragment' => …]
 	 */
 	private function _build_relations($book_data) {
 
 		$relations = array();
 		$all_pages = array_merge($book_data['pages'], $book_data['media']);
 
-		$add = function ($urn, $body, $target, $fragment) use (&$relations, $all_pages) {
+		$add = function ($kind, $urn, $body, $target, $fragment) use (&$relations, $all_pages) {
 			// Skip when either endpoint was not exported — an unpublished or deleted node can
-			// still be referenced by a path or tag row.
+			// still be referenced by a path, tag or comment row.
 			if (!isset($all_pages[$body]) || !isset($all_pages[$target])) return;
 			$relations[] = array(
 				'urn'      => $urn,
+				'kind'     => $kind,
 				'body'     => $body,
 				'target'   => $target,
 				'fragment' => $fragment,
@@ -1025,19 +1107,32 @@ class Static_Export_Model extends MY_Model {
 		// navigation as well as what orders the path's contents in the Index.
 		foreach ($book_data['paths'] as $path_slug => $path) {
 			foreach ($path['children'] as $i => $child_slug) {
-				$add('urn:scalar:path:' . $path_slug . ':' . $child_slug . ':' . ($i + 1),
+				$add('path', 'urn:scalar:path:' . $path_slug . ':' . $child_slug . ':' . ($i + 1),
 					$path_slug, $child_slug, '#index=' . ($i + 1));
 			}
 		}
 
 		foreach ($book_data['tags'] as $tag_slug => $tag) {
 			foreach ($tag['tagged'] as $tagged_slug) {
-				$add('urn:scalar:tag:' . $tag_slug . ':' . $tagged_slug, $tag_slug, $tagged_slug, '');
+				$add('tag', 'urn:scalar:tag:' . $tag_slug . ':' . $tagged_slug, $tag_slug, $tagged_slug, '');
 			}
 		}
 
 		foreach ($book_data['annotations'] as $anno_id => $anno) {
-			$add($anno_id, $anno['bodySlug'], $anno['targetSlug'], self::_annotation_fragment($anno));
+			$add('annotation', $anno_id, $anno['bodySlug'], $anno['targetSlug'],
+				self::_annotation_fragment($anno));
+		}
+
+		// Comments. The fragment is what makes ScalarRelation type the relation as a comment
+		// rather than as a tag, so a comment whose rel_replied row somehow carries no datetime
+		// is left out — typed as a tag it would show up in the Index's Tags tab and word itself
+		// "tagged by", which is worse than the comment being absent.
+		foreach ((array) (isset($book_data['comments']) ? $book_data['comments'] : array())
+				as $comment_id => $comment) {
+			if ($comment['datetime'] === '') continue;
+			$fragment = '#datetime=' . $comment['datetime'];
+			if (!empty($comment['paragraphNum'])) $fragment .= '&paragraph=' . $comment['paragraphNum'];
+			$add('comment', $comment_id, $comment['bodySlug'], $comment['targetSlug'], $fragment);
 		}
 
 		return $relations;
@@ -1197,6 +1292,145 @@ class Static_Export_Model extends MY_Model {
 	}
 
 	/**
+	 * Build the comments collection, and the author records the comments dialog names them by.
+	 *
+	 * A comment is not a table of its own: Scalar stores it as an ordinary content node — which
+	 * is why comment pages already reach the export through _build_content() — plus a row in
+	 * rel_replied tying it to the item it responds to. What was missing was that second half,
+	 * so every comment landed in the export as an orphaned page: reachable by its own URL, not
+	 * reachable as a comment, and invisible to the Comments tab of the Index.
+	 *
+	 * In rel_replied: parent_version_id = the comment, child_version_id = the item commented on
+	 * (Book::save_comment() calls replies->save_children() from the comment's own version), so
+	 * the shape is the same as rel_annotated and this reads it the same way — get_all() for the
+	 * comment bodies, get_children() for what each one responds to.
+	 *
+	 * Unapproved comments never appear: get_all() asks for live content only, and a book that
+	 * moderates its comments leaves is_live at 0 until a moderator approves them. What does not
+	 * survive is the ability to *post* one — there is no server to post to — so the bridge
+	 * replaces the dialog's form with a note saying so.
+	 *
+	 * Two things are backfilled onto the comment's own page entry, because
+	 * ScalarComments.formatComments() reads both off the comment node rather than off the
+	 * relation:
+	 *
+	 *   'excerpt'   which is what _graph_entries_for_item() emits as sioc:content. For every
+	 *               other kind of page that field is deliberately an excerpt (see
+	 *               _build_excerpts()), but the dialog renders a comment *from* sioc:content —
+	 *               an excerpt would show the reader a truncated comment, or, for the usual
+	 *               comment that cites nothing, no comment at all. A comment is a paragraph or
+	 *               two, so carrying it whole costs nothing.
+	 *
+	 *   'isComment' which is what tells page.php and _graph_entries_for_item() to treat the
+	 *               entry that way. The author the dialog prints beside it is not set here —
+	 *               _build_content() attributes every item in the book, comments included.
+	 *
+	 * @param  int    $book_id
+	 * @param  array  &$pages     book_data['pages']; comment entries gain 'excerpt'/'isComment'
+	 * @param  array  &$comments  filled with urn => ['id','bodySlug','targetSlug','datetime',…]
+	 */
+	private function _build_comments($book_id, &$pages, &$comments) {
+
+		$body_rows = $this->replies->get_all($book_id);
+
+		foreach ($body_rows as $body) {
+
+			if (empty($body->recent_version_id)) continue;
+
+			if (isset($pages[$body->slug])) {
+				$pages[$body->slug]['isComment'] = true;
+				if (!empty($pages[$body->slug]['body'])) {
+					$pages[$body->slug]['excerpt'] = $pages[$body->slug]['body'];
+				}
+			}
+
+			$targets = $this->replies->get_children($body->recent_version_id);
+
+			foreach ($targets as $target) {
+
+				if (empty($target->child_content_slug)) continue;
+
+				// urn:scalar:reply:<comment version>:<target version>:<datetime>, built by
+				// Reply_model::urn() — the same identifier the live API gives the relation.
+				$comments[$target->urn] = array(
+					'id'           => $target->urn,
+					'bodySlug'     => $body->slug,
+					'targetSlug'   => $target->child_content_slug,
+					// Carried on the relation rather than on the comment, exactly as Scalar
+					// stores it, and what the dialog sorts by and prints under each comment.
+					'datetime'     => !empty($target->datetime) ? rdf_timestamp($target->datetime) : '',
+					'paragraphNum' => (int) $target->paragraph_num,
+				);
+
+			}
+
+		}
+
+	}
+
+	/**
+	 * Who something is attributed to, as the foaf:Person node scalarapi expects to resolve a
+	 * prov:wasAttributedTo to — a URI and a display name.
+	 *
+	 * Mirrors MY_Model::prov_wasAttributedTo() and RDF_Object::_provenance(), which between
+	 * them decide the same thing on the live site, and in the same order: a signed-in user is
+	 * named by id, an anonymous contributor by the name they typed (Version_model stores it in
+	 * the serialized 'attribution' blob, which is how a comment left by someone with no account
+	 * still gets a byline), and anything else falls back to Anonymous. The URI is not cosmetic
+	 * — it is the key everything downstream looks the person up by, so a wrong one resolves to
+	 * no node and leaves the reader with nothing to print.
+	 *
+	 * The URI is absolute, which is what the live API emits (RDF_Object::_provenance() resolves
+	 * the value to $user->uri before Version_model::rdf() ever sees it) and therefore what the
+	 * export should emit too, even though it points at a users/ page no export carries. It is
+	 * an identifier here, not a link: nothing in the reader renders it as an href.
+	 *
+	 * User rows are looked up once and cached — every version in the book asks about one, and
+	 * a book of a few hundred pages written by two people would otherwise make a few hundred
+	 * single-row queries to learn two names.
+	 *
+	 * @param  mixed  $user_id      content.user / versions.user — a user id, or empty
+	 * @param  object $attribution  versions.attribution, already unserialized, or null
+	 * @param  string $base_uri     Live Scalar base URL for this book, trailing slash included
+	 * @return array                ['uri' => …, 'name' => …]
+	 */
+	private function _attributed_to($user_id, $attribution, $base_uri) {
+
+		// A registered user: named by id, and by whatever fullname the users table holds.
+		if (!empty($user_id) && is_numeric($user_id)) {
+
+			if (!array_key_exists($user_id, $this->_user_cache)) {
+				$found = $this->users->get_by_user_id($user_id);
+				$this->_user_cache[$user_id] = (!empty($found) && is_object($found)) ? $found : null;
+			}
+
+			$user = $this->_user_cache[$user_id];
+			if ($user !== null) {
+				return array(
+					'uri'  => confirm_slash($base_uri) . 'users/' . $user->user_id,
+					'name' => !empty($user->fullname) ? $user->fullname : 'Anonymous',
+				);
+			}
+
+		}
+
+		// An anonymous contributor who gave a name: safe_name() of it is the URI, exactly as
+		// prov_wasAttributedTo() builds it, so two contributions by the same name share a node.
+		if (is_object($attribution) && !empty($attribution->fullname)) {
+			return array(
+				'uri'  => confirm_slash($base_uri) . 'users/' . safe_name($attribution->fullname),
+				'name' => $attribution->fullname,
+			);
+		}
+
+		return array(
+			'uri'  => confirm_slash($base_uri) . 'users/anonymous',
+			'name' => 'Anonymous',
+		);
+
+	}
+
+	/**
 	 * The book's public lenses — the saved searches-plus-visualizations that fill the
 	 * header's Lenses menu and the "Browse Lenses" page.
 	 *
@@ -1210,7 +1444,7 @@ class Static_Export_Model extends MY_Model {
 	 * Only *public* lenses are exported, which is why get_all_with_lens() is asked for live
 	 * content only. A private lens belongs to one signed-in reader, and neither the reader nor
 	 * the sign-in survives the export; a submitted-but-unpublished one is editorial state,
-	 * which CLAUDE.md drops along with comments and version history. The 'hidden' and
+	 * which CLAUDE.md drops along with version history. The 'hidden' and
 	 * 'submitted' flags are therefore restated rather than trusted: the lens manager branches
 	 * on them to decide which list a lens belongs in, and anything not plainly public would
 	 * land in a section no exported reader can act on.

@@ -73,7 +73,7 @@ class RDF_Object {
 		'use_versions_restriction' => self::USE_VERSIONS_INCLUSIVE,
 		'max_recurses'	=> 0,
 		'num_recurses'	=> 0,
-		'meta' 			=> self::METADATA_ALL,
+		'meta' 			=> self::METADATA_NONE,
 		'total'			=> 0,
 		'anon_name'		=> 'anonymous',
 		'u_all'			=> self::USERS_LISTED,
