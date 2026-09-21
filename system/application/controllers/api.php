@@ -109,8 +109,7 @@ Class Api extends CI_Controller {
  		//Session login first
  		if ($this->data['native']===true || $this->data['native']==='true'){
  			$this->user = $this->api_users->do_session_login($this->data['book']->book_id);
- 			if (!$this->user && $this->api_users->is_super()) $this->_output_error(StatusCodes::HTTP_UNAUTHORIZED, 'You do not have permission to modify this book');
- 			if (!$this->user) $this->_output_error(StatusCodes::HTTP_UNAUTHORIZED, 'You are not logged in');
+ 			if (!$this->user && !$this->api_users->is_super()) $this->_output_error(StatusCodes::HTTP_UNAUTHORIZED, 'You are not logged in or do not have permission to modify this book');
  		// API key login
  		} else if (!$this->user = $this->api_users->do_login($this->data['email'], $this->data['api_key'], $this->data['host'], $this->data['book']->book_id)){
  			$this->_output_error(StatusCodes::HTTP_UNAUTHORIZED, 'Could not log in via API key');
