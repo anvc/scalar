@@ -19,10 +19,26 @@
 
 (function($) {
 
+	var scalarMediaTabsUniqueID = 0;	// keeps tab ids unique across media elements on the same page
+
 	$.scalarmedia = function(m, e, options) {
 
 		var mediaelement = m;
 		var element = e;
+
+		// Tab ids and radio group names have to be unique to this media element
+		var tabGroupId = 'media_tab_' + scalarMediaTabsUniqueID++;
+
+		// Adds a tab to the media tab bar and returns its radio input. Callers bind their click
+		// handlers to the input alone, not to the input and label together, so that a click on the
+		// label (which the browser forwards to the input) only fires them once.
+		var createTab = function(slug, labelText, checked) {
+			var id = tabGroupId + '_' + slug;
+			var input = $('<input type="radio" class="media_tab" name="'+tabGroupId+'" id="'+id+'">');
+			if (checked) input.prop('checked', true);
+			mediaTabs.append(input).append('<label for="'+id+'">'+labelText+'</label>');
+			return input;
+		}
 
 		var media = {
 
@@ -321,7 +337,7 @@
 
 			displayRelatedMedia: function() {
 				if (relatedNodes.length > 0) {
-					var relatedTab = $('<input type="radio" class="media_tab" name="media_tab" id="relatedTab"><label for="relatedTab">Related</label>').appendTo(mediaTabs);
+					var relatedTab = createTab('related', 'Related');
 					var relatedPane = $('<div class="media_related pane"></div>').appendTo(element);
 					relatedNodes.forEach(function (node) {
 						var nodeDescription = ''
@@ -416,7 +432,7 @@
 				descriptionPane.find('a.citations-link').on('click',  function() {
 					media.options[ 'details' ].show( node );
 				} );
-				var descriptionTab = $('<input type="radio" class="media_tab" name="media_tab" id="descriptionTab" checked="checked"><label for="descriptionTab">Description</label>').appendTo(mediaTabs);
+				var descriptionTab = createTab('description', 'Description', true);
 				descriptionTab.on('click', function() { media.showTab($(this), descriptionPane) });
 				element.find('.media_description').show();
 			}
@@ -445,7 +461,7 @@
 			}
 
 			if (annotations.length > 0) {
-				var annotationTab = $('<input type="radio" class="media_tab" name="media_tab" id="annotationsTab"><label for="annotationsTab">Annotations</label>').appendTo(mediaTabs);
+				var annotationTab = createTab('annotations', 'Annotations');
 				annotationTab.on('click', function() { media.showTab($(this), annotationPane) });
 				var annotationPane = $('<div class="media_annotations pane"></div>').appendTo(element);
 				var table = $('<table></table>').appendTo(annotationPane);
@@ -474,33 +490,33 @@
 				}
 				if (!foundAuxContent) {
 					element.find('.media_annotations').show();
-					annotationTab.addClass('select');
+					annotationTab.prop('checked', true);
 					foundAuxContent = true;
 				}
 			}
 
 			// hide metadata tab if the media's description tab includes the metadata
 			if (media.options.caption != 'metadata') {
-				var metadataTab = $('<input type="radio" class="media_tab" name="media_tab" id="metadataTab"><label foc for="metadataTab">Details</label>').appendTo(mediaTabs);
+				var metadataTab = createTab('metadata', 'Details');
 				var metadataPane = $('<div class="media_metadata pane"></div>').appendTo(element);
 				metadataTab.on('click', function() { media.showTab($(this), metadataPane) });
 				addMetadataTableForNodeToElement(node, metadataPane);
 				if (!foundAuxContent) {
 					element.find('.media_metadata').show();
-					metadataTab.addClass('select');
+					metadataTab.prop('checked', true);
 					foundAuxContent = true;
 				}
 			}
 
 			if ('undefined'==typeof(scalarMediaHideCitationsTab) || !scalarMediaHideCitationsTab) {
-				var detailsTab = $( '<input type="radio" class="media_tab" name="media_tab" id="detailsTab"><label for="detailsTab">Citations</label>' ).appendTo( mediaTabs );
+				var detailsTab = createTab('citations', 'Citations');
 				detailsTab.on('click',  function() {
 					media.options[ 'details' ].show( node, null, null, detailsTab );
 				} );
 			}
 
 			if ('undefined'==typeof(scalarMediaHideSourceFileTab) || !scalarMediaHideSourceFileTab) {
-				var sourceTab = $( '<input type="radio" class="media_tab" name="media_tab" id="sourceTab"><label for="sourceTab">Source file</label>' ).appendTo( mediaTabs );
+				var sourceTab = createTab('source', 'Source file');
 				sourceTab.on('click',  function() {
 					window.open( node.current.sourceFile, 'popout' );
 				} );
