@@ -60,6 +60,8 @@ $route['(.*)/api/(.*)'] = "api/$2";          // api/
 $route['api/(.*)'] = "api/$1";               // api/
 $route['(.*)/api$'] = "api/index";           // api/
 $route['(.*)/static_export'] = "static_export/index"; // Static site export
+$route['(.*)/static_export/check'] = "static_export/check"; // Static site export: pre-export questions
+$route['(.*)/static_export'] = "static_export/index"; // Static site export
 $route['(.*)'] = "book/$1";                  // Route everything else to the screen controller
 
 /* End of file routes.php */
