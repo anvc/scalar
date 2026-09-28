@@ -62,6 +62,13 @@ class Static_Export_Model extends MY_Model {
 	const NS_SCALAR = 'http://scalar.usc.edu/2012/01/scalar-ns#';
 	const NS_ART    = 'http://simile.mit.edu/2003/10/ontologies/artstor#';
 
+	/** The basemap an export's maps use without a Google Maps key; see default_map_options(). */
+	const OSM_TILES_URL         = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+	const OSM_TILES_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+
+	/** Page layouts that put a map at the top of the page (scalarpage.jquery.js). */
+	private static $MAP_LAYOUTS = array('google_maps', 'google_maps_path');
+
 	/** user_id => user row (or null when the row is gone); see _attributed_to(). */
 	private $_user_cache = array();
 
@@ -150,11 +157,20 @@ class Static_Export_Model extends MY_Model {
 	 * <meta refresh> redirect to the first TOC page at <tmp_dir>/index.html instead.
 	 * Either way the home page keeps its <tmp_dir>/index.meta/ sibling.
 	 *
+	 * Alongside the pages it writes the files every page loads (the baked data, the site's
+	 * settings, the bridge and its maps stand-in) and two for the person publishing the site:
+	 * export-manifest.json and README.md.
+	 *
 	 * @param  array  $book_data  Full normalized structure from get_book_data()
 	 * @param  string $tmp_dir    Absolute path to the writable temp directory (no trailing slash)
-	 * @return array  ['rendered' => [...], 'skipped' => [...], 'errors' => [slug => msg]]
+	 * @param  array  $options    Site settings, as returned by default_map_options() and then
+	 *                            adjusted by the controller: 'googleMapsKey' and 'tiles'
+	 * @return array  ['rendered' => [...], 'skipped' => [...], 'errors' => [slug => msg],
+	 *                 'dataBytes' => int, 'maps' => summary from _map_usage()]
 	 */
-	public function render_book($book_data, $tmp_dir) {
+	public function render_book($book_data, $tmp_dir, array $options = array()) {
+
+		$options += $this->default_map_options();
 
 		$CI =& get_instance();
 
@@ -264,13 +280,25 @@ class Static_Export_Model extends MY_Model {
 		// itself. Order matters only for readability — page.php loads the data file first.
 		$this->_write_static_data($tmp_dir, $book_data, $book_url, $errors);
 
-		// Write the API intercept bridge script that all pages reference.
+		// The site owner's settings, which page.php loads just before the bridge.
+		$this->_write_static_config($tmp_dir, $options, $errors);
+
+		// Write the API intercept bridge script that all pages reference, and the Leaflet
+		// stand-in for Google Maps that the bridge loads in its place when there's no key.
 		$bridge_js = $CI->load->view('static_export/bridge', array(), true);
 		if (file_put_contents($tmp_dir . '/scalar-static-bridge.js', $bridge_js) === false) {
 			$errors['scalar-static-bridge.js'] = 'Could not write scalar-static-bridge.js';
 		}
+		$maps_js = $CI->load->view('static_export/maps', array(), true);
+		if (file_put_contents($tmp_dir . '/scalar-static-maps.js', $maps_js) === false) {
+			$errors['scalar-static-maps.js'] = 'Could not write scalar-static-maps.js';
+		}
 
 		$this->_copy_assets($tmp_dir, $errors);
+
+		$maps = $this->_map_usage($book_data, $options);
+		$this->_write_manifest($tmp_dir, $book_data, $maps, $errors);
+		$this->_write_readme($tmp_dir, $book_data, $maps, $errors);
 
 		return array(
 			'rendered' => $rendered,
@@ -282,7 +310,81 @@ class Static_Export_Model extends MY_Model {
 			// to matter is a judgement call, not an error.
 			'dataBytes' => file_exists($tmp_dir . '/scalar-static-data.js')
 				? filesize($tmp_dir . '/scalar-static-data.js') : 0,
+			'maps'     => $maps,
 		);
+
+	}
+
+	/**
+	 * The map settings an export gets unless the author chooses otherwise, from this
+	 * installation's config (see the static export block in local_settings.php):
+	 *
+	 *   googleMapsKey  This installation's own google_maps_key, but only where
+	 *                  static_export_share_google_maps_key is on. Off by default: the key
+	 *                  belongs to whoever runs the server, who may have restricted it to this
+	 *                  site, and an export puts it on sites they don't control.
+	 *   tiles          The basemap drawn without a Google key. OpenStreetMap's unless
+	 *                  static_export_map_tiles_url names another provider.
+	 *
+	 * @return array ['googleMapsKey' => string, 'tiles' => ['url', 'attribution', 'maxZoom']]
+	 */
+	public function default_map_options() {
+
+		$key = '';
+		if (true === $this->config->item('static_export_share_google_maps_key')) {
+			$key = trim((string) $this->config->item('google_maps_key'));
+		}
+
+		// config->item() answers '' for a setting that isn't there.
+		$url = trim((string) $this->config->item('static_export_map_tiles_url'));
+		$max = (int) $this->config->item('static_export_map_tiles_max_zoom');
+
+		$tiles = ('' === $url)
+			? array(
+				'url'         => self::OSM_TILES_URL,
+				'attribution' => self::OSM_TILES_ATTRIBUTION,
+				'maxZoom'     => 19,
+			)
+			: array(
+				'url'         => $url,
+				'attribution' => (string) $this->config->item('static_export_map_tiles_attribution'),
+				'maxZoom'     => $max > 0 ? $max : 19,
+			);
+
+		return array('googleMapsKey' => $key, 'tiles' => $tiles);
+
+	}
+
+	/**
+	 * Whether anything in the book draws a map, for the Utilities tab to decide whether to ask
+	 * the author about Google Maps before an export. The same test _map_usage() applies at
+	 * export time (see _map_features()), made without building the whole book: just each
+	 * item's current version and the book's lenses.
+	 *
+	 * KML media doesn't count on its own. The Google option doesn't change whether it can be
+	 * shown until the site is published, and asking would suggest otherwise.
+	 *
+	 * @param  int  $book_id
+	 * @return bool
+	 */
+	public function uses_maps($book_id) {
+
+		foreach ($this->_lens_rows($book_id) as $row) {
+			$features = $this->_map_features(null, '', json_decode($row->lens, true));
+			if (!empty($features)) return true;
+		}
+
+		foreach ($this->_current_versions($book_id) as $pair) {
+			list($row, $version) = $pair;
+			$features = $this->_map_features(
+				'media' === $row->type ? null : $version->default_view,
+				$version->content,
+				null
+			);
+			if (!empty($features)) return true;
+		}
+
+		return false;
 
 	}
 
@@ -622,39 +724,21 @@ class Static_Export_Model extends MY_Model {
 	 */
 	private function _build_content($book_id, $base_uri, &$pages, &$media, &$people) {
 
-		// 1. All live content rows for this book.
-		$content_rows = $this->pages->get_all($book_id, null, null, true);
+		// 1. Every live content row with its current version.
+		$current = $this->_current_versions($book_id);
 
-		if (empty($content_rows)) return;
+		if (empty($current)) return;
 
-		// 2. Collect the recent_version_ids, skipping any content with no version yet.
-		$version_id_map = array();   // version_id => content_id
-		foreach ($content_rows as $row) {
-			if (empty($row->recent_version_id)) continue;
-			$version_id_map[$row->recent_version_id] = $row->content_id;
+		// 2. Bulk-fetch ARC2 additional metadata for all those versions in one SPARQL query.
+		$version_ids = array();
+		foreach ($current as $pair) {
+			$version_ids[] = $pair[0]->recent_version_id;
 		}
+		$arc_meta = $this->_fetch_arc_metadata($version_ids);
 
-		if (empty($version_id_map)) return;
-
-		// 3. Bulk-fetch all those versions in one query.
-		$this->db->where_in('version_id', array_keys($version_id_map));
-		$version_rows = $this->db->get($this->versions_table)->result();
-
-		$version_by_id = array();
-		foreach ($version_rows as $v) {
-			$version_by_id[$v->version_id] = $v;
-		}
-
-		// 4. Bulk-fetch ARC2 additional metadata for all versions in one SPARQL query.
-		$arc_meta = $this->_fetch_arc_metadata(array_keys($version_id_map));
-
-		// 5. Normalize each content row.
-		foreach ($content_rows as $row) {
-			if (empty($row->recent_version_id)) continue;
-			$version = isset($version_by_id[$row->recent_version_id])
-				? $version_by_id[$row->recent_version_id]
-				: null;
-			if (empty($version)) continue;
+		// 3. Normalize each content row.
+		foreach ($current as $pair) {
+			list($row, $version) = $pair;
 
 			$meta = isset($arc_meta[$row->recent_version_id])
 				? $this->_clean_arc_meta($arc_meta[$row->recent_version_id])
@@ -692,6 +776,40 @@ class Static_Export_Model extends MY_Model {
 				$pages[$row->slug] = $this->_normalize_page($row, $version, $base_uri, $meta) + $attribution;
 			}
 		}
+
+	}
+
+	/**
+	 * Every live content row in the book paired with its current version, in the order
+	 * Page_model::get_all() returns them. Content with no version yet is left out.
+	 *
+	 * @param  int   $book_id
+	 * @return array list of array(content row, version row)
+	 */
+	private function _current_versions($book_id) {
+
+		$content_rows = $this->pages->get_all($book_id, null, null, true);
+		if (empty($content_rows)) return array();
+
+		$version_ids = array();
+		foreach ($content_rows as $row) {
+			if (!empty($row->recent_version_id)) $version_ids[] = $row->recent_version_id;
+		}
+		if (empty($version_ids)) return array();
+
+		// One query for all of them.
+		$this->db->where_in('version_id', $version_ids);
+		$version_by_id = array();
+		foreach ($this->db->get($this->versions_table)->result() as $v) {
+			$version_by_id[$v->version_id] = $v;
+		}
+
+		$current = array();
+		foreach ($content_rows as $row) {
+			if (empty($row->recent_version_id) || empty($version_by_id[$row->recent_version_id])) continue;
+			$current[] = array($row, $version_by_id[$row->recent_version_id]);
+		}
+		return $current;
 
 	}
 
@@ -1465,12 +1583,7 @@ class Static_Export_Model extends MY_Model {
 	 */
 	private function _build_lenses($book_id, &$pages) {
 
-		if (!$this->db->table_exists('rel_grouped')) return array();
-
-		$this->load->model('lens_model', 'lenses');
-		$this->load->model('user_model', 'users');
-
-		$rows    = $this->lenses->get_all_with_lens($book_id, null, null, true);
+		$rows    = $this->_lens_rows($book_id);
 		$lenses  = array();
 		$authors = array();   // user_id => fullname, so a book of lenses by one author is one query
 
@@ -1509,6 +1622,23 @@ class Static_Export_Model extends MY_Model {
 		}
 
 		return $lenses;
+
+	}
+
+	/**
+	 * The book's lens rows as Lens_model::get_all_with_lens() returns them — the same call
+	 * _build_lenses() exports from — or none on an installation that predates lenses.
+	 *
+	 * @param  int   $book_id
+	 * @return array rows carrying ->slug, ->user and ->lens (JSON)
+	 */
+	private function _lens_rows($book_id) {
+
+		if (!$this->db->table_exists('rel_grouped')) return array();
+
+		$this->load->model('lens_model', 'lenses');
+		$rows = $this->lenses->get_all_with_lens($book_id, null, null, true);
+		return is_array($rows) ? $rows : array();
 
 	}
 
@@ -2250,6 +2380,347 @@ class Static_Export_Model extends MY_Model {
 
 		if (file_put_contents($tmp_dir . '/scalar-static-data.js', $js) === false) {
 			$errors['scalar-static-data.js'] = 'Could not write scalar-static-data.js';
+			return false;
+		}
+
+		return true;
+
+	}
+
+	// -------------------------------------------------------------------------
+	// Private — maps
+	//
+	// Exported maps are drawn either by Google Maps, with a key the author supplies, or by a
+	// Leaflet stand-in that needs none — see the maps section of static_export/bridge.php and
+	// static_export/maps.php. What lives here is the export-time side: which content draws a
+	// map, the settings file that picks the mode, and what the manifest and README say about
+	// both.
+	// -------------------------------------------------------------------------
+
+	/**
+	 * The ways one item draws a map, if any:
+	 *
+	 *   google-map-layout         the Google Map layout (google_maps / google_maps_path)
+	 *   map-widget                an inline map widget in its body
+	 *   map-visualization-widget  an inline visualization widget set to the map format
+	 *   map-lens                  a lens whose visualization is a map
+	 *
+	 * Readers can also switch any lens to a map in the lens browser. That isn't counted — it
+	 * would make nearly every book with lenses "use maps", and those maps work without a key.
+	 *
+	 * @param  string|null $layout  The item's default view (null for media, which has none)
+	 * @param  string      $body    The item's stored body HTML
+	 * @param  array|null  $lens    The item's decoded lens, if it is one
+	 * @return array                Feature names, empty if the item draws no map
+	 */
+	private function _map_features($layout, $body, $lens) {
+
+		$features = array();
+
+		if (null !== $layout && in_array($layout, self::$MAP_LAYOUTS, true)) {
+			$features[] = 'google-map-layout';
+		}
+		if (is_string($body) && '' !== $body) {
+			if (preg_match('/\bdata-widget\s*=\s*(["\'])map\1/i', $body)) {
+				$features[] = 'map-widget';
+			}
+			if (preg_match('/\bdata-visformat\s*=\s*(["\'])map\1/i', $body)) {
+				$features[] = 'map-visualization-widget';
+			}
+		}
+		if (is_array($lens) && isset($lens['visualization']['type']) && 'map' === $lens['visualization']['type']) {
+			$features[] = 'map-lens';
+		}
+
+		return $features;
+
+	}
+
+	/**
+	 * Whether a media item is KML, by the tests scalarapi.js uses to pick its KML media source:
+	 * a .kml or .kmz file, or a URL asking for output=kml.
+	 */
+	private static function _is_kml(array $item) {
+
+		$url = isset($item['sourceUrl']) ? strtolower((string) $item['sourceUrl']) : '';
+		if ('' === $url) return false;
+
+		$path = parse_url($url, PHP_URL_PATH);
+		$ext  = $path ? strtolower(pathinfo($path, PATHINFO_EXTENSION)) : '';
+
+		return in_array($ext, array('kml', 'kmz'), true) || false !== strpos($url, 'output=kml');
+
+	}
+
+	/**
+	 * What the export's maps look like, for the manifest, the README and the controller's
+	 * report. The Google key itself is deliberately not included.
+	 *
+	 * For each KML item, where it would appear: 'embeddedIn' lists the items that embed or link
+	 * it, and 'mapLayouts' the Google Map layout pages that draw it as a layer because it is on
+	 * their path or carries their tag (scalarpage.jquery.js's setupGoogleMapsLayout()).
+	 *
+	 * @param  array $book_data  Full normalized structure, after _copy_media_files()
+	 * @param  array $options    render_book()'s options
+	 * @return array
+	 */
+	private function _map_usage($book_data, array $options) {
+
+		$pages = array();
+		foreach (array('pages', 'media') as $collection) {
+			foreach ($book_data[$collection] as $slug => $item) {
+				$features = $this->_map_features(
+					('pages' === $collection && isset($item['layout'])) ? $item['layout'] : null,
+					isset($item['body']) ? $item['body'] : '',
+					isset($item['lens']) ? $item['lens'] : null
+				);
+				if (!empty($features)) $pages[$slug] = $features;
+			}
+		}
+
+		$map_lenses = 0;
+		foreach ((array) (isset($book_data['lenses']) ? $book_data['lenses'] : array()) as $lens) {
+			if ($this->_map_features(null, '', $lens)) $map_lenses++;
+		}
+
+		$kml = array();
+		foreach ($book_data['media'] as $slug => $item) {
+			if (!self::_is_kml($item)) continue;
+
+			$embedded_in = array();
+			foreach (array('pages', 'media') as $collection) {
+				foreach ($book_data[$collection] as $other_slug => $other) {
+					if (!empty($other['references']) && in_array($slug, $other['references'], true)) {
+						$embedded_in[] = $other_slug;
+					}
+				}
+			}
+
+			$map_layouts = array();
+			foreach (array('paths' => 'children', 'tags' => 'tagged') as $collection => $members) {
+				foreach ($book_data[$collection] as $parent_slug => $parent) {
+					if (isset($pages[$parent_slug]) && in_array('google-map-layout', $pages[$parent_slug], true)
+							&& !empty($parent[$members]) && in_array($slug, $parent[$members], true)) {
+						$map_layouts[] = $parent_slug;
+					}
+				}
+			}
+
+			$kml[] = array(
+				'slug'       => $slug,
+				'title'      => $item['title'],
+				// Bundled copy, relative to the export root — or, where it stayed put, where it is.
+				'file'       => !empty($item['localPath']) ? $item['localPath'] : null,
+				'url'        => !empty($item['localPath']) ? null : $item['sourceUrl'],
+				'embeddedIn' => $embedded_in,
+				'mapLayouts' => array_values(array_unique($map_layouts)),
+			);
+		}
+
+		$google = '' !== $options['googleMapsKey'];
+
+		return array(
+			'usesMaps'  => !empty($pages) || $map_lenses > 0,
+			'provider'  => $google ? 'google' : 'leaflet',
+			'tiles'     => $google ? null : $options['tiles']['url'],
+			'pages'     => $pages,
+			'mapLenses' => $map_lenses,
+			'kml'       => $kml,
+		);
+
+	}
+
+	/**
+	 * Write <tmp_dir>/scalar-static-config.js, the one generated file the person publishing
+	 * the site is meant to edit. It sets window.__scalarStaticConfig, which the bridge reads
+	 * each time a page asks for a map, so a change takes effect on the next page load without
+	 * re-exporting. A script rather than JSON so that it loads over file:// as well.
+	 *
+	 * @param  string $tmp_dir
+	 * @param  array  $options  render_book()'s options
+	 * @param  array  &$errors
+	 * @return bool
+	 */
+	private function _write_static_config($tmp_dir, array $options, &$errors) {
+
+		$config = array(
+			'maps' => array(
+				'googleMapsKey' => (string) $options['googleMapsKey'],
+				'tiles'         => array(
+					'url'         => (string) $options['tiles']['url'],
+					'attribution' => (string) $options['tiles']['attribution'],
+					'maxZoom'     => (int) $options['tiles']['maxZoom'],
+				),
+			),
+		);
+
+		$js = "/* scalar-static-config.js\n"
+			. " * Settings for this exported site. Unlike the other scalar-static-* files, this one is\n"
+			. " * meant to be edited: change a value, save, and reload the page. README.md has more.\n"
+			. " *\n"
+			. " * maps.googleMapsKey\n"
+			. " *   Empty: maps are drawn with OpenStreetMap, which needs no key.\n"
+			. " *   A Google Maps JavaScript API key: maps are drawn with Google Maps instead, which\n"
+			. " *   adds satellite view and KML map layers. Anyone can see this key, so restrict it to\n"
+			. " *   this site's address in the Google Cloud console.\n"
+			. " *\n"
+			. " * maps.tiles\n"
+			. " *   The map imagery used when there is no Google key: the tile URL template, the credit\n"
+			. " *   shown on the map, and the deepest zoom the tiles go to.\n"
+			. " */\n"
+			. 'window.__scalarStaticConfig = '
+			. json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
+			. ";\n";
+
+		if (file_put_contents($tmp_dir . '/scalar-static-config.js', $js) === false) {
+			$errors['scalar-static-config.js'] = 'Could not write scalar-static-config.js';
+			return false;
+		}
+
+		return true;
+
+	}
+
+	/**
+	 * Write <tmp_dir>/export-manifest.json. For now it records the maps: which mode the site
+	 * uses, which items draw a map, and the KML layers that depend on that mode or on where the
+	 * site is hosted. The rest of what CLAUDE.md has the manifest document (external media,
+	 * dropped features) isn't generated yet.
+	 *
+	 * @param  string $tmp_dir
+	 * @param  array  $book_data
+	 * @param  array  $maps      _map_usage()
+	 * @param  array  &$errors
+	 * @return bool
+	 */
+	private function _write_manifest($tmp_dir, $book_data, array $maps, &$errors) {
+
+		$notes = array();
+		if ('google' === $maps['provider']) {
+			$notes[] = 'Maps are drawn with Google Maps, using the key in scalar-static-config.js.';
+			if (!empty($maps['kml'])) {
+				$notes[] = 'KML layers are downloaded by Google\'s servers, so they appear only once the site is on a '
+				         . 'public web server that doesn\'t require a login. Elsewhere, KML media items show a notice.';
+			}
+		} else {
+			$notes[] = 'Maps are drawn with Leaflet and the tiles named in scalar-static-config.js; no Google Maps key is set.';
+			if (!empty($maps['kml'])) {
+				$notes[] = 'KML layers are not shown without a Google Maps key. KML media items show a notice with a link '
+				         . 'to the file; Google Map layout pages leave the layers off.';
+			}
+		}
+		$notes[] = 'Readers can switch any lens to a map in the lens browser, so maps can appear beyond the pages listed here.';
+
+		$manifest = array(
+			'generator'  => 'Scalar static site exporter',
+			'exportDate' => $book_data['meta']['exportDate'],
+			'book'       => array(
+				'title' => $book_data['meta']['title'],
+				'slug'  => $book_data['meta']['slug'],
+				'url'   => confirm_slash(base_url()) . confirm_slash($book_data['meta']['slug']),
+			),
+			'maps'       => array(
+				'provider'  => $maps['provider'],
+				'tiles'     => $maps['tiles'],
+				'usesMaps'  => $maps['usesMaps'],
+				'pages'     => (object) $maps['pages'],
+				'mapLenses' => $maps['mapLenses'],
+				'kml'       => $maps['kml'],
+				'notes'     => $notes,
+			),
+		);
+
+		$json = json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+		if (false === $json || file_put_contents($tmp_dir . '/export-manifest.json', $json . "\n") === false) {
+			$errors['export-manifest.json'] = 'Could not write export-manifest.json';
+			return false;
+		}
+
+		return true;
+
+	}
+
+	/**
+	 * Write <tmp_dir>/README.md for whoever publishes the site — often not a developer. So far
+	 * it covers publishing in a sentence and maps in detail, since maps are the one thing that
+	 * may need configuring by hand after the export.
+	 *
+	 * @param  string $tmp_dir
+	 * @param  array  $book_data
+	 * @param  array  $maps      _map_usage()
+	 * @param  array  &$errors
+	 * @return bool
+	 */
+	private function _write_readme($tmp_dir, $book_data, array $maps, &$errors) {
+
+		$title  = trim(html_entity_decode(strip_tags($book_data['meta']['title']), ENT_QUOTES, 'UTF-8'));
+		$google = 'google' === $maps['provider'];
+		$date   = date('F j, Y', strtotime($book_data['meta']['exportDate']));
+
+		$md  = '# ' . ('' !== $title ? $title : $book_data['meta']['slug']) . "\n\n";
+		$md .= "A static copy of this Scalar project, exported on $date. Upload the whole folder to any "
+		     . "static web host (GitHub Pages, Netlify, or an ordinary web server) and visit its `index.html`. "
+		     . "`export-manifest.json` records details of the export.\n\n";
+
+		$md .= "## Maps\n\n";
+
+		if ($google) {
+			$md .= "Maps on this site are drawn with **Google Maps**, using the API key in `scalar-static-config.js`.\n\n";
+		} else {
+			$md .= (self::OSM_TILES_URL === $maps['tiles']
+			        ? "Maps on this site are drawn with **OpenStreetMap**, which doesn't need an API key. "
+			        : "Maps on this site are drawn with the map tiles named in `scalar-static-config.js`, without a Google Maps API key. ")
+			     . "You can switch to Google Maps, which adds satellite view and KML map layers, by adding a Google Maps API key.\n\n";
+		}
+		if (!$maps['usesMaps']) {
+			$md .= "None of this project's pages use a map, but readers can still show a lens as a map.\n\n";
+		}
+
+		$md .= "### " . ($google ? 'Changing the Google Maps key' : 'Using Google Maps') . "\n\n"
+		     . "1. Get a Google Maps JavaScript API key: https://developers.google.com/maps/documentation/javascript/get-api-key\n"
+		     . "   (Google requires a billing account on the project).\n"
+		     . "2. Restrict the key to your site. In the Google Cloud console, under the key's *Application restrictions*,\n"
+		     . "   choose *Websites* and add your site's address, for example `https://yourname.github.io/*`.\n"
+		     . "   Anyone who visits your site can see the key, so this is what stops others from using it.\n"
+		     . "3. Open `scalar-static-config.js` in a text editor and put the key between the quotes after\n"
+		     . "   `\"googleMapsKey\":`. Save the file and upload it again.\n\n"
+		     . "If Google rejects the key, each map shows a message instead. The browser's console names the site\n"
+		     . "address the key needs to allow. To go back to OpenStreetMap, empty the quotes after `\"googleMapsKey\":`.\n\n";
+
+		$md .= "### KML map layers\n\n"
+		     . "- **With Google Maps**, KML layers are downloaded by Google's servers, so they appear only once the site is\n"
+		     . "  on a public web server: not when the files are opened from your computer, and not on a site that\n"
+		     . "  requires a login. Google may take a while to notice a changed KML file.\n"
+		     . "- **With OpenStreetMap**, KML layers aren't shown. A KML media item shows a message with a link to\n"
+		     . "  download the file instead.\n\n";
+		if (!empty($maps['kml'])) {
+			$md .= "This project has " . count($maps['kml']) . " KML item" . (1 === count($maps['kml']) ? '' : 's')
+			     . "; `export-manifest.json` lists them and where they appear.\n\n";
+		}
+
+		$md .= "### Map imagery\n\n"
+		     . "Without a Google key, map imagery comes from the tile server named in `scalar-static-config.js` — by default\n"
+		     . "OpenStreetMap's, which is free for light use under its tile usage policy\n"
+		     . "(https://operations.osmfoundation.org/policies/tiles/) but has no guarantee of service, and may not\n"
+		     . "serve tiles to pages opened directly from your computer. To use another provider, change `url`,\n"
+		     . "`attribution` and `maxZoom` under `tiles` in that file; many providers include their own key in the URL.\n"
+		     . "Whichever provider you use, keep `attribution` set to the credit that provider asks for — the line in\n"
+		     . "the corner of each map. OpenStreetMap's data is free to use, but its licence requires that credit.\n\n";
+
+		// Both libraries' licences ask that their notices travel with copies of the code, and
+		// publishing this folder is such a copy. The files are already in it; this says so.
+		$md .= "## Credits and licences\n\n"
+		     . "This site includes Scalar's own JavaScript and CSS, under the Educational Community License 2.0,\n"
+		     . "together with the third-party libraries Scalar uses (jQuery, Bootstrap, D3 and others), each under\n"
+		     . "its own permissive licence.\n\n"
+		     . "Maps drawn without a Google Maps key also use, under `system/application/views/widgets/leaflet/`:\n\n"
+		     . "- Leaflet 1.9.4 — BSD-2-Clause — `LICENSE-leaflet.txt`\n"
+		     . "- OverlappingMarkerSpiderfier-Leaflet 0.2.7 — MIT — `LICENSE-oms-leaflet.txt`\n\n"
+		     . "Please keep those licence files with the site when you publish it: both licences ask that their\n"
+		     . "copyright notices travel with copies of the code.\n";
+
+		if (file_put_contents($tmp_dir . '/README.md', $md) === false) {
+			$errors['README.md'] = 'Could not write README.md';
 			return false;
 		}
 

@@ -431,9 +431,11 @@ if (empty($namespaces)) $namespaces = array(
 <!-- JS — jQuery first, then the baked server data and the bridge that answers API calls
      from it, then the Scalar stack. The data file has to precede the bridge: the bridge
      reads window.__scalarStaticData when a request comes in, and a missing file would
-     leave it serving the reduced fallbacks instead. -->
+     leave it serving the reduced fallbacks instead. The config file (the site owner's
+     settings — so far, maps) precedes it for the same reason. -->
 <script src="<?= $assets ?>views/arbors/html5_RDFa/js/jquery-3.4.1.min.js"></script>
 <script src="<?= $asset_root ?>scalar-static-data.js"></script>
+<script src="<?= $asset_root ?>scalar-static-config.js"></script>
 <script src="<?= $asset_root ?>scalar-static-bridge.js"></script>
 <script src="<?= $assets ?>views/melons/cantaloupe/js/bootstrap.min.js"></script>
 <script src="<?= $assets ?>views/melons/cantaloupe/js/jquery.bootstrap-modal.js"></script>

@@ -54,11 +54,76 @@ $(document).ready(function() {
 		e.preventDefault();
 		var url = $(this).attr('href');
 		var $content = $('#export-content').show();
-		$content.html('Generating static site export\u2026 This may take a minute.');
-		var $form = $('<form method="post" style="display:none;"></form>').attr('action', url);
-		$('body').append($form);
-		$form.submit();
+		var startExport = function(fields) {
+			$content.show().html('Generating static site export\u2026 This may take a minute.');
+			var $form = $('<form method="post" style="display:none;"></form>').attr('action', url);
+			$.each(fields || {}, function(name, value) {
+				$('<input type="hidden" />').attr('name', name).val(value).appendTo($form);
+			});
+			$('body').append($form);
+			$form.submit();
+		};
+		// Only a book that draws maps gets asked how to draw them. If the check itself fails,
+		// export anyway: the site's maps still work, without Google.
+		$content.html('Preparing static site export\u2026');
+		$.getJSON(url + '/check').done(function(check) {
+			if (!check || !check.usesMaps) return startExport();
+			$content.empty().hide();
+			staticExportMapsDialog(check, startExport);
+		}).fail(function() {
+			startExport();
+		});
 	});
+	function staticExportMapsDialog(check, startExport) {
+		var $message = $(
+			'<div>' +
+				'<p>This project contains maps. How should the exported site draw them?</p>' +
+				'<div class="radio"><label><input type="radio" name="static_export_maps_provider" value="leaflet" /> ' +
+					'<b>OpenStreetMap</b> &mdash; no key needed. KML map layers aren\'t shown.</label></div>' +
+				'<div class="radio"><label><input type="radio" name="static_export_maps_provider" value="google" /> ' +
+					'<b>Google Maps</b> &mdash; adds satellite view and KML map layers. Requires a Google Maps API key.</label></div>' +
+				'<div class="form-group static-export-google-key" style="margin-left:20px;">' +
+					'<label class="control-label" for="static-export-google-key">Google Maps API key</label>' +
+					'<input type="text" class="form-control" id="static-export-google-key" autocomplete="off" spellcheck="false" />' +
+					'<p class="help-block">Anyone who visits the exported site can see this key, so restrict it to the site\'s address in the Google Cloud console. ' +
+					'It is written into this export only; Scalar doesn\'t save it.</p>' +
+				'</div>' +
+				'<p class="help-block">You can change this after downloading by editing <code>scalar-static-config.js</code>. The export\'s README explains how.</p>' +
+			'</div>'
+		);
+		var $key = $message.find('#static-export-google-key').val(check.googleMapsKey || '');
+		var $keyGroup = $message.find('.static-export-google-key');
+		var provider = function() {
+			return $message.find('[name="static_export_maps_provider"]:checked').val();
+		};
+		var update = function() {
+			$keyGroup.toggle('google' === provider()).removeClass('has-error');
+		};
+		$message.find('[name="static_export_maps_provider"][value="' + (check.googleMapsKey ? 'google' : 'leaflet') + '"]').prop('checked', true);
+		$message.find('[name="static_export_maps_provider"]').on('change', update);
+		update();
+		BootstrapDialog.show({
+			title: 'Export as static site',
+			message: $message,
+			buttons: [{
+				label: 'Cancel',
+				action: function(dialog) { dialog.close(); }
+			}, {
+				label: 'Export',
+				cssClass: 'btn-primary',
+				action: function(dialog) {
+					var key = $.trim($key.val());
+					if ('google' === provider() && !key.length) {
+						$keyGroup.addClass('has-error');
+						$key.focus();
+						return;
+					}
+					dialog.close();
+					startExport({maps_provider: provider(), google_maps_key: 'google' === provider() ? key : ''});
+				}
+			}]
+		});
+	}
 	$('#do_delete_books_form').on('submit', function() {
 		if (!$(this).prev().find('input:checked').length) return false;
 		var msg='Are you sure you wish to delete the selected books';

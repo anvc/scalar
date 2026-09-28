@@ -233,6 +233,340 @@
 }(window.jQuery));
 
 // -----------------------------------------------------------------------
+// Maps.
+//
+// Every map Scalar draws — the Google Map layout, the map widget, the map visualization and
+// KML media — goes through the Google Maps JavaScript API, which it loads on demand with
+// $.getScript('https://maps.googleapis.com/maps/api/js?…&key=' + <link id="google_maps_key">).
+// An export has no server key to put there, so it has two modes, decided by
+// scalar-static-config.js at the moment a page asks for that script:
+//
+//   - A Google Maps API key is set. The real API loads with it, plus two notices: one in
+//     place of every map if Google rejects the key (gm_authFailure), and one in place of a
+//     KML media item whose file Google's servers can't reach (see kmlIsReachable()).
+//   - No key. The request is answered with scalar-static-maps.js instead — a stand-in for
+//     the handful of google.maps classes Scalar uses, drawn with Leaflet (see
+//     static_export/maps.php). KML isn't supported there; KML media shows a notice.
+//
+// Either way Scalar's own map code runs unmodified. Both modes hook in at jQuery's script
+// transport, which every one of those $.getScript() calls passes through, same-origin or
+// not, before the XHR override at the top of this file would see it. That matters for the
+// map visualization's oms.min.js, which the override would otherwise answer with an empty
+// file.
+// -----------------------------------------------------------------------
+(function ($) {
+    if (!$ || !$.ajaxTransport || typeof Promise === 'undefined') return;
+
+    var GOOGLE_MAPS_RE = /^https?:\/\/maps\.googleapis\.com\/maps\/api\/js(\?|$)/i;
+    var GOOGLE_OMS_RE  = /views\/melons\/cantaloupe\/js\/oms\.min\.js(\?|#|$)/;
+    var READY_CALLBACK = '__scalarStaticGoogleMapsReady';
+
+    // Used when scalar-static-config.js is missing or leaves a setting out. The exporter writes
+    // the same values into that file (see _write_static_config() in static_export_model.php).
+    var DEFAULT_TILES = {
+        url:         'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom:     19
+    };
+
+    /* The maps settings, read fresh on every call. The file is meant to be edited by hand, so
+     * anything missing or mistyped falls back to a default rather than breaking the page. A
+     * custom tile URL without an attribution gets none, rather than OpenStreetMap's credit on
+     * someone else's tiles. */
+    function config() {
+        var root  = window.__scalarStaticConfig,
+            maps  = (root && root.maps) || {},
+            tiles = maps.tiles || {},
+            url   = (typeof tiles.url === 'string' && tiles.url.trim()) ? tiles.url.trim() : '';
+
+        return {
+            googleMapsKey: typeof maps.googleMapsKey === 'string' ? maps.googleMapsKey.trim() : '',
+            tiles: {
+                url:         url || DEFAULT_TILES.url,
+                attribution: typeof tiles.attribution === 'string' ? tiles.attribution
+                           : (url ? '' : DEFAULT_TILES.attribution),
+                maxZoom:     typeof tiles.maxZoom === 'number' ? tiles.maxZoom : DEFAULT_TILES.maxZoom,
+                subdomains:  tiles.subdomains || 'abc'
+            }
+        };
+    }
+
+    function approot() {
+        var el = document.getElementById('approot');
+        return (el && el.getAttribute('href')) || '';
+    }
+
+    function exportRoot() {
+        return approot().replace(/system\/application\/?$/, '');
+    }
+
+    // Scalar reads the key from <link id="google_maps_key"> as it builds the script URL, which
+    // is how the live wrapper.php supplies it. This file runs in <head>, after the config file
+    // and well before anything asks for a map.
+    (function () {
+        var key = config().googleMapsKey;
+        if (!key || document.getElementById('google_maps_key') || !document.head) return;
+        var link = document.createElement('link');
+        link.id = 'google_maps_key';
+        link.setAttribute('href', key);
+        document.head.appendChild(link);
+    }());
+
+    /* ---- Loading ------------------------------------------------------------------------ */
+
+    // Real <script> elements rather than XHR: they work over file://, and the XHR override
+    // above would answer a same-origin .js request with an empty body.
+    var loads = {};
+
+    function loadScript(src) {
+        if (!loads[src]) {
+            loads[src] = new Promise(function (resolve, reject) {
+                var script = document.createElement('script');
+                script.src = src;
+                script.async = false;
+                script.onload = function () { resolve(); };
+                script.onerror = function () { reject(new Error('Could not load ' + src)); };
+                document.head.appendChild(script);
+            });
+        }
+        return loads[src];
+    }
+
+    function loadStylesheet(href) {
+        if (loads[href]) return;
+        loads[href] = true;
+        var link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = href;
+        document.head.appendChild(link);
+    }
+
+    // jQuery marks every $.getScript() URL with a cache-busting _=<timestamp>. Stripped so that
+    // the several map features on one page share a single load.
+    function withoutCacheBuster(url) {
+        return url.replace(/([?&])_=\d+(&|$)/, function (m, lead, trail) {
+            return trail ? lead : '';
+        });
+    }
+
+    var standIn = null;
+
+    function loadStandIn() {
+        if (!standIn) {
+            var lib = approot() + 'views/widgets/leaflet/';
+            loadStylesheet(lib + 'leaflet.css');
+            standIn = loadScript(lib + 'leaflet.js')
+                .then(function () { return loadScript(lib + 'oms-leaflet.js'); })
+                .then(function () { return loadScript(exportRoot() + 'scalar-static-maps.js'); });
+        }
+        return standIn;
+    }
+
+    var googleApi = null;
+
+    /* The real API, loaded the way the live site loads it except for one thing: the
+     * $.getScript() completes when Google calls back rather than when the script element
+     * loads. The element's load event doesn't promise that google.maps is ready, and the
+     * wrappers below have to be in place before Scalar constructs its first map. Scalar's own
+     * callback (initGoogleMap, a no-op in main.js) is still called. */
+    function loadGoogle(url) {
+        if (!googleApi) {
+            googleApi = new Promise(function (resolve, reject) {
+                var u = new URL(withoutCacheBuster(url), window.location.href);
+                var pageCallback = u.searchParams.get('callback');
+                u.searchParams.set('callback', READY_CALLBACK);
+
+                window.gm_authFailure = (function (previous) {
+                    return function () {
+                        onGoogleAuthFailure();
+                        if (typeof previous === 'function') previous();
+                    };
+                }(window.gm_authFailure));
+
+                window[READY_CALLBACK] = function () {
+                    installGoogleWrappers();
+                    if (pageCallback && typeof window[pageCallback] === 'function') {
+                        try { window[pageCallback](); } catch (e) { /* a no-op on the live site */ }
+                    }
+                    resolve();
+                };
+
+                loadScript(u.href).catch(reject);
+            });
+        }
+        return googleApi;
+    }
+
+    $.ajaxTransport('+script', function (options) {
+        var url = options.url || '',
+            keyed = config().googleMapsKey !== '',
+            load = null;
+
+        if (GOOGLE_MAPS_RE.test(url)) {
+            load = keyed ? function () { return loadGoogle(url); } : loadStandIn;
+        } else if (GOOGLE_OMS_RE.test(url)) {
+            // The map visualization's marker spiderfier. The stand-in brings its own.
+            load = keyed ? function () { return loadScript(withoutCacheBuster(url)); } : loadStandIn;
+        }
+        if (!load) return;   // not ours — fall through to jQuery's own transports
+
+        var aborted = false;
+        return {
+            send: function (headers, complete) {
+                load().then(function () {
+                    if (!aborted) complete(200, 'success');
+                }, function (err) {
+                    if (window.console) console.warn('Static export: map scripts failed to load.', err);
+                    if (!aborted) complete(404, 'error');
+                });
+            },
+            abort: function () { aborted = true; }
+        };
+    });
+
+    /* ---- Notices ------------------------------------------------------------------------ */
+
+    /* Put a notice where a map would have been. The map's element is hidden rather than emptied
+     * because the Google API may still be drawing into it, and Scalar keeps references to it. */
+    function showNotice(div, message, link) {
+        if (!div || !div.parentNode || div.__scalarStaticNotice) return;
+
+        var note = document.createElement('div');
+        note.className = 'alert alert-warning caption_font static-map-notice';
+        note.setAttribute('role', 'note');
+        note.style.margin = '1rem 0';
+        note.appendChild(document.createTextNode(message));
+
+        if (link && link.href) {
+            note.appendChild(document.createTextNode(' '));
+            var a = document.createElement('a');
+            a.href = link.href;
+            a.textContent = link.text;
+            note.appendChild(a);
+        }
+
+        div.parentNode.insertBefore(note, div);
+        div.style.display = 'none';
+        div.__scalarStaticNotice = note;
+    }
+
+    /* A KML layer that can't be drawn. Only a KML media item's own viewer gets a notice — it is
+     * nothing but the layer, and jquery.mediaelement.js gives its element the id
+     * 'googlemaps<id>'. On a Google Map layout page ('google-maps', with a hyphen) the layers of
+     * any KML items sit alongside markers that still draw, so there they are just left off. */
+    function kmlUnavailable(div, url, reason) {
+        if (!div || !/^googlemaps/.test(div.id || '')) return;
+
+        var message = reason === 'unreachable'
+            ? 'This map layer (KML) will appear once this site is published on a public web ' +
+              'server. Google Maps can\'t read it from where this page is being viewed.'
+            : 'This map layer (KML) can\'t be displayed in this archived copy of the project.';
+
+        showNotice(div, message, url ? { href: url, text: 'Download the KML file.' } : null);
+    }
+
+    /* Whether Google's servers could plausibly fetch a KML file — KmlLayer downloads and renders
+     * it on Google's side, not in the browser. Anything opened from disk, on this machine, or on
+     * a private network can't be. A site behind a login can't be either, but that isn't
+     * detectable from here; the README says so. */
+    function kmlIsReachable(url) {
+        var u;
+        try { u = new URL(url, window.location.href); } catch (e) { return false; }
+        if (u.protocol !== 'http:' && u.protocol !== 'https:') return false;
+
+        var host = u.hostname.toLowerCase().replace(/^\[|\]$/g, '');
+        if (host === 'localhost' || host === '0.0.0.0' || host === '::1') return false;
+        if (/\.(localhost|local|internal|lan)$/.test(host)) return false;
+        if (/^(127|10)\./.test(host) || /^192\.168\./.test(host) || /^169\.254\./.test(host) ||
+            /^172\.(1[6-9]|2\d|3[01])\./.test(host)) return false;
+        if (host.indexOf('.') === -1 && host.indexOf(':') === -1) return false;   // intranet name
+        return true;
+    }
+
+    /* ---- Google mode -------------------------------------------------------------------- */
+
+    var googleAuthFailed = false,
+        googleMapDivs    = [];
+
+    function authNotice(div) {
+        showNotice(div, 'This map couldn\'t be shown because Google Maps rejected this site\'s ' +
+            'API key. If you manage this site, check the key in scalar-static-config.js and the ' +
+            'websites it is allowed to be used on.');
+    }
+
+    // Google can report the same rejection more than once; one warning is enough.
+    function onGoogleAuthFailure() {
+        var first = !googleAuthFailed;
+        googleAuthFailed = true;
+        if (first && window.console) {
+            console.warn('Static export: Google Maps rejected the API key in scalar-static-config.js. ' +
+                'If the key is restricted by website, it must allow ' + window.location.origin + '.');
+        }
+        googleMapDivs.forEach(authNotice);
+    }
+
+    /* A stand-in for a KmlLayer Google couldn't fetch. Enough of the class for Scalar's two
+     * callers: jquery.mediaelement.js calls setMap(), and the Google Map layout also listens for
+     * defaultviewport_changed, which simply never fires. */
+    function UnreachableKmlLayer(url) {
+        this.url = url;
+        this.map = null;
+    }
+    UnreachableKmlLayer.prototype.setMap = function (map) {
+        this.map = map || null;
+        if (map && typeof map.getDiv === 'function') kmlUnavailable(map.getDiv(), this.url, 'unreachable');
+    };
+    UnreachableKmlLayer.prototype.getMap = function () { return this.map; };
+    UnreachableKmlLayer.prototype.getUrl = function () { return this.url; };
+    UnreachableKmlLayer.prototype.getDefaultViewport = function () { return null; };
+    UnreachableKmlLayer.prototype.getStatus = function () { return 'FETCH_ERROR'; };
+    UnreachableKmlLayer.prototype.addListener = function () { return { remove: function () {} }; };
+
+    /* Wrap two of the API's constructors before Scalar uses either: Map, to know which elements
+     * to put the rejected-key notice in (Google may report the rejection after maps are drawn,
+     * and more maps may be created after it), and KmlLayer, to catch files Google can't fetch. */
+    function installGoogleWrappers() {
+        var maps = window.google && window.google.maps;
+        if (!maps || maps.__scalarStaticWrapped || typeof Reflect === 'undefined') return;
+        maps.__scalarStaticWrapped = true;
+
+        var OriginalMap = maps.Map;
+        if (typeof OriginalMap === 'function') {
+            var WrappedMap = function (div) {
+                var map = Reflect.construct(OriginalMap, arguments);
+                if (div) {
+                    googleMapDivs.push(div);
+                    if (googleAuthFailed) authNotice(div);
+                }
+                return map;
+            };
+            WrappedMap.prototype = OriginalMap.prototype;
+            try { maps.Map = WrappedMap; } catch (e) { /* read-only: go without the notice */ }
+        }
+
+        var OriginalKmlLayer = maps.KmlLayer;
+        if (typeof OriginalKmlLayer === 'function') {
+            var WrappedKmlLayer = function (opts) {
+                var url = typeof opts === 'string' ? opts : ((opts && opts.url) || '');
+                if (kmlIsReachable(url)) return Reflect.construct(OriginalKmlLayer, arguments);
+                var layer = new UnreachableKmlLayer(url);
+                if (opts && typeof opts === 'object' && opts.map) layer.setMap(opts.map);
+                return layer;
+            };
+            WrappedKmlLayer.prototype = OriginalKmlLayer.prototype;
+            try { maps.KmlLayer = WrappedKmlLayer; } catch (e) { /* read-only: layers just fail */ }
+        }
+    }
+
+    // For scalar-static-maps.js, which loads later and has no other way to reach these.
+    window.__scalarStaticMaps = {
+        config:         config,
+        kmlUnavailable: kmlUnavailable
+    };
+
+}(window.jQuery));
+
+// -----------------------------------------------------------------------
 // Deferred patches to Scalar's own JS for static-export compatibility.
 //
 // Each of these needs Scalar's classes (ScalarModel/ScalarNode/ScalarAPI,
