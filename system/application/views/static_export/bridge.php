@@ -2246,12 +2246,59 @@
          * Like the colophon fix above, this runs on the already-built DOM: base.init() is
          * called from $.scalarheader's constructor body, so the header is fully rendered
          * by the time $.fn.scalarheader returns. */
+
+        /* The slide-out panel lists a node's relationships under "Contains",
+         * "Features", "Tagged by", "Annotates" and "Comments on", reading each from
+         * scalarapi.model via node.getRelatedNodes(). On a live site the model only
+         * holds what has been fetched, and expandMenu() fetches with
+         *
+         *     scalarapi.loadPage(slug, true, cb, null, 1, false, null, 0, 20)
+         *                                              ^ references
+         *
+         * which becomes ref=0 on the request and REFERENCES_NONE in rdf.php — so the
+         * response carries no dcterms:references and "Features" stays empty for every
+         * node but the one whose own RDFa is on the page.
+         *
+         * An export has no such gaps: the bridge seeds the whole book graph into the
+         * model at boot, references included, because the visualizations and the media
+         * Citations list are built from exactly those edges. So every TOC entry grew a
+         * "Features" list of the media its page embeds — relationships the live menu
+         * never shows and the page itself doesn't render either.
+         *
+         * Honour the argument the live API honours, for the duration of the one
+         * callback it was passed with: expandMenu() issues its loadPage() as its last
+         * act, our loadNode() patch defers the callback with setTimeout(…, 0), and the
+         * timer queued here is therefore the next one after it. handleRequest() then
+         * takes the same branch it takes live — including 'noRelations' when Features
+         * was all it had. */
+        var suppressMenuReferences = false;
+
+        if (typeof ScalarNode !== 'undefined') {
+            var _getRelatedNodes = ScalarNode.prototype.getRelatedNodes;
+            ScalarNode.prototype.getRelatedNodes = function (type, direction) {
+                if (suppressMenuReferences && type === 'reference' && direction === 'outgoing') return [];
+                return _getRelatedNodes.apply(this, arguments);
+            };
+        }
+
         if ($.fn.scalarheader) {
             var _originalScalarheader = $.fn.scalarheader;
             $.fn.scalarheader = function (options) {
                 var header = _originalScalarheader.call(this, options);
 
                 rewriteNodeLinks(header.$el);
+
+                if (typeof header.expandMenu === 'function') {
+                    var _expandMenu = header.expandMenu;
+                    header.expandMenu = function () {
+                        suppressMenuReferences = true;
+                        try {
+                            return _expandMenu.apply(this, arguments);
+                        } finally {
+                            window.setTimeout(function () { suppressMenuReferences = false; }, 0);
+                        }
+                    };
+                }
 
                 var homeLink = $('#scalarheader .home_link a')[0];
                 if (homeLink) {

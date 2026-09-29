@@ -675,6 +675,12 @@ endforeach;
 
 	</header>
 
+	<!-- The page body, before the relationship lists below — the order the live wrapper.php
+	     emits them in (content directly after </header>, sections after it). The lists stay
+	     where they are put: addRelationshipNavigation() decorates .path_of and its siblings
+	     in place and never moves them, so DOM order here is the order the reader sees. -->
+	<span property="sioc:content"><?= isset($page['body']) ? $page['body'] : '' ?></span>
+
 <?php foreach ($relationship_lists as $list): ?>
 	<section>
 		<h1><?= htmlspecialchars($list['heading']) ?></h1>
@@ -702,8 +708,6 @@ endforeach;
 		</ol>
 	</section>
 <?php endforeach; ?>
-
-	<span property="sioc:content"><?= isset($page['body']) ? $page['body'] : '' ?></span>
 
 </article>
 
