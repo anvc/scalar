@@ -1065,24 +1065,36 @@ class Static_Export_Model extends MY_Model {
 	}
 
 	/**
-	 * Capture, for each item that references media, the passage of its body that does the
-	 * referencing — the block element containing the link.
+	 * Capture, for each item with a body, the passage of it that the rest of the book needs:
+	 * the opening of the page, plus any block that cites another item.
 	 *
-	 * This is what fills "Citations of this media" in the media Citations dialog. That panel
-	 * quotes the sentence around each citation, and it builds the quote by reading the citing
-	 * page's sioc:content, finding the <a resource="…"> for the media inside it and taking
-	 * that anchor's parent's HTML (see scalarmediadetails.jquery.js). So the content it needs
-	 * is not the whole page — only enough of it to contain the link and its surrounding block.
+	 * Two readers want this field, and they want different parts of the body.
 	 *
-	 * Baking whole bodies instead would work, and the shared graph could carry them, but every
-	 * page would then download and parse every other page's prose at boot to render a handful
-	 * of quotations. Excerpts keep that cost proportional to the citations themselves.
+	 * The media Citations dialog quotes the sentence around each citation. It builds the quote
+	 * by reading the citing page's sioc:content, finding the <a resource="…"> for the media
+	 * inside it and taking that anchor's parent's HTML (see scalarmediadetails.jquery.js), so
+	 * what it needs is the block containing the link.
 	 *
-	 * The consequence to know about: for any node other than the one being viewed, the model's
-	 * version content is this excerpt rather than the full body. Nothing in an export rendered
-	 * body copy from the model before — other nodes carried no content at all — so this is
-	 * strictly more than was there, but a page-content widget pointed at another page will
-	 * show the excerpt, not the whole thing.
+	 * The list visualization — which is what the Search dialog and every lens render their
+	 * results with — fills its "Content" column from the first 100 characters of the same
+	 * field, stripped of tags (see ListVisualization.addColumnToRowForNode() in
+	 * scalarvisualizations.jquery.js). What it needs is the start of the page, and on a live
+	 * site it gets it, because there sioc:content is the whole body.
+	 *
+	 * Carrying only the citation blocks served the first reader and left the second showing a
+	 * sentence from the middle of the page — or, for a page that cites nothing, an empty cell
+	 * where the live site shows the opening line. So the excerpt now leads with the body's
+	 * first block elements, enough of them to cover that 100-character window, and appends any
+	 * citation block those didn't already include.
+	 *
+	 * Baking whole bodies instead would serve both and is what a live Scalar effectively does,
+	 * but every page would then download and parse every other page's prose at boot to render
+	 * a handful of quotations and a column of 100-character teasers. Leading blocks keep that
+	 * cost proportional to what is actually read.
+	 *
+	 * The consequence to know about is unchanged: for any node other than the one being
+	 * viewed, the model's version content is this excerpt rather than the full body, so a
+	 * page-content widget pointed at another page will show the excerpt, not the whole thing.
 	 *
 	 * @param array &$pages
 	 * @param array &$media
@@ -1093,9 +1105,12 @@ class Static_Export_Model extends MY_Model {
 			$items = ($collection === 'pages') ? $pages : $media;
 
 			foreach ($items as $slug => $item) {
-				if (empty($item['references']) || empty($item['body'])) continue;
+				// No longer gated on 'references': a page that cites nothing still owes the
+				// Content column its opening line.
+				if (empty($item['body'])) continue;
 
-				$excerpt = $this->_excerpt_for_references($item['body'], $item['references'], $base_uri);
+				$references = empty($item['references']) ? array() : $item['references'];
+				$excerpt = $this->_excerpt_for_item($item['body'], $references, $base_uri);
 				if ($excerpt === '') continue;
 
 				if ($collection === 'pages') $pages[$slug]['excerpt'] = $excerpt;
@@ -1106,7 +1121,18 @@ class Static_Export_Model extends MY_Model {
 	}
 
 	/**
-	 * The block elements of $html that contain a link to any of $slugs, concatenated.
+	 * How much of the body's opening to keep, in characters. The list visualization reads the
+	 * first 100 characters of the field's *markup* — it truncates before it strips the tags,
+	 * so the tags eat into the window — and appends an ellipsis beyond that. Anything comfortably
+	 * over 100 therefore reproduces what a live Scalar shows in that column; the margin covers
+	 * the tags. Measured with mb_strlen so that a body of multi-byte prose is not cut short of
+	 * the window JavaScript will count in UTF-16 units.
+	 */
+	const EXCERPT_LEAD_CHARS = 160;
+
+	/**
+	 * The opening block elements of $html, followed by any further block that links to one of
+	 * $slugs.
 	 *
 	 * Scalar's editor writes an inline media link as <a resource="<slug>" …>, so the anchors
 	 * are found by that attribute rather than by href, which varies with how the media is
@@ -1116,9 +1142,9 @@ class Static_Export_Model extends MY_Model {
 	 * @param  string $html      Raw body HTML
 	 * @param  array  $slugs     Referenced content slugs
 	 * @param  string $base_uri  Live Scalar base URL for this book, trailing slash included
-	 * @return string            Concatenated block HTML, or '' if no link was found
+	 * @return string            Concatenated block HTML, or '' if the body could not be parsed
 	 */
-	private function _excerpt_for_references($html, array $slugs, $base_uri) {
+	private function _excerpt_for_item($html, array $slugs, $base_uri) {
 
 		if (!class_exists('DOMDocument')) return '';
 
@@ -1131,10 +1157,12 @@ class Static_Export_Model extends MY_Model {
 
 		if (!$loaded) return '';
 
-		$blocks  = array('p', 'div', 'li', 'blockquote', 'td', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6');
-		$wanted  = array_flip($slugs);
-		$chosen  = array();
-		$excerpt = '';
+		$blocks = array('p', 'div', 'li', 'blockquote', 'td', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6');
+		$wanted = array_flip($slugs);
+
+		// Citation blocks first — not to emit them yet, but because the anchors inside them are
+		// rewritten in place, and the lead may well contain some of them.
+		$cited = array();
 
 		foreach ($doc->getElementsByTagName('a') as $anchor) {
 			$resource = $anchor->getAttribute('resource');
@@ -1158,10 +1186,43 @@ class Static_Export_Model extends MY_Model {
 			$anchor->setAttribute('href', $base_uri . $resource);
 
 			// One block can carry several links; emit it once.
-			$key = spl_object_hash($node);
-			if (isset($chosen[$key])) continue;
-			$chosen[$key] = true;
+			$cited[spl_object_hash($node)] = $node;
+		}
 
+		$emitted = array();
+		$excerpt = '';
+
+		// The lead: top-level nodes in document order until the 100-character window the list
+		// visualization reads is covered. Whole nodes rather than a substr() of the markup —
+		// a cut through the middle of a tag would leave the citations dialog parsing a
+		// fragment that no longer contains the anchor it came for.
+		foreach ($doc->childNodes as $child) {
+			// loadHTML() keeps the encoding declaration prepended above as a processing
+			// instruction; NOIMPLIED means everything after it is the body's own top level,
+			// bare text nodes included (a body need not open with an element).
+			if ($child->nodeType === XML_PI_NODE) continue;
+			if ($child->nodeType === XML_TEXT_NODE && trim($child->textContent) === '') continue;
+
+			$emitted[spl_object_hash($child)] = true;
+			$excerpt .= $doc->saveHTML($child);
+
+			if (mb_strlen($excerpt, 'UTF-8') >= self::EXCERPT_LEAD_CHARS) break;
+		}
+
+		// Then the citations the lead didn't already carry. A cited block is often nested
+		// inside a top-level node the lead emitted whole — an <li> within the opening <ol>,
+		// say — so an ancestor that has already been emitted counts as covered; appending it
+		// again would show the reader the same quotation twice.
+		foreach ($cited as $hash => $node) {
+			if (isset($emitted[$hash])) continue;
+
+			$covered = false;
+			for ($ancestor = $node->parentNode; $ancestor !== null; $ancestor = $ancestor->parentNode) {
+				if (isset($emitted[spl_object_hash($ancestor)])) { $covered = true; break; }
+			}
+			if ($covered) continue;
+
+			$emitted[$hash] = true;
 			$excerpt .= $doc->saveHTML($node);
 		}
 
