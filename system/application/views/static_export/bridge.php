@@ -2286,6 +2286,21 @@
             $.fn.scalarheader = function (options) {
                 var header = _originalScalarheader.call(this, options);
 
+                /* The Account menu. setupUserMenu() fills it from scalarapi.model.getUser(),
+                 * which in an export always reports a logged-out reader, so it offers "Sign in"
+                 * and "Register" — both pointing at system_uri on the original Scalar install,
+                 * and neither meaning anything for a site with no server behind it. Sessions,
+                 * the dashboard and registration are all among the things an export drops, so
+                 * the menu is removed rather than emptied: an icon opening two dead links is
+                 * worse than no icon.
+                 *
+                 * Removing the <li> takes the menu's own handlers with it. Nothing else reads
+                 * #userMenu or #ScalarHeaderMenuUserList — header.css styles them and stops
+                 * there — and the keyboard navigation set up in base.init() walks the nav's
+                 * items live on each keypress rather than caching them, so it simply sees one
+                 * item fewer. */
+                header.$el.find('#userMenu').remove();
+
                 rewriteNodeLinks(header.$el);
 
                 if (typeof header.expandMenu === 'function') {
