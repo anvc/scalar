@@ -405,6 +405,19 @@ if (empty($namespaces)) $namespaces = array(
 <?php endif; ?>
 <link id="primary_role"    rel="scalar:primary_role" href="http://scalar.usc.edu/2012/01/scalar-ns#<?= $primary_role ?>" />
 
+<!-- Send links out of the book straight to their destination, skipping Scalar's "you are
+     leaving this book" interstitial. Always set in an export, whatever the exporting install
+     has configured, because the interstitial is a server route: addExternalLinks() in
+     scalarpage.jquery.js (and the same code in jquery.texteo.js) otherwise binds a click
+     handler that navigates to <book_url>external?link=…, and <book_url> here is the *live*
+     book's address — so following a link out of an exported book would leave the export and
+     land on the originating Scalar install, or on nothing once that install is gone.
+
+     This is Scalar's own setting rather than a patch: both call sites read it off this link
+     and return early, which is exactly the behaviour an export needs. The live equivalent is
+     $config['external_direct_hyperlink'], emitted by arbors/html5_RDFa/wrapper.php. -->
+<link id="external_direct_hyperlink" href="true" />
+
 <!-- Favicon -->
 <link rel="shortcut icon" href="<?= $assets ?>views/arbors/html5_RDFa/favicon_16.gif" />
 <link rel="apple-touch-icon" href="<?= $assets ?>views/arbors/html5_RDFa/favicon_114.jpg" />

@@ -567,6 +567,62 @@
 }(window.jQuery));
 
 // -----------------------------------------------------------------------
+// Widget scripts Scalar loads on demand.
+//
+// The XHR override at the top of this file answers every .js request with an empty body, on
+// the understanding that page.php has already loaded it as a <script> tag. A few widgets
+// aren't — Scalar pulls them in with $.getScript() only when a reader first needs them — and
+// an empty answer leaves them undefined. Those are loaded here as real <script> elements
+// instead, which also works over file://, where an XHR for a local file would fail anyway.
+//
+//   - jqcloud.min.js — the word cloud visualization, which calls $.fn.jQCloud as soon as
+//     the script reports loaded.
+// -----------------------------------------------------------------------
+(function ($) {
+    if (!$ || !$.ajaxTransport) return;
+
+    var ON_DEMAND_RE = /views\/widgets\/jQCloud\/jqcloud\.min\.js(\?|#|$)/;
+    var loaded = {};
+
+    $.ajaxTransport('+script', function (options) {
+        var url = options.url || '';
+        if (!ON_DEMAND_RE.test(url)) return;   // not ours — fall through
+
+        // Without jQuery's cache-busting _=<timestamp>, so a second request reuses the first.
+        var src = url.replace(/([?&])_=\d+(&|$)/, function (m, lead, trail) {
+            return trail ? lead : '';
+        });
+        var aborted = false;
+
+        return {
+            send: function (headers, complete) {
+                var entry = loaded[src];
+                if (!entry) {
+                    entry = loaded[src] = { done: false, failed: false, waiting: [] };
+                    var script = document.createElement('script');
+                    script.src = src;
+                    script.onload = script.onerror = function (e) {
+                        entry.done = true;
+                        entry.failed = e.type === 'error';
+                        if (entry.failed && window.console) console.warn('Static export: could not load ' + src);
+                        entry.waiting.splice(0).forEach(function (fn) { fn(); });
+                    };
+                    document.head.appendChild(script);
+                }
+                var finish = function () {
+                    if (aborted) return;
+                    if (entry.failed) complete(404, 'error');
+                    else complete(200, 'success');
+                };
+                if (entry.done) finish(); else entry.waiting.push(finish);
+            },
+            abort: function () { aborted = true; }
+        };
+    });
+
+}(window.jQuery));
+
+// -----------------------------------------------------------------------
 // Deferred patches to Scalar's own JS for static-export compatibility.
 //
 // Each of these needs Scalar's classes (ScalarModel/ScalarNode/ScalarAPI,
@@ -910,11 +966,24 @@
          * only correct because setDisplayMode() resets currentPage to 1 whenever it resets
          * maxPages to 0, so the figure it latches is always the one from a start=0 call.
          *
-         * Ordering is alphabetical rather than the live API's (which varies by model, since
-         * each content type is fetched through its own). The Index offers no sort control, so
-         * any order is as faithful as another; alphabetical is the one that makes an A–Z
-         * listing browsable, and re-deriving it from the model on each call keeps pagination
-         * consistent across requests. */
+         * Ordering is alphabetical, by getSortTitle() — Scalar's own sort key, which files a
+         * title under its first significant word, so "A Brief Introduction to CSS Syntax" sorts
+         * beside the B's. The same key orders lens results and the structured gallery on a live
+         * site, so this is the convention a reader meets elsewhere in Scalar; it is not,
+         * however, what the live Index modal shows, and the difference is visible:
+         *
+         *   - Pages and Media come from Page_model::get_all(), which is ORDER BY slug ASC.
+         *     Slugs are derived from titles, so that tab reads as A–Z with the articles left
+         *     on — "A Brief …" first rather than among the B's.
+         *   - Paths, tags and the other relationship types come from MY_Model::get_all(), which
+         *     is ORDER BY version_num DESC grouped by content: most-revised first, an artifact
+         *     of how the rows are fetched rather than an order anyone chose.
+         *
+         * ScalarIndex.handleResults() iterates the response in key order and never sorts, so
+         * whatever is returned here is what the reader sees. Sorting one way for every tab was
+         * chosen over reproducing those two: it keeps an A–Z listing browsable on the tabs
+         * where the live order is meaningless, and re-deriving it from the model on each call
+         * keeps pagination consistent across requests. */
         if (typeof ScalarAPI !== 'undefined') {
 
             var CITATION = 'http://scalar.usc.edu/2012/01/scalar-ns#citation';

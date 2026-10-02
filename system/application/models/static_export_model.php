@@ -296,9 +296,13 @@ class Static_Export_Model extends MY_Model {
 
 		$this->_copy_assets($tmp_dir, $errors);
 
-		$maps = $this->_map_usage($book_data, $options);
-		$this->_write_manifest($tmp_dir, $book_data, $maps, $errors);
-		$this->_write_readme($tmp_dir, $book_data, $maps, $errors);
+		// Both writers describe the same export, so the two summaries are built once here and
+		// handed to each, the way $maps already is — a README that disagreed with the manifest
+		// it points the reader at would be worse than either alone.
+		$maps  = $this->_map_usage($book_data, $options);
+		$media = $this->_media_usage($book_data, $errors);
+		$this->_write_manifest($tmp_dir, $book_data, $maps, $media, $errors);
+		$this->_write_readme($tmp_dir, $book_data, $maps, $media, $errors);
 
 		return array(
 			'rendered' => $rendered,
@@ -2077,7 +2081,7 @@ class Static_Export_Model extends MY_Model {
 	 * Classify a media item's type from its URL and default_view.
 	 *
 	 * Rules are checked in order; the first match wins.
-	 * Returns one of: image | video | audio | document | code | unity | arcgis | iiif
+	 * Returns one of: image | video | audio | document | code | unity | arcgis | iiif | tiled
 	 */
 	private function _classify_media_type($version) {
 
@@ -2086,18 +2090,31 @@ class Static_Export_Model extends MY_Model {
 
 		if (empty($url)) return 'document';
 
-		// IIIF — check before generic image/document rules
-		if (strpos($url, '/iiif/') !== false || strpos($url, 'iiif-manifest') !== false) {
+		// IIIF — before the generic image/document rules. '?iiif-manifest=1' is the flag
+		// parseMediaSource() looks for; the '/iiif/' path segment catches endpoints a book
+		// links to directly.
+		if (strpos($url, 'iiif-manifest') !== false || strpos($url, '/iiif/') !== false) {
 			return 'iiif';
 		}
 
-		// Unity scene
-		if (substr($url, -8) === '.unity3d' || strpos($url, '.unity') !== false) {
+		// Tiled (Deep Zoom) image — a .dzi manifest beside a _files/ tile pyramid. Named
+		// before the extension rules below, which would otherwise read 'dzi' as a document.
+		// Scalar renders these with OpenSeadragon (contentType 'tiledImage' in scalarapi.js).
+		if (strpos($url, '.dzi') !== false) {
+			return 'tiled';
+		}
+
+		// Unity scene. Scalar marks these with a '?unity-webgl=1' query flag rather than an
+		// extension — the URL itself usually ends '.html', being the WebGL player's own page —
+		// so that flag is the test, matching ScalarAPI.parseMediaSource(). The older
+		// '.unity3d' form is kept for books that predate the flag.
+		if (strpos($url, '?unity-webgl=1') !== false || substr($url, -8) === '.unity3d') {
 			return 'unity';
 		}
 
-		// ArcGIS
-		if (strpos($url, 'arcgis.com') !== false) {
+		// ArcGIS web scene. Both halves, as parseMediaSource() tests them: an arcgis.com URL
+		// that is not a web scene is an ordinary file and classifies below on its extension.
+		if (strpos($url, 'arcgis.com') !== false && strpos($url, 'webscene') !== false) {
 			return 'arcgis';
 		}
 
@@ -2643,18 +2660,195 @@ class Static_Export_Model extends MY_Model {
 	}
 
 	/**
-	 * Write <tmp_dir>/export-manifest.json. For now it records the maps: which mode the site
-	 * uses, which items draw a map, and the KML layers that depend on that mode or on where the
-	 * site is hosted. The rest of what CLAUDE.md has the manifest document (external media,
-	 * dropped features) isn't generated yet.
+	 * The export's media inventory, for the "flag all external media so users can audit link
+	 * rot risk" requirement in CLAUDE.md. The entry shape is the one specified under "Manifest
+	 * Entries for Media" in docs/media-strategy.md: slug, title, type, originalUrl, localPath,
+	 * status and riskNote, with status one of bundled | external | failed | skipped.
+	 *
+	 * Every media item is listed, bundled ones included, so the section is a complete
+	 * inventory rather than a list of complaints — a publisher auditing a book wants to be
+	 * able to confirm that an item they are worried about *did* come across. 'counts' carries
+	 * the summary for anyone who only wants the shape of the problem.
+	 *
+	 * Called after _copy_media_files(), which is what fills 'localPath' and records the
+	 * failures this reads back out of $errors.
+	 *
+	 * @param  array $book_data  Full normalized structure, after _copy_media_files()
+	 * @param  array $errors     render_book()'s errors, keyed 'media:<slug>' for copy failures
+	 * @return array             ['counts' => [...], 'items' => [...], 'images' => [...]]
+	 */
+	private function _media_usage($book_data, array $errors) {
+
+		$items  = array();
+		$counts = array('bundled' => 0, 'external' => 0, 'failed' => 0, 'skipped' => 0);
+
+		foreach ($book_data['media'] as $slug => $item) {
+
+			// Order matters: an item that was bundled is bundled whatever else is true of it,
+			// and an external item was never a candidate for bundling, so neither can be a
+			// failure. What is left — self-hosted, not copied — is one, unless the item names
+			// no file at all, which is a book-level data problem rather than an export one.
+			if (!empty($item['localPath'])) {
+				$status = 'bundled';
+			} elseif (!empty($item['isExternal'])) {
+				$status = 'external';
+			} elseif (empty($item['sourceUrl'])) {
+				$status = 'skipped';
+			} else {
+				$status = 'failed';
+			}
+
+			$counts[$status]++;
+
+			$items[] = array(
+				'slug'        => $slug,
+				'title'       => $item['title'],
+				'type'        => $item['mediaType'],
+				'originalUrl' => !empty($item['sourceUrl']) ? $item['sourceUrl'] : null,
+				'localPath'   => !empty($item['localPath']) ? $item['localPath'] : null,
+				'status'      => $status,
+				'riskNote'    => self::_media_risk_note($status, $item,
+				                     isset($errors['media:' . $slug]) ? $errors['media:' . $slug] : null),
+			);
+
+		}
+
+		// Thumbnails, banners and backgrounds that stayed remote. Not media items, so not part
+		// of the inventory above, but they rot the same way: a book whose banner lives on a
+		// third-party domain loses its banner when that domain goes. Listed compactly, since
+		// there is nothing to say about each beyond where it points.
+		$images = array();
+		foreach (array('pages', 'media') as $collection) {
+			foreach ($book_data[$collection] as $slug => $item) {
+				foreach (array('thumbnail', 'banner', 'background') as $field) {
+					if (!empty($item['local' . ucfirst($field)])) continue;   // bundled
+					if (empty($item[$field . 'Url'])) continue;              // not set
+					$images[] = array('slug' => $slug, 'image' => $field, 'url' => $item[$field . 'Url']);
+				}
+			}
+		}
+
+		return array('counts' => $counts, 'items' => $items, 'images' => $images);
+
+	}
+
+	/**
+	 * One plain sentence about what a reader of this export depends on for a given media item,
+	 * addressed to the person publishing the site rather than to a developer.
+	 *
+	 * @param  string      $status  bundled | external | failed | skipped
+	 * @param  array       $item    The normalized media item
+	 * @param  string|null $error   The copy failure recorded for it, if any
+	 * @return string|null          null where there is nothing to warn about
+	 */
+	private static function _media_risk_note($status, array $item, $error = null) {
+
+		if ('bundled' === $status) return null;   // the file is in the ZIP; nothing to depend on
+
+		if ('skipped' === $status) {
+			return 'This item records no file or address, so there is nothing for the export to carry.';
+		}
+
+		if ('failed' === $status) {
+			return 'This file could not be copied at export time'
+			     . (null !== $error ? ' (' . $error . ')' : '')
+			     . ', so the page still points at the original Scalar server.';
+		}
+
+		$host = !empty($item['sourceUrl']) ? parse_url($item['sourceUrl'], PHP_URL_HOST) : null;
+		$host = $host ? preg_replace('/^www\./', '', $host) : 'another server';
+
+		switch (isset($item['mediaType']) ? $item['mediaType'] : '') {
+			case 'iiif':
+				return 'Served by the IIIF endpoint at ' . $host . '. The image viewer stops working if that '
+				     . 'endpoint moves or goes offline; IIIF tile sets are too large to bundle.';
+			case 'tiled':
+				return 'A tiled image served from ' . $host . '. The zoomable viewer loads its tiles from there '
+				     . 'every time a reader opens the page.';
+			case 'unity':
+			case 'arcgis':
+				return 'Loaded from ' . $host . ' when a reader opens the page. The embed goes blank if that '
+				     . 'server stops serving it.';
+			case 'video':
+			case 'audio':
+				return 'Hosted by ' . $host . '. The item may be removed, made private, or blocked in some '
+				     . 'regions without warning.';
+			default:
+				return 'Hosted at ' . $host . '. Nothing in this export can restore it if that address stops '
+				     . 'resolving.';
+		}
+
+	}
+
+	/**
+	 * What this export leaves behind, for the "the export manifest documents what was omitted"
+	 * requirement in CLAUDE.md. Written for the person publishing the site: each entry names
+	 * the feature as a reader would recognise it and says what happens in its place, rather
+	 * than naming the Scalar subsystem that is missing.
+	 *
+	 * @param  array $book_data  Full normalized structure
+	 * @return array             List of ['feature' => string, 'note' => string]
+	 */
+	private function _omitted_features($book_data) {
+
+		$omitted = array();
+
+		$omitted[] = array(
+			'feature' => 'Accounts and sign-in',
+			'note'    => 'A static site has no sessions, so there is nobody to sign in as. The header\'s '
+			           . 'Account menu is removed rather than left pointing at the original server.',
+		);
+
+		$omitted[] = array(
+			'feature' => 'Editing and the dashboard',
+			'note'    => 'Pages cannot be created or changed from the exported site. To revise the book, '
+			           . 'edit it in Scalar and export again.',
+		);
+
+		$omitted[] = array(
+			'feature' => 'Version history',
+			'note'    => 'Each page is exported at its most recent version only. The version number is kept '
+			           . 'in each page\'s metadata, but earlier versions are not carried and cannot be viewed.',
+		);
+
+		$comment_count = isset($book_data['comments']) ? count($book_data['comments']) : 0;
+		$omitted[] = array(
+			'feature' => 'Commenting',
+			'note'    => (0 === $comment_count
+			              ? 'Readers cannot leave comments, and this book had none to carry.'
+			              : 'Readers cannot leave comments. The ' . $comment_count . ' approved comment'
+			                . (1 === $comment_count ? '' : 's') . ' this book already had '
+			                . (1 === $comment_count ? 'is' : 'are') . ' exported and can still be read.'),
+		);
+
+		$omitted[] = array(
+			'feature' => 'Unpublished pages',
+			'note'    => 'Only pages marked live in Scalar are exported. Hidden pages and drafts are left out '
+			           . 'entirely, so nothing about them is recoverable from this site.',
+		);
+
+		return $omitted;
+
+	}
+
+	/**
+	 * Write <tmp_dir>/export-manifest.json, the record of what this export is and what it
+	 * isn't. Three sections:
+	 *
+	 *   media    every media item, with where its file ended up and what the site depends on
+	 *            to show it — the link-rot audit CLAUDE.md asks for. See _media_usage().
+	 *   omitted  the features a static copy cannot carry. See _omitted_features().
+	 *   maps     which mode the site uses, which items draw a map, and the KML layers that
+	 *            depend on that mode or on where the site is hosted.
 	 *
 	 * @param  string $tmp_dir
 	 * @param  array  $book_data
 	 * @param  array  $maps      _map_usage()
+	 * @param  array  $media     _media_usage()
 	 * @param  array  &$errors
 	 * @return bool
 	 */
-	private function _write_manifest($tmp_dir, $book_data, array $maps, &$errors) {
+	private function _write_manifest($tmp_dir, $book_data, array $maps, array $media, &$errors) {
 
 		$notes = array();
 		if ('google' === $maps['provider']) {
@@ -2680,6 +2874,15 @@ class Static_Export_Model extends MY_Model {
 				'slug'  => $book_data['meta']['slug'],
 				'url'   => confirm_slash(base_url()) . confirm_slash($book_data['meta']['slug']),
 			),
+			// Before maps, because this is the section a publisher checking an export is
+			// most likely to have opened the file for.
+			'media'      => array(
+				'counts' => $media['counts'],
+				'items'  => $media['items'],
+				// Thumbnails, banners and backgrounds still loaded from elsewhere.
+				'images' => $media['images'],
+			),
+			'omitted'    => $this->_omitted_features($book_data),
 			'maps'       => array(
 				'provider'  => $maps['provider'],
 				'tiles'     => $maps['tiles'],
@@ -2709,10 +2912,11 @@ class Static_Export_Model extends MY_Model {
 	 * @param  string $tmp_dir
 	 * @param  array  $book_data
 	 * @param  array  $maps      _map_usage()
+	 * @param  array  $media     _media_usage()
 	 * @param  array  &$errors
 	 * @return bool
 	 */
-	private function _write_readme($tmp_dir, $book_data, array $maps, &$errors) {
+	private function _write_readme($tmp_dir, $book_data, array $maps, array $media, &$errors) {
 
 		$title  = trim(html_entity_decode(strip_tags($book_data['meta']['title']), ENT_QUOTES, 'UTF-8'));
 		$google = 'google' === $maps['provider'];
@@ -2722,6 +2926,37 @@ class Static_Export_Model extends MY_Model {
 		$md .= "A static copy of this Scalar project, exported on $date. Upload the whole folder to any "
 		     . "static web host (GitHub Pages, Netlify, or an ordinary web server) and visit its `index.html`. "
 		     . "`export-manifest.json` records details of the export.\n\n";
+
+		// Media that didn't come across is the one thing in the manifest a publisher may need
+		// to act on, so the count is stated here rather than left for them to find.
+		$at_risk = $media['counts']['external'] + $media['counts']['failed'] + count($media['images']);
+
+		$md .= "## Media\n\n";
+		$md .= $media['counts']['bundled'] . " media file" . (1 === $media['counts']['bundled'] ? '' : 's')
+		     . " are included in this folder and will keep working for as long as the site is online.\n\n";
+
+		if ($at_risk > 0) {
+			$md .= "Another $at_risk " . (1 === $at_risk ? "item is" : "items are")
+			     . " loaded from somewhere else each time a reader opens the page — video on YouTube or Vimeo, "
+			     . "images on another server, and anything that was already a link rather than an upload. "
+			     . "Those will keep working only for as long as whoever hosts them keeps them online, which is "
+			     . "not something this site can control.\n\n"
+			     . "`export-manifest.json` lists every one of them under `media`, with the address it depends on "
+			     . "and a note on what happens if that address stops working. If you are archiving this book for "
+			     . "the long term, that list is what to review.\n\n";
+		}
+		if ($media['counts']['failed'] > 0) {
+			$md .= "**" . $media['counts']['failed'] . " file" . (1 === $media['counts']['failed'] ? '' : 's')
+			     . " could not be copied** at export time and " . (1 === $media['counts']['failed'] ? 'is' : 'are')
+			     . " still pointing at the original Scalar server. They are marked `\"status\": \"failed\"` in the "
+			     . "manifest.\n\n";
+		}
+
+		$md .= "## What this copy leaves out\n\n";
+		foreach ($this->_omitted_features($book_data) as $dropped) {
+			$md .= "- **" . $dropped['feature'] . ".** " . $dropped['note'] . "\n";
+		}
+		$md .= "\n";
 
 		$md .= "## Maps\n\n";
 
@@ -2983,6 +3218,10 @@ class Static_Export_Model extends MY_Model {
 			$dest_base . 'melons/cantaloupe/js/main.js',
 			$errors
 		);
+		$this->_patch_word_cloud_js(
+			$dest_base . 'melons/cantaloupe/js/scalarvisualizations.jquery.js',
+			$errors
+		);
 
 		return $file_count;
 
@@ -3078,6 +3317,68 @@ class Static_Export_Model extends MY_Model {
 		         . $nl . "var index_uri  = _strip(7);";
 
 		file_put_contents($path, str_replace($search, $replace, $content));
+
+	}
+
+	/**
+	 * Patch the vendored copy of scalarvisualizations.jquery.js for two ways the word cloud
+	 * goes wrong in an export. Both are source patches rather than bridge overrides because
+	 * the code involved is a class private to the plugin's closure. Each is idempotent and
+	 * reported separately if its anchor can't be found.
+	 *
+	 * Whole bodies, not excerpts. The word cloud tallies words across node.current.content,
+	 * which on a live site is the body. In an export that field is the short excerpt
+	 * _build_excerpts() leaves in the graph, so the cloud would be drawn from each page's
+	 * opening lines. The body is in the export too, as plain text in __scalarStaticData.text
+	 * (see _build_search_text()); the patch reads it from there, falling back to the excerpt
+	 * for an item that has no entry. Plain text suits getWords(), which strips tags and
+	 * decodes entities before splitting on spaces.
+	 *
+	 * Measure before the busy guard. WordCloudVisualization.draw() returns early while a
+	 * draw is in progress, and only measures itself after that check. In an export the
+	 * book's data is already local, so the first draw runs synchronously inside showModal(),
+	 * while the modal is still hidden and zero pixels wide; the redraw Scalar issues once the
+	 * modal is shown arrives mid-parse and is dropped, and jQCloud lays the words out in a
+	 * 0px box — a blank vis. (A live server fetches the data first, by which time the modal
+	 * is open.) Moving super.draw() above the guard lets that redraw resize the element, so
+	 * the words are laid out at the modal's real width when parsing finishes.
+	 *
+	 * @param  string $path    Absolute path to the vendored scalarvisualizations.jquery.js
+	 * @param  array  &$errors Errors array; populated if a patch cannot be applied
+	 */
+	private function _patch_word_cloud_js($path, &$errors) {
+
+		if (!file_exists($path)) {
+			$errors['assets:word-cloud-patch'] = 'Vendored scalarvisualizations.jquery.js not found';
+			return;
+		}
+
+		$content = file_get_contents($path);
+
+		// Whole bodies.
+		if (strpos($content, '__scalarStaticData') === false) {
+			$search  = 'var words = this.getWords(base.sortedNodes[j].current.content);';
+			$replace = 'var _st = window.__scalarStaticData && window.__scalarStaticData.text;'
+			         . ' var words = this.getWords((_st && _st[base.sortedNodes[j].url]) || base.sortedNodes[j].current.content);';
+
+			if (strpos($content, $search) === false) {
+				$errors['assets:word-cloud-patch'] = 'Could not locate the word cloud\'s content read in scalarvisualizations.jquery.js; the word cloud will count excerpts rather than whole pages';
+			} else {
+				$content = str_replace($search, $replace, $content);
+			}
+		}
+
+		// Measure before the busy guard. The pattern is the guard, the flag and super.draw()
+		// on consecutive lines, which occurs only in the word cloud; once patched, super.draw()
+		// comes first and the pattern no longer matches.
+		$pattern = '/(\n([ \t]*)if \(this\.isDrawing\) return;)(\r?\n)([ \t]*this\.isDrawing = true;)\r?\n[ \t]*super\.draw\(\);/';
+		if (preg_match($pattern, $content)) {
+			$content = preg_replace($pattern, "\n\$2super.draw();\$3\$2if (this.isDrawing) return;\$3\$4", $content, 1);
+		} elseif (!preg_match('/super\.draw\(\);\r?\n[ \t]*if \(this\.isDrawing\) return;/', $content)) {
+			$errors['assets:word-cloud-resize-patch'] = 'Could not locate the word cloud\'s draw() guard in scalarvisualizations.jquery.js; the word cloud may render blank in a modal';
+		}
+
+		file_put_contents($path, $content);
 
 	}
 
