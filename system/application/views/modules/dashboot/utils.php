@@ -54,53 +54,107 @@ $(document).ready(function() {
 		e.preventDefault();
 		var url = $(this).attr('href');
 		var $content = $('#export-content').show();
+		// A download arrives as an attachment, so the page that asked for it is never navigated
+		// and never told the file came. The server echoes this token back as a cookie with the
+		// first byte of the ZIP (see _stream_zip in static_export.php); watching for it is the
+		// only way to know the wait is over rather than leaving "generating" on screen for good.
+		var token = 'x' + Date.now() + Math.floor(Math.random() * 1e6);
+		var filename = url.replace(/\/static_export\/?$/, '').split('/').pop() + '-static-site.zip';
+		var awaitDownload = function() {
+			var startedAt = Date.now();
+			var timer = setInterval(function() {
+				if (document.cookie.indexOf('scalar_static_export=' + token) !== -1) {
+					clearInterval(timer);
+					document.cookie = 'scalar_static_export=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+					// Appended as a text node rather than built into a string: the name comes from
+					// the URL, and there is no reason for it to reach the page as markup.
+					$content.empty().append(
+						document.createTextNode('Static site export complete \u2014 '),
+						$('<b></b>').text(filename),
+						document.createTextNode(' is in your downloads.')
+					);
+				// Only a fallback: the export has either failed in a way that navigated this page
+				// away, or is taking longer than anything we have seen. Say so rather than claim
+				// a success that may not have happened.
+				} else if (Date.now() - startedAt > 600000) {
+					clearInterval(timer);
+					$content.text('Still working, or the export didn\'t finish. Check your downloads folder; ' +
+						'if nothing arrived, try again.');
+				}
+			}, 500);
+		};
 		var startExport = function(fields) {
 			$content.show().html('Generating static site export\u2026 This may take a minute.');
 			var $form = $('<form method="post" style="display:none;"></form>').attr('action', url);
-			$.each(fields || {}, function(name, value) {
+			fields = fields || {};
+			fields.download_token = token;
+			$.each(fields, function(name, value) {
 				$('<input type="hidden" />').attr('name', name).val(value).appendTo($form);
 			});
 			$('body').append($form);
 			$form.submit();
+			awaitDownload();
 		};
-		// Only a book that draws maps gets asked how to draw them. If the check itself fails,
-		// export anyway: the site's maps still work, without Google.
+		// Every export is asked about search engines, so the dialog always opens; the maps
+		// question is added to it only for a book that draws maps. If the check itself fails,
+		// export anyway with the defaults: the site's maps still work, without Google, and a
+		// site nobody asked to have indexed simply isn't.
 		$content.html('Preparing static site export\u2026');
 		$.getJSON(url + '/check').done(function(check) {
-			if (!check || !check.usesMaps) return startExport();
 			$content.empty().hide();
-			staticExportMapsDialog(check, startExport);
+			staticExportDialog(check || {}, startExport);
 		}).fail(function() {
 			startExport();
 		});
 	});
-	function staticExportMapsDialog(check, startExport) {
+	function staticExportDialog(check, startExport) {
+		var mapsHtml = !check.usesMaps ? '' : (
+			'<p>This project contains maps. How should the exported site draw them?</p>' +
+			'<div class="radio"><label><input type="radio" name="static_export_maps_provider" value="leaflet" /> ' +
+				'<b>OpenStreetMap</b> &mdash; no key needed. KML map layers aren\'t shown.</label></div>' +
+			'<div class="radio"><label><input type="radio" name="static_export_maps_provider" value="google" /> ' +
+				'<b>Google Maps</b> &mdash; adds satellite view and KML map layers. Requires a Google Maps API key.</label></div>' +
+			'<div class="form-group static-export-google-key" style="margin-left:20px;">' +
+				'<label class="control-label" for="static-export-google-key">Google Maps API key</label>' +
+				'<input type="text" class="form-control" id="static-export-google-key" autocomplete="off" spellcheck="false" />' +
+				'<p class="help-block">Anyone who visits the exported site can see this key, so restrict it to the site\'s address in the Google Cloud console. ' +
+				'It is written into this export only; Scalar doesn\'t save it.</p>' +
+			'</div>' +
+			'<p class="help-block">You can change this after downloading by editing <code>scalar-static-config.js</code>. The export\'s README explains how.</p>' +
+			'<hr />'
+		);
 		var $message = $(
 			'<div>' +
-				'<p>This project contains maps. How should the exported site draw them?</p>' +
-				'<div class="radio"><label><input type="radio" name="static_export_maps_provider" value="leaflet" /> ' +
-					'<b>OpenStreetMap</b> &mdash; no key needed. KML map layers aren\'t shown.</label></div>' +
-				'<div class="radio"><label><input type="radio" name="static_export_maps_provider" value="google" /> ' +
-					'<b>Google Maps</b> &mdash; adds satellite view and KML map layers. Requires a Google Maps API key.</label></div>' +
-				'<div class="form-group static-export-google-key" style="margin-left:20px;">' +
-					'<label class="control-label" for="static-export-google-key">Google Maps API key</label>' +
-					'<input type="text" class="form-control" id="static-export-google-key" autocomplete="off" spellcheck="false" />' +
-					'<p class="help-block">Anyone who visits the exported site can see this key, so restrict it to the site\'s address in the Google Cloud console. ' +
-					'It is written into this export only; Scalar doesn\'t save it.</p>' +
+				mapsHtml +
+				'<div class="checkbox"><label><input type="checkbox" name="static_export_search_engines" /> ' +
+					'<b>Let search engines index this site</b></label></div>' +
+				'<p class="help-block" style="margin-left:20px;">Adds <code>sitemap.xml</code> and <code>robots.txt</code>. ' +
+					'Leave this off for a site you\'re sharing with a class or a few readers rather than publishing.</p>' +
+				'<div class="form-group static-export-site-url" style="margin-left:20px;">' +
+					'<label class="control-label" for="static-export-site-url">Address the site will live at</label>' +
+					'<input type="text" class="form-control" id="static-export-site-url" placeholder="https://yourname.github.io/yourbook/" autocomplete="off" spellcheck="false" />' +
+					'<p class="help-block">A sitemap has to spell out each page\'s full address, and nothing in the export can know where you\'ll put it. ' +
+					'This is also used to point the &ldquo;page not found&rdquo; page back at your book.</p>' +
 				'</div>' +
-				'<p class="help-block">You can change this after downloading by editing <code>scalar-static-config.js</code>. The export\'s README explains how.</p>' +
 			'</div>'
 		);
 		var $key = $message.find('#static-export-google-key').val(check.googleMapsKey || '');
 		var $keyGroup = $message.find('.static-export-google-key');
+		var $siteUrl = $message.find('#static-export-site-url');
+		var $siteUrlGroup = $message.find('.static-export-site-url');
+		var $indexed = $message.find('[name="static_export_search_engines"]');
 		var provider = function() {
-			return $message.find('[name="static_export_maps_provider"]:checked').val();
+			return check.usesMaps ? $message.find('[name="static_export_maps_provider"]:checked').val() : null;
 		};
 		var update = function() {
-			$keyGroup.toggle('google' === provider()).removeClass('has-error');
+			if (check.usesMaps) $keyGroup.toggle('google' === provider()).removeClass('has-error');
+			$siteUrlGroup.toggle($indexed.is(':checked')).removeClass('has-error');
 		};
-		$message.find('[name="static_export_maps_provider"][value="' + (check.googleMapsKey ? 'google' : 'leaflet') + '"]').prop('checked', true);
-		$message.find('[name="static_export_maps_provider"]').on('change', update);
+		if (check.usesMaps) {
+			$message.find('[name="static_export_maps_provider"][value="' + (check.googleMapsKey ? 'google' : 'leaflet') + '"]').prop('checked', true);
+			$message.find('[name="static_export_maps_provider"]').on('change', update);
+		}
+		$indexed.on('change', update);
 		update();
 		BootstrapDialog.show({
 			title: 'Export as static site',
@@ -113,13 +167,24 @@ $(document).ready(function() {
 				cssClass: 'btn-primary',
 				action: function(dialog) {
 					var key = $.trim($key.val());
-					if ('google' === provider() && !key.length) {
+					var site = $.trim($siteUrl.val());
+					if (check.usesMaps && 'google' === provider() && !key.length) {
 						$keyGroup.addClass('has-error');
 						$key.focus();
 						return;
 					}
+					if ($indexed.is(':checked') && !site.length) {
+						$siteUrlGroup.addClass('has-error');
+						$siteUrl.focus();
+						return;
+					}
 					dialog.close();
-					startExport({maps_provider: provider(), google_maps_key: 'google' === provider() ? key : ''});
+					startExport({
+						maps_provider:   provider() || '',
+						google_maps_key: 'google' === provider() ? key : '',
+						search_engines:  $indexed.is(':checked') ? '1' : '0',
+						site_url:        site
+					});
 				}
 			}]
 		});

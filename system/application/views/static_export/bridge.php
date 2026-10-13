@@ -29,9 +29,31 @@
         return _bookUrl;
     }
 
+    /* Is this .js URL one the page already carries as a <script> tag?
+     *
+     * main.js re-fetches several of its plugins with $.get()/$.getScript() even though
+     * page.php has already loaded them as tags. Letting those through would evaluate the
+     * same file twice — a duplicate let/const at top level is a hard error — so they are
+     * stubbed with '', which still fires jQuery's .done() chain.
+     *
+     * Read from the DOM on each call rather than cached, because the answer changes as the
+     * document parses: this file runs from <head>, before the tags below it exist. Script
+     * fetches are rare enough that walking the tag list costs nothing.
+     *
+     * Compared by resolved absolute URL, since the tags carry $asset_root-relative paths
+     * while the fetches build theirs from approot/widgets_uri. */
+    function isAlreadyLoadedScript(resolvedUrl) {
+        var tags = document.getElementsByTagName('script');
+        for (var i = 0; i < tags.length; i++) {
+            // .src reads back as the resolved absolute URL, which is what we are comparing.
+            if (tags[i].src && tags[i].src.split('?')[0] === resolvedUrl) return true;
+        }
+        return false;
+    }
+
     // True for any XHR request that should be silently stubbed:
-    //   • .js files — already pre-loaded as <script> tags; returning '' lets
-    //     jQuery's .done() chain fire without re-eval (avoids duplicate let/const errors)
+    //   • .js files — see below; only the ones already on the page, plus anything
+    //     off-origin, which in a static export means a third-party service
     //   • Scalar server endpoints — any URL that isn't a static asset and is either
     //     same-origin or addressed at the original book URL. Prevents 404s for API
     //     endpoints, lenses, editorial workflow, rdf/*, etc.
@@ -40,8 +62,33 @@
 
         var path = url.split('?')[0].split('#')[0];
 
-        // .js files: always intercept regardless of origin
-        if (path.slice(-3) === '.js') return true;
+        /* .js files.
+         *
+         * This used to stub every one of them, on the reasoning that the export pre-loads
+         * what it needs. That is true of main.js's own plugins, and false of everything
+         * Scalar fetches on demand the first time a reader opens something that needs it:
+         * OpenSeadragon for a tiled image, Prism for a source-code file, jQCloud for the
+         * word cloud, timeline.min.js and date-utils for the timeline, papaparse for a CSV
+         * export. Those arrived as a 200 with an empty body, so the loader's success
+         * callback fired, its deferred resolved, and the viewer ran with its library still
+         * undefined — "Can't find variable: OpenSeadragon", thrown from inside the
+         * $.when(promise).then() in jquery.mediaelement.js that was supposed to be waiting
+         * for it.
+         *
+         * So: stub only what the page already has a tag for, and let the rest fetch for
+         * real. Off-origin scripts stay stubbed whether or not they are loaded — a static
+         * export shouldn't be calling out to reCAPTCHA, Hypothesis or SoundCloud's SDK, and
+         * it has no server to make those meaningful. (Google Maps is not affected: the
+         * bridge loads it with its own script tag, which never passes through here.) */
+        if (path.slice(-3) === '.js') {
+            try {
+                var resolved = new URL(url, window.location.href);
+                if (resolved.host !== new URL(window.location.href).host) return true;
+                return isAlreadyLoadedScript(resolved.href.split('?')[0]);
+            } catch (e) {
+                return true;
+            }
+        }
 
         try {
             var here  = new URL(window.location.href);
@@ -569,19 +616,47 @@
 // -----------------------------------------------------------------------
 // Widget scripts Scalar loads on demand.
 //
-// The XHR override at the top of this file answers every .js request with an empty body, on
-// the understanding that page.php has already loaded it as a <script> tag. A few widgets
-// aren't — Scalar pulls them in with $.getScript() only when a reader first needs them — and
-// an empty answer leaves them undefined. Those are loaded here as real <script> elements
-// instead, which also works over file://, where an XHR for a local file would fail anyway.
+// Scalar declares most of its JS in the page but pulls a dozen libraries in with
+// $.getScript() the first time a reader opens something that needs one. page.php cannot
+// pre-load them all — between them they are well over a megabyte, for features most books
+// never use — and an XHR for a local file fails outright over file://, so neither leaving
+// them to jQuery nor declaring them up front serves every way an export gets opened.
 //
-//   - jqcloud.min.js — the word cloud visualization, which calls $.fn.jQCloud as soon as
-//     the script reports loaded.
+// Loading them here as real <script> elements does. A script element has no origin check to
+// fail, so the same code path works served over http, served over https, and opened from a
+// folder; and the library still arrives only when something asks for it.
+//
+// Each entry is a library Scalar fetches at runtime and the exporter vendors:
+//
+//   - openseadragon.min.js — the viewer for tiled (Deep Zoom) images
+//   - prism.js             — syntax highlighting for source-code media
+//   - jqcloud.min.js       — the word cloud visualization, which calls $.fn.jQCloud as soon
+//                            as the script reports loaded
+//   - timeline.min.js,     — the timeline visualization and the date parsing it needs
+//     date-utils.min.js
+//   - papaparse.min.js     — writes the lens menu's "Export to CSV"
+//   - bootbox.min.js       — the dialogs the lens editor opens
+//   - jquery.mobile.touch  — touch events for the visualizations on a phone
+//   - content_selector     — how a lens picks its content
+//   - replies.js           — requested unconditionally by main.js
+//
+// Anything not listed falls through to jQuery, and from there to the XHR override at the top
+// of this file, which stubs the scripts page.php has already declared so they are not
+// evaluated twice.
 // -----------------------------------------------------------------------
 (function ($) {
     if (!$ || !$.ajaxTransport) return;
 
-    var ON_DEMAND_RE = /views\/widgets\/jQCloud\/jqcloud\.min\.js(\?|#|$)/;
+    var ON_DEMAND_RE = new RegExp(
+        'views/(?:' +
+            'widgets/jQCloud/jqcloud\\.min\\.js' +
+            '|widgets/mediaelement/openseadragon/openseadragon\\.min\\.js' +
+            '|widgets/mediaelement/prism\\.js' +
+            '|widgets/edit/jquery\\.content_selector(?:_bootstrap)?\\.js' +
+            '|widgets/replies/replies\\.js' +
+            '|melons/cantaloupe/js/(?:timeline|date-utils|papaparse|bootbox|jquery\\.mobile\\.touch)\\.min\\.js' +
+        ')(?:\\?|#|$)'
+    );
     var loaded = {};
 
     $.ajaxTransport('+script', function (options) {
@@ -711,6 +786,32 @@
          * Asset paths in the graph are relative to the export root, since a shared file has no
          * page to be relative to. They are rewritten here to be relative to this page, which is
          * what every consumer downstream expects — the same form page.php emits inline. */
+        /* Upgrade a plain-http address to https when this page is itself on https.
+         *
+         * Scalar books accumulate http:// media addresses — a YouTube embed added in 2013,
+         * an image on a colleague's server — and they keep working on a live Scalar install
+         * reached over http. A browser will not load an http subresource into an https page,
+         * though, and an exported book is most likely to be published somewhere https-only:
+         * GitHub Pages and Netlify both are. Left alone, every one of those items is blocked.
+         *
+         * Upgrading cannot make things worse, which is what makes it safe to do silently.
+         * On an http or file:// page nothing is touched, so nothing that works today changes.
+         * On an https page the original address was going to be refused by the browser
+         * regardless, so the only outcomes are "now loads" and "still doesn't" — the latter
+         * only where the host genuinely has no https, which is rare and is the one case the
+         * manifest tells the author to go fix at the source.
+         *
+         * Not applied to anything that identifies a node: urlPrefix comes from
+         * <link id="parent"> and stays exactly as written, so rewriting identifiers here
+         * would break every lookup that resolves against it. Only asset addresses pass
+         * through this. */
+        var PAGE_IS_HTTPS = (window.location.protocol === 'https:');
+
+        function httpsUrl(url) {
+            if (!PAGE_IS_HTTPS || typeof url !== 'string') return url;
+            return url.slice(0, 7) === 'http://' ? 'https://' + url.slice(7) : url;
+        }
+
         var ASSET_PREDICATES = [
             'http://simile.mit.edu/2003/10/ontologies/artstor#url',
             'http://simile.mit.edu/2003/10/ontologies/artstor#thumbnail',
@@ -737,9 +838,14 @@
                         continue;
                     }
                     // Root-relative -> relative to this page. Anything already carrying a
-                    // scheme is a third-party address and is left alone.
+                    // scheme is a third-party address, and is left alone apart from the
+                    // https upgrade below.
                     entry[predicate] = values.map(function (v) {
-                        if (typeof v.value !== 'string' || /^[a-z][a-z0-9+.-]*:/i.test(v.value)) return v;
+                        if (typeof v.value !== 'string') return v;
+                        if (/^[a-z][a-z0-9+.-]*:/i.test(v.value)) {
+                            var upgraded = httpsUrl(v.value);
+                            return upgraded === v.value ? v : { value: upgraded, type: v.type };
+                        }
                         return { value: root + v.value, type: v.type };
                     });
                 }
@@ -1199,12 +1305,28 @@
          * ordering hazard the $.scalarpage() rewrite below documents: builders that append a
          * link and then read its href back to tack on "?path=…" always do both within one
          * synchronous block, so the rewrite lands after the read, not between them. */
+        /* The same https upgrade, for addresses written straight into the markup rather than
+         * reached through the model: an <img> or an <iframe> an author typed into a page's
+         * body copy. Those never pass through graphForThisPage(), so they need their own pass.
+         * A no-op unless this page is on https — see httpsUrl(). */
+        function upgradeInsecureUrls(scope) {
+            if (!PAGE_IS_HTTPS) return;
+            $(scope).find('[src^="http://"]').addBack('[src^="http://"]').each(function () {
+                this.setAttribute('src', httpsUrl(this.getAttribute('src')));
+            });
+        }
+
+        upgradeInsecureUrls(document.body);
+
         if (window.MutationObserver) {
             new MutationObserver(function (records) {
                 for (var i = 0; i < records.length; i++) {
                     var added = records[i].addedNodes;
                     for (var j = 0; j < added.length; j++) {
-                        if (added[j].nodeType === 1) rewriteNodeLinks(added[j]);
+                        if (added[j].nodeType === 1) {
+                            rewriteNodeLinks(added[j]);
+                            upgradeInsecureUrls(added[j]);
+                        }
                     }
                 }
             }).observe(document.documentElement, { childList: true, subtree: true });

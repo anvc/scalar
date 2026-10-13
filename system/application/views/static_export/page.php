@@ -4,13 +4,13 @@
  *
  * Variables provided by render_book():
  *   $page        array  — one entry from book_data['pages'] or ['media']
- *   $book_data   array  — full normalized scalar-data.json structure
+ *   $book_data   array  — full normalized book structure (see get_book_data())
  *   $asset_root  string — relative path from this page's directory to the export root
  *                         e.g. '../' for slug pages, './' for the root index
  *   $book_url    string — live Scalar base URI for this book, trailing slash included
  *                         e.g. 'https://scalar.usc.edu/works/mybook/'
  *                         Used as the RDF resource namespace so scalarapi resolves
- *                         node identifiers against the pre-baked scalar-data.json.
+ *                         node identifiers against the pre-baked scalar-static-data.js.
  */
 
 $meta             = $book_data['meta'];
@@ -33,11 +33,14 @@ $is_lens_browser = !empty($page['isLensBrowser']);
 $lens_json = isset($page['lens']) ? $page['lens'] : null;
 
 // Both of those run ScalarLenses, the lens editor, which pulls three of its dependencies in at
-// runtime with $.getScript()/$("<link>") rather than declaring them. The bridge answers every
-// same-origin .js request with an empty 200 (so jQuery's .done() chains fire without
-// re-evaluating an already-loaded file), which means a script fetched that way arrives empty:
-// the plugins have to be on the page as real <script> tags before the editor asks for them.
-// Loaded only on the pages that run it — between them the three come to ~150 KB.
+// runtime with $.getScript()/$("<link>") rather than declaring them. Those three are pre-loaded
+// here because the editor waits on them before it builds anything, and a page that is a lens
+// always needs them — so there is nothing to be gained by deferring.
+//
+// Scalar loads a dozen other libraries the same way, on pages that may never need them. Those
+// are not listed here: the bridge serves every on-demand fetch from a real <script> element
+// (see "Widget scripts Scalar loads on demand" in bridge.php), which works served over http or
+// https and opened from a folder alike, and still loads nothing until something asks.
 $needs_lens_editor = $is_lens_browser || $lens_json !== null;
 
 // Relative path prefix for vendored assets (CSS/JS copied into the export root).

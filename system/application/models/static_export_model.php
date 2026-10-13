@@ -20,7 +20,7 @@
 
 /**
  * @projectDescription  Model for fetching and normalizing a Scalar book's content
- *                      into the scalar-data.json structure used by the static exporter.
+ *                      into the normalized structure used by the static exporter.
  *                      Data is sourced from the same model layer as the RDF-JSON export.
  */
 
@@ -93,7 +93,8 @@ class Static_Export_Model extends MY_Model {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Fetch all content for a book and return the normalized scalar-data.json structure.
+	 * Fetch all content for a book and return the normalized structure the exporter renders
+	 * from and bakes into scalar-static-data.js.
 	 *
 	 * @param  int   $book_id
 	 * @return array Normalized data ready for json_encode()
@@ -302,7 +303,15 @@ class Static_Export_Model extends MY_Model {
 		$maps  = $this->_map_usage($book_data, $options);
 		$media = $this->_media_usage($book_data, $errors);
 		$this->_write_manifest($tmp_dir, $book_data, $maps, $media, $errors);
-		$this->_write_readme($tmp_dir, $book_data, $maps, $media, $errors);
+		$this->_write_readme($tmp_dir, $book_data, $maps, $media, $options, $errors);
+		$this->_write_404_page($tmp_dir, $book_data, $options, $errors);
+
+		// Opt-in, and off unless the author asked: an export that quietly invited crawlers
+		// would be a surprise, and plenty of books are shared with a seminar rather than the
+		// world. Needs the site's address, because a sitemap's <loc> has to be absolute.
+		if (!empty($options['searchEngines']) && !empty($options['siteUrl'])) {
+			$this->_write_sitemap($tmp_dir, $book_data, $rendered, $options, $errors);
+		}
 
 		return array(
 			'rendered' => $rendered,
@@ -2316,6 +2325,35 @@ class Static_Export_Model extends MY_Model {
 				$item['localPath'] = $local_path;
 				$bytes_copied      += filesize($dest);
 				$files_copied++;
+
+				// A tiled image is not one file. The .dzi copied above is a manifest naming a
+				// sibling pyramid directory — '<name>.dzi' alongside '<name>_files/' — that
+				// OpenSeadragon derives by swapping the extension, and which holds one image
+				// per tile per zoom level, often thousands of them. Copying the manifest alone
+				// produced a viewer that opened and then 404'd on everything it asked for.
+				//
+				// Named from the destination rather than the source so the pyramid lands beside
+				// the .dzi under the item's own slug, which is where the swapped-extension rule
+				// will look for it once the page is served.
+				if ('dzi' === strtolower($ext)) {
+					$tiles_src  = preg_replace('/\.dzi$/i', '_files', $src);
+					$tiles_dest = preg_replace('/\.dzi$/i', '_files', $dest);
+
+					if (!is_dir($tiles_src)) {
+						// The viewer will fall back to the absolute source URL for its tiles,
+						// so this degrades to how an external tiled image already behaves.
+						$errors['media:' . $slug] = 'Tiled image has no tile directory on disk: '
+						                          . basename($tiles_src);
+					} else {
+						$tile_count = $this->_copy_dir($tiles_src, $tiles_dest);
+						if (false === $tile_count) {
+							$errors['media:' . $slug] = 'Could not copy tile set for: ' . $item['rawUrl'];
+						} else {
+							$files_copied += $tile_count;
+							$bytes_copied += self::_dir_size($tiles_dest);
+						}
+					}
+				}
 			} else {
 				$errors['media:' . $slug] = 'Could not copy media file: ' . $item['rawUrl'];
 			}
@@ -2426,7 +2464,7 @@ class Static_Export_Model extends MY_Model {
 	 * Write <tmp_dir>/scalar-static-data.js — the book's whole graph plus the server-side data
 	 * the bridge answers API calls from, as a plain assignment to window.__scalarStaticData.
 	 *
-	 * A .js file rather than the scalar-data.json CLAUDE.md envisages, for two reasons. A
+	 * A .js assignment rather than the .json file originally planned, for two reasons. A
 	 * <script> tag works when the export is opened from disk over file://, where fetching a
 	 * sibling .json is blocked as a cross-origin read. And the bridge treats every
 	 * extensionless same-origin URL as a Scalar endpoint to intercept, so a file parked at the
@@ -2682,6 +2720,13 @@ class Static_Export_Model extends MY_Model {
 		$items  = array();
 		$counts = array('bundled' => 0, 'external' => 0, 'failed' => 0, 'skipped' => 0);
 
+		// Items still addressed over plain http. A browser will not load an http subresource
+		// into an https page, so on a host that serves https — which is every host an author
+		// is likely to pick, GitHub Pages and Netlify included — these are blocked outright
+		// rather than merely at risk. Counted apart from status: it is a property of the
+		// address, not of whether the file came across.
+		$insecure = 0;
+
 		foreach ($book_data['media'] as $slug => $item) {
 
 			// Order matters: an item that was bundled is bundled whatever else is true of it,
@@ -2700,6 +2745,10 @@ class Static_Export_Model extends MY_Model {
 
 			$counts[$status]++;
 
+			$is_insecure = ('bundled' !== $status) && !empty($item['sourceUrl'])
+			            && 0 === strpos($item['sourceUrl'], 'http://');
+			if ($is_insecure) $insecure++;
+
 			$items[] = array(
 				'slug'        => $slug,
 				'title'       => $item['title'],
@@ -2709,6 +2758,7 @@ class Static_Export_Model extends MY_Model {
 				'status'      => $status,
 				'riskNote'    => self::_media_risk_note($status, $item,
 				                     isset($errors['media:' . $slug]) ? $errors['media:' . $slug] : null),
+				'insecureUrl' => $is_insecure,
 			);
 
 		}
@@ -2723,12 +2773,24 @@ class Static_Export_Model extends MY_Model {
 				foreach (array('thumbnail', 'banner', 'background') as $field) {
 					if (!empty($item['local' . ucfirst($field)])) continue;   // bundled
 					if (empty($item[$field . 'Url'])) continue;              // not set
-					$images[] = array('slug' => $slug, 'image' => $field, 'url' => $item[$field . 'Url']);
+					$insecure_image = 0 === strpos($item[$field . 'Url'], 'http://');
+					if ($insecure_image) $insecure++;
+					$images[] = array(
+						'slug'        => $slug,
+						'image'       => $field,
+						'url'         => $item[$field . 'Url'],
+						'insecureUrl' => $insecure_image,
+					);
 				}
 			}
 		}
 
-		return array('counts' => $counts, 'items' => $items, 'images' => $images);
+		return array(
+			'counts'       => $counts,
+			'insecureUrls' => $insecure,
+			'items'        => $items,
+			'images'       => $images,
+		);
 
 	}
 
@@ -2758,23 +2820,33 @@ class Static_Export_Model extends MY_Model {
 		$host = !empty($item['sourceUrl']) ? parse_url($item['sourceUrl'], PHP_URL_HOST) : null;
 		$host = $host ? preg_replace('/^www\./', '', $host) : 'another server';
 
+		// Said before anything else, because it is the difference between "may break one day"
+		// and "will not load at all, from the moment this site is published to an https
+		// address". The bridge asks for an upgraded URL at runtime where it can — see
+		// upgradeInsecureUrls() in bridge.php — which is why the note says what it tries.
+		$insecure = (0 === strpos((string) $item['sourceUrl'], 'http://'))
+			? 'This address is plain http, so a browser blocks it once the site is published over '
+			  . 'https. The site asks ' . $host . ' for it over https instead, which works wherever '
+			  . 'that server supports https. '
+			: '';
+
 		switch (isset($item['mediaType']) ? $item['mediaType'] : '') {
 			case 'iiif':
-				return 'Served by the IIIF endpoint at ' . $host . '. The image viewer stops working if that '
+				return $insecure . 'Served by the IIIF endpoint at ' . $host . '. The image viewer stops working if that '
 				     . 'endpoint moves or goes offline; IIIF tile sets are too large to bundle.';
 			case 'tiled':
-				return 'A tiled image served from ' . $host . '. The zoomable viewer loads its tiles from there '
+				return $insecure . 'A tiled image served from ' . $host . '. The zoomable viewer loads its tiles from there '
 				     . 'every time a reader opens the page.';
 			case 'unity':
 			case 'arcgis':
-				return 'Loaded from ' . $host . ' when a reader opens the page. The embed goes blank if that '
+				return $insecure . 'Loaded from ' . $host . ' when a reader opens the page. The embed goes blank if that '
 				     . 'server stops serving it.';
 			case 'video':
 			case 'audio':
-				return 'Hosted by ' . $host . '. The item may be removed, made private, or blocked in some '
+				return $insecure . 'Hosted by ' . $host . '. The item may be removed, made private, or blocked in some '
 				     . 'regions without warning.';
 			default:
-				return 'Hosted at ' . $host . '. Nothing in this export can restore it if that address stops '
+				return $insecure . 'Hosted at ' . $host . '. Nothing in this export can restore it if that address stops '
 				     . 'resolving.';
 		}
 
@@ -2878,6 +2950,9 @@ class Static_Export_Model extends MY_Model {
 			// most likely to have opened the file for.
 			'media'      => array(
 				'counts' => $media['counts'],
+				// How many of the addresses above are plain http, and so blocked by the browser
+				// once this site is served over https. See _media_usage().
+				'insecureUrls' => $media['insecureUrls'],
 				'items'  => $media['items'],
 				// Thumbnails, banners and backgrounds still loaded from elsewhere.
 				'images' => $media['images'],
@@ -2913,10 +2988,14 @@ class Static_Export_Model extends MY_Model {
 	 * @param  array  $book_data
 	 * @param  array  $maps      _map_usage()
 	 * @param  array  $media     _media_usage()
+	 * @param  array  $options   render_book()'s options
 	 * @param  array  &$errors
 	 * @return bool
 	 */
-	private function _write_readme($tmp_dir, $book_data, array $maps, array $media, &$errors) {
+	private function _write_readme($tmp_dir, $book_data, array $maps, array $media, array $options, &$errors) {
+
+		// Whether the sitemap was written — the same condition render_book() applies.
+		$options_seo = !empty($options['searchEngines']) && !empty($options['siteUrl']);
 
 		$title  = trim(html_entity_decode(strip_tags($book_data['meta']['title']), ENT_QUOTES, 'UTF-8'));
 		$google = 'google' === $maps['provider'];
@@ -2932,8 +3011,8 @@ class Static_Export_Model extends MY_Model {
 		$at_risk = $media['counts']['external'] + $media['counts']['failed'] + count($media['images']);
 
 		$md .= "## Media\n\n";
-		$md .= $media['counts']['bundled'] . " media file" . (1 === $media['counts']['bundled'] ? '' : 's')
-		     . " are included in this folder and will keep working for as long as the site is online.\n\n";
+		$md .= $media['counts']['bundled'] . " media file" . (1 === $media['counts']['bundled'] ? ' is' : 's are')
+		     . " included in this folder and will keep working for as long as the site is online.\n\n";
 
 		if ($at_risk > 0) {
 			$md .= "Another $at_risk " . (1 === $at_risk ? "item is" : "items are")
@@ -2945,12 +3024,40 @@ class Static_Export_Model extends MY_Model {
 			     . "and a note on what happens if that address stops working. If you are archiving this book for "
 			     . "the long term, that list is what to review.\n\n";
 		}
+		if ($media['insecureUrls'] > 0) {
+			$md .= "### Media addressed over http\n\n"
+			     . "Of those, " . $media['insecureUrls'] . " " . (1 === $media['insecureUrls'] ? "is" : "are")
+			     . " recorded in Scalar with a plain `http://` address. Browsers refuse to load `http://` "
+			     . "content into a page served over `https://`, and most hosts — GitHub Pages and Netlify "
+			     . "among them — serve only https.\n\n"
+			     . "This site asks for those over `https://` instead, which works wherever the server "
+			     . "holding them supports https; nearly all do. Where one doesn't, that item won't appear, "
+			     . "and the fix is to correct its address in Scalar and export again. They are marked "
+			     . "`\"insecureUrl\": true` in the manifest.\n\n";
+		}
 		if ($media['counts']['failed'] > 0) {
 			$md .= "**" . $media['counts']['failed'] . " file" . (1 === $media['counts']['failed'] ? '' : 's')
 			     . " could not be copied** at export time and " . (1 === $media['counts']['failed'] ? 'is' : 'are')
 			     . " still pointing at the original Scalar server. They are marked `\"status\": \"failed\"` in the "
 			     . "manifest.\n\n";
 		}
+
+		$md .= "## Search engines\n\n";
+		if (!empty($options_seo)) {
+			$md .= "This export includes `sitemap.xml` and `robots.txt`, inviting search engines to index the "
+			     . "site once it is online at the address you gave. Delete both files if you change your mind.\n\n";
+		} else {
+			$md .= "No `sitemap.xml` or `robots.txt` was written, so nothing here invites a search engine in. "
+			     . "Note that this is not the same as keeping the site private — anyone with the address can "
+			     . "read it, and a crawler that finds a link to it may still index it. Export again with "
+			     . "*Let search engines index this site* ticked if you want it found.\n\n";
+		}
+
+		$md .= "## If a reader hits a missing page\n\n"
+		     . "`404.html` is shown by most static hosts (GitHub Pages and Netlify among them) for any address "
+		     . "that doesn't exist, and points the reader back to the start of the book. Some hosts need to be "
+		     . "told to use it; if yours shows its own error page instead, check its documentation for "
+		     . "\"custom 404\".\n\n";
 
 		$md .= "## What this copy leaves out\n\n";
 		foreach ($this->_omitted_features($book_data) as $dropped) {
@@ -3021,6 +3128,143 @@ class Static_Export_Model extends MY_Model {
 		}
 
 		return true;
+
+	}
+
+	/**
+	 * Write <tmp_dir>/404.html, which GitHub Pages, Netlify and most other static hosts serve
+	 * for any address that doesn't exist.
+	 *
+	 * Deliberately self-contained: its styles are inline and it requests no asset of any kind.
+	 * A 404 is served *at the address that was asked for*, which can be at any depth, so every
+	 * relative path in it would resolve against a directory that isn't the one the file lives
+	 * in. A page that silently loaded no CSS would look broken exactly when a reader is already
+	 * lost.
+	 *
+	 * The same problem applies to the way home, and there is no way to compute it: the file
+	 * cannot know where it is. So it offers the author's own site address when there is one
+	 * (which is why the sitemap's site address is reused here), and otherwise two plain
+	 * guesses — the parent directory, which is right for a mistyped page under either a domain
+	 * root or a project subpath, and the server root.
+	 *
+	 * @param  string $tmp_dir
+	 * @param  array  $book_data
+	 * @param  array  $options    render_book()'s options; 'siteUrl' used when present
+	 * @param  array  &$errors
+	 * @return bool
+	 */
+	private function _write_404_page($tmp_dir, $book_data, array $options, &$errors) {
+
+		$title = trim(html_entity_decode(strip_tags($book_data['meta']['title']), ENT_QUOTES, 'UTF-8'));
+		if ('' === $title) $title = $book_data['meta']['slug'];
+
+		$site = isset($options['siteUrl']) ? rtrim(trim((string) $options['siteUrl']), '/') : '';
+		$e    = function ($v) { return htmlspecialchars($v, ENT_QUOTES, 'UTF-8'); };
+
+		$home = ('' !== $site)
+			? '<p class="go"><a href="' . $e($site . '/') . '">Go to the start of &ldquo;' . $e($title) . '&rdquo;</a></p>'
+			: '<p class="go"><a href="../">Go back to the book</a></p>' . "\n"
+			  . '		<p class="alt">If that doesn\'t land anywhere, try <a href="/">the start of the site</a>, '
+			  . 'or your browser\'s Back button.</p>';
+
+		$html = '<!DOCTYPE html>' . "\n"
+		      . '<html lang="en">' . "\n"
+		      . '<head>' . "\n"
+		      . '	<meta charset="utf-8" />' . "\n"
+		      . '	<meta name="viewport" content="width=device-width, initial-scale=1" />' . "\n"
+		      . '	<title>Page not found &mdash; ' . $e($title) . '</title>' . "\n"
+		      . '	<style>' . "\n"
+		      . '		body { margin: 0; padding: 12vh 1.25rem 4rem; background: #f7f7f5; color: #2b2b2b;' . "\n"
+		      . '		       font: 16px/1.6 "Helvetica Neue", Helvetica, Arial, sans-serif; }' . "\n"
+		      . '		main { max-width: 34rem; margin: 0 auto; }' . "\n"
+		      . '		h1 { font-size: 1.6rem; font-weight: 600; margin: 0 0 .25rem; }' . "\n"
+		      . '		.book { margin: 0 0 2rem; color: #6b6b6b; font-size: .95rem; }' . "\n"
+		      . '		p { margin: 0 0 1rem; }' . "\n"
+		      . '		.go a { display: inline-block; margin-top: .5rem; padding: .6rem 1.1rem;' . "\n"
+		      . '		        background: #2b2b2b; color: #fff; text-decoration: none; border-radius: 3px; }' . "\n"
+		      . '		.go a:hover { background: #000; }' . "\n"
+		      . '		.alt { margin-top: 1rem; font-size: .9rem; color: #6b6b6b; }' . "\n"
+		      . '		.alt a, .book a { color: #27548a; }' . "\n"
+		      . '	</style>' . "\n"
+		      . '</head>' . "\n"
+		      . '<body>' . "\n"
+		      . '	<main>' . "\n"
+		      . '		<h1>Page not found</h1>' . "\n"
+		      . '		<p class="book">' . $e($title) . '</p>' . "\n"
+		      . '		<p>There is no page at this address. It may have been renamed or removed since the '
+		      . 'link you followed was made, or the address may have been mistyped.</p>' . "\n"
+		      . '		' . $home . "\n"
+		      . '	</main>' . "\n"
+		      . '</body>' . "\n"
+		      . '</html>' . "\n";
+
+		if (file_put_contents($tmp_dir . '/404.html', $html) === false) {
+			$errors['404.html'] = 'Could not write 404.html';
+			return false;
+		}
+
+		return true;
+
+	}
+
+	/**
+	 * Write <tmp_dir>/sitemap.xml and <tmp_dir>/robots.txt. Only called when the author asked
+	 * for them and gave the address the site will live at — a <loc> has to be absolute, and
+	 * nothing in an export can know where it will be published.
+	 *
+	 * One entry per rendered page, at the same URL the book's own links use, so a crawler and
+	 * a reader see the same addresses. The .meta pages are left out: they are a machine-readable
+	 * restatement of a page that is already listed, and listing both invites a search engine to
+	 * treat them as duplicates of each other.
+	 *
+	 * @param  string $tmp_dir
+	 * @param  array  $book_data
+	 * @param  array  $rendered   Slugs render_book() actually wrote
+	 * @param  array  $options    Needs 'siteUrl'
+	 * @param  array  &$errors
+	 * @return bool
+	 */
+	private function _write_sitemap($tmp_dir, $book_data, array $rendered, array $options, &$errors) {
+
+		$site = rtrim(trim((string) $options['siteUrl']), '/');
+		$date = date('Y-m-d', strtotime($book_data['meta']['exportDate']));
+
+		$xml  = '<?xml version="1.0" encoding="UTF-8"?>' . "\n"
+		      . '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
+
+		// Sorted so that re-exporting an unchanged book produces an identical file, which keeps
+		// it out of the way when an export is kept in version control.
+		$slugs = array_values(array_unique($rendered));
+		sort($slugs);
+
+		foreach ($slugs as $slug) {
+			// _slug_target() names index.html explicitly so the link also works over file://.
+			// A sitemap is only ever read by a crawler on a real server, where the directory is
+			// the canonical form of the home page — and listing both would offer two addresses
+			// for one page.
+			$target = self::_slug_target($slug);
+			$loc    = $site . '/' . ('index.html' === $target ? '' : $target);
+			$xml .= '	<url>' . "\n"
+			      . '		<loc>' . htmlspecialchars($loc, ENT_QUOTES, 'UTF-8') . '</loc>' . "\n"
+			      . '		<lastmod>' . $date . '</lastmod>' . "\n"
+			      . '	</url>' . "\n";
+		}
+
+		$xml .= '</urlset>' . "\n";
+
+		$ok = (file_put_contents($tmp_dir . '/sitemap.xml', $xml) !== false);
+		if (!$ok) $errors['sitemap.xml'] = 'Could not write sitemap.xml';
+
+		$robots = "User-agent: *\n"
+		        . "Allow: /\n"
+		        . "Sitemap: " . $site . "/sitemap.xml\n";
+
+		if (file_put_contents($tmp_dir . '/robots.txt', $robots) === false) {
+			$errors['robots.txt'] = 'Could not write robots.txt';
+			$ok = false;
+		}
+
+		return $ok;
 
 	}
 
@@ -3224,6 +3468,30 @@ class Static_Export_Model extends MY_Model {
 		);
 
 		return $file_count;
+
+	}
+
+	/**
+	 * Total bytes of every file under $dir. Used for the tile pyramids, which _copy_dir()
+	 * counts but does not weigh, and whose size is the whole reason the export warns about
+	 * bundled media at all.
+	 *
+	 * @param  string $dir
+	 * @return int
+	 */
+	private static function _dir_size($dir) {
+
+		if (!is_dir($dir)) return 0;
+
+		$bytes = 0;
+		$it = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS)
+		);
+		foreach ($it as $file) {
+			if ($file->isFile()) $bytes += $file->getSize();
+		}
+
+		return $bytes;
 
 	}
 

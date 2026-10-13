@@ -28,6 +28,12 @@
 
 class Static_Export extends MY_Controller {
 
+	/**
+	 * Set while answering ?debug=1, which reports the temp directory it built and so must not
+	 * then delete it. Read by _cleanup() on shutdown.
+	 */
+	private $keep_tmp_dir = false;
+
 	public function __construct() {
 
 		parent::__construct();
@@ -53,36 +59,207 @@ class Static_Export extends MY_Controller {
 
 		$this->_require_author();
 
-		// Stub: confirm the route is wired correctly before implementing real export logic
-		/*http_response_code(200);
-		header('Content-Type: text/plain');
-		echo 'static_export OK';
-		exit;*/
+		if (!class_exists('ZipArchive')) {
+			return $this->_fail(500, 'This Scalar installation is missing PHP\'s zip extension, so the '
+			                       . 'export cannot be packaged for download. Ask whoever administers the '
+			                       . 'server to enable ext-zip.');
+		}
+
+		// A big book takes a while to render and the result is streamed, not buffered, so the
+		// usual script limits are the wrong shape here.
+		@set_time_limit(0);
+		ignore_user_abort(true);
 
 		$this->load->model('static_export_model', 'static_export_model');
 		$book_data = $this->static_export_model->get_book_data($this->data['book']->book_id);
 
-		$tmp_dir = sys_get_temp_dir() . '/scalar_export_' . $this->data['book']->slug . '_' . time();
+		$slug    = $this->data['book']->slug;
+		$stem    = sys_get_temp_dir() . '/scalar_export_' . $slug . '_' . time();
+		$tmp_dir = $stem;
+		$zip_path = $stem . '.zip';
+
 		if (!mkdir($tmp_dir, 0755, true)) {
-			http_response_code(500);
-			header('Content-Type: text/plain');
-			echo 'Could not create temp directory: ' . $tmp_dir;
-			exit;
+			return $this->_fail(500, 'Could not create a temporary directory for the export: ' . $tmp_dir);
 		}
+
+		// Registered before anything can fail, so the temp tree is cleaned up however this
+		// request ends — including a fatal error mid-render, or the reader cancelling the
+		// download (which is why ignore_user_abort is on: the cleanup still needs to run).
+		register_shutdown_function(array($this, '_cleanup'), $tmp_dir, $zip_path);
 
 		$result = $this->static_export_model->render_book($book_data, $tmp_dir, $this->_export_options());
 
-		http_response_code(200);
-		header('Content-Type: application/json');
-		echo json_encode(array(
-			'tmp_dir'  => $tmp_dir,
-			'rendered' => $result['rendered'],
-			'skipped'  => $result['skipped'],
-			'errors'   => $result['errors'],
-			'dataBytes' => $result['dataBytes'],
-			'maps'      => $result['maps'],
-		), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+		// ?debug=1 answers with what was built instead of the file — what this endpoint used to
+		// do always, and still the quickest way to see what a book produced without unzipping.
+		// The temp directory is left in place so there is something to go and look at; it is
+		// the one path that doesn't clean up after itself.
+		if ($this->input->get('debug')) {
+			$this->keep_tmp_dir = true;
+			header('Content-Type: application/json');
+			echo json_encode(array(
+				'tmp_dir'   => $tmp_dir,
+				'rendered'  => $result['rendered'],
+				'skipped'   => $result['skipped'],
+				'errors'    => $result['errors'],
+				'dataBytes' => $result['dataBytes'],
+				'maps'      => $result['maps'],
+			), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+			exit;
+		}
+
+		if (empty($result['rendered'])) {
+			return $this->_fail(500, 'The export produced no pages. ' . $this->_error_summary($result['errors']));
+		}
+
+		if (!$this->_zip_dir($tmp_dir, $zip_path, $slug)) {
+			return $this->_fail(500, 'The site was built but could not be packaged into a ZIP file.');
+		}
+
+		$this->_stream_zip($zip_path, $slug . '-static-site.zip', $this->input->post('download_token'));
+
+	}
+
+	/**
+	 * Pack $dir into $zip_path, with everything under a single top-level folder named $folder so
+	 * that unzipping yields one directory rather than scattering a few thousand files into
+	 * whatever the reader had open. That folder is what the export's README means by
+	 * "upload the whole folder".
+	 *
+	 * @param  string $dir
+	 * @param  string $zip_path
+	 * @param  string $folder    Top-level directory name inside the archive
+	 * @return bool
+	 */
+	private function _zip_dir($dir, $zip_path, $folder) {
+
+		$zip = new ZipArchive();
+		if (true !== $zip->open($zip_path, ZipArchive::CREATE | ZipArchive::OVERWRITE)) return false;
+
+		$dir = rtrim($dir, '/');
+		$it  = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS),
+			RecursiveIteratorIterator::SELF_FIRST
+		);
+
+		foreach ($it as $item) {
+			$local = $folder . '/' . str_replace(DIRECTORY_SEPARATOR, '/', $it->getSubPathName());
+			if ($item->isDir()) {
+				$zip->addEmptyDir($local);
+			} else {
+				$zip->addFile($item->getPathname(), $local);
+			}
+		}
+
+		return $zip->close();
+
+	}
+
+	/**
+	 * Send $path to the browser as a download named $filename, then stop. Read in chunks rather
+	 * than with readfile() so that a multi-gigabyte book doesn't have to fit in memory, and with
+	 * every output buffer torn down first so CodeIgniter's own buffering doesn't do it for us.
+	 *
+	 * $token, if the Utilities tab sent one, comes back as a cookie. A download delivered as an
+	 * attachment leaves the page it was requested from untouched, which is the behaviour we
+	 * want and also means the browser fires no event the tab could listen for — so there is no
+	 * other way for it to know the file is on its way and stop saying "generating". The cookie
+	 * is set here, immediately before the first byte, because by this point the work is done
+	 * and the response is committed. See utils.php, which polls for it.
+	 *
+	 * @param string      $path
+	 * @param string      $filename
+	 * @param string|null $token     Opaque value to echo back as a cookie
+	 */
+	private function _stream_zip($path, $filename, $token = null) {
+
+		while (ob_get_level()) ob_end_clean();
+
+		// Narrowed to the characters the tab generates, so nothing from the request can get
+		// into a response header.
+		$token = preg_replace('/[^A-Za-z0-9]/', '', (string) $token);
+		if ('' !== $token) {
+			// No HttpOnly: the point of this cookie is that a script can see it.
+			setcookie('scalar_static_export', substr($token, 0, 40), 0, '/');
+		}
+
+		header('Content-Type: application/zip');
+		header('Content-Disposition: attachment; filename="' . str_replace('"', '', $filename) . '"');
+		header('Content-Length: ' . filesize($path));
+		header('Content-Transfer-Encoding: binary');
+		header('Cache-Control: private, no-store');
+		header('Pragma: no-cache');
+
+		$fh = fopen($path, 'rb');
+		if (false === $fh) return $this->_fail(500, 'The ZIP file could not be opened for sending.');
+
+		while (!feof($fh)) {
+			echo fread($fh, 1048576);
+			flush();
+		}
+		fclose($fh);
+
+		exit;   // _cleanup() runs on shutdown
+
+	}
+
+	/**
+	 * Remove the export's temp directory and ZIP. Public only because it is registered as a
+	 * shutdown function; nothing else should call it.
+	 *
+	 * @param string $tmp_dir
+	 * @param string $zip_path
+	 */
+	public function _cleanup($tmp_dir, $zip_path) {
+
+		if (is_file($zip_path)) @unlink($zip_path);
+		if ($this->keep_tmp_dir || !is_dir($tmp_dir)) return;
+
+		$it = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator($tmp_dir, RecursiveDirectoryIterator::SKIP_DOTS),
+			RecursiveIteratorIterator::CHILD_FIRST
+		);
+		foreach ($it as $item) {
+			if ($item->isDir()) @rmdir($item->getPathname()); else @unlink($item->getPathname());
+		}
+		@rmdir($tmp_dir);
+
+	}
+
+	/**
+	 * Answer with a plain-text explanation rather than a half-written download. The reader is an
+	 * author in a dashboard, not a developer reading a log, so the message says what happened
+	 * and nothing about where in the code it happened.
+	 *
+	 * @param int    $status
+	 * @param string $message
+	 */
+	private function _fail($status, $message) {
+
+		while (ob_get_level()) ob_end_clean();
+		http_response_code($status);
+		header('Content-Type: text/plain; charset=utf-8');
+		echo $message . "\n";
 		exit;
+
+	}
+
+	/**
+	 * The first few problems from a failed render, for a message an author can act on or quote.
+	 *
+	 * @param  array $errors
+	 * @return string
+	 */
+	private function _error_summary(array $errors) {
+
+		if (empty($errors)) return 'No reason was recorded. Re-run with ?debug=1 for details.';
+
+		$lines = array();
+		foreach (array_slice($errors, 0, 5, true) as $where => $what) {
+			$lines[] = $where . ': ' . $what;
+		}
+		if (count($errors) > 5) $lines[] = '(and ' . (count($errors) - 5) . ' more)';
+
+		return "Problems:\n  " . implode("\n  ", $lines);
 
 	}
 
