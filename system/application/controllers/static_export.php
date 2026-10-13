@@ -44,9 +44,10 @@ class Static_Export extends MY_Controller {
 	}
 
 	/**
-	 * Build the export. Accepts GET, or POST from the Utilities tab — which, for a book that
-	 * draws maps, first asks the author how the site should draw them (see check()) and posts
-	 * the answer as maps_provider ('google' or 'leaflet') and google_maps_key.
+	 * Build the export. Accepts GET, or POST from the Utilities tab, which asks the author how
+	 * the site should be built (see check()) and posts the answers: maps_provider ('google' or
+	 * 'leaflet') and google_maps_key for a book that draws maps, and search_engines plus
+	 * site_url for whether to write a sitemap.
 	 */
 	public function index() {
 
@@ -122,8 +123,8 @@ class Static_Export extends MY_Controller {
 
 	/**
 	 * The site settings for render_book(): this installation's defaults, with the author's
-	 * answer to the maps question applied when there was one. The key is used for this export
-	 * only and not stored anywhere else.
+	 * answers from the export dialog applied. Neither the Google Maps key nor the site address
+	 * is stored anywhere; both are used for this one export.
 	 */
 	private function _export_options() {
 
@@ -135,6 +136,15 @@ class Static_Export extends MY_Controller {
 		} elseif (is_string($provider) && '' !== $provider) {
 			$options['googleMapsKey'] = '';
 		}
+
+		// Search engines: off unless the author ticked the box *and* gave an address. A sitemap
+		// needs absolute URLs, so without one there is nothing to write; the address is also
+		// what lets 404.html offer a reliable way back to the book.
+		$site_url = trim((string) $this->input->post('site_url'));
+		if ('' !== $site_url && !preg_match('#^https?://#i', $site_url)) $site_url = 'https://' . $site_url;
+
+		$options['searchEngines'] = ('1' === (string) $this->input->post('search_engines')) && '' !== $site_url;
+		$options['siteUrl']       = $site_url;
 
 		return $options;
 
