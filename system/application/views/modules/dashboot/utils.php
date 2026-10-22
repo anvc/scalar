@@ -54,46 +54,72 @@ $(document).ready(function() {
 		e.preventDefault();
 		var url = $(this).attr('href');
 		var $content = $('#export-content').show();
-		// A download arrives as an attachment, so the page that asked for it is never navigated
-		// and never told the file came. The server echoes this token back as a cookie with the
-		// first byte of the ZIP (see _stream_zip in static_export.php); watching for it is the
-		// only way to know the wait is over rather than leaving "generating" on screen for good.
-		var token = 'x' + Date.now() + Math.floor(Math.random() * 1e6);
 		var filename = url.replace(/\/static_export\/?$/, '').split('/').pop() + '-static-site.zip';
-		var awaitDownload = function() {
-			var startedAt = Date.now();
-			var timer = setInterval(function() {
-				if (document.cookie.indexOf('scalar_static_export=' + token) !== -1) {
-					clearInterval(timer);
-					document.cookie = 'scalar_static_export=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-					// Appended as a text node rather than built into a string: the name comes from
-					// the URL, and there is no reason for it to reach the page as markup.
+		// Errors and the finished message are appended as text nodes rather than built into a
+		// string: they come from the server and the URL, and have no reason to reach the page
+		// as markup.
+		var showError = function(message) {
+			$content.empty().append(
+				$('<p class="text-danger"></p>').text(message || 'The export didn\'t finish. Please try again.')
+			);
+		};
+		// One bar for the whole export: each phase is an equal share, filled as its units are
+		// done. Phases differ a lot in how long they take, so this says how far along the export
+		// is rather than how long is left.
+		var showProgress = function(p) {
+			var fraction = (p.total ? p.done / p.total : 0);
+			var percent = Math.round(100 * ((p.phaseNumber - 1) + fraction) / p.phaseCount);
+			var detail = p.total ? ' (' + p.done + ' of ' + p.total + ')' : '';
+			$content.empty().append(
+				$('<p></p>').text('Exporting\u2026 ' + p.label + detail),
+				$('<div class="progress"></div>').append(
+					$('<div class="progress-bar" role="progressbar"></div>').css('width', percent + '%')
+				)
+			);
+		};
+		// The export runs as a series of short requests, each picking up where the last left
+		// off (see static_export.php), so no one request outlasts the server's time limit. A step
+		// that fails — the server cut it off, or the connection dropped — is simply tried again:
+		// the job saved its place before that step began.
+		var runSteps = function(job) {
+			var failures = 0;
+			var step = function() {
+				$.ajax({ url: url + '/step', method: 'POST', data: { job: job }, dataType: 'json', timeout: 180000 })
+				.done(function(p) {
+					failures = 0;
+					// Another request is still working on this export, most likely a step this
+					// page gave up waiting for. Give it a moment.
+					if (p.busy) return setTimeout(step, 2000);
+					if (p.failed) return showError(p.failed);
+					showProgress(p);
+					if (!p.finished) return step();
+					// An attachment, so the browser saves it and stays on this page.
+					window.location.href = url + '/download?job=' + encodeURIComponent(job);
 					$content.empty().append(
 						document.createTextNode('Static site export complete \u2014 '),
 						$('<b></b>').text(filename),
-						document.createTextNode(' is in your downloads.')
+						document.createTextNode(' is downloading.')
 					);
-				// Only a fallback: the export has either failed in a way that navigated this page
-				// away, or is taking longer than anything we have seen. Say so rather than claim
-				// a success that may not have happened.
-				} else if (Date.now() - startedAt > 600000) {
-					clearInterval(timer);
-					$content.text('Still working, or the export didn\'t finish. Check your downloads folder; ' +
-						'if nothing arrived, try again.');
-				}
-			}, 500);
+				}).fail(function() {
+					if (++failures > 5) return showError('The export stopped responding. Please try again.');
+					setTimeout(step, 3000 * failures);
+				});
+			};
+			step();
 		};
 		var startExport = function(fields) {
-			$content.show().html('Generating static site export\u2026 This may take a minute.');
-			var $form = $('<form method="post" style="display:none;"></form>').attr('action', url);
-			fields = fields || {};
-			fields.download_token = token;
-			$.each(fields, function(name, value) {
-				$('<input type="hidden" />').attr('name', name).val(value).appendTo($form);
+			// The first progress report only comes back when the first step ends, up to
+			// static_export_step_seconds from now, so the bar is drawn empty straight away.
+			$content.show();
+			showProgress({ label: 'Starting', phaseNumber: 1, phaseCount: 1, done: 0, total: 0 });
+			$.ajax({ url: url + '/start', method: 'POST', data: fields || {}, dataType: 'json' })
+			.done(function(r) { runSteps(r.job); })
+			.fail(function(xhr) {
+				// The controller explains its own failures in plain text; anything else (a login
+				// page, a server error page) is no use to show.
+				var plain = /^text\/plain/.test(xhr.getResponseHeader('Content-Type') || '');
+				showError(plain && xhr.responseText ? xhr.responseText : 'The export couldn\'t be started.');
 			});
-			$('body').append($form);
-			$form.submit();
-			awaitDownload();
 		};
 		// Every export is asked about search engines, so the dialog always opens; the maps
 		// question is added to it only for a book that draws maps. If the check itself fails,

@@ -52,7 +52,7 @@ class Static_Export_Model extends MY_Model {
 	);
 
 	/**
-	 * Total bytes of self-hosted media above which _copy_media_files() logs a
+	 * Total bytes of self-hosted media above which _bundle_aux_images() logs a
 	 * non-fatal size warning (200 MB).
 	 */
 	const MEDIA_SIZE_WARNING_BYTES = 209715200;
@@ -93,238 +93,731 @@ class Static_Export_Model extends MY_Model {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Fetch all content for a book and return the normalized structure the exporter renders
-	 * from and bakes into scalar-static-data.js.
+	 * An export runs as a job: a directory in the server's temp space, holding the job's state
+	 * (job.ser), the site as it is built (site/) and the ZIP it is packed into. The controller
+	 * creates it with job_create() and then calls job_step() over as many requests as it takes,
+	 * each one doing as much as fits before its deadline and saving where it got to. No single
+	 * request has to outlast the server's limit, however big the book: on a PHP-FPM server that
+	 * limit is request_terminate_timeout, which kills a request outright at a set wall-clock
+	 * time, and which a long single request — what this used to be — had no way to survive.
 	 *
-	 * @param  int   $book_id
-	 * @return array Normalized data ready for json_encode()
+	 * The work is a fixed sequence of phases (self::$PHASES). Each starts by listing its units
+	 * of work — _queue_<phase>(), itself one unit, since listing can mean a query — and then
+	 * does them one at a time with _unit_<phase>(). A unit is small: one page rendered, one file
+	 * zipped, one path's members fetched, or a few dozen content rows read. The deadline is
+	 * checked between units, so a step overruns its budget by at most one unit.
+	 *
+	 * The site the phases write is laid out as follows:
+	 *
+	 *   <slug>/index.html        every page and media item (the home page excepted)
+	 *   index.html               the home page — a page with slug 'index' — or, in a book with
+	 *                            none, a <meta refresh> to the first TOC page
+	 *   <slug>.meta/index.html   each item's metadata page (see _write_meta_page()); the home
+	 *                            page's is index.meta/ like any other
+	 *   <slug>.<ext>             self-hosted media, and '<slug>.<thumb|banner|background>.<ext>'
+	 *                            for auxiliary images (see _bundle_media_item())
+	 *
+	 * plus the files every page loads (the baked data, the site's settings, the bridge and its
+	 * maps stand-in, Scalar's own JS and CSS) and two for the person publishing the site:
+	 * export-manifest.json and README.md. Media is the exception to "written to site/": it is
+	 * not copied there but added to the ZIP straight from where Scalar keeps it.
 	 */
-	public function get_book_data($book_id) {
+	private static $PHASES = array(
+		'content'     => 'Gathering pages and media',
+		'paths'       => 'Gathering paths',
+		'tags'        => 'Gathering tags',
+		'annotations' => 'Gathering annotations',
+		'references'  => 'Gathering references',
+		'excerpts'    => 'Preparing excerpts',
+		'comments'    => 'Gathering comments',
+		'structure'   => 'Gathering lenses and contents',
+		'media'       => 'Bundling media',
+		'pages'       => 'Writing pages',
+		'media_pages' => 'Writing media pages',
+		'site'        => 'Writing site files',
+		'zip'         => 'Packaging',
+	);
 
-		$book     = $this->books->get($book_id);
+	/**
+	 * Content rows read per unit. Small, because what each costs is the ARC2 lookup of its
+	 * additional metadata (see _fetch_arc_metadata()), measured on scalar.usc.edu at 90 ms a
+	 * row on a normal day and 280 ms on a busy one. A step can overrun its budget by one unit,
+	 * so at the busy rate this keeps that overrun under 3 seconds, well inside the gap between
+	 * the default 20-second budget and the server's 30-second limit.
+	 */
+	const CONTENT_CHUNK = 10;
+
+	/** The open archive while a step is zipping; see _unit_zip(). */
+	private $_zip = null;
+
+	/**
+	 * Start an export job in $job_dir, which must exist and be empty. Does no real work; the
+	 * first call to job_step() begins it.
+	 *
+	 * @param  string $job_dir
+	 * @param  object $book     Book row
+	 * @param  int    $user_id  Who started it; the controller lets no one else step it
+	 * @param  array  $options  Site settings, as default_map_options() returns them and the
+	 *                          controller adjusts them: 'googleMapsKey', 'tiles', 'searchEngines',
+	 *                          'siteUrl'
+	 * @return bool
+	 */
+	public function job_create($job_dir, $book, $user_id, array $options) {
+
+		if (!is_dir($job_dir . '/site') && !mkdir($job_dir . '/site', 0755, true)) return false;
+
 		$base_uri = confirm_slash(base_url()) . confirm_slash($book->slug);
 
-		$pages       = array();
-		$media       = array();
-		$paths       = array();
-		$tags        = array();
-		$annotations = array();
-		$comments    = array();
-		$people      = array();
-
-		$this->_build_content($book_id, $base_uri, $pages, $media, $people);
-		$this->_build_paths($book_id, $base_uri, $paths);
-		$this->_build_tags($book_id, $base_uri, $tags);
-		$this->_build_annotations($book_id, $media, $annotations);
-		$this->_build_references($book_id, $pages, $media);
-		$this->_build_excerpts($pages, $media, $base_uri);
-		// After _build_excerpts(), which would otherwise overwrite the full comment bodies
-		// this puts in sioc:content — see _build_comments() for why they have to be whole.
-		$this->_build_comments($book_id, $pages, $comments);
-		$lenses = $this->_build_lenses($book_id, $pages);
-		$toc = $this->_build_toc($book_id);
-
-		$book_data = array(
-			'meta'        => $this->_build_meta($book),
-			'pages'       => $pages,
-			'media'       => $media,
-			'paths'       => $paths,
-			'tags'        => $tags,
-			'annotations' => $annotations,
-			'comments'    => $comments,
-			'people'      => $people,
-			'lenses'      => $lenses,
-			'toc'         => $toc,
+		$job = array(
+			'bookId'    => (int) $book->book_id,
+			'userId'    => (int) $user_id,
+			'slug'      => $book->slug,
+			'baseUri'   => $base_uri,
+			'options'   => $options + $this->default_map_options(),
+			'started'   => microtime(true),
+			'steps'     => 0,
+			'phase'     => key(self::$PHASES),
+			'phaseStarted' => microtime(true),
+			'queue'     => null,      // the current phase's units, once listed
+			'cursor'    => 0,         // how many of them are done
+			'bookData'  => array(
+				'meta'        => $this->_build_meta($book),
+				'pages'       => array(),
+				'media'       => array(),
+				'paths'       => array(),
+				'tags'        => array(),
+				'annotations' => array(),
+				'comments'    => array(),
+				'people'      => array(),
+				'lenses'      => array(),
+				'toc'         => array(),
+				'relations'   => array(),
+			),
+			'errors'    => array(),   // slug or file => message
+			'rendered'  => array(),   // slugs written
+			'wroteRootIndex' => false,
+			'bundle'    => array(),   // export path => absolute source path, for self-hosted media
+			'bundleDirs'=> array(),   // export path => absolute source directory (tile pyramids)
+			'bundled'   => array('files' => 0, 'bytes' => 0),
+			'zip'       => null,      // Static_export_zip::state()
+			'finished'  => false,
+			'failed'    => null,      // a message for the author, if the job can't go on
+			'result'    => null,      // filled in by the site phase: dataBytes, maps
 		);
 
-		// Flatten paths, tags, annotations and comments into the single list of Open Annotation
-		// relations both the page template and the baked graph render from, so the URN and
-		// anchor-fragment rules live in one place rather than being restated in each.
-		$book_data['relations'] = $this->_build_relations($book_data);
-
-		return $book_data;
+		$this->_log($job, 'started');
+		return $this->_save_job($job_dir, $job);
 
 	}
 
 	/**
-	 * Render all composite pages and media items to <tmp_dir>/<slug>/index.html using
-	 * page.php, bundling self-hosted media into <tmp_dir>/media/ along the way. Each item
-	 * also gets a plain metadata page at <tmp_dir>/<slug>.meta/index.html (see
-	 * _write_meta_page()).
+	 * Read a job's state, or null if there is no such job.
 	 *
-	 * The home page is the one exception to the <slug>/index.html layout: a page with
-	 * slug 'index' is written once, directly to <tmp_dir>/index.html, and gets no
-	 * <tmp_dir>/index/ directory of its own. Books with no 'index' page get a
-	 * <meta refresh> redirect to the first TOC page at <tmp_dir>/index.html instead.
-	 * Either way the home page keeps its <tmp_dir>/index.meta/ sibling.
-	 *
-	 * Alongside the pages it writes the files every page loads (the baked data, the site's
-	 * settings, the bridge and its maps stand-in) and two for the person publishing the site:
-	 * export-manifest.json and README.md.
-	 *
-	 * @param  array  $book_data  Full normalized structure from get_book_data()
-	 * @param  string $tmp_dir    Absolute path to the writable temp directory (no trailing slash)
-	 * @param  array  $options    Site settings, as returned by default_map_options() and then
-	 *                            adjusted by the controller: 'googleMapsKey' and 'tiles'
-	 * @return array  ['rendered' => [...], 'skipped' => [...], 'errors' => [slug => msg],
-	 *                 'dataBytes' => int, 'maps' => summary from _map_usage()]
+	 * @param  string $job_dir
+	 * @return array|null
 	 */
-	public function render_book($book_data, $tmp_dir, array $options = array()) {
+	public function job_load($job_dir) {
 
-		$options += $this->default_map_options();
+		$raw = @file_get_contents($job_dir . '/job.ser');
+		if (false === $raw) return null;
+		$job = @unserialize($raw);
+		return is_array($job) ? $job : null;
 
-		$CI =& get_instance();
+	}
 
-		$book_url  = confirm_slash(base_url()) . confirm_slash($book_data['meta']['slug']);
-		$rendered  = array();
-		$skipped   = array();
-		$errors    = array();
-		$wrote_root_index = false;   // true once <tmp_dir>/index.html has been written
+	/**
+	 * Where a job's finished ZIP is.
+	 *
+	 * @param  string $job_dir
+	 * @param  array  $job
+	 * @return string
+	 */
+	public function job_zip_path($job_dir, array $job) {
 
-		// Copy self-hosted media into the export first, so page bodies can be rewritten
-		// (below) to point at the bundled local copies rather than the live server.
-		$this->_copy_media_files($book_data, $tmp_dir, $errors);
+		return $job_dir . '/' . $job['slug'] . '-static-site.zip';
 
-		foreach ($book_data['pages'] as $slug => $page) {
+	}
 
-			// The home page lives at the export root rather than in a directory of its
-			// own, so it sits one level shallower than every other page and its relative
-			// paths differ accordingly.
-			$is_root_page = ($slug === 'index');
-			$asset_root   = $is_root_page ? './' : self::_asset_root($slug);
-			$page_dir     = $tmp_dir . '/' . $slug;
-			$out_file     = $is_root_page ? $tmp_dir . '/index.html' : $page_dir . '/index.html';
+	/**
+	 * Do as much of a job as fits before $deadline, save where it got to, and say how far
+	 * along it is. Always does at least one unit, so every step makes progress.
+	 *
+	 * Callers serialize steps (the controller holds a lock on the job), so this never runs twice
+	 * at once for one job.
+	 *
+	 * A step can still be killed part-way, if one unit is slow enough to carry it past the
+	 * server's limit. Everything since the last save is then lost and redone, which is safe —
+	 * every unit can be repeated — but would loop forever on a unit that is simply too slow.
+	 * So each unit is announced in <job_dir>/attempt before it runs, and a step that finds the
+	 * file still there knows its predecessor died in that unit. If the unit was the first that
+	 * step did, it had a full request to itself and still didn't finish: the job fails, naming
+	 * it. Otherwise it may just have started too late, so this step stops short of it and the
+	 * next step gives it a fresh start.
+	 *
+	 * @param  string $job_dir
+	 * @param  float  $deadline  microtime(true) by which to stop starting new units
+	 * @return array  See _progress()
+	 */
+	public function job_step($job_dir, $deadline) {
 
-			if (!$is_root_page && !is_dir($page_dir) && !mkdir($page_dir, 0755, true)) {
-				$errors[$slug] = 'Could not create directory: ' . $page_dir;
-				continue;
+		$job = $this->job_load($job_dir);
+		if (null === $job) return array('failed' => 'This export has expired or was replaced by a newer one.');
+		if ($job['finished'] || $job['failed']) return $this->_progress($job);
+
+		$attempt_file = $job_dir . '/attempt';
+		$stop_before  = null;
+		$died         = @unserialize((string) @file_get_contents($attempt_file));
+		if (is_array($died)) {
+			if ($died['fresh']) {
+				$job['failed'] = 'The export stopped while ' . lcfirst(self::$PHASES[$died['phase']])
+				               . (null !== $died['item'] ? ' (' . $died['item'] . ')' : '')
+				               . ': that step takes longer than this server allows a single request.';
+				$this->_log($job, 'failed in ' . $died['phase'] . ' at ' . $died['item']);
+				$this->_save_job($job_dir, $job);
+				@unlink($attempt_file);
+				return $this->_progress($job);
 			}
-
-			$render_page         = $page;
-			$render_page['body'] = $this->_rewrite_links($page['body'], $book_data['media'], $book_url, $asset_root);
-
-			$html = $this->_render_content_view($CI, $render_page, $book_data, $asset_root, $book_url, $slug, $errors);
-			if ($html === null) continue;
-
-			if (file_put_contents($out_file, $html) === false) {
-				$errors[$slug] = 'Could not write: ' . $out_file;
-				continue;
-			}
-
-			$rendered[] = $slug;
-
-			if ($is_root_page) {
-				$wrote_root_index = true;
-			}
-
-			// The .meta page is always a depth-1 sibling directory ('<slug>.meta/'), so it
-			// is rendered with '../' even for the home page. It ignores the body passed in
-			// here — _write_meta_page() substitutes a metadata table of its own.
-			$this->_write_meta_page($CI, $render_page, $book_data, $tmp_dir, $book_url, $slug, $errors);
+			$stop_before = $died['phase'] . ':' . $died['cursor'];
 		}
 
-		// Render each media item's own permalink page (<slug>/index.html). The current-page
-		// media embed is generated entirely client-side (scalarpage.jquery.js, gated on
-		// typeof="scalar:Media" — see page.php) once the node's RDFa carries its source URL.
-		foreach ($book_data['media'] as $slug => $item) {
+		$job['steps']++;
+		$units = 0;
 
-			$page_dir = $tmp_dir . '/' . $slug;
+		while (!$job['finished'] && !$job['failed']) {
 
-			if (!is_dir($page_dir) && !mkdir($page_dir, 0755, true)) {
-				$errors[$slug] = 'Could not create directory: ' . $page_dir;
-				continue;
-			}
+			$key = $job['phase'] . ':' . (null === $job['queue'] ? -1 : $job['cursor']);
+			if ($units > 0 && (microtime(true) >= $deadline || $key === $stop_before)) break;
 
-			// Media items carry body copy too (see _normalize_media), so it needs the same
-			// link rewriting the page loop above does.
-			$render_item         = $item;
-			$render_item['body'] = $this->_rewrite_links(
-				isset($item['body']) ? $item['body'] : '',
-				$book_data['media'], $book_url, self::_asset_root($slug)
-			);
+			file_put_contents($attempt_file, serialize(array(
+				'phase'  => $job['phase'],
+				'cursor' => null === $job['queue'] ? -1 : $job['cursor'],
+				'item'   => $this->_describe_unit($job),
+				'fresh'  => (0 === $units),
+			)));
 
-			$html = $this->_render_content_view($CI, $render_item, $book_data, self::_asset_root($slug), $book_url, $slug, $errors);
-			if ($html === null) continue;
+			$this->_run_unit($job_dir, $job);
+			$units++;
 
-			if (file_put_contents($page_dir . '/index.html', $html) === false) {
-				$errors[$slug] = 'Could not write: ' . $page_dir . '/index.html';
-				continue;
-			}
-
-			$rendered[] = $slug;
-
-			$this->_write_meta_page($CI, $render_item, $book_data, $tmp_dir, $book_url, $slug, $errors);
 		}
 
-		// The book's lens browser, which is chrome rather than content and so is written
-		// outside both loops above.
-		$this->_write_lens_browser_page($CI, $book_data, $tmp_dir, $book_url, $errors);
+		$this->_zip = null;   // closes the archive; its state is already in $job
+		$this->_save_job($job_dir, $job);
+		@unlink($attempt_file);
 
-		// Books with an 'index' page already wrote <tmp_dir>/index.html in the loop above.
-		// Without one, stand in a meta-refresh redirect to the first TOC page so the export
-		// root still lands somewhere.
-		if (!$wrote_root_index) {
-			$first_slug = !empty($book_data['toc']) ? $book_data['toc'][0] : null;
-			if ($first_slug) {
+		return $this->_progress($job);
+
+	}
+
+	/**
+	 * Do the next unit of the current phase — or list the phase's units, if it hasn't started —
+	 * and move on to the next phase when this one is done.
+	 */
+	private function _run_unit($job_dir, array &$job) {
+
+		$phase = $job['phase'];
+
+		if (null === $job['queue']) {
+			$queue = $this->{'_queue_' . $phase}($job, $job_dir);
+			$job['queue']  = is_array($queue) ? array_values($queue) : array();
+			$job['cursor'] = 0;
+		} else {
+			$this->{'_unit_' . $phase}($job, $job['queue'][$job['cursor']], $job_dir);
+			$job['cursor']++;
+		}
+
+		if ($job['cursor'] < count($job['queue'])) return;
+
+		$this->_log($job, $phase . ' (' . count($job['queue']) . ')');
+
+		$phases = array_keys(self::$PHASES);
+		$next   = array_search($phase, $phases, true) + 1;
+		if ($next >= count($phases)) {
+			$job['finished'] = true;
+			$this->_log($job, 'finished in ' . $job['steps'] . ' step(s)');
+			return;
+		}
+
+		$job['phase']        = $phases[$next];
+		$job['phaseStarted'] = microtime(true);
+		$job['queue']        = null;
+		$job['cursor']       = 0;
+
+	}
+
+	/**
+	 * What the unit about to run is working on, for the message if it turns out to be one the
+	 * server won't let finish.
+	 *
+	 * @return string|null
+	 */
+	private function _describe_unit(array $job) {
+
+		if (null === $job['queue']) return null;
+		$unit = $job['queue'][$job['cursor']];
+
+		if (is_string($unit)) return $unit;
+		if (is_object($unit) && isset($unit->slug)) return $unit->slug;
+		if (is_array($unit) && isset($unit[0]) && is_object($unit[0])) {
+			return $unit[0]->slug . (count($unit) > 1 ? ' and the next ' . (count($unit) - 1) : '');
+		}
+		if (is_array($unit) && isset($unit['name'])) return $unit['name'];
+		return null;
+
+	}
+
+	/**
+	 * How far along a job is, for the Utilities tab's progress display.
+	 *
+	 * @return array ['finished', 'failed', 'phase', 'label', 'phaseNumber', 'phaseCount',
+	 *                'done', 'total' (null while the phase's units are being listed)]
+	 */
+	private function _progress(array $job) {
+
+		$phases = array_keys(self::$PHASES);
+		return array(
+			'finished'    => $job['finished'],
+			'failed'      => $job['failed'],
+			'phase'       => $job['phase'],
+			'label'       => self::$PHASES[$job['phase']],
+			'phaseNumber' => array_search($job['phase'], $phases, true) + 1,
+			'phaseCount'  => count($phases),
+			'done'        => $job['cursor'],
+			'total'       => null === $job['queue'] ? null : count($job['queue']),
+		);
+
+	}
+
+	/**
+	 * Save a job's state, atomically: a step killed mid-write leaves the previous state intact
+	 * rather than half a file.
+	 *
+	 * @return bool
+	 */
+	private function _save_job($job_dir, array $job) {
+
+		$tmp = $job_dir . '/job.ser.tmp';
+		if (false === file_put_contents($tmp, serialize($job))) return false;
+		return rename($tmp, $job_dir . '/job.ser');
+
+	}
+
+	/**
+	 * Write one line to PHP's error log about a job: what just finished, how long it took and
+	 * how long the export has run. On a PHP-FPM server this goes to the pool's error_log
+	 * (php_admin_value[error_log]), not Apache's. Times are wall-clock across requests, so they
+	 * include the gaps between steps.
+	 *
+	 * Kept from the diagnosis that led to jobs, as the quickest way to see where a large
+	 * book's export spends its time.
+	 */
+	private function _log(array $job, $what) {
+
+		$now = microtime(true);
+		error_log(sprintf('Scalar static export [%s]: %s in %.1fs (total %.1fs, peak memory %d MB)',
+			$job['slug'], $what, $now - $job['phaseStarted'], $now - $job['started'],
+			round(memory_get_peak_usage(true) / 1048576)));
+
+	}
+
+	// -------------------------------------------------------------------------
+	// Private — export phases. See job_step() for how these are driven.
+	// -------------------------------------------------------------------------
+
+	/** Every live content row in the book, in chunks; see _build_content(). */
+	private function _queue_content(array &$job) {
+
+		$rows = $this->pages->get_all($job['bookId'], null, null, true);
+		return array_chunk(is_array($rows) ? $rows : array(), self::CONTENT_CHUNK);
+
+	}
+
+	private function _unit_content(array &$job, $rows) {
+
+		$d =& $job['bookData'];
+		$this->_build_content($rows, $job['baseUri'], $d['pages'], $d['media'], $d['people']);
+
+	}
+
+	private function _queue_paths(array &$job) {
+
+		return $this->paths->get_all($job['bookId']);
+
+	}
+
+	private function _unit_paths(array &$job, $row) {
+
+		$this->_build_path($row, $job['baseUri'], $job['bookData']['paths']);
+
+	}
+
+	private function _queue_tags(array &$job) {
+
+		return $this->tags->get_all($job['bookId']);
+
+	}
+
+	private function _unit_tags(array &$job, $row) {
+
+		$this->_build_tag($row, $job['baseUri'], $job['bookData']['tags']);
+
+	}
+
+	private function _queue_annotations(array &$job) {
+
+		return $this->annotations->get_all($job['bookId']);
+
+	}
+
+	private function _unit_annotations(array &$job, $row) {
+
+		$d =& $job['bookData'];
+		$this->_build_annotation($row, $d['media'], $d['annotations']);
+
+	}
+
+	private function _queue_references(array &$job) {
+
+		return $this->references->get_all($job['bookId']);
+
+	}
+
+	private function _unit_references(array &$job, $row) {
+
+		$d =& $job['bookData'];
+		$this->_build_reference($row, $d['pages'], $d['media']);
+
+	}
+
+	/** One unit: the work is in memory, and fast. */
+	private function _queue_excerpts(array &$job) {
+
+		return array('excerpts');
+
+	}
+
+	private function _unit_excerpts(array &$job) {
+
+		$d =& $job['bookData'];
+		$this->_build_excerpts($d['pages'], $d['media'], $job['baseUri']);
+
+	}
+
+	/**
+	 * After the excerpts, which would otherwise overwrite the full comment bodies this puts in
+	 * sioc:content — see _build_comment() for why they have to be whole.
+	 */
+	private function _queue_comments(array &$job) {
+
+		return $this->replies->get_all($job['bookId']);
+
+	}
+
+	private function _unit_comments(array &$job, $row) {
+
+		$d =& $job['bookData'];
+		$this->_build_comment($row, $d['pages'], $d['comments']);
+
+	}
+
+	/**
+	 * Lenses, the TOC, and then the relations: paths, tags, annotations and comments flattened
+	 * into the single list of Open Annotation relations both the page template and the baked
+	 * graph render from, so the URN and anchor-fragment rules live in one place rather than
+	 * being restated in each.
+	 */
+	private function _queue_structure(array &$job) {
+
+		return array('lenses', 'toc', 'relations');
+
+	}
+
+	private function _unit_structure(array &$job, $what) {
+
+		$d =& $job['bookData'];
+		switch ($what) {
+			case 'lenses':    $d['lenses']    = $this->_build_lenses($job['bookId'], $d['pages']); break;
+			case 'toc':       $d['toc']       = $this->_build_toc($job['bookId']); break;
+			case 'relations': $d['relations'] = $this->_build_relations($d); break;
+		}
+
+	}
+
+	/**
+	 * Each media item, then the auxiliary images of everything, which come first because page
+	 * bodies are rewritten (in the pages phase) to point at the bundled copies.
+	 */
+	private function _queue_media(array &$job) {
+
+		$units = array_keys($job['bookData']['media']);
+		$units[] = array('name' => 'thumbnails, banners and backgrounds');
+		return $units;
+
+	}
+
+	private function _unit_media(array &$job, $unit) {
+
+		if (is_string($unit)) {
+			$this->_bundle_media_item($job, $unit);
+		} else {
+			$this->_bundle_aux_images($job);
+		}
+
+	}
+
+	private function _queue_pages(array &$job) {
+
+		return array_keys($job['bookData']['pages']);
+
+	}
+
+	/**
+	 * Render one page to <slug>/index.html, and its metadata page.
+	 *
+	 * The home page lives at the export root rather than in a directory of its own, so it sits
+	 * one level shallower than every other page and its relative paths differ accordingly.
+	 */
+	private function _unit_pages(array &$job, $slug, $job_dir) {
+
+		$CI        =& get_instance();
+		$tmp_dir   = $job_dir . '/site';
+		$book_data =& $job['bookData'];
+		$book_url  = $job['baseUri'];
+		$page      = $book_data['pages'][$slug];
+
+		$is_root_page = ($slug === 'index');
+		$asset_root   = $is_root_page ? './' : self::_asset_root($slug);
+		$page_dir     = $tmp_dir . '/' . $slug;
+		$out_file     = $is_root_page ? $tmp_dir . '/index.html' : $page_dir . '/index.html';
+
+		if (!$is_root_page && !is_dir($page_dir) && !mkdir($page_dir, 0755, true)) {
+			$job['errors'][$slug] = 'Could not create directory: ' . $page_dir;
+			return;
+		}
+
+		$render_page         = $page;
+		$render_page['body'] = $this->_rewrite_links($page['body'], $book_data['media'], $book_url, $asset_root);
+
+		$html = $this->_render_content_view($CI, $render_page, $book_data, $asset_root, $book_url, $slug, $job['errors']);
+		if ($html === null) return;
+
+		if (file_put_contents($out_file, $html) === false) {
+			$job['errors'][$slug] = 'Could not write: ' . $out_file;
+			return;
+		}
+
+		$job['rendered'][] = $slug;
+		if ($is_root_page) $job['wroteRootIndex'] = true;
+
+		// The .meta page is always a depth-1 sibling directory ('<slug>.meta/'), so it is
+		// rendered with '../' even for the home page. It ignores the body passed in here —
+		// _write_meta_page() substitutes a metadata table of its own.
+		$this->_write_meta_page($CI, $render_page, $book_data, $tmp_dir, $book_url, $slug, $job['errors']);
+
+	}
+
+	private function _queue_media_pages(array &$job) {
+
+		return array_keys($job['bookData']['media']);
+
+	}
+
+	/**
+	 * Render one media item's own permalink page (<slug>/index.html). The current-page media
+	 * embed is generated entirely client-side (scalarpage.jquery.js, gated on
+	 * typeof="scalar:Media" — see page.php) once the node's RDFa carries its source URL.
+	 */
+	private function _unit_media_pages(array &$job, $slug, $job_dir) {
+
+		$CI        =& get_instance();
+		$tmp_dir   = $job_dir . '/site';
+		$book_data =& $job['bookData'];
+		$book_url  = $job['baseUri'];
+		$item      = $book_data['media'][$slug];
+		$page_dir  = $tmp_dir . '/' . $slug;
+
+		if (!is_dir($page_dir) && !mkdir($page_dir, 0755, true)) {
+			$job['errors'][$slug] = 'Could not create directory: ' . $page_dir;
+			return;
+		}
+
+		// Media items carry body copy too (see _normalize_media), so they need the same link
+		// rewriting pages do.
+		$render_item         = $item;
+		$render_item['body'] = $this->_rewrite_links(
+			isset($item['body']) ? $item['body'] : '',
+			$book_data['media'], $book_url, self::_asset_root($slug)
+		);
+
+		$html = $this->_render_content_view($CI, $render_item, $book_data, self::_asset_root($slug), $book_url, $slug, $job['errors']);
+		if ($html === null) return;
+
+		if (file_put_contents($page_dir . '/index.html', $html) === false) {
+			$job['errors'][$slug] = 'Could not write: ' . $page_dir . '/index.html';
+			return;
+		}
+
+		$job['rendered'][] = $slug;
+
+		$this->_write_meta_page($CI, $render_item, $book_data, $tmp_dir, $book_url, $slug, $job['errors']);
+
+	}
+
+	/** Everything that isn't a page of the book, one unit each. */
+	private function _queue_site(array &$job) {
+
+		return array('lens browser', 'home page', 'static data', 'scripts', 'assets', 'manifest and readme', 'sitemap');
+
+	}
+
+	private function _unit_site(array &$job, $what, $job_dir) {
+
+		$CI        =& get_instance();
+		$tmp_dir   = $job_dir . '/site';
+		$book_data =& $job['bookData'];
+		$book_url  = $job['baseUri'];
+		$options   = $job['options'];
+		$errors    =& $job['errors'];
+
+		switch ($what) {
+
+			// The book's lens browser, which is chrome rather than content.
+			case 'lens browser':
+				$this->_write_lens_browser_page($CI, $book_data, $tmp_dir, $book_url, $errors);
+				break;
+
+			// A book with an 'index' page wrote <tmp_dir>/index.html in the pages phase. Without
+			// one, stand in a meta-refresh redirect to the first TOC page so the export root
+			// still lands somewhere.
+			case 'home page':
+				if ($job['wroteRootIndex']) break;
+				$first_slug = !empty($book_data['toc']) ? $book_data['toc'][0] : null;
+				if (!$first_slug) break;
 				$index_html = '<!DOCTYPE html><html><head>'
 					. '<meta http-equiv="refresh" content="0; url=' . htmlspecialchars($first_slug) . '/" />'
 					. '<title>' . htmlspecialchars(strip_tags($book_data['meta']['title'])) . '</title>'
 					. '</head><body></body></html>';
-
 				if (file_put_contents($tmp_dir . '/index.html', $index_html) === false) {
 					$errors['index.html'] = 'Could not write root index.html';
 				}
+				break;
+
+			// The baked server data the bridge answers API calls from, and the site owner's
+			// settings, which page.php loads just before the bridge.
+			case 'static data':
+				$this->_write_static_data($tmp_dir, $book_data, $book_url, $errors);
+				$this->_write_static_config($tmp_dir, $options, $errors);
+				break;
+
+			// The API intercept bridge script that all pages reference, and the Leaflet stand-in
+			// for Google Maps that the bridge loads in its place when there's no key.
+			case 'scripts':
+				$bridge_js = $CI->load->view('static_export/bridge', array(), true);
+				if (file_put_contents($tmp_dir . '/scalar-static-bridge.js', $bridge_js) === false) {
+					$errors['scalar-static-bridge.js'] = 'Could not write scalar-static-bridge.js';
+				}
+				$maps_js = $CI->load->view('static_export/maps', array(), true);
+				if (file_put_contents($tmp_dir . '/scalar-static-maps.js', $maps_js) === false) {
+					$errors['scalar-static-maps.js'] = 'Could not write scalar-static-maps.js';
+				}
+				break;
+
+			case 'assets':
+				$this->_copy_assets($tmp_dir, $errors);
+				break;
+
+			// Both writers describe the same export, so the two summaries are built once here and
+			// handed to each — a README that disagreed with the manifest it points the reader at
+			// would be worse than either alone.
+			case 'manifest and readme':
+				$maps  = $this->_map_usage($book_data, $options);
+				$media = $this->_media_usage($book_data, $errors);
+				$this->_write_manifest($tmp_dir, $book_data, $maps, $media, $errors);
+				$this->_write_readme($tmp_dir, $book_data, $maps, $media, $options, $errors);
+				$this->_write_404_page($tmp_dir, $book_data, $options, $errors);
+				$job['result'] = array(
+					// Size of the one file every page loads at boot. Worth watching: it holds the
+					// whole book's graph and, since content filters need it, the whole book's prose
+					// as well (see _build_search_text). Reported rather than capped — a book big
+					// enough for this to matter is a judgement call, not an error.
+					'dataBytes' => file_exists($tmp_dir . '/scalar-static-data.js')
+						? filesize($tmp_dir . '/scalar-static-data.js') : 0,
+					'maps'      => $maps,
+				);
+				break;
+
+			// Opt-in, and off unless the author asked: an export that quietly invited crawlers
+			// would be a surprise, and plenty of books are shared with a seminar rather than the
+			// world. Needs the site's address, because a sitemap's <loc> has to be absolute.
+			case 'sitemap':
+				if (!empty($options['searchEngines']) && !empty($options['siteUrl'])) {
+					$this->_write_sitemap($tmp_dir, $book_data, $job['rendered'], $options, $errors);
+				}
+				break;
+
+		}
+
+	}
+
+	/**
+	 * Every file the archive will hold: the site as written, plus the media bundled from where
+	 * Scalar keeps it. One unit per file, then one to finish the archive. Everything sits under
+	 * a single top-level folder named for the book, so that unzipping yields one directory
+	 * rather than scattering a few thousand files into whatever the reader had open — that
+	 * folder is what the export's README means by "upload the whole folder".
+	 */
+	private function _queue_zip(array &$job, $job_dir) {
+
+		$folder = $job['slug'];
+		$units  = array();
+
+		$add_tree = function ($dir, $prefix, $skip_php) use (&$units) {
+			if (!is_dir($dir)) return;
+			$it = new RecursiveIteratorIterator(
+				new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS)
+			);
+			foreach ($it as $file) {
+				if (!$file->isFile()) continue;
+				if ($skip_php && strtolower($file->getExtension()) === 'php') continue;
+				$units[] = array(
+					'name' => $prefix . str_replace(DIRECTORY_SEPARATOR, '/', $it->getSubPathName()),
+					'src'  => $file->getPathname(),
+				);
 			}
+		};
+
+		$add_tree($job_dir . '/site', $folder . '/', false);
+		foreach ($job['bundle'] as $path => $src) {
+			$units[] = array('name' => $folder . '/' . $path, 'src' => $src);
+		}
+		// Tile pyramids are a source directory: skip any .php in them, as copying them did.
+		foreach ($job['bundleDirs'] as $path => $src) {
+			$add_tree($src, $folder . '/' . $path . '/', true);
 		}
 
-		// Write the baked server data the bridge answers API calls from, then the bridge
-		// itself. Order matters only for readability — page.php loads the data file first.
-		$this->_write_static_data($tmp_dir, $book_data, $book_url, $errors);
+		$units[] = array('name' => 'finishing the archive', 'finish' => true);
+		return $units;
 
-		// The site owner's settings, which page.php loads just before the bridge.
-		$this->_write_static_config($tmp_dir, $options, $errors);
+	}
 
-		// Write the API intercept bridge script that all pages reference, and the Leaflet
-		// stand-in for Google Maps that the bridge loads in its place when there's no key.
-		$bridge_js = $CI->load->view('static_export/bridge', array(), true);
-		if (file_put_contents($tmp_dir . '/scalar-static-bridge.js', $bridge_js) === false) {
-			$errors['scalar-static-bridge.js'] = 'Could not write scalar-static-bridge.js';
-		}
-		$maps_js = $CI->load->view('static_export/maps', array(), true);
-		if (file_put_contents($tmp_dir . '/scalar-static-maps.js', $maps_js) === false) {
-			$errors['scalar-static-maps.js'] = 'Could not write scalar-static-maps.js';
+	private function _unit_zip(array &$job, $unit, $job_dir) {
+
+		if (null === $this->_zip) {
+			require_once(APPPATH . 'libraries/Static_export_zip.php');
+			$this->_zip = new Static_export_zip($this->job_zip_path($job_dir, $job), $job['zip']);
 		}
 
-		$this->_copy_assets($tmp_dir, $errors);
-
-		// Both writers describe the same export, so the two summaries are built once here and
-		// handed to each, the way $maps already is — a README that disagreed with the manifest
-		// it points the reader at would be worse than either alone.
-		$maps  = $this->_map_usage($book_data, $options);
-		$media = $this->_media_usage($book_data, $errors);
-		$this->_write_manifest($tmp_dir, $book_data, $maps, $media, $errors);
-		$this->_write_readme($tmp_dir, $book_data, $maps, $media, $options, $errors);
-		$this->_write_404_page($tmp_dir, $book_data, $options, $errors);
-
-		// Opt-in, and off unless the author asked: an export that quietly invited crawlers
-		// would be a surprise, and plenty of books are shared with a seminar rather than the
-		// world. Needs the site's address, because a sitemap's <loc> has to be absolute.
-		if (!empty($options['searchEngines']) && !empty($options['siteUrl'])) {
-			$this->_write_sitemap($tmp_dir, $book_data, $rendered, $options, $errors);
+		if (!empty($unit['finish'])) {
+			if (!$this->_zip->finish()) {
+				$job['failed'] = 'The site was built but could not be packaged into a ZIP file.';
+			}
+			$this->_zip = null;
+			return;
 		}
 
-		return array(
-			'rendered' => $rendered,
-			'skipped'  => $skipped,
-			'errors'   => $errors,
-			// Size of the one file every page loads at boot. Worth watching: it holds the whole
-			// book's graph and, since content filters need it, the whole book's prose as well
-			// (see _build_search_text). Reported rather than capped — a book big enough for this
-			// to matter is a judgement call, not an error.
-			'dataBytes' => file_exists($tmp_dir . '/scalar-static-data.js')
-				? filesize($tmp_dir . '/scalar-static-data.js') : 0,
-			'maps'     => $maps,
-		);
+		if (!$this->_zip->add_file($unit['src'], $unit['name'])) {
+			$job['errors']['zip:' . $unit['name']] = 'Could not add to the ZIP file';
+		}
+		$job['zip'] = $this->_zip->state();
 
 	}
 
@@ -703,7 +1196,11 @@ class Static_Export_Model extends MY_Model {
 			'scalarVersion'  => $scalar_version ?: '2.x',
 			'background'     => $background,
 			'backgroundUrl'  => abs_url($background, confirm_slash(base_url()) . confirm_slash($book->slug)),
-			'localBackground'=> null,   // populated by _copy_media_files()
+			'localBackground'=> null,   // populated by _bundle_aux_images()
+			// The book's custom CSS and JavaScript (Book Properties), which page.php writes into
+			// every page's <head> ahead of the page's own — see _custom_code().
+			'customStyle'    => isset($book->custom_style) ? (string) $book->custom_style : '',
+			'customScript'   => isset($book->custom_js) ? (string) $book->custom_js : '',
 		);
 
 	}
@@ -729,20 +1226,22 @@ class Static_Export_Model extends MY_Model {
 	}
 
 	/**
-	 * Bulk-fetch all live content rows and their most recent versions in two queries,
-	 * then sort into $pages and $media by content type.
+	 * Normalize a run of live content rows into $pages and $media by content type, with their
+	 * most recent versions fetched in one bulk query rather than N+1 per-item lookups.
 	 *
-	 * Using two queries (one for content, one bulk version fetch) rather than N+1
-	 * per-item version lookups.
+	 * Called for a chunk of the book's rows at a time (see _queue_content()), and appends in
+	 * the order given, so the result is in Page_model::get_all()'s order however it is chunked.
+	 *
+	 * @param array $content_rows  Rows from Page_model::get_all()
 	 */
-	private function _build_content($book_id, $base_uri, &$pages, &$media, &$people) {
+	private function _build_content(array $content_rows, $base_uri, &$pages, &$media, &$people) {
 
-		// 1. Every live content row with its current version.
-		$current = $this->_current_versions($book_id);
+		// 1. Each row with its current version.
+		$current = $this->_pair_versions($content_rows);
 
 		if (empty($current)) return;
 
-		// 2. Bulk-fetch ARC2 additional metadata for all those versions in one SPARQL query.
+		// 2. Bulk-fetch ARC2 additional metadata for all those versions.
 		$version_ids = array();
 		foreach ($current as $pair) {
 			$version_ids[] = $pair[0]->recent_version_id;
@@ -802,7 +1301,18 @@ class Static_Export_Model extends MY_Model {
 	private function _current_versions($book_id) {
 
 		$content_rows = $this->pages->get_all($book_id, null, null, true);
-		if (empty($content_rows)) return array();
+		return empty($content_rows) ? array() : $this->_pair_versions($content_rows);
+
+	}
+
+	/**
+	 * The given content rows paired with their current versions, fetched in one query. Rows
+	 * with no version yet are left out.
+	 *
+	 * @param  array $content_rows
+	 * @return array list of array(content row, version row)
+	 */
+	private function _pair_versions(array $content_rows) {
 
 		$version_ids = array();
 		foreach ($content_rows as $row) {
@@ -840,41 +1350,36 @@ class Static_Export_Model extends MY_Model {
 	 * the direction the reader needs: ScalarVersion.parseRelations() builds the relation from
 	 * dcterms:references on the referencing version, and derives the inverse itself.
 	 *
-	 * @param  int    $book_id
+	 * Called once per referencing item (see _queue_references()). As with paths and tags,
+	 * MY_Model::get_all() on a relationship table returns the *parent* content rows — here, the
+	 * items doing the referencing — with content.* fields, so recent_version_id is present.
+	 *
+	 * @param  object $parent  Row from Reference_model::get_all()
 	 * @param  array  &$pages  book_data['pages']; mutated
 	 * @param  array  &$media  book_data['media']; mutated
 	 */
-	private function _build_references($book_id, &$pages, &$media) {
+	private function _build_reference($parent, &$pages, &$media) {
 
-		// As with paths and tags, MY_Model::get_all() on a relationship table returns the
-		// *parent* content rows — here, the items doing the referencing — with content.*
-		// fields, so recent_version_id is present.
-		$parent_rows = $this->references->get_all($book_id);
+		if (empty($parent->recent_version_id)) return;
 
-		foreach ($parent_rows as $parent) {
+		$children = $this->references->get_children($parent->recent_version_id, null, null, true);
+		if (empty($children)) return;
 
-			if (empty($parent->recent_version_id)) continue;
+		// A page can reference the same item more than once — embed a media file twice,
+		// or link it and then annotate it. One relation per pair is all the model wants.
+		$slugs = array();
+		foreach ($children as $child) {
+			if (empty($child->child_content_slug)) continue;
+			$slugs[$child->child_content_slug] = true;
+		}
 
-			$children = $this->references->get_children($parent->recent_version_id, null, null, true);
-			if (empty($children)) continue;
+		$slugs = array_keys($slugs);
+		if (empty($slugs)) return;
 
-			// A page can reference the same item more than once — embed a media file twice,
-			// or link it and then annotate it. One relation per pair is all the model wants.
-			$slugs = array();
-			foreach ($children as $child) {
-				if (empty($child->child_content_slug)) continue;
-				$slugs[$child->child_content_slug] = true;
-			}
-
-			$slugs = array_keys($slugs);
-			if (empty($slugs)) continue;
-
-			if (isset($pages[$parent->slug])) {
-				$pages[$parent->slug]['references'] = $slugs;
-			} elseif (isset($media[$parent->slug])) {
-				$media[$parent->slug]['references'] = $slugs;
-			}
-
+		if (isset($pages[$parent->slug])) {
+			$pages[$parent->slug]['references'] = $slugs;
+		} elseif (isset($media[$parent->slug])) {
+			$media[$parent->slug]['references'] = $slugs;
 		}
 
 	}
@@ -1020,7 +1525,7 @@ class Static_Export_Model extends MY_Model {
 		);
 		// The passage that cites other content, which the media Citations dialog quotes. See
 		// _build_excerpts() for why this is an excerpt rather than the whole body — and
-		// _build_comments() for the one kind of page where it is the whole body, because the
+		// _build_comment() for the one kind of page where it is the whole body, because the
 		// comments dialog renders a comment out of this field.
 		if (!empty($item['excerpt'])) $version['http://rdfs.org/sioc/ns#content'] = $lit($item['excerpt']);
 		// Who last revised the item. Read as version.author by the comments dialog (for the
@@ -1370,114 +1875,112 @@ class Static_Export_Model extends MY_Model {
 	}
 
 	/**
-	 * Build the paths collection.
-	 * Each path page also appears in $pages (already added by _build_content).
+	 * Add one path to the paths collection (see _queue_paths()). The path page also appears in
+	 * $pages, added by _build_content().
+	 *
+	 * Each path costs a version lookup with its ARC additional metadata, which is the slow
+	 * part — about 70 ms a path on a busy shared installation — and why they are a unit apiece.
+	 *
+	 * @param object $path  Row from Path_model::get_all(): the path's content row (via the
+	 *                      parent_version_id JOIN) with content.* fields, recent_version_id
+	 *                      included
 	 */
-	private function _build_paths($book_id, $base_uri, &$paths) {
+	private function _build_path($path, $base_uri, &$paths) {
 
-		$path_rows = $this->paths->get_all($book_id);
+		if (empty($path->recent_version_id)) return;
 
-		foreach ($path_rows as $path) {
-			// MY_Model::get_all returns the path's content row (via parent_version_id
-			// JOIN) with content.* fields. recent_version_id is present on the row.
-			if (empty($path->recent_version_id)) continue;
+		$version  = $this->versions->get_single(
+			$path->content_id,
+			$path->recent_version_id,
+			'',
+			true    // include ARC additional metadata
+		);
+		if (empty($version)) return;
 
-			$version  = $this->versions->get_single(
-				$path->content_id,
-				$path->recent_version_id,
-				'',
-				true    // include ARC additional metadata
-			);
-			if (empty($version)) continue;
+		$children = $this->paths->get_children(
+			$path->recent_version_id,
+			$this->paths_table . '.sort_number',
+			'asc'
+		);
 
-			$children = $this->paths->get_children(
-				$path->recent_version_id,
-				$this->paths_table . '.sort_number',
-				'asc'
-			);
-
-			$child_slugs = array();
-			foreach ($children as $child) {
-				$child_slugs[] = $child->child_content_slug;
-			}
-
-			$paths[$path->slug] = array(
-				'url'                => $base_uri . $path->slug,
-				'slug'               => $path->slug,
-				'title'              => $version->title,
-				'children'           => $child_slugs,
-				'additionalMetadata' => !empty($version->rdf) ? $this->_clean_arc_meta($version->rdf) : array(),
-			);
+		$child_slugs = array();
+		foreach ($children as $child) {
+			$child_slugs[] = $child->child_content_slug;
 		}
+
+		$paths[$path->slug] = array(
+			'url'                => $base_uri . $path->slug,
+			'slug'               => $path->slug,
+			'title'              => $version->title,
+			'children'           => $child_slugs,
+			'additionalMetadata' => !empty($version->rdf) ? $this->_clean_arc_meta($version->rdf) : array(),
+		);
 
 	}
 
 	/**
-	 * Build the tags collection.
-	 * Each tag page also appears in $pages (already added by _build_content).
+	 * Add one tag to the tags collection (see _queue_tags()). The tag page also appears in
+	 * $pages, added by _build_content(). Costs a version lookup, like _build_path().
+	 *
+	 * @param object $tag  Row from Tag_model::get_all()
 	 */
-	private function _build_tags($book_id, $base_uri, &$tags) {
+	private function _build_tag($tag, $base_uri, &$tags) {
 
-		$tag_rows = $this->tags->get_all($book_id);
+		if (empty($tag->recent_version_id)) return;
 
-		foreach ($tag_rows as $tag) {
-			if (empty($tag->recent_version_id)) continue;
+		$version = $this->versions->get_single(
+			$tag->content_id,
+			$tag->recent_version_id,
+			'',
+			true    // include ARC additional metadata
+		);
+		if (empty($version)) return;
 
-			$version = $this->versions->get_single(
-				$tag->content_id,
-				$tag->recent_version_id,
-				'',
-				true    // include ARC additional metadata
-			);
-			if (empty($version)) continue;
+		$tagged_rows = $this->tags->get_children($tag->recent_version_id);
 
-			$tagged_rows = $this->tags->get_children($tag->recent_version_id);
-
-			$tagged_slugs = array();
-			foreach ($tagged_rows as $tagged) {
-				$tagged_slugs[] = $tagged->child_content_slug;
-			}
-
-			$tags[$tag->slug] = array(
-				'url'                => $base_uri . $tag->slug,
-				'slug'               => $tag->slug,
-				'title'              => $version->title,
-				'tagged'             => $tagged_slugs,
-				'additionalMetadata' => !empty($version->rdf) ? $this->_clean_arc_meta($version->rdf) : array(),
-			);
+		$tagged_slugs = array();
+		foreach ($tagged_rows as $tagged) {
+			$tagged_slugs[] = $tagged->child_content_slug;
 		}
+
+		$tags[$tag->slug] = array(
+			'url'                => $base_uri . $tag->slug,
+			'slug'               => $tag->slug,
+			'title'              => $version->title,
+			'tagged'             => $tagged_slugs,
+			'additionalMetadata' => !empty($version->rdf) ? $this->_clean_arc_meta($version->rdf) : array(),
+		);
 
 	}
 
 	/**
-	 * Build the annotations collection and backfill media[slug]['annotations'].
+	 * Add one annotation body's annotations to the collection, and backfill
+	 * media[slug]['annotations'] (see _queue_annotations()).
 	 *
 	 * In rel_annotated: parent_version_id = annotation body, child_version_id = media target.
 	 * MY_Model::get_all() returns one row per unique annotation-body content node.
 	 * get_children() then returns the media targets (with offset fields) for each body.
+	 *
+	 * @param object $body  Row from Annotation_model::get_all()
 	 */
-	private function _build_annotations($book_id, &$media, &$annotations) {
+	private function _build_annotation($body, &$media, &$annotations) {
 
-		$body_rows = $this->annotations->get_all($book_id);
+		if (empty($body->recent_version_id)) return;
 
-		foreach ($body_rows as $body) {
-			if (empty($body->recent_version_id)) continue;
+		// Each child is a media target with offset fields from rel_annotated.
+		$targets = $this->annotations->get_children($body->recent_version_id);
 
-			// Each child is a media target with offset fields from rel_annotated.
-			$targets = $this->annotations->get_children($body->recent_version_id);
+		foreach ($targets as $target) {
+			$anno_id = $target->urn;  // urn:scalar:anno:pvid:cvid:hash
+			$annotations[$anno_id] = $this->_normalize_annotation(
+				$target,
+				$target->child_content_slug,
+				$body->slug
+			);
 
-			foreach ($targets as $target) {
-				$anno_id = $target->urn;  // urn:scalar:anno:pvid:cvid:hash
-				$annotations[$anno_id] = $this->_normalize_annotation(
-					$target,
-					$target->child_content_slug,
-					$body->slug
-				);
-
-				// Backfill onto the media entry if it exists.
-				if (isset($media[$target->child_content_slug])) {
-					$media[$target->child_content_slug]['annotations'][] = $anno_id;
-				}
+			// Backfill onto the media entry if it exists.
+			if (isset($media[$target->child_content_slug])) {
+				$media[$target->child_content_slug]['annotations'][] = $anno_id;
 			}
 		}
 
@@ -1517,44 +2020,40 @@ class Static_Export_Model extends MY_Model {
 	 *               entry that way. The author the dialog prints beside it is not set here —
 	 *               _build_content() attributes every item in the book, comments included.
 	 *
-	 * @param  int    $book_id
+	 * Called once per comment (see _queue_comments()).
+	 *
+	 * @param  object $body       Row from Reply_model::get_all(): the comment's content row
 	 * @param  array  &$pages     book_data['pages']; comment entries gain 'excerpt'/'isComment'
 	 * @param  array  &$comments  filled with urn => ['id','bodySlug','targetSlug','datetime',…]
 	 */
-	private function _build_comments($book_id, &$pages, &$comments) {
+	private function _build_comment($body, &$pages, &$comments) {
 
-		$body_rows = $this->replies->get_all($book_id);
+		if (empty($body->recent_version_id)) return;
 
-		foreach ($body_rows as $body) {
-
-			if (empty($body->recent_version_id)) continue;
-
-			if (isset($pages[$body->slug])) {
-				$pages[$body->slug]['isComment'] = true;
-				if (!empty($pages[$body->slug]['body'])) {
-					$pages[$body->slug]['excerpt'] = $pages[$body->slug]['body'];
-				}
+		if (isset($pages[$body->slug])) {
+			$pages[$body->slug]['isComment'] = true;
+			if (!empty($pages[$body->slug]['body'])) {
+				$pages[$body->slug]['excerpt'] = $pages[$body->slug]['body'];
 			}
+		}
 
-			$targets = $this->replies->get_children($body->recent_version_id);
+		$targets = $this->replies->get_children($body->recent_version_id);
 
-			foreach ($targets as $target) {
+		foreach ($targets as $target) {
 
-				if (empty($target->child_content_slug)) continue;
+			if (empty($target->child_content_slug)) continue;
 
-				// urn:scalar:reply:<comment version>:<target version>:<datetime>, built by
-				// Reply_model::urn() — the same identifier the live API gives the relation.
-				$comments[$target->urn] = array(
-					'id'           => $target->urn,
-					'bodySlug'     => $body->slug,
-					'targetSlug'   => $target->child_content_slug,
-					// Carried on the relation rather than on the comment, exactly as Scalar
-					// stores it, and what the dialog sorts by and prints under each comment.
-					'datetime'     => !empty($target->datetime) ? rdf_timestamp($target->datetime) : '',
-					'paragraphNum' => (int) $target->paragraph_num,
-				);
-
-			}
+			// urn:scalar:reply:<comment version>:<target version>:<datetime>, built by
+			// Reply_model::urn() — the same identifier the live API gives the relation.
+			$comments[$target->urn] = array(
+				'id'           => $target->urn,
+				'bodySlug'     => $body->slug,
+				'targetSlug'   => $target->child_content_slug,
+				// Carried on the relation rather than on the comment, exactly as Scalar
+				// stores it, and what the dialog sorts by and prints under each comment.
+				'datetime'     => !empty($target->datetime) ? rdf_timestamp($target->datetime) : '',
+				'paragraphNum' => (int) $target->paragraph_num,
+			);
 
 		}
 
@@ -1758,9 +2257,30 @@ class Static_Export_Model extends MY_Model {
 			// "Scalar URL (version N)" metadata-table row read correctly and gives readers a
 			// sense of how much a page was revised, without exporting the revision history itself.
 			'versionNumber'      => isset($version->version_num) ? (int) $version->version_num : null,
-			'references'         => array(),   // populated by _build_references()
+			'references'         => array(),   // populated by _build_reference()
 			'additionalMetadata' => $arc_meta,
-		) + $this->_aux_images($content, $base_uri);   // thumbnail / banner / background
+		) + $this->_custom_code($content)
+		  + $this->_aux_images($content, $base_uri);   // thumbnail / banner / background
+
+	}
+
+	/**
+	 * A content item's own custom CSS and JavaScript, which Scalar stores on the content row
+	 * (not the version) and page.php writes into the item's <head>, after the book's.
+	 *
+	 * The live wrapper.php has a third source between the book's and the page's: those of the
+	 * path the reader arrived by. It reads them from has_paths[requested_path_index], which
+	 * nothing in Scalar sets, so on the live site they never apply either; the export matches.
+	 *
+	 * @param  object $content  Content row
+	 * @return array  ['customStyle' => string, 'customScript' => string]
+	 */
+	private function _custom_code($content) {
+
+		return array(
+			'customStyle'  => isset($content->custom_style) ? (string) $content->custom_style : '',
+			'customScript' => isset($content->custom_scripts) ? (string) $content->custom_scripts : '',
+		);
 
 	}
 
@@ -1787,15 +2307,16 @@ class Static_Export_Model extends MY_Model {
 			'body'               => $version->content,
 			'mediaType'          => $this->_classify_media_type($version),
 			'sourceUrl'          => abs_url($raw_url, $base_uri),
-			'localPath'          => null,   // populated by _copy_media_files() for self-hosted media
+			'localPath'          => null,   // populated by _bundle_media_item() for self-hosted media
 			'isExternal'         => $is_external,
 			'rawUrl'             => $is_external ? null : $raw_url,   // storage-relative; used only to locate the file on disk
 			'created'            => !empty($version->created) ? date('c', strtotime($version->created)) : null,
 			'versionNumber'      => isset($version->version_num) ? (int) $version->version_num : null,
 			'annotations'        => array(),
-			'references'         => array(),   // populated by _build_references()
+			'references'         => array(),   // populated by _build_reference()
 			'additionalMetadata' => $arc_meta,
-		) + $this->_aux_images($content, $base_uri);   // thumbnail / banner / background
+		) + $this->_custom_code($content)
+		  + $this->_aux_images($content, $base_uri);   // thumbnail / banner / background
 
 	}
 
@@ -1807,7 +2328,7 @@ class Static_Export_Model extends MY_Model {
 	 *                    URL for one hosted elsewhere. Only used to find the file on disk.
 	 *   <field>Url       the live absolute address, to fall back on when bundling didn't happen.
 	 *   local<Field>     the bundled copy, relative to the export root; filled in by
-	 *                    _copy_media_files().
+	 *                    _bundle_aux_images().
 	 *
 	 * Scalar stores all three on the content row rather than the version, so pages carry them
 	 * as well as media items — a page's banner drives the splash and image-header layouts, and
@@ -1843,7 +2364,7 @@ class Static_Export_Model extends MY_Model {
 	 * itself, so its prefix is './'.
 	 *
 	 * The home page is the exception: it is written to <export-root>/index.html with no
-	 * directory of its own (see render_book()), so links to the 'index' slug resolve to
+	 * directory of its own (see _unit_pages()), so links to the 'index' slug resolve to
 	 * that file rather than to an 'index/' directory.
 	 *
 	 * Inline media links (<a href="[sourceFile]" resource="[slug]">, written by Scalar's
@@ -1924,7 +2445,7 @@ class Static_Export_Model extends MY_Model {
 
 	/**
 	 * The export-root-relative target for a page slug: '<slug>/' for the usual
-	 * <slug>/index.html layout, but 'index.html' for the home page, which render_book()
+	 * <slug>/index.html layout, but 'index.html' for the home page, which _unit_pages()
 	 * writes to the export root without a directory of its own. An empty slug (a link to
 	 * the book root) resolves to the same place.
 	 *
@@ -1953,7 +2474,7 @@ class Static_Export_Model extends MY_Model {
 	 * of the export root — at media/system/application/... rather than system/application/...
 	 * — so media permalink and .meta pages loaded no CSS and no JS at all.
 	 *
-	 * The home page is the one page this does not describe: render_book() writes it to the
+	 * The home page is the one page this does not describe: _unit_pages() writes it to the
 	 * export root itself rather than into a directory, so it passes './' directly.
 	 *
 	 * @param  string $slug  Page or media slug, e.g. 'introduction' or 'media/cover-art'
@@ -1967,7 +2488,7 @@ class Static_Export_Model extends MY_Model {
 
 	/**
 	 * Where one of a content item's auxiliary images lives, as seen from a page rendered with
-	 * $asset_root: the bundled copy when _copy_media_files() managed to make one, otherwise the
+	 * $asset_root: the bundled copy when _bundle_media_item() managed to make one, otherwise the
 	 * live absolute URL so the image degrades to a remote fetch rather than a broken link (the
 	 * fail-gracefully rule in docs/media-strategy.md). Null when the item has no such image.
 	 *
@@ -2261,125 +2782,111 @@ class Static_Export_Model extends MY_Model {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Copy self-hosted media files into the export, and set each copied item's 'localPath'
-	 * (relative to the export root) so page rendering can link to the bundled copy instead
-	 * of the live server. Thumbnails are bundled the same way, into 'localThumbnail', for
-	 * every content item that has one — pages as well as media. Mutates $book_data['pages']
-	 * and $book_data['media'] in place.
+	 * Bundle one self-hosted media item into the export, and set its 'localPath' (relative to
+	 * the export root) so page rendering can link to the bundled copy instead of the live
+	 * server. Mutates $job['bookData']['media'] in place. See _bundle_aux_images() for
+	 * thumbnails, banners and backgrounds.
 	 *
-	 * Each file is written to <tmp_dir>/<slug>.<ext> — i.e. it mirrors the slug's own path
-	 * exactly the way render_book() already does for that item's own permalink directory
-	 * (<tmp_dir>/<slug>/index.html). This matters because Scalar's media slugs commonly
-	 * carry their own 'media/' segment already (e.g. slug 'media/foo'), so a fixed
-	 * '<tmp_dir>/media/' bucket would double up into '<tmp_dir>/media/media/foo.jpg' for
-	 * those items; mirroring the slug avoids assuming any particular slug convention.
-	 * A permalink directory and its bundled file for the same slug never collide: the
-	 * directory is exactly <slug>, the file is always <slug>.<ext> (extensionless sources
-	 * fall back to '.bin' so the file path can never equal the bare slug path).
+	 * "Bundle" rather than "copy": the file is recorded in $job['bundle'] and added to the ZIP
+	 * straight from where Scalar keeps it (see _queue_zip()), not copied into the job's site/
+	 * first. For a book with gigabytes of media that halves the disk the export needs and
+	 * removes the slowest step. Self-hosted files live on the same filesystem this code is
+	 * running on — Scalar's filesystem storage adapter resolves them to
+	 * FCPATH/<book-slug>/<raw-url> (see Scalar_Storage_Adapter_Filesystem::_getAbsPath()).
 	 *
-	 * Self-hosted files live on the same filesystem this code is running on — Scalar's
-	 * filesystem storage adapter resolves them to FCPATH/<book-slug>/<raw-url> (see
-	 * Scalar_Storage_Adapter_Filesystem::_getAbsPath()) — so this is a local copy(),
-	 * not a network fetch; no rate limiting is needed.
+	 * Each file lands at <slug>.<ext> — i.e. it mirrors the slug's own path exactly the way the
+	 * item's permalink directory does (<slug>/index.html). This matters because Scalar's media
+	 * slugs commonly carry their own 'media/' segment already (e.g. slug 'media/foo'), so a
+	 * fixed 'media/' bucket would double up into 'media/media/foo.jpg' for those items;
+	 * mirroring the slug avoids assuming any particular slug convention. A permalink directory
+	 * and its bundled file for the same slug never collide: the directory is exactly <slug>,
+	 * the file is always <slug>.<ext> (extensionless sources fall back to '.bin' so the file
+	 * path can never equal the bare slug path).
 	 *
-	 * Failures (missing source file, copy() failure) are recorded in $errors and leave
-	 * 'localPath' null; the affected item's sourceUrl (the live absolute URL) is used as
-	 * a fallback wherever it's linked, per docs/media-strategy.md's fail-gracefully rule.
+	 * A missing source file is recorded in the job's errors and leaves 'localPath' null; the
+	 * item's sourceUrl (the live absolute URL) is used as a fallback wherever it's linked, per
+	 * docs/media-strategy.md's fail-gracefully rule.
 	 *
-	 * @param  array  &$book_data  Full normalized structure from get_book_data(); mutated.
-	 * @param  string $tmp_dir     Absolute path to the export temp directory (no trailing slash)
-	 * @param  array  &$errors     Errors array from render_book(); populated on failure
-	 * @return array               ['filesCopied' => int, 'bytesCopied' => int] — media and
-	 *                             thumbnails together, which is what the size warning measures
+	 * @param array  &$job
+	 * @param string $slug  A key of $job['bookData']['media']
 	 */
-	private function _copy_media_files(&$book_data, $tmp_dir, &$errors) {
+	private function _bundle_media_item(array &$job, $slug) {
 
-		$files_copied = 0;
-		$bytes_copied = 0;
+		$item =& $job['bookData']['media'][$slug];
+		if (!empty($item['isExternal']) || empty($item['rawUrl'])) return;
 
-		$book_slug = $book_data['meta']['slug'];
-		$src_base  = rtrim(FCPATH, '/') . '/' . $book_slug . '/';
+		$src_base = rtrim(FCPATH, '/') . '/' . $job['slug'] . '/';
+		$src      = $src_base . $item['rawUrl'];
 
-		foreach ($book_data['media'] as $slug => &$item) {
-
-			if (!empty($item['isExternal']) || empty($item['rawUrl'])) continue;
-
-			$src = $src_base . $item['rawUrl'];
-
-			if (!is_file($src)) {
-				$errors['media:' . $slug] = 'Source media file not found on disk: ' . $item['rawUrl'];
-				continue;
-			}
-
-			$ext       = pathinfo($item['rawUrl'], PATHINFO_EXTENSION);
-			$local_path = $slug . '.' . ($ext !== '' ? $ext : 'bin');
-			$dest       = $tmp_dir . '/' . $local_path;
-			$dest_dir   = dirname($dest);
-
-			if (!is_dir($dest_dir) && !mkdir($dest_dir, 0755, true)) {
-				$errors['media:' . $slug] = 'Could not create media directory';
-				continue;
-			}
-
-			if (copy($src, $dest)) {
-				$item['localPath'] = $local_path;
-				$bytes_copied      += filesize($dest);
-				$files_copied++;
-
-				// A tiled image is not one file. The .dzi copied above is a manifest naming a
-				// sibling pyramid directory — '<name>.dzi' alongside '<name>_files/' — that
-				// OpenSeadragon derives by swapping the extension, and which holds one image
-				// per tile per zoom level, often thousands of them. Copying the manifest alone
-				// produced a viewer that opened and then 404'd on everything it asked for.
-				//
-				// Named from the destination rather than the source so the pyramid lands beside
-				// the .dzi under the item's own slug, which is where the swapped-extension rule
-				// will look for it once the page is served.
-				if ('dzi' === strtolower($ext)) {
-					$tiles_src  = preg_replace('/\.dzi$/i', '_files', $src);
-					$tiles_dest = preg_replace('/\.dzi$/i', '_files', $dest);
-
-					if (!is_dir($tiles_src)) {
-						// The viewer will fall back to the absolute source URL for its tiles,
-						// so this degrades to how an external tiled image already behaves.
-						$errors['media:' . $slug] = 'Tiled image has no tile directory on disk: '
-						                          . basename($tiles_src);
-					} else {
-						$tile_count = $this->_copy_dir($tiles_src, $tiles_dest);
-						if (false === $tile_count) {
-							$errors['media:' . $slug] = 'Could not copy tile set for: ' . $item['rawUrl'];
-						} else {
-							$files_copied += $tile_count;
-							$bytes_copied += self::_dir_size($tiles_dest);
-						}
-					}
-				}
-			} else {
-				$errors['media:' . $slug] = 'Could not copy media file: ' . $item['rawUrl'];
-			}
-
+		if (!is_file($src)) {
+			$job['errors']['media:' . $slug] = 'Source media file not found on disk: ' . $item['rawUrl'];
+			return;
 		}
-		unset($item);
 
-		// Auxiliary images — thumbnails, banners and backgrounds. Not part of the loop above
-		// for two reasons: any content item can carry them, pages included (Scalar stores all
-		// three on the content row, not the version), and an item whose media lives on a
-		// third-party server can still have its own uploaded thumbnail — so locality has to be
-		// judged per file rather than per item.
+		$ext        = pathinfo($item['rawUrl'], PATHINFO_EXTENSION);
+		$local_path = $slug . '.' . ($ext !== '' ? $ext : 'bin');
+
+		$job['bundle'][$local_path] = $src;
+		$job['bundled']['files']++;
+		$job['bundled']['bytes'] += filesize($src);
+		$item['localPath'] = $local_path;
+
+		// A tiled image is not one file. The .dzi bundled above is a manifest naming a sibling
+		// pyramid directory — '<name>.dzi' alongside '<name>_files/' — that OpenSeadragon
+		// derives by swapping the extension, and which holds one image per tile per zoom
+		// level, often thousands of them. Bundling the manifest alone produced a viewer that
+		// opened and then 404'd on everything it asked for.
 		//
-		// Each lands at '<slug>.<suffix>.<ext>', mirroring the '<slug>.<ext>' convention above:
-		// that can collide with neither the item's permalink directory (exactly <slug>) nor its
-		// bundled media file, since none of the suffixes is a real file extension.
+		// Named from the destination rather than the source so the pyramid lands beside the
+		// .dzi under the item's own slug, which is where the swapped-extension rule will look
+		// for it once the page is served.
+		if ('dzi' === strtolower($ext)) {
+			$tiles_src = preg_replace('/\.dzi$/i', '_files', $src);
+
+			if (!is_dir($tiles_src)) {
+				// The viewer will fall back to the absolute source URL for its tiles, so this
+				// degrades to how an external tiled image already behaves.
+				$job['errors']['media:' . $slug] = 'Tiled image has no tile directory on disk: '
+				                                 . basename($tiles_src);
+			} else {
+				$job['bundleDirs'][preg_replace('/\.dzi$/i', '_files', $local_path)] = $tiles_src;
+				list($files, $bytes) = self::_dir_stats($tiles_src);
+				$job['bundled']['files'] += $files;
+				$job['bundled']['bytes'] += $bytes;
+			}
+		}
+
+	}
+
+	/**
+	 * Bundle the auxiliary images — thumbnails, banners and backgrounds — and then warn if the
+	 * bundled media as a whole is large. The last unit of the media phase.
+	 *
+	 * Not part of _bundle_media_item() for two reasons: any content item can carry them, pages
+	 * included (Scalar stores all three on the content row, not the version), and an item
+	 * whose media lives on a third-party server can still have its own uploaded thumbnail — so
+	 * locality has to be judged per file rather than per item.
+	 *
+	 * Each lands at '<slug>.<suffix>.<ext>', mirroring _bundle_media_item()'s '<slug>.<ext>':
+	 * that can collide with neither the item's permalink directory (exactly <slug>) nor its
+	 * bundled media file, since none of the suffixes is a real file extension.
+	 *
+	 * @param array &$job
+	 */
+	private function _bundle_aux_images(array &$job) {
+
+		$book_data =& $job['bookData'];
+		$src_base  = rtrim(FCPATH, '/') . '/' . $job['slug'] . '/';
+
 		$aux_images = array('thumbnail' => 'thumb', 'banner' => 'banner', 'background' => 'background');
 
 		foreach (array('pages', 'media') as $collection) {
 
 			foreach ($book_data[$collection] as $slug => &$item) {
 				foreach ($aux_images as $field => $suffix) {
-					$local_path = $this->_copy_aux_image(
+					$local_path = $this->_bundle_aux_image(
 						isset($item[$field]) ? $item[$field] : null,
-						$src_base, $tmp_dir, $slug . '.' . $suffix,
-						$field . ':' . $slug, $errors, $files_copied, $bytes_copied);
+						$src_base, $slug . '.' . $suffix, $field . ':' . $slug, $job);
 
 					if ($local_path !== null) $item['local' . ucfirst($field)] = $local_path;
 				}
@@ -2389,43 +2896,37 @@ class Static_Export_Model extends MY_Model {
 		}
 
 		// And the book's own background, the fallback for pages that set none.
-		$book_background = $this->_copy_aux_image(
+		$book_background = $this->_bundle_aux_image(
 			isset($book_data['meta']['background']) ? $book_data['meta']['background'] : null,
-			$src_base, $tmp_dir, 'book.background',
-			'background:book', $errors, $files_copied, $bytes_copied);
+			$src_base, 'book.background', 'background:book', $job);
 
 		if ($book_background !== null) $book_data['meta']['localBackground'] = $book_background;
 
-		if ($bytes_copied > self::MEDIA_SIZE_WARNING_BYTES) {
-			$errors['media:size-warning'] = sprintf(
+		if ($job['bundled']['bytes'] > self::MEDIA_SIZE_WARNING_BYTES) {
+			$job['errors']['media:size-warning'] = sprintf(
 				'Bundled media totals %.1f MB across %d file(s); this export may be slow to download and host.',
-				$bytes_copied / 1048576,
-				$files_copied
+				$job['bundled']['bytes'] / 1048576,
+				$job['bundled']['files']
 			);
 		}
-
-		return array('filesCopied' => $files_copied, 'bytesCopied' => $bytes_copied);
 
 	}
 
 	/**
-	 * Copy one auxiliary image (a thumbnail, banner or background) into the export and return
-	 * its path relative to the export root, or null if there was nothing to copy or the copy
-	 * failed. Failures are recorded in $errors and leave the caller's 'local…' field null, so
-	 * the live absolute URL is used instead — docs/media-strategy.md's fail-gracefully rule.
+	 * Bundle one auxiliary image (a thumbnail, banner or background) and return its path
+	 * relative to the export root, or null if there was nothing to bundle or its file is
+	 * missing. A missing file is recorded in the job's errors and leaves the caller's 'local…'
+	 * field null, so the live absolute URL is used instead — docs/media-strategy.md's
+	 * fail-gracefully rule.
 	 *
-	 * @param  string|null $raw           Raw stored value: storage-relative path, or a URL
-	 * @param  string      $src_base      Absolute path to the book's storage directory
-	 * @param  string      $tmp_dir       Export temp directory (no trailing slash)
-	 * @param  string      $dest_base     Destination path without extension, export-root-relative
-	 * @param  string      $error_key     Key to record failures under
-	 * @param  array       &$errors
-	 * @param  int         &$files_copied
-	 * @param  int         &$bytes_copied
+	 * @param  string|null $raw        Raw stored value: storage-relative path, or a URL
+	 * @param  string      $src_base   Absolute path to the book's storage directory
+	 * @param  string      $dest_base  Destination path without extension, export-root-relative
+	 * @param  string      $error_key  Key to record failures under
+	 * @param  array       &$job
 	 * @return string|null
 	 */
-	private function _copy_aux_image($raw, $src_base, $tmp_dir, $dest_base, $error_key,
-	                                 &$errors, &$files_copied, &$bytes_copied) {
+	private function _bundle_aux_image($raw, $src_base, $dest_base, $error_key, array &$job) {
 
 		$raw = trim((string) $raw);
 
@@ -2434,27 +2935,16 @@ class Static_Export_Model extends MY_Model {
 		$src = $src_base . $raw;
 
 		if (!is_file($src)) {
-			$errors[$error_key] = 'Image file not found on disk: ' . $raw;
+			$job['errors'][$error_key] = 'Image file not found on disk: ' . $raw;
 			return null;
 		}
 
 		$ext        = pathinfo($raw, PATHINFO_EXTENSION);
 		$local_path = $dest_base . '.' . ($ext !== '' ? $ext : 'bin');
-		$dest       = $tmp_dir . '/' . $local_path;
-		$dest_dir   = dirname($dest);
 
-		if (!is_dir($dest_dir) && !mkdir($dest_dir, 0755, true)) {
-			$errors[$error_key] = 'Could not create directory for: ' . $raw;
-			return null;
-		}
-
-		if (!copy($src, $dest)) {
-			$errors[$error_key] = 'Could not copy image file: ' . $raw;
-			return null;
-		}
-
-		$bytes_copied += filesize($dest);
-		$files_copied++;
+		$job['bundle'][$local_path] = $src;
+		$job['bundled']['files']++;
+		$job['bundled']['bytes'] += filesize($src);
 
 		return $local_path;
 
@@ -2471,7 +2961,7 @@ class Static_Export_Model extends MY_Model {
 	 * endpoint's own path (system/ontologies) would never be reachable anyway.
 	 *
 	 * @param  string $tmp_dir  Absolute path to the export temp directory (no trailing slash)
-	 * @param  array  &$errors  Errors array from render_book(); populated on failure
+	 * @param  array  &$errors  The job's errors array; populated on failure
 	 * @return bool             True if the file was written
 	 */
 	private function _write_static_data($tmp_dir, $book_data, $book_url, &$errors) {
@@ -2576,8 +3066,8 @@ class Static_Export_Model extends MY_Model {
 	 * it, and 'mapLayouts' the Google Map layout pages that draw it as a layer because it is on
 	 * their path or carries their tag (scalarpage.jquery.js's setupGoogleMapsLayout()).
 	 *
-	 * @param  array $book_data  Full normalized structure, after _copy_media_files()
-	 * @param  array $options    render_book()'s options
+	 * @param  array $book_data  Full normalized structure, after _bundle_media_item()
+	 * @param  array $options    The job's options
 	 * @return array
 	 */
 	private function _map_usage($book_data, array $options) {
@@ -2653,7 +3143,7 @@ class Static_Export_Model extends MY_Model {
 	 * re-exporting. A script rather than JSON so that it loads over file:// as well.
 	 *
 	 * @param  string $tmp_dir
-	 * @param  array  $options  render_book()'s options
+	 * @param  array  $options  The job's options
 	 * @param  array  &$errors
 	 * @return bool
 	 */
@@ -2708,11 +3198,11 @@ class Static_Export_Model extends MY_Model {
 	 * able to confirm that an item they are worried about *did* come across. 'counts' carries
 	 * the summary for anyone who only wants the shape of the problem.
 	 *
-	 * Called after _copy_media_files(), which is what fills 'localPath' and records the
-	 * failures this reads back out of $errors.
+	 * Called after the media phase (_bundle_media_item()), which is what fills 'localPath' and
+	 * records the failures this reads back out of $errors.
 	 *
-	 * @param  array $book_data  Full normalized structure, after _copy_media_files()
-	 * @param  array $errors     render_book()'s errors, keyed 'media:<slug>' for copy failures
+	 * @param  array $book_data  Full normalized structure, after _bundle_media_item()
+	 * @param  array $errors     The job's errors, keyed 'media:<slug>' for copy failures
 	 * @return array             ['counts' => [...], 'items' => [...], 'images' => [...]]
 	 */
 	private function _media_usage($book_data, array $errors) {
@@ -2988,13 +3478,13 @@ class Static_Export_Model extends MY_Model {
 	 * @param  array  $book_data
 	 * @param  array  $maps      _map_usage()
 	 * @param  array  $media     _media_usage()
-	 * @param  array  $options   render_book()'s options
+	 * @param  array  $options   The job's options
 	 * @param  array  &$errors
 	 * @return bool
 	 */
 	private function _write_readme($tmp_dir, $book_data, array $maps, array $media, array $options, &$errors) {
 
-		// Whether the sitemap was written — the same condition render_book() applies.
+		// Whether the sitemap was written — the same condition _unit_site() applies.
 		$options_seo = !empty($options['searchEngines']) && !empty($options['siteUrl']);
 
 		$title  = trim(html_entity_decode(strip_tags($book_data['meta']['title']), ENT_QUOTES, 'UTF-8'));
@@ -3149,7 +3639,7 @@ class Static_Export_Model extends MY_Model {
 	 *
 	 * @param  string $tmp_dir
 	 * @param  array  $book_data
-	 * @param  array  $options    render_book()'s options; 'siteUrl' used when present
+	 * @param  array  $options    The job's options; 'siteUrl' used when present
 	 * @param  array  &$errors
 	 * @return bool
 	 */
@@ -3219,7 +3709,7 @@ class Static_Export_Model extends MY_Model {
 	 *
 	 * @param  string $tmp_dir
 	 * @param  array  $book_data
-	 * @param  array  $rendered   Slugs render_book() actually wrote
+	 * @param  array  $rendered   Slugs the job actually wrote
 	 * @param  array  $options    Needs 'siteUrl'
 	 * @param  array  &$errors
 	 * @return bool
@@ -3377,7 +3867,7 @@ class Static_Export_Model extends MY_Model {
 	 * main.js's scheme detection logic runs (which breaks on relative paths).
 	 *
 	 * @param  string $tmp_dir  Absolute path to the export temp directory (no trailing slash)
-	 * @param  array  &$errors  Errors array from render_book(); populated on failure
+	 * @param  array  &$errors  The job's errors array; populated on failure
 	 * @return int              Number of files successfully copied
 	 */
 	private function _copy_assets($tmp_dir, &$errors) {
@@ -3472,26 +3962,29 @@ class Static_Export_Model extends MY_Model {
 	}
 
 	/**
-	 * Total bytes of every file under $dir. Used for the tile pyramids, which _copy_dir()
-	 * counts but does not weigh, and whose size is the whole reason the export warns about
-	 * bundled media at all.
+	 * How many files are under $dir and how many bytes they come to, leaving out .php files as
+	 * the archive does. Used for the tile pyramids, whose size is the whole reason the export
+	 * warns about bundled media at all.
 	 *
 	 * @param  string $dir
-	 * @return int
+	 * @return array  [files, bytes]
 	 */
-	private static function _dir_size($dir) {
+	private static function _dir_stats($dir) {
 
-		if (!is_dir($dir)) return 0;
+		if (!is_dir($dir)) return array(0, 0);
 
+		$files = 0;
 		$bytes = 0;
 		$it = new RecursiveIteratorIterator(
 			new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS)
 		);
 		foreach ($it as $file) {
-			if ($file->isFile()) $bytes += $file->getSize();
+			if (!$file->isFile() || strtolower($file->getExtension()) === 'php') continue;
+			$files++;
+			$bytes += $file->getSize();
 		}
 
-		return $bytes;
+		return array($files, $bytes);
 
 	}
 

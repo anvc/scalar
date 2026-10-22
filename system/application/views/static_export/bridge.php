@@ -106,7 +106,7 @@
         }
 
         // If it has a known static extension, pass through (real file fetch). This is also
-        // what keeps media that stayed on the original server loading: _copy_media_files()
+        // what keeps media that stayed on the original server loading: _bundle_media_item()
         // bundles what it can and leaves the rest as absolute URLs under the book URL, which
         // the clause above would otherwise have captured.
         var ext = path.split('.').pop().toLowerCase();
@@ -2525,7 +2525,7 @@
          * The dialog itself needs no patching — ScalarComments.formatComments() builds the list
          * from getRelations('comment', 'incoming'), and the export now bakes those relations,
          * each comment's text as sioc:content and its author as a foaf:Person node (see
-         * _build_comments() in static_export_model.php). What can't survive the move off a
+         * _build_comment() in static_export_model.php). What can't survive the move off a
          * live server is the other half of the dialog: setupCommentForm() renders a form that
          * posts a new comment, and before it can even show the form it POSTs to
          * <parent_uri>login_status to find out who the reader is. That request is one the

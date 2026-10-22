@@ -2,9 +2,9 @@
 /**
  * Static export page template — plain layout.
  *
- * Variables provided by render_book():
+ * Variables provided by Static_Export_Model::_render_content_view():
  *   $page        array  — one entry from book_data['pages'] or ['media']
- *   $book_data   array  — full normalized book structure (see get_book_data())
+ *   $book_data   array  — full normalized book structure (see Static_Export_Model::job_create())
  *   $asset_root  string — relative path from this page's directory to the export root
  *                         e.g. '../' for slug pages, './' for the root index
  *   $book_url    string — live Scalar base URI for this book, trailing slash included
@@ -191,7 +191,7 @@ elseif ($is_current_media)                    { $primary_role = 'Media'; }
 else                                          { $primary_role = 'Composite'; }
 
 // Where one of an item's auxiliary images (thumbnail, banner, background) lives as seen from
-// this page: the bundled copy when _copy_media_files() made one, otherwise the live absolute
+// this page: the bundled copy when _bundle_media_item() made one, otherwise the live absolute
 // URL so the image degrades to a remote fetch instead of a broken link. Mirrors
 // _aux_image_href() in static_export_model.php, which does the same job for the .meta pages.
 $aux_image_href = function ($item, $field) use ($asset_root) {
@@ -495,6 +495,28 @@ if (empty($namespaces)) $namespaces = array(
 <?php endif; ?>
 <?php if ($is_lens_browser): ?>
 <script src="<?= $assets ?>views/melons/cantaloupe/js/scalarlensmanager.jquery.js"></script>
+<?php endif; ?>
+<?php
+// The author's custom CSS and JavaScript — the book's, then this page's — written raw and last
+// in <head>, exactly as the live wrapper.php does, so code written against the live site (a
+// $('body').bind('pageLoadComplete', …), say) finds jQuery and Scalar's scripts already loaded.
+// Any links it hard-codes still point wherever the author pointed them.
+$custom_style  = trim((isset($meta['customStyle']) ? $meta['customStyle'] : '') . "\n"
+                    . (isset($page['customStyle']) ? $page['customStyle'] : ''));
+$custom_script = trim((isset($meta['customScript']) ? $meta['customScript'] : '') . "\n"
+                    . (isset($page['customScript']) ? $page['customScript'] : ''));
+?>
+<?php if ('' !== $custom_style): ?>
+<style>
+<?= $custom_style ?>
+
+</style>
+<?php endif; ?>
+<?php if ('' !== $custom_script): ?>
+<script>
+<?= $custom_script ?>
+
+</script>
 <?php endif; ?>
 </head>
 <?php

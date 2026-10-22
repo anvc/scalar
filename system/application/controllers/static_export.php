@@ -21,18 +21,33 @@
 /**
  * @projectDescription  Controller for exporting a Scalar book as a self-contained static website.
  *                      Routed via: $route['(.*)/static_export'] = "static_export/index"
- *                                  $route['(.*)/static_export/check'] = "static_export/check"
- *                      URL pattern: /<book-slug>/static_export
- *                                   /<book-slug>/static_export/check
+ *                                  $route['(.*)/static_export/(check|start|step|download)'] = "static_export/$2"
+ *                      URL pattern: /<book-slug>/static_export[/check|/start|/step|/download]
+ *
+ * The Utilities tab exports in short requests, because a server can stop any one request after
+ * a fixed time — PHP-FPM's request_terminate_timeout, for one, kills it outright, and on
+ * scalar.usc.edu that is 30 seconds — and a big book takes far longer than that to export.
+ * start creates an export job, step advances it (repeatedly, each call stopping before
+ * static_export_step_seconds are up), and download sends the finished ZIP. See
+ * Static_Export_Model::job_step() for what a job is.
+ *
+ * index still exports in one request, for curl and ?debug=1, and for anyone whose server's
+ * limits allow it.
  */
 
 class Static_Export extends MY_Controller {
 
+	/** Seconds a step may spend before stopping, unless static_export_step_seconds says otherwise. */
+	const DEFAULT_STEP_SECONDS = 20;
+
+	/** Jobs untouched for this long are deleted when the next export starts (24 hours). */
+	const JOB_MAX_AGE = 86400;
+
 	/**
-	 * Set while answering ?debug=1, which reports the temp directory it built and so must not
+	 * Set while answering ?debug=1, which reports the job directory it built and so must not
 	 * then delete it. Read by _cleanup() on shutdown.
 	 */
-	private $keep_tmp_dir = false;
+	private $keep_job_dir = false;
 
 	public function __construct() {
 
@@ -50,137 +65,220 @@ class Static_Export extends MY_Controller {
 	}
 
 	/**
-	 * Build the export. Accepts GET, or POST from the Utilities tab, which asks the author how
-	 * the site should be built (see check()) and posts the answers: maps_provider ('google' or
-	 * 'leaflet') and google_maps_key for a book that draws maps, and search_engines plus
-	 * site_url for whether to write a sitemap.
+	 * Build the whole export in this one request and send it. Accepts GET, or POST with the
+	 * same fields as start(). ?debug=1 answers with what was built instead of the file, and
+	 * leaves the job directory in place so there is something to go and look at.
 	 */
 	public function index() {
 
 		$this->_require_author();
 
-		if (!class_exists('ZipArchive')) {
-			return $this->_fail(500, 'This Scalar installation is missing PHP\'s zip extension, so the '
-			                       . 'export cannot be packaged for download. Ask whoever administers the '
-			                       . 'server to enable ext-zip.');
-		}
-
-		// A big book takes a while to render and the result is streamed, not buffered, so the
-		// usual script limits are the wrong shape here.
 		@set_time_limit(0);
 		ignore_user_abort(true);
 
-		$this->load->model('static_export_model', 'static_export_model');
-		$book_data = $this->static_export_model->get_book_data($this->data['book']->book_id);
+		$job_dir = $this->_create_job();
+		register_shutdown_function(array($this, '_cleanup'), $job_dir);
 
-		$slug    = $this->data['book']->slug;
-		$stem    = sys_get_temp_dir() . '/scalar_export_' . $slug . '_' . time();
-		$tmp_dir = $stem;
-		$zip_path = $stem . '.zip';
+		$progress = $this->static_export_model->job_step($job_dir, INF);
+		if ($progress['failed']) return $this->_fail(500, $progress['failed']);
 
-		if (!mkdir($tmp_dir, 0755, true)) {
-			return $this->_fail(500, 'Could not create a temporary directory for the export: ' . $tmp_dir);
-		}
+		$job = $this->static_export_model->job_load($job_dir);
 
-		// Registered before anything can fail, so the temp tree is cleaned up however this
-		// request ends — including a fatal error mid-render, or the reader cancelling the
-		// download (which is why ignore_user_abort is on: the cleanup still needs to run).
-		register_shutdown_function(array($this, '_cleanup'), $tmp_dir, $zip_path);
-
-		$result = $this->static_export_model->render_book($book_data, $tmp_dir, $this->_export_options());
-
-		// ?debug=1 answers with what was built instead of the file — what this endpoint used to
-		// do always, and still the quickest way to see what a book produced without unzipping.
-		// The temp directory is left in place so there is something to go and look at; it is
-		// the one path that doesn't clean up after itself.
 		if ($this->input->get('debug')) {
-			$this->keep_tmp_dir = true;
-			header('Content-Type: application/json');
-			echo json_encode(array(
-				'tmp_dir'   => $tmp_dir,
-				'rendered'  => $result['rendered'],
-				'skipped'   => $result['skipped'],
-				'errors'    => $result['errors'],
-				'dataBytes' => $result['dataBytes'],
-				'maps'      => $result['maps'],
-			), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-			exit;
+			$this->keep_job_dir = true;
+			return $this->_debug($job_dir, $job);
 		}
 
-		if (empty($result['rendered'])) {
-			return $this->_fail(500, 'The export produced no pages. ' . $this->_error_summary($result['errors']));
+		if (empty($job['rendered'])) {
+			return $this->_fail(500, 'The export produced no pages. ' . $this->_error_summary($job['errors']));
 		}
 
-		if (!$this->_zip_dir($tmp_dir, $zip_path, $slug)) {
-			return $this->_fail(500, 'The site was built but could not be packaged into a ZIP file.');
-		}
-
-		$this->_stream_zip($zip_path, $slug . '-static-site.zip', $this->input->post('download_token'));
+		$this->_stream_zip($this->static_export_model->job_zip_path($job_dir, $job), $job['slug'] . '-static-site.zip');
 
 	}
 
 	/**
-	 * Pack $dir into $zip_path, with everything under a single top-level folder named $folder so
-	 * that unzipping yields one directory rather than scattering a few thousand files into
-	 * whatever the reader had open. That folder is what the export's README means by
-	 * "upload the whole folder".
+	 * Start an export. POSTed by the Utilities tab, which asks the author how the site should
+	 * be built (see check()) and sends the answers: maps_provider ('google' or 'leaflet') and
+	 * google_maps_key for a book that draws maps, and search_engines plus site_url for whether
+	 * to write a sitemap. Answers JSON: {job: <id>} for step() and download().
 	 *
-	 * @param  string $dir
-	 * @param  string $zip_path
-	 * @param  string $folder    Top-level directory name inside the archive
-	 * @return bool
+	 * Starting an export deletes any other export of the same book, finished or not — so two
+	 * tabs can't fill the server with copies of one book — and any export left untouched for a
+	 * day.
 	 */
-	private function _zip_dir($dir, $zip_path, $folder) {
+	public function start() {
 
-		$zip = new ZipArchive();
-		if (true !== $zip->open($zip_path, ZipArchive::CREATE | ZipArchive::OVERWRITE)) return false;
+		$this->_require_author();
 
-		$dir = rtrim($dir, '/');
-		$it  = new RecursiveIteratorIterator(
-			new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS),
-			RecursiveIteratorIterator::SELF_FIRST
-		);
+		$job_dir = $this->_create_job();
+		$this->_json(array('job' => substr(basename($job_dir), strrpos(basename($job_dir), '_') + 1)));
 
-		foreach ($it as $item) {
-			$local = $folder . '/' . str_replace(DIRECTORY_SEPARATOR, '/', $it->getSubPathName());
-			if ($item->isDir()) {
-				$zip->addEmptyDir($local);
-			} else {
-				$zip->addFile($item->getPathname(), $local);
+	}
+
+	/**
+	 * Advance an export by as much as fits in static_export_step_seconds, and answer JSON
+	 * saying how far along it is (see Static_Export_Model::_progress()), or {busy: true} if
+	 * another request is advancing it right now — a step the browser gave up on, still
+	 * running — in which case the tab should wait a moment and ask again.
+	 *
+	 * Runs on even if the browser goes away, so the job's state is always saved.
+	 */
+	public function step() {
+
+		$this->_require_author();
+
+		$job_dir = $this->_job_dir_from_request(true);
+
+		@set_time_limit(0);
+		ignore_user_abort(true);
+
+		$lock = fopen($job_dir . '/lock', 'c');
+		if (false === $lock || !flock($lock, LOCK_EX | LOCK_NB)) return $this->_json(array('busy' => true));
+
+		// Measured from when the request arrived, so the budget covers Scalar's own start-up.
+		$seconds  = (float) $this->config->item('static_export_step_seconds');
+		$started  = isset($_SERVER['REQUEST_TIME_FLOAT']) ? $_SERVER['REQUEST_TIME_FLOAT'] : microtime(true);
+		$deadline = $started + ($seconds > 0 ? $seconds : self::DEFAULT_STEP_SECONDS);
+
+		$this->_json($this->static_export_model->job_step($job_dir, $deadline));
+
+	}
+
+	/**
+	 * Send a finished export's ZIP, then delete the job. GET, with ?job=<id>. ?debug=1 answers
+	 * with what was built instead, as index() does, and keeps the job.
+	 *
+	 * The job is only deleted once the whole file has gone, so a download that breaks off can
+	 * be tried again; one never fetched goes when the next export starts, or after a day.
+	 */
+	public function download() {
+
+		$this->_require_author();
+
+		$job_dir = $this->_job_dir_from_request(false);
+		$job     = $this->static_export_model->job_load($job_dir);
+
+		if (!$job['finished']) {
+			return $this->_fail(409, 'This export hasn\'t finished yet.');
+		}
+
+		if ($this->input->get('debug')) return $this->_debug($job_dir, $job);
+
+		ignore_user_abort(true);
+		$sent = $this->_stream_zip($this->static_export_model->job_zip_path($job_dir, $job), $job['slug'] . '-static-site.zip', false);
+		if ($sent) $this->_cleanup($job_dir);
+		exit;
+
+	}
+
+	/**
+	 * Create a job for this book with the author's answers, after clearing away this book's
+	 * other jobs and anyone's stale ones. Fails the request if it can't.
+	 *
+	 * @return string The job directory
+	 */
+	private function _create_job() {
+
+		$this->load->model('static_export_model', 'static_export_model');
+
+		$book_id = (int) $this->data['book']->book_id;
+		$this->_sweep_jobs($book_id);
+
+		$job_dir = self::_job_dir($book_id, bin2hex(random_bytes(12)));
+		if (!mkdir($job_dir, 0755, true)) {
+			return $this->_fail(500, 'Could not create a temporary directory for the export: ' . $job_dir);
+		}
+
+		$ok = $this->static_export_model->job_create($job_dir, $this->data['book'],
+			$this->data['login']->user_id, $this->_export_options());
+		if (!$ok) {
+			$this->_delete_dir($job_dir);
+			return $this->_fail(500, 'Could not start the export: the temporary directory isn\'t writable.');
+		}
+
+		return $job_dir;
+
+	}
+
+	/**
+	 * The job named by the request's 'job' parameter, if it exists and belongs to this book and
+	 * this user. Fails the request otherwise — with JSON for step(), whose caller is a script,
+	 * and plain text for download(), whose caller is a person.
+	 *
+	 * @param  bool   $json
+	 * @return string The job directory
+	 */
+	private function _job_dir_from_request($json) {
+
+		$this->load->model('static_export_model', 'static_export_model');
+
+		$id  = (string) $this->input->get_post('job');
+		$job = null;
+		if (preg_match('/^[a-f0-9]{24}$/', $id)) {
+			$job_dir = self::_job_dir($this->data['book']->book_id, $id);
+			$job     = $this->static_export_model->job_load($job_dir);
+		}
+
+		if (null === $job) {
+			$message = 'This export has expired or was replaced by a newer one. Please start it again.';
+			return $json ? $this->_json(array('failed' => $message)) : $this->_fail(404, $message);
+		}
+		if ((int) $job['bookId'] !== (int) $this->data['book']->book_id
+		 || (int) $job['userId'] !== (int) $this->data['login']->user_id) {
+			return $json ? $this->_json(array('failed' => 'This export belongs to someone else.')) : $this->no_permissions();
+		}
+
+		return $job_dir;
+
+	}
+
+	/**
+	 * Where a job lives: the server's temp directory, named for the book so that _sweep_jobs()
+	 * can find a book's jobs without opening them.
+	 */
+	private static function _job_dir($book_id, $id) {
+
+		return rtrim(sys_get_temp_dir(), '/') . '/scalar_export_' . (int) $book_id . '_' . $id;
+
+	}
+
+	/**
+	 * Delete $book_id's jobs, and every job not touched in JOB_MAX_AGE. Matches only the names
+	 * _job_dir() makes, so nothing else in the temp directory is at risk.
+	 */
+	private function _sweep_jobs($book_id) {
+
+		$dirs = glob(rtrim(sys_get_temp_dir(), '/') . '/scalar_export_*_*', GLOB_ONLYDIR);
+		foreach ((array) $dirs as $dir) {
+			if (!preg_match('/^scalar_export_(\d+)_[a-f0-9]{24}$/', basename($dir), $m)) continue;
+			$touched = @filemtime(is_file($dir . '/job.ser') ? $dir . '/job.ser' : $dir);
+			if ((int) $m[1] === (int) $book_id || $touched < time() - self::JOB_MAX_AGE) {
+				$this->_delete_dir($dir);
 			}
 		}
 
-		return $zip->close();
-
 	}
 
 	/**
-	 * Send $path to the browser as a download named $filename, then stop. Read in chunks rather
-	 * than with readfile() so that a multi-gigabyte book doesn't have to fit in memory, and with
-	 * every output buffer torn down first so CodeIgniter's own buffering doesn't do it for us.
+	 * Send $path to the browser as a download named $filename. Read in chunks rather than with
+	 * readfile() so that a multi-gigabyte book doesn't have to fit in memory, and with every
+	 * output buffer torn down first so CodeIgniter's own buffering doesn't do it for us.
 	 *
-	 * $token, if the Utilities tab sent one, comes back as a cookie. A download delivered as an
-	 * attachment leaves the page it was requested from untouched, which is the behaviour we
-	 * want and also means the browser fires no event the tab could listen for — so there is no
-	 * other way for it to know the file is on its way and stop saying "generating". The cookie
-	 * is set here, immediately before the first byte, because by this point the work is done
-	 * and the response is committed. See utils.php, which polls for it.
+	 * This is still one request, so a server's time limit applies to it: a ZIP too big to
+	 * download within that limit is cut off.
 	 *
-	 * @param string      $path
-	 * @param string      $filename
-	 * @param string|null $token     Opaque value to echo back as a cookie
+	 * @param  string $path
+	 * @param  string $filename
+	 * @param  bool   $exit      Stop once sent (_cleanup() then runs on shutdown, if registered)
+	 * @return bool   Whether the whole file reached the browser
 	 */
-	private function _stream_zip($path, $filename, $token = null) {
+	private function _stream_zip($path, $filename, $exit = true) {
 
 		while (ob_get_level()) ob_end_clean();
 
-		// Narrowed to the characters the tab generates, so nothing from the request can get
-		// into a response header.
-		$token = preg_replace('/[^A-Za-z0-9]/', '', (string) $token);
-		if ('' !== $token) {
-			// No HttpOnly: the point of this cookie is that a script can see it.
-			setcookie('scalar_static_export', substr($token, 0, 40), 0, '/');
-		}
+		$fh = fopen($path, 'rb');
+		if (false === $fh) return $this->_fail(500, 'The ZIP file could not be opened for sending.');
 
 		header('Content-Type: application/zip');
 		header('Content-Disposition: attachment; filename="' . str_replace('"', '', $filename) . '"');
@@ -189,39 +287,71 @@ class Static_Export extends MY_Controller {
 		header('Cache-Control: private, no-store');
 		header('Pragma: no-cache');
 
-		$fh = fopen($path, 'rb');
-		if (false === $fh) return $this->_fail(500, 'The ZIP file could not be opened for sending.');
-
-		while (!feof($fh)) {
+		while (!feof($fh) && !connection_aborted()) {
 			echo fread($fh, 1048576);
 			flush();
 		}
+		$sent = feof($fh) && !connection_aborted();
 		fclose($fh);
 
-		exit;   // _cleanup() runs on shutdown
+		if ($exit) exit;
+		return $sent;
 
 	}
 
 	/**
-	 * Remove the export's temp directory and ZIP. Public only because it is registered as a
-	 * shutdown function; nothing else should call it.
+	 * Remove a job directory. Public only because index() registers it as a shutdown function;
+	 * nothing else outside this class should call it.
 	 *
-	 * @param string $tmp_dir
-	 * @param string $zip_path
+	 * @param string $job_dir
 	 */
-	public function _cleanup($tmp_dir, $zip_path) {
+	public function _cleanup($job_dir) {
 
-		if (is_file($zip_path)) @unlink($zip_path);
-		if ($this->keep_tmp_dir || !is_dir($tmp_dir)) return;
+		if ($this->keep_job_dir) return;
+		$this->_delete_dir($job_dir);
+
+	}
+
+	private function _delete_dir($dir) {
+
+		if (!is_dir($dir)) return;
 
 		$it = new RecursiveIteratorIterator(
-			new RecursiveDirectoryIterator($tmp_dir, RecursiveDirectoryIterator::SKIP_DOTS),
+			new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS),
 			RecursiveIteratorIterator::CHILD_FIRST
 		);
 		foreach ($it as $item) {
 			if ($item->isDir()) @rmdir($item->getPathname()); else @unlink($item->getPathname());
 		}
-		@rmdir($tmp_dir);
+		@rmdir($dir);
+
+	}
+
+	/**
+	 * What a job built, as JSON, for ?debug=1 — the quickest way to see what a book produced
+	 * without unzipping. Sets keep_job_dir so the directory survives to be looked at.
+	 */
+	private function _debug($job_dir, array $job) {
+
+		$this->keep_job_dir = true;
+		$this->_json(array(
+			'job_dir'   => $job_dir,
+			'rendered'  => $job['rendered'],
+			'errors'    => $job['errors'],
+			'steps'     => $job['steps'],
+			'dataBytes' => isset($job['result']['dataBytes']) ? $job['result']['dataBytes'] : 0,
+			'maps'      => isset($job['result']['maps']) ? $job['result']['maps'] : null,
+		), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+	}
+
+	private function _json($data, $flags = 0) {
+
+		while (ob_get_level()) ob_end_clean();
+		header('Content-Type: application/json');
+		header('Cache-Control: no-store');
+		echo json_encode($data, $flags);
+		exit;
 
 	}
 
@@ -275,13 +405,10 @@ class Static_Export extends MY_Controller {
 		$this->load->model('static_export_model', 'static_export_model');
 		$defaults = $this->static_export_model->default_map_options();
 
-		header('Content-Type: application/json');
-		header('Cache-Control: no-store');
-		echo json_encode(array(
+		$this->_json(array(
 			'usesMaps'      => $this->static_export_model->uses_maps($this->data['book']->book_id),
 			'googleMapsKey' => $defaults['googleMapsKey'],
 		));
-		exit;
 
 	}
 
@@ -299,9 +426,9 @@ class Static_Export extends MY_Controller {
 	}
 
 	/**
-	 * The site settings for render_book(): this installation's defaults, with the author's
-	 * answers from the export dialog applied. Neither the Google Maps key nor the site address
-	 * is stored anywhere; both are used for this one export.
+	 * The job's site settings: this installation's defaults, with the author's answers from
+	 * the export dialog applied. Neither the Google Maps key nor the site address is stored
+	 * anywhere but the job, which is deleted once its ZIP is downloaded.
 	 */
 	private function _export_options() {
 
