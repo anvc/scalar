@@ -1407,7 +1407,10 @@ class Static_Export_Model extends MY_Model {
 	private function _build_graph($book_data, $book_url) {
 
 		$graph     = array();
-		$all_pages = array_merge($book_data['pages'], $book_data['media']);
+		// A union, not array_merge(): PHP stores a numeric slug ('1740') as an integer key,
+		// and array_merge() renumbers integer keys, which named every such node after its
+		// position instead of its slug. Slugs are unique across pages and media.
+		$all_pages = $book_data['pages'] + $book_data['media'];
 		$book_uri  = rtrim($book_url, '/');
 
 		$uri = function ($v) { return array(array('value' => (string) $v, 'type' => 'uri')); };
@@ -1785,7 +1788,7 @@ class Static_Export_Model extends MY_Model {
 	private function _build_relations($book_data) {
 
 		$relations = array();
-		$all_pages = array_merge($book_data['pages'], $book_data['media']);
+		$all_pages = $book_data['pages'] + $book_data['media'];   // not array_merge(); see _build_graph()
 
 		$add = function ($kind, $urn, $body, $target, $fragment) use (&$relations, $all_pages) {
 			// Skip when either endpoint was not exported — an unpublished or deleted node can
@@ -3956,6 +3959,10 @@ class Static_Export_Model extends MY_Model {
 			$dest_base . 'melons/cantaloupe/js/scalarvisualizations.jquery.js',
 			$errors
 		);
+		$this->_patch_list_vis_js(
+			$dest_base . 'melons/cantaloupe/js/scalarvisualizations.jquery.js',
+			$errors
+		);
 
 		return $file_count;
 
@@ -4139,6 +4146,44 @@ class Static_Export_Model extends MY_Model {
 			$errors['assets:word-cloud-resize-patch'] = 'Could not locate the word cloud\'s draw() guard in scalarvisualizations.jquery.js; the word cloud may render blank in a modal';
 		}
 
+		file_put_contents($path, $content);
+
+	}
+
+	/**
+	 * Patch the vendored copy of scalarvisualizations.jquery.js so the list visualization skips
+	 * nodes that have no version title.
+	 *
+	 * The bridge seeds the whole graph at boot, so the model holds the <book_url>toc node, and
+	 * its dcterms:references to every main-menu page make it a related item of each of them.
+	 * Any list that takes in related items (the Connections vis switched to List, for one)
+	 * then reaches the toc node, which has no version properties: the "Edited By" column
+	 * reads prov:wasAttributedTo[0] off it and throws, leaving the row half built and every
+	 * row after it undrawn, along with the row-selection handler and the column sizing. A
+	 * row with no title has nothing to link to, so the patch skips it rather than guarding
+	 * each column.
+	 *
+	 * @param  string $path    Absolute path to the vendored scalarvisualizations.jquery.js
+	 * @param  array  &$errors Errors array; populated if the patch cannot be applied
+	 */
+	private function _patch_list_vis_js($path, &$errors) {
+
+		if (!file_exists($path)) {
+			$errors['assets:list-vis-patch'] = 'Vendored scalarvisualizations.jquery.js not found';
+			return;
+		}
+
+		$content = file_get_contents($path);
+		$guard   = 'if (!node.current || null == node.current.title) continue;';
+		if (strpos($content, $guard) !== false) return;
+
+		$pattern = '/(\n[ \t]*var node = base\.contentNodes\[j\];?)(\r?\n)/';
+		if (!preg_match($pattern, $content)) {
+			$errors['assets:list-vis-patch'] = 'Could not locate the list visualization\'s row loop in scalarvisualizations.jquery.js; a list that includes the table of contents may stop drawing partway';
+			return;
+		}
+
+		$content = preg_replace($pattern, '$1; ' . $guard . '$2', $content, 1);   // the source line has no semicolon
 		file_put_contents($path, $content);
 
 	}

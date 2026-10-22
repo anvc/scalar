@@ -1370,6 +1370,27 @@
             };
         }
 
+        /* window.open() fix.
+         *
+         * The tree, radial and force-directed visualizations open a node from a d3 click
+         * handler rather than a link —
+         *
+         *     window.open(d.data.node.url, '_blank');
+         *
+         * (scalarvisualizations.jquery.js) — so there is no href for rewriteNodeLinks() to
+         * find, and every click sent the reader to the live book. Routing window.open through
+         * staticHref() catches those and any other caller that opens a node the same way.
+         * URLs that aren't this book's pass through untouched. */
+        var _originalWindowOpen = window.open;
+        window.open = function (url) {
+            var args = Array.prototype.slice.call(arguments);
+            if (typeof url === 'string') {
+                var href = staticHref(url);
+                if (href !== null) args[0] = href;
+            }
+            return _originalWindowOpen.apply(window, args);
+        };
+
         /* Metadata table "View as" row fix.
          *
          * addMetadataTableForNodeToElement() (main.js) builds the table behind the media
