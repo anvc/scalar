@@ -164,13 +164,23 @@ class User_model extends MY_Model {
         // Users still use their e-mail address as their Scalar username when using this authentication method.
         // The LDAP username is assumed to be whatever comes before the '@' sign in the e-mail address.
         $atpos = strpos($email, '@');
+        if ($atpos === false || $atpos === 0 || $atpos === strlen($email) - 1) {
+            return false;
+        }
         $uname = substr($email, 0, $atpos);
+        // Reject alternate domains before looking up the local part: otherwise
+        // a typo could create a separate Scalar account for a valid LDAP user.
+        $email_domain = $this->config->item('ldap_email_domain');
+        if ($email_domain && strcasecmp(substr($email, $atpos + 1), $email_domain) !== 0) {
+            return false;
+        }
 
         $ldap_host = $this->config->item('ldap_server');
         $ldap_port = $this->config->item('ldap_port');
         $basedn = $this->config->item('ldap_basedn');
         $uname_field = $this->config->item('ldap_uname_field');
         $filter = $this->config->item('ldap_filter');
+        $object_class = $this->config->item('ldap_object_class') ?: 'user';
         $use_ad = $this->config->item('use_ad_ldap');
         $set_referrals = $this->config->item('set_ldap_referrals');
         $ad_bind_user = $this->config->item('ad_bind_user');
@@ -180,7 +190,13 @@ class User_model extends MY_Model {
            return false;
         }
 
-        $ldapCon = ldap_connect( $ldap_host, $ldap_port );
+        // PHP 8.3 deprecated separate host and port arguments. Keep an explicit
+        // port in the configured URI, otherwise append the configured LDAP port.
+        if (strpos($ldap_host, '://') === false) {
+            $ldap_host = 'ldap://' . $ldap_host;
+        }
+        $ldap_uri = parse_url($ldap_host, PHP_URL_PORT) ? $ldap_host : rtrim($ldap_host, '/') . ':' . $ldap_port;
+        $ldapCon = ldap_connect($ldap_uri);
         if ( !$ldapCon) {
             throw new Exception("Unable to connect to LDAP server");
         }
@@ -190,7 +206,7 @@ class User_model extends MY_Model {
         if( $set_referrals !== null )
             ldap_set_option($ldapCon, LDAP_OPT_REFERRALS, (int) $set_referrals );
 
-		// attempt to start TLS only if we're not using LDAPS
+        // LDAPS starts encrypted; ldap:// must upgrade with StartTLS before binding.
         if ( strpos( $ldap_host, 'ldaps://' ) !== 0 && ! ldap_start_tls($ldapCon) ) {
             throw new Exception('Unable to start TLS on LDAP connection');
         }
@@ -199,7 +215,9 @@ class User_model extends MY_Model {
             $ldapBind = ldap_bind($ldapCon, $ad_bind_user, $ad_bind_pass);
         }
 
-        $ldapFilter = '(&(objectClass=user)(' . $uname_field . '=' . $uname . ')' . $filter . ')';
+        // Escape filter values derived from input or configuration. The attribute
+        // name and optional filter are trusted administrator-supplied LDAP syntax.
+        $ldapFilter = '(&(objectClass=' . ldap_escape($object_class, '', LDAP_ESCAPE_FILTER) . ')(' . $uname_field . '=' . ldap_escape($uname, '', LDAP_ESCAPE_FILTER) . ')' . $filter . ')';
 
         $ldapSearch = ldap_search($ldapCon, $basedn, $ldapFilter);
 
