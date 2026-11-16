@@ -82,6 +82,21 @@ system/application/config/local_settings.php OR you can set the following enviro
     SCALAR_SMTP_USERNAME
     SCALAR_SMTP_PASSWORD
 
+Optional LDAP authentication:
+
+Set SCALAR_USE_LDAP=true and configure SCALAR_LDAP_SERVER, SCALAR_LDAP_PORT,
+SCALAR_LDAP_BASEDN, SCALAR_LDAP_UNAME_FIELD, and any SCALAR_LDAP_FILTER in
+local_settings.php or the environment. Use an ldap:// URI for StartTLS or an
+ldaps:// URI for LDAPS. The default port is 389; set SCALAR_LDAP_PORT=636 for
+a typical LDAPS server, unless the URI includes a port or your server uses a
+different one. The server certificate must match the hostname and be trusted
+by the PHP LDAP client.
+
+SCALAR_LDAP_EMAIL_DOMAIN optionally restricts login email addresses to one
+domain, without regard to case. Leave it empty to allow any domain.
+SCALAR_LDAP_OBJECT_CLASS selects the directory object class and defaults to
+user. For example, set it to person if that matches your LDAP directory.
+
 Add session encryption key ($config['encryption_key']) and cookie/session variable ($config['cookie_prefix']) at:
 
 system/application/config/config.php OR you can set the following environment variables:

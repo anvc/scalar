@@ -112,11 +112,14 @@ $config['privacy_policy'] = '';
 
 // LDAP authentication settings
 $config['use_ldap'] = getenv('SCALAR_USE_LDAP') ? (getenv('SCALAR_USE_LDAP') === 'true') : false;  // Default: off
-$config['ldap_server'] = (getenv('SCALAR_LDAP_SERVER') ? getenv('SCALAR_LDAP_SERVER') : "ldap://ldap.server.name");  // Use 'ldap://' prefix even if connecting to ldaps
+$config['ldap_server'] = (getenv('SCALAR_LDAP_SERVER') ? getenv('SCALAR_LDAP_SERVER') : "ldap://ldap.server.name");  // Use ldap:// for StartTLS or ldaps:// for LDAPS
 $config['ldap_port'] = (getenv('SCALAR_LDAP_PORT') ? getenv('SCALAR_LDAP_PORT') : 389);
 $config['ldap_basedn'] = (getenv('SCALAR_LDAP_BASEDN') ? getenv('SCALAR_LDAP_BASEDN') : "dc=organization,dc=tld");
 $config['ldap_uname_field'] = (getenv('SCALAR_LDAP_UNAME_FIELD') ? getenv('SCALAR_LDAP_UNAME_FIELD') : "uid");  // Default 'uid', For AD use 'sAMAccountName'
 $config['ldap_filter'] = (getenv('SCALAR_LDAP_FILTER') ? getenv('SCALAR_LDAP_FILTER') : '');
+// Optional: restrict logins to this email domain (case-insensitive).
+$config['ldap_email_domain'] = (getenv('SCALAR_LDAP_EMAIL_DOMAIN') ? getenv('SCALAR_LDAP_EMAIL_DOMAIN') : '');
+$config['ldap_object_class'] = (getenv('SCALAR_LDAP_OBJECT_CLASS') ? getenv('SCALAR_LDAP_OBJECT_CLASS') : 'user');
 
 // Active Directory LDAP settings
 $config['use_ad_ldap'] = getenv('SCALAR_USE_AD_LDAP') ? (getenv('SCALAR_USE_AD_LDAP') === 'true') : false;  // Default: off
