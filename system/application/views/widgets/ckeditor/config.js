@@ -76,6 +76,7 @@ CKEDITOR.editorConfig = function( config ) {
             'codemirror,'+
             'scalarunlink,'+
             'scalar,'+
+            'scalarfootnotes,'+
             'floatingspace,'+
             'stylescombo';
 	config.skin = 'bootstrapck';
@@ -103,6 +104,7 @@ CKEDITOR.editorConfig = function( config ) {
 		{ name: 'clear', items : [ 'RemoveFormat','Unlink' ] },
     { name: 'styles', items: [ 'Styles' ]},
 		{ name: 'formatting', items : [ 'NumberedList','BulletedList','Blockquote','-','SpecialChar','Code','Iframe' ] },
+		{ name: 'footnotes', items: ['scalarfootnotes']},
 		{ name: 'advanced', items : [ 'Scalar1', 'Scalar2', 'Scalar5', 'Scalar10', 'Scalar8', 'Scalar9', 'Scalar6', 'Scalar7' ] },
 		{ name: 'editorial', items:['editorialTools']}
 	];
